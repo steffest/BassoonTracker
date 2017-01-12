@@ -410,8 +410,6 @@ var Tracker = (function(){
 				// this is based on max volume of 64 -> normalize to 100;
 				value = value * 100/64;
 
-
-
 				trackEffects.fade = {
 					value: value,
 					resetOnStep: !!note.sample // volume only needs resettin when the sample number is given, other wise the volue is remembered from the preious state

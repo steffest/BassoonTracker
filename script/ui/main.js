@@ -305,6 +305,7 @@ var UI = (function(){
 
 
 	var render = function(){
+		EventBus.trigger(EVENT.screenRefresh);
 		children.forEach(function(element){
 			if (element.needsRendering) element.render();
 		});

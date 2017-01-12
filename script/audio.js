@@ -35,7 +35,6 @@ var Audio = (function(){
             var sampleBuffer;
             var offset = 0;
             var sampleLength = 0;
-            var PALfrequency = 7093789.2;
 
 
             volume = typeof volume == "undefined" ? (100*sample.volume/64) : volume;
@@ -46,11 +45,10 @@ var Audio = (function(){
                     var centerTune = 8;
                     var tune = 8 + sample.finetune;
                     if (tune>0 && tune<note.tune.length) period = note.tune[tune];
-                    console.error("sample finetune: " + sample.finetune,note);
                 }
 
             }
-            var sampleRate = PALfrequency / (period*2);
+            var sampleRate = PALFREQUENCY / (period*2);
 
 
             //volume = volume * (sample.volume/64);

@@ -25,13 +25,16 @@ var EVENT = {
 	songPositionChange:10,
 	songSpeedChange:11,
 	songBPMChange:12,
-	samplePlay:13
+	samplePlay:13,
+	screenRefresh: 14
 };
 
 var PLAYTYPE = {
 	song:1,
 	pattern:2
 };
+
+var PALFREQUENCY = 7093789.2;
 
 // amiga period table, translates notes to  samplefrequencies
 // first 3*12 are to first octaves (1,2 and 3)

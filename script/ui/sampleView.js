@@ -98,7 +98,6 @@ UI.SampleView = function(x,y,w,h){
 		spinBoxSample.setValue(value,true);
 		var sample = Tracker.getSample(value);
 		if (sample){
-			console.error(sample);
 			sampleName.setValue(sample.name,true);
 			spinBoxVolume.setValue(sample.volume);
 			spinBoxLength.setValue(sample.length);
@@ -121,7 +120,7 @@ UI.SampleView = function(x,y,w,h){
 	EventBus.on(EVENT.samplePlay,function(event,context){
 		if (!me.visible) return;
 		if (context && context.sampleIndex == currentSampleIndex){
-			console.error("playcurrentSample");
+			waveForm.play(context.startPeriod);
 		}
 	});
 
