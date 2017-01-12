@@ -698,13 +698,6 @@ var Tracker = (function(){
 					}
 				}
 
-				//var elm = document.createElement("div");
-				//sample.index = i;
-				//elm.innerHTML = i + " " + sample.name;
-				//elm.sampleIndex = i;
-				//elm.onclick = function(){playSample(this.sampleIndex)};
-				//sampleContainer.appendChild(elm);
-
 				sampleContainer.push({label: i + " " + sample.name, data: i});
 			}
 		}
@@ -733,7 +726,7 @@ var Tracker = (function(){
 
 		me.setCurrentSongPosition(0);
 		me.setCurrentPatternPos(0);
-		me.setCurrentSampleIndex(0);
+		me.setCurrentSampleIndex(1);
 	}
 
 

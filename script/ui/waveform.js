@@ -5,9 +5,9 @@ UI.WaveForm = function(){
 	var currentSample;
 
 	me.setSample = function(sample){
-		currentSample = data;
+		currentSample = sample;
 		if (sample){
-			currentSampleData = currentSampleData.data;
+			currentSampleData = currentSample.data;
 		}else{
 			currentSampleData = undefined;
 		}
