@@ -140,6 +140,9 @@ var UI = (function(){
 			analyser.setParent(window);
 
 			render();
+
+			// load demo mod at startup
+			Tracker.load('demomods/spacedeb.mod');
 		});
 
 		var currentEventTarget;
