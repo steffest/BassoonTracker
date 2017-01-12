@@ -2,7 +2,7 @@
 
 Browser based old-School Amiga Music tracker in plain old javascript.
 
-![Bassoon Tracker](./skin/screenshot.png.png?raw=true)
+![Bassoon Tracker](./skin/screenshot.png?raw=true)
 
 Plays and edits 4-track Amiga Mod files.  
 Live demo at [http://www.stef.be/bassoontracker/](http://www.stef.be/bassoontracker/)
