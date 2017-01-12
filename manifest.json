@@ -1,0 +1,14 @@
+{
+  "name": "Bassoon Tracker",
+  "icons": [
+    {
+      "src": "icon48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "density": 1.0
+    }
+  ],
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait"
+}

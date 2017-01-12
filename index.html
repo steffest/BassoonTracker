@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<style>
+    html,body{
+        height: 100%;
+        overflow: hidden;
+    }
+    body{
+        background-color: black;
+        margin: 0;
+        padding: 0;
+    }
+
+    canvas{
+        margin: auto;
+        display: block;
+    }
+    canvas:focus {
+        outline:none;
+    }
+</style>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width user-scalable=no">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <script src="script/enum.js"></script>
+    <script src="script/eventBus.js"></script>
+    <script src="script/filesystem.js"></script>
+    <script src="script/audio.js"></script>
+    <script src="script/lib/waaclock.js"></script>
+    <script src="script/lib/filesaver.js"></script>
+
+    <script src="script/main.js"></script>
+    <script src="script/tracker.js"></script>
+    <script src="script/preloader.js"></script>
+
+    <script src="script/ui/main.js"></script>
+    <script src="script/ui/assets.js"></script>
+
+    <script src="script/ui/components/element.js"></script>
+    <script src="script/ui/components/panel.js"></script>
+    <script src="script/ui/components/button.js"></script>
+    <script src="script/ui/components/inputbox.js"></script>
+    <script src="script/ui/components/listbox.js?v2"></script>
+    <script src="script/ui/components/radiogroup.js"></script>
+    <script src="script/ui/components/scale9.js"></script>
+    <script src="script/ui/components/bitmapfont.js"></script>
+
+    <script src="script/ui/mainPanel.js"></script>
+    <script src="script/ui/patternView.js"></script>
+    <script src="script/ui/sampleView.js"></script>
+    <script src="script/ui/waveform.js"></script>
+    <script src="script/ui/visualiser.js"></script>
+    <script src="script/ui/spinBox.js"></script>
+    <script src="script/ui/songControl.js"></script>
+    <script src="script/ui/trackControl.js"></script>
+
+</head>
+<body>
+<!--
+<button onclick="load('demomods/lotus20.mod')">lotus2</button>
+<button onclick="load('demomods/lotus10.mod')">lotus1</button>
+<button onclick="load('demomods/StardustMemories.mod')">Stardust Memories</button>
+<button onclick="load('demomods/Monday.mod')">Monday</button>
+<button onclick="load('demomods/sound-of-da-lunatic.mod')">sound-of-da-lunatic.mod</button>
+<button onclick="load('demomods/Tinytune.mod')">Tinytune.mod</button>
+<button onclick="load('demomods/exodus-baum_load.mod')">exodus-baum_load.mod</button>
+<button onclick="load('demomods/toonladder.mod')">toonladder.mod</button>
+<br>
+
+-->
+
+<canvas id="canvas" tabindex='1' moz-opaque></canvas>
+</body>
+</html>
