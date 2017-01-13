@@ -13,6 +13,8 @@ var UI = (function(){
 
 	var resizeTimer = 0;
 
+	var touchData = {};
+
 	me.init = function(){
 		canvas = document.getElementById("canvas");
 		ctx = canvas.getContext("2d");
@@ -163,12 +165,39 @@ var UI = (function(){
 			if (currentEventTarget && currentEventTarget.children && currentEventTarget.children.length){
 				currentEventTarget = currentEventTarget.getElementAtPoint(x,y);
 			}
+			touchData.isDown = true;
+			touchData.startX = x;
+			touchData.startY = y;
 			console.error("final target:",currentEventTarget);
+			if (currentEventTarget && currentEventTarget.onStartDrag){
+				currentEventTarget.onStartDrag(touchData);
+			}
 		});
+
+		canvas.addEventListener("mousemove",function(e){
+			if (touchData.isDown && currentEventTarget){
+				if (currentEventTarget.onDrag){
+
+					var rect = canvas.getBoundingClientRect();
+					var x = e.clientX - rect.left;
+					var y = e.clientY  - rect.top;
+
+					touchData.dragX = x;
+					touchData.dragY = y;
+
+					currentEventTarget.onDrag(touchData);
+				}
+			}
+		});
+
 		canvas.addEventListener("mouseup",function(e){
+			touchData.isDown = false;
 			if (currentEventTarget){
 				if (currentEventTarget.onclick){
 					currentEventTarget.onclick(e);
+				}
+				if (currentEventTarget.onTouchUp){
+					currentEventTarget.onTouchUp(e);
 				}
 			}
 			currentEventTarget = false;

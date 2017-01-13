@@ -4,17 +4,40 @@ UI.WaveForm = function(){
 	var currentSampleData;
 	var currentSample;
 	var isPlaying;
+	var isDraggingRange;
 	var startPlayTime;
 	var sampleRate;
 	var sampleLength;
+	var dragRangeStart;
+	var dragRangeEnd;
 
 	var waveformDisplay = UI.element();
 
+	function isRefreshing(){
+		return isPlaying || isDraggingRange;
+	}
+
 	EventBus.on(EVENT.screenRefresh,function(){
-		if (!isPlaying) return;
+		if (!isRefreshing()) return;
 		if (!me.isVisible()) return;
 		me.refresh();
 	});
+
+	me.onStartDrag = function(touchData){
+		console.error("startDrag",touchData);
+		isDraggingRange = true;
+		dragRangeStart = dragRangeEnd = touchData.startX - me.left;
+	};
+
+	me.onDrag = function(touchData){
+		console.error("drag",touchData);
+		dragRangeEnd = touchData.dragX - me.left;
+	};
+
+	me.onTouchUp = function(touchData){
+		console.error("endDrag",touchData);
+		isDraggingRange = false;
+	};
 
 	me.setSample = function(sample){
 		currentSample = sample;
@@ -90,6 +113,11 @@ UI.WaveForm = function(){
 					me.ctx.fillRect(pos,0,2,me.height);
 				}
 
+			}
+
+			if (isDraggingRange){
+				me.ctx.fillStyle = "rgba(241, 162, 71,0.3)";
+				me.ctx.fillRect(dragRangeStart,0,dragRangeEnd-dragRangeStart,me.height);
 			}
 
 		}
