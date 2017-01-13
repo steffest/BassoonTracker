@@ -372,12 +372,48 @@ var Tracker = (function(){
 					};
 				break;
 			case 5:
-				// Continue 'Slide to note', but also do Volume slide
-				// TODO: implement
-				// the note is a parameter to the effect
-				console.warn("Continue slide and volule slide not implemented");
+				// continue slide to note
 				doPlayNote = false;
+				var target = note.period;
+
+				if (target){
+					trackEffectCache[track].slidePeriod = target;
+				}else{
+					target = trackEffectCache[track].slidePeriod  || 0
+				}
+				value = trackEffectCache[track].slideValue || 1;
+
+				trackEffects.slide = {
+					value: value,
+					target: target
+				};
+				if (note.sample){
+					trackEffects.volume = {
+						value: defaultVolume
+					};
+				}
+
+				// and do volume slide
+				if (note.param < 16){
+					// slide down
+					value = value * -1;
+				}else{
+					// slide up
+					//value = note.param & 0x0f;
+					value = note.param >> 4;
+				}
+
+				// this is based on max volume of 64 -> normalize to 100;
+				value = value * 100/64;
+
+				trackEffects.fade = {
+					value: value,
+					resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, other wise the volue is remembered from the preious state
+				};
+
 				break;
+
+
 			case 6:
 				// Vibrato and volume slide -> map to volumeslide for now until vibrato is implemented
 				if (note.param < 16){
