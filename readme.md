@@ -20,6 +20,8 @@ Missing features
  - not much disk operations yet, you can load new files by drag-dropping them on the interface  
  - "save module" is not working yet.
  - the various "E" effects are not implemented yet  
+ - Arpeggio, Tremolo and Vibrato are not implemented yet
  - no stereo or panning yet
  - the sample editor needs fleshing out.
+ - sample loops behave not the way they should (I unroll them before playing, a poor mans solution for the real thing)
  - the keyboard is mapped to an AZERTY keyboard currently (mappings are defined in enum.js)
