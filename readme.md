@@ -22,3 +22,4 @@ Missing features
  - the various "E" effects are not implemented yet  
  - no stereo or panning yet
  - the sample editor needs fleshing out.
+ - the keyboard is mapped to an AZERTY keyboard currently (mappings are defined in enum.js)
