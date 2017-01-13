@@ -357,12 +357,13 @@ var Tracker = (function(){
 				// TODO: implement
 				console.warn("Vibrato not implemented");
 
-					// reset volume
-					//if (trackNotes[track].startVolume){
-					//	trackEffects.volume = {
-					//		value: volume
-					//	};
-					//}
+					// reset volume if sample number is present
+
+					if (note.sample && trackNotes[track].startVolume){
+						trackEffects.volume = {
+							value: volume
+						};
+					}
 
 					x = value >> 4;
 					y = value & 0x0f;
@@ -733,10 +734,15 @@ var Tracker = (function(){
 				// unroll short loops
 				// web audio loop start/end is in seconds
 				// doesn't work that well with tiny chip tune loops
-				if (sample.loopStart && sample.loopRepeatLength>1){
-					// TODO: pingpong and reverse loops ?
+				// especially when sliding notes
 
-					var loopCount = 40000 / sample.loopRepeatLength;
+				// TODO: implement proper looping
+				if (sample.loopStart && sample.loopRepeatLength>1){
+					// TODO: pingpong and reverse loops ? -> unroll once and append the reversed loop
+
+					var loopCount = Math.ceil(40000 / sample.loopRepeatLength) + 1;
+
+					if (!SETTINGS.unrollLoops) loopCount = 0;
 
 					for (var l=0;l<loopCount;l++){
 						var start = sample.loopStart + 1;
