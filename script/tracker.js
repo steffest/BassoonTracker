@@ -24,7 +24,6 @@ var Tracker = (function(){
 
 	var currentSongPosition = 0;
 
-
 	var trackNotes = [{},{},{},{}];
 	var trackEffectCache = [{},{},{},{}];
 
@@ -34,7 +33,6 @@ var Tracker = (function(){
 	var tickCounter = 0;
 
 	console.error("ticktime: " + tickTime);
-
 
 	me.setCurrentSampleIndex = function(index){
 		currentSample = index;
@@ -145,6 +143,13 @@ var Tracker = (function(){
 
 	me.stop = function(){
 		if (clock) clock.stop();
+
+		for (var i = 0; i<4; i++){
+			if (trackNotes[i].source){
+				trackNotes[i].source.stop();
+			}
+		}
+
 		isPlaying = false;
 		EventBus.trigger(EVENT.playingChange,isPlaying);
 	};
@@ -219,7 +224,6 @@ var Tracker = (function(){
 				if (effects && Object.keys(effects).length){
 
 					if (effects.fade){
-						console.error("fade " + effects.fade.value);
 						var volume = 0;
 						if (tickCounter==0 && effects.fade.resetOnStep){
 							volume = note.startVolume;
@@ -231,9 +235,8 @@ var Tracker = (function(){
 							}
 						}
 
-						console.error(volume);
-
 						if (trackNotes[i].volume) trackNotes[i].volume.gain.value = volume/100;
+						trackNotes[i].currentVolume = volume;
 
 					}
 					if (effects.slide){
@@ -275,12 +278,20 @@ var Tracker = (function(){
 	function playNote(note,track){
 		var defaultVolume = 100;
 
+		var sampleIndex = note.sample;
+
+		if (note.period && !note.sample){
+			// reuse previous Sample (and volume ?)
+			sampleIndex = trackNotes[track].currentSample;
+			defaultVolume = typeof trackNotes[track].currentVolume == "number" ? trackNotes[track].currentVolume : defaultVolume;
+		}
+
 		if (typeof note.sample == "number"){
 			var sample = Tracker.getSample(note.sample);
 			if (sample) defaultVolume = 100 * (sample.volume/64);
 		}
 
-		volume = defaultVolume;
+		var volume = defaultVolume;
 		var trackEffects = {};
 		var doPlayNote = true;
 		var value = note.param;
@@ -313,6 +324,8 @@ var Tracker = (function(){
 				// but the default volume of that note will be set
 				//(not really sure the volume, but stardust memories pattern 5 seems to indicate so)
 
+				// if value == 0 then the old slide will continue
+
 				doPlayNote = false;
 				var target = note.period;
 
@@ -331,9 +344,12 @@ var Tracker = (function(){
 					value: value,
 					target: target
 				};
-				trackEffects.volume = {
-					value: defaultVolume
-				};
+				if (note.sample){
+					trackEffects.volume = {
+						value: defaultVolume
+					};
+				}
+
 
 				break;
 			case 4:
@@ -342,11 +358,11 @@ var Tracker = (function(){
 				console.warn("Vibrato not implemented");
 
 					// reset volume
-					if (trackNotes[track].startVolume){
-						trackEffects.volume = {
-							value: volume
-						};
-					}
+					//if (trackNotes[track].startVolume){
+					//	trackEffects.volume = {
+					//		value: volume
+					//	};
+					//}
 
 					x = value >> 4;
 					y = value & 0x0f;
@@ -403,8 +419,6 @@ var Tracker = (function(){
 					// slide up
 					//value = note.param & 0x0f;
 					value = note.param >> 4;
-
-					console.error("fade slide " + value);
 				}
 
 				// this is based on max volume of 64 -> normalize to 100;
@@ -449,10 +463,10 @@ var Tracker = (function(){
 				break;
 		}
 
-		if (doPlayNote && note.sample && note.period){
+		if (doPlayNote && sampleIndex && note.period){
 			// cut off previous note on the same track;
 			if (trackNotes[track].source) trackNotes[track].source.stop();
-			trackNotes[track] = Audio.playSample(note.sample,note.period,volume,track,trackEffects);
+			trackNotes[track] = Audio.playSample(sampleIndex,note.period,volume,track,trackEffects);
 		}else{
 			if (trackEffects){
 				if (trackNotes[track].source){
@@ -472,6 +486,9 @@ var Tracker = (function(){
 
 		}
 
+		if (note.sample || sampleIndex) {
+			trackNotes[track].currentSample = note.sample || sampleIndex;
+		}
 		trackNotes[track].effects = trackEffects;
 		trackNotes[track].note = note;
 
@@ -520,7 +537,6 @@ var Tracker = (function(){
 	};
 
 	me.putNoteParam = function(pos,value){
-		console.error("putNoteParam",pos,value);
 		var x,y;
 		var note = song.patterns[currentPattern][currentPatternPos][currentTrack];
 		if (note){
@@ -542,7 +558,6 @@ var Tracker = (function(){
 				if (pos == 5) y = value;
 				note.param = (x << 4) + y;
 			}
-			//console.error(note);
 		}
 		song.patterns[currentPattern][currentPatternPos][currentTrack] = note;
 		EventBus.trigger(EVENT.patternChange,currentPattern);

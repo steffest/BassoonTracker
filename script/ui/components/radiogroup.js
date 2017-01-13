@@ -51,9 +51,6 @@ UI.radioGroup = function(x,y,w,h){
 
 			me.clearCanvas();
 
-			console.error("render rgroupe");
-			console.error(items);
-
 			var buttonActive = cachedAssets.images["skin/radio_active.png"];
 			var buttonInactive = cachedAssets.images["skin/radio_inactive.png"];
 

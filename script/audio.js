@@ -59,7 +59,6 @@ var Audio = (function(){
 
                 if (effects && effects.offset && effects.offset.value<sampleLength){
                     offset = effects.offset.value;
-                    console.error("setting sample offset to " + offset);
                     sampleLength -= offset;
                 }
                 sampleBuffer = context.createBuffer(1, sampleLength, sampleRate);
@@ -95,6 +94,7 @@ var Audio = (function(){
                 source: source,
                 volume: volumeGain,
                 startVolume: volume,
+                currentVolume: volume,
                 startPeriod: period,
                 sampleIndex: index
             };
