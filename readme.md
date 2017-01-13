@@ -15,8 +15,10 @@ It needs a modern browser that support WebAudio, works best in Chrome.
 Features  
 - loads, plays and edits Protracker compatible mod files  
 - most audio effects are supported (but probably not 100% accurate)  
+- mute/solo tracks
+- edit pattern data and sample properties
 
-Missing features  
+Missing features and bugs
  - not much disk operations yet, you can load new files by drag-dropping them on the interface  
  - "save module" is not working yet.
  - the various "E" effects are not implemented yet  
