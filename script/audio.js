@@ -1,6 +1,7 @@
 var Audio = (function(){
     var me = {};
 
+    window.AudioContext = window.AudioContext||window.webkitAudioContext;
     var context = new AudioContext();
     var masterVolume;
     var i;
@@ -54,6 +55,8 @@ var Audio = (function(){
             //volume = volume * (sample.volume/64);
 
 
+            var initialPlaybackRate = 1;
+
             if (sample.data.length) {
                 sampleLength = sample.data.length;
 
@@ -61,7 +64,11 @@ var Audio = (function(){
                     offset = effects.offset.value;
                     sampleLength -= offset;
                 }
-                sampleBuffer = context.createBuffer(1, sampleLength, sampleRate);
+                // note - on safari you can't set a different samplerate?
+                sampleBuffer = context.createBuffer(1, sampleLength,context.sampleRate);
+                initialPlaybackRate = sampleRate / context.sampleRate;
+
+
             }else {
                 // empty samples are often used to cut of the previous sample
                 sampleBuffer = context.createBuffer(1, 1, sampleRate);
@@ -79,15 +86,47 @@ var Audio = (function(){
             volumeGain.gain.value = volume/100; // TODO : instrument volume
 
             if (sample.loopStart && sample.loopRepeatLength>1){
-                //source.loop = true;
-                // in seconds ...
-                //source.loopStart = ..
-                //source.loopEnd = ..
+
+                if (!SETTINGS.unrollLoops){
+                    function createLoop(){
+                        var loopLength = sample.loopRepeatLength;
+                        var loopBuffer = context.createBuffer(1, loopLength, sampleRate);
+
+
+                        var loopBuffering = loopBuffer.getChannelData(0);
+                        for(i=0; i < loopLength; i++) {
+                            loopBuffering[i] = sample.data[sample.loopStart + i];
+                        }
+
+                        var loop = context.createBufferSource();
+                        loop.buffer = loopBuffer;
+                        loop.connect(volumeGain);
+                        loop.start(0);
+
+                        loop.onended = function(){
+                            console.error("loop end");
+                            createLoop();
+                        };
+                        return loop;
+                    }
+
+                    //source.loop = true;
+                    // in seconds ...
+                    //source.loopStart = sampleRate
+                    //source.loopEnd = ..
+
+                    source.onended = function() {
+                        console.error("base sample end");
+                        createLoop()
+                    };
+                }
+
             }
 
             source.connect(volumeGain);
             volumeGain.connect(trackVolume[track]);
 
+            source.playbackRate.value = initialPlaybackRate;
             source.start(0);
 
             var result = {
@@ -96,6 +135,7 @@ var Audio = (function(){
                 startVolume: volume,
                 currentVolume: volume,
                 startPeriod: period,
+                startPlaybackRate: initialPlaybackRate,
                 sampleIndex: index
             };
 
@@ -114,3 +154,4 @@ var Audio = (function(){
     return me;
 
 }());
+

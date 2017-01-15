@@ -146,7 +146,12 @@ var Tracker = (function(){
 
 		for (var i = 0; i<4; i++){
 			if (trackNotes[i].source){
-				trackNotes[i].source.stop();
+				try{
+					trackNotes[i].source.stop();
+				}catch (e){
+
+				}
+
 			}
 		}
 
@@ -260,7 +265,12 @@ var Tracker = (function(){
 							trackNotes[i].currentPeriod = period;
 							if (trackNotes[i].source){
 								var rate = (note.startPeriod / period);
-								trackNotes[i].source.playbackRate.value = rate;
+								//trackNotes[i].source.playbackRate.value = rate;
+
+								// note: on safari the playbackrate of the buffer is already != 1 because the samplerate is fixed to the samplerate of the audio context
+
+								trackNotes[i].source.playbackRate.value = trackNotes[i].startPlaybackRate * rate;
+
 							}
 
 						}
@@ -502,7 +512,14 @@ var Tracker = (function(){
 
 		if (doPlayNote && sampleIndex && note.period){
 			// cut off previous note on the same track;
-			if (trackNotes[track].source) trackNotes[track].source.stop();
+			try{
+				if (trackNotes[track].source) {
+					trackNotes[track].source.stop();
+				}
+			}catch (e){
+
+			}
+
 			trackNotes[track] = Audio.playSample(sampleIndex,note.period,volume,track,trackEffects);
 		}else{
 			if (trackEffects){

@@ -36,6 +36,10 @@ var PLAYTYPE = {
 
 var PALFREQUENCY = 7093789.2;
 
+var SETTINGS = {
+	unrollLoops: true
+};
+
 // amiga period table, translates notes to  samplefrequencies
 // first 3*12 are to first octaves (1,2 and 3)
 var periodTable  = [
