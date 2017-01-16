@@ -9,8 +9,8 @@ var Tracker = (function(){
 	var song;
 	var samples = [];
 
-	var currentSample = 1;
-	var prevSample;
+	var currentSampleIndex = 1;
+	var prevSampleIndex;
 	var currentPattern = 0;
 	var prevPattern;
 	var currentPatternPos = 0;
@@ -35,17 +35,17 @@ var Tracker = (function(){
 	console.error("ticktime: " + tickTime);
 
 	me.setCurrentSampleIndex = function(index){
-		currentSample = index;
-		if (prevSample!=currentSample) EventBus.trigger(EVENT.sampleChange,currentSample);
-		prevSample = currentSample;
+		currentSampleIndex = index;
+		if (prevSampleIndex!=currentSampleIndex) EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
+		prevSampleIndex = currentSampleIndex;
 	};
 
 	me.getCurrentSampleIndex = function(){
-		return currentSample;
+		return currentSampleIndex;
 	};
 
 	me.getCurrentSample = function(){
-		return samples[currentSample];
+		return samples[currentSampleIndex];
 	};
 
 	me.setCurrentPattern = function(index){
@@ -633,152 +633,173 @@ var Tracker = (function(){
 
 			var reader = new FileReader();
 			reader.onload = function(){
-				me.parse(reader.result);
+				me.parse(reader.result,file.name);
 			};
 			reader.readAsArrayBuffer(file);
 		}
 	};
 
-	me.parse = function(arrayBuffer){
-		song = {
-			patterns:[]
-		};
+	me.parse = function(arrayBuffer,name){
 
-		console.log("loaded");
-		window.bin = arrayBuffer;
+		var isMod = false;
+		var length = arrayBuffer.byteLength;
 		var file = new BinaryStream(arrayBuffer,true);
+		var id = "";
 
-		//see https://www.aes.id.au/modformat.html
-
-		var id = file.readString(4,1080); // M.K.
+		if (length>1100){
+			id = file.readString(4,1080); // M.K.
+		}
 		console.log("Format ID: " + id);
-		song.typeId = id;
-		var title = file.readString(20,0);
-		console.log("Title: " + title);
-		song.title = title;
 
-		var sampleDataOffset = 0;
-		for (i = 1; i <= 31; ++i) {
-			var sampleName = file.readString(22);
-			var sampleLength = file.readWord(); // in words
+		if (id == "M.K.") isMod = true;
 
-
-			if (!sampleLength) {
-				samples[i] = undefined;
-				file.jump(6);
-				continue;
-			}
-
-			var sample = {
-				name: sampleName,
-				data: []
+		if (isMod){
+			song = {
+				patterns:[]
 			};
 
-			sample.length = sample.realLen = sampleLength << 1;
-			sample.finetune = file.readUbyte();
-			sample.volume   = file.readUbyte();
-			sample.loopStart     = file.readWord() << 1;
-			sample.loopRepeatLength   = file.readWord() << 1;
-
-			sample.pointer = sampleDataOffset;
-			sampleDataOffset += sample.length;
-			samples[i] = sample;
+			console.log("loaded");
+			window.bin = arrayBuffer;
 
 
-		}
-		song.samples = samples;
+			//see https://www.aes.id.au/modformat.html
 
-		file.goto(950);
-		song.length = file.readUbyte();
-		file.jump(1); // 127 byte
 
-		var patternTable = [];
-		var highestPattern = 0;
-		for (var i = 0; i < 128; ++i) {
-			//patternTable[i] = file.readUbyte() << 8;
-			patternTable[i] = file.readUbyte();
-			if (patternTable[i] > highestPattern) highestPattern = patternTable[i];
-		}
-		song.patternTable = patternTable;
 
-		file.goto(1084);
+			song.typeId = id;
+			var title = file.readString(20,0);
+			console.log("Title: " + title);
+			song.title = title;
 
-		// pattern data
-		var numChannels = 4;
-		var patternLength = 64;
+			var sampleDataOffset = 0;
+			for (i = 1; i <= 31; ++i) {
+				var sampleName = file.readString(22);
+				var sampleLength = file.readWord(); // in words
 
-		for (i = 0; i <= highestPattern; ++i) {
 
-			var patternData = [];
-
-			for (var step = 0; step<patternLength; step++){
-				var row = [];
-				for (var channel = 0; channel < numChannels; channel++){
-					var trackStep = {};
-					var trackStepInfo = file.readUint();
-
-					trackStep.period = (trackStepInfo >> 16) & 0x0fff;
-					trackStep.effect = (trackStepInfo >>  8) & 0x0f;
-					trackStep.sample = (trackStepInfo >> 24) & 0xf0 | (trackStepInfo >> 12) & 0x0f;
-					trackStep.param  = trackStepInfo & 0xff;
-
-					row.push(trackStep);
+				if (!sampleLength) {
+					samples[i] = undefined;
+					file.jump(6);
+					continue;
 				}
-				patternData.push(row);
+
+				var sample = {
+					name: sampleName,
+					data: []
+				};
+
+				sample.length = sample.realLen = sampleLength << 1;
+				sample.finetune = file.readUbyte();
+				sample.volume   = file.readUbyte();
+				sample.loopStart     = file.readWord() << 1;
+				sample.loopRepeatLength   = file.readWord() << 1;
+
+				sample.pointer = sampleDataOffset;
+				sampleDataOffset += sample.length;
+				samples[i] = sample;
+
+
 			}
-			song.patterns.push(patternData);
+			song.samples = samples;
 
-			//file.jump(1024);
-		}
+			file.goto(950);
+			song.length = file.readUbyte();
+			file.jump(1); // 127 byte
 
+			var patternTable = [];
+			var highestPattern = 0;
+			for (var i = 0; i < 128; ++i) {
+				//patternTable[i] = file.readUbyte() << 8;
+				patternTable[i] = file.readUbyte();
+				if (patternTable[i] > highestPattern) highestPattern = patternTable[i];
+			}
+			song.patternTable = patternTable;
 
-		var sampleContainer = [];
+			file.goto(1084);
 
-		for(i=1; i < samples.length; i++) {
-			sample = samples[i];
-			if (sample){
-				console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + " bytes and repeat length of " + sample.loopRepeatLength);
-				//this.samples[i] = ds.readInt8Array(this.inst[i].sampleLength*2);
+			// pattern data
+			var numChannels = 4;
+			var patternLength = 64;
 
-				for (j = 0; j<sample.length; j++){
-					var b = file.readByte();
-					// ignore first 4 bytes
-					if (j>3){
-						sample.data.push(b / 127)
+			for (i = 0; i <= highestPattern; ++i) {
+
+				var patternData = [];
+
+				for (var step = 0; step<patternLength; step++){
+					var row = [];
+					for (var channel = 0; channel < numChannels; channel++){
+						var trackStep = {};
+						var trackStepInfo = file.readUint();
+
+						trackStep.period = (trackStepInfo >> 16) & 0x0fff;
+						trackStep.effect = (trackStepInfo >>  8) & 0x0f;
+						trackStep.sample = (trackStepInfo >> 24) & 0xf0 | (trackStepInfo >> 12) & 0x0f;
+						trackStep.param  = trackStepInfo & 0xff;
+
+						row.push(trackStep);
 					}
+					patternData.push(row);
 				}
+				song.patterns.push(patternData);
 
-				// unroll short loops
-				// web audio loop start/end is in seconds
-				// doesn't work that well with tiny chip tune loops
-				// especially when sliding notes
+				//file.jump(1024);
+			}
 
-				// TODO: implement proper looping
-				if (sample.loopStart && sample.loopRepeatLength>1){
-					// TODO: pingpong and reverse loops ? -> unroll once and append the reversed loop
 
-					var loopCount = Math.ceil(40000 / sample.loopRepeatLength) + 1;
+			var sampleContainer = [];
 
-					if (!SETTINGS.unrollLoops) loopCount = 0;
+			for(i=1; i < samples.length; i++) {
+				sample = samples[i];
+				if (sample){
+					console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + " bytes and repeat length of " + sample.loopRepeatLength);
+					//this.samples[i] = ds.readInt8Array(this.inst[i].sampleLength*2);
 
-					for (var l=0;l<loopCount;l++){
-						var start = sample.loopStart + 1;
-						var end = start + sample.loopRepeatLength;
-						for (j=start; j<end; j++){
-							sample.data.push(sample.data[j]);
+					for (j = 0; j<sample.length; j++){
+						var b = file.readByte();
+						// ignore first 4 bytes
+						if (j>3){
+							sample.data.push(b / 127)
 						}
 					}
+
+					// unroll short loops
+					// web audio loop start/end is in seconds
+					// doesn't work that well with tiny chip tune loops
+					// especially when sliding notes
+
+					// TODO: implement proper looping
+					if (sample.loopStart && sample.loopRepeatLength>1){
+						// TODO: pingpong and reverse loops ? -> unroll once and append the reversed loop
+
+						var loopCount = Math.ceil(40000 / sample.loopRepeatLength) + 1;
+
+						if (!SETTINGS.unrollLoops) loopCount = 0;
+
+						for (var l=0;l<loopCount;l++){
+							var start = sample.loopStart + 1;
+							var end = start + sample.loopRepeatLength;
+							for (j=start; j<end; j++){
+								sample.data.push(sample.data[j]);
+							}
+						}
+					}
+
+					sampleContainer.push({label: i + " " + sample.name, data: i});
 				}
-
-				sampleContainer.push({label: i + " " + sample.name, data: i});
 			}
+			UI.mainPanel.setInstruments(sampleContainer);
+
+			onModuleLoad();
+
+
+			//Audio.playSample(1);
+		}else{
+			// load as sample
+			me.importSameple(file,name);
 		}
-		UI.mainPanel.setInstruments(sampleContainer);
-
-		onModuleLoad();
 
 
-		//Audio.playSample(1);
+
 	};
 
 	me.getSong = function(){
@@ -791,6 +812,38 @@ var Tracker = (function(){
 
 	me.getSample = function(index){
 		return samples[index];
+	};
+
+	me.importSameple = function(file,name){
+		console.log("Reading sample " + name + " with length of " + file.length + " bytes to index " + currentSampleIndex);
+
+		var sample = samples[currentSampleIndex] || {};
+
+		sample.name = name;
+		sample.length = file.length;
+		sample.loopStart = 0;
+		sample.loopRepeatLength = 0;
+		sample.finetune = 0;
+		sample.volume = 100;
+		sample.data = [];
+
+		file.goto(0);
+		for (j = 0; j<sample.length; j++){
+			var b = file.readByte();
+			sample.data.push(b / 127)
+		}
+
+		var instruments = UI.mainPanel.getInstruments();
+		for (var i = 0, len = instruments.length; i<len;i++){
+			if (instruments[i].data == currentSampleIndex){
+				instruments[i].label = currentSampleIndex + " " + name;
+				UI.mainPanel.setInstruments(instruments);
+				break;
+			}
+		}
+
+		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
+
 	};
 
 	function onModuleLoad(){

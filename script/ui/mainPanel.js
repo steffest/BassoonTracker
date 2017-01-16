@@ -465,6 +465,10 @@ UI.MainPanel = function(){
 		listbox.setItems(items);
 	};
 
+	me.getInstruments = function(){
+		return listbox.getItems();
+	};
+
 	me.setPatternTable = function(patternTable){
 		var items = [];
 		for (var i = 0, len = patternTable.length; i<len; i++){
