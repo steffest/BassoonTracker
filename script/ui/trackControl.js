@@ -13,7 +13,7 @@ UI.trackControl = function(x,y,w,h,visible){
         activeImage: cachedAssets.images["skin/solo.png"],
         activeBackground:UI.Assets.buttonDarkGreenActiveScale9
     });
-    buttons.solo.onclick = function(){
+    buttons.solo.onClick = function(){
         buttons.solo.toggleActive();
         if (buttons.mute.isActive) buttons.mute.toggleActive();
         triggerChangeEvent();
@@ -29,7 +29,7 @@ UI.trackControl = function(x,y,w,h,visible){
         activeImage: cachedAssets.images["skin/mute.png"],
         activeBackground:UI.Assets.buttonDarkRedActiveScale9
     });
-    buttons.mute.onclick = function(){
+    buttons.mute.onClick = function(){
         buttons.mute.toggleActive();
         if (buttons.solo.isActive) buttons.solo.toggleActive();
         triggerChangeEvent();
@@ -41,7 +41,7 @@ UI.trackControl = function(x,y,w,h,visible){
     me.addChild(buttons.mute);
 
     buttons.fx = UI.Assets.generate("buttonDark");
-    buttons.fx.onclick = function(){
+    buttons.fx.onClick = function(){
         buttons.fx.toggleActive();
     };
     buttons.fx.setProperties({

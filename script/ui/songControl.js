@@ -16,7 +16,7 @@ UI.songControl = function(x,y,w,h,visible){
         activeImage: cachedAssets.images["skin/play_active_red.png"],
         activeBackground: UI.Assets.buttonDarkRedActiveScale9
     });
-    buttons.play.onclick = function(){
+    buttons.play.onClick = function(){
         buttons.play.toggleActive();
         if (Tracker.isPlaying()){
             Tracker.stop();
@@ -39,7 +39,7 @@ UI.songControl = function(x,y,w,h,visible){
         image: cachedAssets.images["skin/record.png"],
         activeImage: cachedAssets.images["skin/record_active.png"]
     });
-    buttons.record.onclick = function(){
+    buttons.record.onClick = function(){
         Tracker.toggleRecord();
     };
     buttons.record.setProperties({

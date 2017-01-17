@@ -14,6 +14,7 @@ var UI = (function(){
 	var resizeTimer = 0;
 
 	var touchData = {};
+	var focusElement;
 
 	me.init = function(){
 		canvas = document.getElementById("canvas");
@@ -135,7 +136,7 @@ var UI = (function(){
 			window.a = analyser;
 			analyser.connect(Audio.masterVolume);
 			analyser.name = "mainAnalyser";
-			analyser.onclick = function(){
+			analyser.onClick = function(){
 				analyser.nextMode();
 			};
 			children.push(analyser);
@@ -193,8 +194,8 @@ var UI = (function(){
 		canvas.addEventListener("mouseup",function(e){
 			touchData.isDown = false;
 			if (currentEventTarget){
-				if (currentEventTarget.onclick){
-					currentEventTarget.onclick(e);
+				if (currentEventTarget.onClick){
+					currentEventTarget.onClick(e);
 				}
 				if (currentEventTarget.onTouchUp){
 					currentEventTarget.onTouchUp(e);
@@ -207,6 +208,11 @@ var UI = (function(){
 
 			var keyCode = e.keyCode;
 			var key = e.key;
+
+			if (focusElement && focusElement.onKeyDown){
+				var handled = focusElement.onKeyDown(keyCode,e);
+				if (handled) return;
+			}
 
 			if (key && (keyCode>40) && (keyCode<200)){
 				var note = keyboardTable[key];
@@ -355,6 +361,18 @@ var UI = (function(){
 
 	me.showMain = function(){
 		UI.mainPanel.setView("main");
+	};
+
+	me.setFocusElement = function(element){
+		if (focusElement && focusElement.deActivate) focusElement.deActivate();
+		focusElement = element;
+
+		var name = element.name || element.type;
+		if (name) console.log("setting focus to " + name);
+	};
+	me.clearFocusElement = function(){
+		if (focusElement && focusElement.deActivate) focusElement.deActivate();
+		focusElement = undefined;
 	};
 
 	me.children = children;

@@ -100,8 +100,11 @@ function BinaryStream(arrayBuffer, bigEndian){
 
         if ((len += i) > this.length) len = this.length;
 
-        for (; i < len; ++i)
-            text += String.fromCharCode(src.getUint8(i));
+        for (; i < len; ++i){
+            var c = src.getUint8(i);
+            if (c == 0) break;
+            text += String.fromCharCode(c);
+        }
 
         this.index = len;
         return text;

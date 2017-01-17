@@ -34,7 +34,7 @@ UI.panel = function(x,y,w,h){
 		}
 	};
 
-	me.onclick=function(){
+	me.onClick=function(){
 
 	};
 

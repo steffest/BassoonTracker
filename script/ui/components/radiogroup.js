@@ -19,7 +19,7 @@ UI.radioGroup = function(x,y,w,h){
 
 	};
 
-	me.onclick=function(e){
+	me.onClick=function(e){
 		//TODO: make generic
 		if (me.eventY<16){
 			Tracker.setPlayType(PLAYTYPE.song);

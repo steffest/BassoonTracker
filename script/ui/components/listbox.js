@@ -70,7 +70,7 @@ UI.listbox = function(x,y,w,h){
 
     var buttonUp = UI.Assets.generate("button20_20");
     me.addChild(buttonUp);
-    buttonUp.onclick = function(){
+    buttonUp.onClick = function(){
         if (visibleIndex>0){
             visibleIndex--;
         }
@@ -83,7 +83,7 @@ UI.listbox = function(x,y,w,h){
 
     var buttonDown = UI.Assets.generate("button20_20");
     me.addChild(buttonDown);
-    buttonDown.onclick = function(){
+    buttonDown.onClick = function(){
         visibleIndex++;
         if (me.centerSelection) {
             me.setSelectedIndex(visibleIndex);
@@ -99,7 +99,7 @@ UI.listbox = function(x,y,w,h){
         right:3,
         bottom: 3
     });
-    scrollBar.onclick=function(){
+    scrollBar.onClick=function(){
         if (this.eventY<me.height/2){
             if (visibleIndex>0){
                 visibleIndex--;

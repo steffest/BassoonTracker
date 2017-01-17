@@ -835,16 +835,8 @@ var Tracker = (function(){
 			sample.data.push(b / 127)
 		}
 
-		var instruments = UI.mainPanel.getInstruments();
-		for (var i = 0, len = instruments.length; i<len;i++){
-			if (instruments[i].data == currentSampleIndex){
-				instruments[i].label = currentSampleIndex + " " + name;
-				UI.mainPanel.setInstruments(instruments);
-				break;
-			}
-		}
-
 		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
+		EventBus.trigger(EVENT.sampleNameChange,currentSampleIndex);
 
 	};
 

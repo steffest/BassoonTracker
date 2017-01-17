@@ -2,6 +2,9 @@ UI.inputbox = function(initialProperties){
 	var me = UI.element();
 	var properties = ["left","top","width","height","name","type","onChange"];
 	var value = "";
+	var isActive;
+	var isCursorVisible;
+	var cursorPos;
 
 	me.setProperties = function(p){
 
@@ -35,10 +38,18 @@ UI.inputbox = function(initialProperties){
 		if (this.needsRendering){
 			background.render();
 
+			var textX = 0;
 			if (value && fontMed){
-				var textX = 10;
+				textX = 10;
 				var textY = 6;
 				fontMed.write(me.ctx,value,textX,textY,0);
+			}
+
+			if (isCursorVisible){
+				me.ctx.fillStyle = "rgba(255,255,255,0.7)";
+				var charWidth = 9;
+				var cursorX = textX + cursorPos*charWidth + 8;
+				me.ctx.fillRect(cursorX,0,2,me.height);
 			}
 
 		}
@@ -69,6 +80,86 @@ UI.inputbox = function(initialProperties){
 		}else{
 			return undefined;
 		}
+	};
+
+	me.onClick = function(){
+		if (!isActive){
+			me.activate();
+		}
+	};
+
+	me.activate = function(){
+		if (!isActive && value){
+			cursorPos = value.length-1;
+		}
+		isActive = true;
+		UI.setFocusElement(me);
+		pingCursor();
+	};
+
+	me.deActivate = function(){
+		if (isActive){
+			isCursorVisible = false;
+			isActive = false;
+			me.refresh();
+			UI.clearFocusElement()
+		}
+
+	};
+
+	me.onKeyDown = function(keyCode,event){
+		var handled = false;
+
+		switch(keyCode){
+			case 8:// backspace
+				if (value) {
+					value = value.substr(0,cursorPos) + value.substr(cursorPos+1);
+					cursorPos--;
+					if (me.onChange) me.onChange(value);
+				}
+				handled = true;
+				break;
+			case 13:// enter
+				me.deActivate();
+				handled = true;
+				break;
+			case 37:// left
+				if (cursorPos>0) cursorPos--;
+				me.refresh();
+				handled = true;
+				break;
+			case 39:// right
+				if (value) {
+					cursorPos++;
+					cursorPos = Math.min(cursorPos,value.length-1);
+					me.refresh();
+				}
+				handled = true;
+				break;
+			case 46: // delete
+				handled = true;
+				break;
+		}
+
+		if (!handled && keyCode>31){
+			var key = event.key;
+			if (key.length == 1 && key.match(/[a-z0-9\._\-\ #]/i)){
+				value = value.substr(0,cursorPos+1) + key + value.substr(cursorPos+1);
+				if (me.onChange) me.onChange(value);
+				cursorPos++;
+				me.refresh();
+			}
+			handled = true;
+		}
+
+		return handled;
+	};
+
+	var pingCursor = function(){
+		if (!isActive) return;
+		isCursorVisible = !isCursorVisible;
+		me.refresh();
+		setTimeout(pingCursor,200);
 	};
 
 	return me;

@@ -19,7 +19,7 @@ UI.MainPanel = function(){
 		image: cachedAssets.images["skin/logo_grey_70.png"],
 		activeImage: cachedAssets.images["skin/logo_colour_70.png"]
 	});
-	logo.onclick = function(){
+	logo.onClick = function(){
 		console.error("click");
 		logo.toggleActive();
 		console.error(logo.isActive);
@@ -28,7 +28,10 @@ UI.MainPanel = function(){
 
 	//mod name
 	var modNameInputBox = UI.inputbox({
-		name: "modName"
+		name: "modName",
+		onChange: function(value){
+			Tracker.getSong().title = value;
+		}
 	});
 	me.addChild(modNameInputBox);
 
@@ -40,10 +43,8 @@ UI.MainPanel = function(){
 		{label: "item 3", data: 3}
 	]);
 	me.addChild(listbox);
-	listbox.onclick = function(e){
-		console.log(listbox.eventX);
-		console.log(listbox.eventY);
-
+	listbox.onClick = function(e){
+		UI.setFocusElement(listbox);
 		var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 		if (item){
 			Audio.playSample(item.data);
@@ -65,7 +66,7 @@ UI.MainPanel = function(){
 
 	var spPlus = UI.Assets.generate("button20_20");
 	spPlus.setLabel("↑");
-	spPlus.onclick = function(){
+	spPlus.onClick = function(){
 		var index = songlistbox.getSelectedIndex();
 		var pattern = Tracker.getSong().patternTable[index];
 		pattern++;
@@ -76,7 +77,7 @@ UI.MainPanel = function(){
 
 	var spMin = UI.Assets.generate("button20_20");
 	spMin.setLabel("↓");
-	spMin.onclick = function(){
+	spMin.onClick = function(){
 		var index = songlistbox.getSelectedIndex();
 		var pattern = Tracker.getSong().patternTable[index];
 		if (pattern>0) pattern--;
@@ -121,34 +122,34 @@ UI.MainPanel = function(){
 	var buttons = [];
 	var buttonsSide = [];
 	var buttonsInfo=[
-		{label:"Play", onclick:function(){Tracker.playSong()}},
-		{label:"Play Pattern", onclick:function(){Tracker.playPattern()}},
-		{label:"Stop", onclick:function(){Tracker.stop();}},
-		{label:"Save", onclick:function(){Tracker.save();}},
-		//{label:"Record", onclick:function(){Tracker.toggleRecord();}},
-		{label:"Sample Editor", onclick:function(){UI.toggleSampleEditor();}}
+		{label:"Play", onClick:function(){Tracker.playSong()}},
+		{label:"Play Pattern", onClick:function(){Tracker.playPattern()}},
+		{label:"Stop", onClick:function(){Tracker.stop();}},
+		{label:"Save", oncClick:function(){Tracker.save();}},
+		//{label:"Record", onClick:function(){Tracker.toggleRecord();}},
+		{label:"Sample Editor", onClick:function(){UI.toggleSampleEditor();}}
 	];
 
 	for (i = 0;i<buttonsInfo.length;i++){
 		var buttonInfo = buttonsInfo[i];
 		var buttonElm = UI.button();
 		buttonElm.info = buttonInfo;
-		buttonElm.onclick =  buttonInfo.onclick;
+		buttonElm.onClick =  buttonInfo.onClick;
 		buttons[i] = buttonElm;
 		me.addChild(buttonElm);
 	}
 
 
 	var buttonsSideInfo=[
-		{label:"Lotus 2", onclick:function(){Tracker.load('demomods/lotus20.mod')}},
-		{label:"Lotus 1", onclick:function(){Tracker.load('demomods/lotus10.mod')}},
-		{label:"Stardust", onclick:function(){Tracker.load('demomods/StardustMemories.mod')}},
-		{label:"Monday", onclick:function(){Tracker.load('demomods/Monday.mod')}},
-		{label:"Lunatic", onclick:function(){Tracker.load('demomods/sound-of-da-lunatic.mod')}},
-		{label:"Tinytune", onclick:function(){Tracker.load('demomods/Tinytune.mod')}},
-		{label:"Exodus baum", onclick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
-		{label:"Demomusic", onclick:function(){Tracker.load('demomods/demomusic.mod')}},
-		{label:"Space Debris", onclick:function(){Tracker.load('demomods/spacedeb.mod')}}
+		{label:"Lotus 2", onClick:function(){Tracker.load('demomods/lotus20.mod')}},
+		{label:"Lotus 1", onClick:function(){Tracker.load('demomods/lotus10.mod')}},
+		{label:"Stardust", onClick:function(){Tracker.load('demomods/StardustMemories.mod')}},
+		{label:"Monday", onClick:function(){Tracker.load('demomods/Monday.mod')}},
+		{label:"Lunatic", onClick:function(){Tracker.load('demomods/sound-of-da-lunatic.mod')}},
+		{label:"Tinytune", onClick:function(){Tracker.load('demomods/Tinytune.mod')}},
+		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
+		{label:"Demomusic", onClick:function(){Tracker.load('demomods/demomusic.mod')}},
+		{label:"Space Debris", onClick:function(){Tracker.load('demomods/spacedeb.mod')}}
 	];
 
 	var sideButtonPanel = new UI.panel();
@@ -160,7 +161,7 @@ UI.MainPanel = function(){
 		var buttonSideInfo = buttonsSideInfo[i];
 		var buttonElm = UI.button();
 		buttonElm.info = buttonSideInfo;
-		buttonElm.onclick =  buttonSideInfo.onclick;
+		buttonElm.onClick =  buttonSideInfo.onClick;
 		buttonsSide[i] = buttonElm;
 		//me.addChild(buttonElm);
 		sideButtonPanel.addChild(buttonElm);
@@ -197,7 +198,7 @@ UI.MainPanel = function(){
 
 	// events
 	EventBus.on(EVENT.songPropertyChange,function(event,song){
-		modNameInputBox.setValue(song.title);
+		modNameInputBox.setValue(song.title,true);
 	});
 
 	EventBus.on(EVENT.sampleChange,function(event,value){
@@ -241,6 +242,20 @@ UI.MainPanel = function(){
 
 	EventBus.on(EVENT.songBPMChange,function(event,value){
 		spinBoxBmp.setValue(value,true);
+	});
+
+	EventBus.on(EVENT.sampleNameChange,function(event,sampleIndex){
+		var sample = Tracker.getSample(sampleIndex);
+		if (sample){
+			var instruments = me.getInstruments();
+			for (var i = 0, len = instruments.length; i<len;i++){
+				if (instruments[i].data == sampleIndex){
+					instruments[i].label = sampleIndex + " " + sample.name;
+					UI.mainPanel.setInstruments(instruments);
+					break;
+				}
+			}
+		}
 	});
 
 	me.setLayout = function(newX,newY,newW,newH){

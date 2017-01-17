@@ -9,7 +9,14 @@ UI.SampleView = function(x,y,w,h){
 
 	var sampleName = UI.inputbox({
 		name: "sampleName",
-		height: inputboxHeight
+		height: inputboxHeight,
+		onChange: function(value){
+			if (currentSampleIndex){
+				var sample = Tracker.getSample(currentSampleIndex);
+				if (sample) sample.name = value;
+				EventBus.trigger(EVENT.sampleNameChange,currentSampleIndex);
+			}
+		}
 	});
 	me.addChild(sampleName);
 

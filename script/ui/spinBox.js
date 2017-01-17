@@ -27,7 +27,7 @@ UI.spinBox = function(initialProperties){
 	}
 
 	var buttonDown = UI.Assets.generate("button20_20");
-	buttonDown.onclick = function(){
+	buttonDown.onClick = function(){
 		value--;
 		if (value<min) value=min;
 		me.setValue(value);
@@ -39,7 +39,7 @@ UI.spinBox = function(initialProperties){
 	me.addChild(buttonDown);
 
 	var buttonUp = UI.Assets.generate("button20_20");
-	buttonUp.onclick = function(){
+	buttonUp.onClick = function(){
 		value++;
 		if (value>max) value=max;
 		me.setValue(value);
@@ -127,7 +127,6 @@ UI.spinBox = function(initialProperties){
 			}
 
 			me.ctx.drawImage(cachedAssets.images["skin/panel_inset_dark.png"],valueX,valueY,valueW,valueH);
-
 
 			valueX +=4;
 			valueY = 7;
