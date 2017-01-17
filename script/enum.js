@@ -26,7 +26,8 @@ var EVENT = {
 	songSpeedChange:11,
 	songBPMChange:12,
 	samplePlay:13,
-	screenRefresh: 14
+	screenRefresh: 14,
+	songPropertyChange: 15
 };
 
 var PLAYTYPE = {

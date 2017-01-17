@@ -677,11 +677,11 @@ var Tracker = (function(){
 				var sampleLength = file.readWord(); // in words
 
 
-				if (!sampleLength) {
-					samples[i] = undefined;
-					file.jump(6);
-					continue;
-				}
+				//if (!sampleLength) {
+				//	samples[i] = undefined;
+				//	file.jump(6);
+				//	continue;
+				//}
 
 				var sample = {
 					name: sampleName,
@@ -736,6 +736,10 @@ var Tracker = (function(){
 						trackStep.sample = (trackStepInfo >> 24) & 0xf0 | (trackStepInfo >> 12) & 0x0f;
 						trackStep.param  = trackStepInfo & 0xff;
 
+
+						if (trackStep.period && trackStep.period>856) console.error(channel,trackStep);
+
+
 						row.push(trackStep);
 					}
 					patternData.push(row);
@@ -756,8 +760,8 @@ var Tracker = (function(){
 
 					for (j = 0; j<sample.length; j++){
 						var b = file.readByte();
-						// ignore first 4 bytes
-						if (j>3){
+						// ignore first 2 bytes
+						if (j>1){
 							sample.data.push(b / 127)
 						}
 					}
@@ -795,10 +799,8 @@ var Tracker = (function(){
 			//Audio.playSample(1);
 		}else{
 			// load as sample
-			me.importSameple(file,name);
+			me.importSample(file,name);
 		}
-
-
 
 	};
 
@@ -814,7 +816,7 @@ var Tracker = (function(){
 		return samples[index];
 	};
 
-	me.importSameple = function(file,name){
+	me.importSample = function(file,name){
 		console.log("Reading sample " + name + " with length of " + file.length + " bytes to index " + currentSampleIndex);
 
 		var sample = samples[currentSampleIndex] || {};
@@ -846,12 +848,129 @@ var Tracker = (function(){
 
 	};
 
+	me.buildBinary = function(){
+
+		/*
+		  filesize:
+
+		20 + (31*30) + 1 + 1 + 128 + 4
+
+		*/
+
+		// get filesize
+
+		var fileSize = 20 + (31*30) + 1 + 1 + 128 + 4;
+
+		var highestPattern = 0;
+		for (i = 0;i<128;i++){
+			var p = song.patternTable[i] || 0;
+			highestPattern = Math.max(highestPattern,p);
+		}
+
+		fileSize += ((highestPattern+1)*1024);
+
+		samples.forEach(function(sample){
+			if (sample){
+				fileSize += sample.length;
+			}else{
+				 // +4 ?
+			}
+		});
+
+
+		var i;
+		var arrayBuffer = new ArrayBuffer(fileSize);
+		var file = new BinaryStream(arrayBuffer,true);
+
+		// write title
+		file.writeStringSection(song.title,20);
+
+		// write sample data
+		samples.forEach(function(sample){
+			if (sample){
+				file.writeStringSection(sample.name,22);
+				file.writeWord(sample.length >> 1);
+				file.writeUByte(sample.finetune);
+				file.writeUByte(sample.volume);
+				file.writeWord(sample.loopStart >> 1);
+				file.writeWord(sample.loopRepeatLength >> 1);
+			}else{
+				file.clear(30);
+			}
+		});
+
+		file.writeUByte(song.length);
+		file.writeUByte(127);
+
+		// patternPos
+		for (i = 0;i<128;i++){
+			var p = song.patternTable[i] || 0;
+			file.writeUByte(p);
+		}
+		file.writeString("M.K.");
+
+		// pattern Data
+		var numChannels = 4;
+		var patternLength = 64;
+
+		for (i=0;i<=highestPattern;i++){
+
+			// TODO: patternData
+			//file.clear(1024);
+
+			var patternData = song.patterns[i];
+
+			for (var step = 0; step<patternLength; step++){
+				var row = patternData[step];
+				for (var channel = 0; channel < numChannels; channel++){
+					var trackStep = row[channel];
+					var uIndex = 0;
+					var lIndex = trackStep.sample;
+
+					if (lIndex>15){
+						uIndex = 16; // TODO: Why is this 16 and not 1 ? Nobody wanted 255 instruments instead of 31 ?
+						lIndex = trackStep.sample - 16;
+					}
+
+					var v = (uIndex << 24) + (trackStep.period << 16) + (lIndex << 12) + (trackStep.effect << 8) + trackStep.param;
+					file.writeUint(v);
+				}
+			}
+		}
+
+		// sampleData;
+		samples.forEach(function(sample){
+			if (sample && sample.data && sample.length){
+				// should we put repeat info here?
+				file.clear(2);
+				var d;
+				// sample length is in word
+				for (i = 0; i < sample.length-2; i++){
+					d = sample.data[i] || 0;
+					file.writeByte(Math.round(d*127));
+				}
+				console.error("write sample with " + sample.length + " length");
+			}else{
+				// still write 4 bytes?
+			}
+		});
+
+
+		var b = new Blob([file.buffer], {type: "application/octet-stream"});
+		saveAs(b,"test.mod");
+
+
+
+	};
+
 	function onModuleLoad(){
 		UI.mainPanel.setPatternTable(song.patternTable);
 
 		me.setCurrentSongPosition(0);
 		me.setCurrentPatternPos(0);
 		me.setCurrentSampleIndex(1);
+
+		EventBus.trigger(EVENT.songPropertyChange,song);
 	}
 
 

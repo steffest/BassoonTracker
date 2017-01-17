@@ -32,8 +32,7 @@ function BinaryStream(arrayBuffer, bigEndian){
     };
 
     obj.goto = function(value){
-        value = (value < 0) ? 0 : (value > this.length) ? this.length : value;
-        this.index = value;
+        setIndex(value);
     };
 
     obj.jump = function(value){
@@ -41,42 +40,61 @@ function BinaryStream(arrayBuffer, bigEndian){
     };
 
     obj.readByte = function(position){
-        this.index = position || this.index;
+        setIndex(position);
         var b = this.dataView.getInt8(this.index);
         this.index++;
         return b;
     };
 
+    obj.writeByte = function(value,position){
+        setIndex(position);
+        this.dataView.setInt8(this.index,value);
+        this.index++;
+    };
+
     obj.readUbyte = function(position){
-        this.index = position || this.index;
+        setIndex(position);
         var b = this.dataView.getUint8(this.index);
         this.index++;
         return b;
     };
 
+    obj.writeUByte = function(value,position){
+        setIndex(position);
+        this.dataView.setUint8(this.index,value);
+        this.index++;
+    };
+
     obj.readUint = function(position){
-        this.index = position || this.index;
+        setIndex(position);
         var i = this.dataView.getUint32(this.index,this.litteEndian);
         this.index+=4;
         return i;
     };
 
-    obj.readBytes = function(len,position) {
-            var buffer = new Int8Array(len);
-            var i = this.index;
-            var src = this.dataView;
-            if ((len += i) > this.length) len = this.length;
-            var offset = 0;
+    obj.writeUint = function(value,position){
+        setIndex(position);
+        this.dataView.setUint32(this.index,value,this.litteEndian);
+        this.index+=4;
+    };
 
-            for (; i < len; ++i)
-                buffer.setUint8(offset++, src.getUint8(i));
-            this.index = len;
-            return buffer;
-        };
+    obj.readBytes = function(len,position) {
+        setIndex(position);
+        var buffer = new Int8Array(len);
+        var i = this.index;
+        var src = this.dataView;
+        if ((len += i) > this.length) len = this.length;
+        var offset = 0;
+
+        for (; i < len; ++i)
+            buffer.setUint8(offset++, src.getUint8(i));
+        this.index = len;
+        return buffer;
+    };
 
     obj.readString = function(len,position){
-        var i = position || this.index;
-        if(position === 0) i=0;
+        setIndex(position);
+        var i = this.index;
         var src = this.dataView;
         var text = "";
 
@@ -89,13 +107,58 @@ function BinaryStream(arrayBuffer, bigEndian){
         return text;
     };
 
+    obj.writeString = function(value,position){
+        setIndex(position);
+        var src = this.dataView;
+        var len = value.length;
+        for (var i = 0; i < len; i++) src.setUint8(this.index + i,value.charCodeAt(i));
+        this.index += len;
+    };
+
+    obj.writeStringSection = function(value,max,paddValue,position){
+        setIndex(position);
+        max = max || 1;
+        value = value || "";
+        paddValue = paddValue || 0;
+        var len = value.length;
+        if (len>max) value = value.substr(0,max);
+        obj.writeString(value);
+        obj.fill(paddValue,max-len);
+    };
+
     // same as readUshort
     obj.readWord = function(position){
-        this.index = position || this.index;
+        setIndex(position);
         var w = this.dataView.getUint16(this.index, this.litteEndian);
         this.index += 2;
         return w;
     };
+
+    obj.writeWord = function(value,position){
+        setIndex(position);
+        this.dataView.setUint16(this.index,value,this.litteEndian);
+        this.index += 2;
+    };
+
+    obj.clear = function(length){
+        obj.fill(0,length);
+    };
+
+    obj.fill = function(value,length){
+        value = value || 0;
+        length = length || 0;
+        for (var i = 0; i<length; i++){
+            obj.writeByte(value);
+        }
+    };
+
+    function setIndex(value){
+        value = value === 0 ? value : value || obj.index;
+        if (value<0) value = 0;
+        if (value >= obj.length) value = obj.length-1;
+
+        obj.index = value;
+    }
 
     obj.buffer = arrayBuffer;
     obj.dataView = new DataView(arrayBuffer);
@@ -104,20 +167,3 @@ function BinaryStream(arrayBuffer, bigEndian){
     return obj;
 }
 
-/*
-XMPlayer.handleDrop = function(e) {
-    console.log(e);
-    e.preventDefault();
-    var elem = document.getElementById("playercontainer");
-    elem.className = "playercontainer";
-    var files = e.target.files || e.dataTransfer.files;
-    if (files.length < 1) return false;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-        XMPlayer.stop();
-        loadXMAndInit(e.target.result);
-    };
-    reader.readAsArrayBuffer(files[0]);
-    return false;
-};
-    */

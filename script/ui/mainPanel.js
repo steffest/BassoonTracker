@@ -26,6 +26,12 @@ UI.MainPanel = function(){
 	};
 	me.addChild(logo);
 
+	//mod name
+	var modNameInputBox = UI.inputbox({
+		name: "modName"
+	});
+	me.addChild(modNameInputBox);
+
 	// instrument listbox
 	var listbox = UI.listbox();
 	listbox.setItems([
@@ -118,8 +124,8 @@ UI.MainPanel = function(){
 		{label:"Play", onclick:function(){Tracker.playSong()}},
 		{label:"Play Pattern", onclick:function(){Tracker.playPattern()}},
 		{label:"Stop", onclick:function(){Tracker.stop();}},
-		//{label:"Save", onclick:function(){Tracker.save();}},
-		{label:"Record", onclick:function(){Tracker.toggleRecord();}},
+		{label:"Save", onclick:function(){Tracker.save();}},
+		//{label:"Record", onclick:function(){Tracker.toggleRecord();}},
 		{label:"Sample Editor", onclick:function(){UI.toggleSampleEditor();}}
 	];
 
@@ -190,6 +196,10 @@ UI.MainPanel = function(){
 	me.addChild(sampleView);
 
 	// events
+	EventBus.on(EVENT.songPropertyChange,function(event,song){
+		modNameInputBox.setValue(song.title);
+	});
+
 	EventBus.on(EVENT.sampleChange,function(event,value){
 		spinBoxSample.setValue(value,true);
 	});
@@ -272,11 +282,21 @@ UI.MainPanel = function(){
 
 		mainBack.setSize(me.width,me.height);
 
+		var topPanelHeight = me.controlPanelHeight - me.menuHeight - (me.defaultMargin*2);
+		var topPaneltop = me.menuHeight + me.defaultMargin
+
+		modNameInputBox.setProperties({
+			left: me.col4X,
+			width: me.col2W,
+			top: topPaneltop,
+			height: 20
+		});
+
 		listbox.setProperties({
 			left: me.col4X,
 			width: me.col2W,
-			height: me.controlPanelHeight - me.menuHeight - me.defaultMargin - me.defaultMargin,
-			top: me.menuHeight + me.defaultMargin
+			height: topPanelHeight - modNameInputBox.height - me.defaultMargin,
+			top: me.menuHeight + me.defaultMargin + modNameInputBox.height + me.defaultMargin
 		});
 
 		// logo
@@ -285,18 +305,18 @@ UI.MainPanel = function(){
 		logo.setProperties({
 			left: me.col1X,
 			width: logoWidth,
-			height: listbox.height - songPanelHeight - me.defaultMargin,
-			top: listbox.top
+			height: topPanelHeight - songPanelHeight - me.defaultMargin,
+			top: topPaneltop
 		});
 
 
 		// buttons
-		var buttonHeight = Math.floor(listbox.height/5);
+		var buttonHeight = Math.floor(topPanelHeight/5) + 1;
 		for (i = 0;i<buttonsInfo.length;i++){
 			var button = buttons[i];
 			button.setProperties({
 				left:me.col3X,
-				top: listbox.top + (i*buttonHeight),
+				top: modNameInputBox.top + (i*buttonHeight),
 				width: me.col1W,
 				height:buttonHeight,
 				label: button.info.label,
