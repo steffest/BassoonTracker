@@ -13,7 +13,7 @@ if not, then you are probably too young :-)
 It needs a modern browser that support WebAudio, it works best in Chrome.
 
 Features  
-- load, play and edit Protracker compatible module files  
+- load, play, edit and save Protracker compatible module files  
 - most audio effects are supported (but probably not 100% accurate)
   - Frequency slides (Effect 1, 2, 3 and 5)
   - Sample offets (Effect 9)
@@ -24,11 +24,10 @@ Features
 - edit pattern data and sample properties
 
 Missing features and bugs
- - Not much disk operations yet, you can load new files by drag-dropping them on the interface  
- - "save module" is not working yet.
+ - Not much disk operations yet, you can load new modules and samples by drag-dropping them on the interface  
  - The various "E" effects are not implemented yet  
  - Arpeggio, Tremolo and Vibrato are not implemented yet (Effect 0, 4, 6 and 7)
  - No stereo or panning yet
  - The sample editor needs fleshing out.
- - Sample loops behave not the way they should (I unroll them before playing, a poor mans solution for the real thing)
+ - Sample loops don't behave the way they should (I unroll them before playing, a poor mans solution for the real thing)
  - The keyboard is mapped to an AZERTY keyboard currently (mappings are defined in enum.js)
