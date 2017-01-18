@@ -1,8 +1,45 @@
 UI.PatternView = function(x,y,w,h){
 
     var me = UI.panel(x,y,w,h);
+    var visibleLines = 0;
+    var lineHeight = 13;
+    var scrollBarItemOffset = 0;
+    var max = 64;
+
+
+    var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
+        img: cachedAssets.images["skin/bar.png"],
+        left:2,
+        top:2,
+        right:3,
+        bottom: 3
+    });
+
+    scrollBar.onDragStart=function(){
+        if (Tracker.isPlaying()) return;
+        scrollBar.startDragIndex = Tracker.getCurrentPatternPos();
+
+    };
+
+    scrollBar.onDrag=function(touchData){
+        if (Tracker.isPlaying()) return;
+        if (visibleLines && scrollBarItemOffset){
+            var delta =  touchData.dragY - touchData.startY;
+            var pos = Math.floor(scrollBar.startDragIndex + delta/scrollBarItemOffset);
+            pos = Math.min(pos,max-1);
+            pos = Math.max(pos,0);
+            Tracker.setCurrentPatternPos(pos);
+            //setScrollBarPosition();
+        }
+
+
+    };
+
+    me.addChild(scrollBar);
+    setScrollBarPosition();
 
     me.render = function(){
+        setScrollBarPosition();
 
         if (!me.isVisible()) return;
 
@@ -19,9 +56,7 @@ UI.PatternView = function(x,y,w,h){
             var trackY = 0;
             var trackLeft = 0;
 
-            var lineHeight = 13;
-
-            var visibleLines = Math.floor(visibleHeight/lineHeight);
+            visibleLines = Math.floor(visibleHeight/lineHeight);
             if (visibleLines%2== 0) visibleLines--;
 
             var topLines =  Math.ceil(visibleLines/2);
@@ -146,6 +181,9 @@ UI.PatternView = function(x,y,w,h){
                 }
 
             }
+
+            scrollBar.render();
+
         }
         this.needsRendering = false;
 
@@ -166,6 +204,59 @@ UI.PatternView = function(x,y,w,h){
         }
         return h;
     }
+
+    function setScrollBarPosition(){
+        var patternPos = Tracker.getCurrentPatternPos() || 0;
+        if (visibleLines){
+            var startTop = 1;
+            var top = startTop;
+            var startHeight = me.height-2;
+            var height = startHeight;
+            scrollBarItemOffset = 0;
+
+            if (max>1){
+                height = Math.floor((visibleLines / max) * startHeight);
+                if (height<12) height = 12;
+                scrollBarItemOffset = (startHeight - height) / (max-1);
+            }
+
+            if (patternPos && scrollBarItemOffset){
+                top = Math.floor(startTop + scrollBarItemOffset*patternPos);
+            }
+
+            scrollBar.setProperties({
+                left: me.width - 16,
+                top: top,
+                width: 16,
+                height: height
+            });
+        }
+    }
+
+    me.onMouseWheel = function(touchData){
+        if (Tracker.isPlaying()) return;
+        var pos = Tracker.getCurrentPatternPos();
+        if (touchData.mouseWheels[0] > 0){
+            if (pos) Tracker.moveCurrentPatternPos(-1);
+        }else{
+            if (pos<max-1) Tracker.moveCurrentPatternPos(1);
+        }
+    };
+
+    me.onDragStart = function(touchData){
+        if (Tracker.isPlaying()) return;
+        me.startDragPos = Tracker.getCurrentPatternPos();
+    };
+
+    me.onDrag = function(touchData){
+        if (Tracker.isPlaying()) return;
+
+        var delta =  Math.round((touchData.dragY - touchData.startY)/lineHeight);
+        var targetPos = me.startDragPos - delta;
+        targetPos = Math.max(targetPos,0);
+        targetPos = Math.min(targetPos,max-1);
+        Tracker.setCurrentPatternPos(targetPos);
+    };
 
     return me;
 

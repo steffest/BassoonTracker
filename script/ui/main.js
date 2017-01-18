@@ -14,6 +14,8 @@ var UI = (function(){
 	var resizeTimer = 0;
 
 	var touchData = {};
+	touchData.mouseWheels = [];
+
 	var focusElement;
 
 	me.init = function(){
@@ -170,18 +172,20 @@ var UI = (function(){
 			touchData.startX = x;
 			touchData.startY = y;
 			console.error("final target:",currentEventTarget);
-			if (currentEventTarget && currentEventTarget.onStartDrag){
-				currentEventTarget.onStartDrag(touchData);
+			if (currentEventTarget && currentEventTarget.onDragStart){
+				currentEventTarget.onDragStart(touchData);
 			}
 		});
 
 		canvas.addEventListener("mousemove",function(e){
+			var rect = canvas.getBoundingClientRect();
+			var x = e.clientX - rect.left;
+			var y = e.clientY  - rect.top;
+			touchData.currentMouseX = x;
+			touchData.currentMouseY = y;
+
 			if (touchData.isDown && currentEventTarget){
 				if (currentEventTarget.onDrag){
-
-					var rect = canvas.getBoundingClientRect();
-					var x = e.clientX - rect.left;
-					var y = e.clientY  - rect.top;
 
 					touchData.dragX = x;
 					touchData.dragY = y;
@@ -203,6 +207,10 @@ var UI = (function(){
 			}
 			currentEventTarget = false;
 		});
+
+		canvas.addEventListener("mousewheel", handleMouseWheel,false);
+		canvas.addEventListener("DOMMouseScroll", handleMouseWheel,false);
+
 
 		canvas.addEventListener("keydown",function(e){
 
@@ -328,6 +336,42 @@ var UI = (function(){
 			Tracker.handleUpload(files);
 		}
 
+		function handleMouseWheel(event){
+			if (touchData.currentMouseX){
+
+				var x = touchData.currentMouseX;
+				var y = touchData.currentMouseY;
+
+				var target = currentEventTarget;
+				if (!target){
+					for (var i = 0, len = children.length; i<len; i++){
+						var elm = children[i];
+						if (elm.isVisible() && elm.containsPoint(x,y)){
+							target = elm;
+							break;
+						}
+					}
+				}
+				if (target && target.children && target.children.length){
+					target = target.getElementAtPoint(x,y);
+				}
+
+				if (target && target.onMouseWheel){
+
+					var deltaY = event.wheelDeltaY || event.wheelDelta || -event.detail;
+					var deltaX = event.wheelDeltaX || 0;
+
+					touchData.mouseWheels.unshift(deltaY);
+					if (touchData.mouseWheels.length > 10) touchData.mouseWheels.pop();
+
+					target.onMouseWheel(touchData);
+
+					console.error(deltaY,target);
+
+				}
+			}
+		}
+
 
 	};
 
@@ -340,7 +384,6 @@ var UI = (function(){
 			me.mainPanel.setLayout(0,0,newWidth,newHeight);
 		}
 	};
-
 
 	var render = function(){
 		EventBus.trigger(EVENT.screenRefresh);

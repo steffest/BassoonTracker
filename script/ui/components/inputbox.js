@@ -49,7 +49,7 @@ UI.inputbox = function(initialProperties){
 				me.ctx.fillStyle = "rgba(255,255,255,0.7)";
 				var charWidth = 9;
 				var cursorX = textX + cursorPos*charWidth + 8;
-				me.ctx.fillRect(cursorX,0,2,me.height);
+				me.ctx.fillRect(cursorX,4,2,me.height-8);
 			}
 
 		}

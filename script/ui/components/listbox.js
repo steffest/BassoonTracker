@@ -3,11 +3,12 @@ UI.listbox = function(x,y,w,h){
     me.selectedIndex = 0;
     var previousSelectedIndex = 0;
 
-
     var items = [];
     var visibleIndex = 0;
+    var visibleIitems = 0;
     var lineHeight = 18;
     var startY = 10;
+    var scrollBarItemOffset = 0;
     var properties = ["left","top","width","height","name","type","onChange","selectedIndex","centerSelection"];
 
     me.setProperties = function(p){
@@ -19,12 +20,8 @@ UI.listbox = function(x,y,w,h){
         me.setSize(me.width,me.height);
         me.setPosition(me.left,me.top);
         background.setSize(me.width,me.height);
-        scrollBar.setProperties({
-            left: me.width - 18,
-            top: 18,
-            width: 16,
-            height: me.height - 4 - 32
-        });
+
+        setScrollBarPosition();
 
         buttonUp.setProperties({
             left: me.width - 18,
@@ -71,25 +68,13 @@ UI.listbox = function(x,y,w,h){
     var buttonUp = UI.Assets.generate("button20_20");
     me.addChild(buttonUp);
     buttonUp.onClick = function(){
-        if (visibleIndex>0){
-            visibleIndex--;
-        }
-        if (me.centerSelection) {
-            me.setSelectedIndex(visibleIndex);
-        }else{
-            me.refresh();
-        }
+        me.navigateUp();
     };
 
     var buttonDown = UI.Assets.generate("button20_20");
     me.addChild(buttonDown);
     buttonDown.onClick = function(){
-        visibleIndex++;
-        if (me.centerSelection) {
-            me.setSelectedIndex(visibleIndex);
-        }else{
-            me.refresh();
-        }
+        me.navigateDown();
     };
 
     var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
@@ -99,13 +84,45 @@ UI.listbox = function(x,y,w,h){
         right:3,
         bottom: 3
     });
-    scrollBar.onClick=function(){
-        if (this.eventY<me.height/2){
-            if (visibleIndex>0){
-                visibleIndex--;
+
+    scrollBar.onDragStart=function(){
+       scrollBar.startDragIndex = visibleIndex;
+
+    };
+
+    scrollBar.onDrag=function(touchData){
+
+        if (items.length>visibleIitems && scrollBarItemOffset){
+            var delta =  touchData.dragY - touchData.startY;
+            visibleIndex = Math.floor(scrollBar.startDragIndex + delta/scrollBarItemOffset);
+            visibleIndex = Math.min(visibleIndex,items.length-visibleIitems);
+            visibleIndex = Math.max(visibleIndex,0);
+            setScrollBarPosition();
+
+            if (me.centerSelection) {
+                me.setSelectedIndex(visibleIndex);
             }
+        }
+    };
+
+    me.addChild(scrollBar);
+
+    me.navigateUp = function(){
+        if (visibleIndex>0){
+            visibleIndex--;
+            setScrollBarPosition();
+        }
+        if (me.centerSelection) {
+            me.setSelectedIndex(visibleIndex);
         }else{
+            me.refresh();
+        }
+    };
+
+    me.navigateDown = function(){
+        if (visibleIndex<items.length-visibleIitems){
             visibleIndex++;
+            setScrollBarPosition();
         }
 
         if (me.centerSelection) {
@@ -114,8 +131,6 @@ UI.listbox = function(x,y,w,h){
             me.refresh();
         }
     };
-
-    me.addChild(scrollBar);
 
     me.render = function(internal){
         internal = !!internal;
@@ -157,6 +172,7 @@ UI.listbox = function(x,y,w,h){
 
     me.setItems = function(newItems){
         items = newItems;
+        setScrollBarPosition();
         me.refresh();
     };
 
@@ -173,6 +189,61 @@ UI.listbox = function(x,y,w,h){
         }else{
             return undefined;
         }
+    };
+
+    function setScrollBarPosition(){
+        var max = items.length;
+        visibleIitems = Math.floor(me.height/lineHeight);
+
+        var startTop = 18;
+        var top = startTop;
+        var startHeight = me.height - 4 - 32;
+        var height = startHeight;
+        scrollBarItemOffset = 0;
+
+        if (max>visibleIitems){
+            height = Math.floor((visibleIitems / max) * startHeight);
+            if (height<12) height = 12;
+            scrollBarItemOffset = (startHeight - height) / (max-visibleIitems);
+        }
+
+        if (visibleIndex && scrollBarItemOffset){
+            top = Math.floor(startTop + scrollBarItemOffset*visibleIndex);
+        }
+
+        scrollBar.setProperties({
+            left: me.width - 18,
+            top: top,
+            width: 16,
+            height: height
+        });
+    }
+
+
+    me.onMouseWheel = function(touchData){
+        if (touchData.mouseWheels[0] > 0){
+            me.navigateUp();
+        }else{
+            me.navigateDown();
+        }
+    };
+
+    me.onDragStart = function(touchData){
+        me.startDragIndex = visibleIndex;
+    };
+
+    me.onDrag = function(touchData){
+        var delta =  Math.round((touchData.dragY - touchData.startY)/lineHeight);
+        visibleIndex = me.startDragIndex - delta;
+        visibleIndex = Math.max(visibleIndex,0);
+        visibleIndex = Math.min(visibleIndex,items.length-visibleIitems);
+
+        if (me.centerSelection) {
+            me.setSelectedIndex(visibleIndex);
+        }
+
+        setScrollBarPosition();
+
     };
 
     return me;

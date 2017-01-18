@@ -23,7 +23,7 @@ UI.WaveForm = function(){
 		me.refresh();
 	});
 
-	me.onStartDrag = function(touchData){
+	me.onDragStart = function(touchData){
 		console.error("startDrag",touchData);
 		isDraggingRange = true;
 		dragRangeStart = dragRangeEnd = touchData.startX - me.left;
