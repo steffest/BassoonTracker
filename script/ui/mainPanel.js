@@ -147,7 +147,8 @@ UI.MainPanel = function(){
 		{label:"Tinytune", onClick:function(){Tracker.load('demomods/Tinytune.mod')}},
 		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
 		{label:"Demomusic", onClick:function(){Tracker.load('demomods/demomusic.mod')}},
-		{label:"Space Debris", onClick:function(){Tracker.load('demomods/spacedeb.mod')}}
+		{label:"Space Debris", onClick:function(){Tracker.load('demomods/spacedeb.mod')}},
+		{label:"Test", onClick:function(){Tracker.load('demomods/vibrato.mod')}}
 	];
 
 	var sideButtonPanel = new UI.panel();

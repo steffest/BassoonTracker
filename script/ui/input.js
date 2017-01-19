@@ -33,7 +33,7 @@ var Input = (function(){
 		canvas.addEventListener("mousewheel", handleMouseWheel,false);
 		canvas.addEventListener("DOMMouseScroll", handleMouseWheel,false);
 
-		canvas.addEventListener("keydown",handleKeyDown,false);
+		document.addEventListener("keydown",handleKeyDown,false);
 
 		canvas.addEventListener("dragenter", handleDragenter, false);
 		canvas.addEventListener("dragover", handleDragover, false);
@@ -173,6 +173,8 @@ var Input = (function(){
 		}
 
 		function handleKeyDown(event){
+
+			console.error("k d");
 			var keyCode = event.keyCode;
 			var key = event.key;
 
@@ -309,7 +311,7 @@ var Input = (function(){
 			// throttle resize events - resizing is expensive as all the canvas cache needs to be regenerated
 			clearTimeout(resizeTimer);
 			resizeTimer = setTimeout(function(){
-				me.setSize(window.innerWidth,window.innerHeight)
+				UI.setSize(window.innerWidth,window.innerHeight)
 			},100);
 		}
 

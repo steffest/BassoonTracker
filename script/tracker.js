@@ -260,8 +260,8 @@ var Tracker = (function(){
 
 	function processPatterTick(){
 		var tracks = 4;
-		for (var i = 0; i<tracks; i++){
-			var note = trackNotes[i];
+		for (var track = 0; track<tracks; track++){
+			var note = trackNotes[track];
 			if (note){
 				var effects = note.effects;
 				if (effects && Object.keys(effects).length){
@@ -278,8 +278,8 @@ var Tracker = (function(){
 							}
 						}
 
-						if (trackNotes[i].volume) trackNotes[i].volume.gain.value = volume/100;
-						trackNotes[i].currentVolume = volume;
+						if (trackNotes[track].volume) trackNotes[track].volume.gain.value = volume/100;
+						trackNotes[track].currentVolume = volume;
 
 					}
 					if (effects.slide){
@@ -300,14 +300,14 @@ var Tracker = (function(){
 								period += (effects.slide.value);
 							}
 
-							trackNotes[i].currentPeriod = period;
-							if (trackNotes[i].source){
+							trackNotes[track].currentPeriod = period;
+							if (trackNotes[track].source){
 								var rate = (note.startPeriod / period);
 								//trackNotes[i].source.playbackRate.value = rate;
 
 								// note: on safari the playbackrate of the buffer is already != 1 because the samplerate is fixed to the samplerate of the audio context
 
-								trackNotes[i].source.playbackRate.value = trackNotes[i].startPlaybackRate * rate;
+								trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
 
 							}
 
@@ -315,7 +315,22 @@ var Tracker = (function(){
 					}
 
 					if (effects.vibrato){
-						//var period = note.currentPeriod || note.startPeriod;
+						var freq = effects.vibrato.freq;
+						var amp = effects.vibrato.amplitude;
+
+						trackNotes[track].vibratoTimer = trackNotes[track].vibratoTimer||0;
+
+						var periodChange = Math.sin(trackNotes[track].vibratoTimer * freq) * amp;
+
+						var period = note.currentPeriod || note.startPeriod;
+						period += periodChange;
+
+						if (trackNotes[track].source){
+							var rate = (note.startPeriod / period);
+							trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
+						}
+						trackNotes[track].vibratoTimer++;
+
 					}
 				}
 			}
@@ -402,23 +417,29 @@ var Tracker = (function(){
 				break;
 			case 4:
 				// vibrato
-				// TODO: implement
-				console.warn("Vibrato not implemented");
-
-					// reset volume if sample number is present
-
-					if (note.sample && trackNotes[track].startVolume){
+				// reset volume and vibrato timer if sample number is present
+				if (note.sample) {
+					if (trackNotes[track].startVolume) {
 						trackEffects.volume = {
 							value: volume
 						};
 					}
 
-					x = value >> 4;
-					y = value & 0x0f;
+					trackNotes[track].vibratoTimer = 0;
+				}
+
+				x = value >> 4;
+				y = value & 0x0f;
+
+				if (x==0 && y==0 && trackEffectCache[track].vibrato){
+					trackEffects.vibrato = trackEffectCache[track].vibrato;
+				}else{
 					trackEffects.vibrato = {
-						amplitude: y/16,
-						freq: x
+						amplitude: y,
+						freq: (x*ticksPerStep)/64
 					};
+					trackEffectCache[track].vibrato = trackEffects.vibrato;
+				}
 				break;
 			case 5:
 				// continue slide to note
@@ -464,12 +485,24 @@ var Tracker = (function(){
 
 
 			case 6:
-				// Vibrato and volume slide -> map to volumeslide for now until vibrato is implemented
+				// Continue Vibrato and do volume slide
+
+				// reset volume and vibrato timer if sample number is present
+				if (note.sample) {
+					if (trackNotes[track].startVolume) {
+						trackEffects.volume = {
+							value: volume
+						};
+					}
+
+					trackNotes[track].vibratoTimer = 0;
+				}
+
 				if (note.param < 16){
-					// slide down
+					// volume slide down
 					value = value * -1;
 				}else{
-					// slide up
+					// volume slide up
 					value = note.param & 0x0f;
 				}
 
@@ -479,6 +512,8 @@ var Tracker = (function(){
 				trackEffects.fade = {
 					value: value
 				};
+
+				if (trackEffectCache[track].vibrato) trackEffects.vibrato = trackEffectCache[track].vibrato;
 				break;
 			case 7:
 				// Tremelo
