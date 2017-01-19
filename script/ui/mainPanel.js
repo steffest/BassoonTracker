@@ -44,7 +44,7 @@ UI.MainPanel = function(){
 	]);
 	me.addChild(listbox);
 	listbox.onClick = function(e){
-		UI.setFocusElement(listbox);
+		Input.setFocusElement(listbox);
 		var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 		if (item){
 			Audio.playSample(item.data);

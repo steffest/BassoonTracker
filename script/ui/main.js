@@ -9,14 +9,6 @@ var UI = (function(){
 
 	var maxWidth = 960;
 
-	var keyboardTable = KEYBOARDTABLE.azerty;
-
-	var resizeTimer = 0;
-
-	var touchData = {};
-	touchData.mouseWheels = [];
-
-	var focusElement;
 
 	me.init = function(){
 		canvas = document.getElementById("canvas");
@@ -70,6 +62,7 @@ var UI = (function(){
 			console.log("image assets loaded");
 
 			UI.Assets.init();
+			Input.init();
 
 			fontSmall =  BitmapFont();
 			fontSmall.generate({
@@ -132,7 +125,6 @@ var UI = (function(){
 			UI.mainPanel = UI.MainPanel();
 			children.push(UI.mainPanel);
 
-
 			// keep the analyser out of the mainframe as this needs updating every frame;
 			var analyser = UI.visualiser(UI.mainPanel.col2X,UI.mainPanel.equaliserPanelY,UI.mainPanel.col4W,UI.mainPanel.equaliserPanelHeight,true);
 			window.a = analyser;
@@ -149,229 +141,6 @@ var UI = (function(){
 			// load demo mod at startup
 			Tracker.load('demomods/spacedeb.mod');
 		});
-
-		var currentEventTarget;
-
-		canvas.addEventListener("mousedown",function(e){
-			var rect = canvas.getBoundingClientRect();
-			var x = e.clientX - rect.left;
-			var y = e.clientY  - rect.top;
-
-			for (var i = 0, len = children.length; i<len; i++){
-				var elm = children[i];
-				if (elm.isVisible() && elm.containsPoint(x,y)){
-					currentEventTarget = elm;
-					break;
-				}
-			}
-
-			if (currentEventTarget && currentEventTarget.children && currentEventTarget.children.length){
-				currentEventTarget = currentEventTarget.getElementAtPoint(x,y);
-			}
-			touchData.isDown = true;
-			touchData.startX = x;
-			touchData.startY = y;
-			console.error("final target:",currentEventTarget);
-			if (currentEventTarget && currentEventTarget.onDragStart){
-				currentEventTarget.onDragStart(touchData);
-			}
-		});
-
-		canvas.addEventListener("mousemove",function(e){
-			var rect = canvas.getBoundingClientRect();
-			var x = e.clientX - rect.left;
-			var y = e.clientY  - rect.top;
-			touchData.currentMouseX = x;
-			touchData.currentMouseY = y;
-
-			if (touchData.isDown && currentEventTarget){
-				if (currentEventTarget.onDrag){
-
-					touchData.dragX = x;
-					touchData.dragY = y;
-
-					currentEventTarget.onDrag(touchData);
-				}
-			}
-		});
-
-		canvas.addEventListener("mouseup",function(e){
-			touchData.isDown = false;
-			if (currentEventTarget){
-				if (currentEventTarget.onClick){
-					currentEventTarget.onClick(e);
-				}
-				if (currentEventTarget.onTouchUp){
-					currentEventTarget.onTouchUp(e);
-				}
-			}
-			currentEventTarget = false;
-		});
-
-		canvas.addEventListener("mousewheel", handleMouseWheel,false);
-		canvas.addEventListener("DOMMouseScroll", handleMouseWheel,false);
-
-
-		canvas.addEventListener("keydown",function(e){
-
-			var keyCode = e.keyCode;
-			var key = e.key;
-
-			if (focusElement && focusElement.onKeyDown){
-				var handled = focusElement.onKeyDown(keyCode,e);
-				if (handled) return;
-			}
-
-			if (key && (keyCode>40) && (keyCode<200)){
-				var note = keyboardTable[key];
-				var doPlay = true;
-				if (Tracker.isRecording()){
-					if (Tracker.getCurrentTrackPosition() > 0){
-						// cursorPosition is not on note
-						doPlay = false;
-						var re = /[0-9A-Fa-f]/g;
-						if (re.test(key)){
-							Tracker.putNoteParam(Tracker.getCurrentTrackPosition(),parseInt(key,16));
-							Tracker.moveCurrentPatternPos(1);
-						}
-					}else{
-						if (note){
-							Tracker.putNote(Tracker.getCurrentSampleIndex(),note.period);
-							if (Tracker.isPlaying()){
-								doPlay = false;
-							}else{
-								Tracker.moveCurrentPatternPos(1);
-							}
-						}
-					}
-				}
-
-				if (doPlay && note){
-					Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
-					return;
-				}
-
-			}
-
-			switch(keyCode){
-				case 8:// backspace
-					if (Tracker.isRecording()){
-						Tracker.putNote(0,0);
-						Tracker.moveCurrentPatternPos(1);
-					}else{
-						Tracker.playPatternStep(Tracker.getCurrentTrackPosition());
-						Tracker.moveCurrentPatternPos(-1);
-						// on Mac this should probably be delete ...
-					}
-
-					break;
-				case 13:// enter
-					Tracker.playPatternStep(Tracker.getCurrentTrackPosition());
-					Tracker.moveCurrentPatternPos(1);
-					break;
-				case 16:// shift
-					//Tracker.playPattern();
-					break;
-				case 32:// space
-					Tracker.toggleRecord();
-					break;
-				case 35:// end
-					Tracker.setCurrentPatternPos(63);
-					break;
-				case 36:// home
-					Tracker.setCurrentPatternPos(0);
-					break;
-				case 37:// left
-					Tracker.moveCursorPosition(-1);
-					break;
-				case 38:// up
-					Tracker.moveCurrentPatternPos(-1);
-					break;
-				case 39:// right
-					Tracker.moveCursorPosition(1);
-					break;
-				case 40: // down
-					Tracker.moveCurrentPatternPos(1);
-					break;
-				case 46: // delete
-					if (Tracker.isRecording()){
-						Tracker.putNote(0,0);
-						Tracker.moveCurrentPatternPos(1);
-					}
-					break;
-			}
-		});
-
-
-		canvas.addEventListener("dragenter", dragenter, false);
-		canvas.addEventListener("dragover", dragover, false);
-		canvas.addEventListener("drop", drop, false);
-
-		window.addEventListener("resize",function(){
-			// throttle resize events - resizing is expensive as all the canvas cache needs to be regenerated
-			clearTimeout(resizeTimer);
-			resizeTimer = setTimeout(function(){
-				me.setSize(window.innerWidth,window.innerHeight)
-			},100);
-
-		});
-
-		function dragenter(e) {
-			e.stopPropagation();
-			e.preventDefault();
-		}
-
-		function dragover(e) {
-			e.stopPropagation();
-			e.preventDefault();
-		}
-
-		function drop(e) {
-			e.stopPropagation();
-			e.preventDefault();
-
-			var dt = e.dataTransfer;
-			var files = dt.files;
-
-			Tracker.handleUpload(files);
-		}
-
-		function handleMouseWheel(event){
-			if (touchData.currentMouseX){
-
-				var x = touchData.currentMouseX;
-				var y = touchData.currentMouseY;
-
-				var target = currentEventTarget;
-				if (!target){
-					for (var i = 0, len = children.length; i<len; i++){
-						var elm = children[i];
-						if (elm.isVisible() && elm.containsPoint(x,y)){
-							target = elm;
-							break;
-						}
-					}
-				}
-				if (target && target.children && target.children.length){
-					target = target.getElementAtPoint(x,y);
-				}
-
-				if (target && target.onMouseWheel){
-
-					var deltaY = event.wheelDeltaY || event.wheelDelta || -event.detail;
-					var deltaX = event.wheelDeltaX || 0;
-
-					touchData.mouseWheels.unshift(deltaY);
-					if (touchData.mouseWheels.length > 10) touchData.mouseWheels.pop();
-
-					target.onMouseWheel(touchData);
-
-					console.error(deltaY,target);
-
-				}
-			}
-		}
-
 
 	};
 
@@ -406,20 +175,23 @@ var UI = (function(){
 		UI.mainPanel.setView("main");
 	};
 
-	me.setFocusElement = function(element){
-		if (focusElement && focusElement.deActivate) focusElement.deActivate();
-		focusElement = element;
+	me.getEventElement = function(x,y){
+		var target = undefined;
+		for (var i = 0, len = children.length; i<len; i++){
+			var elm = children[i];
+			if (elm.isVisible() && elm.containsPoint(x,y)){
+				target = elm;
+				break;
+			}
+		}
 
-		var name = element.name || element.type;
-		if (name) console.log("setting focus to " + name);
-	};
-	me.clearFocusElement = function(){
-		if (focusElement && focusElement.deActivate) focusElement.deActivate();
-		focusElement = undefined;
+		if (target && target.children && target.children.length){
+			target = target.getElementAtPoint(x,y);
+		}
+		return target;
 	};
 
 	me.children = children;
-
 
 	return me;
 

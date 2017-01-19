@@ -93,7 +93,7 @@ UI.inputbox = function(initialProperties){
 			cursorPos = value.length-1;
 		}
 		isActive = true;
-		UI.setFocusElement(me);
+		Input.setFocusElement(me);
 		pingCursor();
 	};
 
@@ -102,7 +102,7 @@ UI.inputbox = function(initialProperties){
 			isCursorVisible = false;
 			isActive = false;
 			me.refresh();
-			UI.clearFocusElement()
+			Input.clearFocusElement()
 		}
 
 	};
