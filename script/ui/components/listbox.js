@@ -95,7 +95,7 @@ UI.listbox = function(x,y,w,h){
         if (items.length>visibleIitems && scrollBarItemOffset){
             var delta =  touchData.dragY - touchData.startY;
             visibleIndex = Math.floor(scrollBar.startDragIndex + delta/scrollBarItemOffset);
-            visibleIndex = Math.min(visibleIndex,items.length-visibleIitems);
+            visibleIndex = Math.min(visibleIndex,getMaxIndex());
             visibleIndex = Math.max(visibleIndex,0);
             setScrollBarPosition();
 
@@ -120,7 +120,7 @@ UI.listbox = function(x,y,w,h){
     };
 
     me.navigateDown = function(){
-        if (visibleIndex<items.length-visibleIitems){
+        if (visibleIndex<getMaxIndex()){
             visibleIndex++;
             setScrollBarPosition();
         }
@@ -194,6 +194,7 @@ UI.listbox = function(x,y,w,h){
     function setScrollBarPosition(){
         var max = items.length;
         visibleIitems = Math.floor(me.height/lineHeight);
+        if (me.centerSelection){visibleIitems = 1;}
 
         var startTop = 18;
         var top = startTop;
@@ -204,7 +205,9 @@ UI.listbox = function(x,y,w,h){
         if (max>visibleIitems){
             height = Math.floor((visibleIitems / max) * startHeight);
             if (height<12) height = 12;
+
             scrollBarItemOffset = (startHeight - height) / (max-visibleIitems);
+
         }
 
         if (visibleIndex && scrollBarItemOffset){
@@ -236,15 +239,22 @@ UI.listbox = function(x,y,w,h){
         var delta =  Math.round((touchData.dragY - touchData.startY)/lineHeight);
         visibleIndex = me.startDragIndex - delta;
         visibleIndex = Math.max(visibleIndex,0);
-        visibleIndex = Math.min(visibleIndex,items.length-visibleIitems);
+        visibleIndex = Math.min(visibleIndex,getMaxIndex());
 
         if (me.centerSelection) {
             me.setSelectedIndex(visibleIndex);
         }
 
         setScrollBarPosition();
-
     };
+
+    function getMaxIndex(){
+        var max = items.length-1;
+        if (!me.centerSelection) {
+            max = items.length-visibleIitems;
+        }
+        return max;
+    }
 
     return me;
 };

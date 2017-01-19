@@ -115,6 +115,44 @@ var Tracker = (function(){
 		if (song.patternTable) me.setCurrentPattern(song.patternTable[currentSongPosition]);
 	};
 
+	me.addToPatternTable = function(index,patternIndex){
+		if (typeof index == "undefined") index = song.length;
+		patternIndex = patternIndex||0;
+
+		if (index == song.length){
+			song.patternTable[index] = patternIndex;
+			song.length++;
+		}else{
+			// TODO: insert pattern;
+		}
+
+		EventBus.trigger(EVENT.songPropertyChange,song);
+		EventBus.trigger(EVENT.patternTableChange);
+
+
+	};
+
+	me.removeFromPatternTable = function(index){
+		if (song.length<2) return;
+		if (typeof index == "undefined") index = song.length-1;
+
+		if (index == song.length-1){
+			song.patternTable[index] = 0;
+			song.length--;
+		}else{
+			// TODO: remove pattern and shift other patterns up;
+		}
+
+		if (currentSongPosition == song.length){
+			me.setCurrentSongPosition(currentSongPosition-1);
+		}
+
+		EventBus.trigger(EVENT.songPropertyChange,song);
+		EventBus.trigger(EVENT.patternTableChange);
+
+
+	};
+
 	me.setPlayType = function(playType){
 		currentPlayType = playType;
 		EventBus.trigger(EVENT.playTypeChange,currentPlayType);
@@ -661,10 +699,7 @@ var Tracker = (function(){
 			console.log("loaded");
 			window.bin = arrayBuffer;
 
-
 			//see https://www.aes.id.au/modformat.html
-
-
 
 			song.typeId = id;
 			var title = file.readString(20,0);

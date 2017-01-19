@@ -58,9 +58,7 @@ UI.MainPanel = function(){
 
 	var songlistbox = UI.listbox();
 	songlistbox.setItems([
-		{label: "00:01", data: 1},
-		{label: "01:01", data: 1},
-		{label: "02:04", data: 4}
+		{label: "00:01", data: 1}
 	]);
 	me.addChild(songlistbox);
 
@@ -175,7 +173,15 @@ UI.MainPanel = function(){
 		max: 200,
 		min:1,
 		font: window.fontMed,
-		onChange : function(value){}
+		onChange : function(value){
+			var currentLength = Tracker.getSong().length;
+			if (currentLength>value){
+				Tracker.removeFromPatternTable();
+			}else if(currentLength<value){
+				Tracker.addToPatternTable();
+			}
+
+		}
 	});
 	me.addChild(spinBoxSongLength);
 
@@ -199,6 +205,7 @@ UI.MainPanel = function(){
 	// events
 	EventBus.on(EVENT.songPropertyChange,function(event,song){
 		modNameInputBox.setValue(song.title,true);
+		spinBoxSongLength.setValue(song.length,true);
 	});
 
 	EventBus.on(EVENT.sampleChange,function(event,value){
@@ -228,7 +235,6 @@ UI.MainPanel = function(){
 		}
 	});
 
-	window.songlistbox = songlistbox;
 	EventBus.on(EVENT.songPositionChange,function(event,value){
 		songlistbox.setSelectedIndex(value,true);
 	});
@@ -506,7 +512,7 @@ UI.MainPanel = function(){
 
 	me.setPatternTable = function(patternTable){
 		var items = [];
-		for (var i = 0, len = patternTable.length; i<len; i++){
+		for (var i = 0, len = Tracker.getSong().length; i<len; i++){
 			var value = patternTable[i];
 			items.push({label: padd2(i) + ":" + padd2(value), data:value});
 		}
