@@ -332,6 +332,28 @@ var Tracker = (function(){
 						trackNotes[track].vibratoTimer++;
 
 					}
+
+					if (effects.tremolo){
+						var freq = effects.tremolo.freq;
+						var amp = effects.tremolo.amplitude;
+
+						trackNotes[track].tremoloTimer = trackNotes[track].tremoloTimer||0;
+
+						var volumeChange = Math.sin(trackNotes[track].tremoloTimer * freq) * amp;
+
+						var _volume = note.startVolume;
+						_volume += volumeChange;
+						if (_volume<0) _volume=0;
+						if (_volume>100) _volume=100;
+
+						console.error(_volume);
+
+						if (trackNotes[track].volume) trackNotes[track].volume.gain.value = _volume/100;
+						trackNotes[track].currentVolume = _volume;
+
+						trackNotes[track].tremoloTimer++;
+
+					}
 				}
 			}
 		}
@@ -516,9 +538,31 @@ var Tracker = (function(){
 				if (trackEffectCache[track].vibrato) trackEffects.vibrato = trackEffectCache[track].vibrato;
 				break;
 			case 7:
-				// Tremelo
-				// TODO: implement
-				console.warn("Tremelo not implemented");
+				// Tremolo
+				// reset volume if sample number is present
+				if (note.sample) {
+					if (trackNotes[track].startVolume) {
+						trackEffects.volume = {
+							value: volume
+						};
+					}
+
+					trackNotes[track].tremoloTimer = 0;
+				}
+
+				x = value >> 4;
+				y = value & 0x0f;
+
+				if (x==0 && y==0 && trackEffectCache[track].tremolo){
+					trackEffects.tremolo = trackEffectCache[track].tremolo;
+				}else{
+					trackEffects.tremolo = {
+						amplitude: y * (ticksPerStep-1),
+						freq: (x*ticksPerStep)/64
+					};
+					trackEffectCache[track].tremolo = trackEffects.tremolo;
+				}
+
 				break;
 			case 8:
 				// Set Panning position
