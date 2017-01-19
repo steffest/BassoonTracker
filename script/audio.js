@@ -37,7 +37,6 @@ var Audio = (function(){
             var offset = 0;
             var sampleLength = 0;
 
-
             volume = typeof volume == "undefined" ? (100*sample.volume/64) : volume;
 
             if (sample.finetune){
@@ -51,9 +50,7 @@ var Audio = (function(){
             }
             var sampleRate = PALFREQUENCY / (period*2);
 
-
             //volume = volume * (sample.volume/64);
-
 
             var initialPlaybackRate = 1;
 
@@ -67,8 +64,6 @@ var Audio = (function(){
                 // note - on safari you can't set a different samplerate?
                 sampleBuffer = context.createBuffer(1, sampleLength,context.sampleRate);
                 initialPlaybackRate = sampleRate / context.sampleRate;
-
-
             }else {
                 // empty samples are often used to cut of the previous sample
                 sampleBuffer = context.createBuffer(1, 1, sampleRate);
@@ -127,7 +122,71 @@ var Audio = (function(){
             volumeGain.connect(trackVolume[track]);
 
             source.playbackRate.value = initialPlaybackRate;
-            source.start(0);
+            var sourceDelayTime = 0;
+
+
+            // this was a feably attempt to implement arpeggio
+            // reactivate this if we want to play real chords (simultaneously);
+
+            /*if (effects && effects.chord && effects.chord.root){
+
+                var interval1,interval2,sourceDuplicate;
+
+                var bpm = Tracker.getBPM();
+                var speed = Tracker.getAmigaSpeed();
+
+                if (effects.chord.interval1 && speed>1) interval1 = semiTonesFrom(source,period,effects.chord.interval1);
+                if (effects.chord.interval2 && speed>2) interval2 = semiTonesFrom(source,period,effects.chord.interval2);
+
+
+                var tickTime = 2.5/bpm;
+
+                // should the notes be played each tick or evenly spread accros the step?
+                // the specs are blurry about this
+                // let's assume the second
+
+                if (interval1 || interval2){
+
+                    var notesToPlay = 2;
+                    if (interval1) notesToPlay++;
+                    if (interval2) notesToPlay++;
+
+                    var stepTime = speed*tickTime;
+                    var arpeggioDelay = stepTime/notesToPlay;
+
+                    notesToPlay--;
+                    var time = arpeggioDelay*notesToPlay;
+                    sourceDelayTime = time;
+
+                    if (interval2){
+                        notesToPlay--;
+                        interval2.connect(volumeGain);
+                        time = arpeggioDelay*notesToPlay;
+                        interval2.start(time);
+                        try{
+                            interval2.stop(time+arpeggioDelay);
+                        }catch (e){}
+                    }
+
+                    if (interval1){
+                        notesToPlay--;
+                        interval1.connect(volumeGain);
+                        time = arpeggioDelay*notesToPlay;
+                        interval1.start(time);
+                        console.error("interval1 " + (time+arpeggioDelay));
+                        //interval1.stop(time+1);
+                    }
+
+                    sourceDuplicate = semiTonesFrom(source,period,0);
+                    sourceDuplicate.connect(volumeGain);
+                    sourceDuplicate.start(0);
+                    try{
+                        sourceDuplicate.stop(arpeggioDelay);
+                    }catch (e){}
+                }
+            }*/
+
+            source.start(sourceDelayTime);
 
             var result = {
                 source: source,
@@ -150,6 +209,58 @@ var Audio = (function(){
     me.masterVolume = masterVolume;
     me.context = context;
     me.trackVolume = trackVolume;
+
+
+    /**
+
+     get a new AudioNode playing at x semitones from the root note
+     // used to create Chords and Arpeggio
+
+     @param {audioNode} source: audioBuffer of the root note
+     @param {Number} root: period of the root note
+     @param {Number} semitones: amount of semitones from the root note
+     @param {Number} finetune: finetune value of the base sample
+     @return {audioNode} audioBuffer of the new note
+     */
+    function semiTonesFrom(source,root,semitones,finetune){
+        var target;
+
+        target = context.createBufferSource();
+        target.buffer = source.buffer;
+
+        if (semitones){
+            var rootNote = periodNoteTable[root];
+            var rootIndex = noteNames.indexOf(rootNote.name);
+            var targetName = noteNames[rootIndex+semitones];
+            if (targetName){
+                var targetNote = nameNoteTable[targetName];
+                if (targetNote){
+                    target.playbackRate.value = (rootNote.period/targetNote.period) * source.playbackRate.value;
+                }
+            }
+        }else{
+            target.playbackRate.value = source.playbackRate.value
+        }
+
+        return target;
+
+    }
+
+    me.getSemiToneFrom = function(period,semitones){
+        var result = period;
+        if (semitones){
+            var rootNote = periodNoteTable[period];
+            var rootIndex = noteNames.indexOf(rootNote.name);
+            var targetName = noteNames[rootIndex+semitones];
+            if (targetName){
+                var targetNote = nameNoteTable[targetName];
+                if (targetNote){
+                    result = targetNote.period;
+                }
+            }
+        }
+        return result;
+    };
 
     return me;
 

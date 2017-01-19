@@ -18,6 +18,7 @@ Features
   - Frequency slides (Effect 1, 2, 3 and 5)
   - Vibrato (Effect 4 and 6)
   - Tremolo (Effect 7)
+  - Arpeggio (Effect 0)
   - Sample offsets (Effect 9)
   - Volume slides and settings (effect A and C)
   - Position jumps (effect B)
@@ -28,7 +29,6 @@ Features
 Missing features and bugs
  - Not much disk operations yet, you can load new modules and samples by drag-dropping them on the interface  
  - The various "E" effects are not implemented yet  
- - Arpeggio is not implemented yet (Effect 0)
  - No stereo or panning yet  
  - The sample editor needs fleshing out.  
  - Sample loops don't behave the way they should (I unroll them before playing, a poor mans solution for the real thing)  

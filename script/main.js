@@ -4,6 +4,8 @@ var canvas;
 var ctx;
 
 var periodNoteTable = {};
+var nameNoteTable = {};
+var noteNames = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     Main.init();
@@ -19,6 +21,8 @@ var Main = (function(){
             if (NOTEPERIOD.hasOwnProperty(key)){
                 var note = NOTEPERIOD[key];
                 periodNoteTable[note.period] = note;
+                nameNoteTable[note.name] = note;
+                noteNames.push(note.name);
             }
         }
     };

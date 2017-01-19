@@ -39,8 +39,6 @@ UI.PatternView = function(x,y,w,h){
     setScrollBarPosition();
 
     me.render = function(){
-        setScrollBarPosition();
-
         if (!me.isVisible()) return;
 
         if (this.needsRendering){
@@ -179,9 +177,9 @@ UI.PatternView = function(x,y,w,h){
                     }
 
                 }
-
             }
 
+            setScrollBarPosition();
             scrollBar.render();
 
         }
@@ -206,6 +204,7 @@ UI.PatternView = function(x,y,w,h){
     }
 
     function setScrollBarPosition(){
+
         var patternPos = Tracker.getCurrentPatternPos() || 0;
         if (visibleLines){
             var startTop = 1;
@@ -231,6 +230,7 @@ UI.PatternView = function(x,y,w,h){
                 height: height
             });
         }
+
     }
 
     me.onMouseWheel = function(touchData){

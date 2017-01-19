@@ -134,7 +134,6 @@ var NOTEPERIOD = {
 };
 
 
-
 var KEYBOARDTABLE = {
 	azerty:{
 		a: NOTEPERIOD.C3,

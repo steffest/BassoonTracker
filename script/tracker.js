@@ -264,6 +264,7 @@ var Tracker = (function(){
 			var note = trackNotes[track];
 			if (note){
 				var effects = note.effects;
+				var period;
 				if (effects && Object.keys(effects).length){
 
 					if (effects.fade){
@@ -285,7 +286,7 @@ var Tracker = (function(){
 					if (effects.slide){
 						if (tickCounter>0){
 							//period slide
-							var period = note.currentPeriod || note.startPeriod;
+							period = note.currentPeriod || note.startPeriod;
 
 							if (effects.slide.target){
 								var value = Math.abs(effects.slide.value);
@@ -354,6 +355,29 @@ var Tracker = (function(){
 						trackNotes[track].tremoloTimer++;
 
 					}
+
+					if (effects.arpeggio){
+						var step = tickCounter % 3;
+
+						period = note.currentPeriod || note.startPeriod;
+						if (step==1 && effects.arpeggio.interval1) period -= effects.arpeggio.interval1;
+						if (step==2 && effects.arpeggio.interval2) period -= effects.arpeggio.interval2;
+
+
+						if (trackNotes[track].source){
+							var rate = (note.startPeriod / period);
+							console.error("arpeg",step,effects.arpeggio.interval1);
+
+							trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
+						}
+
+					}
+				}else{
+					// reset arpeggio if present
+					period = note.currentPeriod || note.startPeriod;
+					var rate = (note.startPeriod / period);
+					if (rate && trackNotes[track].source) trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
+
 				}
 			}
 		}
@@ -376,6 +400,8 @@ var Tracker = (function(){
 			if (sample) defaultVolume = 100 * (sample.volume/64);
 		}
 
+		var notePeriod = note.period;
+
 		var volume = defaultVolume;
 		var trackEffects = {};
 		var doPlayNote = true;
@@ -387,10 +413,19 @@ var Tracker = (function(){
 		switch(note.effect){
 			case 0:
 				// Arpeggio
-					if (value){
-						console.warn("Arpeggio not implemented");
-					}
-				// TODO: implement
+				if (value){
+					x = value >> 4;
+					y = value & 0x0f;
+
+					var root = notePeriod || trackNotes[track].startPeriod;
+
+					trackEffects.arpeggio = {
+						root: root,
+						interval1: root-Audio.getSemiToneFrom(root,x),
+						interval2: root-Audio.getSemiToneFrom(root,y),
+						step:1
+					};
+				}
 				break;
 			case 1:
 				// Slide Up
@@ -627,7 +662,7 @@ var Tracker = (function(){
 				break;
 		}
 
-		if (doPlayNote && sampleIndex && note.period){
+		if (doPlayNote && sampleIndex && notePeriod){
 			// cut off previous note on the same track;
 			try{
 				if (trackNotes[track].source) {
@@ -637,7 +672,7 @@ var Tracker = (function(){
 
 			}
 
-			trackNotes[track] = Audio.playSample(sampleIndex,note.period,volume,track,trackEffects);
+			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects);
 		}else{
 			if (trackEffects){
 				if (trackNotes[track].source){
@@ -671,7 +706,10 @@ var Tracker = (function(){
 		if (clock) clock.timeStretch(Audio.context.currentTime, [mainTimer], bpm / newBPM);
 		bpm = newBPM;
 		EventBus.trigger(EVENT.songBPMChange,bpm);
+	};
 
+	me.getBPM = function(){
+		return bpm;
 	};
 
 	me.setAmigaSpeed = function(speed){
@@ -682,6 +720,10 @@ var Tracker = (function(){
 		console.log("setAmigaSpeed",speed);
 		//note: this changes the speed of the song, but not the speed of the main loop
 		ticksPerStep = speed;
+	};
+
+	me.getAmigaSpeed = function(){
+		return ticksPerStep;
 	};
 
 	me.toggleRecord = function(){
