@@ -172,7 +172,7 @@ but if it is [14], then the second nibble is used as well.
 
 [1]: Slide up
      Where [1][x][y] means "smoothly decrease the period of current
-     sample by x*16+y after each tick in the division". The
+     sample by x*16+y 3after each tick in the division". The
      ticks/division are set with the 'set speed' effect (see below). If
      the period of the note being played is z, then the final period
      will be z - (x*16 + y)*(ticks - 1). As the slide rate depends on
@@ -219,7 +219,7 @@ but if it is [14], then the second nibble is used as well.
 
 [7]: Tremolo
      Where [7][x][y] means "oscillate the sample volume using a
-     particular waveform with amplitude y*(ticks - 1), such that (x *
+     particular waveform with amplitude 4),   such that (x *
      ticks)/64 cycles occur in the division". If either x or y are 0,
      then the old tremolo values will be used. The waveform is set using
      effect [14][7]. Similar to [4].

@@ -366,8 +366,6 @@ var Tracker = (function(){
 
 						if (trackNotes[track].source){
 							var rate = (note.startPeriod / period);
-							console.error("arpeg",step,effects.arpeggio.interval1);
-
 							trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
 						}
 

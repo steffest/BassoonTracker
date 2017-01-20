@@ -6,17 +6,30 @@ var Audio = (function(){
     var masterVolume;
     var i;
     var trackVolume = [];
+    var trackPanning = [];
     var numberOfTracks = 4;
 
     masterVolume = context.createGain();
     masterVolume.gain.value = 0.7;
     masterVolume.connect(context.destination);
 
+    var lowPassfilter = context.createBiquadFilter();
+    lowPassfilter.type = "lowpass";
+    lowPassfilter.frequency.value = 20000;
+
+    lowPassfilter.connect(masterVolume);
+
     for (i = 0; i<numberOfTracks;i++){
         var gain = context.createGain();
+        var pan = context.createStereoPanner();
         gain.gain.value = 0.7;
-        gain.connect(masterVolume);
+
+        // pan even channels to the left, uneven to the right
+        pan.pan.value = i%2==0 ? -0.5 : 0.5;
+        gain.connect(pan);
+        pan.connect(lowPassfilter);
         trackVolume.push(gain);
+        trackPanning.push(pan);
     }
 
     EventBus.on(EVENT.trackStateChange,function(event,state){
@@ -207,8 +220,56 @@ var Audio = (function(){
     };
 
     me.masterVolume = masterVolume;
+    me.lowPassfilter = lowPassfilter;
     me.context = context;
     me.trackVolume = trackVolume;
+    me.trackPanning = trackPanning;
+
+
+    function createPingPongDelay(){
+
+        // example of delay effect.
+        //Taken from http://stackoverflow.com/questions/20644328/using-channelsplitter-and-mergesplitter-nodes-in-web-audio-api
+
+        var delayTime = 0.12;
+        var feedback = 0.3;
+
+        var merger = context.createChannelMerger(2);
+        var leftDelay = context.createDelay();
+        var rightDelay = context.createDelay();
+        var leftFeedback = context.createGain();
+        var rightFeedback = context.createGain();
+        var splitter = context.createChannelSplitter(2);
+
+
+        splitter.connect( leftDelay, 0 );
+        splitter.connect( rightDelay, 1 );
+
+        leftDelay.delayTime.value = delayTime;
+        rightDelay.delayTime.value = delayTime;
+
+        leftFeedback.gain.value = feedback;
+        rightFeedback.gain.value = feedback;
+
+        // Connect the routing - left bounces to right, right bounces to left.
+        leftDelay.connect(leftFeedback);
+        leftFeedback.connect(rightDelay);
+
+        rightDelay.connect(rightFeedback);
+        rightFeedback.connect(leftDelay);
+
+        // Re-merge the two delay channels into stereo L/R
+        leftFeedback.connect(merger, 0, 0);
+        rightFeedback.connect(merger, 0, 1);
+
+
+        // Now connect your input to "splitter", and connect "merger" to your output destination.
+
+        return{
+            splitter: splitter,
+            merger: merger
+        }
+    }
 
 
     /**
