@@ -4,8 +4,7 @@ UI.PatternView = function(x,y,w,h){
     var visibleLines = 0;
     var lineHeight = 13;
     var scrollBarItemOffset = 0;
-    var max = 64;
-
+    var max = Tracker.getPatterLength();
 
     var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
         img: cachedAssets.images["skin/bar.png"],
@@ -83,7 +82,7 @@ UI.PatternView = function(x,y,w,h){
                 darkPanel = cachedAssets.darkPanel;
             }
 
-            for (var i = 0; i<4;i++){
+            for (var i = 0; i<Tracker.getTrackCount();i++){
                 var trackX = trackLeft + i*(trackWidth+margin);
                 me.ctx.drawImage(darkPanel,trackX,0,trackWidth,panelHeight);
                 me.ctx.drawImage(darkPanel,trackX,panelTop2,trackWidth,panelHeight);
@@ -124,7 +123,7 @@ UI.PatternView = function(x,y,w,h){
 
 
                 for (var i = visibleStart; i< visibleEnd; i++){
-                    if (i>=0 && i<64){
+                    if (i>=0 && i<Tracker.getPatterLength()){
                         var step = pattern[i];
                         var y = baseY + ((i-visibleStart)*lineHeight);
 
@@ -148,7 +147,7 @@ UI.PatternView = function(x,y,w,h){
                             drawText(ti,trackLeft+10,y,color);
                         }
 
-                        for (var j = 0; j<4;j++){
+                        for (var j = 0; j<Tracker.getTrackCount();j++){
                             var note = step[j];
                             var x = trackLeft + 60 + (j*trackWidth);
 

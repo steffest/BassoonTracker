@@ -91,7 +91,6 @@ UI.MainPanel = function(){
 	var songControl = UI.songControl();
 	me.addChild(songControl);
 
-
 	var patternPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
 	me.addChild(patternPanel);
 	var spinBoxPattern = UI.spinBox();
@@ -136,7 +135,6 @@ UI.MainPanel = function(){
 		buttons[i] = buttonElm;
 		me.addChild(buttonElm);
 	}
-
 
 	var buttonsSideInfo=[
 		{label:"Lotus 2", onClick:function(){Tracker.load('demomods/lotus20.mod')}},

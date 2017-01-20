@@ -8,9 +8,11 @@ var UI = (function(){
 	var fontBig;
 
 	var maxWidth = 960;
+	var modalElement;
+	var needsRendering =  true
 
 
-	me.init = function(){
+	me.init = function(next){
 		canvas = document.getElementById("canvas");
 		ctx = canvas.getContext("2d");
 
@@ -140,6 +142,9 @@ var UI = (function(){
 
 			// load demo mod at startup
 			Tracker.load('demomods/spacedeb.mod');
+
+			if (next) next();
+
 		});
 
 	};
@@ -151,15 +156,28 @@ var UI = (function(){
 			canvas.width = newWidth;
 			canvas.height = newHeight;
 			me.mainPanel.setLayout(0,0,newWidth,newHeight);
+
+			if (modalElement){
+				modalElement.setProperties({width: newWidth, height: newHeight});
+			}
+			needsRendering = true;
 		}
 	};
 
 	var render = function(){
 		EventBus.trigger(EVENT.screenRefresh);
-		children.forEach(function(element){
-			if (element.needsRendering) element.render();
-		});
+		if (needsRendering){
+			children.forEach(function(element){
+				if (element.needsRendering) {
+					element.render();
+				}
+			});
 
+			if (modalElement){
+				modalElement.render();
+				needsRendering = false;
+			}
+		}
 		window.requestAnimationFrame(render);
 	};
 
@@ -173,6 +191,18 @@ var UI = (function(){
 
 	me.showMain = function(){
 		UI.mainPanel.setView("main");
+	};
+
+	me.setModalElement = function(elm){
+		modalElement = elm;
+	};
+
+	me.removeModalElement = function(){
+		if (modalElement){
+
+		}
+		modalElement = undefined;
+		window.requestAnimationFrame(render);
 	};
 
 	me.getEventElement = function(x,y){

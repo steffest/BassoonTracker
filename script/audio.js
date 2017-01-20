@@ -2,41 +2,54 @@ var Audio = (function(){
     var me = {};
 
     window.AudioContext = window.AudioContext||window.webkitAudioContext;
-    var context = new AudioContext();
+
+    var context;
     var masterVolume;
+    var lowPassfilter;
     var i;
     var trackVolume = [];
     var trackPanning = [];
-    var numberOfTracks = 4;
 
-    masterVolume = context.createGain();
-    masterVolume.gain.value = 0.7;
-    masterVolume.connect(context.destination);
+    if (AudioContext){
+        context = new AudioContext();
 
-    var lowPassfilter = context.createBiquadFilter();
-    lowPassfilter.type = "lowpass";
-    lowPassfilter.frequency.value = 20000;
+        masterVolume = context.createGain();
+        masterVolume.gain.value = 0.7;
+        masterVolume.connect(context.destination);
 
-    lowPassfilter.connect(masterVolume);
+        lowPassfilter = context.createBiquadFilter();
+        lowPassfilter.type = "lowpass";
+        lowPassfilter.frequency.value = 20000;
 
-    for (i = 0; i<numberOfTracks;i++){
-        var gain = context.createGain();
-        var pan = context.createStereoPanner();
-        gain.gain.value = 0.7;
-
-        // pan even channels to the left, uneven to the right
-        pan.pan.value = i%2==0 ? -0.5 : 0.5;
-        gain.connect(pan);
-        pan.connect(lowPassfilter);
-        trackVolume.push(gain);
-        trackPanning.push(pan);
+        lowPassfilter.connect(masterVolume);
     }
 
-    EventBus.on(EVENT.trackStateChange,function(event,state){
-        if (typeof state.track != "undefined" && trackVolume[state.track]){
-            trackVolume[state.track].gain.value = state.mute?0:0.7;
+
+    me.init = function(){
+        if (!context) return;
+
+        var numberOfTracks = Tracker.getTrackCount();
+
+        for (i = 0; i<numberOfTracks;i++){
+            var gain = context.createGain();
+            var pan = context.createStereoPanner();
+            gain.gain.value = 0.7;
+
+            // pan even channels to the left, uneven to the right
+            pan.pan.value = i%2==0 ? -0.5 : 0.5;
+            gain.connect(pan);
+            pan.connect(lowPassfilter);
+            trackVolume.push(gain);
+            trackPanning.push(pan);
         }
-    });
+
+        EventBus.on(EVENT.trackStateChange,function(event,state){
+            if (typeof state.track != "undefined" && trackVolume[state.track]){
+                trackVolume[state.track].gain.value = state.mute?0:0.7;
+            }
+        });
+    };
+
 
     me.playSample = function(index,period,volume,track,effects){
 

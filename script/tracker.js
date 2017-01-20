@@ -32,6 +32,9 @@ var Tracker = (function(){
 	var tickTime = 2.5/bpm;
 	var tickCounter = 0;
 
+	var trackCount = 4;
+	var patternLength = 64;
+
 	console.error("ticktime: " + tickTime);
 
 	me.setCurrentSampleIndex = function(index){
@@ -182,7 +185,7 @@ var Tracker = (function(){
 	me.stop = function(){
 		if (clock) clock.stop();
 
-		for (var i = 0; i<4; i++){
+		for (var i = 0; i<trackCount; i++){
 			if (trackNotes[i].source){
 				try{
 					trackNotes[i].source.stop();
@@ -211,7 +214,7 @@ var Tracker = (function(){
 		clock.start();
 
 		currentPatternData = song.patterns[patternIndex];
-		var patternLength = currentPatternData.length;
+		var thisPatternLength = currentPatternData.length;
 		var stepResult;
 
 
@@ -221,7 +224,7 @@ var Tracker = (function(){
 				stepResult = playPatternStep(p);
 				p++;
 
-				if (p>=patternLength || stepResult.patternBreak){
+				if (p>=thisPatternLength || stepResult.patternBreak){
 					p=0;
 					if (Tracker.getPlayType() == PLAYTYPE.song){
 						var nextPosition = stepResult.positionBreak ? stepResult.targetPosition : ++currentSongPosition;
@@ -259,8 +262,8 @@ var Tracker = (function(){
 	me.playPatternStep = playPatternStep;
 
 	function processPatterTick(){
-		var tracks = 4;
-		for (var track = 0; track<tracks; track++){
+
+		for (var track = 0; track<trackCount; track++){
 			var note = trackNotes[track];
 			if (note){
 				var effects = note.effects;
@@ -724,6 +727,14 @@ var Tracker = (function(){
 		return ticksPerStep;
 	};
 
+	me.getPatterLength = function(){
+		return patternLength;
+	};
+
+	me.getTrackCount = function(){
+		return trackCount;
+	};
+
 	me.toggleRecord = function(){
 		me.stop();
 		isRecording = !isRecording;
@@ -873,8 +884,6 @@ var Tracker = (function(){
 			file.goto(1084);
 
 			// pattern data
-			var numChannels = 4;
-			var patternLength = 64;
 
 			for (i = 0; i <= highestPattern; ++i) {
 
@@ -882,7 +891,8 @@ var Tracker = (function(){
 
 				for (var step = 0; step<patternLength; step++){
 					var row = [];
-					for (var channel = 0; channel < numChannels; channel++){
+					var channel;
+					for (channel = 0; channel < 4; channel++){
 						var trackStep = {};
 						var trackStepInfo = file.readUint();
 
@@ -897,6 +907,13 @@ var Tracker = (function(){
 
 						row.push(trackStep);
 					}
+
+					// fill with empty data for other channels
+					for (channel = 4; channel < Tracker.getTrackCount(); channel++){
+						row.push({note:0,effect:0,sample:0,param:0});
+					}
+
+
 					patternData.push(row);
 				}
 				song.patterns.push(patternData);
@@ -1057,8 +1074,6 @@ var Tracker = (function(){
 		file.writeString("M.K.");
 
 		// pattern Data
-		var numChannels = 4;
-		var patternLength = 64;
 
 		for (i=0;i<=highestPattern;i++){
 
@@ -1069,7 +1084,7 @@ var Tracker = (function(){
 
 			for (var step = 0; step<patternLength; step++){
 				var row = patternData[step];
-				for (var channel = 0; channel < numChannels; channel++){
+				for (var channel = 0; channel < trackCount; channel++){
 					var trackStep = row[channel];
 					var uIndex = 0;
 					var lIndex = trackStep.sample;

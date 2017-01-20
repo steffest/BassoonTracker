@@ -9,7 +9,23 @@ var noteNames = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     Main.init();
-    UI.init();
+    Audio.init();
+    UI.init(function(){
+        if (!Audio.context){
+            var dialog = UI.modalDialog();
+            dialog.setProperties({
+                width: UI.mainPanel.width,
+                height: UI.mainPanel.height,
+                top: 0,
+                left: 0
+            });
+            dialog.setText("Sorry//Your browser does not support WebAudio//Supported browsers are/Chrome,Firefox,Safari and Edge");
+
+            UI.setModalElement(dialog);
+        }
+    });
+
+
 });
 
 var Main = (function(){

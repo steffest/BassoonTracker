@@ -13,20 +13,21 @@ UI.visualiser = function(x,y,width,height,visible){
     var trackAnalyser = [];
 
     me.init = function(){
-        analyser = Audio.context.createAnalyser();
-        analyser.minDecibels = -90;
-        analyser.maxDecibels = -10;
-        analyser.smoothingTimeConstant = 0.85;
+        if (Audio.context){
+            analyser = Audio.context.createAnalyser();
+            analyser.minDecibels = -90;
+            analyser.maxDecibels = -10;
+            analyser.smoothingTimeConstant = 0.85;
 
-        for (var i = 0; i<4; i++){
-            var a = Audio.context.createAnalyser();
-            a.minDecibels = -90;
-            a.maxDecibels = -10;
-            a.smoothingTimeConstant = 0.85;
-            a.fftSize = 64;
-            trackAnalyser.push(a);
+            for (var i = 0; i<Tracker.getTrackCount(); i++){
+                var a = Audio.context.createAnalyser();
+                a.minDecibels = -90;
+                a.maxDecibels = -10;
+                a.smoothingTimeConstant = 0.85;
+                a.fftSize = 64;
+                trackAnalyser.push(a);
+            }
         }
-
 
         me.ctx.fillStyle = 'black';
         me.ctx.lineWidth = 2;
@@ -40,10 +41,12 @@ UI.visualiser = function(x,y,width,height,visible){
     };
 
     me.connect = function(audioNode){
-        audioNode.connect(analyser);
+        if (Audio.context){
+            audioNode.connect(analyser);
 
-        for (var i = 0; i< 4; i++){
-            Audio.trackVolume[i].connect(trackAnalyser[i]);
+            for (var i = 0; i< Tracker.getTrackCount(); i++){
+                Audio.trackVolume[i].connect(trackAnalyser[i]);
+            }
         }
 
     };
@@ -56,8 +59,6 @@ UI.visualiser = function(x,y,width,height,visible){
     };
 
     me.render = function(){
-
-
 
 
         //me.ctx.fillStyle = 'green';
@@ -134,38 +135,41 @@ UI.visualiser = function(x,y,width,height,visible){
 
         }else if (mode=="tracks"){
 
-            for (var trackIndex = 0; trackIndex<4;trackIndex++){
+            for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
                 var track = trackAnalyser[trackIndex];
-                var aWidth = width/4;
+                var aWidth = width/Tracker.getTrackCount();
                 var aLeft = aWidth*trackIndex;
-
 
                 var background = cachedAssets.images["skin/oscilloscope.png"];
                 me.ctx.drawImage(background,aLeft,0,aWidth, height);
 
-                bufferLength = track.fftSize;
-                dataArray = new Uint8Array(bufferLength);
+                if (track){
+                    bufferLength = track.fftSize;
+                    dataArray = new Uint8Array(bufferLength);
 
-                track.getByteTimeDomainData(dataArray);
-                me.ctx.beginPath();
-                var sliceWidth = aWidth * 1.0 / bufferLength;
-                var wx = aLeft;
+                    track.getByteTimeDomainData(dataArray);
+                    me.ctx.beginPath();
+                    var sliceWidth = aWidth * 1.0 / bufferLength;
+                    var wx = aLeft;
 
-                for(var i = 0; i < bufferLength; i++) {
-                    var v = dataArray[i] / 128.0;
-                    var wy = v * height/2;
+                    for(var i = 0; i < bufferLength; i++) {
+                        var v = dataArray[i] / 128.0;
+                        var wy = v * height/2;
 
-                    if(i === 0) {
-                        me.ctx.moveTo(wx, wy);
-                    } else {
-                        me.ctx.lineTo(wx, wy);
+                        if(i === 0) {
+                            me.ctx.moveTo(wx, wy);
+                        } else {
+                            me.ctx.lineTo(wx, wy);
+                        }
+
+                        wx += sliceWidth;
                     }
 
-                    wx += sliceWidth;
+                    //myCtx.lineTo(aWidth, height/2);
+                    me.ctx.stroke();
                 }
 
-                //myCtx.lineTo(aWidth, height/2);
-                me.ctx.stroke();
+
             }
 
 
