@@ -809,6 +809,7 @@ var Tracker = (function(){
 		console.log("Format ID: " + id);
 
 		if (id == "M.K.") isMod = true;
+		if (id == "FLT4") isMod = true;
 
 		if (isMod){
 			song = {
