@@ -24,9 +24,6 @@ var Tracker = (function(){
 
 	var currentSongPosition = 0;
 
-	var trackNotes = [{},{},{},{}];
-	var trackEffectCache = [{},{},{},{}];
-
 	var bpm = 125; // bmp
 	var ticksPerStep = 6;
 	var tickTime = 2.5/bpm;
@@ -34,6 +31,14 @@ var Tracker = (function(){
 
 	var trackCount = 4;
 	var patternLength = 64;
+
+	var trackNotes = [];
+	var trackEffectCache = [];
+
+	for (var i=0;i<trackCount;i++){
+		trackNotes.push({});
+		trackEffectCache.push({});
+	}
 
 	console.error("ticktime: " + tickTime);
 

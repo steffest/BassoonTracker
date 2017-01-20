@@ -19,3 +19,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+node_modules/
+
+grunt-uglify-cache.json
+

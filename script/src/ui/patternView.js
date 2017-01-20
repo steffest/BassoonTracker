@@ -49,6 +49,9 @@ UI.PatternView = function(x,y,w,h){
 
             var margin = UI.mainPanel.defaultMargin;
             var trackWidth = UI.mainPanel.col1W;
+            if (Tracker.getTrackCount()>4){
+                trackWidth = UI.mainPanel.col4W/Tracker.getTrackCount()-4;
+            }
             var visibleHeight = UI.mainPanel.patternHeight - 30;
             var trackY = 0;
             var trackLeft = 0;

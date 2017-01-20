@@ -9,7 +9,7 @@ var UI = (function(){
 
 	var maxWidth = 960;
 	var modalElement;
-	var needsRendering =  true
+	var needsRendering =  true;
 
 
 	me.init = function(next){

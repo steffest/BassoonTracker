@@ -1,0 +1,15 @@
+{
+  "name": "BassoonTracker",
+  "version": "0.1.0",
+  "description": "Old School 4-channel Amiga mod tracker in plain javascript",
+  "main": "index.html",
+  "repository": "https://github.com/steffest/BassoonTracker",
+  "author": "Steffest",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-concat": "*",
+    "grunt-contrib-uglify": "*"
+  }
+}

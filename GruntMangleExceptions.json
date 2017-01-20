@@ -1,0 +1,28 @@
+{
+  "props": [
+    "AudioContext",
+    "webkitAudioContext",
+    "createGain",
+    "gain",
+    "frequency",
+    "value",
+    "connect",
+    "destination",
+    "createBiquadFilter",
+    "createStereoPanner",
+    "pan",
+    "createBuffer",
+    "createBufferSource",
+    "getChannelData",
+    "loopStart",
+    "start",
+    "onended",
+    "playbackRate",
+    "source",
+    "lowPassfilter",
+    "userAgent",
+    "webkitURL",
+    "createElementNS",
+    "note: incomplete - don't bother with mangleProperties for now"
+  ]
+}

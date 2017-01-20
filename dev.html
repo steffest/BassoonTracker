@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<style>
+    html,body{
+        height: 100%;
+        overflow: hidden;
+    }
+    body{
+        background-color: black;
+        margin: 0;
+        padding: 0;
+    }
+
+    canvas{
+        margin: auto;
+        display: block;
+    }
+    canvas:focus {
+        outline:none;
+    }
+</style>
+<html>
+<head>
+    <title>Bassoon Tracker - 4 channel Amiga music tracker</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width user-scalable=no">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <script src="script/src/enum.js?v2"></script>
+    <script src="script/src/eventBus.js"></script>
+    <script src="script/src/filesystem.js"></script>
+    <script src="script/src/audio.js"></script>
+
+    <script src="script/src/lib/waaclock.js"></script>
+    <script src="script/src/lib/filesaver.js"></script>
+    <script src="script/src/lib/stereoPannerShim.js"></script>
+
+    <script src="script/src/main.js"></script>
+    <script src="script/src/tracker.js"></script>
+    <script src="script/src/preloader.js"></script>
+
+    <script src="script/src/ui/main.js"></script>
+    <script src="script/src/ui/assets.js"></script>
+    <script src="script/src/ui/input.js"></script>
+
+    <script src="script/src/ui/components/element.js"></script>
+    <script src="script/src/ui/components/panel.js"></script>
+    <script src="script/src/ui/components/button.js"></script>
+    <script src="script/src/ui/components/inputbox.js"></script>
+    <script src="script/src/ui/components/listbox.js?v2"></script>
+    <script src="script/src/ui/components/radiogroup.js"></script>
+    <script src="script/src/ui/components/modalDialog.js"></script>
+    <script src="script/src/ui/components/scale9.js"></script>
+    <script src="script/src/ui/components/bitmapfont.js"></script>
+
+    <script src="script/src/ui/mainPanel.js"></script>
+    <script src="script/src/ui/patternView.js"></script>
+    <script src="script/src/ui/sampleView.js"></script>
+    <script src="script/src/ui/waveform.js"></script>
+    <script src="script/src/ui/visualiser.js"></script>
+    <script src="script/src/ui/spinBox.js"></script>
+    <script src="script/src/ui/songControl.js"></script>
+    <script src="script/src/ui/trackControl.js"></script>
+
+</head>
+<body>
+
+
+<canvas id="canvas" tabindex='1' moz-opaque></canvas>
+</body>
+</html>
