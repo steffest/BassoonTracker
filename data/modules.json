@@ -1,0 +1,7 @@
+{
+  "modules":[
+    {"title":"Demo Music","url":"demomods/demomusic.mod"},
+    {"title":"Startdust Memories","url":"demomods/StardustMemories.mod"},
+    {"title":"Tiny tune","url":"demomods/Tinytune.mod"}
+  ]
+}

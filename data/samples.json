@@ -1,0 +1,10 @@
+{
+  "samples":[
+    {"title":"Analog String","url":"http://box.stef.be/audio/samples/st-01/AnalogString"},
+    {"title":"BassDrum1","url":"http://box.stef.be/audio/samples/st-01/BassDrum1"},
+    {"title":"BassDrum2","url":"http://box.stef.be/audio/samples/st-01/BassDrum2"},
+    {"title":"BassDrum3","url":"http://box.stef.be/audio/samples/st-01/BassDrum3"},
+    {"title":"Deep Bass","url":"http://box.stef.be/audio/samples/st-01/DeepBass"},
+    {"title":"RubberBass","url":"http://box.stef.be/audio/samples/st-01/RubberBass"}
+  ]
+}

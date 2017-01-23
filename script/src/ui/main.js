@@ -225,6 +225,14 @@ var UI = (function(){
 		}
 	};
 
+	me.toggleDiskOperations = function(){
+		if (UI.mainPanel.getCurrentView() == "diskop"){
+			UI.mainPanel.setView("main");
+		}else{
+			UI.mainPanel.setView("diskop");
+		}
+	};
+
 	me.showMain = function(){
 		UI.mainPanel.setView("main");
 	};

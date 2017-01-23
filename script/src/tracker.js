@@ -287,6 +287,11 @@ var Tracker = (function(){
 
 	}
 
+	me.playSimple = function(){
+		patternIndex =  0;
+		currentPatternData = song.patterns[patternIndex];
+	};
+
 
 
 	function playPatternStep(step,time){
@@ -843,8 +848,9 @@ var Tracker = (function(){
 
 	me.load = function(url){
 		url = url || "demomods/StardustMemories.mod";
+		var name = url.substr(url.lastIndexOf("/")+1);
 		loadFile(url,function(result){
-			me.parse(result);
+			me.parse(result,name);
 		})
 	};
 

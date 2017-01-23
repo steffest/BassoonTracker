@@ -139,7 +139,8 @@ UI.MainPanel = function(){
 		{label:"Play", onClick:function(){Tracker.playSong()}},
 		{label:"Play Pattern", onClick:function(){Tracker.playPattern()}},
 		{label:"Stop", onClick:function(){Tracker.stop();}},
-		{label:"Save", oncClick:function(){Tracker.save();}},
+		{label:"Disk op", onClick:function(){UI.toggleDiskOperations();}},
+		//{label:"Save", oncClick:function(){Tracker.save();}},
 		//{label:"Record", onClick:function(){Tracker.toggleRecord();}},
 		{label:"Sample Editor", onClick:function(){UI.toggleSampleEditor();}}
 	];
@@ -223,6 +224,12 @@ UI.MainPanel = function(){
 		name: "sampleViewPanel"
 	});
 	me.addChild(sampleView);
+
+	var diskOperations = UI.DiskOperations();
+	diskOperations.setProperties({
+		name: "diskoperations"
+	});
+	me.addChild(diskOperations);
 
 	var visualiser = UI.visualiser();
 
@@ -431,6 +438,12 @@ UI.MainPanel = function(){
 				width: me.col5W,
 				height: me.patternHeight
 			},
+			diskOperations:{
+				left: 0,
+				top: 10,
+				height: me.controlPanelHeight-10,
+				width: me.width
+			},
 			songControl:{ // play/record buttons
 				left: me.col1X,
 				top: me.controlBarTop,
@@ -582,6 +595,7 @@ UI.MainPanel = function(){
 
 		setDimensions(patternView,layout.patternView);
 		setDimensions(sampleView,layout.sampleView);
+		setDimensions(diskOperations,layout.diskOperations);
 
 		visualiser.setProperties({
 			left: patterViewLeft + me.patternMargin,
@@ -642,16 +656,25 @@ UI.MainPanel = function(){
 	}
 
 	me.setView = function(viewName){
+
+		//reset main
+		patternView.show();
+		sideButtonPanel.show();
+		sampleView.hide();
+		diskOperations.hide();
+
+
 		if (viewName == "sample"){
 			patternView.hide();
 			sideButtonPanel.hide();
 			sampleView.setLayout();
 			sampleView.show(true,true);
-		}else{
-			patternView.show();
-			sideButtonPanel.show();
-			sampleView.hide();
+		}else if(viewName == "diskop"){
+			diskOperations.setLayout();
+			diskOperations.refreshList();
+			diskOperations.show();
 		}
+
 		currentView = viewName;
 		me.refresh();
 	};
