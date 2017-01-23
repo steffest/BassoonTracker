@@ -143,6 +143,15 @@ function BinaryStream(arrayBuffer, bigEndian){
         this.index += 2;
     };
 
+    obj.readDWord = obj.readUint;
+
+    obj.readShort = function(value,position){
+        setIndex(position);
+        var w = this.dataView.getInt16(this.index, this.litteEndian);
+        this.index += 2;
+        return w;
+    };
+
     obj.clear = function(length){
         obj.fill(0,length);
     };

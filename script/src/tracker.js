@@ -1056,15 +1056,62 @@ var Tracker = (function(){
 		sample.data = [];
 
 		file.goto(0);
-		for (j = 0; j<sample.length; j++){
-			var b = file.readByte();
-			sample.data.push(b / 127)
+		var id = file.readString(4);
+
+		if (id == "RIFF"){
+			readRIFFsample(file,sample);
+		}else{
+			// let's assume it's a 8-bit raw audio file like found on the amiga ST disks
+			readRAWsample(file,sample);
 		}
 
 		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
 		EventBus.trigger(EVENT.sampleNameChange,currentSampleIndex);
 
 	};
+
+	function readRAWsample(file,sample){
+		file.goto(0);
+		for (var j = 0; j<sample.length; j++){
+			var b = file.readByte();
+			sample.data.push(b / 127)
+		}
+	}
+
+	function readRIFFsample(file,sample){
+		//format description: http://soundfile.sapp.org/doc/WaveFormat/
+		file.litteEndian = true;
+		file.goto(4);
+
+		var wave = {};
+
+		wave.chunkSize = file.readDWord();
+		wave.format = file.readString(4); // should be "WAVE"
+		wave.subChunk = file.readString(4); // should be "fmt "
+		wave.subChuckSize = file.readDWord();
+
+		var nextChunkPos = file.index + wave.subChuckSize;
+
+		wave.audioFormat = file.readWord(); // should be 1: PCM
+		wave.numberOfChannels = file.readWord();
+		wave.sampleRate = file.readDWord();
+		wave.byteRate = file.readDWord();
+		wave.blockalign = file.readWord();
+		wave.bits = file.readWord();
+
+		file.goto(nextChunkPos);
+		wave.dataChunk = file.readString(4); // should be "data"
+		wave.dataChuckSize = file.readDWord();
+
+		console.error("Wave data:" , wave);
+
+		sample.length = wave.dataChuckSize;
+		for (var i = 0; i<sample.length; i++){
+			var b = file.readUbyte();
+			b=b-127;
+			sample.data.push(b / 127)
+		}
+	}
 
 	me.buildBinary = function(){
 
