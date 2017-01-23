@@ -155,66 +155,6 @@ var Audio = (function(){
             var sourceDelayTime = 0;
             var playTime = time + sourceDelayTime;
 
-            // this was a feably attempt to implement arpeggio
-            // reactivate this if we want to play real chords (simultaneously);
-
-            /*if (effects && effects.chord && effects.chord.root){
-
-                var interval1,interval2,sourceDuplicate;
-
-                var bpm = Tracker.getBPM();
-                var speed = Tracker.getAmigaSpeed();
-
-                if (effects.chord.interval1 && speed>1) interval1 = semiTonesFrom(source,period,effects.chord.interval1);
-                if (effects.chord.interval2 && speed>2) interval2 = semiTonesFrom(source,period,effects.chord.interval2);
-
-
-                var tickTime = 2.5/bpm;
-
-                // should the notes be played each tick or evenly spread accros the step?
-                // the specs are blurry about this
-                // let's assume the second
-
-                if (interval1 || interval2){
-
-                    var notesToPlay = 2;
-                    if (interval1) notesToPlay++;
-                    if (interval2) notesToPlay++;
-
-                    var stepTime = speed*tickTime;
-                    var arpeggioDelay = stepTime/notesToPlay;
-
-                    notesToPlay--;
-                    var time = arpeggioDelay*notesToPlay;
-                    sourceDelayTime = time;
-
-                    if (interval2){
-                        notesToPlay--;
-                        interval2.connect(volumeGain);
-                        time = arpeggioDelay*notesToPlay;
-                        interval2.start(time);
-                        try{
-                            interval2.stop(time+arpeggioDelay);
-                        }catch (e){}
-                    }
-
-                    if (interval1){
-                        notesToPlay--;
-                        interval1.connect(volumeGain);
-                        time = arpeggioDelay*notesToPlay;
-                        interval1.start(time);
-                        console.error("interval1 " + (time+arpeggioDelay));
-                        //interval1.stop(time+1);
-                    }
-
-                    sourceDuplicate = semiTonesFrom(source,period,0);
-                    sourceDuplicate.connect(volumeGain);
-                    sourceDuplicate.start(0);
-                    try{
-                        sourceDuplicate.stop(arpeggioDelay);
-                    }catch (e){}
-                }
-            }*/
 
             source.start(playTime);
 
@@ -225,7 +165,8 @@ var Audio = (function(){
                 currentVolume: volume,
                 startPeriod: period,
                 startPlaybackRate: initialPlaybackRate,
-                sampleIndex: index
+                sampleIndex: index,
+                effects: effects
             };
 
             EventBus.trigger(EVENT.samplePlay,result);
@@ -235,6 +176,7 @@ var Audio = (function(){
 
         return {};
     };
+
 
     me.isRecording = function(){
         return isRecording;

@@ -181,7 +181,6 @@ var Tracker = (function(){
 	me.playSong = function(){
 		me.stop();
 		me.setPlayType(PLAYTYPE.song);
-		//me.setCurrentSongPosition(0);
 		isPlaying = true;
 		//Audio.startRecording();
 		playPattern(currentPattern);
@@ -206,7 +205,6 @@ var Tracker = (function(){
 		if (clock) clock.stop();
 		//Audio.stopRecording();
 
-
 		for (var i = 0; i<trackCount; i++){
 			if (trackNotes[i].source){
 				try{
@@ -228,6 +226,12 @@ var Tracker = (function(){
 		saveAs(b,"test.mod");
 	};
 
+	me.getProperties = function(){
+		return{
+			ticksPerStep: ticksPerStep,
+			tickTime: tickTime
+		}
+	};
 
 	function playPattern(patternIndex){
 		patternIndex = patternIndex || 0;
@@ -277,7 +281,6 @@ var Tracker = (function(){
 
 				while (time<maxTime){
 					var stepResult = playPatternStep(p,time);
-					processPatterTickSimple(time);
 					time += ticksPerStep * tickTime;
 					p++;
 
@@ -299,9 +302,6 @@ var Tracker = (function(){
 	}
 
 
-
-
-
 	function playPatternStep(step,time){
 		var patternStep = currentPatternData[step];
 		var tracks = patternStep.length;
@@ -316,6 +316,12 @@ var Tracker = (function(){
 				result.targetPosition = r.targetPosition || 0;
 			}
 		}
+
+		for (i = 0; i<tracks; i++){
+			applyEffects(i,time)
+		}
+
+
 		return result;
 	}
 
@@ -442,114 +448,6 @@ var Tracker = (function(){
 					}
 
 
-				}
-			}
-		}
-	}
-
-
-	function processPatterTickSimple(time){
-
-		for (var track = 0; track<trackCount; track++){
-			var note = trackNotes[track];
-			if (note){
-				var effects = note.effects;
-				var period;
-				if (effects && Object.keys(effects).length){
-
-					if (effects.fade && note.volume){
-						if (effects.fade.resetOnStep) note.volume.gain.setValueAtTime(note.startVolume/100,time);
-						var volume = 0;
-						var targetVolume = (note.volume.gain.value*100) + (effects.fade.value * ticksPerStep);
-						for (var t = 1; t<ticksPerStep; t++){
-							note.volume.gain.setValueAtTime(targetVolume/100,time+(ticksPerStep*tickTime));
-						}
-
-						//note.volume.linearRampToValueAtTime(targetVolume,time+(ticksPerStep*tickTime));
-					}
-					if (effects.slide){
-							//period slide
-							period = note.currentPeriod || note.startPeriod;
-
-							if (effects.slide.target){
-								var value = Math.abs(effects.slide.value);
-								if (period<effects.slide.target){
-									period += (value * ticksPerStep);
-									if (period>effects.slide.target) period = effects.slide.target;
-								}else{
-									period -= (value * ticksPerStep);
-									if (period<effects.slide.target) period = effects.slide.target;
-								}
-							}else{
-								period += (effects.slide.value * ticksPerStep);
-							}
-
-							trackNotes[track].currentPeriod = period;
-							if (trackNotes[track].source){
-								var rate = (note.startPeriod / period);
-								//trackNotes[track].source.playbackRate.linearRampToValueAtTime(trackNotes[track].startPlaybackRate * rate,time+(ticksPerStep*tickTime));
-
-							}
-
-
-					}
-
-					/*
-					if (effects.vibrato){
-						var freq = effects.vibrato.freq;
-						var amp = effects.vibrato.amplitude;
-
-						trackNotes[track].vibratoTimer = trackNotes[track].vibratoTimer||0;
-
-						var periodChange = Math.sin(trackNotes[track].vibratoTimer * freq) * amp;
-
-						var period = note.currentPeriod || note.startPeriod;
-						period += periodChange;
-
-						if (trackNotes[track].source){
-							var rate = (note.startPeriod / period);
-							trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
-						}
-						trackNotes[track].vibratoTimer++;
-
-					}
-
-					if (effects.tremolo){
-						var freq = effects.tremolo.freq;
-						var amp = effects.tremolo.amplitude;
-
-						trackNotes[track].tremoloTimer = trackNotes[track].tremoloTimer||0;
-
-						var volumeChange = Math.sin(trackNotes[track].tremoloTimer * freq) * amp;
-
-						var _volume = note.startVolume;
-						_volume += volumeChange;
-						if (_volume<0) _volume=0;
-						if (_volume>100) _volume=100;
-
-						if (trackNotes[track].volume) trackNotes[track].volume.gain.value = _volume/100;
-						trackNotes[track].currentVolume = _volume;
-
-						trackNotes[track].tremoloTimer++;
-
-					}
-
-					if (effects.arpeggio){
-						var step = tickCounter % 3;
-
-						period = note.currentPeriod || note.startPeriod;
-						if (step==1 && effects.arpeggio.interval1) period -= effects.arpeggio.interval1;
-						if (step==2 && effects.arpeggio.interval2) period -= effects.arpeggio.interval2;
-
-
-						if (trackNotes[track].source){
-							var rate = (note.startPeriod / period);
-							trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
-							trackNotes[track].hasArpeggio = true;
-						}
-
-					}
-					*/
 				}
 			}
 		}
@@ -801,8 +699,9 @@ var Tracker = (function(){
 
 				trackEffects.fade = {
 					value: value,
-					resetOnStep: !!note.sample // volume only needs resettin when the sample number is given, other wise the volue is remembered from the preious state
+					resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, otherwise the volue is remembered from the preious state
 				};
+
 				break;
 			case 11:
 				// Position Jump
@@ -875,6 +774,70 @@ var Tracker = (function(){
 		trackNotes[track].note = note;
 
 		return result;
+	}
+
+	function applyEffects(track,time){
+
+		if (me.playBackEngine != PLAYBACKENGINE.SIMPLE) return;
+
+		var trackNote = trackNotes[track];
+		var effects = trackNote.effects;
+
+		if (!trackNote) return;
+		if (!effects) return;
+
+		var value;
+
+		if (effects.fade){
+			value = (effects.fade.value * 100)/64;
+			var currentVolume;
+
+			if (effects.fade.resetOnStep){
+				currentVolume = trackNote.startVolume;
+			}else{
+				currentVolume = trackNote.currentVolume;
+			}
+
+			var targetVolume = currentVolume + (value*ticksPerStep);
+			targetVolume = Math.max(targetVolume,0);
+			targetVolume = Math.min(targetVolume,100);
+
+			console.error(currentVolume,targetVolume);
+
+			trackNote.currentVolume = targetVolume;
+			trackNote.volume.gain.setValueAtTime(currentVolume/100,time);
+			trackNote.volume.gain.setValueAtTime(currentVolume/100,time + tickTime);
+			trackNote.volume.gain.linearRampToValueAtTime(targetVolume/100,time+(ticksPerStep*tickTime));
+		}
+
+		if (effects.slide){
+			//period slide
+			var currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
+			var period = currentPeriod;
+
+			if (effects.slide.target){
+				value = Math.abs(effects.slide.value);
+				if (currentPeriod<effects.slide.target){
+					period += (value * ticksPerStep);
+					if (period>effects.slide.target) period = effects.slide.target;
+				}else{
+					period -= (value * ticksPerStep);
+					if (period<effects.slide.target) period = effects.slide.target;
+				}
+			}else{
+				period += (effects.slide.value * ticksPerStep);
+			}
+
+			trackNote.currentPeriod = period;
+			if (trackNote.source){
+				var currentRate = (trackNote.startPeriod / currentPeriod);
+				var rate = (trackNote.startPeriod / period);
+
+				trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * currentRate,time);
+				trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * currentRate,time + tickTime);
+				trackNote.source.playbackRate.linearRampToValueAtTime(trackNote.startPlaybackRate * rate,time+((ticksPerStep-1)*tickTime));
+			}
+		}
 	}
 
 
