@@ -14,7 +14,8 @@ UI.DiskOperations = function(){
 		{label:"Module", onClick:function(){me.refreshList("modules")}},
 		{label:"Sample", onClick:function(){me.refreshList("samples")}},
 		{label:"Save", onClick:function(){Tracker.save();}},
-		{label:"Exit", onClick:function(){UI.mainPanel.setView("main");}}
+		{label:"Exit", onClick:function(){UI.mainPanel.setView("main");}},
+		{label:"Test", onClick:function(){Tracker.playSimple()}}
 	];
 
 	for (var i = 0;i< buttonsSideInfo.length;i++){
@@ -43,7 +44,7 @@ UI.DiskOperations = function(){
 
 		var startTop = 16;
 		var innerHeight = me.height-20;
-		var buttonHeight = Math.floor(innerHeight/4);
+		var buttonHeight = Math.floor(innerHeight/buttonsSideInfo.length);
 
 
 		for (i = 0;i<buttonsSideInfo.length;i++){
@@ -64,7 +65,7 @@ UI.DiskOperations = function(){
 			left: UI.mainPanel.col2X,
 			width: UI.mainPanel.col4W,
 			top: startTop,
-			height:buttonHeight*4
+			height:buttonHeight*buttonsSideInfo.length
 		})
 
 	};

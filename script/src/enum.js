@@ -36,6 +36,11 @@ var PLAYTYPE = {
 	pattern:2
 };
 
+var PLAYBACKENGINE = {
+	FULL: 1,
+	SIMPLE: 2 // usefull for mobile phones and slow PC's
+};
+
 var PALFREQUENCY = 7093789.2;
 
 var SETTINGS = {

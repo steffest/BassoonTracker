@@ -158,7 +158,8 @@ var UI = (function(){
 			render();
 
 			// load demo mod at startup
-			Tracker.load('demomods/spacedeb.mod');
+			//Tracker.load('demomods/spacedeb.mod');
+			Tracker.load('demomods/Tinytune.mod');
 
 			if (next) next();
 
