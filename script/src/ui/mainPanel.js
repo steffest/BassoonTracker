@@ -5,6 +5,12 @@ UI.MainPanel = function(){
 	var trackControls = [];
 	var currentView = "main";
 
+	var mainLayout = LAYOUTS.column5;
+	var tracks = getUrlParameter("tracks");
+	if (tracks && tracks>4)  mainLayout = LAYOUTS.column5Full;
+	if (getUrlParameter("layout")== "full") mainLayout = LAYOUTS.column5Full;
+	var mainDefaultLayout = mainLayout;
+
 	var mainBack = UI.scale9Panel(0,0,me.width,me.height,UI.Assets.panelMainScale9);
 	me.addChild(mainBack);
 
@@ -83,7 +89,7 @@ UI.MainPanel = function(){
 	};
 	me.addChild(spMin);
 
-	for (i=0;i<4;i++){
+	for (i=0;i<Tracker.getTrackCount();i++){
 		trackControls[i] = UI.trackControl();
 		me.addChild(trackControls[i]);
 	}
@@ -94,7 +100,17 @@ UI.MainPanel = function(){
 	var patternPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
 	me.addChild(patternPanel);
 	var spinBoxPattern = UI.spinBox();
+	spinBoxPattern.setProperties({
+		name: "Pattern",
+		label: "Pattern",
+		value: 0,
+		max: 100,
+		min:0,
+		font: window.fontMed,
+		onChange : function(value){Tracker.setCurrentPattern(value);}
+	});
 	me.addChild(spinBoxPattern);
+
 	var spinBoxPatternLength = UI.spinBox({
 		value: 64,
 		name: "PatternLength",
@@ -104,6 +120,7 @@ UI.MainPanel = function(){
 		font: window.fontMed
 	});
 	me.addChild(spinBoxPatternLength);
+
 	var spinBoxSample = UI.spinBox({
 		name: "Sample",
 		label: "Sample",
@@ -196,10 +213,27 @@ UI.MainPanel = function(){
 	me.addChild(spinBoxBmp);
 
 	var patternView = UI.PatternView();
+	patternView.setProperties({
+		name: "patternViewPanel"
+	});
 	me.addChild(patternView);
 
 	var sampleView = UI.SampleView();
+	sampleView.setProperties({
+		name: "sampleViewPanel"
+	});
 	me.addChild(sampleView);
+
+	var visualiser = UI.visualiser();
+
+	visualiser.connect(Audio.masterVolume);
+	visualiser.name = "mainAnalyser";
+	visualiser.onClick = function(){
+		visualiser.nextMode();
+	};
+	me.visualiser = visualiser;
+	// note: don't attacj as child to main panel, this gets attached to main UI
+
 
 	// events
 	EventBus.on(EVENT.songPropertyChange,function(event,song){
@@ -226,7 +260,7 @@ UI.MainPanel = function(){
 	EventBus.on(EVENT.trackStateChange,function(event,state){
 		// set other tracks to mute if a track is soloed
 		if (state.solo && typeof state.track != "undefined"){
-			for (i = 0;i< 4;i++){
+			for (i = 0;i< Tracker.getTrackCount();i++){
 				if (i != state.track){
 					trackControls[i].setProperties({mute:true});
 				}
@@ -269,17 +303,22 @@ UI.MainPanel = function(){
 		me.width = newW;
 		me.height = newH;
 
+		if (me.width<730){
+			mainLayout = LAYOUTS.column5Full;
+		}else{
+			mainLayout = mainDefaultLayout;
+		}
+
 		// UI coordinates
 		me.defaultMargin =  4;
 		me.menuHeight = 20;
 
 		me.controlPanelHeight = 200;
 		me.equaliserPanelHeight = 60;
-		me.equaliserPanelY = me.controlPanelHeight;
-
 		me.controlBarHeight = 30;
-		me.controlBarTop = me.equaliserPanelY + me.equaliserPanelHeight;
 
+		me.equaliserTop = me.controlPanelHeight;
+		me.controlBarTop = me.equaliserTop + me.equaliserPanelHeight;
 		me.patternTop = me.controlBarTop + me.controlBarHeight + 2;
 		me.patternHeight = me.height - me.patternTop - me.defaultMargin;
 
@@ -295,79 +334,195 @@ UI.MainPanel = function(){
 		me.col4X = (me.defaultMargin*4) + (me.col1W*3);
 		me.col5X = (me.defaultMargin*5) + (me.col1W*4);
 
+		var patterViewWidth = me.col4W;
+		var patterViewLeft = me.col2X;
+		me.patternMargin = 0;
+		me.patternMarginRight = 0;
+
+		if (mainLayout == LAYOUTS.column5Full){
+
+			patterViewWidth = me.width-14;
+			patterViewLeft = 6;
+			me.patternMargin = 24; // for the linenumers
+			me.patternMarginRight = 16; // for the scrollbar
+
+			me.controlPanelHeight = 240;
+
+			me.equaliserTop = me.controlPanelHeight;
+			me.controlBarTop = me.equaliserTop + me.equaliserPanelHeight;
+			me.patternTop = me.controlBarTop + me.controlBarHeight + 2;
+			me.patternHeight = me.height - me.patternTop - me.defaultMargin;
+		}
+
+		me.trackMargin = 4;
+		me.trackWidth = (patterViewWidth - me.patternMargin - me.patternMarginRight)/Tracker.getTrackCount()-me.trackMargin;
+
+
 		var spinButtonHeight = 28;
 		var songPanelHeight = spinButtonHeight*3 + me.defaultMargin + 2;
+		var topPanelHeight = me.controlPanelHeight - me.menuHeight - (me.defaultMargin*2);
+		var buttonHeight = Math.floor(topPanelHeight/5) + 1;
+		var inputBoxHeight = 20;
 
-		menuBackground.setSize(me.col2W ,me.menuHeight);
+		var songlistboxWidth = me.col1W - 40;
+		var songlistboxButtonWidth = 20;
 
+		if (mainLayout == LAYOUTS.column5Full){
+			songPanelHeight = spinButtonHeight*5 + me.defaultMargin + 2;
+
+			var songlistboxWidth = Math.floor((me.col1W/3) * 2);
+			var songlistboxButtonWidth = Math.floor(me.col1W/6);
+		}
+
+
+
+		var topRow1 = me.menuHeight + me.defaultMargin;
+		var topRow2 = me.equaliserTop - songPanelHeight - me.defaultMargin;
+		var topRow3 = 0;
+
+		var layout = {
+			menuBackground: me.col2W,
+			logo:{
+				left: me.col1X,
+				width: me.col2W,
+				height: topPanelHeight - songPanelHeight - me.defaultMargin,
+				top: topRow1
+			},
+			modNameInputBox:{
+				left: me.col4X,
+				width: me.col2W,
+				top: topRow1,
+				height: inputBoxHeight
+			},
+			listbox:{
+				left: me.col4X,
+				width: me.col2W,
+				height: topPanelHeight - inputBoxHeight - me.defaultMargin,
+				top: me.menuHeight + me.defaultMargin + inputBoxHeight + me.defaultMargin
+			},
+			songPanel:{
+				left: me.defaultMargin,
+				top: topRow2,
+				width: me.col1W,
+				height: songPanelHeight
+			},
+			patternPanel:{
+				left:me.col2X,
+				top:topRow2,
+				width: me.col1W,
+				height:songPanelHeight
+			},
+			sideButtonPanel:{
+				visible: true,
+				left:me.col1X,
+				top: me.patternTop,
+				width: me.col1W,
+				height:me.patternHeight
+			},
+			patternView:{
+				left: patterViewLeft,
+				top : me.patternTop,
+				width: patterViewWidth,
+				height: me.patternHeight
+			},
+			sampleView:{
+				left: me.col1X,
+				top : me.patternTop,
+				width: me.col5W,
+				height: me.patternHeight
+			},
+			songControl:{ // play/record buttons
+				left: me.col1X,
+				top: me.controlBarTop,
+				width: me.col1W,
+				height: me.controlBarHeight
+			},
+			spinBoxPattern:{
+				left:me.col2X,
+				top: topRow2 + 3,
+				width: me.col1W,
+				height: spinButtonHeight
+			},
+			spinBoxPatternLength:{
+				left:me.col2X,
+				top: topRow2 + spinButtonHeight + 3,
+				width: me.col1W,
+				height: spinButtonHeight
+			},
+			spinBoxSample:{
+				left:me.col2X,
+				top: topRow2 + (spinButtonHeight*2) + 3,
+				width: me.col1W,
+				height: spinButtonHeight
+			},
+			spinBoxSongLength:{
+				left: me.defaultMargin,
+				top : me.equaliserTop,
+				height: spinButtonHeight,
+				width: me.col1W
+			},
+			spinBoxBmp:{
+				left: me.defaultMargin,
+				top : me.equaliserTop + spinButtonHeight,
+				height: spinButtonHeight,
+				width: me.col1W
+			},
+			buttonsInfo:{
+				left: me.col3X,
+				top: topRow1,
+				width: me.col1W,
+				height:buttonHeight
+			},
+			buttonsSideInfo:{
+				left:0,
+				top: me.defaultMargin,
+				width: me.col1W,
+				height:buttonHeight
+			}
+		};
+
+		if (mainLayout == LAYOUTS.column5Full){
+			layout.sideButtonPanel.left = -500;
+
+			layout.spinBoxSongLength.left =  me.col2X;
+			layout.spinBoxSongLength.top =  topRow2 + (spinButtonHeight*3) + 3;
+
+			layout.spinBoxBmp.left =  me.col2X;
+			layout.spinBoxBmp.top =  topRow2 + (spinButtonHeight*4) + 3;
+
+			layout.songPanel.height = songPanelHeight - me.controlBarHeight;
+			layout.songControl.top = layout.songPanel.top + layout.songPanel.height;
+		}
+
+		menuBackground.setSize(layout.menuBackground ,me.menuHeight);
 		mainBack.setSize(me.width,me.height);
 
-		var topPanelHeight = me.controlPanelHeight - me.menuHeight - (me.defaultMargin*2);
-		var topPaneltop = me.menuHeight + me.defaultMargin
-
-		modNameInputBox.setProperties({
-			left: me.col4X,
-			width: me.col2W,
-			top: topPaneltop,
-			height: 20
-		});
-
-		listbox.setProperties({
-			left: me.col4X,
-			width: me.col2W,
-			height: topPanelHeight - modNameInputBox.height - me.defaultMargin,
-			top: me.menuHeight + me.defaultMargin + modNameInputBox.height + me.defaultMargin
-		});
-
-		// logo
-		var logoWidth = me.col2W;
-		//if (me.width<900) logoWidth = me.col2W;
-		logo.setProperties({
-			left: me.col1X,
-			width: logoWidth,
-			height: topPanelHeight - songPanelHeight - me.defaultMargin,
-			top: topPaneltop
-		});
-
+		setDimensions(logo,layout.logo);
+		setDimensions(modNameInputBox,layout.modNameInputBox);
+		setDimensions(listbox,layout.listbox);
 
 		// buttons
-		var buttonHeight = Math.floor(topPanelHeight/5) + 1;
 		for (i = 0;i<buttonsInfo.length;i++){
 			var button = buttons[i];
 			button.setProperties({
-				left:me.col3X,
-				top: modNameInputBox.top + (i*buttonHeight),
-				width: me.col1W,
-				height:buttonHeight,
+				left:layout.buttonsInfo.left,
+				top: layout.buttonsInfo.top + (i*buttonHeight),
+				width: layout.buttonsInfo.width,
+				height:layout.buttonsInfo.height,
 				label: button.info.label,
 				textAlign:"left",
-				//backgroundImage: cachedAssets.images["skin/button_light.png"],
 				background: UI.Assets.buttonLightScale9,
 				font:window.fontMed
 			});
 		}
 
-		/*for (i = 0;i<buttonsSideInfo.length;i++){
-			var button = buttonsSide[i];
-			button.setProperties({
-				left:me.col1X,
-				top: me.patternTop + (i*buttonHeight) + me.defaultMargin,
-				width: me.col1W,
-				height:buttonHeight,
-				label: button.info.label,
-				textAlign:"left",
-				//backgroundImage: cachedAssets.images["skin/button_light.png"],
-				background: UI.Assets.buttonLightScale9,
-				font:window.fontMed
-			});
-		}*/
 		for (i = 0;i<buttonsSideInfo.length;i++){
 			var button = buttonsSide[i];
 			button.setProperties({
-				left:0,
-				top: (i*buttonHeight) + me.defaultMargin,
-				width: me.col1W,
-				height:buttonHeight,
+				left:layout.buttonsSideInfo.left,
+				top: (i*buttonHeight) + layout.buttonsSideInfo.top,
+				width: layout.buttonsSideInfo.width,
+				height:layout.buttonsSideInfo.height,
 				label: button.info.label,
 				textAlign:"left",
 				background: UI.Assets.buttonLightScale9,
@@ -375,38 +530,14 @@ UI.MainPanel = function(){
 			});
 		}
 
-		sideButtonPanel.setProperties({
-			left:me.col1X,
-			top: me.patternTop,
-			width: me.col1W,
-			height:me.patternHeight
-		});
-
-		// songpanel
-		songPanel.setProperties({
-			left: me.defaultMargin,
-			top: me.equaliserPanelY - songPanelHeight - me.defaultMargin,
-			width: me.col1W,
-			height: songPanelHeight
-		});
+		setDimensions(sideButtonPanel,layout.sideButtonPanel);
+		setDimensions(songPanel,layout.songPanel);
 
 		//songlistbox
-		spMin.setProperties({
-			left: (songPanel.left + songPanel.width) - spMin.width,
-			top:songPanel.top + (Math.floor(songPanel.height - spPlus.height)/2),
-			name:"PatternDown"
-		});
-		spPlus.setProperties({
-			left: spMin.left - spPlus.width,
-			top:spMin.top,
-			name:"PatternUp"
-		});
-
-
 		songlistbox.setProperties({
 			left: songPanel.left,
 			top: songPanel.top,
-			width: songPanel.width - spMin.width - spPlus.width - 1,
+			width: songlistboxWidth,
 			height: songPanel.height,
 			centerSelection: true,
 			onChange: function(){
@@ -414,89 +545,67 @@ UI.MainPanel = function(){
 			}
 		});
 
+		spMin.setProperties({
+			left: (songPanel.left + songPanel.width) - songlistboxButtonWidth,
+			top:songPanel.top + (Math.floor(songPanel.height - spPlus.height)/2),
+			width: songlistboxButtonWidth,
+			name:"PatternDown"
+		});
+
+		spPlus.setProperties({
+			left: spMin.left - songlistboxButtonWidth,
+			top:spMin.top,
+			width: songlistboxButtonWidth,
+			name:"PatternUp"
+		});
+
 		// controlBar
-		for (i = 0;i< 4;i++){
+		for (i = 0;i< Tracker.getTrackCount();i++){
 			trackControls[i].setProperties({
 				track:i,
-				left: me["col" + (i+2) + "X"],
+				left2: me["col" + (i+2) + "X"],
+				left: patterViewLeft + me.patternMargin + (me.trackWidth+me.trackMargin)*i,
 				top: me.controlBarTop,
-				width: me.col1W,
+				width: me.trackWidth,
 				height: me.controlBarHeight
 			});
 		}
 
-		songControl.setProperties({
-			left: me.col1X,
-			top: me.controlBarTop,
-			width: me.col1W,
-			height: me.controlBarHeight
-		});
+		setDimensions(songControl,layout.songControl);
+		setDimensions(patternPanel,layout.patternPanel);
 
-		// patternpanel
-		patternPanel.setProperties({
-			left:me.col2X,
-			top:songPanel.top,
-			height:songPanel.height,
-			width: songPanel.width
-		});
-		spinBoxPattern.setProperties({
-			left:patternPanel.left,
-			top: patternPanel.top + 2,
-			width: patternPanel.width,
-			height: spinButtonHeight,
-			name: "Pattern",
-			label: "Pattern",
-			value: 0,
-			max: 100,
-			min:0,
-			font: window.fontMed,
-			onChange : function(value){Tracker.setCurrentPattern(value);}
-		});
-		spinBoxPatternLength.setProperties({
-			left:patternPanel.left,
-			top: spinBoxPattern.top + spinButtonHeight,
-			width: patternPanel.width,
-			height: spinButtonHeight
-			//onChange : function(value){UI.renderPattern(value)}
-		});
-		spinBoxSample.setProperties({
-			left:patternPanel.left,
-			top: spinBoxPatternLength.top + spinButtonHeight,
-			width: patternPanel.width,
-			height: spinButtonHeight
-		});
+		setDimensions(spinBoxPattern,layout.spinBoxPattern);
+		setDimensions(spinBoxPatternLength,layout.spinBoxPatternLength);
+		setDimensions(spinBoxSample,layout.spinBoxSample);
+		setDimensions(spinBoxSongLength,layout.spinBoxSongLength);
+		setDimensions(spinBoxBmp,layout.spinBoxBmp);
 
-		spinBoxSongLength.setProperties({
-			left: me.defaultMargin,
-			top : me.equaliserPanelY,
-			height: spinButtonHeight,
-			width: me.col1W
-		});
-		spinBoxBmp.setProperties({
-			left: me.defaultMargin,
-			top : spinBoxSongLength.top + spinButtonHeight,
-			height: spinButtonHeight,
-			width: me.col1W
-		});
+		setDimensions(patternView,layout.patternView);
+		setDimensions(sampleView,layout.sampleView);
 
-		patternView.setProperties({
-			name: "patternViewPanel",
-			left: me.col2X,
-			top : me.patternTop,
-			width: me.col4W,
-			height: me.patternHeight
-		});
-
-		sampleView.setProperties({
-			name: "sampleViewPanel",
-			left: me.col1X,
-			top : me.patternTop,
-			width: me.col5W,
-			height: me.patternHeight
+		visualiser.setProperties({
+			left: patterViewLeft + me.patternMargin,
+			top: me.equaliserTop,
+			width: patterViewWidth - me.patternMargin - me.patternMarginRight,
+			height: me.equaliserPanelHeight
 		});
 
 		me.setSize(me.width,me.height);
 	};
+
+	function setDimensions(element,properties){
+		var visible = (typeof properties.visible == "boolean") ? properties.visible : true;
+		if (visible){
+			element.setProperties({
+				left: properties.left,
+				width: properties.width,
+				top: properties.top,
+				height: properties.height
+			});
+		}else{
+			//element.hide();
+		}
+	}
 
 	me.setLayout(0,0,me.width,me.height);
 
@@ -550,6 +659,7 @@ UI.MainPanel = function(){
 	me.getCurrentView = function(){
 		return currentView;
 	};
+
 
 	return me;
 

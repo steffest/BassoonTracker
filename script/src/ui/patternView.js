@@ -30,8 +30,6 @@ UI.PatternView = function(x,y,w,h){
             Tracker.setCurrentPatternPos(pos);
             //setScrollBarPosition();
         }
-
-
     };
 
     me.addChild(scrollBar);
@@ -41,6 +39,9 @@ UI.PatternView = function(x,y,w,h){
         if (!me.isVisible()) return;
 
         if (this.needsRendering){
+
+            me.clearCanvas();
+
             var index = Tracker.getCurrentPattern() || 0;
             var patternPos = Tracker.getCurrentPatternPos() || 0;
 
@@ -48,13 +49,21 @@ UI.PatternView = function(x,y,w,h){
             if (!song) return;
 
             var margin = UI.mainPanel.defaultMargin;
-            var trackWidth = UI.mainPanel.col1W;
-            if (Tracker.getTrackCount()>4){
-                trackWidth = UI.mainPanel.col4W/Tracker.getTrackCount()-4;
-            }
+            var trackWidth = UI.mainPanel.trackWidth;
+
             var visibleHeight = UI.mainPanel.patternHeight - 30;
             var trackY = 0;
-            var trackLeft = 0;
+            var trackLeft = UI.mainPanel.patternMargin;
+
+            var patternNumberLeft = 10;
+            var initialTrackTextOffset = 60;
+            var lineNumbersToTheLeft = false;
+            if (trackLeft) {
+                patternNumberLeft = 0;
+                initialTrackTextOffset = 0;
+                lineNumbersToTheLeft = true;
+            }
+
 
             visibleLines = Math.floor(visibleHeight/lineHeight);
             if (visibleLines%2== 0) visibleLines--;
@@ -106,13 +115,27 @@ UI.PatternView = function(x,y,w,h){
                     me.ctx.fillStyle = "#202E58";
                 }
 
+                var textWidth = 68;
+                // used to center text in Column;
 
-                me.ctx.fillRect(0,centerLineTop,me.width,centerLineHeight);
+
+                me.ctx.fillRect(UI.mainPanel.patternMargin,centerLineTop,(me.width-UI.mainPanel.patternMargin*2),centerLineHeight);
 
                 // draw cursor
                 var cursorPos = Tracker.getCurrentTrackPosition();
                 var cursorWidth = 9;
-                var cursorX = trackLeft + 60 + ((Tracker.getCurrentTrack()) * trackWidth) + (cursorPos*cursorWidth) - 1;
+
+
+                var cursorX;
+                if (lineNumbersToTheLeft){
+                    // center text in pattern
+                    trackX = trackLeft + Tracker.getCurrentTrack()*(trackWidth+margin);
+                    cursorX = trackX + Math.floor((trackWidth-textWidth)/2) + (cursorPos*cursorWidth) - 1;
+                }else{
+                    cursorX = trackLeft + initialTrackTextOffset + ((Tracker.getCurrentTrack()) * trackWidth) + (cursorPos*cursorWidth) - 1;
+
+                }
+
                 if (cursorPos > 0) {
                     cursorX += cursorWidth*2 + 1;
                     if (cursorPos > 2) cursorX += 2;
@@ -144,15 +167,24 @@ UI.PatternView = function(x,y,w,h){
                         if (i<10) ti = "0" + ti;
                         var color = false;
                         if (i%4 == 0) color = "orange";
-                        drawText(ti,trackLeft+10,y,color);
+
+
+                        drawText(ti,patternNumberLeft,y,color);
                         if (isCenter){
-                            drawText(ti,trackLeft+10,y,color);
-                            drawText(ti,trackLeft+10,y,color);
+                            drawText(ti,patternNumberLeft,y,color);
+                            drawText(ti,patternNumberLeft,y,color);
                         }
 
                         for (var j = 0; j<Tracker.getTrackCount();j++){
                             var note = step[j];
-                            var x = trackLeft + 60 + (j*trackWidth);
+                            var x;
+                            if (lineNumbersToTheLeft){
+                                // center text in pattern
+                                trackX = trackLeft + j*(trackWidth+margin);
+                                x = trackX + Math.floor((trackWidth-textWidth)/2);
+                            }else{
+                                x = trackLeft + initialTrackTextOffset + (j*trackWidth);
+                            }
 
                             var baseNote = periodNoteTable[note.period];
 

@@ -1,6 +1,5 @@
-UI.visualiser = function(x,y,width,height,visible){
-
-    var me = UI.element(x,y,width,height,visible);
+UI.visualiser = function(){
+    var me = UI.panel();
 
     var modes = [
         "wave",
@@ -11,6 +10,12 @@ UI.visualiser = function(x,y,width,height,visible){
     var mode =  modes[modeIndex];
     var analyser;
     var trackAnalyser = [];
+
+    me.ctx.fillStyle = 'black';
+    me.ctx.lineWidth = 2;
+    //me.ctx.strokeStyle = 'rgba(0, 255, 0,0.5)';
+    //me.ctx.strokeStyle = 'rgba(255, 221, 0, 0.3)';
+    me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
 
     me.init = function(){
         if (Audio.context){
@@ -29,11 +34,7 @@ UI.visualiser = function(x,y,width,height,visible){
             }
         }
 
-        me.ctx.fillStyle = 'black';
-        me.ctx.lineWidth = 2;
-        //me.ctx.strokeStyle = 'rgba(0, 255, 0,0.5)';
-        //me.ctx.strokeStyle = 'rgba(255, 221, 0, 0.3)';
-        me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
+
 
 
 
@@ -80,7 +81,7 @@ UI.visualiser = function(x,y,width,height,visible){
                 analyser.getByteTimeDomainData(dataArray);
 
                 me.ctx.beginPath();
-                var sliceWidth = width * 1.0 / bufferLength;
+                var sliceWidth = me.width * 1.0 / bufferLength;
                 var wx = 0;
 
                 for(var i = 0; i < bufferLength; i++) {
@@ -96,7 +97,7 @@ UI.visualiser = function(x,y,width,height,visible){
                     wx += sliceWidth;
                 }
 
-                me.ctx.lineTo(width, height/2);
+                me.ctx.lineTo(me.width, height/2);
                 me.ctx.stroke();
 
                 me.parentCtx.drawImage(me.canvas,x,y);
@@ -115,7 +116,7 @@ UI.visualiser = function(x,y,width,height,visible){
 
             analyser.getByteFrequencyData(dataArray);
 
-            var barWidth = (width - visualBufferLength) / visualBufferLength;
+            var barWidth = (me.width - visualBufferLength) / visualBufferLength;
             var barHeight;
             var wx = 0;
 
@@ -135,26 +136,32 @@ UI.visualiser = function(x,y,width,height,visible){
 
         }else if (mode=="tracks"){
 
+
+
             for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
                 var track = trackAnalyser[trackIndex];
-                var aWidth = width/Tracker.getTrackCount();
+                var aWidth = me.width/Tracker.getTrackCount();
                 var aLeft = aWidth*trackIndex;
 
                 var background = cachedAssets.images["skin/oscilloscope.png"];
-                me.ctx.drawImage(background,aLeft,0,aWidth, height);
+                me.ctx.drawImage(background,aLeft,0,aWidth, me.height);
 
                 if (track){
                     bufferLength = track.fftSize;
                     dataArray = new Uint8Array(bufferLength);
 
                     track.getByteTimeDomainData(dataArray);
+
+                    me.ctx.lineWidth = 2;
+                    me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
+
                     me.ctx.beginPath();
                     var sliceWidth = aWidth * 1.0 / bufferLength;
                     var wx = aLeft;
 
                     for(var i = 0; i < bufferLength; i++) {
                         var v = dataArray[i] / 128.0;
-                        var wy = v * height/2;
+                        var wy = v * me.height/2;
 
                         if(i === 0) {
                             me.ctx.moveTo(wx, wy);
@@ -172,8 +179,8 @@ UI.visualiser = function(x,y,width,height,visible){
 
             }
 
-
-            me.parentCtx.drawImage(me.canvas,x,y);
+            //me.parentCtx.drawImage(me.canvas,me.left, me.top);
+            ctx.drawImage(me.canvas,me.left, me.top);
         }
 
 

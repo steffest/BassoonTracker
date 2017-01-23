@@ -55,7 +55,6 @@ UI.songControl = function(x,y,w,h,visible){
         buttons.play.setActive(isPlaying);
     });
 
-
     var properties = ["left","top","width","height","name","type"];
     me.setProperties = function(p){
 

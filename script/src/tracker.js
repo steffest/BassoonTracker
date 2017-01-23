@@ -32,6 +32,13 @@ var Tracker = (function(){
 	var trackCount = 4;
 	var patternLength = 64;
 
+	var tracks = getUrlParameter("tracks");
+	if (tracks == 8) trackCount = 8;
+	if (tracks == 16) trackCount = 16;
+	if (tracks == 32) trackCount = 32;
+	if (tracks == 64) trackCount = 64;
+	if (tracks == 128) trackCount = 128;
+
 	var trackNotes = [];
 	var trackEffectCache = [];
 
@@ -103,7 +110,7 @@ var Tracker = (function(){
 	};
 	me.moveCursorPosition = function(amount){
 		var newPosition = currentCursorPosition+amount;
-		var max = 4*6 - 1;
+		var max = trackCount*6 - 1;
 		if (newPosition > max) newPosition=0;
 		if (newPosition < 0) newPosition=max;
 		me.setCurrentCursorPosition(newPosition);

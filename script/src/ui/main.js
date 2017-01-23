@@ -11,6 +11,10 @@ var UI = (function(){
 	var modalElement;
 	var needsRendering =  true;
 
+	var tracks = getUrlParameter("tracks");
+	if (tracks == 8) maxWidth = 1200;
+	if (tracks == 16) maxWidth = 1600;
+	if (tracks >= 32) maxWidth = 3200;
 
 	me.init = function(next){
 		canvas = document.getElementById("canvas");
@@ -127,16 +131,25 @@ var UI = (function(){
 			UI.mainPanel = UI.MainPanel();
 			children.push(UI.mainPanel);
 
+			// attach visualiser to main UI as this needs refreshing every tick
+			//children.push(UI.mainPanel.visualiser);
+			//UI.mainPanel.setParent(window);
+
+/*
 			// keep the analyser out of the mainframe as this needs updating every frame;
-			var analyser = UI.visualiser(UI.mainPanel.col2X,UI.mainPanel.equaliserPanelY,UI.mainPanel.col4W,UI.mainPanel.equaliserPanelHeight,true);
-			window.a = analyser;
+			var analyser = UI.visualiser(UI.mainPanel.col2X,UI.mainPanel.equaliserTop,UI.mainPanel.col4W,UI.mainPanel.equaliserPanelHeight,true);
+			window.analyser = analyser;
 			analyser.connect(Audio.masterVolume);
 			analyser.name = "mainAnalyser";
 			analyser.onClick = function(){
 				analyser.nextMode();
 			};
 			children.push(analyser);
-			analyser.setParent(window);
+			analyser.setParent(undefined);
+			UI.mainPanel.setVisualiser(analyser);
+
+			*/
+
 
 			render();
 
@@ -173,6 +186,8 @@ var UI = (function(){
 				}
 			});
 
+			UI.mainPanel.visualiser.render();
+
 			if (modalElement){
 				modalElement.render();
 				needsRendering = false;
@@ -203,6 +218,10 @@ var UI = (function(){
 		}
 		modalElement = undefined;
 		window.requestAnimationFrame(render);
+	};
+
+	me.getChildren = function(){
+		return children;
 	};
 
 	me.getEventElement = function(x,y){

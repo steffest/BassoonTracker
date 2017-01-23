@@ -42,6 +42,13 @@ var SETTINGS = {
 	unrollLoops: true
 };
 
+var LAYOUTS = {
+	column4:4,
+	column5:5,
+	column5Full:6,
+	column6:7
+};
+
 // amiga period table, translates notes to  samplefrequencies
 // first 3*12 are to first octaves (1,2 and 3)
 var periodTable  = [

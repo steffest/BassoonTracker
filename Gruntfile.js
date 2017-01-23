@@ -28,7 +28,7 @@ module.exports = function(grunt) {
                 mangleProperties: false,
                 exceptionsFiles: [ 'GruntMangleExceptions.json'],
                 nameCache: 'grunt-uglify-cache.json',
-                banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */',
+                banner: '/*<%= pkg.name %> v<%= pkg.version %> by <%= pkg.author %> - ' + 'build <%= grunt.template.today("yyyy-mm-dd") %> - Full source on <%= pkg.repository %> */',
                 compress: {
                     sequences     : true,  // join consecutive statemets with the “comma operator”
                     properties    : true,  // optimize property access: a["foo"] → a.foo
@@ -72,8 +72,7 @@ module.exports = function(grunt) {
 
     // Default task(s).
     // note:  use concat before uglify to keep the order of the JS files
-    grunt.registerTask('bassoontracker2', ['concat','uglify','clean']);
-    grunt.registerTask('bassoontracker', ['concat']);
+    grunt.registerTask('bassoontracker', ['concat','uglify','clean']);
     grunt.registerTask('default', ['bassoontracker']);
 
 };

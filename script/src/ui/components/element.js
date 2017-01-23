@@ -108,7 +108,7 @@ UI.element = function(left,top,width,height){
                 i--;
             }
         }
-        if (this.visible && me.parent) me.parent.refresh();
+        if (this.visible && me.parent && me.parent.refresh) me.parent.refresh();
     };
 
     me.setSize = function(_w,_h){
