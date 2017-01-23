@@ -181,6 +181,7 @@ var Tracker = (function(){
 		me.setPlayType(PLAYTYPE.song);
 		//me.setCurrentSongPosition(0);
 		isPlaying = true;
+		//Audio.startRecording();
 		playPattern(currentPattern);
 		EventBus.trigger(EVENT.playingChange,isPlaying);
 	};
@@ -196,6 +197,8 @@ var Tracker = (function(){
 
 	me.stop = function(){
 		if (clock) clock.stop();
+		//Audio.stopRecording();
+
 
 		for (var i = 0; i<trackCount; i++){
 			if (trackNotes[i].source){
@@ -229,12 +232,19 @@ var Tracker = (function(){
 		var thisPatternLength = currentPatternData.length;
 		var stepResult;
 
+		var altPlay = false;
 
-		mainTimer = clock.setTimeout(function(event) {
-			if (tickCounter == 0){
+		if (altPlay){
+			var combinedTickTime = tickTime*6*4;
+			mainTimer = clock.setTimeout(function(event) {
+				var step;
+
 				var p = currentPatternPos;
-				stepResult = playPatternStep(p);
-				p++;
+				for (step = 0;step<4;step++){
+					stepResult = playPatternStep(p+step,event.deadline + (step*tickTime));
+				}
+
+				p += 4;
 
 				if (p>=thisPatternLength || stepResult.patternBreak){
 					p=0;
@@ -245,23 +255,48 @@ var Tracker = (function(){
 					}
 				}
 				Tracker.setCurrentPatternPos(p);
-			}
-			processPatterTick();
 
-			tickCounter++;
+				tickCounter=0;
+			},0.01).repeat(combinedTickTime).tolerance({early: 0.1})
+		}else{
+			mainTimer = clock.setTimeout(function(event) {
+				if (tickCounter == 0){
+					var p = currentPatternPos;
+					stepResult = playPatternStep(p,event.deadline);
+					p++;
 
-			if (tickCounter>=ticksPerStep) tickCounter=0;
-		},0.01).repeat(tickTime).tolerance({early: 0.01})
+					if (p>=thisPatternLength || stepResult.patternBreak){
+						p=0;
+						if (Tracker.getPlayType() == PLAYTYPE.song){
+							var nextPosition = stepResult.positionBreak ? stepResult.targetPosition : ++currentSongPosition;
+							me.setCurrentSongPosition(nextPosition);
+
+						}
+					}
+					Tracker.setCurrentPatternPos(p);
+				}
+				processPatterTick();
+
+				tickCounter++;
+
+				if (tickCounter>=ticksPerStep) tickCounter=0;
+			},0.01).repeat(tickTime).tolerance({early: 0.01})
+		}
+
+
+
 	}
 
-	function playPatternStep(step){
+
+
+	function playPatternStep(step,time){
 		var patternStep = currentPatternData[step];
 		var tracks = patternStep.length;
 		var result = {};
 		var r;
 		for (var i = 0; i<tracks; i++){
 			var note = patternStep[i];
-			r = playNote(note,i);
+			r = playNote(note,i,time);
 			if (r.patternBreak) result.patternBreak = true;
 			if (r.positionBreak) {
 				result.positionBreak = true;
@@ -362,8 +397,6 @@ var Tracker = (function(){
 						if (_volume<0) _volume=0;
 						if (_volume>100) _volume=100;
 
-						console.error(_volume);
-
 						if (trackNotes[track].volume) trackNotes[track].volume.gain.value = _volume/100;
 						trackNotes[track].currentVolume = _volume;
 
@@ -382,14 +415,19 @@ var Tracker = (function(){
 						if (trackNotes[track].source){
 							var rate = (note.startPeriod / period);
 							trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
+							trackNotes[track].hasArpeggio = true;
 						}
 
 					}
 				}else{
 					// reset arpeggio if present
-					period = note.currentPeriod || note.startPeriod;
-					var rate = (note.startPeriod / period);
-					if (rate && trackNotes[track].source) trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
+					if (trackNotes[track].hasArpeggio){
+						period = note.currentPeriod || note.startPeriod;
+						var rate = (note.startPeriod / period);
+						if (rate && trackNotes[track].source) trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
+						trackNotes[track].hasArpeggio = false;
+					}
+
 
 				}
 			}
@@ -397,7 +435,7 @@ var Tracker = (function(){
 	}
 
 
-	function playNote(note,track){
+	function playNote(note,track,time){
 		var defaultVolume = 100;
 
 		var sampleIndex = note.sample;
@@ -431,6 +469,10 @@ var Tracker = (function(){
 					y = value & 0x0f;
 
 					var root = notePeriod || trackNotes[track].startPeriod;
+
+					//todo: when a sample index is present other than the previous index, but no note
+					// how does this work?
+					// see example just_about_seven.mod
 
 					trackEffects.arpeggio = {
 						root: root,
@@ -679,13 +721,13 @@ var Tracker = (function(){
 			// cut off previous note on the same track;
 			try{
 				if (trackNotes[track].source) {
-					trackNotes[track].source.stop();
+					trackNotes[track].source.stop(time);
 				}
 			}catch (e){
 
 			}
 
-			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects);
+			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time);
 		}else{
 			if (trackEffects){
 				if (trackNotes[track].source){
@@ -716,9 +758,9 @@ var Tracker = (function(){
 
 
 	me.setBPM = function(newBPM){
-		if (clock) clock.timeStretch(Audio.context.currentTime, [mainTimer], bpm / newBPM);
-		bpm = newBPM;
-		EventBus.trigger(EVENT.songBPMChange,bpm);
+		//if (clock) clock.timeStretch(Audio.context.currentTime, [mainTimer], bpm / newBPM);
+		//bpm = newBPM;
+		//EventBus.trigger(EVENT.songBPMChange,bpm);
 	};
 
 	me.getBPM = function(){

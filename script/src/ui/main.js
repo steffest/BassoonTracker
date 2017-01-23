@@ -10,6 +10,10 @@ var UI = (function(){
 	var maxWidth = 960;
 	var modalElement;
 	var needsRendering =  true;
+	var maxRenderTime = 0;
+	var skipRenderSteps = 0;
+	var renderStep = 0;
+	var renderTime = 0;
 
 	var tracks = getUrlParameter("tracks");
 	if (tracks == 8) maxWidth = 1200;
@@ -178,19 +182,36 @@ var UI = (function(){
 	};
 
 	var render = function(){
-		EventBus.trigger(EVENT.screenRefresh);
-		if (needsRendering){
-			children.forEach(function(element){
-				if (element.needsRendering) {
-					element.render();
+		var doRender = true;
+		if (skipRenderSteps){
+			renderStep++;
+			doRender = (renderStep>skipRenderSteps);
+		}
+		if(doRender){
+			renderStep = 0;
+			var startRenderTime = 0;
+			if (Audio.context) startRenderTime = Audio.context.currentTime;
+			EventBus.trigger(EVENT.screenRefresh);
+			if (needsRendering){
+				children.forEach(function(element){
+					if (element.needsRendering) {
+						element.render();
+					}
+				});
+
+				UI.mainPanel.visualiser.render();
+
+				if (modalElement){
+					modalElement.render();
+					needsRendering = false;
 				}
-			});
-
-			UI.mainPanel.visualiser.render();
-
-			if (modalElement){
-				modalElement.render();
-				needsRendering = false;
+			}
+			if (startRenderTime){
+				renderTime = Audio.context.currentTime - startRenderTime;
+				maxRenderTime = Math.max(renderTime,maxRenderTime);
+				if (maxRenderTime>0.06) skipRenderSteps=1;
+				if (maxRenderTime>0.08) skipRenderSteps=2;
+				if (maxRenderTime>0.1) skipRenderSteps=4;
 			}
 		}
 		window.requestAnimationFrame(render);
@@ -238,6 +259,14 @@ var UI = (function(){
 			target = target.getElementAtPoint(x,y);
 		}
 		return target;
+	};
+
+	me.stats = function(){
+		return {
+			maxRenderTime : maxRenderTime,
+			currentRenderTime: renderTime,
+			skipRenderSteps: skipRenderSteps
+		}
 	};
 
 	me.children = children;

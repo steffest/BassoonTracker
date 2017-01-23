@@ -9,6 +9,10 @@ var Audio = (function(){
     var i;
     var trackVolume = [];
     var trackPanning = [];
+    var isRecording;
+    var recordingAvailable;
+    var mediaRecorder;
+    var recordingChunks = [];
 
     if (AudioContext){
         context = new AudioContext();
@@ -23,7 +27,6 @@ var Audio = (function(){
 
         lowPassfilter.connect(masterVolume);
     }
-
 
     me.init = function(){
         if (!context) return;
@@ -51,10 +54,11 @@ var Audio = (function(){
     };
 
 
-    me.playSample = function(index,period,volume,track,effects){
+    me.playSample = function(index,period,volume,track,effects,time){
 
         period = period || 428; // C-3
         track = track || Tracker.getCurrentTrack();
+        time = time || 0;
 
         var sample = Tracker.getSample(index);
 
@@ -149,7 +153,7 @@ var Audio = (function(){
 
             source.playbackRate.value = initialPlaybackRate;
             var sourceDelayTime = 0;
-
+            var playTime = time + sourceDelayTime;
 
             // this was a feably attempt to implement arpeggio
             // reactivate this if we want to play real chords (simultaneously);
@@ -212,7 +216,7 @@ var Audio = (function(){
                 }
             }*/
 
-            source.start(sourceDelayTime);
+            source.start(playTime);
 
             var result = {
                 source: source,
@@ -230,6 +234,47 @@ var Audio = (function(){
         }
 
         return {};
+    };
+
+    me.isRecording = function(){
+        return isRecording;
+    };
+
+    me.startRecording = function(){
+        if (!isRecording){
+
+            if (context && context.createMediaStreamDestination){
+                var dest = context.createMediaStreamDestination();
+                mediaRecorder = new MediaRecorder(dest.stream);
+
+                mediaRecorder.ondataavailable = function(evt) {
+                    // push each chunk (blobs) in an array
+                    recordingChunks.push(evt.data);
+                };
+
+                mediaRecorder.onstop = function(evt) {
+                    var blob = new Blob(recordingChunks, { 'type' : 'audio/ogg; codecs=opus' });
+                    saveAs(blob,"recording.opus");
+                    //document.querySelector("audio").src = URL.createObjectURL(blob);
+                };
+
+
+                masterVolume.connect(dest);
+                mediaRecorder.start();
+                isRecording = true;
+
+            }else{
+                console.error("recording is not supported on this browser");
+            }
+
+        }
+    };
+
+    me.stopRecording = function(){
+        if (isRecording){
+            isRecording = false;
+            mediaRecorder.stop();
+        }
     };
 
     me.masterVolume = masterVolume;
