@@ -13,29 +13,40 @@ var Audio = (function(){
     var recordingAvailable;
     var mediaRecorder;
     var recordingChunks = [];
+    var offlineContext;
 
-    if (AudioContext){
-        context = new AudioContext();
+    var isRendering = false;
 
-        masterVolume = context.createGain();
+
+    function createAudioConnections(audioContext){
+        masterVolume = audioContext.createGain();
         masterVolume.gain.value = 0.7;
-        masterVolume.connect(context.destination);
+        masterVolume.connect(audioContext.destination);
 
-        lowPassfilter = context.createBiquadFilter();
+        lowPassfilter = audioContext.createBiquadFilter();
         lowPassfilter.type = "lowpass";
         lowPassfilter.frequency.value = 20000;
 
         lowPassfilter.connect(masterVolume);
     }
 
-    me.init = function(){
-        if (!context) return;
+    if (AudioContext){
+        context = new AudioContext();
+        createAudioConnections(context);
+    }
+
+    me.init = function(audioContext){
+
+        audioContext = audioContext || context;
+        if (!audioContext) return;
 
         var numberOfTracks = Tracker.getTrackCount();
+        trackVolume = [];
+        trackPanning = [];
 
         for (i = 0; i<numberOfTracks;i++){
-            var gain = context.createGain();
-            var pan = context.createStereoPanner();
+            var gain = audioContext.createGain();
+            var pan = audioContext.createStereoPanner();
             gain.gain.value = 0.7;
 
             // pan even channels to the left, uneven to the right
@@ -46,15 +57,28 @@ var Audio = (function(){
             trackPanning.push(pan);
         }
 
-        EventBus.on(EVENT.trackStateChange,function(event,state){
-            if (typeof state.track != "undefined" && trackVolume[state.track]){
-                trackVolume[state.track].gain.value = state.mute?0:0.7;
-            }
-        });
+        me.trackVolume = trackVolume;
+        me.trackPanning = trackPanning;
+
+        if (!isRendering){
+            EventBus.on(EVENT.trackStateChange,function(event,state){
+                if (typeof state.track != "undefined" && trackVolume[state.track]){
+                    trackVolume[state.track].gain.value = state.mute?0:0.7;
+                }
+            });
+        }
+
     };
 
 
     me.playSample = function(index,period,volume,track,effects,time){
+
+        var audioContext;
+        if (isRendering){
+            audioContext = offlineContext;
+        }else{
+            audioContext = context;
+        }
 
         period = period || 428; // C-3
         track = track || Tracker.getCurrentTrack();
@@ -92,11 +116,11 @@ var Audio = (function(){
                     sampleLength -= offset;
                 }
                 // note - on safari you can't set a different samplerate?
-                sampleBuffer = context.createBuffer(1, sampleLength,context.sampleRate);
-                initialPlaybackRate = sampleRate / context.sampleRate;
+                sampleBuffer = audioContext.createBuffer(1, sampleLength,audioContext.sampleRate);
+                initialPlaybackRate = sampleRate / audioContext.sampleRate;
             }else {
                 // empty samples are often used to cut of the previous sample
-                sampleBuffer = context.createBuffer(1, 1, sampleRate);
+                sampleBuffer = audioContext.createBuffer(1, 1, sampleRate);
                 offset = 0;
             }
             var buffering = sampleBuffer.getChannelData(0);
@@ -104,10 +128,10 @@ var Audio = (function(){
                 buffering[i] = sample.data[i + offset];
             }
 
-            var source = context.createBufferSource();
+            var source = audioContext.createBufferSource();
             source.buffer = sampleBuffer;
 
-            var volumeGain = context.createGain();
+            var volumeGain = audioContext.createGain();
             volumeGain.gain.value = volume/100; // TODO : instrument volume
 
             if (sample.loopStart && sample.loopRepeatLength>1){
@@ -115,7 +139,7 @@ var Audio = (function(){
                 if (!SETTINGS.unrollLoops){
                     function createLoop(){
                         var loopLength = sample.loopRepeatLength;
-                        var loopBuffer = context.createBuffer(1, loopLength, sampleRate);
+                        var loopBuffer = audioContext.createBuffer(1, loopLength, sampleRate);
 
 
                         var loopBuffering = loopBuffer.getChannelData(0);
@@ -123,7 +147,7 @@ var Audio = (function(){
                             loopBuffering[i] = sample.data[sample.loopStart + i];
                         }
 
-                        var loop = context.createBufferSource();
+                        var loop = audioContext.createBufferSource();
                         loop.buffer = loopBuffer;
                         loop.connect(volumeGain);
                         loop.start(0);
@@ -145,7 +169,6 @@ var Audio = (function(){
                         createLoop()
                     };
                 }
-
             }
 
             source.connect(volumeGain);
@@ -154,7 +177,6 @@ var Audio = (function(){
             source.playbackRate.value = initialPlaybackRate;
             var sourceDelayTime = 0;
             var playTime = time + sourceDelayTime;
-
 
             source.start(playTime);
 
@@ -169,7 +191,7 @@ var Audio = (function(){
                 effects: effects
             };
 
-            EventBus.trigger(EVENT.samplePlay,result);
+            if (!isRendering) EventBus.trigger(EVENT.samplePlay,result);
 
             return result;
         }
@@ -217,6 +239,62 @@ var Audio = (function(){
             isRecording = false;
             mediaRecorder.stop();
         }
+    };
+
+    me.startRendering = function(length){
+        isRendering = true;
+
+        console.error("startRendering " + length);
+        offlineContext = new OfflineAudioContext(2,44100*length,44100);
+        me.context = offlineContext;
+        createAudioConnections(offlineContext);
+        me.init(offlineContext);
+    };
+
+    me.stopRendering = function(){
+        isRendering = false;
+
+        offlineContext.startRendering().then(function(renderedBuffer) {
+            console.log('Rendering completed successfully');
+
+
+            //var sampleBuffer = context.createBuffer(2, renderedBuffer.length,context.sampleRate);
+
+
+
+            var doSave = true;
+
+            if (doSave){
+                // save to wav
+                var b = new Blob([audioBufferToWav(renderedBuffer)], {type: "octet/stream"});
+                saveAs(b,"output.wav");
+            }else{
+                var output = context.createBufferSource();
+                output.buffer = renderedBuffer;
+                output.connect(context.destination);
+                output.start();
+            }
+
+
+            //https://github.com/Jam3/audiobuffer-to-wav/blob/master/index.js
+
+            //var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            //var song = audioCtx.createBufferSource();
+            //song.buffer = renderedBuffer;
+
+
+
+            //play.onclick = function() {
+            //    song.start();
+            //}
+        }).catch(function(err) {
+            console.log('Rendering failed: ' + err);
+            // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
+        });
+
+        me.context = context;
+        createAudioConnections(context);
+        me.init(context);
     };
 
     me.masterVolume = masterVolume;

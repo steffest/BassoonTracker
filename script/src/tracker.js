@@ -38,6 +38,9 @@ var Tracker = (function(){
 	if (tracks == 32) trackCount = 32;
 	if (tracks == 64) trackCount = 64;
 	if (tracks == 128) trackCount = 128;
+	if (tracks == 256) trackCount = 256;
+	if (tracks == 512) trackCount = 512;
+	if (tracks == 1024) trackCount = 1024;
 
 	var trackNotes = [];
 	var trackEffectCache = [];
@@ -274,6 +277,7 @@ var Tracker = (function(){
 			var p =  0;
 			var time = Audio.context.currentTime;
 			var delay = 0.5;
+			delay = 2;
 
 			mainTimer = clock.setTimeout(function(event) {
 
@@ -802,7 +806,6 @@ var Tracker = (function(){
 			targetVolume = Math.max(targetVolume,0);
 			targetVolume = Math.min(targetVolume,100);
 
-			console.error(currentVolume,targetVolume);
 
 			trackNote.currentVolume = targetVolume;
 			trackNote.volume.gain.setValueAtTime(currentVolume/100,time);
@@ -840,6 +843,24 @@ var Tracker = (function(){
 		}
 	}
 
+	me.renderTrackToBuffer = function(){
+		me.playBackEngine = PLAYBACKENGINE.SIMPLE;
+
+		var step = 0;
+		var thisPatternLength = 64;
+		var time = 0;
+
+		var length = (ticksPerStep * tickTime * thisPatternLength);
+		Audio.startRendering(length);
+
+		while (step<thisPatternLength){
+			var stepResult = playPatternStep(step,time);
+			time += ticksPerStep * tickTime;
+			step++;
+		}
+
+		Audio.stopRendering();
+	};
 
 	me.setBPM = function(newBPM){
 		//if (clock) clock.timeStretch(Audio.context.currentTime, [mainTimer], bpm / newBPM);
