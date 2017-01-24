@@ -25,6 +25,7 @@ Features
   - Speed settings (Effect F)
 - mute/solo tracks
 - edit pattern data and sample properties
+- export to .wav (and .mod)
 
 Missing features and bugs
  - Not much disk operations yet, you can load new modules and samples by drag-dropping them on the interface  
