@@ -15,6 +15,8 @@ var UI = (function(){
 	var renderStep = 0;
 	var renderTime = 0;
 
+	var UICache = {};
+
 	var tracks = getUrlParameter("tracks");
 	if (tracks == 8) maxWidth = 1200;
 	if (tracks == 16) maxWidth = 1600;
@@ -184,6 +186,29 @@ var UI = (function(){
 
 	var render = function(){
 		var doRender = true;
+
+		// if Tracker is playing in audio lookahead mode (PlaybackEngine.simple)
+		// set the currect Tracker position to whatever the audio is playing
+		// Audio First!
+
+		if (Tracker.isPlaying() && Tracker.playBackEngine == PLAYBACKENGINE.SIMPLE){
+			var step = Audio.progressMonitor.Q.value;
+			if (step != UICache.PatternPos){
+				Tracker.setCurrentPatternPos(step);
+				UICache.PatternPos = step;
+			}
+			step = Audio.progressMonitor.detune.value;
+			if (step != UICache.SongPos){
+				Tracker.setCurrentSongPosition(step);
+				UICache.SongPos = step;
+			}
+
+		}
+
+
+
+
+
 		if (skipRenderSteps){
 			renderStep++;
 			doRender = (renderStep>skipRenderSteps);

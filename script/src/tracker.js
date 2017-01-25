@@ -130,9 +130,11 @@ var Tracker = (function(){
 		return currentSongPosition;
 	};
 	me.setCurrentSongPosition = function(position){
-		currentSongPosition = position;
-		EventBus.trigger(EVENT.songPositionChange,currentSongPosition);
-		if (song.patternTable) me.setCurrentPattern(song.patternTable[currentSongPosition]);
+		if (position != currentSongPosition){
+			currentSongPosition = position;
+			EventBus.trigger(EVENT.songPositionChange,currentSongPosition);
+			if (song.patternTable) me.setCurrentPattern(song.patternTable[currentSongPosition]);
+		}
 	};
 
 	me.addToPatternTable = function(index,patternIndex){
@@ -275,28 +277,44 @@ var Tracker = (function(){
 			// TODO: reimplement tick processing
 
 			var p =  0;
-			var time = Audio.context.currentTime;
+			var time = Audio.context.currentTime + 0.01;
 			var delay = 0.5;
 			delay = 2;
+			var playPatternData = currentPatternData;
+			var playSongPosition = currentSongPosition;
 
 			mainTimer = clock.setTimeout(function(event) {
 
 				var maxTime = event.deadline + delay;
 
 				while (time<maxTime){
-					var stepResult = playPatternStep(p,time);
+
+
+					//Audio.context.listener.upX.setValueAtTime(p,time);
+					//Audio.context.listener.upY.setValueAtTime(playSongPosition,time);
+
+					//Audio.progressMonitor.playbackRate.setValueAtTime(p,time);
+
+					Audio.progressMonitor.Q.setValueAtTime(p,time);
+					Audio.progressMonitor.detune.setValueAtTime(playSongPosition,time);
+
+					var stepResult = playPatternStep(p,time,playPatternData);
 					time += ticksPerStep * tickTime;
 					p++;
 
 					if (p>=thisPatternLength || stepResult.patternBreak){
 						p=0;
 						if (Tracker.getPlayType() == PLAYTYPE.song){
-							var nextPosition = stepResult.positionBreak ? stepResult.targetPosition : ++currentSongPosition;
-							me.setCurrentSongPosition(nextPosition);
+							var nextPosition = stepResult.positionBreak ? stepResult.targetPosition : ++playSongPosition;
+							playSongPosition = nextPosition;
+							var patternIndex = song.patternTable[playSongPosition];
+							playPatternData = song.patterns[patternIndex];
+							//me.setCurrentSongPosition(nextPosition);
+							// set currentSongPosition in Audio data;
 
 						}
 					}
-					me.setCurrentPatternPos(p);
+					//me.setCurrentPatternPos(p);
 				}
 
 			},0.01).repeat(delay).tolerance({early: 0.1});
@@ -306,8 +324,12 @@ var Tracker = (function(){
 	}
 
 
-	function playPatternStep(step,time){
-		var patternStep = currentPatternData[step];
+	function playPatternStep(step,time,patternData){
+
+		patternData = patternData || currentPatternData;
+		// note: patternData can be different than currentPatternData when playback is active with long look ahead times
+
+		var patternStep = patternData[step];
 		var tracks = patternStep.length;
 		var result = {};
 		var r;
@@ -847,17 +869,26 @@ var Tracker = (function(){
 		me.playBackEngine = PLAYBACKENGINE.SIMPLE;
 
 		var step = 0;
+		var patternStep = 0;
 		var thisPatternLength = 64;
 		var time = 0;
 
+		//var length = (ticksPerStep * tickTime * thisPatternLength) * song.length;
 		var length = (ticksPerStep * tickTime * thisPatternLength);
 		Audio.startRendering(length);
 
-		while (step<thisPatternLength){
-			var stepResult = playPatternStep(step,time);
-			time += ticksPerStep * tickTime;
-			step++;
-		}
+
+		//while (patternStep<song.length){
+		//	var patternIndex = song.patternTable[patternStep];
+		//	currentPatternData = song.patterns[patternIndex];
+			while (step<thisPatternLength){
+				var stepResult = playPatternStep(step,time);
+				time += ticksPerStep * tickTime;
+				step++;
+			}
+			step = 0;
+			patternStep++;
+		//}
 
 		Audio.stopRendering();
 	};

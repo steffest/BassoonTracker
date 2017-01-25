@@ -14,9 +14,9 @@ var Audio = (function(){
     var mediaRecorder;
     var recordingChunks = [];
     var offlineContext;
+    var progressMonitor;
 
     var isRendering = false;
-
 
     function createAudioConnections(audioContext){
         masterVolume = audioContext.createGain();
@@ -28,6 +28,23 @@ var Audio = (function(){
         lowPassfilter.frequency.value = 20000;
 
         lowPassfilter.connect(masterVolume);
+
+        /*
+            This is really stupid:
+            We need a robust way of tracking song and track position of what currenty playing in the Audio Context
+            but javascript timing and audio context timing drift way apart
+            progressMonitor is (ab)used to store data in the audio chain in a dummy filter
+            so the UI thread can read them out and now what the audio context is playing.
+
+            Is there a better way to do this?
+         */
+        progressMonitor = audioContext.createBiquadFilter();
+        progressMonitor.type = "lowpass";
+        progressMonitor.frequency.value = 22000;
+
+        lowPassfilter.connect(progressMonitor);
+        progressMonitor.connect(masterVolume);
+
     }
 
     if (AudioContext){
@@ -199,6 +216,16 @@ var Audio = (function(){
         return {};
     };
 
+    me.playSilence = function(){
+        // used to activate Audio engine on first touch in IOS devices
+        if (context){
+            var source = context.createBufferSource();
+            source.connect(masterVolume);
+            source.start();
+        }
+
+    };
+
 
     me.isRecording = function(){
         return isRecording;
@@ -299,6 +326,7 @@ var Audio = (function(){
 
     me.masterVolume = masterVolume;
     me.lowPassfilter = lowPassfilter;
+    me.progressMonitor = progressMonitor;
     me.context = context;
     me.trackVolume = trackVolume;
     me.trackPanning = trackPanning;
@@ -340,7 +368,6 @@ var Audio = (function(){
         leftFeedback.connect(merger, 0, 0);
         rightFeedback.connect(merger, 0, 1);
 
-
         // Now connect your input to "splitter", and connect "merger" to your output destination.
 
         return{
@@ -348,7 +375,6 @@ var Audio = (function(){
             merger: merger
         }
     }
-
 
     /**
 

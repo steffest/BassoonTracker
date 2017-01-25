@@ -47,6 +47,7 @@ var Input = (function(){
 
 			if (!isTouched){
 				// first touch - init media on IOS
+				Audio.playSilence();
 				isTouched = true;
 			}
 
