@@ -870,6 +870,26 @@ var Tracker = (function(){
 				trackNote.source.playbackRate.linearRampToValueAtTime(trackNote.startPlaybackRate * rate,time+((ticksPerStep-1)*tickTime));
 			}
 		}
+
+		if (effects.arpeggio){
+			if (trackNote.source){
+				var currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
+				var currentRate = trackNote.startPlaybackRate;
+				var targetPeriod;
+
+				for (var tick = 0; tick < ticksPerStep; tick++){
+					var t = tick%3;
+
+					if (t == 0)targetPeriod = currentPeriod;
+					if (t == 1 && effects.arpeggio.interval1) targetPeriod = currentPeriod - effects.arpeggio.interval1;
+					if (t == 2 && effects.arpeggio.interval2) targetPeriod = currentPeriod - effects.arpeggio.interval2;
+
+					var rate = (currentPeriod / targetPeriod);
+					trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime));
+				}
+				trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate,time + (ticksPerStep*tickTime));
+			}
+		}
 	}
 
 	me.renderTrackToBuffer = function(){
