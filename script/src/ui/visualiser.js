@@ -136,7 +136,7 @@ UI.visualiser = function(){
 
         }else if (mode=="tracks"){
 
-
+            var hasVolume = Audio.cutOffVolume.gain.value>0;
 
             for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
                 var track = trackAnalyser[trackIndex];
@@ -147,36 +147,42 @@ UI.visualiser = function(){
                 me.ctx.drawImage(background,aLeft,0,aWidth, me.height);
 
                 if (track){
-                    bufferLength = track.fftSize;
-                    dataArray = new Uint8Array(bufferLength);
-
-                    track.getByteTimeDomainData(dataArray);
-
                     me.ctx.lineWidth = 2;
                     me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
-
                     me.ctx.beginPath();
-                    var sliceWidth = aWidth * 1.0 / bufferLength;
-                    var wx = aLeft;
 
-                    for(var i = 0; i < bufferLength; i++) {
-                        var v = dataArray[i] / 128.0;
-                        var wy = v * me.height/2;
+                    var wy;
 
-                        if(i === 0) {
-                            me.ctx.moveTo(wx, wy);
-                        } else {
-                            me.ctx.lineTo(wx, wy);
+                    if (hasVolume){
+
+                        bufferLength = track.fftSize;
+                        dataArray = new Uint8Array(bufferLength);
+                        track.getByteTimeDomainData(dataArray);
+
+                        var sliceWidth = aWidth * 1.0 / bufferLength;
+                        var wx = aLeft;
+
+                        for(var i = 0; i < bufferLength; i++) {
+                            var v = dataArray[i] / 128.0;
+                            wy = v * me.height/2;
+
+                            if(i === 0) {
+                                me.ctx.moveTo(wx, wy);
+                            } else {
+                                me.ctx.lineTo(wx, wy);
+                            }
+
+                            wx += sliceWidth;
                         }
-
-                        wx += sliceWidth;
+                    }else{
+                        wy = me.height/2;
+                        me.ctx.moveTo(aLeft, wy);
+                        me.ctx.lineTo(aLeft + aWidth, wy);
                     }
 
                     //myCtx.lineTo(aWidth, height/2);
                     me.ctx.stroke();
                 }
-
-
             }
 
             //me.parentCtx.drawImage(me.canvas,me.left, me.top);

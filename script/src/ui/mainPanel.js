@@ -233,7 +233,7 @@ UI.MainPanel = function(){
 
 	var visualiser = UI.visualiser();
 
-	visualiser.connect(Audio.masterVolume);
+	visualiser.connect(Audio.cutOffVolume);
 	visualiser.name = "mainAnalyser";
 	visualiser.onClick = function(){
 		visualiser.nextMode();

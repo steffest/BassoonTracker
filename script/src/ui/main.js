@@ -137,26 +137,6 @@ var UI = (function(){
 			UI.mainPanel = UI.MainPanel();
 			children.push(UI.mainPanel);
 
-			// attach visualiser to main UI as this needs refreshing every tick
-			//children.push(UI.mainPanel.visualiser);
-			//UI.mainPanel.setParent(window);
-
-/*
-			// keep the analyser out of the mainframe as this needs updating every frame;
-			var analyser = UI.visualiser(UI.mainPanel.col2X,UI.mainPanel.equaliserTop,UI.mainPanel.col4W,UI.mainPanel.equaliserPanelHeight,true);
-			window.analyser = analyser;
-			analyser.connect(Audio.masterVolume);
-			analyser.name = "mainAnalyser";
-			analyser.onClick = function(){
-				analyser.nextMode();
-			};
-			children.push(analyser);
-			analyser.setParent(undefined);
-			UI.mainPanel.setVisualiser(analyser);
-
-			*/
-
-
 			render();
 
 			// load demo mod at startup

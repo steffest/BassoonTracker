@@ -6,6 +6,7 @@ var Audio = (function(){
 
     var context;
     var masterVolume;
+    var cutOffVolume;
     var lowPassfilter;
     var i;
     var trackVolume = [];
@@ -20,9 +21,13 @@ var Audio = (function(){
 
     function createAudioConnections(audioContext){
 
+        cutOffVolume = audioContext.createGain();
+        cutOffVolume.gain.value = 1;
+        cutOffVolume.connect(audioContext.destination);
+
         masterVolume = audioContext.createGain();
         masterVolume.gain.value = 0.7;
-        masterVolume.connect(audioContext.destination);
+        masterVolume.connect(cutOffVolume);
 
         lowPassfilter = audioContext.createBiquadFilter();
         lowPassfilter.type = "lowpass";
@@ -71,6 +76,14 @@ var Audio = (function(){
 
     };
 
+    me.enable = function(){
+        cutOffVolume.gain.value = 1;
+    };
+
+    me.disable = function(){
+        cutOffVolume.gain.value = 0;
+    };
+
 
     me.playSample = function(index,period,volume,track,effects,time){
 
@@ -79,6 +92,7 @@ var Audio = (function(){
             audioContext = offlineContext;
         }else{
             audioContext = context;
+            me.enable();
         }
 
         period = period || 428; // C-3
@@ -305,6 +319,7 @@ var Audio = (function(){
     };
 
     me.masterVolume = masterVolume;
+    me.cutOffVolume = cutOffVolume;
     me.lowPassfilter = lowPassfilter;
     me.context = context;
     me.trackVolume = trackVolume;

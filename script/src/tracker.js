@@ -209,6 +209,7 @@ var Tracker = (function(){
 
 	me.stop = function(){
 		if (clock) clock.stop();
+		Audio.disable();
 		//Audio.stopRecording();
 
 		for (var i = 0; i<trackCount; i++){
@@ -244,6 +245,7 @@ var Tracker = (function(){
 
 		clock = clock || new WAAClock(Audio.context);
 		clock.start();
+		Audio.enable();
 
 		currentPatternData = song.patterns[patternIndex];
 		var thisPatternLength = currentPatternData.length;
@@ -285,7 +287,6 @@ var Tracker = (function(){
 
 			var delay = 0.1;
 			var playingDelay = 1;
-
 
 			var playPatternData = currentPatternData;
 			var playSongPosition = currentSongPosition;
