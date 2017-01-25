@@ -698,15 +698,19 @@ var Tracker = (function(){
 				x = value >> 4;
 				y = value & 0x0f;
 
-				if (x==0 && y==0 && trackEffectCache[track].tremolo){
-					trackEffects.tremolo = trackEffectCache[track].tremolo;
-				}else{
-					trackEffects.tremolo = {
-						amplitude: y * (ticksPerStep-1),
-						freq: (x*ticksPerStep)/64
-					};
-					trackEffectCache[track].tremolo = trackEffects.tremolo;
-				}
+				var amplitude = y * (ticksPerStep-1);
+				var freq = (x*ticksPerStep)/64;
+
+				var prevTremolo = trackEffectCache[track].tremolo;
+
+				if (x==0 && prevTremolo) freq = prevTremolo.freq;
+				if (y==0 && prevTremolo) amplitude = prevTremolo.amplitude;
+
+				trackEffects.tremolo = {
+					amplitude:amplitude,
+					freq: freq
+				};
+				trackEffectCache[track].tremolo = trackEffects.tremolo;
 
 				break;
 			case 8:
@@ -923,26 +927,30 @@ var Tracker = (function(){
 
 		}
 
-		/*
+
 		if (effects.tremolo){
 			var freq = effects.tremolo.freq;
 			var amp = effects.tremolo.amplitude;
 
-			trackNotes[track].tremoloTimer = trackNotes[track].tremoloTimer||0;
+			trackNote.tremoloTimer = trackNote.tremoloTimer||0;
 
-			var volumeChange = Math.sin(trackNotes[track].tremoloTimer * freq) * amp;
+			if (trackNote.volume) {
+				var _volume = trackNote.startVolume;
 
-			var _volume = note.startVolume;
-			_volume += volumeChange;
-			if (_volume<0) _volume=0;
-			if (_volume>100) _volume=100;
+				for (var tick = 0; tick < ticksPerStep; tick++) {
 
-			if (trackNotes[track].volume) trackNotes[track].volume.gain.value = _volume/100;
-			trackNotes[track].currentVolume = _volume;
+					var volumeChange = Math.sin(trackNote.tremoloTimer * freq) * amp;
+					_volume += volumeChange;
+					if (_volume<0) _volume=0;
+					if (_volume>100) _volume=100;
 
-			trackNotes[track].tremoloTimer++;
+					trackNote.volume.gain.setValueAtTime(_volume/100,time + (tick*tickTime));
+					trackNote.currentVolume = _volume;
+					trackNote.tremoloTimer++;
+				}
+			}
 
-		}*/
+		}
 
 
 		if (!hasPeriodEffect){
