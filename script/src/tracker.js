@@ -595,15 +595,18 @@ var Tracker = (function(){
 				x = value >> 4;
 				y = value & 0x0f;
 
-				if (x==0 && y==0 && trackEffectCache[track].vibrato){
-					trackEffects.vibrato = trackEffectCache[track].vibrato;
-				}else{
-					trackEffects.vibrato = {
-						amplitude: y,
-						freq: (x*ticksPerStep)/64
-					};
-					trackEffectCache[track].vibrato = trackEffects.vibrato;
-				}
+				var freq = (x*ticksPerStep)/64;
+
+                var prevVibrato = trackEffectCache[track].vibrato;
+				if (x == 0 && prevVibrato) freq = prevVibrato.freq;
+				if (y == 0 && prevVibrato) y = prevVibrato.amplitude;
+
+				trackEffects.vibrato = {
+					amplitude: y,
+					freq: freq
+				};
+				trackEffectCache[track].vibrato = trackEffects.vibrato;
+
 				break;
 			case 5:
 				// continue slide to note
@@ -820,6 +823,7 @@ var Tracker = (function(){
 		if (!effects) return;
 
 		var value;
+		var hasPeriodEffect = false;
 
 		if (effects.fade){
 			value = (effects.fade.value * 100)/64;
@@ -862,6 +866,7 @@ var Tracker = (function(){
 
 			trackNote.currentPeriod = period;
 			if (trackNote.source){
+				hasPeriodEffect = true;
 				var currentRate = (trackNote.startPeriod / currentPeriod);
 				var rate = (trackNote.startPeriod / period);
 
@@ -873,6 +878,7 @@ var Tracker = (function(){
 
 		if (effects.arpeggio){
 			if (trackNote.source){
+				hasPeriodEffect = true;
 				var currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
 				var currentRate = trackNote.startPlaybackRate;
 				var targetPeriod;
@@ -887,8 +893,62 @@ var Tracker = (function(){
 					var rate = (currentPeriod / targetPeriod);
 					trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime));
 				}
-				trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate,time + (ticksPerStep*tickTime));
+				//trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate,time + (ticksPerStep*tickTime)+0.2);
 			}
+		}
+
+		if (effects.vibrato){
+			var freq = effects.vibrato.freq;
+			var amp = effects.vibrato.amplitude;
+
+			trackNote.vibratoTimer = trackNote.vibratoTimer||0;
+
+
+			if (trackNote.source) {
+				hasPeriodEffect = true;
+				currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
+
+				for (var tick = 0; tick < ticksPerStep; tick++) {
+					var periodChange = Math.sin(trackNote.vibratoTimer * freq) * amp;
+
+					targetPeriod = currentPeriod + periodChange;
+
+					console.error(targetPeriod);
+
+					var rate = (currentPeriod / targetPeriod);
+					trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime));
+					trackNote.vibratoTimer++;
+				}
+			}
+
+		}
+
+		/*
+		if (effects.tremolo){
+			var freq = effects.tremolo.freq;
+			var amp = effects.tremolo.amplitude;
+
+			trackNotes[track].tremoloTimer = trackNotes[track].tremoloTimer||0;
+
+			var volumeChange = Math.sin(trackNotes[track].tremoloTimer * freq) * amp;
+
+			var _volume = note.startVolume;
+			_volume += volumeChange;
+			if (_volume<0) _volume=0;
+			if (_volume>100) _volume=100;
+
+			if (trackNotes[track].volume) trackNotes[track].volume.gain.value = _volume/100;
+			trackNotes[track].currentVolume = _volume;
+
+			trackNotes[track].tremoloTimer++;
+
+		}*/
+
+
+		if (!hasPeriodEffect){
+			// reset playbackRate to default;
+			if (trackNote.source) trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate,time);
+
 		}
 	}
 
