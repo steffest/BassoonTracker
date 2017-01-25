@@ -192,22 +192,18 @@ var UI = (function(){
 		// Audio First!
 
 		if (Tracker.isPlaying() && Tracker.playBackEngine == PLAYBACKENGINE.SIMPLE){
-			var step = Audio.progressMonitor.Q.value;
-			if (step != UICache.PatternPos){
-				Tracker.setCurrentPatternPos(step);
-				UICache.PatternPos = step;
+			var state = Tracker.getStateAtTime(Audio.context.currentTime);
+			if (state){
+				if (state.patternPos != UICache.patternPos){
+					Tracker.setCurrentPatternPos(state.patternPos);
+					UICache.patternPos = state.patternPos;
+				}
+				if (state.songPos != UICache.songPos){
+					Tracker.setCurrentSongPosition(state.songPos);
+					UICache.songPos = state.songPos;
+				}
 			}
-			step = Audio.progressMonitor.detune.value;
-			if (step != UICache.SongPos){
-				Tracker.setCurrentSongPosition(step);
-				UICache.SongPos = step;
-			}
-
 		}
-
-
-
-
 
 		if (skipRenderSteps){
 			renderStep++;

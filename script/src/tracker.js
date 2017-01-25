@@ -44,6 +44,7 @@ var Tracker = (function(){
 
 	var trackNotes = [];
 	var trackEffectCache = [];
+	var trackerStates = [];
 
 	for (var i=0;i<trackCount;i++){
 		trackNotes.push({});
@@ -278,25 +279,30 @@ var Tracker = (function(){
 
 			var p =  0;
 			var time = Audio.context.currentTime + 0.01;
-			var delay = 0.5;
-			delay = 2;
+
+			// start with a small delay then make it longer
+			// this is because Chrome on Android doesn't start playing until the first batch of scheduling is done?
+
+			var delay = 0.1;
+			var playingDelay = 1;
+
+
 			var playPatternData = currentPatternData;
 			var playSongPosition = currentSongPosition;
+			trackerStates = [];
 
 			mainTimer = clock.setTimeout(function(event) {
+
+				if (p>1){
+					delay = playingDelay;
+					mainTimer.repeat(delay);
+				}
 
 				var maxTime = event.deadline + delay;
 
 				while (time<maxTime){
 
-
-					//Audio.context.listener.upX.setValueAtTime(p,time);
-					//Audio.context.listener.upY.setValueAtTime(playSongPosition,time);
-
-					//Audio.progressMonitor.playbackRate.setValueAtTime(p,time);
-
-					Audio.progressMonitor.Q.setValueAtTime(p,time);
-					Audio.progressMonitor.detune.setValueAtTime(playSongPosition,time);
+					me.setStateAtTime(time,{patternPos: p, songPos: playSongPosition});
 
 					var stepResult = playPatternStep(p,time,playPatternData);
 					time += ticksPerStep * tickTime;
@@ -314,8 +320,8 @@ var Tracker = (function(){
 
 						}
 					}
-					//me.setCurrentPatternPos(p);
 				}
+
 
 			},0.01).repeat(delay).tolerance({early: 0.1});
 		}
@@ -975,7 +981,21 @@ var Tracker = (function(){
 		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
 
+	me.setStateAtTime = function(time,state){
+		trackerStates.push({time:time,state:state});
+	};
 
+	me.getStateAtTime = function(time){
+		var result = undefined;
+		for(var i = 0, len = trackerStates.length; i<len;i++){
+			var state = trackerStates[0];
+			if (state.time<time){
+				result = trackerStates.shift().state;
+			}else{
+				return result;
+			}
+		}
+	};
 
 	me.load = function(url){
 		url = url || "demomods/StardustMemories.mod";
