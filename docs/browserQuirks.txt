@@ -1,0 +1,24 @@
+Browser Quirks - to investigate, maybe to fix
+
+- Chrome:
+ 	stops audio playback when switching focus , Firefox keeps playing
+
+- Firefox:
+	- can't set frequency and Q parameters of a lowpass filter after init that is in the chain after another lowpass filter ?
+
+- Safari
+	- can't set Audio context listener properties ?
+	- can't init AudioBuffer with a separata sample rate then the audio context? (this works on Chrome and Firefox)
+
+- IOS:
+	Audio needs initialising on first touch
+
+- Chrome for Android
+	- REALLY long latency ... fixed somewhat by setting a small schedule-lookahead time on start playback and increasing it adter that
+
+- Firefox on Android
+	- unusable ... really weird playback glitches
+
+
+- Samnsung browser on (samsung) Android:
+	- surprisingly this performs really really well ... very good audio engine and canvas implementation
