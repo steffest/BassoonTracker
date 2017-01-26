@@ -69,7 +69,10 @@ var UI = (function(){
 				"skin/logo_grey_70.png",
 				"skin/logo_colour_70.png",
 				"skin/radio_active.png",
-				"skin/radio_inactive.png"
+				"skin/radio_inactive.png",
+				"skin/icons_small/disk.png",
+				"skin/icons_small/module.png",
+				"skin/icons_small/sample.png"
 		],PRELOADTYPE.image,function(){
 			console.log("image assets loaded");
 

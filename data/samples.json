@@ -1,10 +1,13 @@
 {
   "samples":[
-    {"title":"Analog String","url":"http://box.stef.be/audio/samples/st-01/AnalogString"},
-    {"title":"BassDrum1","url":"http://box.stef.be/audio/samples/st-01/BassDrum1"},
-    {"title":"BassDrum2","url":"http://box.stef.be/audio/samples/st-01/BassDrum2"},
-    {"title":"BassDrum3","url":"http://box.stef.be/audio/samples/st-01/BassDrum3"},
-    {"title":"Deep Bass","url":"http://box.stef.be/audio/samples/st-01/DeepBass"},
-    {"title":"RubberBass","url":"http://box.stef.be/audio/samples/st-01/RubberBass"}
+    {"title":"ST-O1","url":"data/st-01.json","children":[]},
+    {"title":"ST-O2","url":"data/st-02.json","children":[]},
+    {"title":"ST-O3","url":"data/st-03.json","children":[]},
+    {"title":"ST-O4","url":"data/st-04.json","children":[]},
+    {"title":"ST-O5","url":"data/st-05.json","children":[]},
+    {"title":"Custom","children":[
+      {"title":"Child 1","url":"http://box.stef.be/audio/samples/st-01/AnalogString"},
+      {"title":"Child 2","url":"http://box.stef.be/audio/samples/st-01/AnalogString"}
+    ],"isExpanded": false}
   ]
 }

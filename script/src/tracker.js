@@ -608,18 +608,20 @@ var Tracker = (function(){
 				// continue slide to note
 				doPlayNote = false;
 				var target = note.period;
+				value = 1;
 
-				if (target){
-					trackEffectCache[track].slidePeriod = target;
-				}else{
-					target = trackEffectCache[track].slidePeriod  || 0
+				var prevSlide = trackEffectCache[track].slide;
+				if (prevSlide){
+					if (!target) target = prevSlide.target  || 0;
+					value = prevSlide.value;
 				}
-				value = trackEffectCache[track].slideValue || 1;
 
 				trackEffects.slide = {
 					value: value,
 					target: target
 				};
+				trackEffectCache[track].slide = trackEffects.slide;
+
 				if (note.sample){
 					trackEffects.volume = {
 						value: defaultVolume
@@ -675,6 +677,7 @@ var Tracker = (function(){
 				trackEffects.fade = {
 					value: value
 				};
+				trackEffectCache[track].fade = trackEffects.fade;
 
 				if (trackEffectCache[track].vibrato) trackEffects.vibrato = trackEffectCache[track].vibrato;
 				break;
@@ -830,7 +833,6 @@ var Tracker = (function(){
 		var value;
 
 		if (trackNote.resetPeriodOnStep && trackNote.source){
-			console.error("vibrato done");
 			// vibrato or arpeggio is done
 			// for slow vibratos it seems logical to keep the current frequency, but apparently most trackers revert back to the pre-vibrato one
 			var targetPeriod = trackNote.currentPeriod || trackNote.startPeriod;

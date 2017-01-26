@@ -1,0 +1,31 @@
+<html>
+<body>
+<script>
+    function go(){
+        var output = [];
+
+
+        output.push('{');
+        output.push('"samples":[');
+
+        var path = document.getElementById("path").value;
+
+        var lines = document.getElementById("input").value.split("\n");
+        var max = lines.length-1;
+        for (var i = 0; i<=max; i++){
+            var line = lines[i];
+            output.push('{"title":"' + line + '","url":"' + path + line + '"}' + (i==max?'':','))
+        }
+
+        output.push(']');
+        output.push('}');
+
+        document.getElementById("output").value = output.join("\n");
+    }
+</script>
+<input type="text" style="width: 400px;" id="path" value="http://www.stef.be/amiga/samples/st-01/"><br>
+<textarea id="input" style="width: 400px; height: 200px"></textarea><br>
+<textarea id="output" style="width: 400px; height: 200px"></textarea><br>
+<button onclick="go()">Go</button>
+</body>
+</html>

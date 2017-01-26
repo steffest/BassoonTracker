@@ -58,7 +58,6 @@ UI.MainPanel = function(){
 		}
 	};
 
-
 	var songPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
 	me.addChild(songPanel);
 
@@ -131,7 +130,6 @@ UI.MainPanel = function(){
 		onChange : function(value){Tracker.setCurrentSampleIndex(value);}
 	});
 	me.addChild(spinBoxSample);
-
 
 	var buttons = [];
 	var buttonsSide = [];

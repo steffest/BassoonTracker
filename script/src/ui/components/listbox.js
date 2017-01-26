@@ -141,12 +141,20 @@ UI.listbox = function(x,y,w,h){
             for (var i = 0, len = items.length;i<len;i++){
                 var item = items[i];
                 var textX = 10;
+                var indent = 10;
                 var textY = startY + ((i-visibleIndex)*lineHeight);
                 if ((textY>0) && (textY<me.height)){
 
                     if (me.selectedIndex == i){
                         me.ctx.fillStyle = 'rgba(100,100,255,0.1';
                         me.ctx.fillRect(0,textY-4,me.width-2,lineHeight);
+                    }
+
+                    if (item.level) textX += item.level*indent;
+
+                    if (item.icon){
+                        me.ctx.drawImage(item.icon,textX,textY-2);
+                        textX += item.icon.width + 4;
                     }
 
                     if (fontMed) fontMed.write(me.ctx,item.label,textX,textY,0);
@@ -189,6 +197,10 @@ UI.listbox = function(x,y,w,h){
         }else{
             return undefined;
         }
+    };
+
+    me.insertItemAfterIndex = function(newItem,index,indent){
+
     };
 
     function setScrollBarPosition(){

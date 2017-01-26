@@ -4,6 +4,12 @@ UI.DiskOperations = function(){
 	me.hide();
 
 	var currentView = "modules";
+	var itemsMap = [];
+
+	var modules = [];
+	var samples = [];
+	var sampleSelectedIndex = 0;
+	var moduleSelectedIndex = 0;
 
 	var background = UI.scale9Panel(0,0,20,20,UI.Assets.panelMainScale9);
 	background.ignoreEvents = true;
@@ -67,53 +73,143 @@ UI.DiskOperations = function(){
 			top: startTop,
 			height:buttonHeight*buttonsSideInfo.length
 		})
-
 	};
 
 	me.refreshList = function(type){
 		var items = [];
+		var index = 0;
 
 		currentView = type || currentView;
 
-		function populate(data){
+		function addListatLevel(data,level){
 			data.forEach(function(item){
-				items.push({label: item.title, data: item});
+				var icon = currentView == "modules" ? cachedAssets.images["skin/icons_small/module.png"] : cachedAssets.images["skin/icons_small/sample.png"]
+				if (item.children) icon = cachedAssets.images["skin/icons_small/disk.png"];
+				items.push({label: item.title, data: item, level: level, index: index, icon: icon});
+				itemsMap[index] = item;
+				index++;
+
+				if (item.children && item.children.length && item.isExpanded){
+					addListatLevel(item.children,level+1);
+				}
 			});
+		}
+
+		function populate(data,selectedIndex){
+			itemsMap = [];
+			index = 0;
+			selectedIndex = selectedIndex || 0;
+			addListatLevel(data,0);
 			listbox.setItems(items);
+			listbox.setSelectedIndex(selectedIndex);
 		}
 
 		if (currentView == "modules"){
 			listbox.onClick = function(e){
 				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
-				if (item){
-					Tracker.load(item.data.url);
-					UI.mainPanel.setView("main");
+				if (item && item.data){
+					var index = item.index;
+					item = itemsMap[index];
+
+					if (item.children){
+						toggleDirectory(item,index);
+					}else{
+						Tracker.load(item.url);
+						UI.mainPanel.setView("main");
+					}
+
+
+
+
 				}
 			};
 
-			var listData = FetchService.json("data/modules.json",function(data){
-				if (data && data.modules){
-					populate(data.modules);
-				}
-
-			})
+			if (modules.length){
+				populate(modules,moduleSelectedIndex);
+			}else{
+				FetchService.json("data/modules.json",function(data){
+					if (data && data.modules){
+						modules = data.modules;
+						populate(modules,moduleSelectedIndex);
+					}
+				})
+			}
 		}else{
 
 			listbox.onClick = function(e){
 				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
-				if (item){
-					Tracker.load(item.data.url);
-					UI.mainPanel.setView("main");
+				if (item && item.data){
+					var index = item.index;
+					item = itemsMap[index];
+
+					if (item.children){
+						listbox.setSelectedIndex(index);
+						sampleSelectedIndex = index;
+						if (item.isExpanded){
+							item.isExpanded = false;
+							me.refreshList();
+						}else{
+							item.isExpanded = true;
+							if (item.children.length){
+								me.refreshList();
+							}else{
+								console.error("load children from " + item.url);
+
+								FetchService.json(item.url,function(data){
+									if (data && data.samples){
+										item.children = data.samples;
+										me.refreshList();
+									}
+								})
+							}
+						}
+					}else{
+						Tracker.load(item.url);
+						UI.mainPanel.setView("main");
+					}
+
 				}
 			};
 
-			var listData = FetchService.json("data/samples.json",function(data){
-				if (data && data.samples){
-					populate(data.samples);
-				}
-			})
+			if (samples.length){
+				populate(samples,sampleSelectedIndex);
+			}else{
+				FetchService.json("data/samples.json",function(data){
+					if (data && data.samples){
+						samples = data.samples;
+						populate(samples,sampleSelectedIndex);
+					}
+				})
+			}
+
 		}
 	};
+
+
+	function toggleDirectory(item,index){
+		listbox.setSelectedIndex(index);
+		moduleSelectedIndex = index;
+		if (item.isExpanded){
+			item.isExpanded = false;
+			me.refreshList();
+		}else{
+			item.isExpanded = true;
+			if (item.children.length){
+				me.refreshList();
+			}else{
+				console.error("load children from " + item.url);
+
+				FetchService.json(item.url,function(data){
+					if (data && data.samples){
+						item.children = data.samples;
+						me.refreshList();
+					}
+				})
+			}
+		}
+	}
+
+
 
 	return me;
 
