@@ -556,21 +556,17 @@ var Tracker = (function(){
 				doPlayNote = false;
 				var target = note.period;
 
-				if (target){
-					trackEffectCache[track].slidePeriod = target;
-				}else{
-					target = trackEffectCache[track].slidePeriod  || 0
-				}
-				if (value){
-					trackEffectCache[track].slideValue = value;
-				}else{
-					value = trackEffectCache[track].slideValue || 1;
-				}
+				var prevSlide = trackEffectCache[track].slide;
+
+				if (!target) target = prevSlide.target;
+				if (!value) value = prevSlide.value;
 
 				trackEffects.slide = {
 					value: value,
 					target: target
 				};
+				trackEffectCache[track].slide = trackEffects.slide;
+
 				if (note.sample){
 					trackEffects.volume = {
 						value: defaultVolume
@@ -827,7 +823,17 @@ var Tracker = (function(){
 		if (!effects) return;
 
 		var value;
-		var hasPeriodEffect = false;
+
+		if (trackNote.resetPeriodOnStep && trackNote.source){
+			console.error("vibrato done");
+			// vibrato or arpeggio is done
+			// for slow vibratos it seems logical to keep the current frequency, but apparently most trackers revert back to the pre-vibrato one
+			var targetPeriod = trackNote.currentPeriod || trackNote.startPeriod;
+			var rate = (trackNote.startPeriod / targetPeriod);
+			trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time);
+			trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + 0.01);
+			trackNote.resetPeriodOnStep = false;
+		}
 
 		if (effects.fade){
 			value = (effects.fade.value * 100)/64;
@@ -850,7 +856,7 @@ var Tracker = (function(){
 			trackNote.volume.gain.linearRampToValueAtTime(targetVolume/100,time+(ticksPerStep*tickTime));
 		}
 
-		if (effects.slide){
+		if (effects.slide2){
 			//period slide
 			var currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
 			var period = currentPeriod;
@@ -870,34 +876,74 @@ var Tracker = (function(){
 
 			trackNote.currentPeriod = period;
 			if (trackNote.source){
-				hasPeriodEffect = true;
 				var currentRate = (trackNote.startPeriod / currentPeriod);
 				var rate = (trackNote.startPeriod / period);
 
-				trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * currentRate,time);
-				trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * currentRate,time + tickTime);
-				trackNote.source.playbackRate.linearRampToValueAtTime(trackNote.startPlaybackRate * rate,time+((ticksPerStep-1)*tickTime));
+				//steffest trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * currentRate,time);
+				//steffest trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * currentRate,time + tickTime);
+				//steffest trackNote.source.playbackRate.linearRampToValueAtTime(trackNote.startPlaybackRate * rate,time+((ticksPerStep-1)*tickTime));
+			}
+		}
+
+		if (effects.slide){
+			if (trackNote.source){
+				var currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
+				var currentRate = trackNote.startPlaybackRate;
+				var targetPeriod = currentPeriod;
+
+				value = Math.abs(effects.slide.value);
+
+				for (var tick = 1; tick < ticksPerStep; tick++){
+					if (effects.slide.target){
+						if (targetPeriod<effects.slide.target){
+							targetPeriod += value;
+							if (targetPeriod>effects.slide.target) targetPeriod = effects.slide.target;
+						}else{
+							targetPeriod -= value;
+							if (targetPeriod<effects.slide.target) targetPeriod = effects.slide.target;
+						}
+					}else{
+						targetPeriod += effects.slide.value;
+					}
+
+
+
+					if (targetPeriod != trackNote.currentPeriod){
+						trackNote.currentPeriod = targetPeriod;
+						var rate = (trackNote.startPeriod / targetPeriod);
+
+						// note - seems to be a weird bug in chrome ?
+						// try setting it twice with a slight delay
+						// TODO: retest on Chrome windows and other browsers
+						trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime));
+						trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime) + 0.005);
+
+						//trackNote.source.playbackRate.value = trackNote.startPlaybackRate * rate;
+					}
+				}
+				//trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate,time + (ticksPerStep*tickTime)+0.2);
 			}
 		}
 
 		if (effects.arpeggio){
 			if (trackNote.source){
-				hasPeriodEffect = true;
+
 				var currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
 				var currentRate = trackNote.startPlaybackRate;
 				var targetPeriod;
 
+				trackNote.resetPeriodOnStep = true;
+
 				for (var tick = 0; tick < ticksPerStep; tick++){
 					var t = tick%3;
 
-					if (t == 0)targetPeriod = currentPeriod;
+					if (t == 0) targetPeriod = currentPeriod;
 					if (t == 1 && effects.arpeggio.interval1) targetPeriod = currentPeriod - effects.arpeggio.interval1;
 					if (t == 2 && effects.arpeggio.interval2) targetPeriod = currentPeriod - effects.arpeggio.interval2;
 
 					var rate = (currentPeriod / targetPeriod);
 					trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime));
 				}
-				//trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate,time + (ticksPerStep*tickTime)+0.2);
 			}
 		}
 
@@ -909,17 +955,14 @@ var Tracker = (function(){
 
 
 			if (trackNote.source) {
-				hasPeriodEffect = true;
+				trackNote.resetPeriodOnStep = true;
 				currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
 
 				for (var tick = 0; tick < ticksPerStep; tick++) {
 					var periodChange = Math.sin(trackNote.vibratoTimer * freq) * amp;
 
 					targetPeriod = currentPeriod + periodChange;
-
-					console.error(targetPeriod);
-
-					var rate = (currentPeriod / targetPeriod);
+					var rate = (trackNote.startPeriod / targetPeriod);
 					trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime));
 					trackNote.vibratoTimer++;
 				}
@@ -953,11 +996,6 @@ var Tracker = (function(){
 		}
 
 
-		if (!hasPeriodEffect){
-			// reset playbackRate to default;
-			if (trackNote.source) trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate,time);
-
-		}
 	}
 
 	me.renderTrackToBuffer = function(){

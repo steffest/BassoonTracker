@@ -2,6 +2,10 @@
   "modules":[
     {"title":"Demo Music","url":"demomods/demomusic.mod"},
     {"title":"Startdust Memories","url":"demomods/StardustMemories.mod"},
-    {"title":"Tiny tune","url":"demomods/Tinytune.mod"}
+    {"title":"Tiny tune","url":"demomods/Tinytune.mod"},
+    {"title":"Test Arpeggio","url":"demomods/test/arpeggio.mod"},
+    {"title":"Test Vibrato","url":"demomods/test/vibrato.mod"},
+    {"title":"Test Tremolo","url":"demomods/test/tremolo.mod"},
+    {"title":"Test Slide To Note","url":"demomods/test/slide_to_note.mod"}
   ]
 }
