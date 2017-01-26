@@ -726,17 +726,22 @@ var Tracker = (function(){
 					value = value * -1;
 				}else{
 					// slide up
-					//value = note.param & 0x0f;
 					value = note.param >> 4;
 				}
 
 				// this is based on max volume of 64 -> normalize to 100;
 				value = value * 100/64;
 
+				if (!note.param){
+					var prevFade = trackEffectCache[track].fade;
+					value = prevFade.value;
+				}
+
 				trackEffects.fade = {
 					value: value,
 					resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, otherwise the volue is remembered from the preious state
 				};
+				trackEffectCache[track].fade = trackEffects.fade;
 
 				break;
 			case 11:
@@ -785,7 +790,7 @@ var Tracker = (function(){
 
 			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time);
 		}else{
-			if (trackEffects){
+			if (trackEffects && me.playBackEngine == PLAYBACKENGINE.FULL){
 				if (trackNotes[track].source){
 					// effect on currently playing sample
 					if (trackEffects.volume){
@@ -835,8 +840,16 @@ var Tracker = (function(){
 			trackNote.resetPeriodOnStep = false;
 		}
 
+		if (effects.volume){
+			if (trackNote.volume){
+				var volume = effects.volume.value;
+				trackNote.startVolume = volume;
+				trackNote.volume.gain.setValueAtTime(volume/100,time);
+			}
+		}
+
 		if (effects.fade){
-			value = (effects.fade.value * 100)/64;
+			value = effects.fade.value;
 			var currentVolume;
 
 			if (effects.fade.resetOnStep){
@@ -845,44 +858,17 @@ var Tracker = (function(){
 				currentVolume = trackNote.currentVolume;
 			}
 
-			var targetVolume = currentVolume + (value*ticksPerStep);
-			targetVolume = Math.max(targetVolume,0);
-			targetVolume = Math.min(targetVolume,100);
-
-
-			trackNote.currentVolume = targetVolume;
-			trackNote.volume.gain.setValueAtTime(currentVolume/100,time);
-			trackNote.volume.gain.setValueAtTime(currentVolume/100,time + tickTime);
-			trackNote.volume.gain.linearRampToValueAtTime(targetVolume/100,time+(ticksPerStep*tickTime));
-		}
-
-		if (effects.slide2){
-			//period slide
-			var currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
-			var period = currentPeriod;
-
-			if (effects.slide.target){
-				value = Math.abs(effects.slide.value);
-				if (currentPeriod<effects.slide.target){
-					period += (value * ticksPerStep);
-					if (period>effects.slide.target) period = effects.slide.target;
-				}else{
-					period -= (value * ticksPerStep);
-					if (period<effects.slide.target) period = effects.slide.target;
+			for (var tick = 0; tick < ticksPerStep; tick++){
+				if (trackNote.volume){
+					trackNote.volume.gain.setValueAtTime(currentVolume/100,time + (tick*tickTime));
+					currentVolume += value;
+					currentVolume = Math.max(currentVolume,0);
+					currentVolume = Math.min(currentVolume,100);
 				}
-			}else{
-				period += (effects.slide.value * ticksPerStep);
 			}
 
-			trackNote.currentPeriod = period;
-			if (trackNote.source){
-				var currentRate = (trackNote.startPeriod / currentPeriod);
-				var rate = (trackNote.startPeriod / period);
+			trackNote.currentVolume = currentVolume;
 
-				//steffest trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * currentRate,time);
-				//steffest trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * currentRate,time + tickTime);
-				//steffest trackNote.source.playbackRate.linearRampToValueAtTime(trackNote.startPlaybackRate * rate,time+((ticksPerStep-1)*tickTime));
-			}
 		}
 
 		if (effects.slide){
@@ -1113,6 +1099,11 @@ var Tracker = (function(){
 	};
 
 	me.getStateAtTime = function(time){
+
+		// set time a bit ahead, seems more responsive
+		// DON'T add more then the tickTime otherwise the UI starts skipping steps
+		//time += tickTime;
+
 		var result = undefined;
 		for(var i = 0, len = trackerStates.length; i<len;i++){
 			var state = trackerStates[0];

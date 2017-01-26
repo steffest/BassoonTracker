@@ -6,6 +6,7 @@
     {"title":"Test Arpeggio","url":"demomods/test/arpeggio.mod"},
     {"title":"Test Vibrato","url":"demomods/test/vibrato.mod"},
     {"title":"Test Tremolo","url":"demomods/test/tremolo.mod"},
-    {"title":"Test Slide To Note","url":"demomods/test/slide_to_note.mod"}
+    {"title":"Test Slide To Note","url":"demomods/test/slide_to_note.mod"},
+    {"title":"Test Volume Slide","url":"demomods/test/volume_slide.mod"}
   ]
 }
