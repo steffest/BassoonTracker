@@ -409,14 +409,21 @@ var Audio = (function(){
         var result = period;
         if (semitones){
             var rootNote = periodNoteTable[period];
-            var rootIndex = noteNames.indexOf(rootNote.name);
-            var targetName = noteNames[rootIndex+semitones];
-            if (targetName){
-                var targetNote = nameNoteTable[targetName];
-                if (targetNote){
-                    result = targetNote.period;
+            if (rootNote){
+                var rootIndex = noteNames.indexOf(rootNote.name);
+                var targetName = noteNames[rootIndex+semitones];
+                if (targetName){
+                    var targetNote = nameNoteTable[targetName];
+                    if (targetNote){
+                        result = targetNote.period;
+                    }
                 }
+            }else{
+                console.error("ERROR: note for period " + period + " not found");
+                // note: this can happen when the note is in a period slide
+                // FIXME
             }
+
         }
         return result;
     };

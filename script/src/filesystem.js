@@ -164,6 +164,11 @@ function BinaryStream(arrayBuffer, bigEndian){
         }
     };
 
+    obj.isEOF = function(margin){
+        margin = margin || 0;
+        return this.index >= (this.length-margin);
+    };
+
     function setIndex(value){
         value = value === 0 ? value : value || obj.index;
         if (value<0) value = 0;

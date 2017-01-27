@@ -175,12 +175,11 @@ var Input = (function(){
 
 		function handleKeyDown(event){
 
-			console.error("k d");
 			var keyCode = event.keyCode;
 			var key = event.key;
 
 			if (focusElement && focusElement.onKeyDown){
-				var handled = focusElement.onKeyDown(keyCode,e);
+				var handled = focusElement.onKeyDown(keyCode,event);
 				if (handled) return;
 			}
 

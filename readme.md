@@ -25,6 +25,7 @@ Features
   - Speed settings (Effect F)
 - mute/solo tracks
 - edit pattern data and sample properties
+- import 8bit WAV, 8SVX and RAW samples
 - export to .wav (and .mod)
 
 Missing features and bugs
