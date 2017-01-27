@@ -34,7 +34,5 @@ Features
 Missing features and bugs
  - Not much disk operations yet, you can load new modules and samples by drag-dropping them on the interface  
  - The various "E" effects are not implemented yet  
- - The sample editor needs fleshing out.  
- - Sample loops don't behave the way they should (I unroll them before playing, a poor mans solution for the real thing)  
-   looping audio on byte level in WebAudio is hard!
+ - The sample editor needs fleshing out.
  - The keyboard is mapped to an AZERTY keyboard currently (mappings are defined in enum.js)  

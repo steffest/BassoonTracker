@@ -53,7 +53,7 @@ UI.MainPanel = function(){
 		Input.setFocusElement(listbox);
 		var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 		if (item){
-			Audio.playSample(item.data);
+			//Audio.playSample(item.data);
 			Tracker.setCurrentSampleIndex(item.data);
 		}
 	};

@@ -152,37 +152,14 @@ var Audio = (function(){
             if (sample.loopStart && sample.loopRepeatLength>1){
 
                 if (!SETTINGS.unrollLoops){
-                    function createLoop(){
-                        var loopLength = sample.loopRepeatLength;
-                        var loopBuffer = audioContext.createBuffer(1, loopLength, sampleRate);
 
-
-                        var loopBuffering = loopBuffer.getChannelData(0);
-                        for(i=0; i < loopLength; i++) {
-                            loopBuffering[i] = sample.data[sample.loopStart + i];
-                        }
-
-                        var loop = audioContext.createBufferSource();
-                        loop.buffer = loopBuffer;
-                        loop.connect(volumeGain);
-                        loop.start(0);
-
-                        loop.onended = function(){
-                            console.error("loop end");
-                            createLoop();
-                        };
-                        return loop;
-                    }
-
-                    //source.loop = true;
+                    source.loop = true;
                     // in seconds ...
-                    //source.loopStart = sampleRate
-                    //source.loopEnd = ..
+                    source.loopStart = sample.loopStart/audioContext.sampleRate;
+                    source.loopEnd = (sample.loopStart + sample.loopRepeatLength)/audioContext.sampleRate;
 
-                    source.onended = function() {
-                        console.error("base sample end");
-                        createLoop()
-                    };
+                    //audioContext.sampleRate = samples/second
+
                 }
             }
 

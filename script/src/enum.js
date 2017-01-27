@@ -44,7 +44,8 @@ var PLAYBACKENGINE = {
 var PALFREQUENCY = 7093789.2;
 
 var SETTINGS = {
-	unrollLoops: true
+	unrollLoops: false,
+	sustainKeyboardNotes: false
 };
 
 var LAYOUTS = {

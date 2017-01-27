@@ -9,6 +9,8 @@ var Input = (function(){
 	var currentEventTarget;
 	var resizeTimer = 0;
 	var isTouched = false;
+	var inputNotes = []; // keep track of notes played through keyboard input
+	var keyDown = {};
 
 	var keyboardTable = KEYBOARDTABLE.azerty;
 
@@ -34,6 +36,7 @@ var Input = (function(){
 		canvas.addEventListener("DOMMouseScroll", handleMouseWheel,false);
 
 		document.addEventListener("keydown",handleKeyDown,false);
+		document.addEventListener("keyup",handleKeyUp,false);
 
 		canvas.addEventListener("dragenter", handleDragenter, false);
 		canvas.addEventListener("dragover", handleDragover, false);
@@ -208,7 +211,9 @@ var Input = (function(){
 				}
 
 				if (doPlay && note){
-					Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
+					if (keyDown[key]) return;
+					keyDown[key] = Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
+					inputNotes.push(keyDown[key]);
 					return;
 				}
 
@@ -261,6 +266,26 @@ var Input = (function(){
 					}
 					break;
 			}
+		}
+
+		function handleKeyUp(event){
+			var key = event.key;
+
+			if (!SETTINGS.sustainKeyboardNotes && keyDown[key] && keyDown[key].source && Audio.context){
+				try{
+					//keyDown[key].source.stop();
+					// too harsh ... let's try a fade out, much better
+
+					if (keyDown[key].volume){
+						keyDown[key].volume.gain.linearRampToValueAtTime(0,Audio.context.currentTime + 0.5)
+					}else{
+						keyDown[key].source.stop();
+					}
+				}catch(e){
+
+				}
+			}
+			keyDown[key] = false;
 		}
 
 
@@ -338,6 +363,26 @@ var Input = (function(){
 	me.clearFocusElement = function(){
 		if (focusElement && focusElement.deActivate) focusElement.deActivate();
 		focusElement = undefined;
+	};
+
+
+	function clearInputNote(){
+		// stops the oldes input note
+		if (inputNotes.length){
+			var note = inputNotes.shift();
+			if (note.source){
+				try{
+					note.source.stop();
+				}catch(e){
+
+				}
+			}
+
+		}
+	}
+
+	me.clearInputNotes = function(){
+		while (inputNotes.length) clearInputNote();
 	};
 
 

@@ -210,6 +210,7 @@ var Tracker = (function(){
 	me.stop = function(){
 		if (clock) clock.stop();
 		Audio.disable();
+		Input.clearInputNotes();
 		//Audio.stopRecording();
 
 		for (var i = 0; i<trackCount; i++){
@@ -737,7 +738,7 @@ var Tracker = (function(){
 
 				if (!note.param){
 					var prevFade = trackEffectCache[track].fade;
-					value = prevFade.value;
+					if (prevFade) value = prevFade.value;
 				}
 
 				trackEffects.fade = {
@@ -1338,10 +1339,6 @@ var Tracker = (function(){
 		EventBus.trigger(EVENT.sampleNameChange,currentSampleIndex);
 
 	};
-
-
-
-
 
 	me.buildBinary = function(){
 
