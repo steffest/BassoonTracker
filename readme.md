@@ -10,7 +10,9 @@ Live demo at [http://www.stef.be/bassoontracker/](http://www.stef.be/bassoontrac
 If you have ever heard of [Protracker](https://en.wikipedia.org/wiki/Protracker) or [Fasttracker](https://en.wikipedia.org/wiki/FastTracker_2), then you know the drill,   
 if not, then you are probably too young :-)
 
-It needs a modern browser that support WebAudio, it works best in Chrome.
+It needs a modern browser that support WebAudio.
+It's tested to work on Chrome, Firefox, Safari, Edge, Chrome on Android, mobile Safari and the Samsung Android Browser.
+it works best in Chrome.
 
 Features  
 - load, play, edit and save Protracker compatible module files  
@@ -22,10 +24,11 @@ Features
   - Sample offsets (Effect 9)
   - Volume slides and settings (effect A and C)
   - Position jumps (effect B)
-  - Speed settings (Effect F)
-- mute/solo tracks
-- edit pattern data and sample properties
-- import 8bit WAV, 8SVX and RAW samples
+  - Speed settings (Effect F)  
+- mute/solo tracks  
+- edit pattern data and sample properties  
+- import 8bit WAV, 8SVX and RAW samples  
+- includes the historic ST-01 and ST-02 sample disks, released in 1987  
 - export to .wav (and .mod)
 
 Missing features and bugs
