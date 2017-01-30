@@ -1272,16 +1272,21 @@ var Tracker = (function(){
 
 					// unroll short loops
 					// web audio loop start/end is in seconds
-					// doesn't work that well with tiny chip tune loops
-					// especially when sliding notes
+					// doesn't work that well with tiny loops
 
-					// TODO: implement proper looping
 					if (sample.loopStart && sample.loopRepeatLength>1){
-						// TODO: pingpong and reverse loops ? -> unroll once and append the reversed loop
+						// TODO: pingpong and reverse loops in XM files? -> unroll once and append the reversed loop
 
 						var loopCount = Math.ceil(40000 / sample.loopRepeatLength) + 1;
 
 						if (!SETTINGS.unrollLoops) loopCount = 0;
+
+						var resetLoopNumbers = false;
+						var loopLength = 0;
+						if (SETTINGS.unrollShortLoops && sample.loopRepeatLength<1000){
+							loopCount = Math.floor(1000/sample.loopRepeatLength);
+							resetLoopNumbers = true;
+						}
 
 						for (var l=0;l<loopCount;l++){
 							var start = sample.loopStart + 1;
@@ -1289,6 +1294,12 @@ var Tracker = (function(){
 							for (j=start; j<end; j++){
 								sample.data.push(sample.data[j]);
 							}
+							loopLength += sample.loopRepeatLength;
+						}
+
+						if (resetLoopNumbers && loopLength){
+							sample.loopRepeatLength += loopLength;
+							sample.length += loopLength;
 						}
 					}
 
