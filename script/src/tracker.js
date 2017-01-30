@@ -130,11 +130,16 @@ var Tracker = (function(){
 	me.getCurrentSongPosition = function(){
 		return currentSongPosition;
 	};
-	me.setCurrentSongPosition = function(position){
+	me.setCurrentSongPosition = function(position,fromUserInteraction){
 		if (position != currentSongPosition){
 			currentSongPosition = position;
 			EventBus.trigger(EVENT.songPositionChange,currentSongPosition);
 			if (song.patternTable) me.setCurrentPattern(song.patternTable[currentSongPosition]);
+
+			if (fromUserInteraction && me.isPlaying() && me.playBackEngine == PLAYBACKENGINE.SIMPLE){
+				me.stop();
+				me.playPattern();
+			}
 		}
 	};
 

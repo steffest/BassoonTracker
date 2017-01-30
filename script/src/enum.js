@@ -189,6 +189,7 @@ var KEYBOARDTABLE = {
 		"(": KEYBOADKEYS.FsharpOctaveUp,
 		"§": KEYBOADKEYS.GsharpOctaveUp,
 		"è": KEYBOADKEYS.AsharpOctaveUp,
+		"ç": KEYBOADKEYS.CsharpOctaveUp2,
 
 		w: KEYBOADKEYS.C,
 		x: KEYBOADKEYS.D,
@@ -205,6 +206,40 @@ var KEYBOARDTABLE = {
 		g: KEYBOADKEYS.Fsharp,
 		h: KEYBOADKEYS.Gsharp,
 		j: KEYBOADKEYS.Asharp
+	},
+	qwerty:{
+		q: KEYBOADKEYS.COctaveUp,
+		w: KEYBOADKEYS.DOctaveUp,
+		e: KEYBOADKEYS.EOctaveUp,
+		r: KEYBOADKEYS.FOctaveUp,
+		t: KEYBOADKEYS.GOctaveUp,
+		y: KEYBOADKEYS.AOctaveUp,
+		u: KEYBOADKEYS.BOctaveUp,
+		i: KEYBOADKEYS.COctaveUp2,
+		o: KEYBOADKEYS.DOctaveUp2,
+
+		"2": KEYBOADKEYS.CsharpOctaveUp,
+		'3': KEYBOADKEYS.DsharpOctaveUp,
+		"5": KEYBOADKEYS.FsharpOctaveUp,
+		"6": KEYBOADKEYS.GsharpOctaveUp,
+		"7": KEYBOADKEYS.AsharpOctaveUp,
+		"9": KEYBOADKEYS.CsharpOctaveUp2,
+
+		z: KEYBOADKEYS.C,
+		x: KEYBOADKEYS.D,
+		c: KEYBOADKEYS.E,
+		v: KEYBOADKEYS.F,
+		b: KEYBOADKEYS.G,
+		n: KEYBOADKEYS.A,
+		m: KEYBOADKEYS.B,
+		",": KEYBOADKEYS.COctaveUp,
+		".": KEYBOADKEYS.DOctaveUp,
+
+		s: KEYBOADKEYS.Csharp,
+		d: KEYBOADKEYS.Dsharp,
+		g: KEYBOADKEYS.Fsharp,
+		h: KEYBOADKEYS.Gsharp,
+		j: KEYBOADKEYS.Asharp
 	}
 };
 
@@ -213,5 +248,5 @@ var SETTINGS = {
 	unrollLoops: false,
 	unrollShortLoops: true, // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
 	sustainKeyboardNotes: false,
-	keyboardTable: "azerty"
+	keyboardTable: "qwerty"
 };

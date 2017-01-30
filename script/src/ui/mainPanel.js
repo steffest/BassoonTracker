@@ -137,8 +137,8 @@ UI.MainPanel = function(){
 		{label:"Play", onClick:function(){Tracker.playSong()}},
 		{label:"Play Pattern", onClick:function(){Tracker.playPattern()}},
 		{label:"Stop", onClick:function(){Tracker.stop();}},
-		{label:"Disk op", onClick:function(){UI.toggleDiskOperations();}},
 		{label:"Options", onClick:function(){UI.toggleOptions();}},
+		{label:"File Operations", onClick:function(){UI.toggleDiskOperations();}},
 		//{label:"Save", oncClick:function(){Tracker.save();}},
 		//{label:"Record", onClick:function(){Tracker.toggleRecord();}},
 		{label:"Sample Editor", onClick:function(){UI.toggleSampleEditor();}}
@@ -572,7 +572,7 @@ UI.MainPanel = function(){
 			height: songPanel.height,
 			centerSelection: true,
 			onChange: function(){
-				Tracker.setCurrentSongPosition(songlistbox.getSelectedIndex());
+				Tracker.setCurrentSongPosition(songlistbox.getSelectedIndex(),true);
 			}
 		});
 
