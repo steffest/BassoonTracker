@@ -41,6 +41,8 @@ var Main = (function(){
                 noteNames.push(note.name);
             }
         }
+
+        Settings.readSettings();
     };
     return me;
 }());

@@ -7,6 +7,13 @@ UI.songControl = function(x,y,w,h,visible){
         {label:"   song",active:true},
         {label:"pattern",active:false}
     ]);
+    radioGroup.onChange = function(selectedIndex){
+        if (selectedIndex == 0){
+            Tracker.setPlayType(PLAYTYPE.song);
+        }else{
+            Tracker.setPlayType(PLAYTYPE.pattern);
+        }
+    };
     me.addChild(radioGroup);
 
     var buttons = {};
@@ -53,6 +60,14 @@ UI.songControl = function(x,y,w,h,visible){
     });
     EventBus.on(EVENT.playingChange,function(event,isPlaying){
         buttons.play.setActive(isPlaying);
+    });
+
+    EventBus.on(EVENT.playTypeChange,function(event,playType){
+        if (playType == PLAYTYPE.song){
+            radioGroup.setSelectedIndex(0,true);
+        }else{
+            radioGroup.setSelectedIndex(1,true);
+        }
     });
 
     var properties = ["left","top","width","height","name","type"];

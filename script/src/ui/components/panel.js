@@ -26,6 +26,8 @@ UI.panel = function(x,y,w,h){
 			});
 		}
 
+		if (me.renderInternal) me.renderInternal();
+
 		this.needsRendering = false;
 		if (internal){
 			return me.canvas;

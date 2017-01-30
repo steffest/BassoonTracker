@@ -3,46 +3,40 @@ UI.radioGroup = function(x,y,w,h){
 
 	var items = [];
 
+	var previousSelectedIndex;
+
 	var lineHeight = 13;
 	var startY = 5;
 
 	var properties = ["left","top","width","height","name","type"];
 
 	me.setProperties = function(p){
-
 		properties.forEach(function(key){
 			if (typeof p[key] != "undefined") me[key] = p[key];
 		});
 
 		me.setSize(me.width,me.height);
 		me.setPosition(me.left,me.top);
-
 	};
 
 	me.onClick=function(e){
-		//TODO: make generic
-		if (me.eventY<16){
-			Tracker.setPlayType(PLAYTYPE.song);
-		}else{
-			Tracker.setPlayType(PLAYTYPE.pattern);
-		}
+		me.setSelectedIndex(Math.round(me.eventY/16));
 	};
 
-	//TODO: make generic
-	EventBus.on(EVENT.playTypeChange,function(event,playType){
-		if (playType == PLAYTYPE.song){
-			activateItem(0);
-		}else{
-			activateItem(1);
-		}
-	});
-
-	function activateItem(index){
+	me.setSelectedIndex = function(index,internal){
 		for (var i = 0, len = items.length; i<len;i++){
 			items[i].active = i == index;
 		}
+		me.selectedIndex = index;
 		me.refresh();
-	}
+
+		if (!internal && me.onChange && previousSelectedIndex!=me.selectedIndex) me.onChange(me.selectedIndex);
+		previousSelectedIndex = me.selectedIndex;
+	};
+
+	me.getSelectedIndex = function(){
+		return me.selectedIndex;
+	};
 
 	me.render = function(internal){
 		internal = !!internal;
@@ -67,9 +61,6 @@ UI.radioGroup = function(x,y,w,h){
 				}else{
 					me.ctx.drawImage(buttonInactive,buttonX,textY - 3);
 				}
-
-
-
 			}
 
 		}
@@ -84,7 +75,12 @@ UI.radioGroup = function(x,y,w,h){
 	};
 
 	me.setItems = function(newItems){
+		me.selectedIndex = undefined;
 		items = newItems;
+		for (var i = 0, len = items.length; i<len;i++){
+			if (items[i].active) me.selectedIndex = i;
+		}
+
 		me.refresh();
 	};
 

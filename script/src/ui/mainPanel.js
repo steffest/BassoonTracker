@@ -138,6 +138,7 @@ UI.MainPanel = function(){
 		{label:"Play Pattern", onClick:function(){Tracker.playPattern()}},
 		{label:"Stop", onClick:function(){Tracker.stop();}},
 		{label:"Disk op", onClick:function(){UI.toggleDiskOperations();}},
+		{label:"Options", onClick:function(){UI.toggleOptions();}},
 		//{label:"Save", oncClick:function(){Tracker.save();}},
 		//{label:"Record", onClick:function(){Tracker.toggleRecord();}},
 		{label:"Sample Editor", onClick:function(){UI.toggleSampleEditor();}}
@@ -161,14 +162,20 @@ UI.MainPanel = function(){
 		{label:"Tinytune", onClick:function(){Tracker.load('demomods/Tinytune.mod')}},
 		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
 		{label:"Demomusic", onClick:function(){Tracker.load('demomods/demomusic.mod')}},
-		{label:"Space Debris", onClick:function(){Tracker.load('demomods/spacedeb.mod')}},
-		{label:"Test", onClick:function(){Tracker.load('demomods/vibrato.mod')}}
+		{label:"Space Debris", onClick:function(){Tracker.load('demomods/spacedeb.mod')}}
 	];
 
-	var sideButtonPanel = new UI.panel();
+	var sideButtonPanel = UI.panel();
 	sideButtonPanel.setProperties({
 		name: "sideButtonPanel"
 	});
+
+	var sideLabel = UI.label();
+	sideLabel.setProperties({
+		label: "Demosongs:",
+		font: fontMed
+	});
+	sideButtonPanel.addChild(sideLabel);
 
 	for (i = 0;i< buttonsSideInfo.length;i++){
 		var buttonSideInfo = buttonsSideInfo[i];
@@ -228,6 +235,12 @@ UI.MainPanel = function(){
 		name: "diskoperations"
 	});
 	me.addChild(diskOperations);
+
+	var optionsPanel = UI.OptionsPanel();
+	optionsPanel.setProperties({
+		name: "options"
+	});
+	me.addChild(optionsPanel);
 
 	var visualiser = UI.visualiser();
 
@@ -366,7 +379,7 @@ UI.MainPanel = function(){
 		var spinButtonHeight = 28;
 		var songPanelHeight = spinButtonHeight*3 + me.defaultMargin + 2;
 		var topPanelHeight = me.controlPanelHeight - me.menuHeight - (me.defaultMargin*2);
-		var buttonHeight = Math.floor(topPanelHeight/5) + 1;
+		var buttonHeight = Math.floor(topPanelHeight/buttonsInfo.length) + 1;
 		var inputBoxHeight = 20;
 
 		var songlistboxWidth = me.col1W - 40;
@@ -375,8 +388,8 @@ UI.MainPanel = function(){
 		if (mainLayout == LAYOUTS.column5Full){
 			songPanelHeight = spinButtonHeight*5 + me.defaultMargin + 2;
 
-			var songlistboxWidth = Math.floor((me.col1W/3) * 2);
-			var songlistboxButtonWidth = Math.floor(me.col1W/6);
+			songlistboxWidth = Math.floor((me.col1W/3) * 2);
+			songlistboxButtonWidth = Math.floor(me.col1W/6);
 		}
 
 
@@ -527,11 +540,18 @@ UI.MainPanel = function(){
 			});
 		}
 
+		sideLabel.setProperties({
+			left:layout.buttonsSideInfo.left,
+			top: layout.buttonsSideInfo.top,
+			width: layout.buttonsSideInfo.width,
+			height:layout.buttonsSideInfo.height
+		});
+
 		for (i = 0;i<buttonsSideInfo.length;i++){
 			var button = buttonsSide[i];
 			button.setProperties({
 				left:layout.buttonsSideInfo.left,
-				top: (i*buttonHeight) + layout.buttonsSideInfo.top,
+				top: ((i+1)*buttonHeight) + layout.buttonsSideInfo.top,
 				width: layout.buttonsSideInfo.width,
 				height:layout.buttonsSideInfo.height,
 				label: button.info.label,
@@ -594,6 +614,7 @@ UI.MainPanel = function(){
 		setDimensions(patternView,layout.patternView);
 		setDimensions(sampleView,layout.sampleView);
 		setDimensions(diskOperations,layout.diskOperations);
+		setDimensions(optionsPanel,layout.diskOperations);
 
 		visualiser.setProperties({
 			left: patterViewLeft + me.patternMargin,
@@ -660,6 +681,7 @@ UI.MainPanel = function(){
 		sideButtonPanel.show();
 		sampleView.hide();
 		diskOperations.hide();
+		optionsPanel.hide();
 
 
 		if (viewName == "sample"){
@@ -671,6 +693,9 @@ UI.MainPanel = function(){
 			diskOperations.setLayout();
 			diskOperations.refreshList();
 			diskOperations.show();
+		}else if(viewName == "options"){
+			optionsPanel.setLayout();
+			optionsPanel.show();
 		}
 
 		currentView = viewName;

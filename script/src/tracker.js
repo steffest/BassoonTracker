@@ -53,7 +53,7 @@ var Tracker = (function(){
 
 	console.error("ticktime: " + tickTime);
 
-	me.playBackEngine = PLAYBACKENGINE.FULL;
+	me.playBackEngine = PLAYBACKENGINE.SIMPLE;
 
 	me.setCurrentSampleIndex = function(index){
 		currentSampleIndex = index;

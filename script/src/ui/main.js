@@ -103,7 +103,7 @@ var UI = (function(){
 				margin: 1,
 				charsPerLine:26,
 				lineSpacing:1,
-				chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789↑↓-#",
+				chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789↑↓-#:",
 				onlyUpperCase:true
 			});
 			fontMed.generateColor("green","rgba(80, 140, 0,0.9)");
@@ -235,6 +235,14 @@ var UI = (function(){
 			UI.mainPanel.setView("main");
 		}else{
 			UI.mainPanel.setView("diskop");
+		}
+	};
+
+	me.toggleOptions = function(){
+		if (UI.mainPanel.getCurrentView() == "options"){
+			UI.mainPanel.setView("main");
+		}else{
+			UI.mainPanel.setView("options");
 		}
 	};
 

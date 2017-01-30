@@ -43,11 +43,6 @@ var PLAYBACKENGINE = {
 
 var PALFREQUENCY = 7093789.2;
 
-var SETTINGS = {
-	unrollLoops: false,
-	sustainKeyboardNotes: false
-};
-
 var LAYOUTS = {
 	column4:4,
 	column5:5,
@@ -146,35 +141,77 @@ var NOTEPERIOD = {
 	B3  : {period: 113, name: "B-3", tune: [120,119,118,118,117,116,115,114,113,113,112,111,110,109,109,108]}
 };
 
+var KEYBOADKEYS = {
+	C: {name: "C", octave: 0},
+	Csharp: {name: "Cs", octave: 0},
+	D: {name: "D", octave: 0},
+	Dsharp: {name: "Ds", octave: 0},
+	E: {name: "E", octave: 0},
+	F: {name: "F", octave: 0},
+	Fsharp: {name: "Fs", octave: 0},
+	G: {name: "G", octave: 0},
+	Gsharp: {name: "Gs", octave: 0},
+	A: {name: "A", octave: 0},
+	Asharp: {name: "As", octave: 0},
+	B: {name: "B", octave: 0},
+	COctaveUp: {name: "C", octave: 1},
+	CsharpOctaveUp: {name: "Cs", octave: 1},
+	DOctaveUp: {name: "D", octave: 1},
+	DsharpOctaveUp: {name: "Ds", octave: 1},
+	EOctaveUp: {name: "E", octave: 1},
+	FOctaveUp: {name: "F", octave: 1},
+	FsharpOctaveUp: {name: "Fs", octave: 1},
+	GOctaveUp: {name: "G", octave: 1},
+	GsharpOctaveUp: {name: "Gs", octave: 1},
+	AOctaveUp: {name: "A", octave: 1},
+	AsharpOctaveUp: {name: "As", octave: 1},
+	BOctaveUp: {name: "B", octave: 1},
+	COctaveUp2: {name: "C", octave: 2},
+	CsharpOctaveUp2: {name: "Cs", octave: 2},
+	DOctaveUp2: {name: "D", octave: 2}
+};
+
 
 var KEYBOARDTABLE = {
 	azerty:{
-		a: NOTEPERIOD.C3,
-		z: NOTEPERIOD.D3,
-		e: NOTEPERIOD.E3,
-		r: NOTEPERIOD.F3,
-		t: NOTEPERIOD.G3,
-		y: NOTEPERIOD.A3,
-		u: NOTEPERIOD.B3,
+		a: KEYBOADKEYS.COctaveUp,
+		z: KEYBOADKEYS.DOctaveUp,
+		e: KEYBOADKEYS.EOctaveUp,
+		r: KEYBOADKEYS.FOctaveUp,
+		t: KEYBOADKEYS.GOctaveUp,
+		y: KEYBOADKEYS.AOctaveUp,
+		u: KEYBOADKEYS.BOctaveUp,
+		i: KEYBOADKEYS.COctaveUp2,
+		o: KEYBOADKEYS.DOctaveUp2,
 
-		"é": NOTEPERIOD.Cs3,
-		':': NOTEPERIOD.Ds3,
-		"(": NOTEPERIOD.Fs3,
-		"§": NOTEPERIOD.Gs3,
-		"è": NOTEPERIOD.As3,
+		"é": KEYBOADKEYS.CsharpOctaveUp,
+		'"': KEYBOADKEYS.DsharpOctaveUp,
+		"(": KEYBOADKEYS.FsharpOctaveUp,
+		"§": KEYBOADKEYS.GsharpOctaveUp,
+		"è": KEYBOADKEYS.AsharpOctaveUp,
 
-		w: NOTEPERIOD.C2,
-		x: NOTEPERIOD.D2,
-		c: NOTEPERIOD.E2,
-		v: NOTEPERIOD.F2,
-		b: NOTEPERIOD.G2,
-		n: NOTEPERIOD.A2,
-		",": NOTEPERIOD.B2,
+		w: KEYBOADKEYS.C,
+		x: KEYBOADKEYS.D,
+		c: KEYBOADKEYS.E,
+		v: KEYBOADKEYS.F,
+		b: KEYBOADKEYS.G,
+		n: KEYBOADKEYS.A,
+		",": KEYBOADKEYS.B,
+		";": KEYBOADKEYS.COctaveUp,
+		":": KEYBOADKEYS.DOctaveUp,
 
-		s: NOTEPERIOD.Cs2,
-		d: NOTEPERIOD.Ds2,
-		g: NOTEPERIOD.Fs2,
-		h: NOTEPERIOD.Gs2,
-		j: NOTEPERIOD.As2
+		s: KEYBOADKEYS.Csharp,
+		d: KEYBOADKEYS.Dsharp,
+		g: KEYBOADKEYS.Fsharp,
+		h: KEYBOADKEYS.Gsharp,
+		j: KEYBOADKEYS.Asharp
 	}
+};
+
+
+var SETTINGS = {
+	unrollLoops: false,
+	unrollShortLoops: true, // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
+	sustainKeyboardNotes: false,
+	keyboardTable: "azerty"
 };

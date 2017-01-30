@@ -123,6 +123,23 @@ UI.Assets = (function(){
 				}
 			}
 		},
+		buttonLight:{
+			generate:function(andCache){
+				var result;
+				var scale = me.buttonLightScale9;
+				result = UI.button();
+				result.setProperties({
+					background: scale,
+					textAlign: "center",
+					font: window.fontMed
+				});
+				if (andCache){
+					assets["buttonLight"] = result;
+				}else{
+					return result;
+				}
+			}
+		},
 		buttonDark:{
 			generate:function(andCache){
 				var result;
