@@ -2,8 +2,10 @@ var Settings = (function(){
 	var me = {};
 
 	me.readSettings = function(){
-		var settings = Storage.get("bassoonTrackerSettings");
 
+		setDefaults();
+
+		var settings = Storage.get("bassoonTrackerSettings");
 
 		if (!settings) return;
 
@@ -27,6 +29,17 @@ var Settings = (function(){
 	me.saveSettings = function(){
 		Storage.set("bassoonTrackerSettings",JSON.stringify(SETTINGS));
 	};
+
+	me.reset = function(){
+		// reset default Settings;
+		setDefaults();
+		me.saveSettings();
+	};
+
+	function setDefaults(){
+		SETTINGS.keyboardTable = "qwerty";
+		Settings.playBackEngine = PLAYBACKENGINE.SIMPLE;
+	}
 
 	return me;
 })();

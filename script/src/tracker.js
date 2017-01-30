@@ -267,7 +267,7 @@ var Tracker = (function(){
 					if (p>=thisPatternLength || stepResult.patternBreak){
 						p=0;
 						if (Tracker.getPlayType() == PLAYTYPE.song){
-							var nextPosition = stepResult.positionBreak ? stepResult.targetPosition : ++currentSongPosition;
+							var nextPosition = stepResult.positionBreak ? stepResult.targetPosition : currentSongPosition+1;
 							me.setCurrentSongPosition(nextPosition);
 
 						}
@@ -282,9 +282,7 @@ var Tracker = (function(){
 			},0.01).repeat(tickTime).tolerance({early: 0.01})
 		}else{
 
-			// simple playback
-			// TODO: reimplement tick processing
-
+			// look-ahead playback - for less demanding, works OK on mobile devices
 			var p =  0;
 			var time = Audio.context.currentTime + 0.01;
 

@@ -61,8 +61,9 @@ UI.OptionsPanel = function(){
 				}else{
 					Tracker.playBackEngine = PLAYBACKENGINE.SIMPLE;
 				}
-				Settings.playBackEngine = Tracker.playBackEngine;
+				SETTINGS.playBackEngine = Tracker.playBackEngine;
 				Settings.saveSettings();
+				if (Tracker.isPlaying()) Tracker.stop();
 			},
 			getValue: function () {
 				var result = 0;
