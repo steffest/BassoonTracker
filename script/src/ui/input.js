@@ -12,7 +12,7 @@ var Input = (function(){
 	var inputNotes = []; // keep track of notes played through keyboard input
 	var keyDown = {};
 
-	var keyboardTable = KEYBOARDTABLE.azerty;
+	var currentOctave = 2;
 
 	me.init = function(){
 
@@ -178,6 +178,8 @@ var Input = (function(){
 
 		function handleKeyDown(event){
 
+			var keyboardTable = KEYBOARDTABLE[SETTINGS.keyboardTable] || KEYBOARDTABLE.azerty;
+
 			var keyCode = event.keyCode;
 			var key = event.key;
 
@@ -186,8 +188,24 @@ var Input = (function(){
 				if (handled) return;
 			}
 
+
+
 			if (key && (keyCode>40) && (keyCode<200)){
-				var note = keyboardTable[key];
+
+
+				if (keyCode == 112) currentOctave = 1;
+				if (keyCode == 113) currentOctave = 2;
+				if (keyCode == 114) currentOctave = 3;
+
+
+				var baseNote = keyboardTable[key];
+				var note;
+				if (baseNote){
+					var noteName = baseNote.name + (currentOctave + baseNote.octave);
+					note = NOTEPERIOD[noteName];
+				}
+
+
 				var doPlay = true;
 				if (Tracker.isRecording()){
 					if (Tracker.getCurrentTrackPosition() > 0){
