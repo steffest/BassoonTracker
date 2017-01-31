@@ -178,8 +178,8 @@ UI.OptionsPanel = function(){
 		});
 
 		closeButton2.setProperties({
-			left: UI.mainPanel.col5X,
-			width: UI.mainPanel.col1W,
+			left: UI.mainPanel.col1X + 5,
+			width: UI.mainPanel.col1W - 5,
 			height: optionHeight,
 			top: innerHeight - 5
 		});

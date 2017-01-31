@@ -246,7 +246,7 @@ var KEYBOARDTABLE = {
 
 var SETTINGS = {
 	unrollLoops: false,
-	unrollShortLoops: true, // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
+	unrollShortLoops: false, // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
 	sustainKeyboardNotes: false,
 	keyboardTable: "qwerty",
 	playBackEngine: PLAYBACKENGINE.SIMPLE

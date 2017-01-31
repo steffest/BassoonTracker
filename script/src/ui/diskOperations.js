@@ -17,11 +17,11 @@ UI.DiskOperations = function(){
 
 	var buttonsSide = [];
 	var buttonsSideInfo=[
-		{label:"Module", onClick:function(){me.refreshList("modules")}},
-		{label:"Sample", onClick:function(){me.refreshList("samples")}},
-		{label:"Save", onClick:function(){Tracker.save();}},
-		{label:"Exit", onClick:function(){UI.mainPanel.setView("main");}},
-		{label:"Test", onClick:function(){Tracker.playSimple()}}
+		{label:"Load Module", onClick:function(){me.refreshList("modules")}},
+		{label:"Save Module", onClick:function(){Tracker.save();}},
+		{label:"Render to Sample", onClick:function(){Tracker.renderTrackToBuffer()}},
+		{label:"Load Sample", onClick:function(){me.refreshList("samples")}},
+		{label:"Close", onClick:function(){UI.mainPanel.setView("main");}}
 	];
 
 	for (var i = 0;i< buttonsSideInfo.length;i++){

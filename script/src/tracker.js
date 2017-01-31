@@ -23,6 +23,7 @@ var Tracker = (function(){
 	var currentPatternData;
 
 	var currentSongPosition = 0;
+	var prevSongPosition = 0;
 
 	var bpm = 125; // bmp
 	var ticksPerStep = 6;
@@ -131,14 +132,15 @@ var Tracker = (function(){
 		return currentSongPosition;
 	};
 	me.setCurrentSongPosition = function(position,fromUserInteraction){
-		if (position != currentSongPosition){
-			currentSongPosition = position;
+		currentSongPosition = position;
+		if (currentSongPosition != prevSongPosition){
 			EventBus.trigger(EVENT.songPositionChange,currentSongPosition);
 			if (song.patternTable) me.setCurrentPattern(song.patternTable[currentSongPosition]);
+			prevSongPosition = currentSongPosition;
 
 			if (fromUserInteraction && me.isPlaying() && me.playBackEngine == PLAYBACKENGINE.SIMPLE){
 				me.stop();
-				me.playPattern();
+				me.togglePlay();
 			}
 		}
 	};
@@ -231,6 +233,18 @@ var Tracker = (function(){
 
 		isPlaying = false;
 		EventBus.trigger(EVENT.playingChange,isPlaying);
+	};
+
+	me.togglePlay = function(){
+		if (me.isPlaying()){
+			me.stop();
+		}else{
+			if (currentPlayType == PLAYTYPE.pattern){
+				me.playPattern();
+			}else{
+				me.playSong();
+			}
+		}
 	};
 
 	me.save = function(){
@@ -1144,6 +1158,7 @@ var Tracker = (function(){
 
 	me.parse = function(arrayBuffer,name){
 
+
 		var isMod = false;
 		var length = arrayBuffer.byteLength;
 		var file = new BinaryStream(arrayBuffer,true);
@@ -1158,6 +1173,11 @@ var Tracker = (function(){
 		if (id == "FLT4") isMod = true;
 
 		if (isMod){
+
+			if (me.isPlaying()) me.stop();
+			resetDefaultSettings();
+
+
 			song = {
 				patterns:[]
 			};
@@ -1265,15 +1285,25 @@ var Tracker = (function(){
 					console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + " bytes and repeat length of " + sample.loopRepeatLength);
 					//this.samples[i] = ds.readInt8Array(this.inst[i].sampleLength*2);
 
-					for (j = 0; j<sample.length; j++){
-						var b = file.readByte();
-						// ignore first 2 bytes
-						if (j>1){
-							sample.data.push(b / 127)
-						}
+					var sampleEnd = sample.length;
+
+					//if (sample.loopStart && sample.loopRepeatLength>1 && SETTINGS.unrollShortLoops && sample.loopRepeatLength<1000){
+					if (sample.loopStart && sample.loopRepeatLength>1 && sample.loopRepeatLength<1000){
+						// cut off trailing bytes for short looping samples
+						//sampleEnd = Math.min(sampleEnd,sample.loopStart + sample.loopRepeatLength);
+						//sample.length = sampleEnd;
 					}
 
-					// unroll short loops
+					for (j = 0; j<sampleEnd; j++){
+						var b = file.readByte();
+						// ignore first 2 bytes
+						if (j<2){
+							b=0;
+						}
+						sample.data.push(b / 127)
+					}
+
+					// unroll short loops?
 					// web audio loop start/end is in seconds
 					// doesn't work that well with tiny loops
 
@@ -1286,13 +1316,15 @@ var Tracker = (function(){
 
 						var resetLoopNumbers = false;
 						var loopLength = 0;
-						if (SETTINGS.unrollShortLoops && sample.loopRepeatLength<1000){
+						if (SETTINGS.unrollShortLoops && sample.loopRepeatLength<1600){
+
 							loopCount = Math.floor(1000/sample.loopRepeatLength);
 							resetLoopNumbers = true;
 						}
 
 						for (var l=0;l<loopCount;l++){
-							var start = sample.loopStart + 1;
+							// TODO: why is this + 1?
+							var start = sample.loopStart;
 							var end = start + sample.loopRepeatLength;
 							for (j=start; j<end; j++){
 								sample.data.push(sample.data[j]);
@@ -1312,7 +1344,6 @@ var Tracker = (function(){
 			UI.mainPanel.setInstruments(sampleContainer);
 
 			onModuleLoad();
-
 
 			//Audio.playSample(1);
 		}else{
@@ -1464,17 +1495,26 @@ var Tracker = (function(){
 		saveAs(b,"test.mod");
 
 
-
 	};
 
 	function onModuleLoad(){
 		UI.mainPanel.setPatternTable(song.patternTable);
+
+		currentSongPosition = undefined;
+		prevPatternPos = undefined;
+		prevSampleIndex = undefined;
+		prevPattern = undefined;
 
 		me.setCurrentSongPosition(0);
 		me.setCurrentPatternPos(0);
 		me.setCurrentSampleIndex(1);
 
 		EventBus.trigger(EVENT.songPropertyChange,song);
+	}
+
+	function resetDefaultSettings(){
+		me.setAmigaSpeed(6);
+		me.setBPM(125);
 	}
 
 

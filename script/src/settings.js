@@ -15,7 +15,7 @@ var Settings = (function(){
 			return false;
 		}
 
-		for (var key in SETTINGS){
+		for (var key in settings){
 			if (SETTINGS.hasOwnProperty(key) && settings.hasOwnProperty(key)){
 				SETTINGS[key] = settings[key];
 			}
@@ -27,7 +27,11 @@ var Settings = (function(){
 	};
 
 	me.saveSettings = function(){
-		Storage.set("bassoonTrackerSettings",JSON.stringify(SETTINGS));
+		var settings = {
+			playBackEngine: SETTINGS.playBackEngine,
+			keyboardTable: SETTINGS.keyboardTable
+		};
+		Storage.set("bassoonTrackerSettings",JSON.stringify(settings));
 	};
 
 	me.reset = function(){
@@ -38,7 +42,7 @@ var Settings = (function(){
 
 	function setDefaults(){
 		SETTINGS.keyboardTable = "qwerty";
-		Settings.playBackEngine = PLAYBACKENGINE.SIMPLE;
+		SETTINGS.playBackEngine = PLAYBACKENGINE.SIMPLE;
 	}
 
 	return me;

@@ -250,8 +250,9 @@ var Input = (function(){
 
 					break;
 				case 13:// enter
-					Tracker.playPatternStep(Tracker.getCurrentTrackPosition());
-					Tracker.moveCurrentPatternPos(1);
+					//Tracker.playPatternStep(Tracker.getCurrentTrackPosition());
+					//Tracker.moveCurrentPatternPos(1);
+					Tracker.togglePlay();
 					break;
 				case 16:// shift
 					//Tracker.playPattern();
