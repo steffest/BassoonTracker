@@ -1285,19 +1285,16 @@ var Tracker = (function(){
 
 					var sampleEnd = sample.length;
 
-					//if (sample.loopStart && sample.loopRepeatLength>1 && SETTINGS.unrollShortLoops && sample.loopRepeatLength<1000){
-					if (sample.loopStart && sample.loopRepeatLength>1 && sample.loopRepeatLength<1000){
+					if (sample.loopRepeatLength>2 && SETTINGS.unrollShortLoops && sample.loopRepeatLength<1000){
 						// cut off trailing bytes for short looping samples
-						//sampleEnd = Math.min(sampleEnd,sample.loopStart + sample.loopRepeatLength);
-						//sample.length = sampleEnd;
+						sampleEnd = Math.min(sampleEnd,sample.loopStart + sample.loopRepeatLength);
+						sample.length = sampleEnd;
 					}
 
 					for (j = 0; j<sampleEnd; j++){
 						var b = file.readByte();
 						// ignore first 2 bytes
-						if (j<2){
-							b=0;
-						}
+						if (j<2)b=0;
 						sample.data.push(b / 127)
 					}
 
@@ -1305,7 +1302,7 @@ var Tracker = (function(){
 					// web audio loop start/end is in seconds
 					// doesn't work that well with tiny loops
 
-					if (sample.loopStart && sample.loopRepeatLength>1){
+					if ((SETTINGS.unrollShortLoops || SETTINGS.unrollLoops) && sample.loopRepeatLength>2){
 						// TODO: pingpong and reverse loops in XM files? -> unroll once and append the reversed loop
 
 						var loopCount = Math.ceil(40000 / sample.loopRepeatLength) + 1;
@@ -1321,7 +1318,6 @@ var Tracker = (function(){
 						}
 
 						for (var l=0;l<loopCount;l++){
-							// TODO: why is this + 1?
 							var start = sample.loopStart;
 							var end = start + sample.loopRepeatLength;
 							for (j=start; j<end; j++){

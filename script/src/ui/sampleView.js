@@ -1,6 +1,6 @@
-UI.SampleView = function(x,y,w,h){
+UI.SampleView = function(){
 
-	var me = UI.panel(x,y,w,h);
+	var me = UI.panel();
 	me.hide();
 
 	var currentSampleIndex;

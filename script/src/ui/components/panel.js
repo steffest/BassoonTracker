@@ -21,6 +21,7 @@ UI.panel = function(x,y,w,h){
 		internal = !!internal;
 
 		if (this.needsRendering){
+			me.clearCanvas();
 			this.children.forEach(function(elm){
 				elm.render();
 			});
