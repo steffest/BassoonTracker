@@ -282,6 +282,7 @@ var Tracker = (function(){
 						p=0;
 						if (Tracker.getPlayType() == PLAYTYPE.song){
 							var nextPosition = stepResult.positionBreak ? stepResult.targetPosition : currentSongPosition+1;
+							if (nextPosition>=song.length) nextPosition = 0;
 							me.setCurrentSongPosition(nextPosition);
 
 						}
@@ -331,6 +332,7 @@ var Tracker = (function(){
 						p=0;
 						if (Tracker.getPlayType() == PLAYTYPE.song){
 							var nextPosition = stepResult.positionBreak ? stepResult.targetPosition : ++playSongPosition;
+							if (nextPosition>=song.length) nextPosition = 0;
 							playSongPosition = nextPosition;
 							var patternIndex = song.patternTable[playSongPosition];
 							playPatternData = song.patterns[patternIndex];
@@ -1256,10 +1258,6 @@ var Tracker = (function(){
 						trackStep.sample = (trackStepInfo >> 24) & 0xf0 | (trackStepInfo >> 12) & 0x0f;
 						trackStep.param  = trackStepInfo & 0xff;
 
-
-						if (trackStep.period && trackStep.period>856) console.error(channel,trackStep);
-
-
 						row.push(trackStep);
 					}
 
@@ -1500,10 +1498,10 @@ var Tracker = (function(){
 	function onModuleLoad(){
 		UI.mainPanel.setPatternTable(song.patternTable);
 
-		currentSongPosition = undefined;
 		prevPatternPos = undefined;
 		prevSampleIndex = undefined;
 		prevPattern = undefined;
+		prevSongPosition = undefined;
 
 		me.setCurrentSongPosition(0);
 		me.setCurrentPatternPos(0);
