@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
             dialog.setText("Sorry//Your browser does not support WebAudio//Supported browsers are/Chrome,Firefox,Safari and Edge");
 
             UI.setModalElement(dialog);
+        }else{
+            Settings.readSettings();
         }
     });
 
@@ -42,7 +44,6 @@ var Main = (function(){
             }
         }
 
-        Settings.readSettings();
     };
     return me;
 }());

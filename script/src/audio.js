@@ -295,6 +295,35 @@ var Audio = (function(){
         me.init(context);
     };
 
+    me.setStereoSeparation = function(value){
+
+        var numberOfTracks = Tracker.getTrackCount();
+
+        var panAmount;
+        switch(value){
+            case STEREOSEPARATION.NONE:
+                // mono, no panning
+                panAmount = 0;
+                SETTINGS.stereoSeparation = STEREOSEPARATION.NONE;
+                break;
+            case STEREOSEPARATION.FULL:
+                // Amiga style: pan even channels hard to the left, uneven to the right;
+                panAmount = 1;
+                SETTINGS.stereoSeparation = STEREOSEPARATION.FULL;
+                break;
+            default:
+                // balanced: pan even channels somewhat to the left, uneven to the right;
+                panAmount = 0.5;
+                SETTINGS.stereoSeparation = STEREOSEPARATION.BALANCED;
+                break;
+        }
+
+        for (i = 0; i<numberOfTracks;i++){
+            var pan = trackPanning[i];
+            if (pan) pan.pan.value = i%2==0 ? -panAmount : panAmount;
+        }
+    };
+
     me.masterVolume = masterVolume;
     me.cutOffVolume = cutOffVolume;
     me.lowPassfilter = lowPassfilter;

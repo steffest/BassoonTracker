@@ -41,6 +41,12 @@ var PLAYBACKENGINE = {
 	SIMPLE: 2 // usefull for mobile phones and slow PC's
 };
 
+var STEREOSEPARATION = {
+	FULL: 1,
+	BALANCED: 2,
+	NONE: 3
+};
+
 var PALFREQUENCY = 7093789.2;
 
 var LAYOUTS = {
@@ -249,5 +255,6 @@ var SETTINGS = {
 	unrollShortLoops: false, // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
 	sustainKeyboardNotes: false,
 	keyboardTable: "qwerty",
-	playBackEngine: PLAYBACKENGINE.SIMPLE
+	playBackEngine: PLAYBACKENGINE.SIMPLE,
+	stereoSeparation: STEREOSEPARATION.BALANCED
 };

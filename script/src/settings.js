@@ -24,12 +24,17 @@ var Settings = (function(){
 		if (SETTINGS.playBackEngine && SETTINGS.playBackEngine<3){
 			Tracker.playBackEngine = SETTINGS.playBackEngine;
 		}
+		if (SETTINGS.stereoSeparation){
+			Audio.setStereoSeparation(SETTINGS.stereoSeparation);
+		}
+
 	};
 
 	me.saveSettings = function(){
 		var settings = {
 			playBackEngine: SETTINGS.playBackEngine,
-			keyboardTable: SETTINGS.keyboardTable
+			keyboardTable: SETTINGS.keyboardTable,
+			stereoSeparation: SETTINGS.stereoSeparation
 		};
 		Storage.set("bassoonTrackerSettings",JSON.stringify(settings));
 	};
@@ -43,6 +48,7 @@ var Settings = (function(){
 	function setDefaults(){
 		SETTINGS.keyboardTable = "qwerty";
 		SETTINGS.playBackEngine = PLAYBACKENGINE.SIMPLE;
+		SETTINGS.stereoSeparation =  STEREOSEPARATION.BALANCED;
 	}
 
 	return me;

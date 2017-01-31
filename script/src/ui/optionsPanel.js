@@ -70,6 +70,28 @@ UI.OptionsPanel = function(){
 				if (Tracker.playBackEngine == PLAYBACKENGINE.SIMPLE) result = 1;
 				return result;
 			}
+		},
+		{
+			label: "Stereo:",
+			values: ["Hard: Amiga", "Balanced", "None: mono"],
+			setValue: function (index) {
+				console.error("set option " + index);
+				if (index == 0){
+					Audio.setStereoSeparation(STEREOSEPARATION.FULL)
+				}else if (index == 2){
+					Audio.setStereoSeparation(STEREOSEPARATION.NONE)
+				}
+				else{
+					Audio.setStereoSeparation(STEREOSEPARATION.BALANCED)
+				}
+				Settings.saveSettings();
+			},
+			getValue: function () {
+				var result = 1;
+				if (SETTINGS.stereoSeparation == STEREOSEPARATION.NONE) result = 2;
+				if (SETTINGS.stereoSeparation == STEREOSEPARATION.FULL) result = 0;
+				return result;
+			}
 		}
 	];
 
