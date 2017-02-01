@@ -553,6 +553,16 @@ var Tracker = (function(){
 						step:1
 					};
 				}
+
+				// set volume, even if no effect present
+				// note: this is consistent with the Protracker 3.15 and later playback
+				// on Protracker 2.3 and 3.0, the volume effect seems much bigger - why ? (see "nugget - frust.mod")
+				if (note.sample){
+					trackEffects.volume = {
+						value: defaultVolume
+					};
+				}
+
 				break;
 			case 1:
 				// Slide Up
