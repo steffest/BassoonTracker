@@ -63,16 +63,31 @@ module.exports = function(grunt) {
         },
         clean: {
             js: ['script/bassoontracker.js']
+        },
+        replace: {
+            buildnumber: {
+                src: ['index_src.html'],
+                dest: 'index.html',
+                replacements: [{
+                    from: '{build}',
+                    to: function (matchedWord) {
+                        function pad(v){return v<10?"0"+v:v;}
+                        var pkg =  grunt.file.readJSON('package.json');
+                        return pkg.version + "-build" + grunt.template.today("yyyymmdd.hhMM");
+                    }
+                }]
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-text-replace');
 
     // Default task(s).
     // note:  use concat before uglify to keep the order of the JS files
-    grunt.registerTask('bassoontracker', ['concat','uglify','clean']);
+    grunt.registerTask('bassoontracker', ['replace','concat','uglify','clean']);
     grunt.registerTask('default', ['bassoontracker']);
 
 };
