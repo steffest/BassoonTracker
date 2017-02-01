@@ -71,9 +71,7 @@ module.exports = function(grunt) {
                 replacements: [{
                     from: '{build}',
                     to: function (matchedWord) {
-                        function pad(v){return v<10?"0"+v:v;}
-                        var pkg =  grunt.file.readJSON('package.json');
-                        return pkg.version + "-build" + grunt.template.today("yyyymmdd.hhMM");
+                        return grunt.template.process('<%= pkg.version %>-build<%= grunt.template.today("yyyymmdd.hhMM") %>');
                     }
                 }]
             }
