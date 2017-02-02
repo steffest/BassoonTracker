@@ -22,8 +22,8 @@ UI.MainPanel = function(){
 	logo.setProperties({
 		background: UI.Assets.panelInsetScale9,
 		activeBackground: UI.Assets.buttonDarkScale9,
-		image: cachedAssets.images["skin/logo_grey_70.png"],
-		activeImage: cachedAssets.images["skin/logo_colour_70.png"]
+		image: Y.getImage("logo_grey_70"),
+		activeImage: Y.getImage("logo_colour_70")
 	});
 	logo.onClick = function(){
 		console.error("click");
@@ -242,6 +242,11 @@ UI.MainPanel = function(){
 	});
 	me.addChild(optionsPanel);
 
+
+
+	//var knob = UI.knob();
+	//me.addChild(knob);
+
 	var visualiser = UI.visualiser();
 
 	visualiser.connect(Audio.cutOffVolume);
@@ -250,7 +255,9 @@ UI.MainPanel = function(){
 		visualiser.nextMode();
 	};
 	me.visualiser = visualiser;
-	// note: don't attacj as child to main panel, this gets attached to main UI
+	// note: don't attach as child to main panel, this gets attached to main UI
+
+
 
 
 	// events

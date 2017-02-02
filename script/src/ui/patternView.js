@@ -7,7 +7,7 @@ UI.PatternView = function(x,y,w,h){
     var max = Tracker.getPatterLength();
 
     var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
-        img: cachedAssets.images["skin/bar.png"],
+        img: Y.getImage("bar"),
         left:2,
         top:2,
         right:3,
@@ -82,9 +82,9 @@ UI.PatternView = function(x,y,w,h){
             var panelTop2 = centerLineTop + centerLineHeight;
 
             var darkPanel = cachedAssets.darkPanel;
-            if (!darkPanel && cachedAssets.images["skin/panel_dark.png"]){
+            if (!darkPanel && Y.getImage("panel_dark")){
                 var p = UI.scale9Panel(0,0,trackWidth,panelHeight,{
-                    img: cachedAssets.images["skin/panel_dark.png"],
+                    img: Y.getImage("panel_dark"),
                     left:3,
                     top:3,
                     right:1,

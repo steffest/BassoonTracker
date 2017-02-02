@@ -21,7 +21,7 @@ UI.inputbox = function(initialProperties){
 
 
 	var background = UI.scale9Panel(0,0,me.width,me.height,{
-		img: cachedAssets.images["skin/panel_dark.png"],
+		img: Y.getImage("panel_dark"),
 		left:3,
 		top:3,
 		right:1,

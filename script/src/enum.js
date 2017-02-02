@@ -5,6 +5,8 @@ var cachedAssets = {
 	arrayBuffer:{}
 };
 
+var sprites = {};
+
 var PRELOADTYPE = {
 	"image": 1,
 	"audio":2,

@@ -75,6 +75,31 @@ module.exports = function(grunt) {
                     }
                 }]
             }
+        },
+        sprite:{
+            all: {
+                src: [
+                    'skin/src/*.png',
+                    'skin/src/icons_small/*.png'
+                ],
+                dest: 'skin/spritesheet.png',
+                destCss: 'skin/spritemap.json',
+                cssTemplate: function (data) {
+
+                    var result = [];
+                    data.sprites.forEach(function (sprite) {
+                        result.push({
+                            name: sprite.name,
+                            x: sprite.x,
+                            y: sprite.y,
+                            width: sprite.width,
+                            height: sprite.height
+                        });
+                    });
+
+                    return JSON.stringify(result,undefined,2);
+                }
+            }
         }
     });
 
@@ -82,10 +107,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-text-replace');
+    grunt.loadNpmTasks('grunt-spritesmith');
 
     // Default task(s).
     // note:  use concat before uglify to keep the order of the JS files
     grunt.registerTask('bassoontracker', ['replace','concat','uglify','clean']);
     grunt.registerTask('default', ['bassoontracker']);
+    grunt.registerTask('sprites', ['sprite']);
 
 };

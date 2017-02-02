@@ -45,8 +45,8 @@ UI.radioGroup = function(x,y,w,h){
 
 			me.clearCanvas();
 
-			var buttonActive = cachedAssets.images["skin/radio_active.png"];
-			var buttonInactive = cachedAssets.images["skin/radio_inactive.png"];
+			var buttonActive = Y.getImage("radio_active");
+			var buttonInactive = Y.getImage("radio_inactive");
 
 			for (var i = 0, len = items.length;i<len;i++){
 				var item = items[i];

@@ -143,7 +143,7 @@ UI.visualiser = function(){
                 var aWidth = me.width/Tracker.getTrackCount();
                 var aLeft = aWidth*trackIndex;
 
-                var background = cachedAssets.images["skin/oscilloscope.png"];
+                var background = Y.getImage("oscilloscope");
                 me.ctx.drawImage(background,aLeft,0,aWidth, me.height);
 
                 if (track){

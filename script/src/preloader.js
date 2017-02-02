@@ -31,7 +31,7 @@ var PreLoader = function(){
 
 			request.onload = function() {
 				// Asynchronously decode the audio file data in request.response
-				loader.context.decodeAudioData(
+				Audio.context.decodeAudioData(
 					request.response,
 					function(buffer) {
 						if (!buffer) {

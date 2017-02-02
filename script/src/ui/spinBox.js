@@ -126,7 +126,7 @@ UI.spinBox = function(initialProperties){
 				valueX -= 8;
 			}
 
-			me.ctx.drawImage(cachedAssets.images["skin/panel_inset_dark.png"],valueX,valueY,valueW,valueH);
+			me.ctx.drawImage(Y.getImage("panel_inset_dark"),valueX,valueY,valueW,valueH);
 
 			valueX +=4;
 			valueY = 7;

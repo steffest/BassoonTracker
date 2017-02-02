@@ -147,7 +147,7 @@ var Audio = (function(){
             source.buffer = sampleBuffer;
 
             var volumeGain = audioContext.createGain();
-            volumeGain.gain.value = volume/100; // TODO : instrument volume
+            volumeGain.gain.value = volume/100; 
 
             if (sample.loopRepeatLength>2){
 

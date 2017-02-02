@@ -34,6 +34,87 @@ var UI = (function(){
 		ctx.fillStyle = "black";
 		ctx.fillRect(0,0,canvas.width,canvas.height);
 
+		UI.Assets.preLoad(function(){
+
+			console.log("UI assets loaded");
+
+			var fontImage =  Y.getImage("font");
+
+			fontSmall =  BitmapFont();
+			fontSmall.generate({
+				image: fontImage,
+				startX: 1,
+				startY: 1,
+				charWidth: 6,
+				charHeight: 6,
+				margin: 0,
+				charsPerLine:30,
+				chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_#",
+				onlyUpperCase:true
+			});
+			window.fontSmall = fontSmall;
+
+			fontMed =  BitmapFont();
+			fontMed.generate({
+				image: fontImage,
+				startX: 1,
+				startY: 110,
+				charWidth: 8,
+				charHeight: 8,
+				margin: 1,
+				charsPerLine:26,
+				lineSpacing:1,
+				chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789↑↓-#:",
+				onlyUpperCase:true
+			});
+			fontMed.generateColor("green","rgba(80, 140, 0,0.9)");
+			fontMed.generateColor("orange","rgba(161, 82, 0,0.9)");
+			window.fontMed = fontMed;
+
+			fontBig =  BitmapFont();
+			fontBig.generate({
+				image: fontImage,
+				startX: 1,
+				startY: 10,
+				charWidth: 11,
+				charHeight: 11,
+				margin: 1,
+				charsPerLine:20,
+				onlyUpperCase:true
+			});
+			window.fontBig = fontBig;
+
+			var fontLed =  BitmapFont();
+			fontLed.generate({
+				image: fontImage,
+				startX: 107,
+				startY: 68,
+				charWidth: 8,
+				charHeight: 13,
+				margin: 0,
+				charsPerLine:20,
+				chars:" 0123456789"
+			});
+			window.fontLed = fontLed;
+
+
+			UI.Assets.init();
+			Input.init();
+
+			UI.mainPanel = UI.MainPanel();
+			children.push(UI.mainPanel);
+
+			render();
+
+			// load demo mod at startup
+			//Tracker.load('demomods/spacedeb.mod');
+			Tracker.load('demomods/Tinytune.mod');
+
+			if (next) next();
+
+		});
+
+/*
 		var preLoader = PreLoader();
 		preLoader.load([
 				"skin/panel_dark.png",
@@ -72,7 +153,9 @@ var UI = (function(){
 				"skin/radio_inactive.png",
 				"skin/icons_small/disk.png",
 				"skin/icons_small/module.png",
-				"skin/icons_small/sample.png"
+				"skin/icons_small/sample.png",
+				"skin/knob_back.png",
+				"skin/knob_front.png"
 		],PRELOADTYPE.image,function(){
 			console.log("image assets loaded");
 
@@ -150,6 +233,8 @@ var UI = (function(){
 
 		});
 
+		*/
+
 	};
 
 	me.setSize = function(newWidth,newHeight){
@@ -210,6 +295,7 @@ var UI = (function(){
 					modalElement.render();
 					needsRendering = false;
 				}
+
 			}
 			if (startRenderTime){
 				renderTime = Audio.context.currentTime - startRenderTime;

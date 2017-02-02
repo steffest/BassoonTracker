@@ -83,8 +83,8 @@ UI.DiskOperations = function(){
 
 		function addListatLevel(data,level){
 			data.forEach(function(item){
-				var icon = currentView == "modules" ? cachedAssets.images["skin/icons_small/module.png"] : cachedAssets.images["skin/icons_small/sample.png"]
-				if (item.children) icon = cachedAssets.images["skin/icons_small/disk.png"];
+				var icon = currentView == "modules" ? Y.getImage("module") : Y.getImage("sample");
+				if (item.children) icon = Y.getImage("disk");
 				items.push({label: item.title, data: item, level: level, index: index, icon: icon});
 				itemsMap[index] = item;
 				index++;

@@ -56,7 +56,7 @@ UI.listbox = function(x,y,w,h){
     };
 
     var background = UI.scale9Panel(0,0,me.width,me.height,{
-        img: cachedAssets.images["skin/panel_dark.png"],
+        img: Y.getImage("panel_dark"),
         left:3,
         top:3,
         right:1,
@@ -78,7 +78,7 @@ UI.listbox = function(x,y,w,h){
     };
 
     var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
-        img: cachedAssets.images["skin/bar.png"],
+        img: Y.getImage("bar"),
         left:2,
         top:2,
         right:3,
@@ -137,7 +137,7 @@ UI.listbox = function(x,y,w,h){
 
         if (this.needsRendering){
             background.render();
-            var line = cachedAssets.images["skin/line_hor.png"];
+            var line = Y.getImage("line_hor");
             for (var i = 0, len = items.length;i<len;i++){
                 var item = items[i];
                 var textX = 10;

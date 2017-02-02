@@ -10,7 +10,7 @@ UI.trackControl = function(x,y,w,h,visible){
 
     buttons.solo = UI.Assets.generate("buttonDark");
     buttons.solo.setProperties({
-        activeImage: cachedAssets.images["skin/solo.png"],
+        activeImage: Y.getImage("solo.png"),
         activeBackground:UI.Assets.buttonDarkGreenActiveScale9
     });
     buttons.solo.onClick = function(){
@@ -26,7 +26,7 @@ UI.trackControl = function(x,y,w,h,visible){
 
     buttons.mute = UI.Assets.generate("buttonDark");
     buttons.mute.setProperties({
-        activeImage: cachedAssets.images["skin/mute.png"],
+        activeImage: Y.getImage("mute"),
         activeBackground:UI.Assets.buttonDarkRedActiveScale9
     });
     buttons.mute.onClick = function(){

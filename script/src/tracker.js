@@ -1047,9 +1047,9 @@ var Tracker = (function(){
 	};
 
 	me.setBPM = function(newBPM){
-		//if (clock) clock.timeStretch(Audio.context.currentTime, [mainTimer], bpm / newBPM);
-		//bpm = newBPM;
-		//EventBus.trigger(EVENT.songBPMChange,bpm);
+		if (clock) clock.timeStretch(Audio.context.currentTime, [mainTimer], bpm / newBPM);
+		bpm = newBPM;
+		EventBus.trigger(EVENT.songBPMChange,bpm);
 	};
 
 	me.getBPM = function(){

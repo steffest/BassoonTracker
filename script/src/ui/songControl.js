@@ -19,8 +19,8 @@ UI.songControl = function(x,y,w,h,visible){
     var buttons = {};
     buttons.play = UI.Assets.generate("buttonDarkGreen");
     buttons.play.setProperties({
-        image: cachedAssets.images["skin/play_green.png"],
-        activeImage: cachedAssets.images["skin/play_active_red.png"],
+        image: Y.getImage("play_green"),
+        activeImage: Y.getImage("play_active_red"),
         activeBackground: UI.Assets.buttonDarkRedActiveScale9
     });
     buttons.play.onClick = function(){
@@ -43,8 +43,8 @@ UI.songControl = function(x,y,w,h,visible){
 
     buttons.record = UI.Assets.generate("buttonDarkRed");
     buttons.record.setProperties({
-        image: cachedAssets.images["skin/record.png"],
-        activeImage: cachedAssets.images["skin/record_active.png"]
+        image: Y.getImage("record"),
+        activeImage: Y.getImage("record_active")
     });
     buttons.record.onClick = function(){
         Tracker.toggleRecord();
