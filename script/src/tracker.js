@@ -249,8 +249,10 @@ var Tracker = (function(){
 
 	me.save = function(){
 		//saveFile(window.bin,"test.mod");
-		var b = new Blob([window.bin], {type: "octet/stream"});
-		saveAs(b,"test.mod");
+		//var b = new Blob([window.bin], {type: "octet/stream"});
+		//saveAs(b,"test.mod");
+
+		me.buildBinary();
 	};
 
 	me.getProperties = function(){
