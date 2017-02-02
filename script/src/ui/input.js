@@ -160,7 +160,15 @@ var Input = (function(){
 					var thisTouch =touchData.touches[touchIndex];
 					if (thisTouch.UIobject){
 						var elm = thisTouch.UIobject;
-						if (elm.onClick) elm.onClick(thisTouch);
+
+						if (elm.onClick) {
+							var deltaX = thisTouch.startX-thisTouch.x;
+							var deltaY = thisTouch.startY-thisTouch.y;
+
+							var distance = Math.sqrt( deltaX*deltaX + deltaY*deltaY );
+
+							if (distance<8) elm.onClick(thisTouch);
+						}
 						if (elm.onTouchUp) elm.onTouchUp(thisTouch);
 					}
 					touchData.touches.splice(touchIndex, 1);
