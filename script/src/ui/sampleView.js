@@ -99,6 +99,14 @@ UI.SampleView = function(){
 	me.addChild(sideButtonPanel);
 
 
+	var closeButton = UI.Assets.generate("buttonLight");
+	closeButton.setLabel("Exit");
+	closeButton.onClick = function(){
+		UI.mainPanel.setView("main");
+	};
+	me.addChild(closeButton);
+
+
 	// events
 	EventBus.on(EVENT.sampleChange,function(event,value){
 		currentSampleIndex = value;
@@ -195,6 +203,15 @@ UI.SampleView = function(){
 			width: sideButtonPanel.width,
 			height: spinButtonHeight
 		});
+
+		var BottomPanelTop = waveForm.top + waveForm.height + UI.mainPanel.defaultMargin;
+
+		closeButton.setProperties({
+			width: UI.mainPanel.col1W,
+			height: spinButtonHeight,
+			left: UI.mainPanel.col5X,
+			top: BottomPanelTop
+		})
 
 
 	};
