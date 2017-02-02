@@ -27,12 +27,13 @@ Features
   - Speed settings (Effect F)  
 - mute/solo tracks  
 - edit pattern data and sample properties  
-- import 8bit WAV, 8SVX and RAW samples  
+- import 8bit WAV, 8SVX and RAW samples (as well as any other format AudioContext can read, like .mp3 and .ogg) 
 - includes the historic ST-01 and ST-02 sample disks, released in 1987  
-- export to .wav (and .mod)
+- export to .wav and .mod
 
 Missing features and bugs
  - Not much disk operations yet, you can load new modules and samples by drag-dropping them on the interface  
  - The various "E" effects are not implemented yet  
  - The sample editor needs fleshing out.
- - The keyboard is mapped to an AZERTY keyboard currently (mappings are defined in enum.js)  
+ 
+Note: if you use an AZERTY keyboard, you can set that option in the settings to have the correct octave layout when playing notes on your computer keyboard.
