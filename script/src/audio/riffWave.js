@@ -25,10 +25,16 @@ function readRIFFsample(file,sample){
 
 	console.error("Wave data:" , wave);
 
-	sample.length = wave.dataChuckSize;
-	for (var i = 0; i<sample.length; i++){
-		var b = file.readUbyte();
-		b=b-127;
-		sample.data.push(b / 127)
+	if (wave.bits == 8){
+		sample.length = wave.dataChuckSize;
+		for (var i = 0; i<sample.length; i++){
+			var b = file.readUbyte();
+			b=b-127;
+			sample.data.push(b / 127)
+		}
+	}else{
+		// let Audio Content do the decoding
+		decodeFileWithAudioContext(file,sample);
 	}
+
 }

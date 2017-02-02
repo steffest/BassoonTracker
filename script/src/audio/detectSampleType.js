@@ -1,7 +1,8 @@
 var SAMPLETYPE = {
 	RAW_8BIT:1,
 	WAVE_PCM:2,
-	IFF_8SVX:3
+	IFF_8SVX:3,
+	MP3:4
 };
 
 function detectSampleType(file,sample){
@@ -30,9 +31,33 @@ function detectSampleType(file,sample){
 		}
 	}
 
+	// if the file ends with, .mp3 , let's just assume it is ...
+	if (sample && sample.name && sample.name.toLowerCase().slice(-4) == ".mp3"){
+		sampleType = SAMPLETYPE.MP3;
+		decoder = decodeFileWithAudioContext;
+	}
+
 	if (sample && decoder){
 		decoder(file,sample);
 	}else{
 		return sampleType;
 	}
+}
+
+function decodeFileWithAudioContext(file,sample){
+	Audio.context.decodeAudioData(
+			file.buffer,
+			function(buffer) {
+				if (!buffer) {
+					alert('error decoding file data: ' + url);
+					return;
+				}
+				// todo: show dialog for stereo samples ?
+				sample.data = buffer.getChannelData(0);
+				sample.length = buffer.length;
+			},
+			function(error) {
+				console.error('decodeAudioData error', error);
+			}
+	);
 }
