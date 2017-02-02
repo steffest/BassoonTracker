@@ -1431,6 +1431,11 @@ var Tracker = (function(){
 		// write sample data
 		samples.forEach(function(sample){
 			if (sample){
+
+				// limit sample size to 128k
+				//TODO: show a warning whan this is exceeded ...
+				sample.length = Math.min(sample.length, 131070); // = FFFF * 2
+
 				file.writeStringSection(sample.name,22);
 				file.writeWord(sample.length >> 1);
 				file.writeUByte(sample.finetune);
