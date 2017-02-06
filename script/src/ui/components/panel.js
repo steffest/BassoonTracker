@@ -1,7 +1,7 @@
 UI.panel = function(x,y,w,h){
 	var me = UI.element(x,y,w,h);
 	me.type = "panel";
-	var properties = ["left","top","width","height","name","type"];
+	var properties = ["left","top","width","height","name","type","zIndex"];
 
 	me.setProperties = function(p){
 
@@ -39,6 +39,13 @@ UI.panel = function(x,y,w,h){
 
 	me.onClick=function(){
 
+	};
+
+	me.sortZIndex = function(){
+		// sort reverse order as children are rendered bottom to top;
+		this.children.sort(function(a, b){
+			return a.zIndex == b.zIndex ? 0 : (a.zIndex > b.zIndex) || -1;
+		});
 	};
 
 

@@ -1149,9 +1149,20 @@ var Tracker = (function(){
 		}
 	};
 
-	me.load = function(url){
+	me.load = function(url,skipHistory){
 		url = url || "demomods/StardustMemories.mod";
 		var name = url.substr(url.lastIndexOf("/")+1);
+
+		if (!skipHistory){
+
+			var path = window.location.pathname;
+			var filename = path.substring(path.lastIndexOf('/')+1);
+
+			if (window.history.pushState){
+				window.history.pushState({},name, filename + "?file=" + encodeURIComponent(url));
+			}
+		}
+
 		loadFile(url,function(result){
 			me.parse(result,name);
 		})
@@ -1185,6 +1196,10 @@ var Tracker = (function(){
 
 		if (id == "M.K.") isMod = true;
 		if (id == "FLT4") isMod = true;
+		if (id == "8CHN") {
+			//alert("Sorry, 8 channel mod files are not supported yet ...")
+			isMod = true;
+		}
 
 		if (isMod){
 
@@ -1527,6 +1542,35 @@ var Tracker = (function(){
 		me.setAmigaSpeed(6);
 		me.setBPM(125);
 	}
+
+	me.clearTrack = function(){
+		var length = currentPatternData.length;
+		for (var i = 0; i<length;i++){
+			var note = song.patterns[currentPattern][i][currentTrack];
+			if (note){
+				note.sample = 0;
+				note.period = 0;
+				note.effect = 0;
+				note.param = 0;
+			}
+		}
+		EventBus.trigger(EVENT.patternChange,currentPattern);
+	};
+	me.clearPattern = function(){
+		var length = currentPatternData.length;
+		for (var i = 0; i<length;i++){
+			for (var j = 0; j<trackCount; j++){
+				var note = song.patterns[currentPattern][i][j];
+				if (note){
+					note.sample = 0;
+					note.period = 0;
+					note.effect = 0;
+					note.param = 0;
+				}
+			}
+		}
+		EventBus.trigger(EVENT.patternChange,currentPattern);
+	};
 
 
 	return me;

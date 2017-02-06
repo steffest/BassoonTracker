@@ -30,7 +30,24 @@ var EVENT = {
 	samplePlay:13,
 	screenRefresh: 14,
 	songPropertyChange: 15,
-	sampleNameChange:16
+	sampleNameChange:16,
+	command: 17
+};
+
+var COMMAND = {
+	newFile: 1,
+	openFile: 2,
+	saveFile: 3,
+	clearTrack : 4,
+	clearPattern : 5,
+	clearSong : 6,
+	clearInstruments : 7,
+	showMain : 8,
+	showOptions : 9,
+	showFileOperations : 10,
+	showSampleEditor : 11,
+	showAbout : 12,
+	showHelp : 13
 };
 
 var PLAYTYPE = {

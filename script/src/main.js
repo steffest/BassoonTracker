@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
             UI.setModalElement(dialog);
         }else{
             Settings.readSettings();
+            App.init();
         }
     });
 

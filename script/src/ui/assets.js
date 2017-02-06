@@ -35,7 +35,7 @@ UI.Assets = (function(){
 		left: 2,
 		top:2,
 		right: 4,
-		bottom: 2
+		bottom: 4
 	};
 	me.buttonDarkScale9 = {
 		left: 5,

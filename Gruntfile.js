@@ -13,6 +13,8 @@ module.exports = function(grunt) {
                     'script/src/audio.js',
                     'script/src/lib/*.js',
                     'script/src/*.js',
+                    'script/src/ui/yascal/yascal.js',
+                    'script/src/ui/yascal*.js',
                     'script/src/ui/main.js',
                     'script/src/ui/**/*.js',
                     'script/src/**/*.js'

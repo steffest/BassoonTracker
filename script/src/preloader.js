@@ -26,21 +26,24 @@ var PreLoader = function(){
 		}
 
 		if (me.type == PRELOADTYPE.audio){
-			var request = new XMLHttpRequest();
-			request.open("GET", url, true);
 
-			request.onload = function() {
+
+			var req = new XMLHttpRequest();
+			req.responseType = "arraybuffer";
+			req.open("GET", url, true);
+
+			req.onload = function() {
 				// Asynchronously decode the audio file data in request.response
 				Audio.context.decodeAudioData(
-					request.response,
+					req.response,
 					function(buffer) {
 						if (!buffer) {
 							alert('error decoding file data: ' + url);
 							return;
 						}
-						loader.bufferList[index] = buffer;
-						if (++loader.loadCount == loader.max)
-							if (next) next();
+						cachedAssets.audio[url] = buffer;
+						if (++me.loadCount == me.max)
+							if (me.next) me.next();
 					},
 					function(error) {
 						console.error('decodeAudioData error', error);
@@ -48,11 +51,11 @@ var PreLoader = function(){
 				);
 			};
 
-			request.onerror = function() {
+			req.onerror = function() {
 				alert('BufferLoader: XHR error');
 			};
 
-			request.send();
+			req.send();
 		}
 
 

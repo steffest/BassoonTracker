@@ -91,7 +91,6 @@ UI.listbox = function(x,y,w,h){
     };
 
     scrollBar.onDrag=function(touchData){
-
         if (items.length>visibleIitems && scrollBarItemOffset){
             var delta =  touchData.dragY - touchData.startY;
             visibleIndex = Math.floor(scrollBar.startDragIndex + delta/scrollBarItemOffset);
@@ -248,16 +247,19 @@ UI.listbox = function(x,y,w,h){
     };
 
     me.onDrag = function(touchData){
-        var delta =  Math.round((touchData.dragY - touchData.startY)/lineHeight);
-        visibleIndex = me.startDragIndex - delta;
-        visibleIndex = Math.max(visibleIndex,0);
-        visibleIndex = Math.min(visibleIndex,getMaxIndex());
+        if (items.length>visibleIitems){
+            var delta =  Math.round((touchData.dragY - touchData.startY)/lineHeight);
+            visibleIndex = me.startDragIndex - delta;
+            visibleIndex = Math.max(visibleIndex,0);
+            visibleIndex = Math.min(visibleIndex,getMaxIndex());
 
-        if (me.centerSelection) {
-            me.setSelectedIndex(visibleIndex);
+            if (me.centerSelection) {
+                me.setSelectedIndex(visibleIndex);
+            }
+
+            setScrollBarPosition();
         }
 
-        setScrollBarPosition();
     };
 
     function getMaxIndex(){
