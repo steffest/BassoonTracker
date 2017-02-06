@@ -23,6 +23,13 @@ UI.element = function(left,top,width,height){
         me.visible = true;
         if (andRefresh) me.refresh(andRefreshAllChildren);
     };
+    me.toggle = function(){
+        if (me.visible){
+            me.hide();
+        }else{
+            me.show();
+        }
+    };
 
     me.isVisible = function(){
         var result = me.visible;
@@ -83,6 +90,7 @@ UI.element = function(left,top,width,height){
 
     me.addChild = function(elm){
         elm.setParent(me);
+        elm.zIndex = elm.zIndex || me.children.length;
         me.children.push(elm);
     };
 

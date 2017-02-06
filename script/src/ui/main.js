@@ -108,7 +108,14 @@ var UI = (function(){
 
 			// load demo mod at startup
 			//Tracker.load('demomods/spacedeb.mod');
-			Tracker.load('demomods/Tinytune.mod');
+
+			var initialFile = getUrlParameter("file");
+			if (initialFile){
+				initialFile = decodeURIComponent(initialFile);
+			}else{
+				initialFile = 'demomods/Tinytune.mod';
+			}
+			Tracker.load(initialFile,true);
 
 			if (next) next();
 
@@ -306,34 +313,6 @@ var UI = (function(){
 			}
 		}
 		window.requestAnimationFrame(render);
-	};
-
-	me.toggleSampleEditor = function(){
-		if (UI.mainPanel.getCurrentView() == "sample"){
-			UI.mainPanel.setView("main");
-		}else{
-			UI.mainPanel.setView("sample");
-		}
-	};
-
-	me.toggleDiskOperations = function(){
-		if (UI.mainPanel.getCurrentView() == "diskop"){
-			UI.mainPanel.setView("main");
-		}else{
-			UI.mainPanel.setView("diskop");
-		}
-	};
-
-	me.toggleOptions = function(){
-		if (UI.mainPanel.getCurrentView() == "options"){
-			UI.mainPanel.setView("main");
-		}else{
-			UI.mainPanel.setView("options");
-		}
-	};
-
-	me.showMain = function(){
-		UI.mainPanel.setView("main");
 	};
 
 	me.setModalElement = function(elm){

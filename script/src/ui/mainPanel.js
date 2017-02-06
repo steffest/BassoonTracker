@@ -18,6 +18,35 @@ UI.MainPanel = function(){
 	var menuBackground = UI.scale9Panel(0,0,0,0,UI.Assets.menuMainScale9);
 	me.addChild(menuBackground);
 
+	var menu = UI.menu(0,0,0,0);
+	me.addChild(menu);
+	menu.setProperties({
+		zIndex: 200
+	});
+	menu.setItems([
+		{label: "File" , subItems: [
+			{label: "new" , "command" : COMMAND.newFile},
+			{label: "open module" , "command" : COMMAND.openFile},
+			{label: "save module" , "command" : COMMAND.saveFile}
+		]},
+		{label: "Edit", subItems: [
+			{label: "clear track" , "command" : COMMAND.clearTrack},
+			{label: "clear pattern" , "command" : COMMAND.clearPattern},
+			{label: "clear song" , "command" : COMMAND.clearSong},
+			{label: "clear instruments" , "command" : COMMAND.clearInstruments}
+		]},
+		{label: "View", subItems: [
+			{label: "main" , "command" : COMMAND.showMain},
+			{label: "options" , "command" : COMMAND.showOptions},
+			{label: "file operations" , "command" : COMMAND.showFileOperations},
+			{label: "sample editor" , "command" : COMMAND.showSampleEditor}
+		]},
+		{label: "Help", subItems: [
+			{label: "about" , "command" : COMMAND.showAbout},
+			{label: "documentation" , "command" : COMMAND.showHelp}
+		]}
+	]);
+
 	var logo = UI.button();
 	logo.setProperties({
 		background: UI.Assets.panelInsetScale9,
@@ -44,9 +73,7 @@ UI.MainPanel = function(){
 	// instrument listbox
 	var listbox = UI.listbox();
 	listbox.setItems([
-		{label: "abem 1", data: 1},
-		{label: "item 2", data: 2},
-		{label: "item 3", data: 3}
+		{label: "loading ...", data: 1}
 	]);
 	me.addChild(listbox);
 	listbox.onClick = function(e){
@@ -63,7 +90,7 @@ UI.MainPanel = function(){
 
 	var songlistbox = UI.listbox();
 	songlistbox.setItems([
-		{label: "00:01", data: 1}
+		{label: "00:00", data: 1}
 	]);
 	me.addChild(songlistbox);
 
@@ -137,11 +164,11 @@ UI.MainPanel = function(){
 		{label:"Play", onClick:function(){Tracker.playSong()}},
 		{label:"Play Pattern", onClick:function(){Tracker.playPattern()}},
 		{label:"Stop", onClick:function(){Tracker.stop();}},
-		{label:"Options", onClick:function(){UI.toggleOptions();}},
-		{label:"File Operations", onClick:function(){UI.toggleDiskOperations();}},
+		{label:"Options", onClick:function(){App.doCommand(COMMAND.showOptions)}},
+		{label:"File Operations", onClick:function(){App.doCommand(COMMAND.showFileOperations)}},
 		//{label:"Save", oncClick:function(){Tracker.save();}},
 		//{label:"Record", onClick:function(){Tracker.toggleRecord();}},
-		{label:"Sample Editor", onClick:function(){UI.toggleSampleEditor();}}
+		{label:"Sample Editor", onClick:function(){App.doCommand(COMMAND.showSampleEditor)}}
 	];
 
 	for (i = 0;i<buttonsInfo.length;i++){
@@ -232,16 +259,17 @@ UI.MainPanel = function(){
 
 	var diskOperations = UI.DiskOperations();
 	diskOperations.setProperties({
-		name: "diskoperations"
+		name: "diskoperations",
+		zIndex: 100
 	});
 	me.addChild(diskOperations);
 
 	var optionsPanel = UI.OptionsPanel();
 	optionsPanel.setProperties({
-		name: "options"
+		name: "options",
+		zIndex: 100
 	});
 	me.addChild(optionsPanel);
-
 
 
 	//var knob = UI.knob();
@@ -258,7 +286,7 @@ UI.MainPanel = function(){
 	// note: don't attach as child to main panel, this gets attached to main UI
 
 
-
+	me.sortZIndex();
 
 	// events
 	EventBus.on(EVENT.songPropertyChange,function(event,song){
@@ -336,7 +364,7 @@ UI.MainPanel = function(){
 
 		// UI coordinates
 		me.defaultMargin =  4;
-		me.menuHeight = 20;
+		me.menuHeight = 26;
 
 		me.controlPanelHeight = 200;
 		me.equaliserPanelHeight = 60;
@@ -359,15 +387,15 @@ UI.MainPanel = function(){
 		me.col4X = (me.defaultMargin*4) + (me.col1W*3);
 		me.col5X = (me.defaultMargin*5) + (me.col1W*4);
 
-		var patterViewWidth = me.col4W;
-		var patterViewLeft = me.col2X;
+		var patternViewWidth = me.col4W;
+		var patternViewLeft = me.col2X;
 		me.patternMargin = 0;
 		me.patternMarginRight = 0;
 
 		if (mainLayout == LAYOUTS.column5Full){
 
-			patterViewWidth = me.width-14;
-			patterViewLeft = 6;
+			patternViewWidth = me.width-14;
+			patternViewLeft = 6;
 			me.patternMargin = 24; // for the linenumers
 			me.patternMarginRight = 16; // for the scrollbar
 
@@ -380,7 +408,7 @@ UI.MainPanel = function(){
 		}
 
 		me.trackMargin = 4;
-		me.trackWidth = (patterViewWidth - me.patternMargin - me.patternMarginRight)/Tracker.getTrackCount()-me.trackMargin;
+		me.trackWidth = (patternViewWidth - me.patternMargin - me.patternMarginRight)/Tracker.getTrackCount()-me.trackMargin;
 
 
 		var spinButtonHeight = 28;
@@ -445,9 +473,9 @@ UI.MainPanel = function(){
 				height:me.patternHeight
 			},
 			patternView:{
-				left: patterViewLeft,
+				left: patternViewLeft,
 				top : me.patternTop,
-				width: patterViewWidth,
+				width: patternViewWidth,
 				height: me.patternHeight
 			},
 			sampleView:{
@@ -515,17 +543,26 @@ UI.MainPanel = function(){
 		if (mainLayout == LAYOUTS.column5Full){
 			layout.sideButtonPanel.left = -500;
 
+			layout.spinBoxPatternLength.left = -500;
+			layout.spinBoxSample.top = topRow2 + (spinButtonHeight*1) + 3;
+
 			layout.spinBoxSongLength.left =  me.col2X;
-			layout.spinBoxSongLength.top =  topRow2 + (spinButtonHeight*3) + 3;
+			layout.spinBoxSongLength.top =  topRow2 + (spinButtonHeight*2) + 3;
 
 			layout.spinBoxBmp.left =  me.col2X;
-			layout.spinBoxBmp.top =  topRow2 + (spinButtonHeight*4) + 3;
+			layout.spinBoxBmp.top =  topRow2 + (spinButtonHeight*3) + 3;
 
 			layout.songPanel.height = songPanelHeight - me.controlBarHeight;
 			layout.songControl.top = layout.songPanel.top + layout.songPanel.height;
+			layout.songControl.width =  me.col2W;
+
+			layout.patternPanel.height = layout.songPanel.height;
+
+
 		}
 
 		menuBackground.setSize(layout.menuBackground ,me.menuHeight);
+		menu.setSize(layout.menuBackground ,me.menuHeight);
 		mainBack.setSize(me.width,me.height);
 
 		setDimensions(logo,layout.logo);
@@ -602,7 +639,7 @@ UI.MainPanel = function(){
 			trackControls[i].setProperties({
 				track:i,
 				left2: me["col" + (i+2) + "X"],
-				left: patterViewLeft + me.patternMargin + (me.trackWidth+me.trackMargin)*i,
+				left: patternViewLeft + me.patternMargin + (me.trackWidth+me.trackMargin)*i,
 				top: me.controlBarTop,
 				width: me.trackWidth,
 				height: me.controlBarHeight
@@ -624,9 +661,9 @@ UI.MainPanel = function(){
 		setDimensions(optionsPanel,layout.diskOperations);
 
 		visualiser.setProperties({
-			left: patterViewLeft + me.patternMargin,
+			left: patternViewLeft + me.patternMargin,
 			top: me.equaliserTop,
-			width: patterViewWidth - me.patternMargin - me.patternMarginRight,
+			width: patternViewWidth - me.patternMargin - me.patternMarginRight,
 			height: me.equaliserPanelHeight
 		});
 
@@ -673,6 +710,10 @@ UI.MainPanel = function(){
 		 {label: "03:04", data: 4}
 		 */
 		songlistbox.setItems(items);
+	};
+
+	me.toggleFxPanel = function(track){
+		patternView.toggleFxPanel(track);
 	};
 
 	function padd2(s){

@@ -35,6 +35,35 @@ UI.PatternView = function(x,y,w,h){
     me.addChild(scrollBar);
     setScrollBarPosition();
 
+
+    var fXpanels = [];
+
+    var fxPanel = UI.fxPanel();
+    fXpanels.push(fxPanel);
+    me.addChild(fxPanel);
+
+    me.toggleFxPanel = function(track){
+        console.error(fxPanel);
+
+        if (fxPanel.visible){
+            fxPanel.hide();
+        }else{
+
+            var margin = UI.mainPanel.defaultMargin;
+            var trackWidth = UI.mainPanel.trackWidth;
+            var trackLeft = UI.mainPanel.patternMargin;
+            var visibleHeight = UI.mainPanel.patternHeight;
+
+
+            fxPanel.setPosition(trackLeft,0);
+            fxPanel.setSize(trackWidth,visibleHeight);
+            fxPanel.setLayout();
+            fxPanel.show();
+        }
+
+        me.refresh();
+    };
+
     me.render = function(){
         if (!me.isVisible()) return;
 
@@ -94,18 +123,22 @@ UI.PatternView = function(x,y,w,h){
                 darkPanel = cachedAssets.darkPanel;
             }
 
+            var isTrackVisible = [];
+
             for (var i = 0; i<Tracker.getTrackCount();i++){
-                var trackX = trackLeft + i*(trackWidth+margin);
-                me.ctx.drawImage(darkPanel,trackX,0,trackWidth,panelHeight);
-                me.ctx.drawImage(darkPanel,trackX,panelTop2,trackWidth,panelHeight);
-                //me.ctx.fillStyle = "black";
-                //me.ctx.fillRect(trackX,trackY,trackWidth,trackHeight);
+
+                isTrackVisible[i] = !(fXpanels[i] && fXpanels[i].visible);
+
+                if (isTrackVisible[i]){
+                    var trackX = trackLeft + i*(trackWidth+margin);
+                    me.ctx.drawImage(darkPanel,trackX,0,trackWidth,panelHeight);
+                    me.ctx.drawImage(darkPanel,trackX,panelTop2,trackWidth,panelHeight);
+                }
             }
 
             //var patternIndex = song.patternTable[index];
             //var pattern = song.patterns[patternIndex];
             var pattern = song.patterns[index];
-
 
             if (pattern){
 
@@ -176,41 +209,45 @@ UI.PatternView = function(x,y,w,h){
                         }
 
                         for (var j = 0; j<Tracker.getTrackCount();j++){
-                            var note = step[j];
-                            var x;
-                            if (lineNumbersToTheLeft){
-                                // center text in pattern
-                                trackX = trackLeft + j*(trackWidth+margin);
-                                x = trackX + Math.floor((trackWidth-textWidth)/2);
-                            }else{
-                                x = trackLeft + initialTrackTextOffset + (j*trackWidth);
-                            }
 
-                            var baseNote = periodNoteTable[note.period];
+                            if (isTrackVisible[j]){
+                                var note = step[j];
+                                var x;
+                                if (lineNumbersToTheLeft){
+                                    // center text in pattern
+                                    trackX = trackLeft + j*(trackWidth+margin);
+                                    x = trackX + Math.floor((trackWidth-textWidth)/2);
+                                }else{
+                                    x = trackLeft + initialTrackTextOffset + (j*trackWidth);
+                                }
 
-                            var noteString = baseNote ? baseNote.name : "---";
+                                var baseNote = periodNoteTable[note.period];
 
-                            drawText(noteString,x,y);
-                            if (isCenter){
+                                var noteString = baseNote ? baseNote.name : "---";
+
                                 drawText(noteString,x,y);
-                                drawText(noteString,x,y);
+                                if (isCenter){
+                                    drawText(noteString,x,y);
+                                    drawText(noteString,x,y);
+                                }
+
+                                x += (fontMed.charWidth*3) + 4;
+                                noteString = formatHex(note.sample,2,"0");
+                                drawText(noteString,x,y,"green");
+
+                                x += (fontMed.charWidth*2) + 4;
+                                noteString = formatHex(note.effect);
+                                noteString += formatHex(note.param,2,"0");
+                                drawText(noteString,x,y,"orange");
                             }
-
-                            x += (fontMed.charWidth*3) + 4;
-                            noteString = formatHex(note.sample,2,"0");
-                            drawText(noteString,x,y,"green");
-
-                            x += (fontMed.charWidth*2) + 4;
-                            noteString = formatHex(note.effect);
-                            noteString += formatHex(note.param,2,"0");
-                            drawText(noteString,x,y,"orange");
-
-
-
                         }
                     }
 
                 }
+            }
+
+            if (!isTrackVisible[0]){
+                fxPanel.render();
             }
 
             setScrollBarPosition();
