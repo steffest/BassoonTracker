@@ -39,7 +39,8 @@ UI.MainPanel = function(){
 			{label: "main" , "command" : COMMAND.showMain},
 			{label: "options" , "command" : COMMAND.showOptions},
 			{label: "file operations" , "command" : COMMAND.showFileOperations},
-			{label: "sample editor" , "command" : COMMAND.showSampleEditor}
+			{label: "sample editor" , "command" : COMMAND.showSampleEditor},
+			{label: "piano" , "command" : COMMAND.togglePiano}
 		]},
 		{label: "Help", subItems: [
 			{label: "about" , "command" : COMMAND.showAbout},
@@ -271,6 +272,11 @@ UI.MainPanel = function(){
 	});
 	me.addChild(optionsPanel);
 
+	var pianoView = UI.PianoView();
+	pianoView.setProperties({
+		name: "pianoViewPanel"
+	});
+	me.addChild(pianoView);
 
 	//var knob = UI.knob();
 	//me.addChild(knob);
@@ -370,10 +376,16 @@ UI.MainPanel = function(){
 		me.equaliserPanelHeight = 60;
 		me.controlBarHeight = 30;
 
+		me.pianoHeight = 220;
+
 		me.equaliserTop = me.controlPanelHeight;
 		me.controlBarTop = me.equaliserTop + me.equaliserPanelHeight;
 		me.patternTop = me.controlBarTop + me.controlBarHeight + 2;
 		me.patternHeight = me.height - me.patternTop - me.defaultMargin;
+
+		if (pianoView.isVisible()){
+			me.patternHeight -= me.pianoHeight;
+		}
 
 		me.col1W = Math.floor((me.width - (6*me.defaultMargin)- 3)/5);
 		me.col2W = (me.col1W*2) + me.defaultMargin;
@@ -405,6 +417,10 @@ UI.MainPanel = function(){
 			me.controlBarTop = me.equaliserTop + me.equaliserPanelHeight;
 			me.patternTop = me.controlBarTop + me.controlBarHeight + 2;
 			me.patternHeight = me.height - me.patternTop - me.defaultMargin;
+
+			if (pianoView.isVisible()){
+				me.patternHeight -= me.pianoHeight;
+			}
 		}
 
 		me.trackMargin = 4;
@@ -483,6 +499,12 @@ UI.MainPanel = function(){
 				top : me.patternTop,
 				width: me.col5W,
 				height: me.patternHeight
+			},
+			pianoView:{
+				left: 0,
+				top : me.height - me.pianoHeight,
+				width: me.width,
+				height: me.pianoHeight
 			},
 			diskOperations:{
 				left: 0,
@@ -657,6 +679,7 @@ UI.MainPanel = function(){
 
 		setDimensions(patternView,layout.patternView);
 		setDimensions(sampleView,layout.sampleView);
+		setDimensions(pianoView,layout.pianoView);
 		setDimensions(diskOperations,layout.diskOperations);
 		setDimensions(optionsPanel,layout.diskOperations);
 
@@ -754,6 +777,11 @@ UI.MainPanel = function(){
 		return currentView;
 	};
 
+
+	me.togglePiano = function(){
+		pianoView.toggle();
+		me.setLayout(0,0,me.width,me.height);
+	};
 
 	return me;
 

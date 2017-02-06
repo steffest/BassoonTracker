@@ -31,7 +31,9 @@ var EVENT = {
 	screenRefresh: 14,
 	songPropertyChange: 15,
 	sampleNameChange:16,
-	command: 17
+	command: 17,
+	noteOn : 18,
+	noteOff : 19
 };
 
 var COMMAND = {
@@ -47,7 +49,8 @@ var COMMAND = {
 	showFileOperations : 10,
 	showSampleEditor : 11,
 	showAbout : 12,
-	showHelp : 13
+	showHelp : 13,
+	togglePiano : 14
 };
 
 var PLAYTYPE = {

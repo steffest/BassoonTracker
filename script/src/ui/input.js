@@ -88,11 +88,11 @@ var Input = (function(){
 
 				touchData.touches.push(thisTouch);
 
-				if (thisTouch.UIobject && thisTouch.UIobject.onDragStart){
-					thisTouch.UIobject.onDragStart(thisTouch);
+				if (thisTouch.UIobject){
+					if (thisTouch.UIobject.onDragStart) thisTouch.UIobject.onDragStart(thisTouch);
+					if (thisTouch.UIobject.onTouchDown) thisTouch.UIobject.onTouchDown(thisTouch);
 				}
 			}
-
 		}
 
 		function handleTouchMove(event){
@@ -240,6 +240,7 @@ var Input = (function(){
 					if (keyDown[key]) return;
 					keyDown[key] = Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
 					inputNotes.push(keyDown[key]);
+					EventBus.trigger(EVENT.noteOn,keyDown[key]);
 					return;
 				}
 
@@ -299,6 +300,7 @@ var Input = (function(){
 			var key = event.key;
 
 			if (!SETTINGS.sustainKeyboardNotes && keyDown[key] && keyDown[key].source && Audio.context){
+				EventBus.trigger(EVENT.noteOff,keyDown[key]);
 				try{
 					//keyDown[key].source.stop();
 					// too harsh ... let's try a fade out, much better
