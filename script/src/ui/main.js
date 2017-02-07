@@ -297,6 +297,7 @@ var UI = (function(){
 				});
 
 				UI.mainPanel.visualiser.render();
+				UI.mainPanel.vumeter.render();
 
 				if (modalElement){
 					modalElement.render();

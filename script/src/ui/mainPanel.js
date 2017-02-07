@@ -291,6 +291,10 @@ UI.MainPanel = function(){
 	me.visualiser = visualiser;
 	// note: don't attach as child to main panel, this gets attached to main UI
 
+	var vumeter = UI.vumeter();
+	vumeter.connect(Audio.cutOffVolume);
+	me.vumeter = vumeter;
+
 
 	me.sortZIndex();
 
@@ -688,6 +692,11 @@ UI.MainPanel = function(){
 			top: me.equaliserTop,
 			width: patternViewWidth - me.patternMargin - me.patternMarginRight,
 			height: me.equaliserPanelHeight
+		});
+
+		vumeter.setProperties({
+			width: me.col3W,
+			left: me.col3X
 		});
 
 		me.setSize(me.width,me.height);
