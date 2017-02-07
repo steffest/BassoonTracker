@@ -191,6 +191,16 @@ var Input = (function(){
 			var keyCode = event.keyCode;
 			var key = event.key;
 
+			if (!key && event.keyIdentifier){
+				// safari on osX ...
+				var id = event.keyIdentifier;
+				id = id.replace("U+","");
+				key = String.fromCharCode(parseInt(id,16)).toLowerCase();
+			}
+
+			console.error(key);
+			console.error(event);
+
 			if (focusElement && focusElement.onKeyDown){
 				var handled = focusElement.onKeyDown(keyCode,event);
 				if (handled) return;
@@ -298,6 +308,13 @@ var Input = (function(){
 
 		function handleKeyUp(event){
 			var key = event.key;
+
+			if (!key && event.keyIdentifier){
+				// safari on osX ...
+				var id = event.keyIdentifier;
+				id = id.replace("U+","");
+				key = String.fromCharCode(parseInt(id,16)).toLowerCase();
+			}
 
 			if (!SETTINGS.sustainKeyboardNotes && keyDown[key] && keyDown[key].source && Audio.context){
 				EventBus.trigger(EVENT.noteOff,keyDown[key]);
