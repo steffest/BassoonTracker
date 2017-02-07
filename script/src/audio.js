@@ -129,6 +129,7 @@ var Audio = (function(){
                 if (effects && effects.offset && effects.offset.value<sampleLength){
                     offset = effects.offset.value;
                     sampleLength -= offset;
+                    if (sample.loopStart) sample.loopStart -= offset;
                 }
                 // note - on safari you can't set a different samplerate?
                 sampleBuffer = audioContext.createBuffer(1, sampleLength,audioContext.sampleRate);
