@@ -114,12 +114,7 @@ var Audio = (function(){
             volume = typeof volume == "undefined" ? (100*sample.volume/64) : volume;
 
             if (sample.finetune){
-                var note = periodNoteTable[period];
-                if (note && note.tune){
-                    var centerTune = 8;
-                    var tune = 8 + sample.finetune;
-                    if (tune>0 && tune<note.tune.length) period = note.tune[tune];
-                }
+                period = me.getFineTunePeriod(period,sample.finetune);
 
             }
             var sampleRate = PALFREQUENCY / (period*2);
@@ -432,6 +427,17 @@ var Audio = (function(){
                 // FIXME
             }
 
+        }
+        return result;
+    };
+
+    me.getFineTunePeriod = function(period,finetune){
+        var result = period;
+        var note = periodNoteTable[period];
+        if (note && note.tune){
+            var centerTune = 8;
+            var tune = 8 + finetune;
+            if (tune>0 && tune<note.tune.length) result = note.tune[tune];
         }
         return result;
     };

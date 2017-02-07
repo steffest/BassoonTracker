@@ -588,6 +588,14 @@ var Tracker = (function(){
 				doPlayNote = false;
 				var target = note.period;
 
+				if (note.sample){
+					// check if the sample is finetuned
+					var sample = me.getSample(note.sample);
+					if (sample && sample.finetune){
+						target = Audio.getFineTunePeriod(target,sample.finetune);
+					}
+				}
+
 				var prevSlide = trackEffectCache[track].slide;
 
 				if (!target) target = prevSlide.target;
@@ -640,6 +648,16 @@ var Tracker = (function(){
 				// continue slide to note
 				doPlayNote = false;
 				var target = note.period;
+
+
+				if (note.sample){
+					// check if the sample is finetuned
+					var sample = me.getSample(note.sample);
+					if (sample && sample.finetune){
+						target = Audio.getFineTunePeriod(target,sample.finetune);
+					}
+				}
+
 				value = 1;
 
 				var prevSlide = trackEffectCache[track].slide;
