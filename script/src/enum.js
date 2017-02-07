@@ -78,8 +78,10 @@ var LAYOUTS = {
 	column6:7
 };
 
+
 // amiga period table, translates notes to  samplefrequencies
 // first 3*12 are to first octaves (1,2 and 3)
+
 var periodTable  = [
 	856,808,762,720,678,640,604,570,538,508,480,453,
 	428,404,381,360,339,320,302,285,269,254,240,226,

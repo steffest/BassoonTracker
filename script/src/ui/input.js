@@ -198,9 +198,6 @@ var Input = (function(){
 				key = String.fromCharCode(parseInt(id,16)).toLowerCase();
 			}
 
-			console.error(key);
-			console.error(event);
-
 			if (focusElement && focusElement.onKeyDown){
 				var handled = focusElement.onKeyDown(keyCode,event);
 				if (handled) return;

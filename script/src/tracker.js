@@ -515,7 +515,7 @@ var Tracker = (function(){
 		var sampleIndex = note.sample;
 
 		if (note.period && !note.sample){
-			// reuse previous Sample (and volume ?)
+			// reuse previous Sample
 			sampleIndex = trackNotes[track].currentSample;
 			defaultVolume = typeof trackNotes[track].currentVolume == "number" ? trackNotes[track].currentVolume : defaultVolume;
 		}
@@ -580,17 +580,16 @@ var Tracker = (function(){
 				break;
 			case 3:
 				// Slide to Note - if there's a note provided, it is not played directly,
-				// but the default volume of that note will be set
-				//(not really sure the volume, but stardust memories pattern 5 seems to indicate so)
+				// if the sample number is set, the default volume of that sample will be set
 
 				// if value == 0 then the old slide will continue
 
 				doPlayNote = false;
 				var target = note.period;
 
-				if (note.sample){
+				if (target && sampleIndex){
 					// check if the sample is finetuned
-					var sample = me.getSample(note.sample);
+					var sample = me.getSample(sampleIndex);
 					if (sample && sample.finetune){
 						target = Audio.getFineTunePeriod(target,sample.finetune);
 					}
@@ -649,10 +648,9 @@ var Tracker = (function(){
 				doPlayNote = false;
 				var target = note.period;
 
-
-				if (note.sample){
+				if (target && sampleIndex){
 					// check if the sample is finetuned
-					var sample = me.getSample(note.sample);
+					var sample = me.getSample(sampleIndex);
 					if (sample && sample.finetune){
 						target = Audio.getFineTunePeriod(target,sample.finetune);
 					}
@@ -679,22 +677,28 @@ var Tracker = (function(){
 				}
 
 				// and do volume slide
-				if (note.param < 16){
-					// slide down
-					value = value * -1;
+				value = note.param;
+				if (!value){
+					// don't do volume slide
 				}else{
-					// slide up
-					//value = note.param & 0x0f;
-					value = note.param >> 4;
+					if (note.param < 16){
+						// slide down
+						value = value * -1;
+					}else{
+						// slide up
+						//value = note.param & 0x0f;
+						value = note.param >> 4;
+					}
+
+					// this is based on max volume of 64 -> normalize to 100;
+					value = value * 100/64;
+
+					trackEffects.fade = {
+						value: value,
+						resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, other wise the volue is remembered from the preious state
+					};
+					trackEffectCache[track].fade = trackEffects.fade;
 				}
-
-				// this is based on max volume of 64 -> normalize to 100;
-				value = value * 100/64;
-
-				trackEffects.fade = {
-					value: value,
-					resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, other wise the volue is remembered from the preious state
-				};
 
 				break;
 
@@ -712,22 +716,23 @@ var Tracker = (function(){
 
 					trackNotes[track].vibratoTimer = 0;
 				}
+				if (note.param){
+					if (note.param < 16){
+						// volume slide down
+						value = value * -1;
+					}else{
+						// volume slide up
+						value = note.param & 0x0f;
+					}
 
-				if (note.param < 16){
-					// volume slide down
-					value = value * -1;
-				}else{
-					// volume slide up
-					value = note.param & 0x0f;
+					// this is based on max volume of 64 -> normalize to 100;
+					value = value * 100/64;
+
+					trackEffects.fade = {
+						value: value
+					};
+					trackEffectCache[track].fade = trackEffects.fade;
 				}
-
-				// this is based on max volume of 64 -> normalize to 100;
-				value = value * 100/64;
-
-				trackEffects.fade = {
-					value: value
-				};
-				trackEffectCache[track].fade = trackEffects.fade;
 
 				if (trackEffectCache[track].vibrato) trackEffects.vibrato = trackEffectCache[track].vibrato;
 				break;
@@ -794,7 +799,6 @@ var Tracker = (function(){
 					value: value,
 					resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, otherwise the volue is remembered from the previous state
 				};
-				trackEffectCache[track].fade = trackEffects.fade;
 
 				break;
 			case 11:
@@ -821,10 +825,16 @@ var Tracker = (function(){
 				var subValue = value & 0x0f;
 					switch (subEffect){
 						case 10: // Fine volume slide up
-							console.warn("fine Volume slide Up");
 							subValue = subValue * 100/64;
 							trackEffects.fade = {
 								value: subValue,
+								noSlide: true
+							};
+							break;
+						case 11: // Fine volume slide down
+							subValue = subValue * 100/64;
+							trackEffects.fade = {
+								value: -subValue,
 								noSlide: true
 							};
 							break;

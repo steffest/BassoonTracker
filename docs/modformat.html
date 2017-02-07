@@ -218,8 +218,8 @@ but if it is [14], then the second nibble is used as well.
      You cannot slide outside the volume range 0..64.
 
 [7]: Tremolo
-     Where [7][x][y] means "oscillate the sample volume using a
-     particular waveform with amplitude 4),   such that (x *
+    Where [7][x][y] means "oscillate the sample volume using a
+     particular waveform with amplitude y*(ticks - 1), such that (x *
      ticks)/64 cycles occur in the division". If either x or y are 0,
      then the old tremolo values will be used. The waveform is set using
      effect [14][7]. Similar to [4].
