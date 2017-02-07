@@ -1,166 +1,160 @@
-(function(){
-	FilterChain = function(initialValues) {
+FilterChain = (function(filters) {
 
-		initialValues = initialValues || {};
+	var me = {};
 
-		this.lowValue = 0.0;
-		this.midValue = 0.0;
-		this.highValue = 0.0;
+	filters = filters || {
+		volume: true,
+		panning: true
+	};
 
-		this.FREQ_MUL = 7000;
-		this.QUAL_MUL = 30;
+	var useVolume = filters.volume;
+	var usePanning = filters.panning;
+	var useHigh = filters.high;
+	var useMid = filters.mid;
+	var useLow = filters.low;
+	var useLowPass = filters.lowPass;
+	var useReverb = filters.reverb;
+	var useDistortion = filters.distortion;
 
-		var context = Audio.context;
+	var input,output,output2;
 
-		var lowPassfilter = context.createBiquadFilter();
-		lowPassfilter.type = "lowpass";
-		lowPassfilter.frequency.value = 5000;
+	var lowValue = 0.0;
+	var midValue = 0.0;
+	var highValue = 0.0;
+	var volumeValue = 70;
+	var panningValue = 0;
 
-		var lowGain = context.createBiquadFilter();
-		lowGain.type = "lowshelf";
-		lowGain.frequency.value = 320.0;
-		lowGain.gain.value = this.lowValue;
+	var FREQ_MUL = 7000;
+	var QUAL_MUL = 30;
 
+	var context = Audio.context;
 
-		var midGain = context.createBiquadFilter();
+	var volumeGain,highGain,midGain,lowGain,lowPassfilter,reverb,reverbGain,panner;
+
+	if (useHigh){
+		highGain = context.createBiquadFilter();
+		highGain.type = "highshelf";
+		highGain.frequency.value = 3200.0;
+		highGain.gain.value = highValue;
+		input = highGain;
+		output = highGain;
+	}
+
+	if (useMid){
+		midGain = context.createBiquadFilter();
 		midGain.type = "peaking";
 		midGain.frequency.value = 1000.0;
 		midGain.Q.value = 0.5;
-		midGain.gain.value = this.midValue;
+		midGain.gain.value = midValue;
+		if (!input) input = midGain;
+		if (output) output.connect(midGain);
+		output = midGain;
+	}
 
-		var highGain = context.createBiquadFilter();
-		highGain.type = "highshelf";
-		highGain.frequency.value = 3200.0;
-		highGain.gain.value = this.highValue;
+	if (useLow){
+		lowGain = context.createBiquadFilter();
+		lowGain.type = "lowshelf";
+		lowGain.frequency.value = 320.0;
+		lowGain.gain.value = lowValue;
 
+		if (!input) input = lowGain;
+		if (output) output.connect(lowGain);
+		output = lowGain;
+	}
 
-		var reverbSettings = {
-			seconds: 3,
-			decay: 2,
-			reverse: 0
-		};
-
-		var reverb = context.createConvolver();
-		var buffer = window.buffer;
-		if (buffer){
-			reverb.buffer = buffer;
-		}else{
-			var preLoader = PreLoader();
-			preLoader.load(["data/reverb/sportcentre.m4a"],PRELOADTYPE.audio,function(){
-				console.error("reverb buffer loaded");
-				reverb.buffer = cachedAssets.audio["data/reverb/sportcentre.m4a"];
-			});
-		}
-
-		//console.error(reverb);
-		//window.reverb = reverb;
-
-		var r_rate = context.sampleRate;
-		var r_length = r_rate * reverbSettings.seconds;
-		var impulse = context.createBuffer(2, r_length, r_rate);
-		var impulseL = impulse.getChannelData(0);
-		var impulseR = impulse.getChannelData(1);
+	if (useLowPass){
+		lowPassfilter = context.createBiquadFilter();
+		lowPassfilter.type = "lowpass";
+		lowPassfilter.frequency.value = 5000;
 
 
-		for (var i = 0; i < r_length; i++) {
-			var n = reverbSettings.reverse ? r_length - i : i;
-			impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, reverbSettings.decay);
-			impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, reverbSettings.decay);
-		}
-		var reverbGain = context.createGain();
+		if (!input) input = lowPassfilter;
+		if (output) output.connect(lowPassfilter);
+		output = lowPassfilter;
+	}
+
+	if (useReverb){
+		reverb = context.createConvolver();
+		reverbGain = context.createGain();
 		reverbGain.gain.value = 0;
 
-		//reverb.buffer = impulse;
-
-		var useDistortion = false;
-
-		if (useDistortion){
-			var distortion = context.createWaveShaper();
-			distortion.curve = distortionCurve(400);
-			distortion.oversample = '4x';
-			window.d = distortion;
-		}
-
-
-
-		var volumeGain = context.createGain();
-
-
-		//source.connect(highGain);
-		highGain.connect(midGain);
-		midGain.connect(lowGain);
-		lowGain.connect(lowPassfilter);
-		lowPassfilter.connect(volumeGain);
-
-		if (useDistortion){
-			lowPassfilter.connect(distortion);
-			distortion.connect(reverbGain);
-		}else{
-			lowPassfilter.connect(reverbGain);
-		}
-
-
+		if (!input) input = reverbGain;
+		if (output) output.connect(reverbGain);
 		reverbGain.connect(reverb);
-		reverb.connect(volumeGain);
+		output2 = reverb;
+	}
 
+	if (useDistortion){
+		var distortion = context.createWaveShaper();
+		distortion.curve = distortionCurve(400);
+		distortion.oversample = '4x';
+	}
 
-		function distortionCurve(amount) {
-			var k = typeof amount === 'number' ? amount : 50,
+	if (useVolume){
+		volumeGain = context.createGain();
+		if (!input) input = volumeGain;
+		if (output) output.connect(volumeGain);
+		if (output2) output2.connect(volumeGain);
+		output = volumeGain;
+	}
+
+	if (usePanning){
+		panner = Audio.context.createStereoPanner();
+		if (!input) input = panner;
+		if (output) output.connect(panner);
+		output = panner;
+	}
+
+	function init(){
+		me.volumeValue(volumeValue);
+	}
+
+	function distortionCurve(amount) {
+		var k = typeof amount === 'number' ? amount : 50,
 				n_samples = 44100,
 				curve = new Float32Array(n_samples),
 				deg = Math.PI / 180,
 				i = 0,
 				x;
-			for ( ; i < n_samples; ++i ) {
-				x = i * 2 / n_samples - 1;
-				curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
-			}
-			return curve;
+		for ( ; i < n_samples; ++i ) {
+			x = i * 2 / n_samples - 1;
+			curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
 		}
+		return curve;
+	}
 
-		this.lowGain  = lowGain;
-		this.midGain = midGain;
-		this.highGain = highGain;
-		this.lowPass = lowPassfilter;
-		this.reverbGain = reverbGain;
-		this.volumeGain = volumeGain;
-	};
-
-	var module = FilterChain.prototype;
-
-	module.connect = function(input,output){
-		input.connect(this.highGain);
-		this.volumeGain.connect(output);
-	};
-
-	module.low = function(value) {
+	me.lowValue = function(value) {
+		if (!useLow) return;
 		if (typeof value !== "undefined"){
 			var maxRange = 20;
-			this.lowValue = value;
-			this.lowGain.gain.value = this.lowValue * maxRange  ;
+			lowValue = value;
+			lowGain.gain.value = lowValue * maxRange  ;
 		}
-		return this.lowValue;
+		return lowValue;
 	};
 
-	module.mid = function(value) {
+	me.midValue = function(value) {
+		if (!useMid) return;
 		if (typeof value !== "undefined"){
 			var maxRange = 20;
-			this.midValue = value;
-			this.midGain.gain.value = this.midValue * maxRange  ;
+			midValue = value;
+			midGain.gain.value = midValue * maxRange  ;
 		}
-		return this.midValue;
+		return midValue;
 	};
 
-	module.high = function(value) {
+	me.highValue = function(value) {
+		if (!useHigh) return;
 		if (typeof value !== "undefined"){
 			var maxRange = 20;
-			this.highValue = value;
-			this.highGain.gain.value = this.highValue * maxRange  ;
+			highValue = value;
+			highGain.gain.value = highValue * maxRange  ;
 		}
-		return this.highValue;
+		return highValue;
 	};
 
-	module.frequency = function(value) {
+	me.lowPassFrequencyValue = function(value) {
+		if (!useLowPass) return;
 		// Clamp the frequency between the minimum value (40 Hz) and half of the
 		// sampling rate.
 		var minValue = 40;
@@ -171,33 +165,70 @@
 		var multiplier = Math.pow(2, numberOfOctaves * (value - 1.0));
 		// Get back to the frequency value between min and max.
 
-		console.error(maxValue,multiplier,numberOfOctaves);
-		this.lowPass.frequency.value = maxValue * multiplier;
+		lowPassfilter.frequency.value = maxValue * multiplier;
 	};
 
-	module.quality = function(value) {
-		this.lowPass.Q.value = value * this.QUAL_MUL;
+	me.lowPassQualityValue = function(value) {
+		if (!useLowPass) return;
+		lowPassfilter.Q.value = value * QUAL_MUL;
 	};
 
-	module.reverb = function(value) {
-		var volume = value;
+	me.reverbValue = function(value) {
+		if (!useReverb) return;
+		if (!reverb.buffer){
+			var buffer = cachedAssets.audio["data/reverb/sportcentre.m4a"];
+			if (!buffer){
+				var preLoader = PreLoader();
+				preLoader.load(["data/reverb/sportcentre.m4a"],PRELOADTYPE.audio,function(){
+					console.error("reverb buffer loaded");
+					reverb.buffer = cachedAssets.audio["data/reverb/sportcentre.m4a"];
+				});
+			}else{
+				reverb.buffer = buffer;
+			}
+		}
+
 		var max = 100;
 		var fraction = parseInt(value) / max;
-		// Let's use an x*x curve (x-squared) since simple linear (x) does not
-		// sound as good.
-		this.reverbGain.gain.value = fraction * fraction;
+		reverbGain.gain.value = fraction * fraction;
 
 	};
 
-	module.volume = function(value) {
-		var volume = value;
-		var max = 100;
-		var fraction = parseInt(value) / max;
-		// Let's use an x*x curve (x-squared) since simple linear (x) does not
-		// sound as good.
-		this.volumeGain.gain.value = fraction * fraction;
-
+	me.volumeValue = function(value) {
+		if (!useVolume) return;
+		if (typeof value !== "undefined"){
+			var max = 100;
+			volumeValue = value;
+			var fraction = value / max;
+			volumeGain.gain.value = fraction * fraction;
+		}
+		return volumeValue;
 	};
-})();
+
+	me.panningValue = function(value) {
+		if (!usePanning) return;
+		if (typeof value !== "undefined"){
+			panningValue = value;
+			panner.pan.value = panningValue;
+		}
+		return panningValue;
+	};
+
+	me.input = function(){
+		return input;
+	};
+
+	me.output = function(){
+		return output;
+	};
+
+	init();
+
+	return me;
+
+});
+
+
+
 
 

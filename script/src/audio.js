@@ -9,13 +9,23 @@ var Audio = (function(){
     var cutOffVolume;
     var lowPassfilter;
     var i;
-    var trackVolume = [];
-    var trackPanning = [];
+    var filterChains = [];
     var isRecording;
     var recordingAvailable;
     var mediaRecorder;
     var recordingChunks = [];
     var offlineContext;
+
+    var filters = {
+        volume: true,
+        panning: true,
+        high: true,
+        mid: true,
+        low: true,
+        lowPass : true,
+        reverb: true,
+        distortion: false
+    };
 
     var isRendering = false;
 
@@ -47,29 +57,24 @@ var Audio = (function(){
         if (!audioContext) return;
 
         var numberOfTracks = Tracker.getTrackCount();
-        trackVolume = [];
-        trackPanning = [];
+        filterChains = [];
 
         for (i = 0; i<numberOfTracks;i++){
-            var gain = audioContext.createGain();
-            var pan = audioContext.createStereoPanner();
-            gain.gain.value = 0.7;
+            var filterChain = FilterChain(filters);
+            filterChain.output().connect(lowPassfilter);
 
             // pan even channels to the left, uneven to the right
-            pan.pan.value = i%2==0 ? -0.5 : 0.5;
-            gain.connect(pan);
-            pan.connect(lowPassfilter);
-            trackVolume.push(gain);
-            trackPanning.push(pan);
+            filterChain.panningValue(i%2==0 ? -0.5 : 0.5);
+
+            filterChains.push(filterChain);
         }
 
-        me.trackVolume = trackVolume;
-        me.trackPanning = trackPanning;
+        me.filterChains = filterChains;
 
         if (!isRendering){
             EventBus.on(EVENT.trackStateChange,function(event,state){
-                if (typeof state.track != "undefined" && trackVolume[state.track]){
-                    trackVolume[state.track].gain.value = state.mute?0:0.7;
+                if (typeof state.track != "undefined" && filterChains[state.track]){
+                    filterChains[state.track].volumeValue(state.mute?0:70);
                 }
             });
         }
@@ -164,7 +169,7 @@ var Audio = (function(){
             }
 
             source.connect(volumeGain);
-            volumeGain.connect(trackVolume[track]);
+            volumeGain.connect(filterChains[track].input());
 
             source.playbackRate.value = initialPlaybackRate;
             var sourceDelayTime = 0;
@@ -319,8 +324,8 @@ var Audio = (function(){
         }
 
         for (i = 0; i<numberOfTracks;i++){
-            var pan = trackPanning[i];
-            if (pan) pan.pan.value = i%2==0 ? -panAmount : panAmount;
+            var filter = filterChains[i];
+            if (filter) filter.panningValue(i%2==0 ? -panAmount : panAmount);
         }
     };
 
@@ -328,9 +333,6 @@ var Audio = (function(){
     me.cutOffVolume = cutOffVolume;
     me.lowPassfilter = lowPassfilter;
     me.context = context;
-    me.trackVolume = trackVolume;
-    me.trackPanning = trackPanning;
-
 
     function createPingPongDelay(){
 

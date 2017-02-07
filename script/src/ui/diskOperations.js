@@ -21,7 +21,7 @@ UI.DiskOperations = function(){
 		{label:"Save Module", onClick:function(){Tracker.save();}},
 		{label:"Render to Sample", onClick:function(){Tracker.renderTrackToBuffer()}},
 		{label:"Load Sample", onClick:function(){me.refreshList("samples")}},
-		{label:"Close", onClick:function(){UI.mainPanel.setView("main");}}
+		{label:"Exit", onClick:function(){App.doCommand(COMMAND.showMain)}}
 	];
 
 	for (var i = 0;i< buttonsSideInfo.length;i++){

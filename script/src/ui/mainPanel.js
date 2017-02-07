@@ -408,6 +408,23 @@ UI.MainPanel = function(){
 		me.patternMargin = 0;
 		me.patternMarginRight = 0;
 
+		me.menuWidth = me.col2W;
+		var vuLeft = me.col3X;
+		var vuWidth = me.col3W;
+
+		console.error(me.menuWidth);
+		if (me.menuWidth < 250){
+			me.menuWidth = me.col3W;
+			vuLeft = me.col4X;
+			vuWidth = me.col2W;
+
+			if (me.menuWidth < 250){
+				me.menuWidth = me.col4W;
+				vuLeft = me.col5X;
+				vuWidth = me.col1W;
+			}
+		}
+
 		if (mainLayout == LAYOUTS.column5Full){
 
 			patternViewWidth = me.width-14;
@@ -454,7 +471,7 @@ UI.MainPanel = function(){
 		var topRow3 = 0;
 
 		var layout = {
-			menuBackground: me.col2W,
+			menuBackground: me.menuWidth,
 			logo:{
 				left: me.col1X,
 				width: me.col2W,
@@ -695,8 +712,8 @@ UI.MainPanel = function(){
 		});
 
 		vumeter.setProperties({
-			width: me.col3W,
-			left: me.col3X
+			width: vuWidth,
+			left: vuLeft
 		});
 
 		me.setSize(me.width,me.height);

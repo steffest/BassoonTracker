@@ -2,8 +2,6 @@ UI.knob = function(initialProperties){
 	var me = UI.element();
 	me.type = "knob";
 
-	window.know = me;
-
 	var label = "";
 	var font;
 	var textAlign = "left";
@@ -15,8 +13,6 @@ UI.knob = function(initialProperties){
 
 	var min = -160;
 	var max = 160;
-
-	var filterChain;
 
 	var properties = ["left","top","width","height","name","font","label","textAlign","paddingTop"];
 
@@ -56,6 +52,10 @@ UI.knob = function(initialProperties){
 	me.setLabel = function(text){
 		label = text;
 		me.refresh();
+	};
+
+	me.getLabel = function(){
+		return label;
 	};
 
 	me.setValue = function(newValue){
@@ -129,19 +129,6 @@ UI.knob = function(initialProperties){
 
 	me.onDragStart = function(){
 		startValue = value;
-
-		if (!filterChain){
-			filterChain = new FilterChain();
-
-			var trackVolume = Audio.trackVolume[1];
-			var trackPanning = Audio.trackPanning[1];
-
-			trackVolume.disconnect();
-
-			filterChain.connect(trackVolume,trackPanning);
-
-			window.f = filterChain;
-		}
 	};
 
 	me.onDrag=function(touchData){
@@ -152,7 +139,8 @@ UI.knob = function(initialProperties){
 			value = Math.min(value,100);
 			me.refresh();
 
-			filterChain.frequency(value/100);
+			if (me.onChange) me.onChange(value);
+
 	};
 
 	return me;

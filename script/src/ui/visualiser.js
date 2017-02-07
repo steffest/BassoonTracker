@@ -46,7 +46,7 @@ UI.visualiser = function(){
             audioNode.connect(analyser);
 
             for (var i = 0; i< Tracker.getTrackCount(); i++){
-                Audio.trackVolume[i].connect(trackAnalyser[i]);
+                Audio.filterChains[i].output().connect(trackAnalyser[i]);
             }
         }
 

@@ -36,14 +36,15 @@ UI.PatternView = function(x,y,w,h){
     setScrollBarPosition();
 
 
-    var fXpanels = [];
-
-    var fxPanel = UI.fxPanel();
-    fXpanels.push(fxPanel);
-    me.addChild(fxPanel);
+    var fxPanels = [];
+    for (var i = 0, len = Tracker.getTrackCount(); i<len;i++){
+        var fxPanel = UI.fxPanel(i);
+        fxPanels.push(fxPanel);
+        me.addChild(fxPanel);
+    }
 
     me.toggleFxPanel = function(track){
-        console.error(fxPanel);
+        fxPanel = fxPanels[track];
 
         if (fxPanel.visible){
             fxPanel.hide();
@@ -55,7 +56,7 @@ UI.PatternView = function(x,y,w,h){
             var visibleHeight = UI.mainPanel.patternHeight;
 
 
-            fxPanel.setPosition(trackLeft,0);
+            fxPanel.setPosition(fxPanel.left,0);
             fxPanel.setSize(trackWidth,visibleHeight);
             fxPanel.setLayout();
             fxPanel.show();
@@ -127,12 +128,13 @@ UI.PatternView = function(x,y,w,h){
 
             for (var i = 0; i<Tracker.getTrackCount();i++){
 
-                isTrackVisible[i] = !(fXpanels[i] && fXpanels[i].visible);
+                isTrackVisible[i] = !(fxPanels[i] && fxPanels[i].visible);
 
                 if (isTrackVisible[i]){
                     var trackX = trackLeft + i*(trackWidth+margin);
                     me.ctx.drawImage(darkPanel,trackX,0,trackWidth,panelHeight);
                     me.ctx.drawImage(darkPanel,trackX,panelTop2,trackWidth,panelHeight);
+                    if (fxPanels[i]) fxPanels[i].left = trackX;
                 }
             }
 
@@ -246,8 +248,10 @@ UI.PatternView = function(x,y,w,h){
                 }
             }
 
-            if (!isTrackVisible[0]){
-                fxPanel.render();
+            for (var j = 0; j<Tracker.getTrackCount();j++){
+                if (!isTrackVisible[j]){
+                    fxPanels[j].render();
+                }
             }
 
             setScrollBarPosition();

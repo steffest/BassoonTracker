@@ -43,7 +43,7 @@ UI.trackControl = function(x,y,w,h,visible){
     buttons.fx = UI.Assets.generate("buttonDark");
     buttons.fx.onClick = function(){
         buttons.fx.toggleActive();
-        UI.mainPanel.toggleFxPanel();
+        UI.mainPanel.toggleFxPanel(me.track);
     };
     buttons.fx.setProperties({
         name:"buttonFX",
