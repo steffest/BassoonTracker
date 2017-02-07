@@ -1,9 +1,12 @@
 {
   "modules":[
     {"title":"Demo Music","url":"demomods/demomusic.mod"},
+    {"title":"Elek Funk !","url":"http://www.stef.be/amiga/mod/elekfunk.mod"},
+    {"title":"Haste","url":"http://www.stef.be/amiga/mod/woutervl_haste.mod"},
+    {"title":"Guitar Slinger","url":"http://www.stef.be/amiga/mod/gslinger.mod"},
     {"title":"Startdust Memories","url":"demomods/StardustMemories.mod"},
-    {"title":"Tiny tune","url":"demomods/Tinytune.mod"},
     {"title":"Space Song","url":"http://www.stef.be/amiga/mod/space-song.mod"},
+    {"title":"Tiny tune","url":"demomods/Tinytune.mod"},
     {"title":"Effect tests","children":[
       {"title":"Test Arpeggio","url":"demomods/test/arpeggio.mod"},
       {"title":"Test Vibrato","url":"demomods/test/vibrato.mod"},

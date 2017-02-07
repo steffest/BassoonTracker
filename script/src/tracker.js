@@ -792,7 +792,7 @@ var Tracker = (function(){
 
 				trackEffects.fade = {
 					value: value,
-					resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, otherwise the volue is remembered from the preious state
+					resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, otherwise the volue is remembered from the previous state
 				};
 				trackEffectCache[track].fade = trackEffects.fade;
 
@@ -817,8 +817,21 @@ var Tracker = (function(){
 				break;
 			case 14:
 				// Subeffects
-				// TODO: implement
-				console.warn("Subeffect not implemented");
+				var subEffect = value >> 4;
+				var subValue = value & 0x0f;
+					switch (subEffect){
+						case 10: // Fine volume slide up
+							console.warn("fine Volume slide Up");
+							subValue = subValue * 100/64;
+							trackEffects.fade = {
+								value: subValue,
+								noSlide: true
+							};
+							break;
+						default:
+							// TODO: implement
+							console.warn("Subeffect " + subEffect + " not implemented");
+					}
 				break;
 			case 15:
 				//speed
@@ -893,11 +906,12 @@ var Tracker = (function(){
 		}
 
 		if (effects.volume){
+			var volume = effects.volume.value;
 			if (trackNote.volume){
-				var volume = effects.volume.value;
 				trackNote.startVolume = volume;
 				trackNote.volume.gain.setValueAtTime(volume/100,time);
 			}
+			trackNote.currentVolume = volume;
 		}
 
 		if (effects.fade){
@@ -910,7 +924,13 @@ var Tracker = (function(){
 				currentVolume = trackNote.currentVolume;
 			}
 
-			for (var tick = 0; tick < ticksPerStep; tick++){
+			var steps = ticksPerStep;
+			if (effects.fade.noSlide){
+				// fine Volume Up
+				steps = 1;
+			}
+
+			for (var tick = 0; tick < steps; tick++){
 				if (trackNote.volume){
 					trackNote.volume.gain.setValueAtTime(currentVolume/100,time + (tick*tickTime));
 					currentVolume += value;
