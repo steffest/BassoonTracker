@@ -117,8 +117,8 @@ UI.vumeter = function(){
 		var wLeft = rangeLeft * vuWidth;
 		var wRight = rangeRight * vuWidth;
 
-		me.ctx.drawImage(baseActive,0,0,wLeft,vuHeight,0,0,wLeft,vuHeight);
-		me.ctx.drawImage(baseActive,0,0,wRight,vuHeight,0,vuHeight + middleMargin,wRight,vuHeight);
+		if (wLeft) me.ctx.drawImage(baseActive,0,0,wLeft,vuHeight,0,0,wLeft,vuHeight);
+		if (wRight) me.ctx.drawImage(baseActive,0,0,wRight,vuHeight,0,vuHeight + middleMargin,wRight,vuHeight);
 
 		//ctx.fillStyle = "green";
 		//ctx.clearRect(400,4,400,20);
