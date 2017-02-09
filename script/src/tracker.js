@@ -1501,20 +1501,7 @@ var Tracker = (function(){
 	};
 
 	me.getSample = function(index){
-		if (index){
-			return samples[index];
-		}else{
-			// return empty sample;
-			return {
-				length: 0,
-				finetune: 0,
-				volume : 100,
-				loopStart: 0,
-				loopRepeatLength: 0,
-				name: "",
-				data: []
-			};
-		}
+		return samples[index];
 	};
 
 	me.importSample = function(file,name){
@@ -1733,7 +1720,7 @@ var Tracker = (function(){
 		// samples
 		var sampleContainer = [];
 		for (i = 1; i <= 31; ++i) {
-			samples[i] = me.getSample();
+			samples[i] = getEmptySample();
 			sampleContainer.push({label: i + " ", data: i});
 		}
 		song.samples = samples;
@@ -1750,7 +1737,7 @@ var Tracker = (function(){
 	};
 
 	me.clearSample = function(){
-		samples[currentSampleIndex]=me.getSample();
+		samples[currentSampleIndex]=getEmptySample();
 		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
 		EventBus.trigger(EVENT.sampleNameChange,currentSampleIndex);
 	};
@@ -1766,6 +1753,19 @@ var Tracker = (function(){
 			result.push(row);
 		}
 		return result;
+	}
+
+
+	function getEmptySample(){
+		return {
+			length: 0,
+			finetune: 0,
+			volume : 100,
+			loopStart: 0,
+			loopRepeatLength: 0,
+			name: "",
+			data: []
+		};
 	}
 
 	return me;
