@@ -10,6 +10,9 @@ UI.submenu = function(x,y,w,h){
     var paddingLeft = 9;
     var charWidth = 9;
 
+    var hoverIndex;
+    var preHoverIndex;
+
     me.setProperties = function(p){
 
         properties.forEach(function(key){
@@ -24,6 +27,24 @@ UI.submenu = function(x,y,w,h){
 
         me.setSize(me.width,me.height);
         me.setPosition(me.left,me.top);
+
+    };
+
+    me.onHover = function(data){
+        var index = Math.floor(me.eventY/itemHeight);
+        if (index != preHoverIndex){
+            hoverIndex = index;
+            preHoverIndex = hoverIndex;
+            me.refresh();
+        }
+    };
+
+    me.onHoverExit = function(){
+        if (hoverIndex){
+            hoverIndex = undefined;
+            preHoverIndex = undefined;
+            me.refresh();
+        }
 
     };
 
@@ -55,6 +76,12 @@ UI.submenu = function(x,y,w,h){
 
             for (var i = 0; i<=max;i++){
                 var item = items[i];
+
+                if (i == hoverIndex){
+                    me.ctx.fillStyle = "rgba(255,255,255,0.2)";
+                    me.ctx.fillRect(textX,textY,textWidth,itemHeight);
+                }
+
                 if (item.label){
                     fontMed.write(me.ctx,item.label,textX + paddingLeft,textY + paddingTop);
                 }

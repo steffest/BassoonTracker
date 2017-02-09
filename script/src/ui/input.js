@@ -14,6 +14,8 @@ var Input = (function(){
 
 	var currentOctave = 2;
 
+	var prevHoverTarget;
+
 	me.init = function(){
 
 		// mouse, touch and key handlers
@@ -113,6 +115,17 @@ var Input = (function(){
 				touchData.currentMouseX = _x;
 				touchData.currentMouseY = _y;
 				touchData.mouseMoved = new Date().getTime();
+
+				if (SETTINGS.useHover){
+					var hoverEventTarget = UI.getEventElement(_x,_y);
+					if (hoverEventTarget && hoverEventTarget.onHover) hoverEventTarget.onHover(touchData);
+
+					if (prevHoverTarget && prevHoverTarget != hoverEventTarget){
+						if (prevHoverTarget.onHoverExit) prevHoverTarget.onHoverExit(touchData,hoverEventTarget);
+					}
+					prevHoverTarget = hoverEventTarget;
+				}
+
 			}
 
 			function updateTouch(touchIndex,x,y){
