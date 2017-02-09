@@ -16,24 +16,25 @@ it works best in Chrome.
 
 Features  
 - load, play, edit and save Protracker compatible module files  
-- most audio effects are supported (but probably not 100% accurate)
-  - Frequency slides (Effect 1, 2, 3 and 5)
+- most audio effects are supported (99% accurate, i case of historical differences in playback engines, I tend to follow the protracker 2.X one)
+  - Portamento / Frequency slides (Effect 1, 2, 3, 5, E1 and E2)
   - Vibrato (Effect 4 and 6)
   - Tremolo (Effect 7)
   - Arpeggio (Effect 0)
   - Sample offsets (Effect 9)
-  - Volume slides and settings (effect A and C)
+  - Volume slides and settings (effect A, C, E10 and E11)
   - Position jumps (effect B)
-  - Speed settings (Effect F)  
+  - Speed settings (Effect F) 
+  - Glissando (Effect E3)
 - mute/solo tracks  
 - edit pattern data and sample properties  
 - import 8bit WAV, 8SVX and RAW samples (as well as any other format AudioContext can read, like .mp3 and .ogg) 
-- includes the historic ST-01 and ST-02 sample disks, released in 1987  
+- includes the historic ST-01 and ST-02 sample disks, released in 1987 (as well as a bunch if others) 
 - export to .wav and .mod
 
 Missing features and bugs
  - Not much disk operations yet, you can load new modules and samples by drag-dropping them on the interface  
- - The various "E" effects are not implemented yet  
+ - Some "Extended" effects are not implemented yet and probably wont as they are very rarely used: E4,E5,E6,E7, E9, E12, E13, E14, E15  
  - The sample editor needs fleshing out.
  
-Note: if you use an AZERTY keyboard, you can set that option in the settings to have the correct octave layout when playing notes on your computer keyboard.
+Note: if you use an AZERTY keyboard, you can set that option in the settings to have the correct layout when playing notes on your computer keyboard.
