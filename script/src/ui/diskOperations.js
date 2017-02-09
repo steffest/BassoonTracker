@@ -49,6 +49,17 @@ UI.DiskOperations = function(){
 	var listbox = UI.listbox();
 	me.addChild(listbox);
 
+
+	var dropzone = UI.button();
+	dropzone.setProperties({
+		background: UI.Assets.buttonDarkActiveScale9,
+		image: Y.getImage("dropzone"),
+		font: fontSmall,
+		textAlign: "center"
+
+	});
+	me.addChild(dropzone);
+
 	me.setLayout = function(){
 
 		if (!UI.mainPanel) return;
@@ -95,10 +106,17 @@ UI.DiskOperations = function(){
 
 		listbox.setProperties({
 			left: UI.mainPanel.col2X,
-			width: UI.mainPanel.col4W,
+			width: UI.mainPanel.col3W,
 			top: startTop + 20 + 7,
 			height:buttonHeight*buttonsSideInfo.length - 30
-		})
+		});
+
+		dropzone.setProperties({
+			left: UI.mainPanel.col5X,
+			width: UI.mainPanel.col1W,
+			top: startTop + 20 + 7,
+			height:listbox.height
+		});
 	};
 
 	me.refreshList = function(type){

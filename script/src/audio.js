@@ -267,7 +267,10 @@ var Audio = (function(){
             if (doSave){
                 // save to wav
                 var b = new Blob([audioBufferToWav(renderedBuffer)], {type: "octet/stream"});
-                saveAs(b,"output.wav");
+                var fileName = Tracker.getSong().title.replace(/ /g, '-').replace(/\W/g, '');
+                if (!fileName) fileName = "module-export";
+                fileName += ".wav";
+                saveAs(b,fileName);
             }else{
                 var output = context.createBufferSource();
                 output.buffer = renderedBuffer;
@@ -275,18 +278,6 @@ var Audio = (function(){
                 output.start();
             }
 
-
-            //https://github.com/Jam3/audiobuffer-to-wav/blob/master/index.js
-
-            //var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            //var song = audioCtx.createBufferSource();
-            //song.buffer = renderedBuffer;
-
-
-
-            //play.onclick = function() {
-            //    song.start();
-            //}
         }).catch(function(err) {
             console.log('Rendering failed: ' + err);
             // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext

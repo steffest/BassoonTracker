@@ -179,6 +179,7 @@ UI.listbox = function(x,y,w,h){
 
     me.setItems = function(newItems){
         items = newItems;
+        visibleIndex = Math.min(visibleIndex,getMaxIndex()+1);
         setScrollBarPosition();
         me.refresh();
     };

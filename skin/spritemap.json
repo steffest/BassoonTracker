@@ -1,7 +1,7 @@
 [
   {
     "name": "background",
-    "x": 511,
+    "x": 510,
     "y": 256,
     "width": 17,
     "height": 17
@@ -22,8 +22,8 @@
   },
   {
     "name": "button_dark_active",
-    "x": 466,
-    "y": 294,
+    "x": 463,
+    "y": 256,
     "width": 47,
     "height": 26
   },
@@ -36,66 +36,73 @@
   },
   {
     "name": "button_inlay_active",
-    "x": 71,
+    "x": 142,
     "y": 503,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_blue",
-    "x": 0,
-    "y": 503,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_blue_active",
-    "x": 395,
-    "y": 294,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_green",
     "x": 339,
     "y": 463,
     "width": 71,
     "height": 30
   },
   {
-    "name": "button_inlay_green_active",
-    "x": 410,
-    "y": 463,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_plain",
-    "x": 324,
-    "y": 294,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_red",
+    "name": "button_inlay_blue_active",
     "x": 447,
     "y": 363,
     "width": 71,
     "height": 30
   },
   {
-    "name": "button_inlay_red_active",
+    "name": "button_inlay_green",
+    "x": 213,
+    "y": 503,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_green_active",
     "x": 339,
     "y": 433,
     "width": 71,
     "height": 30
   },
   {
+    "name": "button_inlay_plain",
+    "x": 410,
+    "y": 463,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_red",
+    "x": 0,
+    "y": 503,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_red_active",
+    "x": 71,
+    "y": 503,
+    "width": 71,
+    "height": 30
+  },
+  {
     "name": "button_light",
-    "x": 236,
+    "x": 331,
     "y": 256,
     "width": 132,
     "height": 38
+  },
+  {
+    "name": "dropzone",
+    "x": 236,
+    "y": 256,
+    "width": 95,
+    "height": 95
   },
   {
     "name": "font",
@@ -127,22 +134,22 @@
   },
   {
     "name": "knob_back",
-    "x": 339,
-    "y": 363,
-    "width": 54,
-    "height": 54
-  },
-  {
-    "name": "knob_front",
     "x": 393,
     "y": 363,
     "width": 54,
     "height": 54
   },
   {
+    "name": "knob_front",
+    "x": 339,
+    "y": 363,
+    "width": 54,
+    "height": 54
+  },
+  {
     "name": "lednumber",
-    "x": 368,
-    "y": 256,
+    "x": 419,
+    "y": 294,
     "width": 88,
     "height": 25
   },
@@ -176,8 +183,8 @@
   },
   {
     "name": "mute",
-    "x": 324,
-    "y": 324,
+    "x": 486,
+    "y": 393,
     "width": 44,
     "height": 20
   },
@@ -197,7 +204,7 @@
   },
   {
     "name": "panel_inset",
-    "x": 513,
+    "x": 507,
     "y": 294,
     "width": 16,
     "height": 16
@@ -246,14 +253,14 @@
   },
   {
     "name": "play_active_red",
-    "x": 456,
-    "y": 256,
+    "x": 419,
+    "y": 319,
     "width": 55,
     "height": 22
   },
   {
     "name": "play_green",
-    "x": 236,
+    "x": 331,
     "y": 294,
     "width": 88,
     "height": 50
@@ -281,15 +288,15 @@
   },
   {
     "name": "record_active",
-    "x": 142,
+    "x": 284,
     "y": 503,
     "width": 71,
     "height": 27
   },
   {
     "name": "solo",
-    "x": 486,
-    "y": 393,
+    "x": 474,
+    "y": 319,
     "width": 44,
     "height": 21
   },
