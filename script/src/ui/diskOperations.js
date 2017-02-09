@@ -21,7 +21,7 @@ UI.DiskOperations = function(){
 		{label:"Save Module", onClick:function(){Tracker.save();}},
 		{label:"Render to Sample", onClick:function(){Tracker.renderTrackToBuffer()}},
 		{label:"Load Sample", onClick:function(){me.refreshList("samples")}},
-		{label:"Exit", onClick:function(){App.doCommand(COMMAND.showMain)}}
+		{label:"Exit", onClick:function(){App.doCommand(COMMAND.showTop)}}
 	];
 
 	for (var i = 0;i< buttonsSideInfo.length;i++){
@@ -33,6 +33,19 @@ UI.DiskOperations = function(){
 		me.addChild(buttonElm);
 	}
 
+	var label = UI.label({
+		label: "Load module",
+		font: fontMed
+	});
+	me.addChild(label);
+
+	var closeButton = UI.Assets.generate("button20_20");
+	closeButton.setLabel("x");
+	closeButton.onClick = function(){
+		UI.mainPanel.setView("main");
+	};
+	me.addChild(closeButton);
+
 	var listbox = UI.listbox();
 	me.addChild(listbox);
 
@@ -42,15 +55,21 @@ UI.DiskOperations = function(){
 		me.clearCanvas();
 
 		background.setProperties({
-			left: me.left,
-			top: me.top,
+			left: 0,
+			top: 0,
 			height: me.height,
 			width: me.width
 		});
 
-		var startTop = 16;
-		var innerHeight = me.height-20;
+
+		var startTop = 5;
+		var innerHeight = me.height - 5;
 		var buttonHeight = Math.floor(innerHeight/buttonsSideInfo.length);
+
+		closeButton.setProperties({
+			top: startTop,
+			left: me.width - 30
+		});
 
 
 		for (i = 0;i<buttonsSideInfo.length;i++){
@@ -67,11 +86,18 @@ UI.DiskOperations = function(){
 			});
 		}
 
+		label.setProperties({
+			left: UI.mainPanel.col2X,
+			top: startTop + 4,
+			height: 20,
+			width: UI.mainPanel.col4W
+		});
+
 		listbox.setProperties({
 			left: UI.mainPanel.col2X,
 			width: UI.mainPanel.col4W,
-			top: startTop,
-			height:buttonHeight*buttonsSideInfo.length
+			top: startTop + 20 + 7,
+			height:buttonHeight*buttonsSideInfo.length - 30
 		})
 	};
 
@@ -105,6 +131,7 @@ UI.DiskOperations = function(){
 		}
 
 		if (currentView == "modules"){
+			label.setLabel("Load Module");
 			listbox.onClick = function(e){
 				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 				if (item && item.data){
@@ -114,8 +141,9 @@ UI.DiskOperations = function(){
 					if (item.children){
 						toggleDirectory(item,index);
 					}else{
+						listbox.setSelectedIndex(index);
 						Tracker.load(item.url);
-						UI.mainPanel.setView("main");
+						//UI.mainPanel.setView("main");
 					}
 
 
@@ -135,7 +163,7 @@ UI.DiskOperations = function(){
 				})
 			}
 		}else{
-
+			label.setLabel("Load Sample to slot " + Tracker.getCurrentSampleIndex());
 			listbox.onClick = function(e){
 				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 				if (item && item.data){
@@ -153,7 +181,6 @@ UI.DiskOperations = function(){
 							if (item.children.length){
 								me.refreshList();
 							}else{
-								console.error("load children from " + item.url);
 
 								FetchService.json(item.url,function(data){
 									if (data && data.samples){
@@ -164,8 +191,9 @@ UI.DiskOperations = function(){
 							}
 						}
 					}else{
+						listbox.setSelectedIndex(index);
 						Tracker.load(item.url);
-						UI.mainPanel.setView("main");
+						//UI.mainPanel.setView("resetTop");
 					}
 
 				}
@@ -208,6 +236,11 @@ UI.DiskOperations = function(){
 			}
 		}
 	}
+
+
+	EventBus.on(EVENT.sampleChange,function(event,value){
+		if (me.isVisible() && currentView == "samples") label.setLabel("Load Sample to slot " + Tracker.getCurrentSampleIndex());
+	});
 
 
 

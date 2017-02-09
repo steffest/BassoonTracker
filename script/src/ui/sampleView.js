@@ -99,6 +99,29 @@ UI.SampleView = function(){
 	me.addChild(sideButtonPanel);
 
 
+	var loadButton = UI.Assets.generate("buttonLight");
+	loadButton.setLabel("Load");
+	loadButton.onClick = function(){
+		UI.mainPanel.setView("diskop_samples");
+	};
+	me.addChild(loadButton);
+
+	var clearButton = UI.Assets.generate("buttonLight");
+	clearButton.setLabel("Clear");
+	clearButton.onClick = function(){
+		var sample = Tracker.getSample()
+	};
+	me.addChild(clearButton);
+
+	var reverseButton = UI.Assets.generate("buttonLight");
+	reverseButton.setLabel("Reverse");
+	reverseButton.onClick = function(){
+		var sample = Tracker.getSample(currentSampleIndex);
+		if (sample && sample.data) sample.data.reverse();
+		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
+	};
+	me.addChild(reverseButton);
+
 	var closeButton = UI.Assets.generate("buttonLight");
 	closeButton.setLabel("Exit");
 	closeButton.onClick = function(){
@@ -205,6 +228,27 @@ UI.SampleView = function(){
 		});
 
 		var BottomPanelTop = waveForm.top + waveForm.height + UI.mainPanel.defaultMargin;
+
+		loadButton.setProperties({
+			width: UI.mainPanel.col1W,
+			height: spinButtonHeight,
+			left: UI.mainPanel.col2X,
+			top: BottomPanelTop
+		});
+
+		clearButton.setProperties({
+			width: UI.mainPanel.col1W,
+			height: spinButtonHeight,
+			left: UI.mainPanel.col3X,
+			top: BottomPanelTop
+		});
+
+		reverseButton.setProperties({
+			width: UI.mainPanel.col1W,
+			height: spinButtonHeight,
+			left: UI.mainPanel.col4X,
+			top: BottomPanelTop
+		});
 
 		closeButton.setProperties({
 			width: UI.mainPanel.col1W,

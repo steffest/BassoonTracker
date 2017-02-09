@@ -273,6 +273,7 @@ UI.MainPanel = function(){
 	me.addChild(optionsPanel);
 
 	var pianoView = UI.PianoView();
+	pianoView.hide();
 	pianoView.setProperties({
 		name: "pianoViewPanel"
 	});
@@ -529,8 +530,8 @@ UI.MainPanel = function(){
 			},
 			diskOperations:{
 				left: 0,
-				top: 10,
-				height: me.controlPanelHeight-10,
+				top: me.menuHeight,
+				height: me.controlPanelHeight-me.menuHeight,
 				width: me.width
 			},
 			songControl:{ // play/record buttons
@@ -773,26 +774,53 @@ UI.MainPanel = function(){
 
 	me.setView = function(viewName){
 
-		//reset main
-		patternView.show();
-		sideButtonPanel.show();
-		sampleView.hide();
-		diskOperations.hide();
-		optionsPanel.hide();
+		function resetTop(){
+			diskOperations.hide();
+			optionsPanel.hide();
+		}
+		function resetBottom(){
+			patternView.show();
+			sideButtonPanel.show();
+			sampleView.hide();
+		}
+		function reset(){
+			resetTop();
+			resetBottom();
+		}
 
-
-		if (viewName == "sample"){
-			patternView.hide();
-			sideButtonPanel.hide();
-			sampleView.setLayout();
-			sampleView.show(true,true);
-		}else if(viewName == "diskop"){
-			diskOperations.setLayout();
-			diskOperations.refreshList();
-			diskOperations.show();
-		}else if(viewName == "options"){
-			optionsPanel.setLayout();
-			optionsPanel.show();
+		switch (viewName){
+			case "sample":
+				resetBottom();
+				patternView.hide();
+				sideButtonPanel.hide();
+				sampleView.setLayout();
+				sampleView.show(true,true);
+				break;
+			case "diskop":
+				resetTop();
+				diskOperations.setLayout();
+				diskOperations.refreshList();
+				diskOperations.show();
+				break;
+			case "diskop_samples":
+				resetTop();
+				diskOperations.setLayout();
+				diskOperations.refreshList("samples");
+				diskOperations.show();
+				break;
+			case "options":
+				resetTop();
+				optionsPanel.setLayout();
+				optionsPanel.show();
+				break;
+			case "resetTop":
+				resetTop();
+				break;
+			case "resetBottom":
+				resetTop();
+				break;
+			default:
+				reset();
 		}
 
 		currentView = viewName;

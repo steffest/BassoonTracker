@@ -110,6 +110,7 @@ var Audio = (function(){
             var sampleBuffer;
             var offset = 0;
             var sampleLength = 0;
+            var sampleLoopStart = 0;
 
             volume = typeof volume == "undefined" ? (100*sample.volume/64) : volume;
 
@@ -125,11 +126,12 @@ var Audio = (function(){
 
             if (sample.data.length) {
                 sampleLength = sample.data.length;
+                sampleLoopStart = sample.loopStart;
 
                 if (effects && effects.offset && effects.offset.value<sampleLength){
                     offset = effects.offset.value;
                     sampleLength -= offset;
-                    if (sample.loopStart) sample.loopStart -= offset;
+                    if (sampleLoopStart) sampleLoopStart -= offset;
                 }
                 // note - on safari you can't set a different samplerate?
                 sampleBuffer = audioContext.createBuffer(1, sampleLength,audioContext.sampleRate);
@@ -156,11 +158,10 @@ var Audio = (function(){
 
                     source.loop = true;
                     // in seconds ...
-                    source.loopStart = sample.loopStart/audioContext.sampleRate;
-                    source.loopEnd = (sample.loopStart + sample.loopRepeatLength)/audioContext.sampleRate;
+                    source.loopStart = sampleLoopStart/audioContext.sampleRate;
+                    source.loopEnd = (sampleLoopStart + sample.loopRepeatLength)/audioContext.sampleRate;
 
                     //audioContext.sampleRate = samples/second
-
                 }
             }
 

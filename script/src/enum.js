@@ -50,7 +50,9 @@ var COMMAND = {
 	showSampleEditor : 11,
 	showAbout : 12,
 	showHelp : 13,
-	togglePiano : 14
+	togglePiano : 14,
+	showTop : 15,
+	showBottom: 16
 };
 
 var PLAYTYPE = {

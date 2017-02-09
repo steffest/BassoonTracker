@@ -74,6 +74,12 @@ var Tracker = (function(){
 	me.setCurrentPattern = function(index){
 		currentPattern = index;
 		currentPatternData = song.patterns[currentPattern];
+
+		if (!currentPatternData){
+			// insert empty pattern;
+			currentPatternData = getEmptyPattern();
+			song.patterns[currentPattern] = currentPatternData;
+		}
 		if (prevPattern!=currentPattern) EventBus.trigger(EVENT.patternChange,currentPattern);
 		prevPattern = currentPattern;
 	};
@@ -512,6 +518,7 @@ var Tracker = (function(){
 
 
 	function playNote(note,track,time){
+
 		var defaultVolume = 100;
 
 		var sampleIndex = note.sample;
@@ -752,8 +759,10 @@ var Tracker = (function(){
 				break;
 			case 7:
 				// Tremolo
-				// reset volume if sample number is present
-				if (note.sample) {
+				// note: having a sample number without a period doesn't seem te have any effect (protracker)
+				// when only a period -> reset the wave form / timer
+
+				if (note.period && !note.sample) {
 					if (trackNotes[track].startVolume) {
 						trackEffects.volume = {
 							value: volume
@@ -766,7 +775,8 @@ var Tracker = (function(){
 				x = value >> 4;
 				y = value & 0x0f;
 
-				var amplitude = y * (ticksPerStep-1);
+				//var amplitude = y * (ticksPerStep-1); Note: this is the formula in the mod spec, but this seems way off;
+				var amplitude = y;
 				var freq = (x*ticksPerStep)/64;
 
 				var prevTremolo = trackEffectCache[track].tremolo;
@@ -778,6 +788,7 @@ var Tracker = (function(){
 					amplitude:amplitude,
 					freq: freq
 				};
+
 				trackEffectCache[track].tremolo = trackEffects.tremolo;
 
 				break;
@@ -881,6 +892,7 @@ var Tracker = (function(){
 									doPlayNote = false;
 								}
 							}
+							break;
 						default:
 							// TODO: implement
 							console.warn("Subeffect " + subEffect + " not implemented");
@@ -1092,7 +1104,6 @@ var Tracker = (function(){
 
 		}
 
-
 		if (effects.tremolo){
 			var freq = effects.tremolo.freq;
 			var amp = effects.tremolo.amplitude;
@@ -1165,7 +1176,7 @@ var Tracker = (function(){
 		// 4 steps is 1 beat
 		// the speeds sets the amount of ticks in 1 step
 		// defauilt is 6 -> 60/(6*0.02*4) = 125 bpm
-		console.log("setAmigaSpeed",speed);
+
 		//note: this changes the speed of the song, but not the speed of the main loop
 		ticksPerStep = speed;
 	};
@@ -1257,18 +1268,19 @@ var Tracker = (function(){
 		url = url || "demomods/StardustMemories.mod";
 		var name = url.substr(url.lastIndexOf("/")+1);
 
-		if (!skipHistory){
-
-			var path = window.location.pathname;
-			var filename = path.substring(path.lastIndexOf('/')+1);
-
-			if (window.history.pushState){
-				window.history.pushState({},name, filename + "?file=" + encodeURIComponent(url));
-			}
-		}
 
 		loadFile(url,function(result){
-			me.parse(result,name);
+			var isMod = me.parse(result,name);
+
+			if (isMod && !skipHistory){
+
+				var path = window.location.pathname;
+				var filename = path.substring(path.lastIndexOf('/')+1);
+
+				if (window.history.pushState){
+					window.history.pushState({},name, filename + "?file=" + encodeURIComponent(url));
+				}
+			}
 		})
 	};
 
@@ -1476,6 +1488,8 @@ var Tracker = (function(){
 			me.importSample(file,name);
 		}
 
+		return isMod;
+
 	};
 
 	me.getSong = function(){
@@ -1487,7 +1501,20 @@ var Tracker = (function(){
 	};
 
 	me.getSample = function(index){
-		return samples[index];
+		if (index){
+			return samples[index];
+		}else{
+			// return empty sample;
+			return {
+				length: 0,
+				finetune: 0,
+				volume : 100,
+				loopStart: 0,
+				loopRepeatLength: 0,
+				name: "",
+				data: []
+			};
+		}
 	};
 
 	me.importSample = function(file,name){
@@ -1622,7 +1649,9 @@ var Tracker = (function(){
 
 
 		var b = new Blob([file.buffer], {type: "application/octet-stream"});
-		saveAs(b,"test.mod");
+
+		var fileName = song.title.replace(/ /g, '-').replace(/\W/g, '') + ".mod";
+		saveAs(b,fileName);
 
 
 	};
@@ -1686,6 +1715,58 @@ var Tracker = (function(){
 		}
 	};
 
+
+	me.new = function(){
+		resetDefaultSettings();
+		song = {
+			patterns:[],
+			samples:[]
+		};
+		samples = [];
+
+		song.typeId = "M.K.";
+		song.title = "new song";
+		song.length = 1;
+
+		song.patterns.push(getEmptyPattern());
+
+		// samples
+		var sampleContainer = [];
+		for (i = 1; i <= 31; ++i) {
+			samples[i] = me.getSample();
+			sampleContainer.push({label: i + " ", data: i});
+		}
+		song.samples = samples;
+
+		var patternTable = [];
+		for (var i = 0; i < 128; ++i) {
+			patternTable[i] = 0;
+		}
+		song.patternTable = patternTable;
+		UI.mainPanel.setInstruments(sampleContainer);
+
+
+		onModuleLoad();
+	};
+
+	me.clearSample = function(){
+		samples[currentSampleIndex]=me.getSample();
+		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
+		EventBus.trigger(EVENT.sampleNameChange,currentSampleIndex);
+	};
+
+	function getEmptyPattern(){
+		var result = [];
+		for (var step = 0; step<patternLength; step++){
+			var row = [];
+			var channel;
+			for (channel = 0; channel < 4; channel++){
+				row.push({note:0,effect:0,sample:0,param:0});
+			}
+			result.push(row);
+		}
+		return result;
+	}
 
 	return me;
 }());

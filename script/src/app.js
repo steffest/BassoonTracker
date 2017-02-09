@@ -5,6 +5,7 @@ var App = (function(){
         EventBus.on(EVENT.command,function(event,command){
             switch (command){
                 case COMMAND.newFile:
+                    Tracker.new();
                     break;
                 case COMMAND.openFile:
                     UI.mainPanel.setView("diskop");
@@ -21,9 +22,12 @@ var App = (function(){
                 case COMMAND.showMain:
                     UI.mainPanel.setView("main");
                     break;
+                case COMMAND.showTop:
+                    UI.mainPanel.setView("resetTop");
+                    break;
                 case COMMAND.showOptions:
                     if (UI.mainPanel.getCurrentView() == "options"){
-                        UI.mainPanel.setView("main");
+                        UI.mainPanel.setView("resetTop");
                     }else{
                         UI.mainPanel.setView("options");
                     }
@@ -37,7 +41,7 @@ var App = (function(){
                     break;
                 case COMMAND.showSampleEditor:
                     if (UI.mainPanel.getCurrentView() == "sample"){
-                        UI.mainPanel.setView("main");
+                        UI.mainPanel.setView("resetBottom");
                     }else{
                         UI.mainPanel.setView("sample");
                     }

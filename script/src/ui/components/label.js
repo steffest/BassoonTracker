@@ -78,5 +78,7 @@ UI.label = function(initialProperties){
 		}
 	};
 
+	if (initialProperties) me.setProperties(initialProperties);
+
 	return me;
 };

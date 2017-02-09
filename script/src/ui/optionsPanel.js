@@ -7,13 +7,12 @@ UI.OptionsPanel = function(){
 	background.ignoreEvents = true;
 	me.addChild(background);
 
-	var mainLabel = UI.label();
-	mainLabel.setProperties({
+	var mainLabel = UI.label({
 		label: "Options:",
 		font: fontMed,
 		left: 5,
 		height: 18,
-		top: 18,
+		top: 9,
 		width: 200
 	});
 	me.addChild(mainLabel);
@@ -24,7 +23,7 @@ UI.OptionsPanel = function(){
 	var closeButton = UI.Assets.generate("button20_20");
 	closeButton.setLabel("x");
 	closeButton.onClick = function(){
-		UI.mainPanel.setView("main");
+		UI.mainPanel.setView("resetTop");
 	};
 	me.addChild(closeButton);
 
@@ -150,28 +149,28 @@ UI.OptionsPanel = function(){
 		me.clearCanvas();
 
 		background.setProperties({
-			left: me.left,
-			top: me.top,
+			left: 0,
+			top: 0,
 			height: me.height,
 			width: me.width
 		});
 
-		closeButton.setProperties({
-			top: 14,
-			left: me.width - 24
-		});
-
-		var startTop = 26;
+		var startTop = 5;
 		var innerHeight = me.height-(UI.mainPanel.defaultMargin*2) - startTop;
+
+		closeButton.setProperties({
+			top: startTop,
+			left: me.width - 30
+		});
 
 		insetPanel.setProperties({
 			left: me.left + UI.mainPanel.defaultMargin,
 			top: me.top + startTop,
-			height: innerHeight - 6,
-			width: me.width - (UI.mainPanel.defaultMargin*2)
+			height: innerHeight - 6 - mainLabel.height,
+			width: me.width - (UI.mainPanel.defaultMargin*2) - 4
 		});
 
-		var optionTop = 40;
+		var optionTop = 35;
 		var optionHeight = 30;
 		var optionMargin = 5;
 		var i = 0;
@@ -203,7 +202,7 @@ UI.OptionsPanel = function(){
 			left: UI.mainPanel.col1X + 5,
 			width: UI.mainPanel.col1W - 5,
 			height: optionHeight,
-			top: innerHeight - 5
+			top: (innerHeight - optionHeight) + 5
 		});
 
 	};
