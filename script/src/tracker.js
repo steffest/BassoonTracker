@@ -219,6 +219,7 @@ var Tracker = (function(){
 		if (clock) clock.stop();
 		Audio.disable();
 		Input.clearInputNotes();
+		me.clearEffectCache();
 		//Audio.stopRecording();
 
 		for (var i = 0; i<trackCount; i++){
@@ -1007,6 +1008,7 @@ var Tracker = (function(){
 						targetPeriod += effects.slide.value;
 					}
 
+					targetPeriod = Audio.limitAmigaPeriod(targetPeriod);
 					if (targetPeriod != trackNote.currentPeriod){
 						trackNote.currentPeriod = targetPeriod;
 						var rate = (trackNote.startPeriod / targetPeriod);
@@ -1616,6 +1618,8 @@ var Tracker = (function(){
 		me.setCurrentPatternPos(0);
 		me.setCurrentSampleIndex(1);
 
+		me.clearEffectCache();
+
 		EventBus.trigger(EVENT.songPropertyChange,song);
 	}
 
@@ -1651,6 +1655,14 @@ var Tracker = (function(){
 			}
 		}
 		EventBus.trigger(EVENT.patternChange,currentPattern);
+	};
+
+	me.clearEffectCache = function(){
+		trackEffectCache = [];
+
+		for (var i=0;i<trackCount;i++){
+			trackEffectCache.push({});
+		}
 	};
 
 

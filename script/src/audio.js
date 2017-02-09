@@ -443,6 +443,15 @@ var Audio = (function(){
         return result;
     };
 
+    me.limitAmigaPeriod = function(period){
+        // limits the period to the allowed Amiga frequency range, between 113 (B3) and 856 (C1)
+
+        period = Math.max(period,113);
+        period = Math.min(period,856);
+
+        return period;
+    };
+
     return me;
 
 }());
