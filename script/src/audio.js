@@ -432,6 +432,29 @@ var Audio = (function(){
         return result;
     };
 
+    me.getNearestSemiTone = function(period,sampleIndex){
+        var tuning = 8;
+        if (sampleIndex){
+            var sample = Tracker.getSample(sampleIndex);
+            if (sample && sample.finetune) tuning = tuning + sample.finetune;
+        }
+
+        var minDelta = 100000;
+        var result = period;
+        for (var note in NOTEPERIOD){
+           if (NOTEPERIOD.hasOwnProperty(note)){
+               var p = NOTEPERIOD[note].tune[tuning];
+               var delta = Math.abs(p - period);
+               if (delta<minDelta) {
+                   minDelta = delta;
+                   result = p;
+               }
+           }
+        }
+
+        return result;
+    };
+
     me.getFineTunePeriod = function(period,finetune){
         var result = period;
         var note = periodNoteTable[period];

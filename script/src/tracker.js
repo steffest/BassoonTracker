@@ -571,7 +571,9 @@ var Tracker = (function(){
 			case 1:
 				// Slide Up
 				value = value * -1;
-				if (!value && trackEffectCache[track].slideUp) value = trackEffectCache[track].slideUp.value;
+				// note: on protracker 2 and 3 , the effectcache is NOT used on this effect
+				// it is on Milkytracker (in all playback modes)
+				//if (!value && trackEffectCache[track].slideUp) value = trackEffectCache[track].slideUp.value;
 				trackEffects.slide = {
 					value: value
 				};
@@ -579,7 +581,9 @@ var Tracker = (function(){
 				break;
 			case 2:
 				// Slide Down
-				if (!value && trackEffectCache[track].slideDown) value = trackEffectCache[track].slideDown.value;
+				// note: on protracker 2 and 3 , the effectcache is NOT used on this effect
+				// it is on Milkytracker (in all playback modes)
+				//if (!value && trackEffectCache[track].slideDown) value = trackEffectCache[track].slideDown.value;
 				trackEffects.slide = {
 					value: value
 				};
@@ -611,7 +615,8 @@ var Tracker = (function(){
 
 				trackEffects.slide = {
 					value: value,
-					target: target
+					target: target,
+					canUseGlissando: true
 				};
 				trackEffectCache[track].slide = trackEffects.slide;
 
@@ -850,6 +855,8 @@ var Tracker = (function(){
 							};
 							trackEffectCache[track].fineSlide = trackEffects.slide;
 							break;
+						case 3: // set glissando control
+							trackEffectCache[track].glissando = !!subValue;
 						case 10: // Fine volume slide up
 							subValue = subValue * 100/64;
 							trackEffects.fade = {
@@ -992,10 +999,10 @@ var Tracker = (function(){
 				var steps = ticksPerStep;
 				if (effects.slide.fine){
 					// fine Slide Up or Down
-					steps = 1;
+					steps = 2;
 				}
 
-				for (var tick = 0; tick < steps; tick++){
+				for (var tick = 1; tick < steps; tick++){
 					if (effects.slide.target){
 						if (targetPeriod<effects.slide.target){
 							targetPeriod += value;
@@ -1009,9 +1016,15 @@ var Tracker = (function(){
 					}
 
 					targetPeriod = Audio.limitAmigaPeriod(targetPeriod);
-					if (targetPeriod != trackNote.currentPeriod){
+
+					var newPeriod = targetPeriod;
+					if (effects.slide.canUseGlissando && trackEffectCache[track].glissando){
+						newPeriod = Audio.getNearestSemiTone(targetPeriod,trackNote.sampleIndex);
+					}
+
+					if (newPeriod != trackNote.currentPeriod){
 						trackNote.currentPeriod = targetPeriod;
-						var rate = (trackNote.startPeriod / targetPeriod);
+						var rate = (trackNote.startPeriod / newPeriod);
 
 						// note - seems to be a weird bug in chrome ?
 						// try setting it twice with a slight delay

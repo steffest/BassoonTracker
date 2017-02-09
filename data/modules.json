@@ -1,11 +1,14 @@
 {
   "modules":[
     {"title":"Demo Music","url":"demomods/demomusic.mod"},
+    {"title":"Enigma","url":"http://www.stef.be/amiga/mod/enigma.mod"},
     {"title":"Elek Funk !","url":"http://www.stef.be/amiga/mod/elekfunk.mod"},
     {"title":"Haste","url":"http://www.stef.be/amiga/mod/woutervl_haste.mod"},
     {"title":"Guitar Slinger","url":"http://www.stef.be/amiga/mod/gslinger.mod"},
-    {"title":"Startdust Memories","url":"demomods/StardustMemories.mod"},
+    {"title":"Scrambled Mind","url":"http://www.stef.be/amiga/mod/scrambld.mod"},
     {"title":"Space Song","url":"http://www.stef.be/amiga/mod/space-song.mod"},
+    {"title":"Startdust Memories","url":"demomods/StardustMemories.mod"},
+    {"title":"Street Jungle","url":"http://www.stef.be/amiga/mod/street_j.mod"},
     {"title":"Tiny tune","url":"demomods/Tinytune.mod"},
     {"title":"Effect tests","children":[
       {"title":"Test Arpeggio","url":"demomods/test/arpeggio.mod"},
@@ -13,7 +16,10 @@
       {"title":"Test Tremolo","url":"demomods/test/tremolo.mod"},
       {"title":"Test Slide To Note","url":"demomods/test/slide_to_note.mod"},
       {"title":"Test Volume Slide","url":"demomods/test/volume_slide.mod"},
-      {"title":"Test sample number without note","url":"demomods/test/nugget - frust.mod"}
+      {"title":"Test sample number without note","url":"demomods/test/nugget - frust.mod"},
+      {"title":"Test Slide","url":"demomods/test/slide.mod"},
+      {"title":"Test Fine Slide","url":"demomods/test/fine_slide.mod"},
+      {"title":"Test Glissando","url":"demomods/test/glissando.mod"}
     ],"isExpanded": false}
   ]
 }

@@ -69,7 +69,8 @@ var STEREOSEPARATION = {
 	NONE: 3
 };
 
-var PALFREQUENCY = 7093789.2;
+//var PALFREQUENCY = 7093789.2;
+var PALFREQUENCY = 7093790; // not that my ears can hear the difference but this seems to be the correct value  ftp://ftp.modland.com/pub/documents/format_documentation/Protracker%20effects%20(MODFIL12.TXT)%20(.mod).txt
 
 var LAYOUTS = {
 	column4:4,
@@ -81,6 +82,9 @@ var LAYOUTS = {
 
 // amiga period table, translates notes to  samplefrequencies
 // first 3*12 are to first octaves (1,2 and 3)
+
+// found on http://pastebin.com/raw/6xVK2msR - by Lars Hamre ?
+// linked to in an EAB tread http://eab.abime.net/showthread.php?t=69675
 
 var periodTable  = [
 	856,808,762,720,678,640,604,570,538,508,480,453,
