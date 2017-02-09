@@ -29,6 +29,7 @@ var Tracker = (function(){
 	var ticksPerStep = 6;
 	var tickTime = 2.5/bpm;
 	var tickCounter = 0;
+	var mainTimer;
 
 	var trackCount = 4;
 	var patternLength = 64;
@@ -568,15 +569,20 @@ var Tracker = (function(){
 				break;
 			case 1:
 				// Slide Up
+				value = value * -1;
+				if (!value && trackEffectCache[track].slideUp) value = trackEffectCache[track].slideUp.value;
 				trackEffects.slide = {
-					value: note.param * -1
+					value: value
 				};
+				trackEffectCache[track].slideUp = trackEffects.slide;
 				break;
 			case 2:
 				// Slide Down
+				if (!value && trackEffectCache[track].slideDown) value = trackEffectCache[track].slideDown.value;
 				trackEffects.slide = {
-					value: note.param
+					value: value
 				};
+				trackEffectCache[track].slideDown = trackEffects.slide;
 				break;
 			case 3:
 				// Slide to Note - if there's a note provided, it is not played directly,
@@ -597,8 +603,10 @@ var Tracker = (function(){
 
 				var prevSlide = trackEffectCache[track].slide;
 
-				if (!target) target = prevSlide.target;
-				if (!value) value = prevSlide.value;
+				if (prevSlide){
+					if (!target) target = prevSlide.target;
+					if (!value) value = prevSlide.value;
+				}
 
 				trackEffects.slide = {
 					value: value,
@@ -824,18 +832,37 @@ var Tracker = (function(){
 				var subEffect = value >> 4;
 				var subValue = value & 0x0f;
 					switch (subEffect){
+						case 1: // Fine slide up
+							subValue = subValue*-1;
+							if (!subValue && trackEffectCache[track].fineSlide) subValue = trackEffectCache[track].fineSlide.value;
+							trackEffects.slide = {
+								value: subValue,
+								fine: true
+							};
+							trackEffectCache[track].fineSlide = trackEffects.slide;
+							break;
+						case 2: // Fine slide up
+							if (!subValue && trackEffectCache[track].fineSlide) subValue = trackEffectCache[track].fineSlide.value;
+							trackEffects.slide = {
+								value: subValue,
+								fine: true
+							};
+							trackEffectCache[track].fineSlide = trackEffects.slide;
+							break;
 						case 10: // Fine volume slide up
 							subValue = subValue * 100/64;
 							trackEffects.fade = {
 								value: subValue,
-								noSlide: true
+								fine: true
 							};
 							break;
 						case 11: // Fine volume slide down
+
 							subValue = subValue * 100/64;
+
 							trackEffects.fade = {
 								value: -subValue,
-								noSlide: true
+								fine: true
 							};
 							break;
 						default:
@@ -935,8 +962,8 @@ var Tracker = (function(){
 			}
 
 			var steps = ticksPerStep;
-			if (effects.fade.noSlide){
-				// fine Volume Up
+			if (effects.fade.fine){
+				// fine Volume Up or Down
 				steps = 1;
 			}
 
@@ -961,7 +988,13 @@ var Tracker = (function(){
 
 				value = Math.abs(effects.slide.value);
 
-				for (var tick = 1; tick < ticksPerStep; tick++){
+				var steps = ticksPerStep;
+				if (effects.slide.fine){
+					// fine Slide Up or Down
+					steps = 1;
+				}
+
+				for (var tick = 0; tick < steps; tick++){
 					if (effects.slide.target){
 						if (targetPeriod<effects.slide.target){
 							targetPeriod += value;
@@ -973,8 +1006,6 @@ var Tracker = (function(){
 					}else{
 						targetPeriod += effects.slide.value;
 					}
-
-
 
 					if (targetPeriod != trackNote.currentPeriod){
 						trackNote.currentPeriod = targetPeriod;
@@ -1095,8 +1126,10 @@ var Tracker = (function(){
 	};
 
 	me.setBPM = function(newBPM){
+		console.log("set BPM: " + bpm + " to " + newBPM);
 		if (clock) clock.timeStretch(Audio.context.currentTime, [mainTimer], bpm / newBPM);
 		bpm = newBPM;
+		tickTime = 2.5/bpm;
 		EventBus.trigger(EVENT.songBPMChange,bpm);
 	};
 
@@ -1245,8 +1278,8 @@ var Tracker = (function(){
 		if (id == "M.K.") isMod = true;
 		if (id == "FLT4") isMod = true;
 		if (id == "8CHN") {
-			//alert("Sorry, 8 channel mod files are not supported yet ...")
-			isMod = true;
+			alert("Sorry, 8 channel mod files are not supported yet ...");
+			//isMod = true;
 		}
 
 		if (isMod){
