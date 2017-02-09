@@ -26,6 +26,7 @@ Features
   - Position jumps (effect B)
   - Speed settings (Effect F) 
   - Glissando (Effect E3)
+  - Sample delay (Effect E13)
 - mute/solo tracks  
 - edit pattern data and sample properties  
 - import 8bit WAV, 8SVX and RAW samples (as well as any other format AudioContext can read, like .mp3 and .ogg) 
@@ -34,7 +35,7 @@ Features
 
 Missing features and bugs
  - Not much disk operations yet, you can load new modules and samples by drag-dropping them on the interface  
- - Some "Extended" effects are not implemented yet and probably wont as they are very rarely used: E4,E5,E6,E7, E9, E12, E13, E14, E15  
+ - Some "Extended" effects are not implemented yet and probably wont as they are very rarely used: E4,E5,E6,E7, E9, E12, E14, E15  
  - The sample editor needs fleshing out.
  
 Note: if you use an AZERTY keyboard, you can set that option in the settings to have the correct layout when playing notes on your computer keyboard.

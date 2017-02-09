@@ -19,7 +19,8 @@
       {"title":"Test sample number without note","url":"demomods/test/nugget - frust.mod"},
       {"title":"Test Slide","url":"demomods/test/slide.mod"},
       {"title":"Test Fine Slide","url":"demomods/test/fine_slide.mod"},
-      {"title":"Test Glissando","url":"demomods/test/glissando.mod"}
+      {"title":"Test Glissando","url":"demomods/test/glissando.mod"},
+      {"title":"Test Sample Delay","url":"demomods/test/sample-delay-E13.mod"}
     ],"isExpanded": false}
   ]
 }

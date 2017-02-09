@@ -873,6 +873,14 @@ var Tracker = (function(){
 								fine: true
 							};
 							break;
+						case 13: // Delay Sample start
+							if (subValue){
+								if (subValue<ticksPerStep){
+									time += tickTime * subValue;
+								}else{
+									doPlayNote = false;
+								}
+							}
 						default:
 							// TODO: implement
 							console.warn("Subeffect " + subEffect + " not implemented");
