@@ -14,9 +14,11 @@ It needs a modern browser that support WebAudio.
 It's tested to work on Chrome, Firefox, Safari, Edge, Chrome on Android, mobile Safari and the Samsung Android Browser.
 it works best in Chrome.
 
+![Bassoon Tracker](./skin/screenshot2.png?raw=true)
+
 Features  
 - load, play, edit and save Protracker compatible module files  
-- most audio effects are supported (99% accurate, i case of historical differences in playback engines, I tend to follow the protracker 2.X one)
+- most audio effects are supported (99% accurate, in case of historical differences in playback engines, I tend to follow the protracker 2.X one)
   - Portamento / Frequency slides (Effect 1, 2, 3, 5, E1 and E2)
   - Vibrato (Effect 4 and 6)
   - Tremolo (Effect 7)
@@ -27,6 +29,7 @@ Features
   - Speed settings (Effect F) 
   - Glissando (Effect E3)
   - Sample delay (Effect E13)
+- next to the protracker effects, there are per-channel effects for low, mid, high frequency, panning and reverb control  
 - mute/solo tracks  
 - edit pattern data and sample properties  
 - import 8bit WAV, 8SVX and RAW samples (as well as any other format AudioContext can read, like .mp3 and .ogg) 
@@ -35,7 +38,10 @@ Features
 
 Missing features and bugs
  - Not much disk operations yet, you can load new modules and samples by drag-dropping them on the interface  
+ - export to wav is currently limited to the current pattern (due to memory issues)
  - Some "Extended" effects are not implemented yet and probably wont as they are very rarely used: E4,E5,E6,E7, E9, E12, E14, E15  
  - The sample editor needs fleshing out.
+ - no undo/redo functionality yet
+ - no range select/copy/paste functionality yet
  
 Note: if you use an AZERTY keyboard, you can set that option in the settings to have the correct layout when playing notes on your computer keyboard.

@@ -81,7 +81,7 @@ UI.PatternView = function(x,y,w,h){
             var margin = UI.mainPanel.defaultMargin;
             var trackWidth = UI.mainPanel.trackWidth;
 
-            var visibleHeight = UI.mainPanel.patternHeight - 30;
+            var visibleHeight = UI.mainPanel.patternHeight-30;
             var trackY = 0;
             var trackLeft = UI.mainPanel.patternMargin;
 
@@ -95,10 +95,10 @@ UI.PatternView = function(x,y,w,h){
             }
 
 
-            visibleLines = Math.floor(visibleHeight/lineHeight);
+            visibleLines = Math.ceil(visibleHeight/lineHeight);
             if (visibleLines%2== 0) visibleLines--;
 
-            var topLines =  Math.ceil(visibleLines/2);
+            var topLines =  Math.floor(visibleLines/2);
 
             var visibleStart = patternPos - topLines;
             var visibleEnd = visibleStart + visibleLines;
