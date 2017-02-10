@@ -65,13 +65,12 @@ UI.WaveForm = function(){
 		if (this.needsRendering) {
 
 			if (waveformDisplay.needsRendering){
-				console.error("render waveform");
 
 				waveformDisplay.clearCanvas();
 				waveformDisplay.setPosition(0,0);
 				waveformDisplay.setSize(me.width,me.height);
 
-				waveformDisplay.ctx.fillStyle = "black";
+				waveformDisplay.ctx.fillStyle = "rgb(13, 19, 27)";
 				waveformDisplay.ctx.fillRect(0, 0, me.width, me.height);
 				waveformDisplay.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
 
@@ -114,6 +113,22 @@ UI.WaveForm = function(){
 				}
 
 			}
+
+			if (currentSample.loopRepeatLength>2){
+
+				me.ctx.fillStyle = "rgb(241, 220, 71)";
+
+				var loopStart = currentSample.loopStart || 0;
+				var lineX = (loopStart/sampleLength) * me.width;
+				lineX = Math.max(5,lineX);
+				me.ctx.fillRect(lineX,0,2,me.height);
+
+				lineX = ((loopStart + currentSample.loopRepeatLength)/sampleLength) * me.width;
+				lineX = Math.min(lineX,me.width-6);
+
+				me.ctx.fillRect(lineX,0,2,me.height);
+			}
+			console.error(currentSample);
 
 			if (isDraggingRange){
 				me.ctx.fillStyle = "rgba(241, 162, 71,0.3)";
