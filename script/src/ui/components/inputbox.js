@@ -24,8 +24,8 @@ UI.inputbox = function(initialProperties){
 		img: Y.getImage("panel_dark"),
 		left:3,
 		top:3,
-		right:1,
-		bottom: 1
+		right:2,
+		bottom: 2
 	});
 	background.ignoreEvents = true;
 	me.addChild(background);

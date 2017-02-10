@@ -8,6 +8,7 @@ UI.spinBox = function(initialProperties){
 	var value = 0;
 	var min =  0;
 	var max = 100;
+	var step = 1;
 	var font;
 	var properties;
 	var padLength = 4;
@@ -28,7 +29,7 @@ UI.spinBox = function(initialProperties){
 
 	var buttonDown = UI.Assets.generate("button20_20");
 	buttonDown.onClick = function(){
-		value--;
+		value -= step;
 		if (value<min) value=min;
 		me.setValue(value);
 	};
@@ -40,7 +41,7 @@ UI.spinBox = function(initialProperties){
 
 	var buttonUp = UI.Assets.generate("button20_20");
 	buttonUp.onClick = function(){
-		value++;
+		value += step;
 		if (value>max) value=max;
 		me.setValue(value);
 	};
@@ -80,6 +81,7 @@ UI.spinBox = function(initialProperties){
 		if (typeof properties.font != "undefined") font = properties.font;
 		if (typeof properties.min != "undefined") min = properties.min;
 		if (typeof properties.max != "undefined") max = properties.max;
+		if (typeof properties.step != "undefined") step = properties.step;
 		if (typeof properties.onChange != "undefined") onChange = properties.onChange;
 	}
 

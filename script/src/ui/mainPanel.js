@@ -517,9 +517,9 @@ UI.MainPanel = function(){
 				height: me.patternHeight
 			},
 			sampleView:{
-				left: me.col1X,
+				left: 0,
 				top : me.patternTop,
-				width: me.col5W,
+				width: me.width,
 				height: me.patternHeight
 			},
 			pianoView:{

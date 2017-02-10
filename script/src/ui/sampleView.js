@@ -83,7 +83,13 @@ UI.SampleView = function(){
 		value: 0,
 		max: 65535,
 		min:0,
-		font: window.fontMed
+		step:2,
+		font: window.fontMed,
+		onChange: function(value){
+			var sample = Tracker.getCurrentSample();
+			if (sample) sample.loopStart = value;
+			waveForm.refresh();
+		}
 	});
 	sideButtonPanel.addChild(spinBoxRepeat);
 
@@ -93,7 +99,13 @@ UI.SampleView = function(){
 		value: 0,
 		max: 65535,
 		min:0,
-		font: window.fontMed
+		step:2,
+		font: window.fontMed,
+		onChange: function(value){
+			var sample = Tracker.getCurrentSample();
+			if (sample) sample.loopRepeatLength = value;
+			waveForm.refresh();
+		}
 	});
 	sideButtonPanel.addChild(spinBoxRepeatLength);
 	me.addChild(sideButtonPanel);

@@ -1702,6 +1702,18 @@ var Tracker = (function(){
 		}
 	};
 
+	me.clearInstruments = function(){
+		// samples
+		var sampleContainer = [];
+		for (i = 1; i <= 31; ++i) {
+			samples[i] = getEmptySample();
+			sampleContainer.push({label: i + " ", data: i});
+		}
+		song.samples = samples;
+		UI.mainPanel.setInstruments(sampleContainer);
+		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
+	};
+
 
 	me.new = function(){
 		resetDefaultSettings();
@@ -1716,21 +1728,15 @@ var Tracker = (function(){
 		song.length = 1;
 
 		song.patterns.push(getEmptyPattern());
+		me.clearInstruments();
 
-		// samples
-		var sampleContainer = [];
-		for (i = 1; i <= 31; ++i) {
-			samples[i] = getEmptySample();
-			sampleContainer.push({label: i + " ", data: i});
-		}
-		song.samples = samples;
 
 		var patternTable = [];
 		for (var i = 0; i < 128; ++i) {
 			patternTable[i] = 0;
 		}
 		song.patternTable = patternTable;
-		UI.mainPanel.setInstruments(sampleContainer);
+
 
 
 		onModuleLoad();

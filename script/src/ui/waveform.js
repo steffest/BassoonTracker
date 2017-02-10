@@ -13,6 +13,16 @@ UI.WaveForm = function(){
 
 	var waveformDisplay = UI.element();
 
+	var background = UI.scale9Panel(0,0,me.width,me.height,{
+		img: Y.getImage("panel_dark"),
+		left:3,
+		top:3,
+		right:2,
+		bottom: 2
+	});
+	background.ignoreEvents = true;
+
+
 	function isRefreshing(){
 		return isPlaying || isDraggingRange;
 	}
@@ -24,18 +34,15 @@ UI.WaveForm = function(){
 	});
 
 	me.onDragStart = function(touchData){
-		console.error("startDrag",touchData);
 		isDraggingRange = true;
 		dragRangeStart = dragRangeEnd = touchData.startX - me.left;
 	};
 
 	me.onDrag = function(touchData){
-		console.error("drag",touchData);
 		dragRangeEnd = touchData.dragX - me.left;
 	};
 
 	me.onTouchUp = function(touchData){
-		console.error("endDrag",touchData);
 		isDraggingRange = false;
 	};
 
@@ -66,6 +73,8 @@ UI.WaveForm = function(){
 
 			if (waveformDisplay.needsRendering){
 
+				console.error("update wave");
+
 				waveformDisplay.clearCanvas();
 				waveformDisplay.setPosition(0,0);
 				waveformDisplay.setSize(me.width,me.height);
@@ -74,6 +83,9 @@ UI.WaveForm = function(){
 				waveformDisplay.ctx.fillRect(0, 0, me.width, me.height);
 				waveformDisplay.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
 
+				if (background.width != me.width) background.setSize(me.width,me.height);
+				waveformDisplay.ctx.drawImage(background.render(true),0,0,me.width,me.height);
+
 				if (currentSampleData && currentSampleData.length && me.width){
 					// sample 1 value each pixel
 					var step = sampleLength / me.width;
@@ -81,9 +93,11 @@ UI.WaveForm = function(){
 
 					waveformDisplay.ctx.beginPath();
 
+					var maxHeight = (me.height/2) - 2;
+
 					for (var i = 0; i<me.width; i++){
 						var index = Math.floor(i*step);
-						var peak = currentSampleData[index] * me.height;
+						var peak = currentSampleData[index] * maxHeight;
 
 						if(i === 0) {
 							waveformDisplay.ctx.moveTo(i, mid + peak);
@@ -128,7 +142,6 @@ UI.WaveForm = function(){
 
 				me.ctx.fillRect(lineX,0,2,me.height);
 			}
-			console.error(currentSample);
 
 			if (isDraggingRange){
 				me.ctx.fillStyle = "rgba(241, 162, 71,0.3)";

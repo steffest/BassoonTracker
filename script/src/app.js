@@ -19,6 +19,9 @@ var App = (function(){
                 case COMMAND.clearPattern:
                     Tracker.clearPattern();
                     break;
+                case COMMAND.clearInstruments:
+                    Tracker.clearInstruments();
+                    break;
                 case COMMAND.showMain:
                     UI.mainPanel.setView("main");
                     break;
