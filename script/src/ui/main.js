@@ -320,11 +320,17 @@ var UI = (function(){
 		modalElement = elm;
 	};
 
+	me.getModalElement = function(){
+		return modalElement;
+	};
+
 	me.removeModalElement = function(){
 		if (modalElement){
 
 		}
 		modalElement = undefined;
+		UI.mainPanel.refresh();
+		needsRendering = true;
 		window.requestAnimationFrame(render);
 	};
 

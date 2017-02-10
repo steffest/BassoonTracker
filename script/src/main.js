@@ -17,8 +17,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 width: UI.mainPanel.width,
                 height: UI.mainPanel.height,
                 top: 0,
-                left: 0
+                left: 0,
+                ok:true
             });
+            dialog.onTouchDown = function(){window.location.href="https://www.google.com/chrome/"};
             dialog.setText("Sorry//Your browser does not support WebAudio//Supported browsers are/Chrome,Firefox,Safari and Edge");
 
             UI.setModalElement(dialog);

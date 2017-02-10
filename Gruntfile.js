@@ -75,7 +75,13 @@ module.exports = function(grunt) {
                     to: function (matchedWord) {
                         return grunt.template.process('<%= pkg.version %>-build<%= grunt.template.today("yyyymmdd.hhMM") %>');
                     }
-                }]
+                },
+                    {
+                        from: '{version}',
+                        to: function (matchedWord) {
+                            return grunt.template.process('<%= pkg.version %>');
+                        }
+                    }]
             }
         },
         sprite:{

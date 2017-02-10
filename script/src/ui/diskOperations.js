@@ -161,12 +161,8 @@ UI.DiskOperations = function(){
 					}else{
 						listbox.setSelectedIndex(index);
 						Tracker.load(item.url);
-						//UI.mainPanel.setView("main");
+						UI.mainPanel.setView("main");
 					}
-
-
-
-
 				}
 			};
 

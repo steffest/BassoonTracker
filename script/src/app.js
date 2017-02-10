@@ -53,7 +53,21 @@ var App = (function(){
                     UI.mainPanel.togglePiano();
                     break;
                 case COMMAND.showAbout:
-                    window.open("http://www.stef.be/bassoontracker/docs/");
+                    var dialog = UI.modalDialog();
+                    dialog.setProperties({
+                        width: UI.mainPanel.width,
+                        height: UI.mainPanel.height,
+                        top: 0,
+                        left: 0,
+                        ok: true
+                    });
+                    dialog.onClick = dialog.close;
+
+                    var version = typeof versionNumber == "undefined" ? "dev" : versionNumber;
+                    var build = typeof buildNumber == "undefined" ? new Date().getTime() : buildNumber;
+                    dialog.setText("Bassoontracker//Old School 4-channel Amiga mod tracker/in plain javascript//copyright 2007 by Steffest//version " + build + "//Fork me on Github!");
+
+                    UI.setModalElement(dialog);
                     break;
                 case COMMAND.showHelp:
                     window.open("http://www.stef.be/bassoontracker/docs/");

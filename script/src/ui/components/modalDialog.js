@@ -2,17 +2,20 @@ UI.modalDialog = function(initialProperties){
     var me = UI.element();
     var text = "test";
 
-    var properties = ["left","top","width","height","name"];
+    var properties = ["left","top","width","height","name","ok"];
 
     me.setProperties = function(p){
 
         properties.forEach(function(key){
             if (typeof p[key] != "undefined") me[key] = p[key];
+
+            if (key == "ok"){
+                console.error("ok");
+            }
         });
 
         me.setSize(me.width,me.height);
         me.setPosition(me.left,me.top);
-
 
         var panelHeight = 200;
         if (me.height<panelHeight) panelHeight = me.height - 20;
@@ -22,12 +25,22 @@ UI.modalDialog = function(initialProperties){
         background.setSize(panelWidth,panelHeight);
         background.setPosition((me.width-panelWidth)/2,(me.height-panelHeight)/2);
 
+        okButton.setPosition(background.left + (background.width/2) - 50,background.top + background.height - 40);
+
     };
 
     var background = UI.scale9Panel(0,0,me.width/2,200,UI.Assets.panelMainScale9);
 
     background.ignoreEvents = true;
     me.addChild(background);
+
+    var okButton = UI.Assets.generate("buttonLight");
+    okButton.setProperties({
+        label: "OK",
+        width: 100,
+        height: 28
+    });
+    me.addChild(okButton);
 
 
     me.render = function(internal){
@@ -59,7 +72,7 @@ UI.modalDialog = function(initialProperties){
                 });
             }
 
-
+            if (me.ok) okButton.render();
 
         }
         this.needsRendering = false;
@@ -80,12 +93,13 @@ UI.modalDialog = function(initialProperties){
         return text;
     };
 
-
-
-
-    me.onClick = function(touchData){
-        console.error("click");
+    me.close = function(){
+        me.hide();
+        if (me.onClose) me.onClose();
+        UI.removeModalElement();
+        delete me;
     };
+
 
 
     return me;
