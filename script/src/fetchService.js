@@ -40,7 +40,6 @@ var FetchService = (function() {
 	me.ajax = function(config){
 
 		var xhr = new XMLHttpRequest();
-		xhr.timeout = config.timeout || defaultAjaxTimeout;
 
 		config.error = config.error || function(){config.success(false)};
 
@@ -82,6 +81,7 @@ var FetchService = (function() {
 		};
 
 		xhr.open(method, url, true);
+		xhr.timeout = config.timeout || defaultAjaxTimeout;
 
 		if (config.headers){
 			config.headers.forEach(function(header){

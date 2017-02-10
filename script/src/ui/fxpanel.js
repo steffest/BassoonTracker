@@ -9,25 +9,39 @@ UI.fxPanel= function(track){
     background.ignoreEvents = true;
     me.addChild(background);
 
-    var knobSpace = 70;
+    var knobSpaceX = 70;
+    var knobSpaceY = 70;
     var effects = ["volume","panning","high","mid","low","lowPass","reverb"];
 
+    var KnobTop = 0;
+    var knobLeft = 10;
     for (var i = 0, len = effects.length; i<len;i++){
         var knob = UI.knob();
         knob.setProperties({
-            top: i*knobSpace,
-            left: 10,
+            top: KnobTop,
+            left: knobLeft,
             label: effects[i]
         });
         knob.onChange = function(value){
             handleKnob(this,value);
         };
         me.addChild(knob);
+
+        if ((i%2) == 0){
+            knobLeft = knobLeft + knobSpaceX;
+        }else{
+            knobLeft = 10;
+            KnobTop += knobSpaceY
+        }
     }
 
-    var filterChain = Audio.filterChains[track];
+    var filterChain;
+    if (Audio.filterChains) filterChain = Audio.filterChains[track];
 
     function handleKnob(knob,value){
+
+        if (!filterChain) return;
+
         var label = knob.getLabel();
 
         switch (label){

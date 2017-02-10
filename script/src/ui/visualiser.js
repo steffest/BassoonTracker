@@ -61,6 +61,8 @@ UI.visualiser = function(){
 
     me.render = function(){
 
+        if (!Audio.context) return;
+
 
         //me.ctx.fillStyle = 'green';
         //me.ctx.fillRect(0, 0, width, height);

@@ -1,24 +1,4 @@
 <!DOCTYPE html>
-<style>
-    html,body{
-        height: 100%;
-        overflow: hidden;
-        cursor: url(skin/cursor_amiga.cur),default;
-    }
-    body{
-        background-color: black;
-        margin: 0;
-        padding: 0;
-    }
-
-    canvas{
-        margin: auto;
-        display: block;
-    }
-    canvas:focus {
-        outline:none;
-    }
-</style>
 <html>
 <head>
     <title>Bassoon Tracker - 4 channel Amiga music tracker</title>
@@ -27,6 +7,27 @@
 
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
+
+    <style>
+        html,body{
+            height: 100%;
+            overflow: hidden;
+            cursor: url(skin/cursor_amiga.cur),default;
+        }
+        body{
+            background-color: black;
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas{
+            margin: auto;
+            display: block;
+        }
+        canvas:focus {
+            outline:none;
+        }
+    </style>
 
     <script>var buildNumber = "{build}";</script>
     <script src="script/bassoontracker-min.js?v{build}"></script>

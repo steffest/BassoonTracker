@@ -114,8 +114,8 @@ UI.vumeter = function(){
 		me.ctx.drawImage(base,0,0);
 		me.ctx.drawImage(base,0,vuHeight + middleMargin);
 
-		var wLeft = rangeLeft * vuWidth;
-		var wRight = rangeRight * vuWidth;
+		var wLeft = Math.min(Math.floor(rangeLeft * vuWidth),vuWidth);
+		var wRight = Math.min(Math.floor(rangeRight * vuWidth),vuWidth);
 
 		if (wLeft) me.ctx.drawImage(baseActive,0,0,wLeft,vuHeight,0,0,wLeft,vuHeight);
 		if (wRight) me.ctx.drawImage(baseActive,0,0,wRight,vuHeight,0,vuHeight + middleMargin,wRight,vuHeight);
