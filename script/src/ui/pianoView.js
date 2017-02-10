@@ -16,9 +16,36 @@ UI.PianoView = function(){
 	var bKeyImgDown = Y.getImage("pianokey_black_down");
 	//me.hide();
 
+	var octave = 1;
+
 	var background = UI.scale9Panel(0,0,me.width,me.height,UI.Assets.panelMainScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
+
+	var closeButton = UI.Assets.generate("button20_20");
+	closeButton.setLabel("x");
+	closeButton.onClick = function(){
+		App.doCommand(COMMAND.togglePiano);
+	};
+	me.addChild(closeButton);
+
+
+	var octaveBoxBmp = UI.spinBox();
+	octaveBoxBmp.setProperties({
+		name: "Octave",
+		label: "Octave",
+		value: 1,
+		max: 3,
+		min:1,
+		left: 4,
+		top: 2,
+		height: 28,
+		width: 150,
+		font: window.fontMed,
+		onChange : function(value){octave=value}
+	});
+	me.addChild(octaveBoxBmp);
+
 
 	var properties = ["left","top","width","height","name","type","zIndex"];
 	me.setProperties = function(p){
@@ -34,7 +61,13 @@ UI.PianoView = function(){
 	};
 
 	me.setLayout = function(){
+
 		background.setSize(me.width,me.height);
+
+		closeButton.setProperties({
+			top: 4,
+			left: me.width - 24
+		});
 	};
 
 
@@ -57,7 +90,7 @@ UI.PianoView = function(){
 
 	EventBus.on(EVENT.noteOn,function(event,note){
 		if (note && note.startPeriod){
-			var keyIndex = periodKeys[note.startPeriod];
+			var keyIndex = periodKeys[note.startPeriod] - (octave-1)*8;
 			if (keyIndex >= 0){
 				keyDown[keyIndex] = {
 					startTime: Audio.context.currentTime,
@@ -70,7 +103,7 @@ UI.PianoView = function(){
 
 	EventBus.on(EVENT.noteOff,function(event,note){
 		if (note && note.startPeriod){
-			var keyIndex = periodKeys[note.startPeriod];
+			var keyIndex = periodKeys[note.startPeriod]- (octave-1)*8;
 			if (keyIndex >= 0){
 				keyDown[keyIndex] = false;
 				me.refresh();
@@ -80,7 +113,7 @@ UI.PianoView = function(){
 
 	var keyNoteOn = function(key){
 		if (keys[key]){
-			var note =  NOTEPERIOD[keys[key]];
+			var note =  NOTEPERIOD[keys[key + (octave-1)*8]];
 
 			if (note && note.period){
 
@@ -108,7 +141,7 @@ UI.PianoView = function(){
 
 	var keyNoteOff = function(key){
 		if (keys[key] && keyPlayed[key]){
-			var note =  NOTEPERIOD[keys[key]];
+			var note = NOTEPERIOD[keys[key + (octave-1)*8]];
 			if (note && note.period){
 				EventBus.trigger(EVENT.noteOff,keyPlayed[key]);
 				if (keyPlayed[key].volume){
@@ -140,7 +173,6 @@ UI.PianoView = function(){
 		var key = Math.floor(x/(keyWidth-4));
 
 		if (touchKey[data.id] != key){
-			console.error("new key " , key);
 			keyNoteOff(touchKey[data.id]);
 			touchKey[data.id] = key;
 			keyNoteOn(key);
@@ -156,9 +188,11 @@ UI.PianoView = function(){
 			me.clearCanvas();
 
 			background.render();
+			closeButton.render();
+			octaveBoxBmp.render();
 
 			// draw white keys
-			var keyTop = 20;
+			var keyTop = 30;
 			var keyHeight = me.height - keyTop;
 
 			var keyX = 0;

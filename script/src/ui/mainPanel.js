@@ -182,15 +182,15 @@ UI.MainPanel = function(){
 	}
 
 	var buttonsSideInfo=[
+		{label:"Demomusic", onClick:function(){Tracker.load('demomods/demomusic.mod')}},
+		{label:"Stardust", onClick:function(){Tracker.load('demomods/StardustMemories.mod')}},
+		{label:"Space Debris", onClick:function(){Tracker.load('demomods/spacedeb.mod')}},
+		{label:"Tinytune", onClick:function(){Tracker.load('demomods/Tinytune.mod')}},
 		{label:"Lotus 2", onClick:function(){Tracker.load('demomods/lotus20.mod')}},
 		{label:"Lotus 1", onClick:function(){Tracker.load('demomods/lotus10.mod')}},
-		{label:"Stardust", onClick:function(){Tracker.load('demomods/StardustMemories.mod')}},
 		{label:"Monday", onClick:function(){Tracker.load('demomods/Monday.mod')}},
 		{label:"Lunatic", onClick:function(){Tracker.load('demomods/sound-of-da-lunatic.mod')}},
-		{label:"Tinytune", onClick:function(){Tracker.load('demomods/Tinytune.mod')}},
-		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
-		{label:"Demomusic", onClick:function(){Tracker.load('demomods/demomusic.mod')}},
-		{label:"Space Debris", onClick:function(){Tracker.load('demomods/spacedeb.mod')}}
+		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}}
 	];
 
 	var sideButtonPanel = UI.panel();
@@ -215,6 +215,18 @@ UI.MainPanel = function(){
 		sideButtonPanel.addChild(buttonElm);
 	}
 	me.addChild(sideButtonPanel);
+
+
+	var pianoButton = UI.button();
+	pianoButton.setProperties({
+		label: "",
+		textAlign:"center",
+		background: UI.Assets.buttonLightScale9,
+		image: Y.getImage("piano"),
+		font:window.fontMed
+	});
+	pianoButton.onClick = function(){App.doCommand(COMMAND.togglePiano)};
+	sideButtonPanel.addChild(pianoButton);
 
 	var spinBoxSongLength = UI.spinBox({
 		name: "SongLength",
@@ -413,7 +425,6 @@ UI.MainPanel = function(){
 		var vuLeft = me.col3X;
 		var vuWidth = me.col3W;
 
-		console.error(me.menuWidth);
 		if (me.menuWidth < 250){
 			me.menuWidth = me.col3W;
 			vuLeft = me.col4X;
@@ -635,11 +646,23 @@ UI.MainPanel = function(){
 			height:layout.buttonsSideInfo.height
 		});
 
+		pianoButton.setProperties({
+			left:pianoView.isVisible()?-500:layout.buttonsSideInfo.left,
+			top: layout.sideButtonPanel.height - layout.buttonsSideInfo.height,
+			width: layout.buttonsSideInfo.width,
+			height:layout.buttonsSideInfo.height
+		});
+
 		for (i = 0;i<buttonsSideInfo.length;i++){
 			var button = buttonsSide[i];
+			var buttonTop = ((i+1)*buttonHeight) + layout.buttonsSideInfo.top;
+			var buttonLeft = layout.buttonsSideInfo.left;
+			if (buttonTop > pianoButton.top-buttonHeight){
+				buttonLeft = -500;
+			}
 			button.setProperties({
-				left:layout.buttonsSideInfo.left,
-				top: ((i+1)*buttonHeight) + layout.buttonsSideInfo.top,
+				left:buttonLeft,
+				top: buttonTop,
 				width: layout.buttonsSideInfo.width,
 				height:layout.buttonsSideInfo.height,
 				label: button.info.label,
@@ -648,6 +671,8 @@ UI.MainPanel = function(){
 				font:window.fontMed
 			});
 		}
+
+
 
 		setDimensions(sideButtonPanel,layout.sideButtonPanel);
 		setDimensions(songPanel,layout.songPanel);
