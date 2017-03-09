@@ -1,6 +1,6 @@
 var http = require('http');
 var url = require('url');
-var modArchive    = require('./modArchive');
+var modArchive  = require('./modArchive');
 
 var port = process.env.PORT || 3000;
 
@@ -28,8 +28,12 @@ http.createServer(function (req, res) {
 	var handled = false;
 
 
-	if (pathName == "modarchive"){
+	if (pathName == "toprating"){
 		modArchive.browseByRating(res);
+		handled = true;
+	}
+	if (pathName == "random"){
+		modArchive.random(res);
 		handled = true;
 	}
 
