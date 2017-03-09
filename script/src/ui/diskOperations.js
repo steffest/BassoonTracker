@@ -8,6 +8,7 @@ UI.DiskOperations = function(){
 
 	var modules = [];
 	var samples = [];
+	var modArchive = [];
 	var sampleSelectedIndex = 0;
 	var moduleSelectedIndex = 0;
 
@@ -46,6 +47,13 @@ UI.DiskOperations = function(){
 	};
 	me.addChild(closeButton);
 
+	var modArchiveButton = UI.Assets.generate("buttonDark");
+	modArchiveButton.setLabel("ModArchive ");
+	modArchiveButton.onClick = function(){
+		me.refreshList("modarchive");
+	};
+	me.addChild(modArchiveButton);
+
 	var listbox = UI.listbox();
 	me.addChild(listbox);
 
@@ -80,6 +88,13 @@ UI.DiskOperations = function(){
 		closeButton.setProperties({
 			top: startTop,
 			left: me.width - 30
+		});
+
+		modArchiveButton.setProperties({
+			width: 120,
+			height: 26,
+			top: startTop,
+			left: UI.mainPanel.col5X - 123
 		});
 
 
@@ -176,6 +191,43 @@ UI.DiskOperations = function(){
 					}
 				})
 			}
+		}else if (currentView == "modarchive"){
+			label.setLabel("Browse Modarchive");
+			listbox.onClick = function(e){
+				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
+				if (item && item.data){
+					var index = item.index;
+					item = itemsMap[index];
+
+					if (item.children){
+						toggleDirectory(item,index);
+					}else{
+						listbox.setSelectedIndex(index);
+						console.error(item);
+						Tracker.load(item.url);
+						UI.mainPanel.setView("main");
+					}
+				}
+			};
+
+			if (modArchive.length){
+				populate(modArchive,0);
+			}else{
+				FetchService.json("http://www.stef.be/bassoontracker/api/modarchive",function(data){
+					if (data && data.modarchive && data.modarchive.module){
+						var mods = data.modarchive.module;
+						mods.forEach(function(mod){
+							console.error(mod);
+							modArchive.push({title:mod.songtitle[0] || "---",url:mod.url[0]});
+						});
+						populate(modArchive,0);
+					}else{
+						console.error("this does not seem to be a valid modArchive API response");
+					}
+				})
+			}
+
+
 		}else{
 			label.setLabel("Load Sample to slot " + Tracker.getCurrentSampleIndex());
 			listbox.onClick = function(e){
