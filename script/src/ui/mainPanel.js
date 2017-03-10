@@ -27,7 +27,8 @@ UI.MainPanel = function(){
 		{label: "File" , subItems: [
 			{label: "new" , "command" : COMMAND.newFile},
 			{label: "open module" , "command" : COMMAND.openFile},
-			{label: "save module" , "command" : COMMAND.saveFile}
+			{label: "save module" , "command" : COMMAND.saveFile},
+			{label: "open random song" , "command" : COMMAND.randomSong}
 		]},
 		{label: "Edit", subItems: [
 			{label: "clear track" , "command" : COMMAND.clearTrack},
@@ -44,7 +45,8 @@ UI.MainPanel = function(){
 		]},
 		{label: "Help", subItems: [
 			{label: "about" , "command" : COMMAND.showAbout},
-			{label: "documentation" , "command" : COMMAND.showHelp}
+			{label: "documentation" , "command" : COMMAND.showHelp},
+			{label: "Sourcecode on github" , "command" : COMMAND.showGithub}
 		]}
 	]);
 
@@ -189,8 +191,9 @@ UI.MainPanel = function(){
 		{label:"Lotus 2", onClick:function(){Tracker.load('demomods/lotus20.mod')}},
 		{label:"Lotus 1", onClick:function(){Tracker.load('demomods/lotus10.mod')}},
 		{label:"Monday", onClick:function(){Tracker.load('demomods/Monday.mod')}},
-		{label:"Lunatic", onClick:function(){Tracker.load('demomods/sound-of-da-lunatic.mod')}},
-		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}}
+		//{label:"Lunatic", onClick:function(){Tracker.load('demomods/sound-of-da-lunatic.mod')}},
+		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
+		{label:"Random !", onClick:function(){App.doCommand(COMMAND.randomSong)}}
 	];
 
 	var sideButtonPanel = UI.panel();
@@ -276,6 +279,7 @@ UI.MainPanel = function(){
 		zIndex: 100
 	});
 	me.addChild(diskOperations);
+	UI.diskOperations = diskOperations;
 
 	var optionsPanel = UI.OptionsPanel();
 	optionsPanel.setProperties({
@@ -475,8 +479,6 @@ UI.MainPanel = function(){
 			songlistboxWidth = Math.floor((me.col1W/3) * 2);
 			songlistboxButtonWidth = Math.floor(me.col1W/6);
 		}
-
-
 
 		var topRow1 = me.menuHeight + me.defaultMargin;
 		var topRow2 = me.equaliserTop - songPanelHeight - me.defaultMargin;

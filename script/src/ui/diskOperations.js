@@ -11,6 +11,8 @@ UI.DiskOperations = function(){
 	var modArchive = [];
 	var sampleSelectedIndex = 0;
 	var moduleSelectedIndex = 0;
+	var onLoadChildren = function(){};
+	var itemHandler;
 
 	var background = UI.scale9Panel(0,0,20,20,UI.Assets.panelMainScale9);
 	background.ignoreEvents = true;
@@ -96,8 +98,7 @@ UI.DiskOperations = function(){
 			top: startTop,
 			left: UI.mainPanel.col5X - 123
 		});
-
-
+		
 		for (i = 0;i<buttonsSideInfo.length;i++){
 			var button = buttonsSide[i];
 			button.setProperties({
@@ -138,6 +139,7 @@ UI.DiskOperations = function(){
 		var items = [];
 		var index = 0;
 
+		if (currentView != type) listbox.setSelectedIndex(0,true);
 		currentView = type || currentView;
 
 		function addListatLevel(data,level){
@@ -164,6 +166,7 @@ UI.DiskOperations = function(){
 		}
 
 		if (currentView == "modules"){
+			itemHandler = false;
 			label.setLabel("Load Module");
 			listbox.onClick = function(e){
 				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
@@ -192,6 +195,7 @@ UI.DiskOperations = function(){
 				})
 			}
 		}else if (currentView == "modarchive"){
+			itemHandler = ModArchive;
 			label.setLabel("Browse Modarchive");
 			listbox.onClick = function(e){
 				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
@@ -209,26 +213,43 @@ UI.DiskOperations = function(){
 					}
 				}
 			};
+			onLoadChildren = function(item,data){
+				if (data && data.length){
+					item.children = data;
+				}else{
+					item.children = [{title:"error loading data"}];
+					console.error("this does not seem to be a valid modArchive API response");
+				}
+				/*item.children = [];
+				if (data && data.modarchive && data.modarchive.module){
+					var mods = data.modarchive.module;
+					mods.forEach(function(mod){
+						item.children.push({title:mod.songtitle || "---",url:mod.url});
+					});
+				}else{
+					item.children.push({title:"error loading data"});
+					console.error("this does not seem to be a valid modArchive API response");
+				}*/
+				me.refreshList();
+			};
 
 			if (modArchive.length){
 				populate(modArchive,0);
 			}else{
-				FetchService.json("http://www.stef.be/bassoontracker/api/modarchive",function(data){
-					if (data && data.modarchive && data.modarchive.module){
-						var mods = data.modarchive.module;
-						mods.forEach(function(mod){
-							console.error(mod);
-							modArchive.push({title:mod.songtitle[0] || "---",url:mod.url[0]});
-						});
+				listbox.setItems([{label: "loading ..."}]);
+
+				FetchService.json("data/modarchive.json",function(data){
+					if (data && data.modarchive){
+						modArchive = data.modarchive;
 						populate(modArchive,0);
-					}else{
-						console.error("this does not seem to be a valid modArchive API response");
 					}
-				})
+				});
+
 			}
 
 
 		}else{
+			itemHandler = false;
 			label.setLabel("Load Sample to slot " + Tracker.getCurrentSampleIndex());
 			listbox.onClick = function(e){
 				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
@@ -264,6 +285,13 @@ UI.DiskOperations = function(){
 
 				}
 			};
+			onLoadChildren = function(item,data){
+				if (data && data.samples){
+					item.children = data.samples;
+					me.refreshList();
+				}
+			};
+
 
 			if (samples.length){
 				populate(samples,sampleSelectedIndex);
@@ -279,6 +307,16 @@ UI.DiskOperations = function(){
 		}
 	};
 
+	me.playRandomSong = function(){
+		FetchService.json("http://www.stef.be/bassoontracker/api/random",function(data){
+			if (data && data.modarchive && data.modarchive.module){
+				Tracker.load(data.modarchive.module.url);
+			}else{
+				console.error("this does not seem to be a valid modArchive API response");
+			}
+		})
+	};
+
 
 	function toggleDirectory(item,index){
 		listbox.setSelectedIndex(index);
@@ -291,14 +329,23 @@ UI.DiskOperations = function(){
 			if (item.children.length){
 				me.refreshList();
 			}else{
-				console.error("load children from " + item.url);
+				console.log("load children from " + item.url);
+				item.children = [{title: "loading ..."}];
+				me.refreshList();
 
-				FetchService.json(item.url,function(data){
-					if (data && data.samples){
-						item.children = data.samples;
-						me.refreshList();
-					}
-				})
+				if (itemHandler){
+					itemHandler.get(item.url,function(data){
+						console.error(data);
+						onLoadChildren(item,data);
+					});
+				}else{
+					FetchService.json(item.url,function(data){
+						onLoadChildren(item,data);
+					})
+				}
+
+
+
 			}
 		}
 	}

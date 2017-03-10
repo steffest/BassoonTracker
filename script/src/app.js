@@ -65,12 +65,18 @@ var App = (function(){
 
                     var version = typeof versionNumber == "undefined" ? "dev" : versionNumber;
                     var build = typeof buildNumber == "undefined" ? new Date().getTime() : buildNumber;
-                    dialog.setText("Bassoontracker//Old School 4-channel Amiga mod tracker/in plain javascript//©2007 by Steffest//version " + build + "//Fork me on Github!");
+                    dialog.setText("Bassoontracker//Old School 4-channel Amiga mod tracker/in plain javascript//©2017 by Steffest//version " + version + "//Fork me on Github!");
 
                     UI.setModalElement(dialog);
                     break;
                 case COMMAND.showHelp:
                     window.open("http://www.stef.be/bassoontracker/docs/");
+                    break;
+                case COMMAND.randomSong:
+                    UI.diskOperations.playRandomSong();
+                    break;
+                case COMMAND.showGithub:
+                    window.open("https://github.com/steffest/bassoontracker");
                     break;
             }
         });

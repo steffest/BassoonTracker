@@ -1,0 +1,13 @@
+{
+  "modarchive":[
+    {"title":"Browse by artist","children":[
+      {"title":"Jesper Kyd", "children" : [] , "url" : "artist/69569"},
+      {"title":"Jester", "children" : [] , "url" : "artist/69138"},
+      {"title":"Jogeir-liljedahl", "children" : [] , "url" : "artist/69691"},
+      {"title":"Romeo Knight", "children" : [] , "url" : "artist/69689"}
+    ]},
+    {"title":"Browse by genre","children":[],"url":"genres"},
+    {"title":"Top rated in comments","children":[],"url":"toprating"},
+    {"title":"Top rated in reviews","children":[],"url":"topreview"}
+  ]
+}

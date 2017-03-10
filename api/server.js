@@ -18,28 +18,64 @@ http.createServer(function (req, res) {
 	if (pathName.slice(-1) == "/") 	pathName = pathName.substr(0, pathName.length-1);
 	if (pathName.indexOf('bassoontracker/api/') == 0) pathName = pathName.substr(19);
 
-
 	// running on localhost?
 	var hostName = req.headers.host;
 	var baseDomain = "http://" + hostName;
 	var isLocal = (hostName.substr(0,5) == "local");
 
 	pathName = pathName.split("?")[0];
-	var handled = false;
 
+	var urlParts = pathName.split("/");
+	var section = urlParts[0];
 
-	if (pathName == "toprating"){
-		modArchive.browseByRating(res);
-		handled = true;
-	}
-	if (pathName == "random"){
-		modArchive.random(res);
-		handled = true;
-	}
+	res.setHeader("Access-Control-Allow-Origin", "*");
+	res.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
 
-	if (!handled){
-		res.writeHead(200, {'Content-Type': 'text/html'});
-		res.end(pathName + " ... Nope, don't know what to do with that.");
+	var id;
+	var page = 1;
+	var query;
+
+	switch (section){
+		case "status":
+			modArchive.getResult("view_requests",page,res);
+			break;
+		case "toprating":
+			page  = urlParts[1] || 1;
+			modArchive.getResult("view_by_rating_comments&query=10",page,res);
+			break;
+		case "topreview":
+			page  = urlParts[1] || 1;
+			modArchive.getResult("view_by_rating_reviews&query=10",page,res);
+			break;
+		case "random":
+			modArchive.getResult("random",page,res);
+			break;
+		case "genres":
+			modArchive.getResult("view_genres",page,res);
+			break;
+		case "genre":
+			id = urlParts[1];
+			page  = urlParts[2] || 1;
+			modArchive.getResult("search&type=genre&query=" + id,page,res);
+			break;
+		case "artist":
+			id = urlParts[1];
+			page  = urlParts[2] || 1;
+			modArchive.getResult("view_modules_by_artistid&query=" + id,page,res);
+			break;
+		case "modules":
+			query = urlParts[1] || "***";
+			page  = urlParts[2] || 1;
+			while (query.length<3){query += "*"}
+			modArchive.getResult("search&type=songtitle&query=" + query,page,res);
+			break;
+		case "module":
+			id = urlParts[1];
+			modArchive.getResult("view_by_moduleid&query=" + id,page,res);
+			break;
+		default:
+			res.writeHead(200, {'Content-Type': 'text/html'});
+			res.end(pathName + " ... Nope, don't know what to do with that.");
 	}
 
 }).listen(port);

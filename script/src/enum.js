@@ -52,7 +52,9 @@ var COMMAND = {
 	showHelp : 13,
 	togglePiano : 14,
 	showTop : 15,
-	showBottom: 16
+	showBottom: 16,
+	randomSong: 17,
+	showGithub: 18
 };
 
 var PLAYTYPE = {
