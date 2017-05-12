@@ -55,6 +55,28 @@ UI.songControl = function(x,y,w,h,visible){
     me.addChild(buttons.record);
 
 
+
+    buttons.song = UI.Assets.generate("buttonDark");
+    buttons.song.onClick = function(){
+        Tracker.playSong();
+    };
+    buttons.song.setProperties({
+        label: "Song"
+    });
+    me.addChild(buttons.song);
+
+    buttons.pattern = UI.Assets.generate("buttonDark");
+    buttons.pattern.onClick = function(){
+        Tracker.playPattern();
+    };
+    buttons.pattern.setProperties({
+        label: "Pattern"
+    });
+    me.addChild(buttons.pattern);
+
+
+
+
     EventBus.on(EVENT.recordingChange,function(event,isRecording){
         buttons.record.setActive(isRecording);
     });
@@ -70,7 +92,7 @@ UI.songControl = function(x,y,w,h,visible){
         }
     });
 
-    var properties = ["left","top","width","height","name","type"];
+    var properties = ["left","top","width","height","name","type","songPatternSelector"];
     me.setProperties = function(p){
 
         properties.forEach(function(key){
@@ -105,6 +127,37 @@ UI.songControl = function(x,y,w,h,visible){
             top:0,
             height: me.height
         });
+
+
+        if (me.songPatternSelector == "big"){
+            radioGroup.left = -500;
+            buttonWidth = Math.floor(me.width/4) + 1;
+
+            buttons.play.setProperties({
+                left: 0,
+                width: buttonWidth
+            });
+            buttons.record.setProperties({
+                left: buttonWidth,
+                width: buttonWidth
+            });
+
+            buttons.song.setProperties({
+                left: buttonWidth*2,
+                width: buttonWidth,
+                top:0,
+                height: me.height
+            });
+            buttons.pattern.setProperties({
+                left: buttonWidth*3,
+                width: buttonWidth,
+                top:0,
+                height: me.height
+            });
+
+
+
+        }
     };
 
     function triggerChangeEvent(){
@@ -116,9 +169,15 @@ UI.songControl = function(x,y,w,h,visible){
         if (me.needsRendering){
             me.clearCanvas();
 
-            radioGroup.render();
+            if (me.songPatternSelector == "small") radioGroup.render();
+
             buttons.play.render();
             buttons.record.render();
+
+            if (me.songPatternSelector == "big"){
+                buttons.song.render();
+                buttons.pattern.render();
+            }
 
 
         }
