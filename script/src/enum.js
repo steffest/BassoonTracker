@@ -33,7 +33,8 @@ var EVENT = {
 	sampleNameChange:16,
 	command: 17,
 	noteOn : 18,
-	noteOff : 19
+	noteOff : 19,
+	statusChange: 20
 };
 
 var COMMAND = {

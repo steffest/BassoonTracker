@@ -88,6 +88,10 @@ UI.MainPanel = function(){
 		}
 	};
 
+	var infoPanel = UI.InfoPanel(0,0,0,0);
+	me.addChild(infoPanel);
+
+
 	var songPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
 	me.addChild(songPanel);
 
@@ -164,21 +168,39 @@ UI.MainPanel = function(){
 	var buttons = [];
 	var buttonsSide = [];
 	var buttonsInfo=[
-		{label:"Play", onClick:function(){Tracker.playSong()}},
-		{label:"Play Pattern", onClick:function(){Tracker.playPattern()}},
-		{label:"Stop", onClick:function(){Tracker.stop();}},
+		{label:"Play", onClick:function(){Tracker.playSong()} , hideOnSmallScreen: true},
+		{label:"Play Pattern", onClick:function(){Tracker.playPattern()}, hideOnSmallScreen: true},
+		{label:"Stop", onClick:function(){Tracker.stop();}, hideOnSmallScreen: true},
 		{label:"Options", onClick:function(){App.doCommand(COMMAND.showOptions)}},
-		{label:"File Operations", onClick:function(){App.doCommand(COMMAND.showFileOperations)}},
+		{label:"File Operations", labelSmall:"File", onClick:function(){App.doCommand(COMMAND.showFileOperations)}},
 		//{label:"Save", oncClick:function(){Tracker.save();}},
 		//{label:"Record", onClick:function(){Tracker.toggleRecord();}},
-		{label:"Sample Editor", onClick:function(){App.doCommand(COMMAND.showSampleEditor)}}
+		{label:"Instruments", onClick:function(){App.doCommand(COMMAND.showSampleEditor)} , hideOnBigScreen: true},
+		{label:"Sample Editor", labelSmall:"Sample", onClick:function(){App.doCommand(COMMAND.showSampleEditor)}}
 	];
+
+	var getButtonInfoCount = function(){
+		var result = 0;
+		var check = function(item){return !item.hideOnBigScreen;};
+		if (mainLayout == LAYOUTS.column5Full){
+			check = function(item){return !item.hideOnSmallScreen;};
+		}
+
+		buttonsInfo.forEach(function(button){
+			if (check(button)) result++;
+		});
+		return result;
+	};
+
 
 	for (i = 0;i<buttonsInfo.length;i++){
 		var buttonInfo = buttonsInfo[i];
 		var buttonElm = UI.button();
 		buttonElm.info = buttonInfo;
 		buttonElm.onClick =  buttonInfo.onClick;
+		buttonElm.getLabel = function(){
+			return this.width<150 ? this.info.labelSmall || this.info.label : this.info.label;
+		};
 		buttons[i] = buttonElm;
 		me.addChild(buttonElm);
 	}
@@ -312,7 +334,6 @@ UI.MainPanel = function(){
 	vumeter.connect(Audio.cutOffVolume);
 	me.vumeter = vumeter;
 
-
 	me.sortZIndex();
 
 	// events
@@ -398,8 +419,9 @@ UI.MainPanel = function(){
 		me.controlBarHeight = 30;
 
 		me.pianoHeight = 220;
+		me.infoPanelHeight = 30;
 
-		me.equaliserTop = me.controlPanelHeight;
+		me.equaliserTop = me.controlPanelHeight + me.infoPanelHeight ;
 		me.controlBarTop = me.equaliserTop + me.equaliserPanelHeight;
 		me.patternTop = me.controlBarTop + me.controlBarHeight + 2;
 		me.patternHeight = me.height - me.patternTop - me.defaultMargin;
@@ -467,7 +489,7 @@ UI.MainPanel = function(){
 		var spinButtonHeight = 28;
 		var songPanelHeight = spinButtonHeight*3 + me.defaultMargin + 2;
 		var topPanelHeight = me.controlPanelHeight - me.menuHeight - (me.defaultMargin*2);
-		var buttonHeight = Math.floor(topPanelHeight/buttonsInfo.length) + 1;
+		var buttonHeight = Math.floor(topPanelHeight/getButtonInfoCount()) + 1;
 		var inputBoxHeight = 20;
 
 		var songlistboxWidth = me.col1W - 40;
@@ -476,12 +498,14 @@ UI.MainPanel = function(){
 		if (mainLayout == LAYOUTS.column5Full){
 			songPanelHeight = spinButtonHeight*5 + me.defaultMargin + 2;
 
-			songlistboxWidth = Math.floor((me.col1W/3) * 2);
+			songlistboxWidth = Math.floor((me.col1W/3) * 5);
 			songlistboxButtonWidth = Math.floor(me.col1W/6);
+
+			buttonHeight = Math.floor((topPanelHeight - me.infoPanelHeight)/getButtonInfoCount()) + 1;
 		}
 
 		var topRow1 = me.menuHeight + me.defaultMargin;
-		var topRow2 = me.equaliserTop - songPanelHeight - me.defaultMargin;
+		var topRow2 = me.equaliserTop - songPanelHeight - me.infoPanelHeight - me.defaultMargin;
 		var topRow3 = 0;
 
 		var layout = {
@@ -509,6 +533,12 @@ UI.MainPanel = function(){
 				top: topRow2,
 				width: me.col1W,
 				height: songPanelHeight
+			},
+			infoPanel:{
+				left: me.col2X,
+				top: me.equaliserTop - me.infoPanelHeight,
+				width: me.col5W,
+				height: me.infoPanelHeight
 			},
 			patternPanel:{
 				left:me.col2X,
@@ -551,7 +581,8 @@ UI.MainPanel = function(){
 				left: me.col1X,
 				top: me.controlBarTop,
 				width: me.col1W,
-				height: me.controlBarHeight
+				height: me.controlBarHeight,
+				songPatternSelector: "small"
 			},
 			spinBoxPattern:{
 				left:me.col2X,
@@ -616,6 +647,32 @@ UI.MainPanel = function(){
 			layout.patternPanel.height = layout.songPanel.height;
 
 
+			layout.listbox.left = -500;
+			layout.buttonsInfo.left = me.col5X;
+
+			layout.patternPanel.left = me.col3X;
+			layout.spinBoxPattern.left = me.col3X;
+			layout.spinBoxSample.left = me.col3X;
+			layout.spinBoxSongLength.left = me.col3X;
+			layout.spinBoxBmp.left = me.col3X;
+
+			layout.patternPanel.width = me.col2W;
+			layout.spinBoxPattern.width = me.col2W;
+			layout.spinBoxSample.width = me.col2W;
+			layout.spinBoxSongLength.width = me.col2W;
+			layout.spinBoxBmp.width = me.col2W;
+
+			layout.songPanel.width = me.col2W;
+
+			layout.logo.left = -500;
+			layout.modNameInputBox.left = me.col1X;
+			layout.modNameInputBox.width = me.col4W;
+
+			layout.infoPanel.left = me.col1X;
+			layout.songControl.songPatternSelector = "big";
+			layout.songControl.width = me.col4W;
+
+
 		}
 
 		menuBackground.setSize(layout.menuBackground ,me.menuHeight);
@@ -627,18 +684,29 @@ UI.MainPanel = function(){
 		setDimensions(listbox,layout.listbox);
 
 		// buttons
+		var buttonCount = 0;
 		for (i = 0;i<buttonsInfo.length;i++){
 			var button = buttons[i];
-			button.setProperties({
-				left:layout.buttonsInfo.left,
-				top: layout.buttonsInfo.top + (i*buttonHeight),
-				width: layout.buttonsInfo.width,
-				height:layout.buttonsInfo.height,
-				label: button.info.label,
-				textAlign:"left",
-				background: UI.Assets.buttonLightScale9,
-				font:window.fontMed
-			});
+			var show = !button.info.hideOnBigScreen;
+			if (mainLayout == LAYOUTS.column5Full){
+				show = !button.info.hideOnSmallScreen;
+			}
+			if (show){
+				button.setProperties({
+					left:layout.buttonsInfo.left,
+					top: layout.buttonsInfo.top + (buttonCount*buttonHeight),
+					width: layout.buttonsInfo.width,
+					height:layout.buttonsInfo.height,
+					label: button.getLabel(),
+					textAlign:"left",
+					background: UI.Assets.buttonLightScale9,
+					font:window.fontMed
+				});
+				buttonCount++;
+			}else{
+				button.setProperties({left: -500});
+			}
+
 		}
 
 		sideLabel.setProperties({
@@ -674,10 +742,9 @@ UI.MainPanel = function(){
 			});
 		}
 
-
-
 		setDimensions(sideButtonPanel,layout.sideButtonPanel);
 		setDimensions(songPanel,layout.songPanel);
+		setDimensions(infoPanel,layout.infoPanel);
 
 		//songlistbox
 		songlistbox.setProperties({
@@ -717,6 +784,9 @@ UI.MainPanel = function(){
 			});
 		}
 
+
+		songControl.songPatternSelector = layout.songControl.songPatternSelector;
+
 		setDimensions(songControl,layout.songControl);
 		setDimensions(patternPanel,layout.patternPanel);
 
@@ -732,6 +802,8 @@ UI.MainPanel = function(){
 		setDimensions(diskOperations,layout.diskOperations);
 		setDimensions(optionsPanel,layout.diskOperations);
 
+
+
 		visualiser.setProperties({
 			left: patternViewLeft + me.patternMargin,
 			top: me.equaliserTop,
@@ -745,6 +817,7 @@ UI.MainPanel = function(){
 		});
 
 		me.setSize(me.width,me.height);
+		infoPanel.setLayout();
 	};
 
 	function setDimensions(element,properties){

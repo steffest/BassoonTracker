@@ -233,6 +233,14 @@ var UI = (function(){
 		return target;
 	};
 
+	me.setStatus = function(status){
+		EventBus.trigger(EVENT.statusChange,{status:status});
+	};
+
+	me.setInfo = function(info,source,url){
+		EventBus.trigger(EVENT.statusChange,{info:info,source: source, url:url});
+	};
+
 	me.stats = function(){
 		return {
 			maxRenderTime : maxRenderTime,

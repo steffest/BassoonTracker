@@ -224,6 +224,7 @@ var Tracker = (function(){
 	me.stop = function(){
 		if (clock) clock.stop();
 		Audio.disable();
+		UI.setStatus("Ready");
 		Input.clearInputNotes();
 		me.clearEffectCache();
 		//Audio.stopRecording();
@@ -276,6 +277,7 @@ var Tracker = (function(){
 		clock = clock || new WAAClock(Audio.context);
 		clock.start();
 		Audio.enable();
+		UI.setStatus("Playing");
 
 		currentPatternData = song.patterns[patternIndex];
 		var thisPatternLength = currentPatternData.length;
@@ -1268,9 +1270,28 @@ var Tracker = (function(){
 		url = url || "demomods/StardustMemories.mod";
 		var name = url.substr(url.lastIndexOf("/")+1);
 
+		UI.setInfo("");
+		UI.setStatus("Loading");
 
 		loadFile(url,function(result){
 			var isMod = me.parse(result,name);
+			UI.setStatus("Ready");
+			if (isMod){
+				var infoUrl = "";
+				var source = "";
+
+				if (url.indexOf("modarchive.org")>0){
+					var id = url.split('moduleid=')[1];
+					id = id.split("#")[0];
+					id = id.split("&")[0];
+
+					source = "modArchive";
+					infoUrl = "https://modarchive.org/index.php?request=view_by_moduleid&query=" + id;
+				}
+
+				UI.setInfo(song.title,source,infoUrl);
+
+			}
 
 			if (isMod && !skipHistory){
 
