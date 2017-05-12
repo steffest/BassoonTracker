@@ -8,18 +8,17 @@ var ModArchive = (function(){
 
 	var baseUrl = "https://api.modarchive.org/xml-tools.php?key=" + config.modArchiveApiKey + "&request=";
 
-	me.browseByRating = function(res){
-		getModArchiveResult("view_by_rating_comments&query=10",res);
+
+	me.getResult = function(url,page,res){
+		getModArchiveResult(url,page,res);
 	};
 
-	me.random = function(res){
-		getModArchiveResult("random",res);
-	};
-
-	function getModArchiveResult(url,res){
+	function getModArchiveResult(url,page,res){
+		page = page || 1;
 		url = baseUrl + url;
 		// filter only 4 channel mods
 		url += "&format=mod&channels=4-4";
+		url += "&page=" + page;
 		https.get(url,function(modArchiveResponse){
 			var xml = '';
 			modArchiveResponse.on('data', function(chunk) {
