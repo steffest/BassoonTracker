@@ -42,11 +42,17 @@ UI.InfoPanel = function(){
 
     me.setLayout = function(){
 
+        var width = me.parent.col1W;
+        var label = "More info";
+        if (width<100) label = "info";
+        if (width<45) label = "i";
+
         infoButton.setProperties({
             width: me.parent.col1W,
             height: 26,
             top: 2,
-            left:me.parent.col5X - 6
+            left:me.parent.col5X - 2 - me.left,
+            label: label
         });
 
     };
@@ -65,7 +71,7 @@ UI.InfoPanel = function(){
             var fText = text;
             if (status) fText = status + ": " + fText;
 
-            window.fontMed.write(me.ctx,fText,2,11,0);
+            window.fontMed.write(me.ctx,fText,6,11,0);
 
         }
 

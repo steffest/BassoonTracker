@@ -36,7 +36,7 @@ Features
 - includes the historic ST-01 and ST-02 sample disks, released in 1987 (as well as a bunch if others) 
 - export to .wav and .mod
 
-Missing features and bugs
+Missing features and bugs (no, it doesn't play 'Black Queen' :-) )
  - Not much disk operations yet, you can load new modules and samples by drag-dropping them on the interface  
  - export to wav is currently limited to the current pattern (due to memory issues)
  - Some "Extended" effects are not implemented yet and probably wont as they are very rarely used: E4,E5,E6,E7, E9, E12, E14, E15  

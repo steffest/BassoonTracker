@@ -34,6 +34,8 @@ var Tracker = (function(){
 	var trackCount = 4;
 	var patternLength = 64;
 
+	var pasteBuffer = {};
+
 	var tracks = getUrlParameter("tracks");
 	if (tracks == 8) trackCount = 8;
 	if (tracks == 16) trackCount = 16;
@@ -1713,6 +1715,87 @@ var Tracker = (function(){
 			}
 		}
 		EventBus.trigger(EVENT.patternChange,currentPattern);
+	};
+
+	me.copyTrack = function(trackNumber){
+		var hasTracknumber = typeof trackNumber != "undefined";
+		if (!hasTracknumber) trackNumber = currentPattern;
+		var length = currentPatternData.length;
+		var data = [];
+
+		for (var i = 0; i<length;i++){
+			var note = song.patterns[currentPattern][i][trackNumber];
+			data.push({
+				sample: note.sample,
+				period : note.period,
+				effect: note.effect,
+				param: note.param
+			});
+		}
+		if (hasTracknumber){
+			return data;
+		}else{
+			pasteBuffer.track = data;
+		}
+
+	};
+
+	me.copyPattern = function(){
+		var data = [];
+
+		for (var j = 0; j<trackCount; j++) {
+			var row = me.copyTrack(j);
+			data.push(row);
+		}
+		pasteBuffer.pattern = data;
+	};
+
+
+	me.getPasteData = function(){
+		return pasteBuffer;
+	};
+
+	me.pasteTrack = function(trackNumber,trackData){
+		var hasTracknumber = typeof trackNumber != "undefined";
+		var data = trackData;
+		if (!hasTracknumber) {
+			trackNumber = currentTrack;
+			data = pasteBuffer.track;
+		}
+		console.error("paste",trackNumber,data[0]);
+
+		if (data){
+			var length = currentPatternData.length;
+			for (var i = 0; i<length;i++){
+				var note = song.patterns[currentPattern][i][trackNumber];
+				var source = data[i];
+				note.sample = source.sample;
+				note.period = source.period;
+				note.effect = source.effect;
+				note.param = source.param;
+			}
+			if (!hasTracknumber) EventBus.trigger(EVENT.patternChange,currentPattern);
+
+			return true;
+		}else{
+			return false;
+		}
+
+	};
+
+	me.pastePattern = function(){
+
+		var data = pasteBuffer.pattern;
+		if (data){
+			for (var j = 0; j<trackCount; j++) {
+				me.pasteTrack(j,data[j]);
+			}
+			EventBus.trigger(EVENT.patternChange,currentPattern);
+			return true;
+		}else{
+			return false;
+		}
+
 	};
 
 	me.clearEffectCache = function(){
