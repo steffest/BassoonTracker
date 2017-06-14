@@ -295,11 +295,12 @@ var Tracker = (function(){
 					if (p>=thisPatternLength || stepResult.patternBreak){
 						p=0;
 						if (Tracker.getPlayType() == PLAYTYPE.song){
-							var nextPosition = stepResult.positionBreak ? stepResult.targetPosition : currentSongPosition+1;
+							var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : currentSongPosition+1;
 							if (nextPosition>=song.length) nextPosition = 0;
 							me.setCurrentSongPosition(nextPosition);
-
 						}
+
+						if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
 					}
 					Tracker.setCurrentPatternPos(p);
 				}
@@ -345,13 +346,15 @@ var Tracker = (function(){
 					if (p>=thisPatternLength || stepResult.patternBreak){
 						p=0;
 						if (Tracker.getPlayType() == PLAYTYPE.song){
-							var nextPosition = stepResult.positionBreak ? stepResult.targetPosition : ++playSongPosition;
+							var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : ++playSongPosition;
 							if (nextPosition>=song.length) nextPosition = 0;
 							playSongPosition = nextPosition;
 							var patternIndex = song.patternTable[playSongPosition];
 							playPatternData = song.patterns[patternIndex];
 							//me.setCurrentSongPosition(nextPosition);
 							// set currentSongPosition in Audio data;
+
+							if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
 
 						}
 					}
@@ -377,10 +380,14 @@ var Tracker = (function(){
 		for (var i = 0; i<tracks; i++){
 			var note = patternStep[i];
 			r = playNote(note,i,time);
-			if (r.patternBreak) result.patternBreak = true;
+			if (r.patternBreak) {
+				result.patternBreak = true;
+				result.targetPatternPosition = r.targetPatternPosition || 0;
+			}
 			if (r.positionBreak) {
 				result.positionBreak = true;
-				result.targetPosition = r.targetPosition || 0;
+				result.targetPatternPosition = r.targetPatternPosition || 0;
+				result.targetSongPosition = r.targetSongPosition || 0;
 			}
 		}
 
@@ -834,7 +841,8 @@ var Tracker = (function(){
 				// Position Jump
 				result.patternBreak = true;
 				result.positionBreak = true;
-				result.targetPosition = note.param;
+				result.targetSongPosition = note.param;
+				result.targetPatternPosition = 0;
 				break;
 			case 12:
 				//volume
@@ -847,6 +855,10 @@ var Tracker = (function(){
 			case 13:
 				// Pattern Break
 				result.patternBreak = true;
+				x = value >> 4;
+				y = value & 0x0f;
+				result.targetPatternPosition = x*10 + y;
+				if (result.targetPatternPosition >= patternLength) result.targetPatternPosition=0;
 				break;
 			case 14:
 				// Subeffects
