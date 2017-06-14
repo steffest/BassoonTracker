@@ -260,7 +260,7 @@ var Input = (function(){
 					if (keyDown[key]) return;
 					keyDown[key] = Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
 					inputNotes.push(keyDown[key]);
-					EventBus.trigger(EVENT.noteOn,keyDown[key]);
+					EventBus.trigger(EVENT.pianoNoteOn,keyDown[key]);
 					return;
 				}
 
@@ -327,7 +327,7 @@ var Input = (function(){
 			}
 
 			if (!SETTINGS.sustainKeyboardNotes && keyDown[key] && keyDown[key].source && Audio.context){
-				EventBus.trigger(EVENT.noteOff,keyDown[key]);
+				EventBus.trigger(EVENT.pianoNoteOff,keyDown[key]);
 				try{
 					//keyDown[key].source.stop();
 					// too harsh ... let's try a fade out, much better

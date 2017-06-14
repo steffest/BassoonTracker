@@ -43,6 +43,10 @@ UI.PatternView = function(x,y,w,h){
         me.addChild(fxPanel);
     }
 
+    var trackVULevel = [];
+    var trackVULevelDecay = 5;
+    var trackVULevelMax = 70;
+
     me.toggleFxPanel = function(track){
         fxPanel = fxPanels[track];
 
@@ -69,7 +73,6 @@ UI.PatternView = function(x,y,w,h){
         if (!me.isVisible()) return;
 
         if (this.needsRendering){
-
             me.clearCanvas();
 
             var index = Tracker.getCurrentPattern() || 0;
@@ -153,13 +156,11 @@ UI.PatternView = function(x,y,w,h){
                 var textWidth = 68;
                 // used to center text in Column;
 
-
                 me.ctx.fillRect(UI.mainPanel.patternMargin,centerLineTop,(me.width-UI.mainPanel.patternMargin*2),centerLineHeight);
 
                 // draw cursor
                 var cursorPos = Tracker.getCurrentTrackPosition();
                 var cursorWidth = 9;
-
 
                 var cursorX;
                 if (lineNumbersToTheLeft){
@@ -210,6 +211,7 @@ UI.PatternView = function(x,y,w,h){
                             drawText(ti,patternNumberLeft,y,color);
                         }
 
+                        var hasVU = false;
                         for (var j = 0; j<Tracker.getTrackCount();j++){
 
                             if (isTrackVisible[j]){
@@ -231,6 +233,39 @@ UI.PatternView = function(x,y,w,h){
                                 if (isCenter){
                                     drawText(noteString,x,y);
                                     drawText(noteString,x,y);
+
+                                    if (Tracker.isPlaying() || trackVULevel[j]){
+                                        // draw VU of center note
+                                        if (Tracker.isPlaying() && note && note.period){
+                                            var vu = 100;
+                                            if (note.effect == 12){
+                                                vu = note.param * 100/64;
+                                            }else{
+                                                var sample = Tracker.getSample(note.sample);
+                                                if (sample) vu = sample.volume * 100/64;
+                                            }
+                                            trackVULevel[j] = vu;
+                                        }
+
+                                        if (trackVULevel[j]){
+                                            hasVU = true;
+                                            var vuHeight = trackVULevel[j] * trackVULevelMax / 100;
+
+                                            var bar = Y.getImage("vubar");
+
+                                            //me.ctx.fillStyle = "yellow";
+                                            //me.ctx.fillRect(x-12,centerLineTop-vuHeight,10,vuHeight);
+
+                                            var sHeight = vuHeight * 100 / trackVULevelMax;
+
+                                            me.ctx.drawImage(bar,0,100-sHeight,26,sHeight,x-12,centerLineTop-vuHeight,10,vuHeight);
+
+                                            trackVULevel[j] -= trackVULevelDecay;
+                                            if (trackVULevel[j]<0){
+                                                trackVULevel[j]=0;
+                                            }
+                                        }
+                                    }
                                 }
 
                                 x += (fontMed.charWidth*3) + 4;
@@ -242,6 +277,12 @@ UI.PatternView = function(x,y,w,h){
                                 noteString += formatHex(note.param,2,"0");
                                 drawText(noteString,x,y,"orange");
                             }
+                        }
+
+                        if (hasVU){
+                            setTimeout(function(){
+                                me.refresh();
+                            },20);
                         }
                     }
 

@@ -182,7 +182,8 @@ var Audio = (function(){
                 startPeriod: period,
                 startPlaybackRate: initialPlaybackRate,
                 sampleIndex: index,
-                effects: effects
+                effects: effects,
+                track: track
             };
 
             if (!isRendering) EventBus.trigger(EVENT.samplePlay,result);

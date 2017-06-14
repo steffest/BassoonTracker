@@ -32,8 +32,8 @@ var EVENT = {
 	songPropertyChange: 15,
 	sampleNameChange:16,
 	command: 17,
-	noteOn : 18,
-	noteOff : 19,
+	pianoNoteOn : 18,
+	pianoNoteOff : 19,
 	statusChange: 20
 };
 

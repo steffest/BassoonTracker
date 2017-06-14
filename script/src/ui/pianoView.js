@@ -88,7 +88,7 @@ UI.PianoView = function(){
 		}
 	}
 
-	EventBus.on(EVENT.noteOn,function(event,note){
+	EventBus.on(EVENT.pianoNoteOn,function(event, note){
 		if (note && note.startPeriod){
 			var keyIndex = periodKeys[note.startPeriod] - (octave-1)*8;
 			if (keyIndex >= 0){
@@ -101,7 +101,7 @@ UI.PianoView = function(){
 		}
 	});
 
-	EventBus.on(EVENT.noteOff,function(event,note){
+	EventBus.on(EVENT.pianoNoteOff,function(event, note){
 		if (note && note.startPeriod){
 			var keyIndex = periodKeys[note.startPeriod]- (octave-1)*8;
 			if (keyIndex >= 0){
@@ -133,7 +133,7 @@ UI.PianoView = function(){
 
 				var playedNote = Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
 				keyPlayed[key] = playedNote;
-				EventBus.trigger(EVENT.noteOn,playedNote);
+				EventBus.trigger(EVENT.pianoNoteOn,playedNote);
 
 			}
 		}
@@ -143,7 +143,7 @@ UI.PianoView = function(){
 		if (keys[key] && keyPlayed[key]){
 			var note = NOTEPERIOD[keys[key + (octave-1)*8]];
 			if (note && note.period){
-				EventBus.trigger(EVENT.noteOff,keyPlayed[key]);
+				EventBus.trigger(EVENT.pianoNoteOff,keyPlayed[key]);
 				if (keyPlayed[key].volume){
 					keyPlayed[key].volume.gain.linearRampToValueAtTime(0,Audio.context.currentTime + 0.5)
 				}else{
