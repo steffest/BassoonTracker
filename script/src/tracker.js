@@ -376,6 +376,7 @@ var Tracker = (function(){
 	function playNote(note,track,time,songPos){
 
 		var defaultVolume = 100;
+		var trackEffects = {};
 
 		var sampleIndex = note.sample;
 
@@ -383,6 +384,14 @@ var Tracker = (function(){
 			// reuse previous Sample
 			sampleIndex = trackNotes[track].currentSample;
 			defaultVolume = typeof trackNotes[track].currentVolume == "number" ? trackNotes[track].currentVolume : defaultVolume;
+
+
+			if (SETTINGS.emulateProtracker1OffsetBug && sampleIndex && trackEffectCache[track].offset){
+				if (trackEffectCache[track].offset.sample == sampleIndex){
+					console.log("applying sample offset cache to sample " + sampleIndex);
+					trackEffects.offset = trackEffectCache[track].offset;
+				}
+			}
 		}
 
 		if (typeof note.sample == "number"){
@@ -393,7 +402,6 @@ var Tracker = (function(){
 		var notePeriod = note.period;
 
 		var volume = defaultVolume;
-		var trackEffects = {};
 		var doPlayNote = true;
 		var value = note.param;
 		var x,y;
@@ -669,6 +677,22 @@ var Tracker = (function(){
 				trackEffects.offset = {
 					value: value << 8
 				};
+
+				if (note.sample){
+					trackEffects.volume = {
+						value: defaultVolume
+					};
+				}
+				// quirk in Protracker 1 and 2?
+				// if NO NOTE is given but a sample number is present,
+				// the offset is remembered for the next note WITHOUT sample number
+				// but only when the derived sample number is the same as the offset
+				if (SETTINGS.emulateProtracker1OffsetBug &&  note.sample && !note.period){
+					console.log("set offset cache for sample " + note.sample);
+					trackEffectCache[track].offset = trackEffects.offset;
+					trackEffectCache[track].offset.sample = note.sample;
+				}
+
 				break;
 			case 10:
 				// volume slide
@@ -1582,6 +1606,12 @@ var Tracker = (function(){
 	function resetDefaultSettings(){
 		me.setAmigaSpeed(6);
 		me.setBPM(125);
+		trackEffectCache = [];
+		trackNotes = [];
+		for (var i=0;i<trackCount;i++){
+			trackNotes.push({});
+			trackEffectCache.push({});
+		}
 	}
 
 	me.clearTrack = function(){

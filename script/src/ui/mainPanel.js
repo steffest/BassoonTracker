@@ -212,14 +212,14 @@ UI.MainPanel = function(){
 	}
 
 	var buttonsSideInfo=[
-		{label:"hoffman-daytripper", onClick:function(){Tracker.load('demomods/hoffman_and_daytripper_-_professional_tracker.mod')}},
 		{label:"Demomusic", onClick:function(){Tracker.load('demomods/demomusic.mod')}},
 		{label:"Stardust", onClick:function(){Tracker.load('demomods/StardustMemories.mod')}},
 		{label:"Space Debris", onClick:function(){Tracker.load('demomods/spacedeb.mod')}},
 		{label:"Tinytune", onClick:function(){Tracker.load('demomods/Tinytune.mod')}},
 		{label:"Lotus 2", onClick:function(){Tracker.load('demomods/lotus20.mod')}},
 		{label:"Lotus 1", onClick:function(){Tracker.load('demomods/lotus10.mod')}},
-		{label:"Monday", onClick:function(){Tracker.load('demomods/Monday.mod')}},
+		{label:"Professionaltracker", onClick:function(){Tracker.load('demomods/hoffman_and_daytripper_-_professional_tracker.mod')}},
+		//{label:"Monday", onClick:function(){Tracker.load('demomods/Monday.mod')}},
 		//{label:"Lunatic", onClick:function(){Tracker.load('demomods/sound-of-da-lunatic.mod')}},
 		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
 		{label:"Random !", onClick:function(){App.doCommand(COMMAND.randomSong)}}

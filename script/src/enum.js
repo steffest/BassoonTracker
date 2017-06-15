@@ -285,5 +285,6 @@ var SETTINGS = {
 	useHover:true,
 	keyboardTable: "qwerty",
 	vubars: true,
-	stereoSeparation: STEREOSEPARATION.BALANCED
+	stereoSeparation: STEREOSEPARATION.BALANCED,
+	emulateProtracker1OffsetBug: true
 };
