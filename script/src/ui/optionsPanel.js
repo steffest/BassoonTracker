@@ -52,19 +52,22 @@ UI.OptionsPanel = function(){
 		},
 		{
 			label: "VU bars:",
-			values: ["NONE", "COLOURS"],
+			values: ["NONE", "COLOURS: AMIGA","TRANSPARENT"],
 			setValue: function (index) {
 				console.error("set option " + index);
 				if (index == 0){
-					SETTINGS.vubars = false;
+					SETTINGS.vubars = "none";
+				}else if (index == 2){
+					SETTINGS.vubars = "trans";
 				}else{
-					SETTINGS.vubars = true;
+					SETTINGS.vubars = "colour";
 				}
 				Settings.saveSettings();
 			},
 			getValue: function () {
-				var result = 0;
-				if (SETTINGS.vubars) result = 1;
+				var result = 1;
+				if (SETTINGS.vubars == "none") result = 0;
+				if (SETTINGS.vubars == "trans") result = 2;
 				return result;
 			}
 		},

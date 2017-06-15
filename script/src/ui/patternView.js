@@ -44,6 +44,7 @@ UI.PatternView = function(x,y,w,h){
     }
 
     var trackVULevel = [];
+    var trackVUHistory = [];
     var trackVULevelDecay = 10;
     var trackVULevelMax = 70;
 
@@ -130,6 +131,11 @@ UI.PatternView = function(x,y,w,h){
             var isTrackVisible = [];
             var hasVU = false;
 
+            if (trackVULevelMax > panelHeight){
+                trackVULevelMax = panelHeight;
+                trackVULevelDecay = trackVULevelMax/10;
+            }
+
             for (var i = 0; i<Tracker.getTrackCount();i++){
 
                 isTrackVisible[i] = !(fxPanels[i] && fxPanels[i].visible);
@@ -212,7 +218,6 @@ UI.PatternView = function(x,y,w,h){
                             drawText(ti,patternNumberLeft,y,color);
                         }
 
-
                         for (var j = 0; j<Tracker.getTrackCount();j++){
 
                             if (isTrackVisible[j]){
@@ -235,9 +240,10 @@ UI.PatternView = function(x,y,w,h){
                                     drawText(noteString,x,y);
                                     drawText(noteString,x,y);
 
-                                    if (SETTINGS.vubars && Tracker.isPlaying() || trackVULevel[j]){
+                                    if (Tracker.isPlaying() || trackVULevel[j] && SETTINGS.vubars != "none"){
                                         // draw VU of center note
-                                        if (Tracker.isPlaying() && note && note.period){
+                                        var currentPos = index + "." + patternPos;
+                                        if (Tracker.isPlaying() && note && note.period && trackVUHistory[j]!=currentPos){
                                             var vu = 100;
                                             if (note.effect == 12){
                                                 vu = note.param * 100/64;
@@ -246,17 +252,26 @@ UI.PatternView = function(x,y,w,h){
                                                 if (sample) vu = sample.volume * 100/64;
                                             }
                                             trackVULevel[j] = vu;
+                                            trackVUHistory[j]=currentPos;
                                         }
 
                                         if (trackVULevel[j]){
                                             hasVU = true;
                                             var vuHeight = trackVULevel[j] * trackVULevelMax / 100;
 
-                                            var bar = Y.getImage("vubar");
-
                                             var sHeight = vuHeight * 100 / trackVULevelMax;
 
-                                            me.ctx.drawImage(bar,0,100-sHeight,26,sHeight,x-12,centerLineTop-vuHeight,10,vuHeight);
+                                            if (SETTINGS.vubars == "colour"){
+                                                var bar = Y.getImage("vubar");
+                                                me.ctx.drawImage(bar,0,100-sHeight,26,sHeight,x-12,centerLineTop-vuHeight,10,vuHeight);
+                                            }
+                                            if (SETTINGS.vubars == "trans"){
+                                                trackX = trackLeft + j*(trackWidth+margin);
+                                                me.ctx.fillStyle = "rgba(120,190,255,0.3)";
+                                                me.ctx.fillRect(x-14,centerLineTop-vuHeight,10,vuHeight);
+                                            }
+
+
 
                                             trackVULevel[j] -= trackVULevelDecay;
                                             if (trackVULevel[j]<0){

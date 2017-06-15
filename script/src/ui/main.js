@@ -142,7 +142,7 @@ var UI = (function(){
 		var doRender = true;
 
 		if (Tracker.isPlaying()){
-			var state = Tracker.getStateAtTime(Audio.context.currentTime);
+			var state = Tracker.getStateAtTime(Audio.context.currentTime+0.01);
 			if (state){
 				if (state.patternPos != UICache.patternPos){
 					Tracker.setCurrentPatternPos(state.patternPos);
