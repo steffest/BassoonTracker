@@ -4,6 +4,7 @@ var canvas;
 var ctx;
 
 var periodNoteTable = {};
+var periodFinetuneTable = {};
 var nameNoteTable = {};
 var noteNames = [];
 
@@ -38,12 +39,25 @@ var Main = (function(){
 
     me.init = function(){
 
+        for (var i = -8; i<8;i++){
+            periodFinetuneTable[i] = {};
+        }
+
         for (var key in NOTEPERIOD){
             if (NOTEPERIOD.hasOwnProperty(key)){
                 var note = NOTEPERIOD[key];
                 periodNoteTable[note.period] = note;
                 nameNoteTable[note.name] = note;
                 noteNames.push(note.name);
+
+                // build fineTune table
+                if (note.tune){
+                    for (i = -8; i<8;i++){
+                        var table =  periodFinetuneTable[i];
+                        var index = i+8;
+                        table[note.tune[index]] = note.period;
+                    }
+                }
             }
         }
 

@@ -378,7 +378,7 @@ var Tracker = (function(){
 		}
 
 		if (typeof note.sample == "number"){
-			var sample = Tracker.getSample(note.sample);
+			var sample = me.getSample(note.sample);
 			if (sample) defaultVolume = 100 * (sample.volume/64);
 		}
 
@@ -400,15 +400,27 @@ var Tracker = (function(){
 					y = value & 0x0f;
 
 					var root = notePeriod || trackNotes[track].startPeriod;
+					var finetune = 0;
+
 
 					//todo: when a sample index is present other than the previous index, but no note
 					// how does this work?
 					// see example just_about_seven.mod
 
+					// check if the sample is finetuned
+					var playingSample = sampleIndex || trackNotes[track] ? trackNotes[track].currentSample : 0;
+					if (playingSample){
+						sample = me.getSample(playingSample);
+						if (sample && sample.finetune){
+							finetune = sample.finetune;
+							root = Audio.getFineTunePeriod(root,finetune);
+						}
+					}
+
 					trackEffects.arpeggio = {
 						root: root,
-						interval1: root-Audio.getSemiToneFrom(root,x),
-						interval2: root-Audio.getSemiToneFrom(root,y),
+						interval1: root-Audio.getSemiToneFrom(root,x,finetune),
+						interval2: root-Audio.getSemiToneFrom(root,y,finetune),
 						step:1
 					};
 				}
@@ -768,9 +780,10 @@ var Tracker = (function(){
 			try{
 				if (trackNotes[track].source) {
 					var gain = trackNotes[track].volume.gain;
-					gain.setValueAtTime(gain.value,time-0.002);
+					gain.setValueAtTime(trackNotes[track].currentVolume/100,time-0.002);
 					gain.linearRampToValueAtTime(0,time);
-					trackNotes[track].source.stop(time+0.1);
+					trackNotes[track].source.stop(time+0.02);
+					//trackNotes[track].source.stop(time);
 				}
 			}catch (e){
 

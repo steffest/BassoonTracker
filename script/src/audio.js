@@ -402,8 +402,16 @@ var Audio = (function(){
 
     }
 
-    me.getSemiToneFrom = function(period,semitones){
+    me.getSemiToneFrom = function(period,semitones,finetune){
         var result = period;
+        if (finetune) {
+            period = me.getFineTuneBasePeriod(period,finetune);
+            if (!period){
+                period = result;
+                console.error("ERROR: base period for finetuned " + finetune + " period " + period + " not found");
+            }
+        }
+
         if (semitones){
             var rootNote = periodNoteTable[period];
             if (rootNote){
@@ -413,6 +421,7 @@ var Audio = (function(){
                     var targetNote = nameNoteTable[targetName];
                     if (targetNote){
                         result = targetNote.period;
+                        if (finetune) {result = me.getFineTunePeriod(result,finetune)}
                     }
                 }
             }else{
@@ -420,7 +429,6 @@ var Audio = (function(){
                 // note: this can happen when the note is in a period slide
                 // FIXME
             }
-
         }
         return result;
     };
@@ -448,6 +456,7 @@ var Audio = (function(){
         return result;
     };
 
+    // gives the finetuned period for a base period
     me.getFineTunePeriod = function(period,finetune){
         var result = period;
         var note = periodNoteTable[period];
@@ -455,6 +464,16 @@ var Audio = (function(){
             var centerTune = 8;
             var tune = 8 + finetune;
             if (tune>0 && tune<note.tune.length) result = note.tune[tune];
+        }
+        return result;
+    };
+
+    // gives the non-finetuned baseperiod for a finetuned period
+    me.getFineTuneBasePeriod = function(period,finetune){
+        var result = period;
+        var table = periodFinetuneTable[finetune];
+        if (table){
+            result = table[period];
         }
         return result;
     };

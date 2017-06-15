@@ -44,7 +44,7 @@ var Settings = (function(){
 
 	function setDefaults(){
 		SETTINGS.keyboardTable = "qwerty";
-		SETTINGS.vubars = true;
+		SETTINGS.vubars = "colour";
 		SETTINGS.stereoSeparation =  STEREOSEPARATION.BALANCED;
 	}
 
