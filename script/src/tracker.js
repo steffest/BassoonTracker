@@ -49,6 +49,8 @@ var Tracker = (function(){
 	var trackNotes = [];
 	var trackEffectCache = [];
 	var trackerStates = [];
+	var patternLoopStart = [];
+	var patternLoopCount = [];
 
 	for (var i=0;i<trackCount;i++){
 		trackNotes.push({});
@@ -273,6 +275,8 @@ var Tracker = (function(){
 		clock.start();
 		Audio.enable();
 		UI.setStatus("Playing");
+		patternLoopStart = [];
+		patternLoopCount = [];
 
 		currentPatternData = song.patterns[patternIndex];
 		var thisPatternLength = currentPatternData.length;
@@ -305,23 +309,26 @@ var Tracker = (function(){
 
 				me.setStateAtTime(time,{patternPos: p, songPos: playSongPosition});
 
-				var stepResult = playPatternStep(p,time,playPatternData);
+				var stepResult = playPatternStep(p,time,playPatternData,playSongPosition);
 				time += ticksPerStep * tickTime;
 				p++;
 
 				if (p>=thisPatternLength || stepResult.patternBreak){
+					if (!(stepResult.positionBreak && stepResult.targetSongPosition == playSongPosition)){
+						//We're not in a pattern loop
+						patternLoopStart = [];
+						patternLoopCount = [];
+					}
 					p=0;
 					if (Tracker.getPlayType() == PLAYTYPE.song){
 						var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : ++playSongPosition;
 						if (nextPosition>=song.length) nextPosition = 0;
 						playSongPosition = nextPosition;
-						var patternIndex = song.patternTable[playSongPosition];
+						patternIndex = song.patternTable[playSongPosition];
 						playPatternData = song.patterns[patternIndex];
-						//me.setCurrentSongPosition(nextPosition);
-						// set currentSongPosition in Audio data;
-
 						if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
-
+					}else{
+						if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
 					}
 				}
 			}
@@ -332,7 +339,7 @@ var Tracker = (function(){
 	}
 
 
-	function playPatternStep(step,time,patternData){
+	function playPatternStep(step,time,patternData,songPostition){
 
 		patternData = patternData || currentPatternData;
 		// note: patternData can be different than currentPatternData when playback is active with long look ahead times
@@ -343,7 +350,8 @@ var Tracker = (function(){
 		var r;
 		for (var i = 0; i<tracks; i++){
 			var note = patternStep[i];
-			r = playNote(note,i,time);
+			var songPos = {position: songPostition, step: step};
+			r = playNote(note,i,time,songPos);
 			if (r.patternBreak) {
 				result.patternBreak = true;
 				result.targetPatternPosition = r.targetPatternPosition || 0;
@@ -365,7 +373,7 @@ var Tracker = (function(){
 
 	me.playPatternStep = playPatternStep;
 
-	function playNote(note,track,time){
+	function playNote(note,track,time,songPos){
 
 		var defaultVolume = 100;
 
@@ -733,6 +741,41 @@ var Tracker = (function(){
 							break;
 						case 3: // set glissando control
 							trackEffectCache[track].glissando = !!subValue;
+							break;
+						case 4: // Set Vibrato Waveform
+							console.warn("Set Vibrato Waveform - not implemented!");
+							break;
+						case 5: // Set Fine Tune
+							console.warn("Set Fine Tune - not implemented");
+							break;
+						case 6: // Pattern Loop
+							if (subValue){
+								patternLoopCount[track] = patternLoopCount[track] || 0;
+								if (patternLoopCount[track]<subValue){
+									patternLoopCount[track]++;
+									result.patternBreak = true;
+									result.positionBreak = true;
+									result.targetSongPosition = songPos.position; // keep on same position
+									result.targetPatternPosition = patternLoopStart[track] || 0; // should we default to 0 if no start was set or just ignore?
+
+									console.log("looping to " + result.targetPatternPosition + " for "  + patternLoopCount[track] + "/" + subValue);
+								}else{
+									patternLoopCount[track] = 0;
+								}
+							}else{
+								console.log("setting loop start to " + songPos.step + " on track " + track);
+								patternLoopStart[track] = songPos.step;
+							}
+							break;
+						case 7: // Set Tremolo WaveForm
+							console.warn("Set Tremolo WaveForm - not implemented");
+							break;
+						case 8: // Set Panning - is this used ?
+							console.warn("Set Panning - not implemented");
+							break;
+						case 9: // Retrigger Note
+							console.warn("Retrigger Note - not implemented");
+							break;
 						case 10: // Fine volume slide up
 							subValue = subValue * 100/64;
 							trackEffects.fade = {
@@ -749,6 +792,9 @@ var Tracker = (function(){
 								fine: true
 							};
 							break;
+						case 12: // Cut Note
+							console.warn("Cut Note");
+							break;
 						case 13: // Delay Sample start
 							if (subValue){
 								if (subValue<ticksPerStep){
@@ -758,8 +804,13 @@ var Tracker = (function(){
 								}
 							}
 							break;
+						case 14: // Pattern Delay
+							console.warn("Pattern delay - not implemented");
+							break;
+						case 15: // Invert Loop
+							// Don't think is used somewhere - ignore
+							break;
 						default:
-							// TODO: implement
 							console.warn("Subeffect " + subEffect + " not implemented");
 					}
 				break;
