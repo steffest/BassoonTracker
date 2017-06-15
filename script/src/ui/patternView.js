@@ -44,7 +44,7 @@ UI.PatternView = function(x,y,w,h){
     }
 
     var trackVULevel = [];
-    var trackVULevelDecay = 5;
+    var trackVULevelDecay = 10;
     var trackVULevelMax = 70;
 
     me.toggleFxPanel = function(track){
@@ -128,6 +128,7 @@ UI.PatternView = function(x,y,w,h){
             }
 
             var isTrackVisible = [];
+            var hasVU = false;
 
             for (var i = 0; i<Tracker.getTrackCount();i++){
 
@@ -211,7 +212,7 @@ UI.PatternView = function(x,y,w,h){
                             drawText(ti,patternNumberLeft,y,color);
                         }
 
-                        var hasVU = false;
+
                         for (var j = 0; j<Tracker.getTrackCount();j++){
 
                             if (isTrackVisible[j]){
@@ -234,7 +235,7 @@ UI.PatternView = function(x,y,w,h){
                                     drawText(noteString,x,y);
                                     drawText(noteString,x,y);
 
-                                    if (Tracker.isPlaying() || trackVULevel[j]){
+                                    if (SETTINGS.vubars && Tracker.isPlaying() || trackVULevel[j]){
                                         // draw VU of center note
                                         if (Tracker.isPlaying() && note && note.period){
                                             var vu = 100;
@@ -252,9 +253,6 @@ UI.PatternView = function(x,y,w,h){
                                             var vuHeight = trackVULevel[j] * trackVULevelMax / 100;
 
                                             var bar = Y.getImage("vubar");
-
-                                            //me.ctx.fillStyle = "yellow";
-                                            //me.ctx.fillRect(x-12,centerLineTop-vuHeight,10,vuHeight);
 
                                             var sHeight = vuHeight * 100 / trackVULevelMax;
 

@@ -63,11 +63,6 @@ var PLAYTYPE = {
 	pattern:2
 };
 
-var PLAYBACKENGINE = {
-	FULL: 1,
-	SIMPLE: 2 // usefull for mobile phones and slow PC's
-};
-
 var STEREOSEPARATION = {
 	FULL: 1,
 	BALANCED: 2,
@@ -289,6 +284,6 @@ var SETTINGS = {
 	sustainKeyboardNotes: false,
 	useHover:true,
 	keyboardTable: "qwerty",
-	playBackEngine: PLAYBACKENGINE.SIMPLE,
+	vubars: true,
 	stereoSeparation: STEREOSEPARATION.BALANCED
 };

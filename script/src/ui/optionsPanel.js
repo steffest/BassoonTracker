@@ -51,22 +51,20 @@ UI.OptionsPanel = function(){
 			}
 		},
 		{
-			label: "Playback Engine:",
-			values: ["REALTIME", "LOOK AHEAD"],
+			label: "VU bars:",
+			values: ["NONE", "COLOURS"],
 			setValue: function (index) {
 				console.error("set option " + index);
 				if (index == 0){
-					Tracker.playBackEngine = PLAYBACKENGINE.FULL;
+					SETTINGS.vubars = false;
 				}else{
-					Tracker.playBackEngine = PLAYBACKENGINE.SIMPLE;
+					SETTINGS.vubars = true;
 				}
-				SETTINGS.playBackEngine = Tracker.playBackEngine;
 				Settings.saveSettings();
-				if (Tracker.isPlaying()) Tracker.stop();
 			},
 			getValue: function () {
 				var result = 0;
-				if (Tracker.playBackEngine == PLAYBACKENGINE.SIMPLE) result = 1;
+				if (SETTINGS.vubars) result = 1;
 				return result;
 			}
 		},

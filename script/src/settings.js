@@ -21,9 +21,6 @@ var Settings = (function(){
 			}
 		}
 
-		if (SETTINGS.playBackEngine && SETTINGS.playBackEngine<3){
-			Tracker.playBackEngine = SETTINGS.playBackEngine;
-		}
 		if (SETTINGS.stereoSeparation){
 			Audio.setStereoSeparation(SETTINGS.stereoSeparation);
 		}
@@ -32,7 +29,7 @@ var Settings = (function(){
 
 	me.saveSettings = function(){
 		var settings = {
-			playBackEngine: SETTINGS.playBackEngine,
+			vubars: SETTINGS.vubars,
 			keyboardTable: SETTINGS.keyboardTable,
 			stereoSeparation: SETTINGS.stereoSeparation
 		};
@@ -47,7 +44,7 @@ var Settings = (function(){
 
 	function setDefaults(){
 		SETTINGS.keyboardTable = "qwerty";
-		SETTINGS.playBackEngine = PLAYBACKENGINE.SIMPLE;
+		SETTINGS.vubars = true;
 		SETTINGS.stereoSeparation =  STEREOSEPARATION.BALANCED;
 	}
 

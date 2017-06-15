@@ -17,7 +17,6 @@ UI.InfoPanel = function(){
         if (context){
             if (typeof context.status != "undefined") status = context.status;
             if (typeof context.info != "undefined"){
-                console.error("set info");
                 text = context.info;
                 source = context.source;
                 moreInfoUrl = context.url;

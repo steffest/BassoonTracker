@@ -77,7 +77,6 @@ var Input = (function(){
 				y -= rect.top;
 
 				currentEventTarget = UI.getModalElement() ||  UI.getEventElement(x,y);
-				console.error("final target:",currentEventTarget);
 
 				var thisTouch = {
 					id: id,

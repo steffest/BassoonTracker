@@ -57,8 +57,6 @@ var Tracker = (function(){
 
 	console.log("ticktime: " + tickTime);
 
-	me.playBackEngine = PLAYBACKENGINE.SIMPLE;
-
 	me.setCurrentSampleIndex = function(index){
 		currentSampleIndex = index;
 		if (prevSampleIndex!=currentSampleIndex) EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
@@ -147,7 +145,7 @@ var Tracker = (function(){
 			if (song.patternTable) me.setCurrentPattern(song.patternTable[currentSongPosition]);
 			prevSongPosition = currentSongPosition;
 
-			if (fromUserInteraction && me.isPlaying() && me.playBackEngine == PLAYBACKENGINE.SIMPLE){
+			if (fromUserInteraction && me.isPlaying()){
 				me.stop();
 				me.togglePlay();
 			}
@@ -218,11 +216,6 @@ var Tracker = (function(){
 		EventBus.trigger(EVENT.playingChange,isPlaying);
 	};
 
-	me.playSimple = function(){
-		me.playBackEngine = PLAYBACKENGINE.SIMPLE;
-		me.playSong();
-	};
-
 	me.stop = function(){
 		if (clock) clock.stop();
 		Audio.disable();
@@ -285,85 +278,56 @@ var Tracker = (function(){
 		var thisPatternLength = currentPatternData.length;
 		var stepResult;
 
-		if (me.playBackEngine == PLAYBACKENGINE.FULL){
-			mainTimer = clock.setTimeout(function(event) {
-				if (tickCounter == 0){
-					var p = currentPatternPos;
-					stepResult = playPatternStep(p,event.deadline);
-					p++;
+		// look-ahead playback - far less demanding, works OK on mobile devices
+		var p =  0;
+		var time = Audio.context.currentTime + 0.01;
 
-					if (p>=thisPatternLength || stepResult.patternBreak){
-						p=0;
-						if (Tracker.getPlayType() == PLAYTYPE.song){
-							var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : currentSongPosition+1;
-							if (nextPosition>=song.length) nextPosition = 0;
-							me.setCurrentSongPosition(nextPosition);
-						}
+		// start with a small delay then make it longer
+		// this is because Chrome on Android doesn't start playing until the first batch of scheduling is done?
+
+		var delay = 0.1;
+		var playingDelay = 1;
+
+		var playPatternData = currentPatternData;
+		var playSongPosition = currentSongPosition;
+		trackerStates = [];
+
+		mainTimer = clock.setTimeout(function(event) {
+
+			if (p>1){
+				delay = playingDelay;
+				mainTimer.repeat(delay);
+			}
+
+			var maxTime = event.deadline + delay;
+
+			while (time<maxTime){
+
+				me.setStateAtTime(time,{patternPos: p, songPos: playSongPosition});
+
+				var stepResult = playPatternStep(p,time,playPatternData);
+				time += ticksPerStep * tickTime;
+				p++;
+
+				if (p>=thisPatternLength || stepResult.patternBreak){
+					p=0;
+					if (Tracker.getPlayType() == PLAYTYPE.song){
+						var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : ++playSongPosition;
+						if (nextPosition>=song.length) nextPosition = 0;
+						playSongPosition = nextPosition;
+						var patternIndex = song.patternTable[playSongPosition];
+						playPatternData = song.patterns[patternIndex];
+						//me.setCurrentSongPosition(nextPosition);
+						// set currentSongPosition in Audio data;
 
 						if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
-					}
-					Tracker.setCurrentPatternPos(p);
-				}
-				processPatterTick();
 
-				tickCounter++;
-
-				if (tickCounter>=ticksPerStep) tickCounter=0;
-			},0.01).repeat(tickTime).tolerance({early: 0.01})
-		}else{
-
-			// look-ahead playback - far less demanding, works OK on mobile devices
-			var p =  0;
-			var time = Audio.context.currentTime + 0.01;
-
-			// start with a small delay then make it longer
-			// this is because Chrome on Android doesn't start playing until the first batch of scheduling is done?
-
-			var delay = 0.1;
-			var playingDelay = 1;
-
-			var playPatternData = currentPatternData;
-			var playSongPosition = currentSongPosition;
-			trackerStates = [];
-
-			mainTimer = clock.setTimeout(function(event) {
-
-				if (p>1){
-					delay = playingDelay;
-					mainTimer.repeat(delay);
-				}
-
-				var maxTime = event.deadline + delay;
-
-				while (time<maxTime){
-
-					me.setStateAtTime(time,{patternPos: p, songPos: playSongPosition});
-
-					var stepResult = playPatternStep(p,time,playPatternData);
-					time += ticksPerStep * tickTime;
-					p++;
-
-					if (p>=thisPatternLength || stepResult.patternBreak){
-						p=0;
-						if (Tracker.getPlayType() == PLAYTYPE.song){
-							var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : ++playSongPosition;
-							if (nextPosition>=song.length) nextPosition = 0;
-							playSongPosition = nextPosition;
-							var patternIndex = song.patternTable[playSongPosition];
-							playPatternData = song.patterns[patternIndex];
-							//me.setCurrentSongPosition(nextPosition);
-							// set currentSongPosition in Audio data;
-
-							if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
-
-						}
 					}
 				}
+			}
 
 
-			},0.01).repeat(delay).tolerance({early: 0.1});
-		}
-
+		},0.01).repeat(delay).tolerance({early: 0.1});
 
 	}
 
@@ -400,133 +364,6 @@ var Tracker = (function(){
 	}
 
 	me.playPatternStep = playPatternStep;
-
-	function processPatterTick(){
-
-		for (var track = 0; track<trackCount; track++){
-			var note = trackNotes[track];
-			if (note){
-				var effects = note.effects;
-				var period;
-				if (effects && Object.keys(effects).length){
-
-					if (effects.fade){
-						var volume = 0;
-						if (tickCounter==0 && effects.fade.resetOnStep){
-							volume = note.startVolume;
-						}else{
-							if (note.volume) {
-								volume = (note.volume.gain.value*100) + effects.fade.value;
-								if (volume<0) volume=0;
-								if (volume>100) volume=100;
-							}
-						}
-
-						if (trackNotes[track].volume) trackNotes[track].volume.gain.value = volume/100;
-						trackNotes[track].currentVolume = volume;
-
-					}
-					if (effects.slide){
-						if (tickCounter>0){
-							//period slide
-							period = note.currentPeriod || note.startPeriod;
-
-							if (effects.slide.target){
-								var value = Math.abs(effects.slide.value);
-								if (period<effects.slide.target){
-									period += value;
-									if (period>effects.slide.target) period = effects.slide.target;
-								}else{
-									period -= value;
-									if (period<effects.slide.target) period = effects.slide.target;
-								}
-							}else{
-								period += (effects.slide.value);
-							}
-
-							trackNotes[track].currentPeriod = period;
-							if (trackNotes[track].source){
-								var rate = (note.startPeriod / period);
-								//trackNotes[i].source.playbackRate.value = rate;
-
-								// note: on safari the playbackrate of the buffer is already != 1 because the samplerate is fixed to the samplerate of the audio context
-
-								trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
-
-							}
-
-						}
-					}
-
-					if (effects.vibrato){
-						var freq = effects.vibrato.freq;
-						var amp = effects.vibrato.amplitude;
-
-						trackNotes[track].vibratoTimer = trackNotes[track].vibratoTimer||0;
-
-						var periodChange = Math.sin(trackNotes[track].vibratoTimer * freq) * amp;
-
-						var period = note.currentPeriod || note.startPeriod;
-						period += periodChange;
-
-						if (trackNotes[track].source){
-							var rate = (note.startPeriod / period);
-							trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
-						}
-						trackNotes[track].vibratoTimer++;
-
-					}
-
-					if (effects.tremolo){
-						var freq = effects.tremolo.freq;
-						var amp = effects.tremolo.amplitude;
-
-						trackNotes[track].tremoloTimer = trackNotes[track].tremoloTimer||0;
-
-						var volumeChange = Math.sin(trackNotes[track].tremoloTimer * freq) * amp;
-
-						var _volume = note.startVolume;
-						_volume += volumeChange;
-						if (_volume<0) _volume=0;
-						if (_volume>100) _volume=100;
-
-						if (trackNotes[track].volume) trackNotes[track].volume.gain.value = _volume/100;
-						trackNotes[track].currentVolume = _volume;
-
-						trackNotes[track].tremoloTimer++;
-
-					}
-
-					if (effects.arpeggio){
-						var step = tickCounter % 3;
-
-						period = note.currentPeriod || note.startPeriod;
-						if (step==1 && effects.arpeggio.interval1) period -= effects.arpeggio.interval1;
-						if (step==2 && effects.arpeggio.interval2) period -= effects.arpeggio.interval2;
-
-
-						if (trackNotes[track].source){
-							var rate = (note.startPeriod / period);
-							trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
-							trackNotes[track].hasArpeggio = true;
-						}
-
-					}
-				}else{
-					// reset arpeggio if present
-					if (trackNotes[track].hasArpeggio){
-						period = note.currentPeriod || note.startPeriod;
-						var rate = (note.startPeriod / period);
-						if (rate && trackNotes[track].source) trackNotes[track].source.playbackRate.value = trackNotes[track].startPlaybackRate * rate;
-						trackNotes[track].hasArpeggio = false;
-					}
-
-
-				}
-			}
-		}
-	}
-
 
 	function playNote(note,track,time){
 
@@ -940,23 +777,6 @@ var Tracker = (function(){
 			}
 
 			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time);
-		}else{
-			if (trackEffects && me.playBackEngine == PLAYBACKENGINE.FULL){
-				if (trackNotes[track].source){
-					// effect on currently playing sample
-					if (trackEffects.volume){
-						volume = trackEffects.volume.value;
-						//var sample = Tracker.getSample(trackNotes[track].sampleIndex);
-						//if (sample){
-						//	volume = volume * (sample.volume/64);
-							trackNotes[track].startVolume = volume;
-							trackNotes[track].volume.gain.value = volume/100;
-						//}
-
-					}
-				}
-			}
-
 		}
 
 		if (note.sample || sampleIndex) {
@@ -969,8 +789,6 @@ var Tracker = (function(){
 	}
 
 	function applyEffects(track,time){
-
-		if (me.playBackEngine != PLAYBACKENGINE.SIMPLE) return;
 
 		var trackNote = trackNotes[track];
 		var effects = trackNote.effects;
@@ -1152,8 +970,6 @@ var Tracker = (function(){
 	}
 
 	me.renderTrackToBuffer = function(){
-		me.playBackEngine = PLAYBACKENGINE.SIMPLE;
-
 		var step = 0;
 		var patternStep = 0;
 		var thisPatternLength = 64;

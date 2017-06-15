@@ -138,14 +138,10 @@ var UI = (function(){
 		}
 	};
 
-	var render = function(){
+	var render = function(time){
 		var doRender = true;
 
-		// if Tracker is playing in audio lookahead mode (PlaybackEngine.simple)
-		// set the currect Tracker position to whatever the audio is playing
-		// Audio First!
-
-		if (Tracker.isPlaying() && Tracker.playBackEngine == PLAYBACKENGINE.SIMPLE){
+		if (Tracker.isPlaying()){
 			var state = Tracker.getStateAtTime(Audio.context.currentTime);
 			if (state){
 				if (state.patternPos != UICache.patternPos){
