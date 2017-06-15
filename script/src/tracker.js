@@ -55,7 +55,7 @@ var Tracker = (function(){
 		trackEffectCache.push({});
 	}
 
-	console.error("ticktime: " + tickTime);
+	console.log("ticktime: " + tickTime);
 
 	me.playBackEngine = PLAYBACKENGINE.SIMPLE;
 
@@ -312,7 +312,7 @@ var Tracker = (function(){
 			},0.01).repeat(tickTime).tolerance({early: 0.01})
 		}else{
 
-			// look-ahead playback - for less demanding, works OK on mobile devices
+			// look-ahead playback - far less demanding, works OK on mobile devices
 			var p =  0;
 			var time = Audio.context.currentTime + 0.01;
 
@@ -927,9 +927,13 @@ var Tracker = (function(){
 
 		if (doPlayNote && sampleIndex && notePeriod){
 			// cut off previous note on the same track;
+			// ramp to 0 volume to avoid clicks
 			try{
 				if (trackNotes[track].source) {
-					trackNotes[track].source.stop(time);
+					var gain = trackNotes[track].volume.gain;
+					gain.setValueAtTime(gain.value,time-0.002);
+					gain.linearRampToValueAtTime(0,time);
+					trackNotes[track].source.stop(time+0.1);
 				}
 			}catch (e){
 
