@@ -113,7 +113,6 @@ var Tracker = (function(){
 		me.setCurrentPatternPos(newPos);
 	};
 
-
 	me.setCurrentCursorPosition = function(index){
 		currentCursorPosition = index;
 		currentTrack = Math.floor(currentCursorPosition / 6);
@@ -188,7 +187,6 @@ var Tracker = (function(){
 
 		EventBus.trigger(EVENT.songPropertyChange,song);
 		EventBus.trigger(EVENT.patternTableChange);
-
 
 	};
 
@@ -280,7 +278,7 @@ var Tracker = (function(){
 
 		currentPatternData = song.patterns[patternIndex];
 		var thisPatternLength = currentPatternData.length;
-		var stepResult;
+		var stepResult = {};
 
 		// look-ahead playback - far less demanding, works OK on mobile devices
 		var p =  0;
@@ -309,28 +307,42 @@ var Tracker = (function(){
 
 				me.setStateAtTime(time,{patternPos: p, songPos: playSongPosition});
 
-				var stepResult = playPatternStep(p,time,playPatternData,playSongPosition);
-				time += ticksPerStep * tickTime;
-				p++;
+				if (stepResult.patternDelay){
+					// the E14 effect is used: delay Pattern but keep processing effects
+					stepResult.patternDelay--;
 
-				if (p>=thisPatternLength || stepResult.patternBreak){
-					if (!(stepResult.positionBreak && stepResult.targetSongPosition == playSongPosition)){
-						//We're not in a pattern loop
-						patternLoopStart = [];
-						patternLoopCount = [];
+					for (i = 0; i<trackCount; i++){
+						applyEffects(i,time)
 					}
-					p=0;
-					if (Tracker.getPlayType() == PLAYTYPE.song){
-						var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : ++playSongPosition;
-						if (nextPosition>=song.length) nextPosition = 0;
-						playSongPosition = nextPosition;
-						patternIndex = song.patternTable[playSongPosition];
-						playPatternData = song.patterns[patternIndex];
-						if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
-					}else{
-						if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
+
+					time += ticksPerStep * tickTime;
+				}else{
+					stepResult = playPatternStep(p,time,playPatternData,playSongPosition);
+					time += ticksPerStep * tickTime;
+					p++;
+
+					if (p>=thisPatternLength || stepResult.patternBreak){
+						if (!(stepResult.positionBreak && stepResult.targetSongPosition == playSongPosition)){
+							//We're not in a pattern loop
+							patternLoopStart = [];
+							patternLoopCount = [];
+						}
+						p=0;
+						if (Tracker.getPlayType() == PLAYTYPE.song){
+							var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : ++playSongPosition;
+							if (nextPosition>=song.length) nextPosition = 0;
+							playSongPosition = nextPosition;
+							patternIndex = song.patternTable[playSongPosition];
+							playPatternData = song.patterns[patternIndex];
+							if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
+						}else{
+							if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
+						}
 					}
 				}
+
+
+
 			}
 
 
@@ -361,6 +373,7 @@ var Tracker = (function(){
 				result.targetPatternPosition = r.targetPatternPosition || 0;
 				result.targetSongPosition = r.targetSongPosition || 0;
 			}
+			if (r.patternDelay) result.patternDelay = r.patternDelay;
 		}
 
 		for (i = 0; i<tracks; i++){
@@ -836,7 +849,7 @@ var Tracker = (function(){
 							}
 							break;
 						case 14: // Pattern Delay
-							console.warn("Pattern delay - not implemented");
+							result.patternDelay = subValue;
 							break;
 						case 15: // Invert Loop
 							// Don't think is used somewhere - ignore
