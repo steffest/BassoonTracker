@@ -818,7 +818,11 @@ var Tracker = (function(){
 							console.warn("Set Panning - not implemented");
 							break;
 						case 9: // Retrigger Note
-							console.warn("Retrigger Note - not implemented");
+							if (subValue){
+								trackEffects.reTrigger = {
+									value: subValue
+								}
+							}
 							break;
 						case 10: // Fine volume slide up
 							subValue = subValue * 100/64;
@@ -837,7 +841,15 @@ var Tracker = (function(){
 							};
 							break;
 						case 12: // Cut Note
-							console.warn("Cut Note");
+							if (subValue){
+								if (subValue<ticksPerStep){
+									trackEffects.cutNote = {
+										value: subValue
+									}
+								}
+							}else{
+								doPlayNote = false;
+							}
 							break;
 						case 13: // Delay Sample start
 							if (subValue){
@@ -871,19 +883,7 @@ var Tracker = (function(){
 
 		if (doPlayNote && sampleIndex && notePeriod){
 			// cut off previous note on the same track;
-			// ramp to 0 volume to avoid clicks
-			try{
-				if (trackNotes[track].source) {
-					var gain = trackNotes[track].volume.gain;
-					gain.setValueAtTime(trackNotes[track].currentVolume/100,time-0.002);
-					gain.linearRampToValueAtTime(0,time);
-					trackNotes[track].source.stop(time+0.02);
-					//trackNotes[track].source.stop(time);
-				}
-			}catch (e){
-
-			}
-
+			cutNote(track,time);
 			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time);
 		}
 
@@ -894,6 +894,21 @@ var Tracker = (function(){
 		trackNotes[track].note = note;
 
 		return result;
+	}
+
+	function cutNote(track,time){
+		// ramp to 0 volume to avoid clicks
+		try{
+			if (trackNotes[track].source) {
+				var gain = trackNotes[track].volume.gain;
+				gain.setValueAtTime(trackNotes[track].currentVolume/100,time-0.002);
+				gain.linearRampToValueAtTime(0,time);
+				trackNotes[track].source.stop(time+0.02);
+				//trackNotes[track].source.stop(time);
+			}
+		}catch (e){
+
+		}
 	}
 
 	function applyEffects(track,time){
@@ -1072,6 +1087,24 @@ var Tracker = (function(){
 
 		}
 
+		if (effects.cutNote){
+			trackNote.volume.gain.setValueAtTime(0,time + (effects.cutNote.value*tickTime));
+			trackNote.currentVolume = 0;
+		}
+
+		if (effects.reTrigger){
+			var sampleIndex = trackNote.sampleIndex;
+			var notePeriod = trackNote.startPeriod;
+			volume = trackNote.startVolume;
+
+			var triggerStep = effects.reTrigger.value || 1;
+			while (triggerStep<ticksPerStep){
+				var triggerTime = time + (triggerStep * tickTime);
+				cutNote(track,triggerTime);
+				trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,effects,triggerTime);
+				triggerStep += triggerStep;
+			}
+		}
 
 	}
 

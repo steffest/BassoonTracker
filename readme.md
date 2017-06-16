@@ -16,7 +16,7 @@ it works best in Chrome.
 
 ![Bassoon Tracker](./skin/screenshot2.png?raw=true)
 
-Features  
+Features
 - load, play, edit and save Protracker compatible module files  
 - most audio effects are supported (99% accurate, in case of historical differences in playback engines, I tend to follow the protracker 2.X one)
   - Portamento / Frequency slides (Effect 1, 2, 3, 5, E1 and E2)
@@ -29,8 +29,9 @@ Features
   - Pattern breaks and loops (effect D and E6)
   - Speed settings (Effect F)
   - Glissando (Effect E3)
-  - Sample delay (Effect E13)
-- next to the protracker effects, there are per-channel effects for low, mid, high frequency, panning and reverb control  
+  - Sample Delay, Cut and Retrigger (Effect E13, E12 and E9)
+  - Pattern delay (Effect E14)
+- next to the Protracker effects, there are per-channel effects for low, mid, high frequency, panning and reverb control
 - mute/solo tracks  
 - edit pattern data and sample properties  
 - import 8bit WAV, 8SVX and RAW samples (as well as any other format AudioContext can read, like .mp3 and .ogg) 
@@ -40,7 +41,7 @@ Features
 
 Missing features and bugs (no, it doesn't play 'Black Queen' 100% accurately :-) )
  - export to wav is currently limited to the current pattern (due to memory issues)
- - Some "Extended" effects are not implemented yet and probably wont as they are very rarely used: E4,E5,E7,E9,E12,E14
+ - Some "Extended" effects are not implemented yet: E4,E5,E7
  - The sample editor needs fleshing out.
  - no undo/redo functionality yet
  - no range select/copy/paste functionality yet
