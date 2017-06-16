@@ -674,22 +674,29 @@ var Tracker = (function(){
 				break;
 			case 9:
 				// Set sample offset
+
+				value =  value << 8 ;
+				if (!value && trackEffectCache[track].offset){
+					value = trackEffectCache[track].offset.value || 0;
+				}
+
 				trackEffects.offset = {
-					value: value << 8
+					value: value
 				};
+				trackEffectCache[track].offset = trackEffects.offset;
 
 				if (note.sample){
 					trackEffects.volume = {
 						value: defaultVolume
 					};
 				}
-				// quirk in Protracker 1 and 2?
+				// quirk in Protracker 1 and 2 ?
 				// if NO NOTE is given but a sample number is present,
-				// the offset is remembered for the next note WITHOUT sample number
-				// but only when the derived sample number is the same as the offset
+				// then the offset is remembered for the next note WITHOUT sample number
+				// but only when the derived sample number is the same as the offset sample number
+				// see "professional tracker" mod for example
 				if (SETTINGS.emulateProtracker1OffsetBug &&  note.sample && !note.period){
 					console.log("set offset cache for sample " + note.sample);
-					trackEffectCache[track].offset = trackEffects.offset;
 					trackEffectCache[track].offset.sample = note.sample;
 				}
 
@@ -1013,7 +1020,6 @@ var Tracker = (function(){
 
 			trackNote.vibratoTimer = trackNote.vibratoTimer||0;
 
-
 			if (trackNote.source) {
 				trackNote.resetPeriodOnStep = true;
 				currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
@@ -1027,7 +1033,6 @@ var Tracker = (function(){
 					trackNote.vibratoTimer++;
 				}
 			}
-
 		}
 
 		if (effects.tremolo){
