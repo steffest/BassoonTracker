@@ -23,14 +23,13 @@ Features
   - Vibrato (Effect 4 and 6)
   - Tremolo (Effect 7)
   - Arpeggio (Effect 0)
+  - Glissando (Effect E3)
   - Sample offsets (Effect 9)
   - Volume slides and settings (effect A, C, E10 and E11)
   - Position jumps (effect B)
-  - Pattern breaks and loops (effect D and E6)
-  - Speed settings (Effect F)
-  - Glissando (Effect E3)
-  - Sample Delay, Cut and Retrigger (Effect E13, E12 and E9)
-  - Pattern delay (Effect E14)
+  - Pattern breaks, loops and delays (effect D, E6 and E14)
+  - Speed settings (Effect F))
+  - Sample Delay, Cut, Retrigger and Finetune (Effect E13, E12, E9 and E5)
 - next to the Protracker effects, there are per-channel effects for low, mid, high frequency, panning and reverb control
 - mute/solo tracks  
 - edit pattern data and sample properties  
@@ -41,7 +40,7 @@ Features
 
 Missing features and bugs (no, it doesn't play 'Black Queen' 100% accurately :-) )
  - export to wav is currently limited to the current pattern (due to memory issues)
- - Some "Extended" effects are not implemented yet: E4,E5,E7
+ - 2 "Extended" effects are not implemented yet: E4 (Set vibrato waveform) and E7 (Set tremolo waveform)
  - The sample editor needs fleshing out.
  - no undo/redo functionality yet
  - no range select/copy/paste functionality yet

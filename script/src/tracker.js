@@ -391,6 +391,7 @@ var Tracker = (function(){
 		var defaultVolume = 100;
 		var trackEffects = {};
 
+
 		var sampleIndex = note.sample;
 
 		if (note.period && !note.sample){
@@ -790,7 +791,15 @@ var Tracker = (function(){
 							console.warn("Set Vibrato Waveform - not implemented!");
 							break;
 						case 5: // Set Fine Tune
-							console.warn("Set Fine Tune - not implemented");
+							if (sampleIndex){
+								var sample = me.getSample(sampleIndex);
+								trackEffects.fineTune = {
+									original: sample.finetune,
+									sample: sample
+								};
+								sample.finetune = subValue;
+								if (subValue>7) sample.finetune = subValue-15;
+							}
 							break;
 						case 6: // Pattern Loop
 							if (subValue){
@@ -887,8 +896,16 @@ var Tracker = (function(){
 			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time);
 		}
 
+
+
 		if (note.sample || sampleIndex) {
 			trackNotes[track].currentSample = note.sample || sampleIndex;
+
+			// reset temporary sample settings
+			if (trackEffects.fineTune && trackEffects.fineTune.sample){
+				trackEffects.fineTune.sample.finetune = trackEffects.fineTune.original || 0;
+			}
+
 		}
 		trackNotes[track].effects = trackEffects;
 		trackNotes[track].note = note;
