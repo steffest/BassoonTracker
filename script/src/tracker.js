@@ -25,6 +25,9 @@ var Tracker = (function(){
 	var currentSongPosition = 0;
 	var prevSongPosition = 0;
 
+	var vibratoFunction;
+	var tremoloFunction;
+
 	var bpm = 125; // bmp
 	var ticksPerStep = 6;
 	var tickTime = 2.5/bpm;
@@ -818,7 +821,16 @@ var Tracker = (function(){
 							trackEffectCache[track].glissando = !!subValue;
 							break;
 						case 4: // Set Vibrato Waveform
-							console.warn("Set Vibrato Waveform - not implemented!");
+							switch(subValue){
+								case 1: vibratoFunction = Audio.waveFormFunction.saw; break;
+								case 2: vibratoFunction = Audio.waveFormFunction.square; break;
+								case 3: vibratoFunction = Audio.waveFormFunction.sine; break; // random
+								case 4: vibratoFunction = Audio.waveFormFunction.sine; break; // no retrigger
+								case 5: vibratoFunction = Audio.waveFormFunction.saw; break; // no retrigger
+								case 6: vibratoFunction = Audio.waveFormFunction.square; break; // no retrigger
+								case 7: vibratoFunction = Audio.waveFormFunction.sine; break; // random, no retrigger
+								default: vibratoFunction = Audio.waveFormFunction.sine; break;
+							}
 							break;
 						case 5: // Set Fine Tune
 							if (sampleIndex){
@@ -852,6 +864,17 @@ var Tracker = (function(){
 							break;
 						case 7: // Set Tremolo WaveForm
 							console.warn("Set Tremolo WaveForm - not implemented");
+							switch(subValue){
+								case 1: tremoloFunction = Audio.waveFormFunction.saw; break;
+								case 2: tremoloFunction = Audio.waveFormFunction.square; break;
+								case 3: tremoloFunction = Audio.waveFormFunction.sine; break; // random
+								case 4: tremoloFunction = Audio.waveFormFunction.sine; break; // no retrigger
+								case 5: tremoloFunction = Audio.waveFormFunction.saw; break; // no retrigger
+								case 6: tremoloFunction = Audio.waveFormFunction.square; break; // no retrigger
+								case 7: tremoloFunction = Audio.waveFormFunction.sine; break; // random, no retrigger
+								default: tremoloFunction = Audio.waveFormFunction.sine; break;
+							}
+							break;
 							break;
 						case 8: // Set Panning - is this used ?
 							console.warn("Set Panning - not implemented");
@@ -1100,9 +1123,8 @@ var Tracker = (function(){
 				currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
 
 				for (var tick = 0; tick < ticksPerStep; tick++) {
-					var periodChange = Math.sin(trackNote.vibratoTimer * freq) * amp;
 
-					targetPeriod = currentPeriod + periodChange;
+					targetPeriod = vibratoFunction(currentPeriod,trackNote.vibratoTimer,freq,amp);
 					var rate = (trackNote.startPeriod / targetPeriod);
 					trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime));
 					trackNote.vibratoTimer++;
@@ -1121,8 +1143,8 @@ var Tracker = (function(){
 
 				for (var tick = 0; tick < ticksPerStep; tick++) {
 
-					var volumeChange = Math.sin(trackNote.tremoloTimer * freq) * amp;
-					_volume += volumeChange;
+					_volume = tremoloFunction(_volume,trackNote.tremoloTimer,freq,amp);
+
 					if (_volume<0) _volume=0;
 					if (_volume>100) _volume=100;
 
@@ -1704,6 +1726,10 @@ var Tracker = (function(){
 	function resetDefaultSettings(){
 		me.setAmigaSpeed(6);
 		me.setBPM(125);
+
+		vibratoFunction = Audio.waveFormFunction.sine;
+		tremoloFunction = Audio.waveFormFunction.sine;
+
 		trackEffectCache = [];
 		trackNotes = [];
 		for (var i=0;i<trackCount;i++){
