@@ -39,6 +39,10 @@ Features
 - the [modarchive API](https://modarchive.org/) is integrated to access many thousands of music files
 - export to .wav and .mod
 
+The playback engine has gone through extensive compatibility testing, but as the Protracker code itself is somewhat messy and muddy
+throughout different versions, there's always room for improvement.
+If you find a module that doesn't sound the way it should, let me know!
+
 Missing features and bugs:
  - export to wav is currently limited to the current pattern (due to memory issues)
  - The sample editor needs fleshing out.
