@@ -487,8 +487,8 @@ var Audio = (function(){
         return period;
     };
 
-    me.setLowPassFilter = function(on,time){
-        // note - this is done by ear on a real Amiga 500 - maybe too much effect ?
+    me.setAmigaLowPassFilter = function(on,time){
+        // note: this is determined by ear comparing a real Amiga 500 - maybe too much effect ?
         var value = on ? 2000 : 20000;
         lowPassfilter.frequency.setValueAtTime(value,time);
     };

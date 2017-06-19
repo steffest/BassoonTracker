@@ -18,10 +18,10 @@ it works best in Chrome.
 
 Features
 - load, play, edit and save Protracker compatible module files  
-- most audio effects are supported (99% accurate, in case of historical differences in playback engines, I tend to follow the protracker 2.X one)
+- All Protracker audio effects are supported (99% accurate, in case of historical differences in playback engines, I tend to follow the Protracker 2.X one)
   - Portamento / Frequency slides (Effect 1, 2, 3, 5, E1 and E2)
-  - Vibrato (Effect 4 and 6)
-  - Tremolo (Effect 7)
+  - Vibrato (Effect 4, 6 and E4)
+  - Tremolo (Effect 7 and E7)
   - Arpeggio (Effect 0)
   - Glissando (Effect E3)
   - Sample offsets (Effect 9)
@@ -30,17 +30,17 @@ Features
   - Pattern breaks, loops and delays (effect D, E6 and E14)
   - Speed settings (Effect F))
   - Sample Delay, Cut, Retrigger and Finetune (Effect E13, E12, E9 and E5)
+  - Lowpass/LED filter (effect E0)
 - next to the Protracker effects, there are per-channel effects for low, mid, high frequency, panning and reverb control
 - mute/solo tracks  
 - edit pattern data and sample properties  
 - import 8bit WAV, 8SVX and RAW samples (as well as any other format AudioContext can read, like .mp3 and .ogg) 
-- includes the historic ST-01 and ST-02 sample disks, released in 1987 (as well as a bunch if others)
+- includes the historic ST-01 and ST-02 sample disks, released in 1987 (as well as a bunch of others)
 - the [modarchive API](https://modarchive.org/) is integrated to access many thousands of music files
 - export to .wav and .mod
 
-Missing features and bugs (no, it doesn't play 'Black Queen' 100% accurately :-) )
+Missing features and bugs:
  - export to wav is currently limited to the current pattern (due to memory issues)
- - 2 "Extended" effects are not implemented yet: E4 (Set vibrato waveform) and E7 (Set tremolo waveform)
  - The sample editor needs fleshing out.
  - no undo/redo functionality yet
  - no range select/copy/paste functionality yet

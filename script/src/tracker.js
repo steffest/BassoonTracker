@@ -768,7 +768,7 @@ var Tracker = (function(){
 
 				trackEffects.fade = {
 					value: value,
-					resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, otherwise the volue is remembered from the previous state
+					resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, otherwise the volume is remembered from the previous state
 				};
 
 				break;
@@ -801,7 +801,7 @@ var Tracker = (function(){
 				var subValue = value & 0x0f;
 					switch (subEffect){
 						case 0:
-							Audio.setLowPassFilter(!subValue,time);
+							Audio.setAmigaLowPassFilter(!subValue,time);
 							break;
 						case 1: // Fine slide up
 							subValue = subValue*-1;
@@ -1006,7 +1006,7 @@ var Tracker = (function(){
 		if (effects.volume){
 			var volume = effects.volume.value;
 			if (trackNote.volume){
-				trackNote.startVolume = volume;
+				//trackNote.startVolume = volume; // apparently the startVolume is not set here but the default volume of the note is used?
 				trackNote.volume.gain.setValueAtTime(volume/100,time);
 			}
 			trackNote.currentVolume = volume;
