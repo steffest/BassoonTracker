@@ -800,6 +800,9 @@ var Tracker = (function(){
 				var subEffect = value >> 4;
 				var subValue = value & 0x0f;
 					switch (subEffect){
+						case 0:
+							Audio.setLowPassFilter(!subValue,time);
+							break;
 						case 1: // Fine slide up
 							subValue = subValue*-1;
 							if (!subValue && trackEffectCache[track].fineSlide) subValue = trackEffectCache[track].fineSlide.value;
@@ -863,7 +866,6 @@ var Tracker = (function(){
 							}
 							break;
 						case 7: // Set Tremolo WaveForm
-							console.warn("Set Tremolo WaveForm - not implemented");
 							switch(subValue){
 								case 1: tremoloFunction = Audio.waveFormFunction.saw; break;
 								case 2: tremoloFunction = Audio.waveFormFunction.square; break;

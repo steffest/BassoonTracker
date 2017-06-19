@@ -487,6 +487,12 @@ var Audio = (function(){
         return period;
     };
 
+    me.setLowPassFilter = function(on,time){
+        // note - this is done by ear on a real Amiga 500 - maybe too much effect ?
+        var value = on ? 2000 : 20000;
+        lowPassfilter.frequency.setValueAtTime(value,time);
+    };
+
     me.waveFormFunction = {
         sine: function(period,progress,freq,amp){
             return period + (Math.sin(progress * freq) * amp * 2);
