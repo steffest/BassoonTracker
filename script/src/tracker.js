@@ -689,29 +689,59 @@ var Tracker = (function(){
 			case 9:
 				// Set sample offset
 
+				/* quirk in Protracker 1 and 2 ?
+				 if NO NOTE is given but a sample number is present,
+				 then the offset is remembered for the next note WITHOUT sample number
+				 but only when the derived sample number is the same as the offset sample number
+				 see "professional tracker" mod for example
+
+				 also:
+				 * if no sample number is present: don't reset the offset
+				  -> the effect cache of the previous 9 command of the sample is used
+				 * if a note is present REAPPLY the offset in the effect cache (but don't set start of sample)
+				  -> the effect cache now contains double the offset
+
+				 */
+
 				value =  value << 8 ;
 				if (!value && trackEffectCache[track].offset){
-					value = trackEffectCache[track].offset.value || 0;
+					value = trackEffectCache[track].offset.stepValue || trackEffectCache[track].offset.value || 0;
+				}
+				var stepValue = value;
+
+				if (SETTINGS.emulateProtracker1OffsetBug && !note.sample && trackEffectCache[track].offset){
+					// bug in PT1 and PT2: add to existing offset if no sample number is given
+					value += trackEffectCache[track].offset.value;
 				}
 
 				trackEffects.offset = {
-					value: value
+					value: value,
+					stepValue: stepValue
 				};
-				trackEffectCache[track].offset = trackEffects.offset;
+
+				// note: use a shallow copy as the value propertye might change
+				trackEffectCache[track].offset = Object.assign({},trackEffects.offset);
+
+				if (SETTINGS.emulateProtracker1OffsetBug){
+
+					// quirk in PT1 and PT2: remember sample offset for sample
+					if (note.sample) {
+						console.log("set offset cache for sample " + note.sample);
+						trackEffectCache[track].offset.sample = note.sample;
+					}
+
+					// bug in PT1 and PT2: re-apply sample offset in effect cache
+					if (note.period) {
+						console.log("re-adding offset in effect cache");
+						trackEffectCache[track].offset.value += stepValue;
+					}
+
+				}
 
 				if (note.sample){
 					trackEffects.volume = {
 						value: defaultVolume
 					};
-				}
-				// quirk in Protracker 1 and 2 ?
-				// if NO NOTE is given but a sample number is present,
-				// then the offset is remembered for the next note WITHOUT sample number
-				// but only when the derived sample number is the same as the offset sample number
-				// see "professional tracker" mod for example
-				if (SETTINGS.emulateProtracker1OffsetBug &&  note.sample && !note.period){
-					console.log("set offset cache for sample " + note.sample);
-					trackEffectCache[track].offset.sample = note.sample;
 				}
 
 				break;
