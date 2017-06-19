@@ -413,7 +413,16 @@ var Tracker = (function(){
 
 		if (typeof note.sample == "number"){
 			var sample = me.getSample(note.sample);
-			if (sample) defaultVolume = 100 * (sample.volume/64);
+			if (sample) {
+				defaultVolume = 100 * (sample.volume/64);
+
+				if (SETTINGS.emulateProtracker1OffsetBug){
+					// reset sample offset when a sample number is present;
+					if (trackEffectCache[track].offset && note.period) {
+						trackEffectCache[track].offset.value = 0;
+					}
+				}
+			}
 		}
 
 		var notePeriod = note.period;
@@ -950,7 +959,6 @@ var Tracker = (function(){
 			cutNote(track,time);
 			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time);
 		}
-
 
 
 		if (note.sample || sampleIndex) {

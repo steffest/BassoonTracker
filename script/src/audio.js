@@ -128,7 +128,8 @@ var Audio = (function(){
                 sampleLength = sample.data.length;
                 sampleLoopStart = sample.loopStart;
 
-                if (effects && effects.offset && effects.offset.value<sampleLength){
+                if (effects && effects.offset){
+                    if (effects.offset.value>=sampleLength) effects.offset.value = sampleLength-1;
                     offset = effects.offset.value;
                     sampleLength -= offset;
                     if (sampleLoopStart) sampleLoopStart -= offset;
