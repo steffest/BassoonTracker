@@ -402,7 +402,6 @@ var Tracker = (function(){
 			sampleIndex = trackNotes[track].currentSample;
 			defaultVolume = typeof trackNotes[track].currentVolume == "number" ? trackNotes[track].currentVolume : defaultVolume;
 
-
 			if (SETTINGS.emulateProtracker1OffsetBug && sampleIndex && trackEffectCache[track].offset){
 				if (trackEffectCache[track].offset.sample == sampleIndex){
 					console.log("applying sample offset cache to sample " + sampleIndex);
@@ -418,9 +417,9 @@ var Tracker = (function(){
 
 				if (SETTINGS.emulateProtracker1OffsetBug){
 					// reset sample offset when a sample number is present;
-					if (trackEffectCache[track].offset && note.period) {
-						trackEffectCache[track].offset.value = 0;
-					}
+					trackEffectCache[track].offset = trackEffectCache[track].offset || {};
+					trackEffectCache[track].offset.value = 0;
+					trackEffectCache[track].offset.sample = note.sample;
 				}
 			}
 		}
@@ -731,20 +730,23 @@ var Tracker = (function(){
 					stepValue: stepValue
 				};
 
-				// note: use a shallow copy as the value propertye might change
-				trackEffectCache[track].offset = Object.assign({},trackEffects.offset);
+				// note: keep previous trackEffectCache[track].offset.sample in tact
+				trackEffectCache[track].offset = trackEffectCache[track].offset || {};
+				trackEffectCache[track].offset.value = trackEffects.offset.value;
+				trackEffectCache[track].offset.stepValue = trackEffects.offset.stepValue;
+
 
 				if (SETTINGS.emulateProtracker1OffsetBug){
 
 					// quirk in PT1 and PT2: remember sample offset for sample
 					if (note.sample) {
-						console.log("set offset cache for sample " + note.sample);
+						//console.log("set offset cache for sample " + note.sample);
 						trackEffectCache[track].offset.sample = note.sample;
 					}
 
 					// bug in PT1 and PT2: re-apply sample offset in effect cache
 					if (note.period) {
-						console.log("re-adding offset in effect cache");
+						//console.log("re-adding offset in effect cache");
 						trackEffectCache[track].offset.value += stepValue;
 					}
 
