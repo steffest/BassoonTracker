@@ -1431,6 +1431,7 @@ var Tracker = (function(){
 
 				sample.length = sample.realLen = sampleLength << 1;
 				sample.finetune = file.readUbyte();
+				if (sample.finetune>7) sample.finetune -= 16;
 				sample.volume   = file.readUbyte();
 				sample.loopStart     = file.readWord() << 1;
 				sample.loopRepeatLength   = file.readWord() << 1;

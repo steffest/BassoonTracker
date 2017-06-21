@@ -58,7 +58,7 @@ UI.SampleView = function(){
 		label: "Finetune",
 		value: 0,
 		max: 7,
-		min:-7,
+		min:-8,
 		font: window.fontMed,
 		onChange: function(value){
 			var sample = Tracker.getCurrentSample();
