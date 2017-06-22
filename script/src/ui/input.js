@@ -395,6 +395,8 @@ var Input = (function(){
 			},100);
 		}
 
+		handleResize();
+
 
 	};
 

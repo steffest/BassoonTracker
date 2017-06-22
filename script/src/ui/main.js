@@ -99,10 +99,12 @@ var UI = (function(){
 
 
 			UI.Assets.init();
-			Input.init();
-
 			UI.mainPanel = UI.MainPanel();
 			children.push(UI.mainPanel);
+
+			Input.init();
+
+
 
 			render();
 
@@ -116,6 +118,8 @@ var UI = (function(){
 				initialFile = 'demomods/Tinytune.mod';
 			}
 			Tracker.load(initialFile,true);
+
+
 
 			if (next) next();
 

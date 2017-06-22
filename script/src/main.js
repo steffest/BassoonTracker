@@ -30,8 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
             App.init();
         }
     });
-
-
 });
 
 var Main = (function(){

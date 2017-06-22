@@ -1369,6 +1369,7 @@ var Tracker = (function(){
 			var reader = new FileReader();
 			reader.onload = function(){
 				me.parse(reader.result,file.name);
+				UI.setStatus("Ready");
 			};
 			reader.readAsArrayBuffer(file);
 		}
@@ -1413,6 +1414,7 @@ var Tracker = (function(){
 			var title = file.readString(20,0);
 			console.log("Title: " + title);
 			song.title = title;
+			UI.setInfo(song.title);
 
 			var sampleDataOffset = 0;
 			for (i = 1; i <= 31; ++i) {
