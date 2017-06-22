@@ -1304,11 +1304,6 @@ var Tracker = (function(){
 	};
 
 	me.getStateAtTime = function(time){
-
-		// set time a bit ahead, seems more responsive
-		// DON'T add more then the tickTime otherwise the UI starts skipping steps
-		//time += tickTime;
-
 		var result = undefined;
 		for(var i = 0, len = trackerStates.length; i<len;i++){
 			var state = trackerStates[0];
@@ -1318,6 +1313,7 @@ var Tracker = (function(){
 				return result;
 			}
 		}
+		return result;
 	};
 
 	me.load = function(url,skipHistory){
