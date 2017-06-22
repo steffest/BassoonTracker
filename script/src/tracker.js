@@ -1352,6 +1352,12 @@ var Tracker = (function(){
 					window.history.pushState({},name, filename + "?file=" + encodeURIComponent(url));
 				}
 			}
+
+
+			var autoPlay = getUrlParameter("autoplay");
+			if ((autoPlay == "true")  || (autoPlay == "1")){
+				Tracker.playSong();
+			}
 		})
 	};
 
