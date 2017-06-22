@@ -16,7 +16,7 @@ it works best in Chrome.
 
 ![Bassoon Tracker](./skin/screenshot2.png?raw=true)
 
-Features
+**Features**
 - load, play, edit and save Protracker compatible module files  
 - All Protracker audio effects are supported (99% accurate, in case of historical differences in playback engines, I tend to follow the Protracker 2.X one)
   - Portamento / Frequency slides (Effect 1, 2, 3, 5, E1 and E2)
@@ -42,11 +42,17 @@ Features
 The playback engine has gone through extensive compatibility testing, but as the Protracker code itself is somewhat messy and muddy
 throughout different versions, there's always room for improvement.
 If you find a module that doesn't sound the way it should, let me know!
+There are still some very specific [Protracker 1 and 2 playback quirks](http://www.stef.be/bassoontracker/docs/trackerQuircks.txt) that are not implemented (and probably never will as they are too bat-shit-crazy)
 
-Missing features and bugs:
+**Missing features and bugs:**
  - export to wav is currently limited to the current pattern (due to memory issues)
  - The sample editor needs fleshing out.
  - no undo/redo functionality yet
  - no range select/copy/paste functionality yet
  
 Note: if you use an AZERTY keyboard, you can set that option in the settings to have the correct layout when playing notes on your computer keyboard.
+
+
+**Future plans**
+  - Dropbox integration for loading and saving files
+  - 3SM and XM file support - full FasttrackerII feature set would be nice
