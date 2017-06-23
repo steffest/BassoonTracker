@@ -3,6 +3,7 @@ var ModArchive = (function(){
 	const https = require('https');
 	var config   = require('./config');
 	var parseXml = require('xml2js').parseString;
+	var he = require('he');
 
 	var me = {};
 
@@ -27,7 +28,16 @@ var ModArchive = (function(){
 
 			modArchiveResponse.on('end', function() {
 				parseXml(xml,{explicitArray: false},function(err,result){
-					if (result.modarchive && result.modarchive.sponsor) delete result.modarchive.sponsor;
+					if (result.modarchive){
+						if (result.modarchive.sponsor) delete result.modarchive.sponsor;
+						if (result.modarchive.module && result.modarchive.module.length){
+							result.modarchive.module.forEach(function(mod){
+								if (mod.songtitle){
+									mod.songtitle = he.decode(mod.songtitle);
+								}
+							})
+						}
+					}
 					res.writeHead(200, {'Content-Type': 'application/json'});
 					res.end(JSON.stringify(result));
 				});
