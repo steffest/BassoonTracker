@@ -69,6 +69,7 @@ UI.MainPanel = function(){
 		name: "modName",
 		onChange: function(value){
 			Tracker.getSong().title = value;
+			UI.setInfo(value);
 		}
 	});
 	me.addChild(modNameInputBox);

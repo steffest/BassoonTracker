@@ -64,7 +64,7 @@ var UI = (function(){
 				margin: 1,
 				charsPerLine:26,
 				lineSpacing:1,
-				chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789↑↓-#:.!©_?;()=/+",
+				chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789↑↓-#:.!©_?;()=/+<>&[]{}\\*%$'\"`°,",
 				onlyUpperCase:true
 			});
 			fontMed.generateColor("green","rgba(80, 140, 0,0.9)");

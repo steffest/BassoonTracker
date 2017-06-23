@@ -19,7 +19,7 @@ UI.Assets = (function(){
 			}
 		};
 
-		FetchService.json("skin/spritemap.json",function(data){
+		FetchService.json("skin/spritemap.json?v=" + buildNumber,function(data){
 			spriteMap = data;
 			createSprites();
 		});
