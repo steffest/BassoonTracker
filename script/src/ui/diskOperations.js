@@ -56,6 +56,25 @@ UI.DiskOperations = function(){
 	};
 	me.addChild(modArchiveButton);
 
+	/*var dropBoxButton = UI.Assets.generate("buttonDark");
+	dropBoxButton.setLabel("Dropbox ");
+	dropBoxButton.onClick = function(){
+		if (Dropbox.isConnected){
+			me.refreshList("dropbox");
+		}else{
+			Dropbox.checkConnected(function(isConnected){
+				if (isConnected){
+					me.refreshList("dropbox");
+				}else{
+					console.log("Dropbox not connected");
+					Dropbox.authenticate();
+				}
+			})
+		}
+	};
+	me.addChild(dropBoxButton);
+	*/
+
 	var listbox = UI.listbox();
 	me.addChild(listbox);
 
@@ -98,6 +117,13 @@ UI.DiskOperations = function(){
 			top: startTop,
 			left: UI.mainPanel.col5X - 123
 		});
+
+		/*dropBoxButton.setProperties({
+			width: 120,
+			height: 26,
+			top: startTop,
+			left: UI.mainPanel.col5X - 123 - 123
+		});*/
 		
 		for (i = 0;i<buttonsSideInfo.length;i++){
 			var button = buttonsSide[i];
@@ -247,6 +273,45 @@ UI.DiskOperations = function(){
 
 			}
 
+		}else if (currentView == "dropbox"){
+			itemHandler = Dropbox;
+			label.setLabel("Browse Your Dropbox");
+
+			listbox.setItems([{label: "loading ..."}]);
+
+			listbox.onClick = function(e){
+				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
+				if (item && item.data){
+					var index = item.index;
+					item = itemsMap[index];
+
+					if (item.children){
+						toggleDirectory(item,index);
+					}else{
+						listbox.setSelectedIndex(index);
+						console.log(item);
+
+						UI.setInfo(item.title);
+						UI.setStatus("Loading from Dropbox");
+
+						Dropbox.getFile(item.url,function(blob){
+							var reader = new FileReader();
+							reader.onload = function(){
+								Tracker.parse(reader.result,item.title);
+								UI.setStatus("Ready");
+								UI.mainPanel.setView("main");
+							};
+							reader.readAsArrayBuffer(blob);
+						});
+
+					}
+				}
+			};
+
+			Dropbox.list("",function(data){
+				console.log(data);
+				populate(data,0);
+			});
 
 		}else{
 			itemHandler = false;

@@ -1395,6 +1395,11 @@ var Tracker = (function(){
 			//isMod = true;
 		}
 
+		// might be and 15 instrument mod?
+		// TODO add check and loader.
+		// example: https://modarchive.org/index.php?request=view_by_moduleid&query=35902
+		// more info: ftp://ftp.modland.com/pub/documents/format_documentation/Ultimate%20Soundtracker%20(.mod).txt
+
 		if (isMod){
 
 			if (me.isPlaying()) me.stop();
@@ -1719,6 +1724,8 @@ var Tracker = (function(){
 
 		var fileName = song.title.replace(/ /g, '-').replace(/\W/g, '') + ".mod";
 		saveAs(b,fileName);
+
+		//Dropbox.putFile(fileName,b);
 
 
 	};
