@@ -1379,7 +1379,7 @@ var Tracker = (function(){
 
 		var isMod = false;
 		var file = new BinaryStream(arrayBuffer,true);
-		var result = FileDetector.detect(file);
+		var result = FileDetector.detect(file,name);
 
 		if (result.isMod && result.loader){
 			isMod = true;

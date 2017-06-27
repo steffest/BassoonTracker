@@ -1,4 +1,4 @@
-var ProTracker = function(){
+var SoundTracker = function(){
 	var me = {};
 
 	me.load = function(file,name){
@@ -7,12 +7,13 @@ var ProTracker = function(){
 		};
 
 		var patternLength = 64;
-		var sampleCount = 31;
+		var sampleCount = 15;
 
 
 		//see https://www.aes.id.au/modformat.html
+		// and ftp://ftp.modland.com/pub/documents/format_documentation/Ultimate%20Soundtracker%20(.mod).txt for differences
 
-		song.typeId = file.readString(4,1080);
+		song.typeId = "ST";
 		song.title = file.readString(20,0);
 
 		var sampleDataOffset = 0;
@@ -26,11 +27,14 @@ var ProTracker = function(){
 			};
 
 			sample.length = sample.realLen = sampleLength << 1;
-			sample.finetune = file.readUbyte();
-			if (sample.finetune>7) sample.finetune -= 16;
-			sample.volume   = file.readUbyte();
-			sample.loopStart     = file.readWord() << 1;
+			sample.volume   = file.readWord();
+			// NOTE: does the high byte of the volume someties contain finetune data?
+			sample.finetune = 0;
+			sample.loopStart     = file.readWord(); // in bytes!
 			sample.loopRepeatLength   = file.readWord() << 1;
+
+			// if a sample contains a loops, only the loop part is played
+			// TODO
 
 			sample.pointer = sampleDataOffset;
 			sampleDataOffset += sample.length;
@@ -39,9 +43,10 @@ var ProTracker = function(){
 		}
 		song.samples = Tracker.getSamples();
 
-		file.goto(950);
+		file.goto(470);
+
 		song.length = file.readUbyte();
-		file.jump(1); // 127 byte
+		song.speed = file.readUbyte();
 
 		var patternTable = [];
 		var highestPattern = 0;
@@ -51,7 +56,7 @@ var ProTracker = function(){
 		}
 		song.patternTable = patternTable;
 
-		file.goto(1084);
+		file.goto(600);
 
 		// pattern data
 
@@ -96,10 +101,10 @@ var ProTracker = function(){
 
 				var sampleEnd = sample.length;
 
-				if (sample.loopRepeatLength>2 && SETTINGS.unrollShortLoops && sample.loopRepeatLength<1000){
+				if (sample.loopRepeatLength>2 ){
 					// cut off trailing bytes for short looping samples
-					sampleEnd = Math.min(sampleEnd,sample.loopStart + sample.loopRepeatLength);
-					sample.length = sampleEnd;
+					//sampleEnd = Math.min(sampleEnd,sample.loopStart + sample.loopRepeatLength);
+					//sample.length = sampleEnd;
 				}
 
 				for (j = 0; j<sampleEnd; j++){
@@ -107,40 +112,6 @@ var ProTracker = function(){
 					// ignore first 2 bytes
 					if (j<2)b=0;
 					sample.data.push(b / 127)
-				}
-
-				// unroll short loops?
-				// web audio loop start/end is in seconds
-				// doesn't work that well with tiny loops
-
-				if ((SETTINGS.unrollShortLoops || SETTINGS.unrollLoops) && sample.loopRepeatLength>2){
-					// TODO: pingpong and reverse loops in XM files? -> unroll once and append the reversed loop
-
-					var loopCount = Math.ceil(40000 / sample.loopRepeatLength) + 1;
-
-					if (!SETTINGS.unrollLoops) loopCount = 0;
-
-					var resetLoopNumbers = false;
-					var loopLength = 0;
-					if (SETTINGS.unrollShortLoops && sample.loopRepeatLength<1600){
-
-						loopCount = Math.floor(1000/sample.loopRepeatLength);
-						resetLoopNumbers = true;
-					}
-
-					for (var l=0;l<loopCount;l++){
-						var start = sample.loopStart;
-						var end = start + sample.loopRepeatLength;
-						for (j=start; j<end; j++){
-							sample.data.push(sample.data[j]);
-						}
-						loopLength += sample.loopRepeatLength;
-					}
-
-					if (resetLoopNumbers && loopLength){
-						sample.loopRepeatLength += loopLength;
-						sample.length += loopLength;
-					}
 				}
 
 				sampleContainer.push({label: i + " " + sample.name, data: i});

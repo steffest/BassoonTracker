@@ -80,15 +80,9 @@ function BinaryStream(arrayBuffer, bigEndian){
 
     obj.readBytes = function(len,position) {
         setIndex(position);
-        var buffer = new Int8Array(len);
-        var i = this.index;
-        var src = this.dataView;
-        if ((len += i) > this.length) len = this.length;
-        var offset = 0;
-
-        for (; i < len; ++i)
-            buffer.setUint8(offset++, src.getUint8(i));
-        this.index = len;
+        var src = this.buffer;
+        var buffer = src.slice(obj.index, obj.index + len);
+        setIndex(obj.index + len);
         return buffer;
     };
 
