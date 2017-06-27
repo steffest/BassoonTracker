@@ -6,24 +6,18 @@ var ModArchive = function(){
 	var genres = [];
 
 	me.get = function(url,next){
-		console.error("get " + url);
-
 		var params = url.split("/");
 
 		url = params[0];
 		var param = params[1] || "";
 		var page = params[2] || "";
 
-		console.error(url);
-		console.error(param);
-		console.error(page);
-
 		switch (url){
 			case "genres":
 				loadGenres(next);
 				break;
 			case "genre":
-				loadGenre(param,next);
+				loadGenre(param,page,next);
 				break;
 			case "toprating":
 				page = param || 1;
@@ -38,7 +32,9 @@ var ModArchive = function(){
 				});
 				break;
 			case "artist":
-				loadFromApi("artist/" + param,function(data){
+				var apiUrl = "artist/" + param;
+				if (page) apiUrl += "/" + page;
+				loadFromApi(apiUrl,function(data){
 					next(parseModList(data,params));
 				});
 				break;
@@ -72,14 +68,19 @@ var ModArchive = function(){
 		}
 	}
 
-	function loadGenre(id,next){
-		loadFromApi("genre/" + id,function(data){
-			next(parseModList(data,["genre",id]));
+	function loadGenre(id,page,next){
+		var url = "genre/" + id;
+		if (page) {
+			page = parseInt(page);
+			url += "/" + page;
+		}
+		loadFromApi(url,function(data){
+			next(parseModList(data,["genre",id,page]));
 		})
 	}
 
 	function loadFromApi(url,next){
-		console.error("load from api " + apiUrl + url);
+		console.log("load from api " + apiUrl + url);
 		FetchService.json(apiUrl + url,function(data){
 			if (data && data.modarchive) data = data.modarchive;
 			next(data);
@@ -87,6 +88,8 @@ var ModArchive = function(){
 	}
 
 	function parseModList(data,base){
+
+
 		var result = [];
 		if (data){
 
@@ -106,13 +109,19 @@ var ModArchive = function(){
 				var pageCount = parseInt(data.totalpages);
 				if (pageCount>1){
 					var profile = base[0] + "/";
-					var currentPage = base[1] || 1;
-					if (profile == "artist" || profile == "genre"){
+					var currentPage = parseInt(base[1] || 1);
+					if (isNaN(currentPage)) currentPage=1;
+
+					if (profile == "artist/" || profile == "genre/"){
 						profile += base[1] + "/";
-						currentPage = base[2] || 1;
+						currentPage = parseInt(base[2] || 1);
+						if (isNaN(currentPage)) currentPage=1;
 					}
-					profile += (currentPage+1);
-					result.push({title:"... load more ...",children:[],url:profile});
+					if (pageCount>currentPage){
+						profile += (currentPage+1);
+						result.push({title:"... load more ...",children:[],url:profile});
+					}
+
 				}
 			}
 

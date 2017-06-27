@@ -233,7 +233,7 @@ UI.DiskOperations = function(){
 						toggleDirectory(item,index);
 					}else{
 						listbox.setSelectedIndex(index);
-						console.error(item);
+						console.log(item);
 						Tracker.load(item.url);
 						UI.mainPanel.setView("main");
 					}
@@ -241,21 +241,24 @@ UI.DiskOperations = function(){
 			};
 			onLoadChildren = function(item,data){
 				if (data && data.length){
-					item.children = data;
+
+					if (item.title == "... load more ..." && item.parent){
+						item = item.parent;
+						data.forEach(function(child){
+							child.parent = item;
+						});
+						item.children.pop();
+						item.children = item.children.concat(data);
+					}else{
+						data.forEach(function(child){
+							child.parent = item;
+						});
+						item.children = data;
+					}
 				}else{
 					item.children = [{title:"error loading data"}];
 					console.error("this does not seem to be a valid modArchive API response");
 				}
-				/*item.children = [];
-				if (data && data.modarchive && data.modarchive.module){
-					var mods = data.modarchive.module;
-					mods.forEach(function(mod){
-						item.children.push({title:mod.songtitle || "---",url:mod.url});
-					});
-				}else{
-					item.children.push({title:"error loading data"});
-					console.error("this does not seem to be a valid modArchive API response");
-				}*/
 				me.refreshList();
 			};
 
@@ -402,7 +405,6 @@ UI.DiskOperations = function(){
 
 				if (itemHandler){
 					itemHandler.get(item.url,function(data){
-						console.error(data);
 						onLoadChildren(item,data);
 					});
 				}else{
