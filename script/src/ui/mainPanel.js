@@ -178,12 +178,12 @@ UI.MainPanel = function(){
 		{label:"Play", onClick:function(){Tracker.playSong()} , hideOnSmallScreen: true},
 		{label:"Play Pattern", onClick:function(){Tracker.playPattern()}, hideOnSmallScreen: true},
 		{label:"Stop", onClick:function(){Tracker.stop();}, hideOnSmallScreen: true},
-		{label:"Options", onClick:function(){App.doCommand(COMMAND.showOptions)}},
-		{label:"File Operations", labelSmall:"File", onClick:function(){App.doCommand(COMMAND.showFileOperations)}},
+		{label:"Options", labels:["Options","Opt.","Op"],onClick:function(){App.doCommand(COMMAND.showOptions)}},
+		{label:"File Operations", labels: ["File Operations","File Op.","File","Fi"], onClick:function(){App.doCommand(COMMAND.showFileOperations)}},
 		//{label:"Save", oncClick:function(){Tracker.save();}},
 		//{label:"Record", onClick:function(){Tracker.toggleRecord();}},
-		{label:"Instruments", onClick:function(){App.doCommand(COMMAND.showSampleEditor)} , hideOnBigScreen: true},
-		{label:"Sample Editor", labelSmall:"Sample", onClick:function(){App.doCommand(COMMAND.showSampleEditor)}}
+		{label:"Instruments", labels:["Instruments","Instr.","Inst","In"],onClick:function(){App.doCommand(COMMAND.showSampleEditor)} , hideOnBigScreen: true},
+		{label:"Sample Editor", labels:["Sample Editor","Sample","Smp","Sm"], onClick:function(){App.doCommand(COMMAND.showSampleEditor)}}
 	];
 
 	var getButtonInfoCount = function(){
@@ -205,8 +205,20 @@ UI.MainPanel = function(){
 		var buttonElm = UI.button();
 		buttonElm.info = buttonInfo;
 		buttonElm.onClick =  buttonInfo.onClick;
-		buttonElm.getLabel = function(){
-			return this.width<150 ? this.info.labelSmall || this.info.label : this.info.label;
+		buttonElm.getLabel = function(width){
+			var maxChars = Math.floor((width - 30) / 8);
+			if (this.info.labels){
+				var label;
+				for (var i = 0, len = this.info.labels.length; i<len; i++){
+					label = this.info.labels[i];
+					if (label.length <= maxChars){
+						return label;
+					}
+				}
+				return label;
+			}else{
+				return this.info.label;
+			}
 		};
 		buttons[i] = buttonElm;
 		me.addChild(buttonElm);
@@ -708,7 +720,7 @@ UI.MainPanel = function(){
 					top: layout.buttonsInfo.top + (buttonCount*buttonHeight),
 					width: layout.buttonsInfo.width,
 					height:layout.buttonsInfo.height,
-					label: button.getLabel(),
+					label: button.getLabel(layout.buttonsInfo.width),
 					textAlign:"left",
 					background: UI.Assets.buttonLightScale9,
 					font:window.fontMed

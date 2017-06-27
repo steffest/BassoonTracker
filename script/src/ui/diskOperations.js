@@ -20,11 +20,11 @@ UI.DiskOperations = function(){
 
 	var buttonsSide = [];
 	var buttonsSideInfo=[
-		{label:"Load Module", onClick:function(){me.refreshList("modules")}},
-		{label:"Save Module", onClick:function(){Tracker.save();}},
-		{label:"Render to Sample", onClick:function(){Tracker.renderTrackToBuffer()}},
-		{label:"Load Sample", onClick:function(){me.refreshList("samples")}},
-		{label:"Exit", onClick:function(){App.doCommand(COMMAND.showTop)}}
+		{label:"Load Module", labels:["Load Module","Load Mod","Load","Lo"],onClick:function(){me.refreshList("modules")}},
+		{label:"Save Module", labels:["Save Module","Save Mod","Save","Sa"], onClick:function(){Tracker.save();}},
+		{label:"Render to Sample", labels:["Render to Sample","Render","Ren"], onClick:function(){Tracker.renderTrackToBuffer()}},
+		{label:"Load Sample", labels:["Load Sample","Sample","Sm"], onClick:function(){me.refreshList("samples")}},
+		{label:"Exit", labels:["Exit","Ex"],onClick:function(){App.doCommand(COMMAND.showTop)}}
 	];
 
 	for (var i = 0;i< buttonsSideInfo.length;i++){
@@ -32,6 +32,21 @@ UI.DiskOperations = function(){
 		var buttonElm = UI.button();
 		buttonElm.info = buttonSideInfo;
 		buttonElm.onClick =  buttonSideInfo.onClick;
+		buttonElm.getLabel = function(width){
+			var maxChars = Math.floor((width - 30) / 8);
+			if (this.info.labels){
+				var label;
+				for (var i = 0, len = this.info.labels.length; i<len; i++){
+					label = this.info.labels[i];
+					if (label.length <= maxChars){
+						return label;
+					}
+				}
+				return label;
+			}else{
+				return this.info.label;
+			}
+		};
 		buttonsSide[i] = buttonElm;
 		me.addChild(buttonElm);
 	}
@@ -132,7 +147,7 @@ UI.DiskOperations = function(){
 				top: (i*buttonHeight) + startTop,
 				width: UI.mainPanel.col1W,
 				height:buttonHeight,
-				label: button.info.label,
+				label: button.getLabel(UI.mainPanel.col1W),
 				textAlign:"left",
 				background: UI.Assets.buttonLightScale9,
 				font:window.fontMed
