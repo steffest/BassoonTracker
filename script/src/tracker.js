@@ -1316,6 +1316,7 @@ var Tracker = (function(){
 		return result;
 	};
 
+
 	me.load = function(url,skipHistory){
 		url = url || "demomods/StardustMemories.mod";
 		var name = url.substr(url.lastIndexOf("/")+1);
@@ -1324,8 +1325,9 @@ var Tracker = (function(){
 		UI.setStatus("Loading");
 
 		loadFile(url,function(result){
-			var isMod = me.parse(result,name);
+			var isMod = me.processFile(result,name);
 			UI.setStatus("Ready");
+
 			if (isMod){
 				var infoUrl = "";
 				var source = "";
@@ -1338,9 +1340,7 @@ var Tracker = (function(){
 					source = "modArchive";
 					infoUrl = "https://modarchive.org/index.php?request=view_by_moduleid&query=" + id;
 				}
-
 				UI.setInfo(song.title,source,infoUrl);
-
 			}
 
 			if (isMod && !skipHistory){
@@ -1368,208 +1368,32 @@ var Tracker = (function(){
 
 			var reader = new FileReader();
 			reader.onload = function(){
-				me.parse(reader.result,file.name);
+				me.processFile(reader.result,file.name);
 				UI.setStatus("Ready");
 			};
 			reader.readAsArrayBuffer(file);
 		}
 	};
 
-	me.parse = function(arrayBuffer,name){
-
+	me.processFile = function(arrayBuffer, name){
 
 		var isMod = false;
-		var length = arrayBuffer.byteLength;
 		var file = new BinaryStream(arrayBuffer,true);
-		var id = "";
+		var result = FileDetector.detect(file);
 
-		if (length>1100){
-			id = file.readString(4,1080); // M.K.
-		}
-		console.log("Format ID: " + id);
-
-		if (id == "M.K.") isMod = true;
-		if (id == "FLT4") isMod = true;
-		if (id == "8CHN") {
-			alert("Sorry, 8 channel mod files are not supported yet ...");
-			//isMod = true;
-		}
-
-		// might be and 15 instrument mod?
-		// TODO add check and loader.
-		// example: https://modarchive.org/index.php?request=view_by_moduleid&query=35902
-		// more info: ftp://ftp.modland.com/pub/documents/format_documentation/Ultimate%20Soundtracker%20(.mod).txt
-
-		if (isMod){
-
+		if (result.isMod && result.loader){
+			isMod = true;
 			if (me.isPlaying()) me.stop();
 			resetDefaultSettings();
 
-
-			song = {
-				patterns:[]
-			};
-
-			console.log("loaded");
-			window.bin = arrayBuffer;
-
-			//see https://www.aes.id.au/modformat.html
-
-			song.typeId = id;
-			var title = file.readString(20,0);
-			console.log("Title: " + title);
-			song.title = title;
-			UI.setInfo(song.title);
-
-			var sampleDataOffset = 0;
-			for (i = 1; i <= 31; ++i) {
-				var sampleName = file.readString(22);
-				var sampleLength = file.readWord(); // in words
-
-
-				//if (!sampleLength) {
-				//	samples[i] = undefined;
-				//	file.jump(6);
-				//	continue;
-				//}
-
-				var sample = {
-					name: sampleName,
-					data: []
-				};
-
-				sample.length = sample.realLen = sampleLength << 1;
-				sample.finetune = file.readUbyte();
-				if (sample.finetune>7) sample.finetune -= 16;
-				sample.volume   = file.readUbyte();
-				sample.loopStart     = file.readWord() << 1;
-				sample.loopRepeatLength   = file.readWord() << 1;
-
-				sample.pointer = sampleDataOffset;
-				sampleDataOffset += sample.length;
-				samples[i] = sample;
-
-
-			}
-			song.samples = samples;
-
-			file.goto(950);
-			song.length = file.readUbyte();
-			file.jump(1); // 127 byte
-
-			var patternTable = [];
-			var highestPattern = 0;
-			for (var i = 0; i < 128; ++i) {
-				//patternTable[i] = file.readUbyte() << 8;
-				patternTable[i] = file.readUbyte();
-				if (patternTable[i] > highestPattern) highestPattern = patternTable[i];
-			}
-			song.patternTable = patternTable;
-
-			file.goto(1084);
-
-			// pattern data
-
-			for (i = 0; i <= highestPattern; ++i) {
-
-				var patternData = [];
-
-				for (var step = 0; step<patternLength; step++){
-					var row = [];
-					var channel;
-					for (channel = 0; channel < 4; channel++){
-						var trackStep = {};
-						var trackStepInfo = file.readUint();
-
-						trackStep.period = (trackStepInfo >> 16) & 0x0fff;
-						trackStep.effect = (trackStepInfo >>  8) & 0x0f;
-						trackStep.sample = (trackStepInfo >> 24) & 0xf0 | (trackStepInfo >> 12) & 0x0f;
-						trackStep.param  = trackStepInfo & 0xff;
-
-						row.push(trackStep);
-					}
-
-					// fill with empty data for other channels
-					for (channel = 4; channel < Tracker.getTrackCount(); channel++){
-						row.push({note:0,effect:0,sample:0,param:0});
-					}
-
-
-					patternData.push(row);
-				}
-				song.patterns.push(patternData);
-
-				//file.jump(1024);
-			}
-
-
-			var sampleContainer = [];
-
-			for(i=1; i < samples.length; i++) {
-				sample = samples[i];
-				if (sample){
-					console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + " bytes and repeat length of " + sample.loopRepeatLength);
-					//this.samples[i] = ds.readInt8Array(this.inst[i].sampleLength*2);
-
-					var sampleEnd = sample.length;
-
-					if (sample.loopRepeatLength>2 && SETTINGS.unrollShortLoops && sample.loopRepeatLength<1000){
-						// cut off trailing bytes for short looping samples
-						sampleEnd = Math.min(sampleEnd,sample.loopStart + sample.loopRepeatLength);
-						sample.length = sampleEnd;
-					}
-
-					for (j = 0; j<sampleEnd; j++){
-						var b = file.readByte();
-						// ignore first 2 bytes
-						if (j<2)b=0;
-						sample.data.push(b / 127)
-					}
-
-					// unroll short loops?
-					// web audio loop start/end is in seconds
-					// doesn't work that well with tiny loops
-
-					if ((SETTINGS.unrollShortLoops || SETTINGS.unrollLoops) && sample.loopRepeatLength>2){
-						// TODO: pingpong and reverse loops in XM files? -> unroll once and append the reversed loop
-
-						var loopCount = Math.ceil(40000 / sample.loopRepeatLength) + 1;
-
-						if (!SETTINGS.unrollLoops) loopCount = 0;
-
-						var resetLoopNumbers = false;
-						var loopLength = 0;
-						if (SETTINGS.unrollShortLoops && sample.loopRepeatLength<1600){
-
-							loopCount = Math.floor(1000/sample.loopRepeatLength);
-							resetLoopNumbers = true;
-						}
-
-						for (var l=0;l<loopCount;l++){
-							var start = sample.loopStart;
-							var end = start + sample.loopRepeatLength;
-							for (j=start; j<end; j++){
-								sample.data.push(sample.data[j]);
-							}
-							loopLength += sample.loopRepeatLength;
-						}
-
-						if (resetLoopNumbers && loopLength){
-							sample.loopRepeatLength += loopLength;
-							sample.length += loopLength;
-						}
-					}
-
-					sampleContainer.push({label: i + " " + sample.name, data: i});
-				}
-			}
-			UI.mainPanel.setInstruments(sampleContainer);
+			song = result.loader().load(file,name);
 
 			onModuleLoad();
 
 			//Audio.playSample(1);
-		}else{
-			// load as sample
+		}
+
+		if (result.isSample){
 			me.importSample(file,name);
 		}
 
@@ -1587,6 +1411,10 @@ var Tracker = (function(){
 
 	me.getSample = function(index){
 		return samples[index];
+	};
+
+	me.setSample = function(index,sample){
+		samples[index] = sample;
 	};
 
 	me.importSample = function(file,name){
@@ -1732,6 +1560,7 @@ var Tracker = (function(){
 
 	function onModuleLoad(){
 		UI.mainPanel.setPatternTable(song.patternTable);
+		UI.setInfo(song.title);
 
 		prevPatternPos = undefined;
 		prevSampleIndex = undefined;

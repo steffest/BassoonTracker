@@ -315,7 +315,7 @@ UI.DiskOperations = function(){
 						Dropbox.getFile(item.url,function(blob){
 							var reader = new FileReader();
 							reader.onload = function(){
-								Tracker.parse(reader.result,item.title);
+								Tracker.processFile(reader.result,item.title);
 								UI.setStatus("Ready");
 								UI.mainPanel.setView("main");
 							};
