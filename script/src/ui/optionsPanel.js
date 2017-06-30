@@ -35,18 +35,21 @@ UI.OptionsPanel = function(){
 	var options = [
 		{
 			label: "Keyboard Layout:",
-			values: ["QWERTY","AZERTY"],
+			values: ["QWERTY","AZERTY","QWERTZ"],
 			setValue:function(index){
 				if (index == 0){
 					SETTINGS.keyboardTable = "qwerty";
-				}else{
+				}if (index == 1){
 					SETTINGS.keyboardTable = "azerty";
+				}else{
+					SETTINGS.keyboardTable = "qwertz";
 				}
 				Settings.saveSettings();
 			},
 			getValue:function(){
 				var result = 0;
 				if (SETTINGS.keyboardTable == "azerty") result = 1;
+				if (SETTINGS.keyboardTable == "qwertz") result = 2;
 				return result;
 			}
 		},
