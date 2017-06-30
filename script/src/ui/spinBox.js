@@ -95,6 +95,11 @@ UI.spinBox = function(initialProperties){
 		return value;
 	};
 
+	me.setMax = function(newMax){
+		max = newMax;
+		if (value>max) me.setValue(max);
+	};
+
 	me.render = function(internal){
 		internal = !!internal;
 		if (me.needsRendering){

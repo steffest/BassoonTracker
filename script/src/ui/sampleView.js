@@ -174,6 +174,10 @@ UI.SampleView = function(){
 		}
 	});
 
+	EventBus.on(EVENT.songPropertyChange,function(event,song){
+		spinBoxSample.setMax(song.samples.length-1);
+	});
+
 	me.setLayout = function(){
 
 		if (!UI.mainPanel) return;

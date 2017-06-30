@@ -361,6 +361,7 @@ UI.MainPanel = function(){
 	EventBus.on(EVENT.songPropertyChange,function(event,song){
 		modNameInputBox.setValue(song.title,true);
 		spinBoxSongLength.setValue(song.length,true);
+		spinBoxSample.setMax(song.samples.length-1);
 	});
 
 	EventBus.on(EVENT.sampleChange,function(event,value){

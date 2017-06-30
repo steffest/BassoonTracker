@@ -63,9 +63,11 @@ var Tracker = (function(){
 	console.log("ticktime: " + tickTime);
 
 	me.setCurrentSampleIndex = function(index){
-		currentSampleIndex = index;
-		if (prevSampleIndex!=currentSampleIndex) EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
-		prevSampleIndex = currentSampleIndex;
+		if (song.samples[index]){
+			currentSampleIndex = index;
+			if (prevSampleIndex!=currentSampleIndex) EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
+			prevSampleIndex = currentSampleIndex;
+		}
 	};
 
 	me.getCurrentSampleIndex = function(){
