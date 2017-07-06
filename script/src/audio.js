@@ -72,7 +72,7 @@ var Audio = (function(){
         me.filterChains = filterChains;
 
         if (!isRendering){
-            EventBus.on(EVENT.trackStateChange,function(event,state){
+            EventBus.on(EVENT.trackStateChange,function(state){
                 if (typeof state.track != "undefined" && filterChains[state.track]){
                     filterChains[state.track].volumeValue(state.mute?0:70);
                 }
@@ -256,30 +256,12 @@ var Audio = (function(){
         me.init(offlineContext);
     };
 
-    me.stopRendering = function(){
+    me.stopRendering = function(next){
         isRendering = false;
 
         offlineContext.startRendering().then(function(renderedBuffer) {
             console.log('Rendering completed successfully');
-
-            //var sampleBuffer = context.createBuffer(2, renderedBuffer.length,context.sampleRate);
-
-            var doSave = true;
-
-            if (doSave){
-                // save to wav
-                var b = new Blob([audioBufferToWav(renderedBuffer)], {type: "octet/stream"});
-                var fileName = Tracker.getSong().title.replace(/ /g, '-').replace(/\W/g, '');
-                if (!fileName) fileName = "module-export";
-                fileName += ".wav";
-                saveAs(b,fileName);
-            }else{
-                var output = context.createBufferSource();
-                output.buffer = renderedBuffer;
-                output.connect(context.destination);
-                output.start();
-            }
-
+            if (next) next(audioBufferToWav(renderedBuffer));
         }).catch(function(err) {
             console.log('Rendering failed: ' + err);
             // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext

@@ -34,7 +34,8 @@ var EVENT = {
 	command: 17,
 	pianoNoteOn : 18,
 	pianoNoteOff : 19,
-	statusChange: 20
+	statusChange: 20,
+	diskOperationTargetChange: 21
 };
 
 var COMMAND = {
@@ -61,6 +62,18 @@ var COMMAND = {
 var PLAYTYPE = {
 	song:1,
 	pattern:2
+};
+
+var FILETYPE = {
+	module:1,
+	sample:2,
+	pattern:3,
+	track: 4
+};
+
+var MODULETYPE = {
+	mod: 1,
+	xm: 2
 };
 
 var STEREOSEPARATION = {

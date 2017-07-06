@@ -77,14 +77,14 @@ UI.songControl = function(x,y,w,h,visible){
 
 
 
-    EventBus.on(EVENT.recordingChange,function(event,isRecording){
+    EventBus.on(EVENT.recordingChange,function(isRecording){
         buttons.record.setActive(isRecording);
     });
-    EventBus.on(EVENT.playingChange,function(event,isPlaying){
+    EventBus.on(EVENT.playingChange,function(isPlaying){
         buttons.play.setActive(isPlaying);
     });
 
-    EventBus.on(EVENT.playTypeChange,function(event,playType){
+    EventBus.on(EVENT.playTypeChange,function(playType){
         if (playType == PLAYTYPE.song){
             radioGroup.setSelectedIndex(0,true);
         }else{

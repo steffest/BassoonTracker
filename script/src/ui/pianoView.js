@@ -88,7 +88,7 @@ UI.PianoView = function(){
 		}
 	}
 
-	EventBus.on(EVENT.pianoNoteOn,function(event, note){
+	EventBus.on(EVENT.pianoNoteOn,function(note){
 		if (note && note.startPeriod){
 			var keyIndex = periodKeys[note.startPeriod] - (octave-1)*8;
 			if (keyIndex >= 0){
@@ -101,7 +101,7 @@ UI.PianoView = function(){
 		}
 	});
 
-	EventBus.on(EVENT.pianoNoteOff,function(event, note){
+	EventBus.on(EVENT.pianoNoteOff,function(note){
 		if (note && note.startPeriod){
 			var keyIndex = periodKeys[note.startPeriod]- (octave-1)*8;
 			if (keyIndex >= 0){

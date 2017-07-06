@@ -82,6 +82,7 @@ UI.button = function(x,y,w,h,text){
     };
 
     me.render = function(internal){
+        if (!me.isVisible()) return;
         if (me.needsRendering){
             internal = !!internal;
             var drawFonts = true;
@@ -125,6 +126,10 @@ UI.button = function(x,y,w,h,text){
                     if (textAlign == "center"){
                         var textLength = label.length * fontWidth;
                         textX = Math.floor((me.width - textLength)/2);
+                    }
+                    if (textAlign == "right"){
+                        textLength = label.length * fontWidth;
+                        textX = me.width - textLength - 5;
                     }
                     font.write(me.ctx,label,textX,textY,0);
                 }else{

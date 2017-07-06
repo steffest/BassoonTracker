@@ -2,16 +2,16 @@ var App = (function(){
     var me = {};
 
     me.init = function(){
-        EventBus.on(EVENT.command,function(event,command){
+        EventBus.on(EVENT.command,function(command){
             switch (command){
                 case COMMAND.newFile:
                     Tracker.new();
                     break;
                 case COMMAND.openFile:
-                    UI.mainPanel.setView("diskop");
+                    UI.mainPanel.setView("diskop_load");
                     break;
                 case COMMAND.saveFile:
-                    UI.mainPanel.setView("diskop");
+                    UI.mainPanel.setView("diskop_save");
                     break;
                 case COMMAND.clearTrack:
                     Tracker.clearTrack();
@@ -36,10 +36,10 @@ var App = (function(){
                     }
                     break;
                 case COMMAND.showFileOperations:
-                    if (UI.mainPanel.getCurrentView() == "diskop"){
+                    if (UI.mainPanel.getCurrentView() == "diskop_load"){
                         UI.mainPanel.setView("main");
                     }else{
-                        UI.mainPanel.setView("diskop");
+                        UI.mainPanel.setView("diskop_load");
                     }
                     break;
                 case COMMAND.showSampleEditor:

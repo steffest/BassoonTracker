@@ -1,10 +1,11 @@
 UI.inputbox = function(initialProperties){
 	var me = UI.element();
-	var properties = ["left","top","width","height","name","type","onChange"];
+	var properties = ["left","top","width","height","name","type","onChange","backgroundImage"];
 	var value = "";
 	var isActive;
 	var isCursorVisible;
 	var cursorPos;
+	var backgroundImage = "panel_dark";
 
 	me.setProperties = function(p){
 
@@ -14,14 +15,16 @@ UI.inputbox = function(initialProperties){
 
 		me.setSize(me.width,me.height);
 		me.setPosition(me.left,me.top);
-		background.setSize(me.width,me.height);
+		if (background) background.setSize(me.width,me.height);
 
-		if (p["value"]) value = p["value"]
+		if (p["value"]) value = p["value"];
+		if (p["backgroundImage"]) backgroundImage = p["backgroundImage"];
 	};
 
+	if (initialProperties) me.setProperties(initialProperties);
 
 	var background = UI.scale9Panel(0,0,me.width,me.height,{
-		img: Y.getImage("panel_dark"),
+		img: Y.getImage(backgroundImage),
 		left:3,
 		top:3,
 		right:2,
@@ -30,7 +33,7 @@ UI.inputbox = function(initialProperties){
 	background.ignoreEvents = true;
 	me.addChild(background);
 
-	if (initialProperties) me.setProperties(initialProperties);
+
 
 	me.render = function(internal){
 		internal = !!internal;
@@ -89,6 +92,8 @@ UI.inputbox = function(initialProperties){
 	};
 
 	me.activate = function(){
+		cursorPos = -1;
+		console.error("activate " + me.name);
 		if (!isActive && value){
 			cursorPos = value.length-1;
 		}

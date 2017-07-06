@@ -18,7 +18,7 @@ var EventBus = (function() {
         if (eventHandlers) {
             var i, len = eventHandlers.length;
             for (i = 0; i < len; i++) {
-                eventHandlers[i](event, context);
+                eventHandlers[i](context,event);
             }
         }
     };

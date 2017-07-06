@@ -100,10 +100,34 @@ UI.Assets = (function(){
 	me.panelDarkScale9 = {
 		left:3,
 		top:3,
-		right:1,
-		bottom: 1
+		right:3,
+		bottom: 2
+	};
+	me.panelDarkGreyScale9 = {
+		left:3,
+		top:3,
+		right:3,
+		bottom: 2
+	};
+	me.panelDarkGreyBlueScale9 = {
+		left:3,
+		top:3,
+		right:3,
+		bottom: 2
+	};
+	me.panelTransScale9 = {
+		left:3,
+		top:3,
+		right:3,
+		bottom: 2
 	};
 	me.panelInsetScale9 = {
+		left:2,
+		top:2,
+		right:2,
+		bottom: 2
+	};
+	me.panelDarkInsetScale9 = {
 		left:2,
 		top:2,
 		right:2,
@@ -255,7 +279,11 @@ UI.Assets = (function(){
 		me.buttonDarkYellowActiveScale9.img = Y.getImage("button_inlay_yellow_active");
 		me.panelMainScale9.img = Y.getImage("background");
 		me.panelDarkScale9.img = Y.getImage("bar");
+		me.panelDarkGreyScale9.img = Y.getImage("panel_dark_greyish");
+		me.panelDarkGreyBlueScale9.img = Y.getImage("panel_dark_blueish");
+		me.panelTransScale9.img = Y.getImage("panel_trans");
 		me.panelInsetScale9.img = Y.getImage("panel_inset");
+		me.panelDarkInsetScale9.img = Y.getImage("panel_dark");
 		me.menuMainScale9.img = Y.getImage("menu");
 
 		console.log("Assets init done");

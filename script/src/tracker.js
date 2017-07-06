@@ -256,12 +256,15 @@ var Tracker = (function(){
 		}
 	};
 
-	me.save = function(){
-		//saveFile(window.bin,"test.mod");
-		//var b = new Blob([window.bin], {type: "octet/stream"});
-		//saveAs(b,"test.mod");
+	me.save = function(filename){
+		me.buildBinary(MODULETYPE.mod,function(file){
+			var b = new Blob([file.buffer], {type: "application/octet-stream"});
 
-		me.buildBinary();
+			var fileName = filename || me.getFileName();
+			saveAs(b,fileName);
+
+			//Dropbox.putFile(fileName,b);
+		});
 	};
 
 	me.getProperties = function(){
@@ -1191,7 +1194,7 @@ var Tracker = (function(){
 
 	}
 
-	me.renderTrackToBuffer = function(){
+	me.renderTrackToBuffer = function(fileName){
 		var step = 0;
 		var patternStep = 0;
 		var thisPatternLength = 64;
@@ -1214,7 +1217,18 @@ var Tracker = (function(){
 			patternStep++;
 		//}
 
-		Audio.stopRendering();
+		Audio.stopRendering(function(result){
+			// save to wav
+			var b = new Blob([result], {type: "octet/stream"});
+			fileName = fileName || me.getSong().title.replace(/ /g, '-').replace(/\W/g, '') + ".wav" || "module-export.wav";
+			saveAs(b,fileName);
+
+			//var output = context.createBufferSource();
+			//output.buffer = renderedBuffer;
+			//output.connect(context.destination);
+			//output.start();
+
+		});
 	};
 
 	me.setBPM = function(newBPM){
@@ -1336,11 +1350,13 @@ var Tracker = (function(){
 
 				if (url.indexOf("modarchive.org")>0){
 					var id = url.split('moduleid=')[1];
+					song.filename = id.split("#")[1] || id;
 					id = id.split("#")[0];
 					id = id.split("&")[0];
 
 					source = "modArchive";
 					infoUrl = "https://modarchive.org/index.php?request=view_by_moduleid&query=" + id;
+					EventBus.trigger(EVENT.songPropertyChange,song);
 				}
 				UI.setInfo(song.title,source,infoUrl);
 			}
@@ -1389,6 +1405,7 @@ var Tracker = (function(){
 			resetDefaultSettings();
 
 			song = result.loader().load(file,name);
+			song.filename = name;
 
 			onModuleLoad();
 
@@ -1439,7 +1456,12 @@ var Tracker = (function(){
 
 	};
 
-	me.buildBinary = function(){
+
+	// returns a binary stream
+	me.buildBinary = function(type,next){
+
+
+		type = type || MODULETYPE.mod;
 
 		/*
 		  filesize:
@@ -1481,7 +1503,7 @@ var Tracker = (function(){
 			if (sample){
 
 				// limit sample size to 128k
-				//TODO: show a warning whan this is exceeded ...
+				//TODO: show a warning when this is exceeded ...
 				sample.length = Math.min(sample.length, 131070); // = FFFF * 2
 
 				file.writeStringSection(sample.name,22);
@@ -1549,14 +1571,7 @@ var Tracker = (function(){
 			}
 		});
 
-
-		var b = new Blob([file.buffer], {type: "application/octet-stream"});
-
-		var fileName = song.title.replace(/ /g, '-').replace(/\W/g, '') + ".mod";
-		saveAs(b,fileName);
-
-		//Dropbox.putFile(fileName,b);
-
+		if (next) next(file);
 
 	};
 
@@ -1755,6 +1770,10 @@ var Tracker = (function(){
 		samples[currentSampleIndex]=getEmptySample();
 		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
 		EventBus.trigger(EVENT.sampleNameChange,currentSampleIndex);
+	};
+
+	me.getFileName = function(){
+		return song.filename || (song.title ? song.title.replace(/ /g, '-').replace(/\W/g, '') + ".mod" : "new.mod");
 	};
 
 	function getEmptyPattern(){

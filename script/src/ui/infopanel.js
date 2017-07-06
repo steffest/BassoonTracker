@@ -13,7 +13,7 @@ UI.InfoPanel = function(){
     };
     me.addChild(infoButton);
 
-    EventBus.on(EVENT.statusChange,function(event,context){
+    EventBus.on(EVENT.statusChange,function(context){
         if (context){
             if (typeof context.status != "undefined") status = context.status;
             if (typeof context.info != "undefined"){

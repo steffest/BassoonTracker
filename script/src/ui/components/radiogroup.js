@@ -5,8 +5,13 @@ UI.radioGroup = function(x,y,w,h){
 
 	var previousSelectedIndex;
 
-	var lineHeight = 13;
-	var startY = 5;
+	var startY = 0;
+	var size = "small";
+	var align = "right";
+	var buttonY = -3;
+	var itemHeight = 13;
+	var divider;
+	var highLightSelection;
 
 	var properties = ["left","top","width","height","name","type"];
 
@@ -17,13 +22,21 @@ UI.radioGroup = function(x,y,w,h){
 
 		me.setSize(me.width,me.height);
 		me.setPosition(me.left,me.top);
+
+		if (p.align) align = p.align;
+		if (p.size) size = p.size;
+		if (p.divider) divider = p.divider;
+		if (p.highLightSelection) highLightSelection = true;
 	};
 
 	me.onClick=function(e){
-		me.setSelectedIndex(Math.round(me.eventY/16));
+		console.error(me.eventY);
+		console.error((me.eventY-startY+buttonY));
+		me.setSelectedIndex(Math.floor((me.eventY-startY+buttonY)/itemHeight));
 	};
 
 	me.setSelectedIndex = function(index,internal){
+		index = Math.min(index,items.length-1);
 		for (var i = 0, len = items.length; i<len;i++){
 			items[i].active = i == index;
 		}
@@ -38,6 +51,10 @@ UI.radioGroup = function(x,y,w,h){
 		return me.selectedIndex;
 	};
 
+	me.getSelectedItem = function(){
+		return items[me.selectedIndex];
+	};
+
 	me.render = function(internal){
 		internal = !!internal;
 
@@ -47,19 +64,51 @@ UI.radioGroup = function(x,y,w,h){
 
 			var buttonActive = Y.getImage("radio_active");
 			var buttonInactive = Y.getImage("radio_inactive");
+			itemHeight = Math.floor(me.height / items.length);
+
+			var font = fontSmall;
+			var textX = 5;
+			var buttonX = me.width - 15;
+			buttonY = -3;
+
+			if (size == "med"){
+				buttonActive = Y.getImage("radio_big_active");
+				buttonInactive = Y.getImage("radio_big_inactive");
+				buttonY = -6;
+				buttonX = me.width - 20;
+				font = fontMed;
+			}
+
+			var paddingTop = (itemHeight - font.charHeight) / 2;
+
+			if (align == "left"){
+				textX = 30;
+				buttonX = 5;
+			}
+
+			var line = Y.getImage("line_hor");
 
 			for (var i = 0, len = items.length;i<len;i++){
 				var item = items[i];
-				var textX = 5;
-				var textY = startY + (i*lineHeight);
+				var itemTop = startY + (i*itemHeight);
+				var textTop = itemTop + paddingTop;
 
-				if (fontSmall) fontSmall.write(me.ctx,item.label,textX,textY,0);
+				if (divider == "line" && i>0){
+					me.ctx.drawImage(line,0,itemTop,me.width,2);
+				}
 
-				var buttonX = me.width - 15;
+				if (font) font.write(me.ctx,item.label,textX,textTop,0);
+
 				if (item.active){
-					me.ctx.drawImage(buttonActive,buttonX,textY - 3);
+
+					if (highLightSelection){
+						me.ctx.fillStyle = 'rgba(100,100,255,0.1';
+						me.ctx.fillRect(0,itemTop,me.width-2,itemHeight);
+					}
+
+					me.ctx.drawImage(buttonActive,buttonX,textTop + buttonY);
 				}else{
-					me.ctx.drawImage(buttonInactive,buttonX,textY - 3);
+					me.ctx.drawImage(buttonInactive,buttonX,textTop + buttonY);
 				}
 			}
 
@@ -86,7 +135,7 @@ UI.radioGroup = function(x,y,w,h){
 
 	me.getItemAtPosition = function(x,y){
 		y = y-startY;
-		var index = Math.floor(y/lineHeight) + visibleIndex;
+		var index = Math.floor(y/itemHeight) + visibleIndex;
 		if (index>=0 && index<items.length){
 			items[index].index = index;
 			return(items[index]);

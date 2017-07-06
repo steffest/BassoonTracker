@@ -25,6 +25,7 @@ var BitmapFont = function(){
 		charHeight = h;
 
 		me.charWidth = w;
+		me.charHeight = h;
 
 		for (var i = 0, len = chars.length; i<=len; i++){
 			var myCanvas = document.createElement("canvas");

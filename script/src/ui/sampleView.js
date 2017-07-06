@@ -143,7 +143,7 @@ UI.SampleView = function(){
 
 
 	// events
-	EventBus.on(EVENT.sampleChange,function(event,value){
+	EventBus.on(EVENT.sampleChange,function(value){
 		currentSampleIndex = value;
 		spinBoxSample.setValue(value,true);
 		var sample = Tracker.getSample(value);
@@ -167,14 +167,14 @@ UI.SampleView = function(){
 	});
 
 
-	EventBus.on(EVENT.samplePlay,function(event,context){
+	EventBus.on(EVENT.samplePlay,function(context){
 		if (!me.visible) return;
 		if (context && context.sampleIndex == currentSampleIndex){
 			waveForm.play(context.startPeriod);
 		}
 	});
 
-	EventBus.on(EVENT.songPropertyChange,function(event,song){
+	EventBus.on(EVENT.songPropertyChange,function(song){
 		spinBoxSample.setMax(song.samples.length-1);
 	});
 

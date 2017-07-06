@@ -18,6 +18,18 @@ UI.DiskOperations = function(){
 	background.ignoreEvents = true;
 	me.addChild(background);
 
+	var actionPanel = UI.DiskOperationActions();
+	me.addChild(actionPanel);
+
+	var targetPanel = UI.DiskOperationTargets();
+	me.addChild(targetPanel);
+
+	var savePanel = UI.DiskOperationSave();
+	me.addChild(savePanel);
+
+
+	/*
+
 	var buttonsSide = [];
 	var buttonsSideInfo=[
 		{label:"Load Module", labels:["Load Module","Load Mod","Load","Lo"],onClick:function(){me.refreshList("modules")}},
@@ -50,6 +62,7 @@ UI.DiskOperations = function(){
 		buttonsSide[i] = buttonElm;
 		me.addChild(buttonElm);
 	}
+	*/
 
 	var label = UI.label({
 		label: "Load module",
@@ -64,12 +77,6 @@ UI.DiskOperations = function(){
 	};
 	me.addChild(closeButton);
 
-	var modArchiveButton = UI.Assets.generate("buttonDark");
-	modArchiveButton.setLabel("ModArchive ");
-	modArchiveButton.onClick = function(){
-		me.refreshList("modarchive");
-	};
-	me.addChild(modArchiveButton);
 
 	/*var dropBoxButton = UI.Assets.generate("buttonDark");
 	dropBoxButton.setLabel("Dropbox ");
@@ -103,8 +110,22 @@ UI.DiskOperations = function(){
 
 	});
 	me.addChild(dropzone);
+	dropzone.hide();
 
-	me.setLayout = function(){
+
+	EventBus.on(EVENT.diskOperationTargetChange,function(target){
+
+		if (target && target.target) target = target.target;
+		if (target && target.fileType){
+			if (target.fileType == FILETYPE.module) target = "modules";
+			if (target.fileType == FILETYPE.sample) target = "samples";
+		}
+		if (typeof target == "undefined") target = targetPanel.getTarget();
+		me.refreshList(target);
+
+	});
+
+	me.setLayout = function(subView){
 
 		if (!UI.mainPanel) return;
 		me.clearCanvas();
@@ -116,62 +137,108 @@ UI.DiskOperations = function(){
 			width: me.width
 		});
 
-
 		var startTop = 5;
-		var innerHeight = me.height - 5;
-		var buttonHeight = Math.floor(innerHeight/buttonsSideInfo.length);
 
 		closeButton.setProperties({
-			top: startTop,
+			top: startTop-2,
+			width: 20,
+			heigth: 18,
 			left: me.width - 30
 		});
 
-		modArchiveButton.setProperties({
-			width: 120,
-			height: 26,
-			top: startTop,
-			left: UI.mainPanel.col5X - 123
-		});
 
-		/*dropBoxButton.setProperties({
-			width: 120,
-			height: 26,
-			top: startTop,
-			left: UI.mainPanel.col5X - 123 - 123
-		});*/
-		
-		for (i = 0;i<buttonsSideInfo.length;i++){
-			var button = buttonsSide[i];
-			button.setProperties({
-				left:UI.mainPanel.defaultMargin,
-				top: (i*buttonHeight) + startTop,
+		if (me.width >= 730){
+			actionPanel.setProperties({
+				top: startTop,
+				left: UI.mainPanel.defaultMargin,
 				width: UI.mainPanel.col1W,
-				height:buttonHeight,
-				label: button.getLabel(UI.mainPanel.col1W),
-				textAlign:"left",
-				background: UI.Assets.buttonLightScale9,
-				font:window.fontMed
+				height: me.height - 10
 			});
+			targetPanel.setProperties({
+				top: startTop,
+				left: UI.mainPanel.col2X,
+				width: UI.mainPanel.col1W,
+				height: me.height - 10
+			});
+
+			label.setProperties({
+				left: UI.mainPanel.col3X,
+				top: startTop,
+				height: 20,
+				width: UI.mainPanel.col2W
+			});
+
+			listbox.setProperties({
+				left: UI.mainPanel.col3X,
+				width: UI.mainPanel.col2W,
+				top: startTop + 19,
+				height: me.height - (19+startTop) - 5
+			});
+
+			savePanel.show();
+			savePanel.setProperties({
+				top: listbox.top,
+				left: UI.mainPanel.col5X,
+				width: UI.mainPanel.col1W,
+				height: listbox.height
+			});
+		}else{
+
+			actionPanel.setProperties({
+				top: startTop,
+				left: UI.mainPanel.defaultMargin,
+				width: UI.mainPanel.col2W,
+				height: (me.height / 2) - startTop
+			});
+
+			targetPanel.setProperties({
+				top: me.height / 2,
+				left: UI.mainPanel.defaultMargin,
+				width: UI.mainPanel.col2W,
+				height: me.height / 2
+			});
+
+			listbox.setProperties({
+				left: UI.mainPanel.col3X,
+				width: UI.mainPanel.col3W,
+				top: startTop + 19,
+				height: me.height - (19+startTop) - 5
+			});
+
+			label.setProperties({
+				left: UI.mainPanel.col3X,
+				top: startTop,
+				height: 20,
+				width: UI.mainPanel.col3W
+			});
+
+
+			if (subView == "save"){
+
+				savePanel.setProperties({
+					left: UI.mainPanel.defaultMargin,
+					width: UI.mainPanel.col2W,
+					top: startTop,
+					height:me.height - 10
+				});
+
+				actionPanel.hide();
+				targetPanel.hide();
+				savePanel.show();
+			}else{
+				actionPanel.show();
+				targetPanel.show();
+				savePanel.hide();
+			}
 		}
 
-		label.setProperties({
-			left: UI.mainPanel.col2X,
-			top: startTop + 4,
-			height: 20,
-			width: UI.mainPanel.col4W
-		});
 
-		listbox.setProperties({
-			left: UI.mainPanel.col2X,
-			width: UI.mainPanel.col3W,
-			top: startTop + 20 + 7,
-			height:buttonHeight*buttonsSideInfo.length - 30
-		});
+
 
 		dropzone.setProperties({
-			left: UI.mainPanel.col5X,
-			width: UI.mainPanel.col1W,
-			top: startTop + 20 + 7,
+			left: listbox.left,
+			width: listbox.width,
+			top: listbox.top,
 			height:listbox.height
 		});
 	};
@@ -206,188 +273,204 @@ UI.DiskOperations = function(){
 			listbox.setSelectedIndex(selectedIndex);
 		}
 
-		if (currentView == "modules"){
-			itemHandler = false;
-			label.setLabel("Load Module");
-			listbox.onClick = function(e){
-				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
-				if (item && item.data){
-					var index = item.index;
-					item = itemsMap[index];
-
-					if (item.children){
-						toggleDirectory(item,index);
-					}else{
-						listbox.setSelectedIndex(index);
-						Tracker.load(item.url);
-						UI.mainPanel.setView("main");
-					}
-				}
-			};
-
-			if (modules.length){
-				populate(modules,moduleSelectedIndex);
-			}else{
-				FetchService.json("data/modules.json",function(data){
-					if (data && data.modules){
-						modules = data.modules;
-						populate(modules,moduleSelectedIndex);
-					}
-				})
-			}
-		}else if (currentView == "modarchive"){
-			itemHandler = ModArchive;
-			label.setLabel("Browse Modarchive");
-			listbox.onClick = function(e){
-				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
-				if (item && item.data){
-					var index = item.index;
-					item = itemsMap[index];
-
-					if (item.children){
-						toggleDirectory(item,index);
-					}else{
-						listbox.setSelectedIndex(index);
-						console.log(item);
-						Tracker.load(item.url);
-						UI.mainPanel.setView("main");
-					}
-				}
-			};
-			onLoadChildren = function(item,data){
-				if (data && data.length){
-
-					if (item.title == "... load more ..." && item.parent){
-						item = item.parent;
-						data.forEach(function(child){
-							child.parent = item;
-						});
-						item.children.pop();
-						item.children = item.children.concat(data);
-					}else{
-						data.forEach(function(child){
-							child.parent = item;
-						});
-						item.children = data;
-					}
-				}else{
-					item.children = [{title:"error loading data"}];
-					console.error("this does not seem to be a valid modArchive API response");
-				}
-				me.refreshList();
-			};
-
-			if (modArchive.length){
-				populate(modArchive,0);
-			}else{
-				listbox.setItems([{label: "loading ..."}]);
-
-				FetchService.json("data/modarchive.json",function(data){
-					if (data && data.modarchive){
-						modArchive = data.modarchive;
-						populate(modArchive,0);
-					}
-				});
-
-			}
-
-		}else if (currentView == "dropbox"){
-			itemHandler = Dropbox;
-			label.setLabel("Browse Your Dropbox");
-
-			listbox.setItems([{label: "loading ..."}]);
-
-			listbox.onClick = function(e){
-				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
-				if (item && item.data){
-					var index = item.index;
-					item = itemsMap[index];
-
-					if (item.children){
-						toggleDirectory(item,index);
-					}else{
-						listbox.setSelectedIndex(index);
-						console.log(item);
-
-						UI.setInfo(item.title);
-						UI.setStatus("Loading from Dropbox");
-
-						Dropbox.getFile(item.url,function(blob){
-							var reader = new FileReader();
-							reader.onload = function(){
-								Tracker.processFile(reader.result,item.title);
-								UI.setStatus("Ready");
-								UI.mainPanel.setView("main");
-							};
-							reader.readAsArrayBuffer(blob);
-						});
-
-					}
-				}
-			};
-
-			Dropbox.list("",function(data){
-				console.log(data);
-				populate(data,0);
-			});
-
+		if (currentView == "local"){
+			listbox.hide();
+			dropzone.show();
 		}else{
-			itemHandler = false;
-			label.setLabel("Load Sample to slot " + Tracker.getCurrentSampleIndex());
-			listbox.onClick = function(e){
-				var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
-				if (item && item.data){
-					var index = item.index;
-					item = itemsMap[index];
+			listbox.show();
+			dropzone.hide();
 
-					if (item.children){
-						listbox.setSelectedIndex(index);
-						sampleSelectedIndex = index;
-						if (item.isExpanded){
-							item.isExpanded = false;
-							me.refreshList();
+			if (currentView == "bassoon"){
+				currentView = actionPanel.getAction();
+			}
+		}
+
+		switch (currentView){
+			case "modules":
+				itemHandler = false;
+				label.setLabel("Load Module");
+				listbox.onClick = function(e){
+					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
+					if (item && item.data){
+						var index = item.index;
+						item = itemsMap[index];
+
+						if (item.children){
+							toggleDirectory(item,index);
 						}else{
-							item.isExpanded = true;
-							if (item.children.length){
-								me.refreshList();
-							}else{
+							listbox.setSelectedIndex(index);
+							Tracker.load(item.url);
+							UI.mainPanel.setView("main");
+						}
+					}
+				};
 
-								FetchService.json(item.url,function(data){
-									if (data && data.samples){
-										item.children = data.samples;
-										me.refreshList();
-									}
-								})
-							}
+				if (modules.length){
+					populate(modules,moduleSelectedIndex);
+				}else{
+					FetchService.json("data/modules.json",function(data){
+						if (data && data.modules){
+							modules = data.modules;
+							populate(modules,moduleSelectedIndex);
+						}
+					})
+				}
+				break;
+			case "modarchive":
+				itemHandler = ModArchive;
+				label.setLabel("Browse Modarchive");
+				listbox.onClick = function(e){
+					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
+					if (item && item.data){
+						var index = item.index;
+						item = itemsMap[index];
+
+						if (item.children){
+							toggleDirectory(item,index);
+						}else{
+							listbox.setSelectedIndex(index);
+							console.log(item);
+							Tracker.load(item.url);
+							UI.mainPanel.setView("main");
+						}
+					}
+				};
+				onLoadChildren = function(item,data){
+					if (data && data.length){
+
+						if (item.title == "... load more ..." && item.parent){
+							item = item.parent;
+							data.forEach(function(child){
+								child.parent = item;
+							});
+							item.children.pop();
+							item.children = item.children.concat(data);
+						}else{
+							data.forEach(function(child){
+								child.parent = item;
+							});
+							item.children = data;
 						}
 					}else{
-						listbox.setSelectedIndex(index);
-						Tracker.load(item.url);
-						//UI.mainPanel.setView("resetTop");
+						item.children = [{title:"error loading data"}];
+						console.error("this does not seem to be a valid modArchive API response");
 					}
-
-				}
-			};
-			onLoadChildren = function(item,data){
-				if (data && data.samples){
-					item.children = data.samples;
 					me.refreshList();
+				};
+
+				if (modArchive.length){
+					populate(modArchive,0);
+				}else{
+					listbox.setItems([{label: "loading ..."}]);
+
+					FetchService.json("data/modarchive.json",function(data){
+						if (data && data.modarchive){
+							modArchive = data.modarchive;
+							populate(modArchive,0);
+						}
+					});
+
 				}
-			};
+				break;
 
+			case "dropbox":
+				itemHandler = Dropbox;
+				label.setLabel("Browse Your Dropbox");
 
-			if (samples.length){
-				populate(samples,sampleSelectedIndex);
-			}else{
-				FetchService.json("data/samples.json",function(data){
-					if (data && data.samples){
-						samples = data.samples;
-						populate(samples,sampleSelectedIndex);
+				listbox.setItems([{label: "loading ..."}]);
+
+				listbox.onClick = function(e){
+					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
+					if (item && item.data){
+						var index = item.index;
+						item = itemsMap[index];
+
+						if (item.children){
+							toggleDirectory(item,index);
+						}else{
+							listbox.setSelectedIndex(index);
+							console.log(item);
+
+							UI.setInfo(item.title);
+							UI.setStatus("Loading from Dropbox");
+
+							Dropbox.getFile(item.url,function(blob){
+								var reader = new FileReader();
+								reader.onload = function(){
+									Tracker.processFile(reader.result,item.title);
+									UI.setStatus("Ready");
+									UI.mainPanel.setView("main");
+								};
+								reader.readAsArrayBuffer(blob);
+							});
+
+						}
 					}
-				})
-			}
+				};
 
+				Dropbox.list("",function(data){
+					console.log(data);
+					populate(data,0);
+				});
+				break;
+			case "samples":
+				itemHandler = false;
+				label.setLabel("Load Sample to slot " + Tracker.getCurrentSampleIndex());
+				listbox.onClick = function(e){
+					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
+					if (item && item.data){
+						var index = item.index;
+						item = itemsMap[index];
+
+						if (item.children){
+							listbox.setSelectedIndex(index);
+							sampleSelectedIndex = index;
+							if (item.isExpanded){
+								item.isExpanded = false;
+								me.refreshList();
+							}else{
+								item.isExpanded = true;
+								if (item.children.length){
+									me.refreshList();
+								}else{
+
+									FetchService.json(item.url,function(data){
+										if (data && data.samples){
+											item.children = data.samples;
+											me.refreshList();
+										}
+									})
+								}
+							}
+						}else{
+							listbox.setSelectedIndex(index);
+							Tracker.load(item.url);
+							//UI.mainPanel.setView("resetTop");
+						}
+
+					}
+				};
+				onLoadChildren = function(item,data){
+					if (data && data.samples){
+						item.children = data.samples;
+						me.refreshList();
+					}
+				};
+
+
+				if (samples.length){
+					populate(samples,sampleSelectedIndex);
+				}else{
+					FetchService.json("data/samples.json",function(data){
+						if (data && data.samples){
+							samples = data.samples;
+							populate(samples,sampleSelectedIndex);
+						}
+					})
+				}
+				break;
 		}
+
 	};
 
 	me.playRandomSong = function(){
@@ -435,7 +518,7 @@ UI.DiskOperations = function(){
 	}
 
 
-	EventBus.on(EVENT.sampleChange,function(event,value){
+	EventBus.on(EVENT.sampleChange,function(value){
 		if (me.isVisible() && currentView == "samples") label.setLabel("Load Sample to slot " + Tracker.getCurrentSampleIndex());
 	});
 

@@ -358,29 +358,29 @@ UI.MainPanel = function(){
 	me.sortZIndex();
 
 	// events
-	EventBus.on(EVENT.songPropertyChange,function(event,song){
+	EventBus.on(EVENT.songPropertyChange,function(song){
 		modNameInputBox.setValue(song.title,true);
 		spinBoxSongLength.setValue(song.length,true);
 		spinBoxSample.setMax(song.samples.length-1);
 	});
 
-	EventBus.on(EVENT.sampleChange,function(event,value){
+	EventBus.on(EVENT.sampleChange,function(value){
 		spinBoxSample.setValue(value,true);
 	});
-	EventBus.on(EVENT.patternChange,function(event,value){
+	EventBus.on(EVENT.patternChange,function(value){
 		spinBoxPattern.setValue(value,true);
 		patternView.refresh();
 	});
-	EventBus.on(EVENT.patternPosChange,function(event,value){
+	EventBus.on(EVENT.patternPosChange,function(value){
 		patternView.refresh();
 	});
-	EventBus.on(EVENT.cursorPositionChange,function(event,value){
+	EventBus.on(EVENT.cursorPositionChange,function(value){
 		patternView.refresh();
 	});
-	EventBus.on(EVENT.recordingChange,function(event,value){
+	EventBus.on(EVENT.recordingChange,function(value){
 		patternView.refresh();
 	});
-	EventBus.on(EVENT.trackStateChange,function(event,state){
+	EventBus.on(EVENT.trackStateChange,function(state){
 		// set other tracks to mute if a track is soloed
 		if (state.solo && typeof state.track != "undefined"){
 			for (i = 0;i< Tracker.getTrackCount();i++){
@@ -391,14 +391,14 @@ UI.MainPanel = function(){
 		}
 	});
 
-	EventBus.on(EVENT.songPositionChange,function(event,value){
+	EventBus.on(EVENT.songPositionChange,function(value){
 		songlistbox.setSelectedIndex(value,true);
 	});
-	EventBus.on(EVENT.patternTableChange,function(event,value){
+	EventBus.on(EVENT.patternTableChange,function(value){
 		me.setPatternTable(Tracker.getSong().patternTable);
 	});
 
-	EventBus.on(EVENT.sampleChange,function(event,value){
+	EventBus.on(EVENT.sampleChange,function(value){
 		listbox.setSelectedIndex(value-1);
 	});
 
@@ -406,7 +406,7 @@ UI.MainPanel = function(){
 		//spinBoxBmp.setValue(value,true);
 	//});
 
-	EventBus.on(EVENT.sampleNameChange,function(event,sampleIndex){
+	EventBus.on(EVENT.sampleNameChange,function(sampleIndex){
 		var sample = Tracker.getSample(sampleIndex);
 		if (sample){
 			var instruments = me.getInstruments();
@@ -921,9 +921,15 @@ UI.MainPanel = function(){
 				sampleView.setLayout();
 				sampleView.show(true,true);
 				break;
-			case "diskop":
+			case "diskop_load":
 				resetTop();
-				diskOperations.setLayout();
+				diskOperations.setLayout("load");
+				diskOperations.refreshList();
+				diskOperations.show();
+				break;
+			case "diskop_save":
+				resetTop();
+				diskOperations.setLayout("save");
 				diskOperations.refreshList();
 				diskOperations.show();
 				break;

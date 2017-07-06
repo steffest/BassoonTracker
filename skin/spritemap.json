@@ -2,7 +2,7 @@
   {
     "name": "background",
     "x": 562,
-    "y": 169,
+    "y": 340,
     "width": 17,
     "height": 17
   },
@@ -29,36 +29,36 @@
   },
   {
     "name": "button_inlay",
-    "x": 410,
+    "x": 339,
     "y": 433,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_active",
+    "x": 213,
+    "y": 503,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_blue",
     "x": 410,
     "y": 463,
     "width": 71,
     "height": 30
   },
   {
-    "name": "button_inlay_blue",
-    "x": 339,
-    "y": 463,
-    "width": 71,
-    "height": 30
-  },
-  {
     "name": "button_inlay_blue_active",
-    "x": 142,
+    "x": 71,
     "y": 503,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_green",
-    "x": 71,
-    "y": 503,
+    "x": 447,
+    "y": 363,
     "width": 71,
     "height": 30
   },
@@ -71,22 +71,22 @@
   },
   {
     "name": "button_inlay_plain",
-    "x": 213,
-    "y": 503,
+    "x": 339,
+    "y": 463,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_red",
-    "x": 339,
-    "y": 433,
+    "x": 142,
+    "y": 503,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_red_active",
-    "x": 447,
-    "y": 363,
+    "x": 410,
+    "y": 433,
     "width": 71,
     "height": 30
   },
@@ -96,6 +96,13 @@
     "y": 256,
     "width": 132,
     "height": 38
+  },
+  {
+    "name": "dropbox",
+    "x": 562,
+    "y": 207,
+    "width": 21,
+    "height": 17
   },
   {
     "name": "dropzone",
@@ -114,21 +121,21 @@
   {
     "name": "disk",
     "x": 575,
-    "y": 259,
+    "y": 430,
     "width": 12,
     "height": 11
   },
   {
     "name": "module",
     "x": 575,
-    "y": 271,
+    "y": 442,
     "width": 12,
     "height": 11
   },
   {
     "name": "sample",
     "x": 562,
-    "y": 283,
+    "y": 454,
     "width": 12,
     "height": 11
   },
@@ -196,6 +203,13 @@
     "height": 107
   },
   {
+    "name": "panel_black_insert",
+    "x": 562,
+    "y": 324,
+    "width": 19,
+    "height": 16
+  },
+  {
     "name": "panel_dark",
     "x": 256,
     "y": 0,
@@ -203,9 +217,30 @@
     "height": 219
   },
   {
+    "name": "panel_dark_blueish",
+    "x": 562,
+    "y": 260,
+    "width": 19,
+    "height": 16
+  },
+  {
+    "name": "panel_dark_greyish",
+    "x": 562,
+    "y": 292,
+    "width": 19,
+    "height": 16
+  },
+  {
+    "name": "panel_dark_insert",
+    "x": 562,
+    "y": 276,
+    "width": 19,
+    "height": 16
+  },
+  {
     "name": "panel_inset",
     "x": 562,
-    "y": 243,
+    "y": 414,
     "width": 16,
     "height": 16
   },
@@ -215,6 +250,27 @@
     "y": 463,
     "width": 39,
     "height": 24
+  },
+  {
+    "name": "panel_light",
+    "x": 562,
+    "y": 188,
+    "width": 23,
+    "height": 19
+  },
+  {
+    "name": "panel_mid",
+    "x": 562,
+    "y": 169,
+    "width": 23,
+    "height": 19
+  },
+  {
+    "name": "panel_trans",
+    "x": 562,
+    "y": 308,
+    "width": 19,
+    "height": 16
   },
   {
     "name": "piano",
@@ -275,14 +331,28 @@
   {
     "name": "radio_active",
     "x": 562,
-    "y": 271,
+    "y": 442,
     "width": 13,
     "height": 12
   },
   {
+    "name": "radio_big_active",
+    "x": 562,
+    "y": 224,
+    "width": 18,
+    "height": 18
+  },
+  {
+    "name": "radio_big_inactive",
+    "x": 562,
+    "y": 242,
+    "width": 18,
+    "height": 18
+  },
+  {
     "name": "radio_inactive",
     "x": 562,
-    "y": 259,
+    "y": 430,
     "width": 13,
     "height": 12
   },
@@ -310,42 +380,42 @@
   {
     "name": "vu_green",
     "x": 576,
-    "y": 224,
+    "y": 395,
     "width": 10,
     "height": 15
   },
   {
     "name": "vu_green_active",
     "x": 562,
-    "y": 205,
+    "y": 376,
     "width": 14,
     "height": 19
   },
   {
     "name": "vu_red",
     "x": 576,
-    "y": 186,
+    "y": 357,
     "width": 10,
     "height": 15
   },
   {
     "name": "vu_red_active",
     "x": 562,
-    "y": 224,
+    "y": 395,
     "width": 14,
     "height": 19
   },
   {
     "name": "vu_yellow",
     "x": 576,
-    "y": 205,
+    "y": 376,
     "width": 10,
     "height": 15
   },
   {
     "name": "vu_yellow_active",
     "x": 562,
-    "y": 186,
+    "y": 357,
     "width": 14,
     "height": 19
   },
