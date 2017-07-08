@@ -531,8 +531,10 @@ var Tracker = (function(){
 				var prevSlide = trackEffectCache[track].slide;
 
 				if (prevSlide){
-					if (!target) target = prevSlide.target;
 					if (!value) value = prevSlide.value;
+				}
+				if (!target) {
+					target = trackEffectCache[track].defaultSlideTarget;
 				}
 
 				trackEffects.slide = {
@@ -541,10 +543,6 @@ var Tracker = (function(){
 					canUseGlissando: true
 				};
 				trackEffectCache[track].slide = trackEffects.slide;
-
-				if (!note.period){
-					trackEffects.slide = undefined; // don't slide but do use effect cache
-				}
 
 				if (note.sample){
 					trackEffects.volume = {
@@ -978,6 +976,7 @@ var Tracker = (function(){
 			// cut off previous note on the same track;
 			cutNote(track,time);
 			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time);
+			trackEffectCache[track].defaultSlideTarget = trackNotes[track].startPeriod;
 		}
 
 
@@ -1085,6 +1084,7 @@ var Tracker = (function(){
 
 				for (var tick = 1; tick < steps; tick++){
 					if (effects.slide.target){
+						trackEffectCache[track].defaultSlideTarget = effects.slide.target;
 						if (targetPeriod<effects.slide.target){
 							targetPeriod += value;
 							if (targetPeriod>effects.slide.target) targetPeriod = effects.slide.target;
@@ -1094,6 +1094,7 @@ var Tracker = (function(){
 						}
 					}else{
 						targetPeriod += effects.slide.value;
+						if (trackEffectCache[track].defaultSlideTarget) trackEffectCache[track].defaultSlideTarget += effects.slide.value;
 					}
 
 					targetPeriod = Audio.limitAmigaPeriod(targetPeriod);
@@ -1695,7 +1696,7 @@ var Tracker = (function(){
 			trackNumber = currentTrack;
 			data = pasteBuffer.track;
 		}
-		console.error("paste",trackNumber,data[0]);
+		console.log("paste",trackNumber,data[0]);
 
 		if (data){
 			var length = currentPatternData.length;
