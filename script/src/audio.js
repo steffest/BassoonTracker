@@ -151,7 +151,7 @@ var Audio = (function(){
             source.buffer = sampleBuffer;
 
             var volumeGain = audioContext.createGain();
-            volumeGain.gain.value = volume/100; 
+            volumeGain.gain.value = volume/100;
 
             if (sample.loopRepeatLength>2){
 
@@ -446,7 +446,7 @@ var Audio = (function(){
         if (note && note.tune){
             var centerTune = 8;
             var tune = 8 + finetune;
-            if (tune>0 && tune<note.tune.length) result = note.tune[tune];
+            if (tune>=0 && tune<note.tune.length) result = note.tune[tune];
         }
         return result;
     };

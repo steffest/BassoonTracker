@@ -399,7 +399,6 @@ var Tracker = (function(){
 		var defaultVolume = 100;
 		var trackEffects = {};
 
-
 		var sampleIndex = note.sample;
 
 		if (note.period && !note.sample){
@@ -509,7 +508,17 @@ var Tracker = (function(){
 				// if value == 0 then the old slide will continue
 
 				doPlayNote = false;
+				// note: protracker2 switches samples on the fly if the sample index is different from the previous sample ...
+				// Should we implement that?
+				// fasttracker does not.
+				// protracker 3 does not
+				// milkytracker tries, but not perfect
+				// the ProTracker clone of 8bitbubsy does this completely compatible to PT2.
+
 				var target = note.period;
+
+				// avoid using the fineTune of another sample if another sample index is present
+				if (trackNotes[track].currentSample) sampleIndex = trackNotes[track].currentSample;
 
 				if (target && sampleIndex){
 					// check if the sample is finetuned
@@ -532,6 +541,10 @@ var Tracker = (function(){
 					canUseGlissando: true
 				};
 				trackEffectCache[track].slide = trackEffects.slide;
+
+				if (!note.period){
+					trackEffects.slide = undefined; // don't slide but do use effect cache
+				}
 
 				if (note.sample){
 					trackEffects.volume = {
@@ -968,8 +981,8 @@ var Tracker = (function(){
 		}
 
 
-		if (note.sample || sampleIndex) {
-			trackNotes[track].currentSample = note.sample || sampleIndex;
+		if (sampleIndex) {
+			trackNotes[track].currentSample = sampleIndex;
 
 			// reset temporary sample settings
 			if (trackEffects.fineTune && trackEffects.fineTune.sample){
