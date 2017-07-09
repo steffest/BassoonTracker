@@ -12,7 +12,7 @@ UI.DiskOperationTargets = function(){
 	me.addChild(label1);
 
 	var label = UI.label({
-		label: "From / To",
+		label: "From",
 		font: fontSmall
 	});
 	me.addChild(label);

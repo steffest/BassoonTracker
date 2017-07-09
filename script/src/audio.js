@@ -105,6 +105,7 @@ var Audio = (function(){
         time = time || 0;
 
         var sample = Tracker.getSample(index);
+        var basePeriod = period;
 
         if (sample){
             var sampleBuffer;
@@ -181,6 +182,7 @@ var Audio = (function(){
                 startVolume: volume,
                 currentVolume: volume,
                 startPeriod: period,
+                basePeriod: basePeriod,
                 startPlaybackRate: initialPlaybackRate,
                 sampleIndex: index,
                 effects: effects,

@@ -17,6 +17,9 @@ UI.PianoView = function(){
 	//me.hide();
 
 	var octave = 1;
+	var keyTop = 30;
+	var bKeyHeight = 0;
+
 
 	var background = UI.scale9Panel(0,0,me.width,me.height,UI.Assets.panelMainScale9);
 	background.ignoreEvents = true;
@@ -89,9 +92,17 @@ UI.PianoView = function(){
 	}
 
 	EventBus.on(EVENT.pianoNoteOn,function(note){
-		if (note && note.startPeriod){
-			var keyIndex = periodKeys[note.startPeriod] - (octave-1)*8;
+		if (!me.isVisible()) return;
+		if (note && note.basePeriod){
+			var keyIndex = periodKeys[note.basePeriod];
 			if (keyIndex >= 0){
+
+				if (keyIndex>=1000){
+					keyIndex = keyIndex - (octave-1)*5;
+				}else{
+					keyIndex = keyIndex - (octave-1)*7;
+				}
+
 				keyDown[keyIndex] = {
 					startTime: Audio.context.currentTime,
 					source: note.source
@@ -102,8 +113,16 @@ UI.PianoView = function(){
 	});
 
 	EventBus.on(EVENT.pianoNoteOff,function(note){
-		if (note && note.startPeriod){
-			var keyIndex = periodKeys[note.startPeriod]- (octave-1)*8;
+		if (!me.isVisible()) return;
+		if (note && note.basePeriod){
+			var keyIndex = periodKeys[note.basePeriod];
+
+			if (keyIndex>=1000){
+				keyIndex = keyIndex - (octave-1)*5;
+			}else{
+				keyIndex = keyIndex - (octave-1)*7;
+			}
+
 			if (keyIndex >= 0){
 				keyDown[keyIndex] = false;
 				me.refresh();
@@ -112,36 +131,50 @@ UI.PianoView = function(){
 	});
 
 	var keyNoteOn = function(key){
-		if (keys[key]){
-			var note =  NOTEPERIOD[keys[key + (octave-1)*8]];
 
-			if (note && note.period){
+		var note;
+		if (key<1000 && keys[key]){
+			note =  NOTEPERIOD[keys[key + (octave-1)*7]];
+		}else{
+			var bkey = key - 1000;
+			if (bKeys[bkey]) note =  NOTEPERIOD[bKeys[bkey + (octave-1)*5]];
+		}
 
-				if (Tracker.isRecording()){
-					if (Tracker.getCurrentTrackPosition() > 0){
-						// cursorPosition is not on note
-						// play anyway but don't input
+		if (note && note.period){
+
+			if (Tracker.isRecording()){
+				if (Tracker.getCurrentTrackPosition() > 0){
+					// cursorPosition is not on note
+					// play anyway but don't input
+				}else{
+					Tracker.putNote(Tracker.getCurrentSampleIndex(),note.period);
+					if (Tracker.isPlaying()){
+
 					}else{
-						Tracker.putNote(Tracker.getCurrentSampleIndex(),note.period);
-						if (Tracker.isPlaying()){
-
-						}else{
-							Tracker.moveCurrentPatternPos(1);
-						}
+						Tracker.moveCurrentPatternPos(1);
 					}
 				}
-
-				var playedNote = Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
-				keyPlayed[key] = playedNote;
-				EventBus.trigger(EVENT.pianoNoteOn,playedNote);
-
 			}
+
+			var playedNote = Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
+			keyPlayed[key] = playedNote;
+			EventBus.trigger(EVENT.pianoNoteOn,playedNote);
+
 		}
+
 	};
 
 	var keyNoteOff = function(key){
-		if (keys[key] && keyPlayed[key]){
-			var note = NOTEPERIOD[keys[key + (octave-1)*8]];
+
+		var note;
+		if (keyPlayed[key]){
+			if (key<1000 && keys[key]){
+				note =  NOTEPERIOD[keys[key + (octave-1)*7]];
+			}else{
+				var bkey = key - 1000;
+				if (bKeys[bkey]) note =  NOTEPERIOD[bKeys[bkey + (octave-1)*5]];
+			}
+
 			if (note && note.period){
 				EventBus.trigger(EVENT.pianoNoteOff,keyPlayed[key]);
 				if (keyPlayed[key].volume){
@@ -154,28 +187,65 @@ UI.PianoView = function(){
 		}
 	};
 
+	var getKeyAtPoint = function(x,y){
+		var key = -1;
+		y = y-keyTop;
+		if (y>= 0){
+			if (y>bKeyHeight){
+				// white key
+				key = Math.floor(x/(keyWidth-4));
+			}else{
+				var subKeyWidth = ((keyWidth-4)/2);
+				var margin = subKeyWidth/2;
+				var subKey = Math.floor((x - margin)/subKeyWidth);
+				if (subKey<0) subKey=0;
+
+				if (subKey%2 == 0){
+					// white key
+					key = subKey/2;
+				}else{
+					// black key
+					var keyIndex = {
+						1:0,3:1,5:-1,7:2,9:3,11:4,13:-1,15:5,17:6,19:-1,21:7,23:8,25:9,27:-1,29:10,31:11,33:-1,35:12,37:13,39:14,41:-1
+					};
+					key = 1000 + keyIndex[subKey];
+					if (key<1000){ // no black key
+						key = Math.floor(x/(keyWidth-4));
+					}
+				}
+
+			}
+		}
+		return key;
+	};
+
 	me.onTouchDown = function(data){
-		var x = me.eventX;
-		var key = Math.floor(x/(keyWidth-4));
-		touchKey[data.id] = key;
-		keyNoteOn(key);
+		var key = getKeyAtPoint(me.eventX,me.eventY);
+		if (key>=0){
+			touchKey[data.id] = key;
+			keyNoteOn(key);
+		}
 	};
 
 	me.onTouchUp = function(data){
 		var x = data.dragX || me.eventX;
-		var key = Math.floor(x/(keyWidth-4));
-		touchKey[data.id] = false;
-		keyNoteOff(key);
+		var key = getKeyAtPoint(x,me.eventY);
+		if (key>=0){
+			touchKey[data.id] = false;
+			keyNoteOff(key);
+		}
 	};
 
 	me.onDrag = function(data){
 		var x = data.dragX;
-		var key = Math.floor(x/(keyWidth-4));
-
-		if (touchKey[data.id] != key){
-			keyNoteOff(touchKey[data.id]);
-			touchKey[data.id] = key;
-			keyNoteOn(key);
+		var y = data.dragY - me.top - keyTop;
+		var key = getKeyAtPoint(x,y);
+		if (key>=0){
+			if (touchKey[data.id] != key){
+				keyNoteOff(touchKey[data.id]);
+				touchKey[data.id] = key;
+				keyNoteOn(key);
+			}
 		}
 	};
 
@@ -192,7 +262,6 @@ UI.PianoView = function(){
 			octaveBoxBmp.render();
 
 			// draw white keys
-			var keyTop = 30;
 			var keyHeight = me.height - keyTop;
 
 			var keyX = 0;
@@ -211,7 +280,7 @@ UI.PianoView = function(){
 
 			// draw black keys
 			var bKeyWidth = 48;
-			var bKeyHeight = Math.floor(keyHeight/1.7);
+			bKeyHeight = Math.floor(keyHeight/1.7);
 			var bkeyX = keyWidth - bKeyWidth/2 - 2;
 			counter = 0;
 			var keyCounter = 0;

@@ -30,8 +30,6 @@ UI.radioGroup = function(x,y,w,h){
 	};
 
 	me.onClick=function(e){
-		console.error(me.eventY);
-		console.error((me.eventY-startY+buttonY));
 		me.setSelectedIndex(Math.floor((me.eventY-startY+buttonY)/itemHeight));
 	};
 

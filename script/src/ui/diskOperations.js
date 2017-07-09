@@ -188,14 +188,14 @@ UI.DiskOperations = function(){
 				top: startTop,
 				left: UI.mainPanel.defaultMargin,
 				width: UI.mainPanel.col2W,
-				height: (me.height / 2) - startTop
+				height: (me.height / 2) - startTop - 16
 			});
 
 			targetPanel.setProperties({
-				top: me.height / 2,
+				top: me.height / 2 - 16,
 				left: UI.mainPanel.defaultMargin,
 				width: UI.mainPanel.col2W,
-				height: me.height / 2
+				height: me.height / 2 + 16
 			});
 
 			listbox.setProperties({
@@ -468,6 +468,10 @@ UI.DiskOperations = function(){
 						}
 					})
 				}
+				break;
+			case "local":
+				itemHandler = false;
+				label.setLabel("Upload files");
 				break;
 		}
 
