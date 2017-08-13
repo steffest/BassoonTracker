@@ -37,6 +37,8 @@ var Tracker = (function(){
 	var trackCount = 4;
 	var patternLength = 64;
 
+	var swing = 0; // swing in milliseconds. NOTE: this is not part of any original Tracker format, just nice to have on beat sequences
+
 	var pasteBuffer = {};
 
 	var tracks = getUrlParameter("tracks");
@@ -371,7 +373,14 @@ var Tracker = (function(){
 		for (var i = 0; i<tracks; i++){
 			var note = patternStep[i];
 			var songPos = {position: songPostition, step: step};
-			r = playNote(note,i,time,songPos);
+
+			var playtime = time;
+			if (swing){
+				var swingTime = ((Math.random() * swing * 2) - swing) / 1000;
+				playtime += swingTime;
+			}
+
+			r = playNote(note,i,playtime,songPos);
 			if (r.patternBreak) {
 				result.patternBreak = true;
 				result.targetPatternPosition = r.targetPatternPosition || 0;
@@ -1269,6 +1278,14 @@ var Tracker = (function(){
 
 	me.getAmigaSpeed = function(){
 		return ticksPerStep;
+	};
+
+	me.getSwing = function(){
+		return swing;
+	};
+
+	me.setSwing = function(newSwing){
+		swing = newSwing;
 	};
 
 	me.getPatterLength = function(){
