@@ -219,7 +219,6 @@ UI.PatternView = function(x,y,w,h){
                         }
 
                         for (var j = 0; j<Tracker.getTrackCount();j++){
-
                             if (isTrackVisible[j]){
                                 var note = step[j];
                                 var x;
@@ -322,7 +321,7 @@ UI.PatternView = function(x,y,w,h){
     }
 
     function formatHex(i,length,padString){
-        var h = i.toString(16).toUpperCase();
+        h = i.toString(16).toUpperCase();
         if (length && h.length<length){
             padString = padString || "0";
             while (h.length<length){

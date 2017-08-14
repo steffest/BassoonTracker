@@ -20,6 +20,26 @@ module.exports = function(grunt) {
                     'script/src/**/*.js'
                 ],
                 dest: 'script/bassoontracker.js'
+            },
+            player:{
+                src: [
+                    'script/src/enum.js',
+                    'script/src/eventBus.js',
+                    'script/src/filesystem.js',
+                    'script/src/audio.js',
+                    'script/src/lib/util.js',
+                    'script/src/lib/waaclock.js',
+                    'script/src/lib/stereoPannerShim.js',
+                    'script/src/audio/filterChain.js',
+                    'script/src/tracker.js',
+                    'script/src/preloader.js',
+                    'script/src/fetchService.js',
+                    'script/src/loader/detect.js',
+                    'script/src/loader/protracker.js',
+                    'script/src/loader/soundtracker.js'
+
+                ],
+                dest: 'player/bassoonplayer.js'
             }
         },
         uglify: {
@@ -60,11 +80,15 @@ module.exports = function(grunt) {
                 files: {
                     'script/bassoontracker-min.js': ['script/bassoontracker.js']
                 }
+            },
+            player:{
+                files: {
+                    'player/bassoonplayer-min.js': ['player/bassoonplayer.js']
+                }
             }
-
         },
         clean: {
-            js: ['script/bassoontracker.js']
+            js: ['script/bassoontracker.js','player/bassoonplayer.js']
         },
         replace: {
             buildnumber: {
@@ -120,6 +144,7 @@ module.exports = function(grunt) {
     // Default task(s).
     // note:  use concat before uglify to keep the order of the JS files
     grunt.registerTask('bassoontracker', ['replace','concat','uglify','clean']);
+    grunt.registerTask('player', ['concat:player','uglify:player','clean']);
     grunt.registerTask('default', ['bassoontracker']);
     grunt.registerTask('sprites', ['sprite']);
 

@@ -6,6 +6,7 @@ var cachedAssets = {
 };
 
 var sprites = {};
+var UI = undefined;
 
 var PRELOADTYPE = {
 	"image": 1,

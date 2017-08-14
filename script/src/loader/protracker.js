@@ -146,7 +146,7 @@ var ProTracker = function(){
 				sampleContainer.push({label: i + " " + sample.name, data: i});
 			}
 		}
-		UI.mainPanel.setInstruments(sampleContainer);
+		if (UI) UI.mainPanel.setInstruments(sampleContainer);
 
 		return song;
 	};

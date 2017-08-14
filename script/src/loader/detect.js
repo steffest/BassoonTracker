@@ -6,6 +6,7 @@ var FileDetector = function(){
 		unsupported: {name: "UNSUPPORTED"},
 		mod_ProTracker: {name: "PROTRACKER", isMod: true, loader: function(){return ProTracker()}},
 		mod_SoundTracker: {name: "SOUNDTRACKER", isMod: true, loader: function(){return SoundTracker()}},
+		mod_FastTracker: {name: "FASTTRACKER", isMod: true, loader: function(){return FastTracker()}},
 		sample: {name: "SAMPLE",isSample:true}
 	};
 
@@ -15,8 +16,7 @@ var FileDetector = function(){
 
 		id = file.readString(17,0);
 		if (id == "Extended Module: "){
-			alert("Sorry, FastTracker XM files are not supported yet ...");
-			return fileType.unsupported;
+			return fileType.mod_FastTracker;
 		}
 
 		if (length>1100){

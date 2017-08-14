@@ -1,3 +1,6 @@
+var canvas;
+var ctx;
+
 var UI = (function(){
 
 	var me={};

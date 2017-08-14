@@ -1,4 +1,11 @@
+var periodNoteTable = {};
+var periodFinetuneTable = {};
+var nameNoteTable = {};
+var noteNames = [];
+
 var Tracker = (function(){
+
+	// TODO: strip UI stuff
 	var me = {};
 
 	var clock;
@@ -63,6 +70,32 @@ var Tracker = (function(){
 	}
 
 	console.log("ticktime: " + tickTime);
+
+	me.init = function(initAudio){
+		for (var i = -8; i<8;i++){
+			periodFinetuneTable[i] = {};
+		}
+
+		for (var key in NOTEPERIOD){
+			if (NOTEPERIOD.hasOwnProperty(key)){
+				var note = NOTEPERIOD[key];
+				periodNoteTable[note.period] = note;
+				nameNoteTable[note.name] = note;
+				noteNames.push(note.name);
+
+				// build fineTune table
+				if (note.tune){
+					for (i = -8; i<8;i++){
+						var table =  periodFinetuneTable[i];
+						var index = i+8;
+						table[note.tune[index]] = note.period;
+					}
+				}
+			}
+		}
+
+		if (initAudio) Audio.init();
+	};
 
 	me.setCurrentSampleIndex = function(index){
 		if (song.samples[index]){
@@ -226,8 +259,11 @@ var Tracker = (function(){
 	me.stop = function(){
 		if (clock) clock.stop();
 		Audio.disable();
-		UI.setStatus("Ready");
-		Input.clearInputNotes();
+		if (UI) {
+			UI.setStatus("Ready");
+			Input.clearInputNotes();
+		}
+
 		me.clearEffectCache();
 		//Audio.stopRecording();
 
@@ -282,7 +318,7 @@ var Tracker = (function(){
 		clock = clock || new WAAClock(Audio.context);
 		clock.start();
 		Audio.enable();
-		UI.setStatus("Playing");
+		if (UI) UI.setStatus("Playing");
 		patternLoopStart = [];
 		patternLoopCount = [];
 
@@ -1296,6 +1332,10 @@ var Tracker = (function(){
 		return trackCount;
 	};
 
+	me.setTrackCount = function(count){
+		trackCount = count;
+	};
+
 	me.toggleRecord = function(){
 		me.stop();
 		isRecording = !isRecording;
@@ -1363,17 +1403,22 @@ var Tracker = (function(){
 		return result;
 	};
 
+	me.getTimeStates = function(){
+		return trackerStates;
+	};
 
-	me.load = function(url,skipHistory){
+	me.load = function(url,skipHistory,next){
 		url = url || "demomods/StardustMemories.mod";
 		var name = url.substr(url.lastIndexOf("/")+1);
 
-		UI.setInfo("");
-		UI.setStatus("Loading");
+		if (UI){
+			UI.setInfo("");
+			UI.setStatus("Loading");
+		}
 
 		loadFile(url,function(result){
 			var isMod = me.processFile(result,name);
-			UI.setStatus("Ready");
+			if (UI) UI.setStatus("Ready");
 
 			if (isMod){
 				var infoUrl = "";
@@ -1389,10 +1434,10 @@ var Tracker = (function(){
 					infoUrl = "https://modarchive.org/index.php?request=view_by_moduleid&query=" + id;
 					EventBus.trigger(EVENT.songPropertyChange,song);
 				}
-				UI.setInfo(song.title,source,infoUrl);
+				if (UI) UI.setInfo(song.title,source,infoUrl);
 			}
 
-			if (isMod && !skipHistory){
+			if (UI && isMod && !skipHistory){
 
 				var path = window.location.pathname;
 				var filename = path.substring(path.lastIndexOf('/')+1);
@@ -1404,9 +1449,11 @@ var Tracker = (function(){
 
 
 			var autoPlay = getUrlParameter("autoplay");
+			if (!UI && skipHistory) autoPlay = "1";
 			if ((autoPlay == "true")  || (autoPlay == "1")){
 				Tracker.playSong();
 			}
+			if (next) next();
 		})
 	};
 
@@ -1418,7 +1465,7 @@ var Tracker = (function(){
 			var reader = new FileReader();
 			reader.onload = function(){
 				me.processFile(reader.result,file.name);
-				UI.setStatus("Ready");
+				if (UI) UI.setStatus("Ready");
 			};
 			reader.readAsArrayBuffer(file);
 		}
@@ -1607,8 +1654,8 @@ var Tracker = (function(){
 	};
 
 	function onModuleLoad(){
-		UI.mainPanel.setPatternTable(song.patternTable);
-		UI.setInfo(song.title);
+		if (UI) UI.mainPanel.setPatternTable(song.patternTable);
+		if (UI) UI.setInfo(song.title);
 
 		prevPatternPos = undefined;
 		prevSampleIndex = undefined;
@@ -1765,7 +1812,7 @@ var Tracker = (function(){
 			sampleContainer.push({label: i + " ", data: i});
 		}
 		song.samples = samples;
-		UI.mainPanel.setInstruments(sampleContainer);
+		if (UI) UI.mainPanel.setInstruments(sampleContainer);
 		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
 	};
 

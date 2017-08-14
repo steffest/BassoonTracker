@@ -1,15 +1,7 @@
 var debug = false;
 
-var canvas;
-var ctx;
-
-var periodNoteTable = {};
-var periodFinetuneTable = {};
-var nameNoteTable = {};
-var noteNames = [];
-
 document.addEventListener('DOMContentLoaded', function() {
-    Main.init();
+    Tracker.init();
     Audio.init();
     UI.init(function(){
         if (!Audio.context){
@@ -32,51 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-var Main = (function(){
-    var me={};
-
-    me.init = function(){
-
-        for (var i = -8; i<8;i++){
-            periodFinetuneTable[i] = {};
-        }
-
-        for (var key in NOTEPERIOD){
-            if (NOTEPERIOD.hasOwnProperty(key)){
-                var note = NOTEPERIOD[key];
-                periodNoteTable[note.period] = note;
-                nameNoteTable[note.name] = note;
-                noteNames.push(note.name);
-
-                // build fineTune table
-                if (note.tune){
-                    for (i = -8; i<8;i++){
-                        var table =  periodFinetuneTable[i];
-                        var index = i+8;
-                        table[note.tune[index]] = note.period;
-                    }
-                }
-            }
-        }
-
-    };
-    return me;
-}());
-
-function getUrlParameter(param){
-    if (window.location.getParameter){
-        return window.location.getParameter(param);
-    } else if (location.search) {
-        var parts = location.search.substring(1).split('&');
-        for (var i = 0; i < parts.length; i++) {
-            var nv = parts[i].split('=');
-            if (!nv[0]) continue;
-            if (nv[0] == param) {
-                return nv[1] || true;
-            }
-        }
-    }
-}
 
 
 
