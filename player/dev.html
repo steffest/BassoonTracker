@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Bassoon Tracker - Standalone Player</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width user-scalable=no">
+
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <script src="../script/src/enum.js?v3"></script>
+    <script src="../script/src/eventBus.js"></script>
+    <script src="../script/src/filesystem.js"></script>
+    <script src="../script/src/audio.js"></script>
+
+    <script src="../script/src/lib/util.js"></script>
+    <script src="../script/src/lib/waaclock.js"></script>
+    <script src="../script/src/lib/stereoPannerShim.js"></script>
+
+    <script src="../script/src/audio/filterChain.js"></script>
+
+    <script src="../script/src/tracker.js"></script>
+    <script src="../script/src/preloader.js"></script>
+    <script src="../script/src/fetchService.js"></script>
+
+    <script src="../script/src/loader/detect.js"></script>
+    <script src="../script/src/loader/protracker.js"></script>
+    <script src="../script/src/loader/soundtracker.js"></script>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            Tracker.init(true);
+            if (!Audio.context){
+                alert("Sorry\nYour browser does not support WebAudio\nSupported browsers are\nChrome,Firefox,Safari and Edge");
+            }else{
+                Tracker.load("../demomods/StardustMemories.mod",false,function(){
+                    setTimeout(Tracker.playSong,100);
+                });
+            }
+        });
+
+    </script>
+</head>
+<body>
+
+
+</body>
+</html>
