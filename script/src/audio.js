@@ -15,6 +15,7 @@ var Audio = (function(){
     var mediaRecorder;
     var recordingChunks = [];
     var offlineContext;
+    var currentStereoSeparation = STEREOSEPARATION.BALANCED;
 
     var filters = {
         volume: true,
@@ -59,15 +60,13 @@ var Audio = (function(){
         var numberOfTracks = Tracker.getTrackCount();
         filterChains = [];
 
-        for (i = 0; i<numberOfTracks;i++){
+        function addFilterChain(){
             var filterChain = FilterChain(filters);
             filterChain.output().connect(lowPassfilter);
-
-            // pan even channels to the left, uneven to the right
-            filterChain.panningValue(i%2==0 ? -0.5 : 0.5);
-
             filterChains.push(filterChain);
         }
+
+        for (i = 0; i<numberOfTracks;i++)addFilterChain();
 
         me.filterChains = filterChains;
 
@@ -79,7 +78,12 @@ var Audio = (function(){
             });
         }
 
+        EventBus.on(EVENT.trackCountChange,function(trackCount){
+            for (i = filterChains.length; i<trackCount;i++)addFilterChain();
+            me.setStereoSeparation(currentStereoSeparation);
+        });
     };
+
 
     me.enable = function(){
         cutOffVolume.gain.value = 1;
@@ -276,6 +280,7 @@ var Audio = (function(){
 
     me.setStereoSeparation = function(value){
 
+        currentStereoSeparation = value;
         var numberOfTracks = Tracker.getTrackCount();
 
         var panAmount;

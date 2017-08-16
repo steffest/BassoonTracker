@@ -2,6 +2,7 @@ var periodNoteTable = {};
 var periodFinetuneTable = {};
 var nameNoteTable = {};
 var noteNames = [];
+var FTNotes = [];
 
 var Tracker = (function(){
 
@@ -51,6 +52,7 @@ var Tracker = (function(){
 	var tracks = getUrlParameter("tracks");
 	if (tracks == 8) trackCount = 8;
 	if (tracks == 16) trackCount = 16;
+	if (tracks == 22) trackCount = 22;
 	if (tracks == 32) trackCount = 32;
 	if (tracks == 64) trackCount = 64;
 	if (tracks == 128) trackCount = 128;
@@ -94,6 +96,15 @@ var Tracker = (function(){
 			}
 		}
 
+		for (key in FTNOTEPERIOD){
+			if (FTNOTEPERIOD.hasOwnProperty(key)){
+				var ftNote = FTNOTEPERIOD[key];
+				if (!ftNote.period) ftNote.period = 453;
+				FTNotes.push(ftNote);
+			}
+		}
+
+
 		if (initAudio) Audio.init();
 	};
 
@@ -122,6 +133,7 @@ var Tracker = (function(){
 			currentPatternData = getEmptyPattern();
 			song.patterns[currentPattern] = currentPatternData;
 		}
+		patternLength = currentPatternData.length;
 		if (prevPattern!=currentPattern) EventBus.trigger(EVENT.patternChange,currentPattern);
 		prevPattern = currentPattern;
 	};
@@ -445,6 +457,13 @@ var Tracker = (function(){
 		var trackEffects = {};
 
 		var sampleIndex = note.sample;
+
+		if (note.note){
+			// FTNote
+			var ftNote = FTNotes[note.note];
+			if (ftNote) note.period = ftNote.period;
+
+		}
 
 		if (note.period && !note.sample){
 			// reuse previous Sample
@@ -1324,7 +1343,7 @@ var Tracker = (function(){
 		swing = newSwing;
 	};
 
-	me.getPatterLength = function(){
+	me.getPatternLength = function(){
 		return patternLength;
 	};
 
@@ -1334,6 +1353,12 @@ var Tracker = (function(){
 
 	me.setTrackCount = function(count){
 		trackCount = count;
+
+		for (var i=trackNotes.length;i<trackCount;i++){
+			trackNotes.push({});
+			trackEffectCache.push({});
+		}
+		EventBus.trigger(EVENT.trackCountChange,trackCount);
 	};
 
 	me.toggleRecord = function(){
@@ -1558,7 +1583,7 @@ var Tracker = (function(){
 			highestPattern = Math.max(highestPattern,p);
 		}
 
-		fileSize += ((highestPattern+1)*1024);
+		fileSize += ((highestPattern+1)* (trackCount * 256));
 
 		samples.forEach(function(sample){
 			if (sample){
@@ -1603,7 +1628,8 @@ var Tracker = (function(){
 			var p = song.patternTable[i] || 0;
 			file.writeUByte(p);
 		}
-		file.writeString("M.K.");
+
+		file.writeString( trackCount == 8 ? "8CHN" : "M.K.");
 
 		// pattern Data
 
@@ -1654,8 +1680,9 @@ var Tracker = (function(){
 	};
 
 	function onModuleLoad(){
-		if (UI) UI.mainPanel.setPatternTable(song.patternTable);
 		if (UI) UI.setInfo(song.title);
+
+		if (song.channels) me.setTrackCount(song.channels);
 
 		prevPatternPos = undefined;
 		prevSampleIndex = undefined;
@@ -1668,6 +1695,7 @@ var Tracker = (function(){
 
 		me.clearEffectCache();
 
+		EventBus.trigger(EVENT.songLoaded,song);
 		EventBus.trigger(EVENT.songPropertyChange,song);
 	}
 

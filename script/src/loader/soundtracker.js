@@ -14,6 +14,7 @@ var SoundTracker = function(){
 		// and ftp://ftp.modland.com/pub/documents/format_documentation/Ultimate%20Soundtracker%20(.mod).txt for differences
 
 		song.typeId = "ST";
+		song.channels = 4;
 		song.title = file.readString(20,0);
 
 		var sampleDataOffset = 0;

@@ -2,9 +2,11 @@ UI.PatternView = function(x,y,w,h){
 
     var me = UI.panel(x,y,w,h);
     var visibleLines = 0;
+    var visibleTracks = 4;
     var lineHeight = 13;
     var scrollBarItemOffset = 0;
-    var max = Tracker.getPatterLength();
+    var startTrack = 0;
+    var max = Tracker.getPatternLength();
 
     var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
         img: Y.getImage("bar"),
@@ -35,6 +37,27 @@ UI.PatternView = function(x,y,w,h){
     me.addChild(scrollBar);
     setScrollBarPosition();
 
+    var scrollBarHor = UI.scale9Panel(w-28,18,16,16,{
+        img: Y.getImage("bar"),
+        left:2,
+        top:2,
+        right:3,
+        bottom: 3
+    });
+
+    scrollBarHor.onDragStart=function(){
+        scrollBarHor.startDragIndex = startTrack;
+    };
+
+    scrollBarHor.onDrag=function(touchData){
+        var maxSteps = Tracker.getTrackCount()-visibleTracks;
+        var delta =  touchData.dragX - touchData.startX;
+        var rest = UI.mainPanel.patternViewWidth - scrollBarHor.width;
+        var step = Math.floor(delta / (rest/maxSteps));
+        me.setHorizontalScroll(scrollBarHor.startDragIndex + step);
+    };
+    me.addChild(scrollBarHor);
+
 
     var fxPanels = [];
     for (var i = 0, len = Tracker.getTrackCount(); i<len;i++){
@@ -47,6 +70,28 @@ UI.PatternView = function(x,y,w,h){
     var trackVUHistory = [];
     var trackVULevelDecay = 10;
     var trackVULevelMax = 70;
+
+    EventBus.on(EVENT.trackCountChange,function(trackCount){
+        startTrack = Math.min(startTrack,trackCount-visibleTracks);
+        for (var i = fxPanels.length, len = trackCount; i<len;i++){
+            var fxPanel = UI.fxPanel(i);
+            fxPanels.push(fxPanel);
+            me.addChild(fxPanel);
+        }
+    });
+
+    EventBus.on(EVENT.songLoaded,function(){
+        me.setHorizontalScroll(0);
+    });
+
+    me.setHorizontalScroll = function(newStartTrack){
+        var maxSteps = Tracker.getTrackCount()-visibleTracks;
+        if (newStartTrack!=startTrack && newStartTrack>=0 && newStartTrack<=maxSteps){
+            startTrack = newStartTrack;
+            EventBus.trigger(EVENT.patternHorizontalScrollChange,startTrack);
+            setScrollBarHorPosition()
+        }
+    };
 
     me.toggleFxPanel = function(track){
         fxPanel = fxPanels[track];
@@ -85,7 +130,11 @@ UI.PatternView = function(x,y,w,h){
             var margin = UI.mainPanel.defaultMargin;
             var trackWidth = UI.mainPanel.trackWidth;
 
+            visibleTracks = UI.mainPanel.visibleTracks;
+            var hasHorizontalScrollBar =  visibleTracks<Tracker.getTrackCount();
             var visibleHeight = UI.mainPanel.patternHeight-30;
+
+
             var trackY = 0;
             var trackLeft = UI.mainPanel.patternMargin;
 
@@ -96,6 +145,10 @@ UI.PatternView = function(x,y,w,h){
                 patternNumberLeft = 0;
                 initialTrackTextOffset = 0;
                 lineNumbersToTheLeft = true;
+            }
+
+            if (hasHorizontalScrollBar){
+                visibleHeight -= 24;
             }
 
 
@@ -136,15 +189,16 @@ UI.PatternView = function(x,y,w,h){
                 trackVULevelDecay = trackVULevelMax/10;
             }
 
-            for (var i = 0; i<Tracker.getTrackCount();i++){
+            for (var i = 0; i<visibleTracks;i++){
 
-                isTrackVisible[i] = !(fxPanels[i] && fxPanels[i].visible);
+                var trackIndex = startTrack + i;
+                isTrackVisible[trackIndex] = !(fxPanels[trackIndex] && fxPanels[trackIndex].visible);
 
-                if (isTrackVisible[i]){
+                if (isTrackVisible[trackIndex]){
                     var trackX = trackLeft + i*(trackWidth+margin);
                     me.ctx.drawImage(darkPanel,trackX,0,trackWidth,panelHeight);
                     me.ctx.drawImage(darkPanel,trackX,panelTop2,trackWidth,panelHeight);
-                    if (fxPanels[i]) fxPanels[i].left = trackX;
+                    if (fxPanels[trackIndex]) fxPanels[trackIndex].left = trackX;
                 }
             }
 
@@ -192,7 +246,7 @@ UI.PatternView = function(x,y,w,h){
 
 
                 for (var i = visibleStart; i< visibleEnd; i++){
-                    if (i>=0 && i<Tracker.getPatterLength()){
+                    if (i>=0 && i<Tracker.getPatternLength()){
                         var step = pattern[i];
                         var y = baseY + ((i-visibleStart)*lineHeight);
 
@@ -218,9 +272,10 @@ UI.PatternView = function(x,y,w,h){
                             drawText(ti,patternNumberLeft,y,color);
                         }
 
-                        for (var j = 0; j<Tracker.getTrackCount();j++){
-                            if (isTrackVisible[j]){
-                                var note = step[j];
+                        for (var j = 0; j<visibleTracks;j++){
+                            trackIndex = j+startTrack;
+                            if (isTrackVisible[trackIndex]){
+                                var note = step[trackIndex];
                                 var x;
                                 if (lineNumbersToTheLeft){
                                     // center text in pattern
@@ -230,9 +285,15 @@ UI.PatternView = function(x,y,w,h){
                                     x = trackLeft + initialTrackTextOffset + (j*trackWidth);
                                 }
 
-                                var baseNote = periodNoteTable[note.period];
+                                if (note.note){
+                                    // XM module
+                                    var ftNote = FTNotes[note.note];
+                                    var noteString = ftNote ? ftNote.name : "???"
+                                }else{
+                                    var baseNote = periodNoteTable[note.period];
+                                    noteString = baseNote ? baseNote.name : "---";
+                                }
 
-                                var noteString = baseNote ? baseNote.name : "---";
 
                                 drawText(noteString,x,y);
                                 if (isCenter){
@@ -301,14 +362,31 @@ UI.PatternView = function(x,y,w,h){
                 }
             }
 
-            for (var j = 0; j<Tracker.getTrackCount();j++){
-                if (!isTrackVisible[j]){
-                    fxPanels[j].render();
+            for (var j = 0; j<visibleTracks;j++){
+                trackIndex = j+startTrack;
+                if (!isTrackVisible[trackIndex]){
+                    fxPanels[trackIndex].render();
                 }
             }
 
             setScrollBarPosition();
             scrollBar.render();
+            if (hasHorizontalScrollBar){
+                setScrollBarHorPosition();
+                scrollBarHor.render();
+
+                // tracknumbers
+                for (j = 0; j<visibleTracks;j++){
+                    trackIndex = j+startTrack;
+                    if (isTrackVisible[trackIndex]){
+                        trackX = trackLeft + j*(trackWidth+margin) + 2;
+                        drawText("" + (trackIndex+1),trackX,2);
+                    }
+                }
+
+
+            }
+
 
         }
         this.needsRendering = false;
@@ -361,6 +439,22 @@ UI.PatternView = function(x,y,w,h){
 
     }
 
+    function setScrollBarHorPosition(){
+
+        var max = UI.mainPanel.patternViewWidth;
+        var width = Math.floor((max / Tracker.getTrackCount()) * visibleTracks);
+        var step = (max - width) / (Tracker.getTrackCount()-visibleTracks);
+
+        var top = me.height-20;
+        if (visibleTracks>=Tracker.getTrackCount()) top = -200;
+
+        scrollBarHor.setProperties({
+            top: top,
+            width: width,
+            left: UI.mainPanel.patternMargin + Math.floor((startTrack * step))
+        });
+    }
+
     me.onMouseWheel = function(touchData){
         if (Tracker.isPlaying()) return;
         var pos = Tracker.getCurrentPatternPos();
@@ -372,18 +466,33 @@ UI.PatternView = function(x,y,w,h){
     };
 
     me.onDragStart = function(touchData){
+        scrollBarHor.startDragIndex = startTrack;
         if (Tracker.isPlaying()) return;
         me.startDragPos = Tracker.getCurrentPatternPos();
     };
 
     me.onDrag = function(touchData){
+
+        if (visibleTracks<Tracker.getTrackCount()){
+            var maxSteps = Tracker.getTrackCount()-visibleTracks;
+            var delta =  touchData.dragX - touchData.startX;
+            var rest = UI.mainPanel.patternViewWidth - scrollBarHor.width;
+            var step = Math.floor(delta / (rest/maxSteps));
+            me.setHorizontalScroll(scrollBarHor.startDragIndex - step);
+        }
+
         if (Tracker.isPlaying()) return;
 
-        var delta =  Math.round((touchData.dragY - touchData.startY)/lineHeight);
+        delta =  Math.round((touchData.dragY - touchData.startY)/lineHeight);
         var targetPos = me.startDragPos - delta;
         targetPos = Math.max(targetPos,0);
         targetPos = Math.min(targetPos,max-1);
         Tracker.setCurrentPatternPos(targetPos);
+    };
+
+
+    me.getStartTrack = function(){
+        return startTrack;
     };
 
     return me;

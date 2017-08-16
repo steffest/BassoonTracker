@@ -8,12 +8,18 @@ var ProTracker = function(){
 
 		var patternLength = 64;
 		var sampleCount = 31;
+		var channelCount = 4;
 
 
 		//see https://www.aes.id.au/modformat.html
 
 		song.typeId = file.readString(4,1080);
 		song.title = file.readString(20,0);
+
+		if (song.typeId == "8CHN"){
+			channelCount = 8;
+		}
+		song.channels = channelCount;
 
 		var sampleDataOffset = 0;
 		for (i = 1; i <= sampleCount; ++i) {
@@ -62,7 +68,7 @@ var ProTracker = function(){
 			for (var step = 0; step<patternLength; step++){
 				var row = [];
 				var channel;
-				for (channel = 0; channel < 4; channel++){
+				for (channel = 0; channel < channelCount; channel++){
 					var trackStep = {};
 					var trackStepInfo = file.readUint();
 
@@ -75,9 +81,11 @@ var ProTracker = function(){
 				}
 
 				// fill with empty data for other channels
-				for (channel = 4; channel < Tracker.getTrackCount(); channel++){
+				// TODO: not needed anymore ?
+				for (channel = channelCount; channel < Tracker.getTrackCount(); channel++){
 					row.push({note:0,effect:0,sample:0,param:0});
 				}
+
 
 				patternData.push(row);
 			}

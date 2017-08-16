@@ -36,7 +36,10 @@ var EVENT = {
 	pianoNoteOn : 18,
 	pianoNoteOff : 19,
 	statusChange: 20,
-	diskOperationTargetChange: 21
+	diskOperationTargetChange: 21,
+	trackCountChange:22,
+	patternHorizontalScrollChange:23,
+	songLoaded: 24
 };
 
 var COMMAND = {
@@ -83,6 +86,11 @@ var STEREOSEPARATION = {
 	NONE: 3
 };
 
+var FREQUENCYTABLE =  {
+	AMIGA: 1,
+	LINEAR : 2
+};
+
 //var PALFREQUENCY = 7093789.2;
 var PALFREQUENCY = 7093790; // not that my ears can hear the difference but this seems to be the correct value  ftp://ftp.modland.com/pub/documents/format_documentation/Protracker%20effects%20(MODFIL12.TXT)%20(.mod).txt
 
@@ -94,7 +102,7 @@ var LAYOUTS = {
 };
 
 
-// amiga period table, translates notes to  samplefrequencies
+// amiga period table, translates notes to samplefrequencies
 // first 3*12 are to first octaves (1,2 and 3)
 
 // found on http://pastebin.com/raw/6xVK2msR - by Lars Hamre ?
@@ -187,6 +195,107 @@ var NOTEPERIOD = {
 	A3  : {period: 127, name: "A-3", tune: [135,134,133,132,131,130,129,128,127,126,125,125,124,123,122,121]},
 	As3 : {period: 120, name: "A#3", tune: [127,126,125,125,123,123,122,121,120,119,118,118,117,116,115,114]},
 	B3  : {period: 113, name: "B-3", tune: [120,119,118,118,117,116,115,114,113,113,112,111,110,109,109,108]}
+};
+
+var FTNOTEPERIOD = {
+	None  : {name: "---"},
+	C0  : {name: "C-0",period:6848},
+	Cs0 : {name: "C#0",period:6464},
+	D0 : {name: "D-0",period:6096},
+	Ds0 : {name: "D#0",period:5760},
+	E0 : {name: "E-0",period:5424},
+	F0 : {name: "F-0",period:5120},
+	Fs0 : {name: "F#0",period:4832},
+	G0 : {name: "G-0",period:4560},
+	Gs0 : {name: "G#0",period:4304},
+	A0 : {name: "A-0",period:4064},
+	As0 : {name: "A#0",period:3840},
+	B0 : {name: "A-0",period:3628},
+	C1  : {name: "C-1",period:3424},
+	Cs1 : {name: "C#1",period:3232},
+	D1 : {name: "D-1",period:3048},
+	Ds1 : {name: "D#1",period:2880},
+	E1 : {name: "E-1",period:2712},
+	F1 : {name: "F-1",period:2560},
+	Fs1 : {name: "F#1",period:2416},
+	G1 : {name: "G-1",period:2280},
+	Gs1 : {name: "G#1",period:2152},
+	A1 : {name: "A-1",period:2032},
+	As1 : {name: "A#1",period:1920},
+	B1 : {name: "A-1",period:1814},
+	C2  : {name: "C-2",period:1712},
+	Cs2 : {name: "C#2",period:1616},
+	D2 : {name: "D-2",period:1524},
+	Ds2 : {name: "D#2",period:1440},
+	E2 : {name: "E-2",period:1356},
+	F2 : {name: "F-2",period:1280},
+	Fs2 : {name: "F#2",period:1208},
+	G2 : {name: "G-2",period:1140},
+	Gs2 : {name: "G#2",period:1076},
+	A2 : {name: "A-2",period:1016},
+	As2 : {name: "A#2",period:960},
+	B2 : {name: "A-2",period:907},
+	C3  : {name: "C-3",period:856},
+	Cs3 : {name: "C#3",period:808},
+	D3 : {name: "D-3",period:762},
+	Ds3 : {name: "D#3",period:720},
+	E3 : {name: "E-3",period:678},
+	F3 : {name: "F-3",period:640},
+	Fs3 : {name: "F#3",period:604},
+	G3 : {name: "G-3",period:570},
+	Gs3 : {name: "G#3",period:538},
+	A3 : {name: "A-3",period:508},
+	As3 : {name: "A#3",period:480},
+	B3 : {name: "A-3",period:453},
+	C4  : {name: "C-4",period:428},
+	Cs4 : {name: "C#4",period:404},
+	D4 : {name: "D-4",period:381},
+	Ds4 : {name: "D#4",period:360},
+	E4 : {name: "E-4",period: 339},
+	F4 : {name: "F-4",period: 320},
+	Fs4 : {name: "F#4",period: 302},
+	G4 : {name: "G-4",period:285},
+	Gs4 : {name: "G#4",period:269},
+	A4 : {name: "A-4",period:254},
+	As4 : {name: "A#4",period:240},
+	B4 : {name: "A-4",period:227},
+	C5  : {name: "C-5",period:214},
+	Cs5 : {name: "C#5",period:202},
+	D5 : {name: "D-5",period:190},
+	Ds5 : {name: "D#5",period:180},
+	E5 : {name: "E-5",period:169},
+	F5 : {name: "F-5",period:160},
+	Fs5 : {name: "F#5",period:151},
+	G5 : {name: "G-5",period:142},
+	Gs5 : {name: "G#5",period:134},
+	A5 : {name: "A-5",period:127},
+	As5 : {name: "A#5",period:120},
+	B5 : {name: "A-5",period:113},
+	C6  : {name: "C-6",period:107},
+	Cs6 : {name: "C#6",period:101},
+	D6 : {name: "D-6",period:95},
+	Ds6 : {name: "D#6",period:90},
+	E6 : {name: "E-6",period: 85},
+	F6 : {name: "F-6",period:80},
+	Fs6 : {name: "F#6",period:75},
+	G6 : {name: "G-6",period:71},
+	Gs6 : {name: "G#6",period:67},
+	A6 : {name: "A-6",period:63},
+	As6 : {name: "A#6",period:60},
+	B6 : {name: "A-6",period:57},
+	C7  : {name: "C-7",period:53},
+	Cs7 : {name: "C#7",period:50},
+	D7 : {name: "D-7",period:48},
+	Ds7 : {name: "D#7",period:45},
+	E7 : {name: "E-7",period:42},
+	F7 : {name: "F-7",period:40},
+	Fs7 : {name: "F#7",period:38},
+	G7 : {name: "G-7",period:36},
+	Gs7 : {name: "G#7",period:34},
+	A7 : {name: "A-7",period:32},
+	As7 : {name: "A#7",period:30},
+	B7 : {name: "A-7",period:28},
+	OFF : {name: "OFF"}
 };
 
 var KEYBOADKEYS = {
@@ -324,7 +433,6 @@ var KEYBOARDTABLE = {
 		j: KEYBOADKEYS.Asharp
 	}
 };
-
 
 var SETTINGS = {
 	unrollLoops: false,

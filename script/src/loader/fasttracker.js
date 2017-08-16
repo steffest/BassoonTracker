@@ -39,6 +39,7 @@ var FastTracker = function(){
         }
         song.patternTable = patternTable;
         song.length = mod.songlength;
+        song.channels = mod.numberOfChannels;
         console.error(highestPattern);
 
 
@@ -63,6 +64,7 @@ var FastTracker = function(){
                 var channel;
                 for (channel = 0; channel < mod.numberOfChannels; channel++){
                     var trackStep = {
+                        note: 0,
                         period: 0,
                         sample: 0,
                         volume: 0,
@@ -71,18 +73,19 @@ var FastTracker = function(){
                     };
                     var v = file.readUbyte();
                     if (v & 128) {;
-                        if (v &  1) trackStep.period     = file.readUbyte();
+                        if (v &  1) trackStep.note   = file.readUbyte();
                         if (v &  2) trackStep.sample = file.readUbyte();
                         if (v &  4) trackStep.volume = file.readUbyte();
                         if (v &  8) trackStep.effect = file.readUbyte();
                         if (v & 16) trackStep.param  = file.readUbyte();
                     } else {
-                        trackStep.period = v;
+                        trackStep.note = v;
                         trackStep.sample = file.readUbyte();
                         trackStep.volume = file.readUbyte();
                         trackStep.effect = file.readUbyte();
                         trackStep.param  = file.readUbyte();
                     }
+
                     row.push(trackStep);
                 }
                 patternData.push(row);
@@ -169,14 +172,21 @@ var FastTracker = function(){
                     //sample.length = sampleEnd;
                 }
 
+                var old = 0;
                 if (sample.bits == 16){
-                    for (j = 0; j<sampleEnd; j++){
-                        var w = file.readShort();
-                        sample.data.push(w / 32768);
+                    for (var j = 0; j<sampleEnd; j++){
+                        var b = file.readShort() + old;
+                        b = Math.max(-32768,b);
+                        b = Math.min(32768,b);
+                        old = b;
+                        sample.data.push(b / 32768);
                     }
                 }else{
                     for (j = 0; j<sampleEnd; j++){
-                        var b = file.readByte();
+                        b = file.readByte() + old;
+                        b = Math.max(-127,b);
+                        b = Math.min(127,b);
+                        old = b;
                         sample.data.push(b / 127);
                     }
                 }
@@ -184,7 +194,6 @@ var FastTracker = function(){
                 file.goto(fileStartPos);
 
             }
-
 
 
             Tracker.setSample(i,instrument.samples[0]);

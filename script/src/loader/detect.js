@@ -16,7 +16,9 @@ var FileDetector = function(){
 
 		id = file.readString(17,0);
 		if (id == "Extended Module: "){
-			return fileType.mod_FastTracker;
+			//return fileType.mod_FastTracker;
+			alert("Sorry, FastTracker XM files are not supported yet ... working on it.");
+			return fileType.unsupported;
 		}
 
 		if (length>1100){
@@ -26,10 +28,7 @@ var FileDetector = function(){
 
 		if (id == "M.K.") return fileType.mod_ProTracker;
 		if (id == "FLT4") return fileType.mod_ProTracker;
-		if (id == "8CHN") {
-			alert("Sorry, 8 channel mod files are not supported yet ...");
-			return fileType.unsupported;
-		}
+		if (id == "8CHN") return fileType.mod_ProTracker;
 
 		var ext = "";
 		if (name && name.length>4) ext = name.substr(name.length-4);

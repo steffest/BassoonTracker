@@ -24,7 +24,7 @@ UI.visualiser = function(){
             analyser.maxDecibels = -10;
             analyser.smoothingTimeConstant = 0.85;
 
-            for (var i = 0; i<Tracker.getTrackCount(); i++){
+            function addAnalyser(){
                 var a = Audio.context.createAnalyser();
                 a.minDecibels = -90;
                 a.maxDecibels = -10;
@@ -32,7 +32,17 @@ UI.visualiser = function(){
                 a.fftSize = 64;
                 trackAnalyser.push(a);
             }
+
+            for (var i = 0; i<Tracker.getTrackCount(); i++){
+                addAnalyser()
+            }
         }
+
+        EventBus.on(EVENT.trackCountChange,function(trackCount){
+            for (var i = trackAnalyser.length; i<trackCount; i++){
+                addAnalyser()
+            }
+        });
 
 
 

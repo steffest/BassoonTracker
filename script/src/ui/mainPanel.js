@@ -232,12 +232,12 @@ UI.MainPanel = function(){
 		{label:"Tinytune", onClick:function(){Tracker.load('demomods/Tinytune.mod')}},
 		{label:"Lotus 2", onClick:function(){Tracker.load('demomods/lotus20.mod')}},
 		{label:"Lotus 1", onClick:function(){Tracker.load('demomods/lotus10.mod')}},
-		//{label:"Professionaltracker", onClick:function(){Tracker.load('demomods/hoffman_and_daytripper_-_professional_tracker.mod')}},
+		{label:"Professionaltracker", onClick:function(){Tracker.load('demomods/hoffman_and_daytripper_-_professional_tracker.mod')}},
 		//{label:"Monday", onClick:function(){Tracker.load('demomods/Monday.mod')}},
 		//{label:"Lunatic", onClick:function(){Tracker.load('demomods/sound-of-da-lunatic.mod')}},
-		{label:"Ambrozia", onClick:function(){Tracker.load('demomods/Ambrozia.xm')}},
-		{label:"AceMan", onClick:function(){Tracker.load('demomods/AceMan.mod')}},
-		//{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
+		//{label:"Ambrozia", onClick:function(){Tracker.load('demomods/Ambrozia.xm')}},
+		{label:"8-TRCK: AceMan", onClick:function(){Tracker.load('demomods/AceMan.mod')}},
+		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
 		{label:"Random !", onClick:function(){App.doCommand(COMMAND.randomSong)}}
 	];
 
@@ -440,11 +440,19 @@ UI.MainPanel = function(){
 	EventBus.on(EVENT.trackCountChange,function(trackCount){
 		for (i=trackControls.length;i<trackCount;i++){
 			trackControls[i] = UI.trackControl();
+			trackControls[i].setProperties({top: -200});
 			me.addChild(trackControls[i]);
 		}
+		visualiser.connect(Audio.cutOffVolume);
+	});
+
+	EventBus.on(EVENT.patternHorizontalScrollChange,function(){
+		// update track Controls ... shouldn't they be part of the patternView?
+		setTrackControlsLayout();
 	});
 
 	me.setLayout = function(newX,newY,newW,newH){
+		console.error("set lay");
 		me.clearCanvas();
 
 		me.width = newW;
@@ -535,6 +543,7 @@ UI.MainPanel = function(){
 		me.trackMargin = 4;
 		me.trackWidth = (patternViewWidth - me.patternMargin - me.patternMarginRight)/me.visibleTracks-me.trackMargin;
 		me.patternViewWidth = patternViewWidth;
+		me.patternViewLeft = patternViewLeft;
 
 
 		var spinButtonHeight = 28;
@@ -825,27 +834,7 @@ UI.MainPanel = function(){
 		});
 
 		// controlBar
-		var startTrack = patternView.getStartTrack();
-		var endTrack = Math.min(startTrack + me.visibleTracks,Tracker.getTrackCount());
-		for (i = 0;i< trackControls.length;i++){
-
-			if ( i>=startTrack && i<endTrack){
-				trackControls[i].setProperties({
-					track:i,
-					left: patternViewLeft + me.patternMargin + (me.trackWidth+me.trackMargin)* (i-startTrack),
-					top: me.controlBarTop,
-					width: me.trackWidth,
-					height: me.controlBarHeight,
-					visible: true
-				});
-			}else{
-				trackControls[i].setProperties({
-					top: -100,
-					visible: false
-				});
-			}
-
-		}
+		setTrackControlsLayout();
 
 
 		songControl.songPatternSelector = layout.songControl.songPatternSelector;
@@ -895,6 +884,31 @@ UI.MainPanel = function(){
 			});
 		}else{
 			//element.hide();
+		}
+	}
+
+	function setTrackControlsLayout(){
+		// controlBar
+		var startTrack = patternView.getStartTrack();
+		var endTrack = Math.min(startTrack + me.visibleTracks,Tracker.getTrackCount());
+		for (i = 0;i< trackControls.length;i++){
+
+			if ( i>=startTrack && i<endTrack){
+				trackControls[i].setProperties({
+					track:i,
+					left: me.patternViewLeft + me.patternMargin + (me.trackWidth+me.trackMargin)* (i-startTrack),
+					top: me.controlBarTop,
+					width: me.trackWidth,
+					height: me.controlBarHeight,
+					visible: true
+				});
+			}else{
+				trackControls[i].setProperties({
+					top: -100,
+					visible: false
+				});
+			}
+
 		}
 	}
 
