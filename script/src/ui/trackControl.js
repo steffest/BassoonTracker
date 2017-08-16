@@ -14,9 +14,10 @@ UI.trackControl = function(x,y,w,h,visible){
         activeBackground:UI.Assets.buttonDarkGreenActiveScale9
     });
     buttons.solo.onClick = function(){
+        var wasSolo = buttons.solo.isActive;
         buttons.solo.toggleActive();
         if (buttons.mute.isActive) buttons.mute.toggleActive();
-        triggerChangeEvent();
+        triggerChangeEvent(wasSolo);
     };
     buttons.solo.setProperties({
         name:"buttonSolo",
@@ -59,12 +60,12 @@ UI.trackControl = function(x,y,w,h,visible){
                 switch(key){
                     case "solo":
                         if (buttons.mute.isActive)  buttons.mute.setActive(false);
-                        buttons.solo.setActive(true);
+                        buttons.solo.setActive(p[key]);
                         triggerChangeEvent();
                         break;
                     case "mute":
                         if (buttons.solo.isActive)  buttons.solo.setActive(false);
-                        buttons.mute.setActive(true);
+                        buttons.mute.setActive(p[key]);
                         triggerChangeEvent();
                         break;
                     default:
@@ -98,8 +99,8 @@ UI.trackControl = function(x,y,w,h,visible){
         });
     };
 
-    function triggerChangeEvent(){
-        EventBus.trigger(EVENT.trackStateChange,{track: me.track,  solo: buttons.solo.isActive, mute: buttons.mute.isActive});
+    function triggerChangeEvent(wasSolo){
+        EventBus.trigger(EVENT.trackStateChange,{track: me.track,  solo: buttons.solo.isActive, mute: buttons.mute.isActive, wasSolo:wasSolo});
     }
 
     me.render = function(internal){
