@@ -452,7 +452,6 @@ UI.MainPanel = function(){
 	});
 
 	me.setLayout = function(newX,newY,newW,newH){
-		console.error("set lay");
 		me.clearCanvas();
 
 		me.width = newW;

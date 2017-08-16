@@ -7,7 +7,8 @@ var FileDetector = function(){
 		mod_ProTracker: {name: "PROTRACKER", isMod: true, loader: function(){return ProTracker()}},
 		mod_SoundTracker: {name: "SOUNDTRACKER", isMod: true, loader: function(){return SoundTracker()}},
 		mod_FastTracker: {name: "FASTTRACKER", isMod: true, loader: function(){return FastTracker()}},
-		sample: {name: "SAMPLE",isSample:true}
+		sample: {name: "SAMPLE",isSample:true},
+		zip: {name: "ZIP"}
 	};
 
 	me.detect = function(file,name){
@@ -20,6 +21,7 @@ var FileDetector = function(){
 			alert("Sorry, FastTracker XM files are not supported yet ... working on it.");
 			return fileType.unsupported;
 		}
+
 
 		if (length>1100){
 			id = file.readString(4,1080); // M.K.
@@ -37,6 +39,10 @@ var FileDetector = function(){
 		if (ext == ".wav") return fileType.sample;
 		if (ext == ".mp3") return fileType.sample;
 		if (ext == ".iff") return fileType.sample;
+		if (ext == ".zip") return fileType.zip;
+
+		var zipId = file.readString(2,0);
+		if (zipId == "PK") return fileType.zip;
 
 
 
