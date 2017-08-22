@@ -1106,6 +1106,7 @@ var Tracker = (function(){
 		if (effects.fade){
 			value = effects.fade.value;
 			var currentVolume;
+			var startTick = 1;
 
 			if (effects.fade.resetOnStep){
 				currentVolume = trackNote.startVolume;
@@ -1116,10 +1117,11 @@ var Tracker = (function(){
 			var steps = ticksPerStep;
 			if (effects.fade.fine){
 				// fine Volume Up or Down
+				startTick = 0;
 				steps = 1;
 			}
 
-			for (var tick = 0; tick < steps; tick++){
+			for (var tick = startTick; tick < steps; tick++){
 				if (trackNote.volume){
 					trackNote.volume.gain.setValueAtTime(currentVolume/100,time + (tick*tickTime));
 					currentVolume += value;
