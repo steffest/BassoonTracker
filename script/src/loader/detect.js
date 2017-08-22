@@ -29,6 +29,7 @@ var FileDetector = function(){
 		console.log("Format ID: " + id);
 
 		if (id == "M.K.") return fileType.mod_ProTracker;
+		if (id == "M!K!") return fileType.mod_ProTracker; // more then 64 patterns
 		if (id == "M&K!") return fileType.mod_ProTracker; // what's different? example https://modarchive.org/index.php?request=view_by_moduleid&query=76607
 		if (id == "FLT4") return fileType.mod_ProTracker;
 		if (id == "8CHN") return fileType.mod_ProTracker;
