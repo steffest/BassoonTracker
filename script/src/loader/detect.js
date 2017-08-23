@@ -51,29 +51,38 @@ var FileDetector = function(){
 		// might be an 15 instrument mod?
 		// filename should at least contain a "." this avoids checking all ST-XX samples
 
-		// example: https://modarchive.org/index.php?request=view_by_moduleid&query=35902
+		// example: https://modarchive.org/index.php?request=view_by_moduleid&query=35902 or 36954
 		// more info: ftp://ftp.modland.com/pub/documents/format_documentation/Ultimate%20Soundtracker%20(.mod).txt
 
 
 		if (name && name.indexOf(".")>=0 && length>1624){
 			// check for ascii
 			function isAcii(byte){
-				return (byte == 0) || (byte>31 && byte<128);
+				return byte<128;
 			}
 
 			function isST(){
+				console.log("Checking for old 15 instrument soundtracker format");
 				file.goto(0);
 				for (var i = 0; i<20;i++) if (!isAcii(file.readByte())) return false;
 
+				console.log("First 20 chars are ascii, checking Samples");
+
 				// check samples
 				var totalSampleLength = 0;
+				var probability =0;
 				for (var s = 0; s<15;s++) {
 					for (i = 0; i<22;i++) if (!isAcii(file.readByte())) return false;
+					file.jump(-22);
+					var name = file.readString(22);
+					if (name.toLowerCase().substr(0,3) == "st-") probability += 10;
+					if (probability>20) return true;
 					totalSampleLength += file.readWord();
 					file.jump(6);
 				}
 
 				if (totalSampleLength*2 + 1624 > length) return false;
+				console.log(probability);
 
 				return true;
 			}
