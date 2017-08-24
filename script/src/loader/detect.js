@@ -32,7 +32,21 @@ var FileDetector = function(){
 		if (id == "M!K!") return fileType.mod_ProTracker; // more then 64 patterns
 		if (id == "M&K!") return fileType.mod_ProTracker; // what's different? example https://modarchive.org/index.php?request=view_by_moduleid&query=76607
 		if (id == "FLT4") return fileType.mod_ProTracker;
+		if (id == "2CHN") return fileType.mod_ProTracker;
+		if (id == "6CHN") return fileType.mod_ProTracker;
 		if (id == "8CHN") return fileType.mod_ProTracker;
+		if (id == "10CH") return fileType.mod_ProTracker;
+		if (id == "12CH") return fileType.mod_ProTracker;
+		if (id == "14CH") return fileType.mod_ProTracker;
+		if (id == "16CH") return fileType.mod_ProTracker;
+		if (id == "18CH") return fileType.mod_ProTracker;
+		if (id == "20CH") return fileType.mod_ProTracker;
+		if (id == "22CH") return fileType.mod_ProTracker;
+		if (id == "24CH") return fileType.mod_ProTracker;
+		if (id == "26CH") return fileType.mod_ProTracker;
+		if (id == "28CH") return fileType.mod_ProTracker;
+		if (id == "30CH") return fileType.mod_ProTracker;
+		if (id == "32CH") return fileType.mod_ProTracker;
 
 		var ext = "";
 		if (name && name.length>4) ext = name.substr(name.length-4);
@@ -82,7 +96,6 @@ var FileDetector = function(){
 				}
 
 				if (totalSampleLength*2 + 1624 > length) return false;
-				console.log(probability);
 
 				return true;
 			}

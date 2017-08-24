@@ -4,6 +4,7 @@ UI.MainPanel = function(){
 	var i;
 	var trackControls = [];
 	var currentView = "main";
+	var maxVisibleTracks = 4;
 
 	var mainLayout = LAYOUTS.column5;
 	var tracks = getUrlParameter("tracks");
@@ -438,6 +439,10 @@ UI.MainPanel = function(){
 	});
 
 	EventBus.on(EVENT.trackCountChange,function(trackCount){
+
+		me.visibleTracks = Math.min(maxVisibleTracks,trackCount);
+
+
 		for (i=trackControls.length;i<trackCount;i++){
 			trackControls[i] = UI.trackControl();
 			trackControls[i].setProperties({top: -200});
@@ -463,7 +468,6 @@ UI.MainPanel = function(){
 			mainLayout = mainDefaultLayout;
 		}
 
-		var maxVisibleTracks = 4;
 		me.visibleTracks = Math.min(maxVisibleTracks,Tracker.getTrackCount());
 
 		// UI coordinates

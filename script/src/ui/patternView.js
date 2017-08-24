@@ -72,7 +72,9 @@ UI.PatternView = function(x,y,w,h){
     var trackVULevelMax = 70;
 
     EventBus.on(EVENT.trackCountChange,function(trackCount){
+        if (visibleTracks<trackCount) visibleTracks = trackCount;
         startTrack = Math.min(startTrack,trackCount-visibleTracks);
+        startTrack = Math.max(startTrack,0);
         for (var i = fxPanels.length, len = trackCount; i<len;i++){
             var fxPanel = UI.fxPanel(i);
             fxPanels.push(fxPanel);
