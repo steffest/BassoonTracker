@@ -1,8 +1,17 @@
 var http = require('http');
 var url = require('url');
 var modArchive  = require('./modArchive');
+var httpProxy = require('http-proxy');
 
 var port = process.env.PORT || 3000;
+
+var proxy = httpProxy.createProxyServer();
+proxy.on('error', function (err, req, res) {
+	res.writeHead(500, {
+		'Content-Type': 'text/plain'
+	});
+	res.end('Could not proxy ' + req.url);
+});
 
 http.createServer(function (req, res) {
 	var reqUrl = req.url;
@@ -72,6 +81,34 @@ http.createServer(function (req, res) {
 		case "module":
 			id = urlParts[1];
 			modArchive.getResult("view_by_moduleid&query=" + id,page,res);
+			break;
+		case "modules.pl":
+			id = urlParts[1];
+			var getUrl = "http://www.modules.pl/dl.php?mid=" + id;
+			var gethttp = require('http');
+			gethttp.get(getUrl,function(response){
+				if (response.statusCode == 302){
+					req.url =  response.headers.location;
+					console.log("redirect modules.pl")
+				}
+
+				proxy.web(req, res, {
+					target: "http://www.modules.pl",
+					changeOrigin: true
+				});
+			});
+
+			//res.writeHead(200, {'Content-Type': 'text/html'});
+			//res.end("ok");
+			break;
+		case "proxy":
+			id = urlParts[1];
+			res.writeHead(200, {'Content-Type': 'text/html'});
+			res.end(pathName + " ... " + id);
+			break;
+		case "mpl":
+			res.writeHead(200, {'Content-Type': 'text/html'});
+			res.end("modules.pl api");
 			break;
 		default:
 			res.writeHead(200, {'Content-Type': 'text/html'});
