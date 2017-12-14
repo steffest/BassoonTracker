@@ -17,8 +17,8 @@ var ModArchive = (function(){
 	function getModArchiveResult(url,page,res){
 		page = page || 1;
 		url = baseUrl + url;
-		// filter only 4 channel mods
-		url += "&format=mod&channels=4-4";
+
+		url += "&format=mod";
 		url += "&page=" + page;
 		https.get(url,function(modArchiveResponse){
 			var xml = '';
