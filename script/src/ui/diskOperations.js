@@ -9,6 +9,7 @@ UI.DiskOperations = function(){
 	var modules = [];
 	var samples = [];
 	var modArchive = [];
+	var modulesPl = [];
 	var sampleSelectedIndex = 0;
 	var moduleSelectedIndex = 0;
 	var onLoadChildren = function(){};
@@ -367,6 +368,63 @@ UI.DiskOperations = function(){
 						if (data && data.modarchive){
 							modArchive = data.modarchive;
 							populate(modArchive,0);
+						}
+					});
+
+				}
+				break;
+
+			case "modulespl":
+				itemHandler = ModulesPl;
+				label.setLabel("Browse Modules.pl");
+				listbox.onClick = function(e){
+					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
+					if (item && item.data){
+						var index = item.index;
+						item = itemsMap[index];
+
+						if (item.children){
+							toggleDirectory(item,index);
+						}else{
+							listbox.setSelectedIndex(index);
+							console.log(item);
+							Tracker.load(item.url);
+							UI.mainPanel.setView("main");
+						}
+					}
+				};
+				onLoadChildren = function(item,data){
+					if (data && data.length){
+
+						if (item.title == "... load more ..." && item.parent){
+							item = item.parent;
+							data.forEach(function(child){
+								child.parent = item;
+							});
+							item.children.pop();
+							item.children = item.children.concat(data);
+						}else{
+							data.forEach(function(child){
+								child.parent = item;
+							});
+							item.children = data;
+						}
+					}else{
+						item.children = [{title:"error loading data"}];
+						console.error("this does not seem to be a valid modArchive API response");
+					}
+					me.refreshList();
+				};
+
+				if (modulesPl.length){
+					populate(modulesPl,0);
+				}else{
+					listbox.setItems([{label: "loading ..."}]);
+
+					FetchService.json("data/modulespl.json",function(data){
+						if (data && data.modulespl){
+							modulesPl = data.modulespl;
+							populate(modulesPl,0);
 						}
 					});
 

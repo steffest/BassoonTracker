@@ -1,0 +1,11 @@
+{
+  "modulespl":[
+    {"title":"Browse by artist","children":[
+      {"title":"AceMan", "children" : [] , "url" : "artist/1"},
+      {"title":"Ambient Move", "children" : [] , "url" : "artist/736"}
+    ]},
+    {"title":"Browse by genre","children":[],"url":"genres"},
+    {"title":"Top Rating","children":[],"url":"toprating"},
+    {"title":"Top Score","children":[],"url":"topscore"}
+  ]
+}

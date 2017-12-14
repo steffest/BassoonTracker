@@ -20,6 +20,7 @@ UI.DiskOperationTargets = function(){
 	var targetsModule = [
 		{label: "Bassoon:" , target: "bassoon", active:true},
 		{label: "Modarchive:",target: "modarchive"},
+		{label: "Modules.pl:",target: "modulespl"},
 		//{label: "Dropbox:" , target: "dropbox"},
 		{label: "local:" , target: "local"}
 	];

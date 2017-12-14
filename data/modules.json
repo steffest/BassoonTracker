@@ -1,16 +1,26 @@
 {
   "modules":[
+    {"title":"Aurora","url":"demomods/aurora.mod"},
+    {"title":"Demo Music","url":"demomods/demomusic.mod"},
+    {"title":"DKM Cass'ice raining","url":"demomods/dkm.cassicerainin.mod"},
+    {"title":"DKM Po'steel mill","url":"demomods/dkm.posteel-mill.mod"},
     {"title":"Demo Music","url":"demomods/demomusic.mod"},
     {"title":"Enigma","url":"http://www.stef.be/amiga/mod/enigma.mod"},
     {"title":"Elek Funk !","url":"http://www.stef.be/amiga/mod/elekfunk.mod"},
     {"title":"Haste","url":"http://www.stef.be/amiga/mod/woutervl_haste.mod"},
     {"title":"Guitar Slinger","url":"http://www.stef.be/amiga/mod/gslinger.mod"},
+    {"title":"Profession tracker","url":"demomods/hoffman_and_daytripper_-_professional_tracker.mod"},
     {"title":"Scrambled Mind","url":"http://www.stef.be/amiga/mod/scrambld.mod"},
     {"title":"Sounds of da Lunatic","url":"demomods/sound-of-da-lunatic.mod"},
     {"title":"Space Song","url":"http://www.stef.be/amiga/mod/space-song.mod"},
     {"title":"Startdust Memories","url":"demomods/StardustMemories.mod"},
     {"title":"Street Jungle","url":"http://www.stef.be/amiga/mod/street_j.mod"},
     {"title":"Tiny tune","url":"demomods/Tinytune.mod"},
+    {"title":"2-Channels: Worlds News","url":"demomods/worlds_news.mod"},
+    {"title":"8-Channels: Block Shocking 'Blitz","url":"demomods/AceMan.mod"},
+    {"title":"16-Channels: Town of Yedo","url":"demomods/yedo.mod"},
+    {"title":"28-Channels: Dope","url":"demomods/dope.mod"},
+    {"title":"32-Channels: Thrones","url":"demomods/thrones.mod"},
     {"title":"Effect tests","children":[
       {"title":"Test Arpeggio","url":"demomods/test/arpeggio.mod"},
       {"title":"Test Vibrato","url":"demomods/test/vibrato.mod"},
@@ -21,7 +31,8 @@
       {"title":"Test Slide","url":"demomods/test/slide.mod"},
       {"title":"Test Fine Slide","url":"demomods/test/fine_slide.mod"},
       {"title":"Test Glissando","url":"demomods/test/glissando.mod"},
-      {"title":"Test Sample Delay","url":"demomods/test/sample-delay-E13.mod"}
+      {"title":"Test Sample Delay","url":"demomods/test/sample-delay-E13.mod"},
+      {"title":"Test Sample Offset","url":"demomods/test/sampleoffset.mod"}
     ],"isExpanded": false}
   ]
 }
