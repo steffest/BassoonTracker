@@ -1,9 +1,12 @@
 var http = require('http');
 var url = require('url');
 var modArchive  = require('./modArchive');
+var modulesPL  = require('./modulesPL');
 var httpProxy = require('http-proxy');
 
 var port = process.env.PORT || 3000;
+
+modulesPL.init();
 
 var proxy = httpProxy.createProxyServer();
 proxy.on('error', function (err, req, res) {
@@ -36,6 +39,7 @@ http.createServer(function (req, res) {
 
 	var urlParts = pathName.split("/");
 	var section = urlParts[0];
+	var action = urlParts[1];
 
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
@@ -107,8 +111,7 @@ http.createServer(function (req, res) {
 			res.end(pathName + " ... " + id);
 			break;
 		case "mpl":
-			res.writeHead(200, {'Content-Type': 'text/html'});
-			res.end("modules.pl api");
+			modulesPL.handleRequest(action,urlParts,res);
 			break;
 		default:
 			res.writeHead(200, {'Content-Type': 'text/html'});
