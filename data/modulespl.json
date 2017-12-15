@@ -2,7 +2,11 @@
   "modulespl":[
     {"title":"Browse by artist","children":[
       {"title":"AceMan", "children" : [] , "url" : "artist/1"},
-      {"title":"Ambient Move", "children" : [] , "url" : "artist/736"}
+      {"title":"Allister Brimble", "children" : [] , "url" : "artist/10"},
+      {"title":"H0ffman", "children" : [] , "url" : "artist/1362"},
+      {"title":"JazzCat", "children" : [] , "url" : "artist/70"},
+      {"title":"Jogeir", "children" : [] , "url" : "artist/71"},
+      {"title":"XTD", "children" : [] , "url" : "artist/4"}
     ]},
     {"title":"Browse by genre","children":[],"url":"genres"},
     {"title":"Top Rating","children":[],"url":"toprating"},

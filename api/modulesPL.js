@@ -26,7 +26,7 @@ var ModulesPL = (function(){
                 res.end(JSON.stringify(modules.find({genre:  genre })));
                 break;
             case "artist":
-                var artist = params[2];
+                var artist = parseInt(params[2],10);
                 returnJSON(res);
                 res.end(JSON.stringify(modules.find({author:  artist })));
                 break;
