@@ -37,6 +37,7 @@ it works best in Chrome.
 - import 8bit WAV, 8SVX and RAW samples (as well as any other format AudioContext can read, like .mp3 and .ogg) 
 - includes the historic ST-01 and ST-02 sample disks, released in 1987 (as well as a bunch of others)
 - the [modarchive API](https://modarchive.org/) is integrated to access many thousands of music files
+- the [modules.pl API](http://modules.pl/) is integrated to access even more music files
 - export to .wav and .mod
 
 The playback engine has gone through extensive compatibility testing, but as the Protracker code itself is somewhat messy and muddy
@@ -50,7 +51,7 @@ There are still some very specific [Protracker 1 and 2 playback quirks](http://w
  - no undo/redo functionality yet
  - no range select/copy/paste functionality yet
  
-Note: if you use an AZERTY keyboard, you can set that option in the settings to have the correct layout when playing notes on your computer keyboard.
+Note: if you use an AZERTY or a QWERTZ keyboard, you can set that option in the settings to have the correct layout when playing notes on your computer keyboard.
 
 
 **Future plans**
