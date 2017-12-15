@@ -1476,6 +1476,19 @@ var Tracker = (function(){
 						infoUrl = "https://modarchive.org/index.php?request=view_by_moduleid&query=" + id;
 						EventBus.trigger(EVENT.songPropertyChange,song);
 					}
+
+					if (url.indexOf("modules.pl")>0){
+						id = url.split('modules.pl/')[1];
+						song.filename = id.split("#")[1] || id;
+						id = id.split("#")[0];
+						id = id.split("&")[0];
+
+						source = "modules.pl";
+						infoUrl = "http://www.modules.pl/?id=module&mod=" + id;
+						EventBus.trigger(EVENT.songPropertyChange,song);
+					}
+
+
 					if (UI) UI.setInfo(song.title,source,infoUrl);
 				}
 

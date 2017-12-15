@@ -232,13 +232,15 @@ UI.MainPanel = function(){
 		{label:"Space Debris", onClick:function(){Tracker.load('demomods/spacedeb.mod')}},
 		{label:"Tinytune", onClick:function(){Tracker.load('demomods/Tinytune.mod')}},
 		{label:"Lotus 2", onClick:function(){Tracker.load('demomods/lotus20.mod')}},
-		{label:"Lotus 1", onClick:function(){Tracker.load('demomods/lotus10.mod')}},
+		//{label:"Lotus 1", onClick:function(){Tracker.load('demomods/lotus10.mod')}},
 		{label:"Professionaltracker", onClick:function(){Tracker.load('demomods/hoffman_and_daytripper_-_professional_tracker.mod')}},
 		//{label:"Monday", onClick:function(){Tracker.load('demomods/Monday.mod')}},
 		//{label:"Lunatic", onClick:function(){Tracker.load('demomods/sound-of-da-lunatic.mod')}},
 		//{label:"Ambrozia", onClick:function(){Tracker.load('demomods/Ambrozia.xm')}},
-		{label:"8-TRCK: AceMan", onClick:function(){Tracker.load('demomods/AceMan.mod')}},
+		{label:"8CHN: AceMan", onClick:function(){Tracker.load('demomods/AceMan.mod')}},
+		{label:"28CHN: Dope", onClick:function(){Tracker.load('demomods/dope.mod')}},
 		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
+		//{label:"Drum", onClick:function(){Tracker.load('demomods/drum.mod')}},
 		{label:"Random !", onClick:function(){App.doCommand(COMMAND.randomSong)}}
 	];
 
