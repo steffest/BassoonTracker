@@ -161,6 +161,11 @@ var FastTracker = function(){
                     sample.loopRepeatLength   >>= 1;
                 }
                 sample.looptype = sample.type || 0;
+                if (!sample.looptype){
+                    // TODO should we preserve this in case the file gets saved again ?
+                    sample.loopStart = 0;
+                    sample.loopRepeatLength = 0;
+                }
 
                 // sample data
                 console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + (sample.bits == 16 ? "words" : "bytes") +  " and repeat length of " + sample.loopRepeatLength);
@@ -176,17 +181,18 @@ var FastTracker = function(){
                 if (sample.bits == 16){
                     for (var j = 0; j<sampleEnd; j++){
                         var b = file.readShort() + old;
-                        b = Math.max(-32768,b);
-                        b = Math.min(32768,b);
+						if (b < -32768) b += 65536;
+						else if (b > 32767) b -= 65536;
                         old = b;
                         sample.data.push(b / 32768);
                     }
                 }else{
                     for (j = 0; j<sampleEnd; j++){
                         b = file.readByte() + old;
-                        b = Math.max(-127,b);
-                        b = Math.min(127,b);
-                        old = b;
+
+						if (b < -128) b += 256;
+						else if (b > 127) b -= 256;
+						old = b;
                         sample.data.push(b / 127);
                     }
                 }

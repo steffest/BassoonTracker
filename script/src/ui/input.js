@@ -226,12 +226,25 @@ var Input = (function(){
 
 
 				var baseNote = keyboardTable[key];
+
 				var note;
 				if (baseNote){
+
 					var noteName = baseNote.name + (currentOctave + baseNote.octave);
 					note = NOTEPERIOD[noteName];
-				}
 
+					// get FT note
+					var currentOctave = 4;
+					var index = baseNote.index + (currentOctave * 12);
+					var fNote = FTNotes[index];
+					console.log(fNote);
+					if (fNote){
+						note = {
+							period: fNote.period,
+							note: index
+						}
+					}
+				}
 
 				var doPlay = true;
 				if (Tracker.isRecording()){
@@ -257,6 +270,16 @@ var Input = (function(){
 
 				if (doPlay && note){
 					if (keyDown[key]) return;
+
+
+					var sample = Tracker.getCurrentSample();
+
+					if (note.note && sample && sample.relativeNote){
+						note.note += sample.relativeNote;
+						var ftNote = FTNotes[note.note];
+						if (ftNote) note.period = ftNote.period;
+					}
+
 					keyDown[key] = Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
 					inputNotes.push(keyDown[key]);
 					EventBus.trigger(EVENT.pianoNoteOn,keyDown[key]);

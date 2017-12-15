@@ -94,7 +94,9 @@ var Audio = (function(){
     };
 
 
-    me.playSample = function(index,period,volume,track,effects,time){
+    me.playSample = function(index,period,volume,track,effects,time,noteIndex){
+
+        //console.log(noteIndex);
 
         var audioContext;
         if (isRendering){
@@ -102,6 +104,10 @@ var Audio = (function(){
         }else{
             audioContext = context;
             me.enable();
+        }
+
+        if (noteIndex == 97){
+           volume = 0; // note off
         }
 
         period = period || 428; // C-3
@@ -120,7 +126,8 @@ var Audio = (function(){
             volume = typeof volume == "undefined" ? (100*sample.volume/64) : volume;
 
             if (sample.finetune){
-                period = me.getFineTunePeriod(period,sample.finetune);
+                period = noteIndex ?  me.getFineTuneForNote(noteIndex,sample.finetune) : me.getFineTuneForPeriod(period,sample.finetune);
+                console.log(period);
 
             }
             var sampleRate = PALFREQUENCY / (period*2);
@@ -132,7 +139,6 @@ var Audio = (function(){
             if (sample.data.length) {
                 sampleLength = sample.data.length;
                 sampleLoopStart = sample.loopStart;
-
                 if (effects && effects.offset){
                     if (effects.offset.value>=sampleLength) effects.offset.value = sampleLength-1;
                     offset = effects.offset.value;
@@ -411,7 +417,7 @@ var Audio = (function(){
                     var targetNote = nameNoteTable[targetName];
                     if (targetNote){
                         result = targetNote.period;
-                        if (finetune) {result = me.getFineTunePeriod(result,finetune)}
+                        if (finetune) {result = me.getFineTuneForPeriod(result,finetune)}
                     }
                 }
             }else{
@@ -447,7 +453,7 @@ var Audio = (function(){
     };
 
     // gives the finetuned period for a base period
-    me.getFineTunePeriod = function(period,finetune){
+    me.getFineTuneForPeriod = function(period,finetune){
         var result = period;
         var note = periodNoteTable[period];
         if (note && note.tune){
@@ -455,7 +461,22 @@ var Audio = (function(){
             var tune = 8 + finetune;
             if (tune>=0 && tune<note.tune.length) result = note.tune[tune];
         }
+
         return result;
+    };
+
+    // gives the finetuned period for a base note (Fast Tracker)
+    me.getFineTuneForNote = function(note,finetune){
+        console.log("get finetune " + finetune + "  for note " + note + " (" + note.period + ")");
+
+        var ftNote1 = FTNotes[note];
+        var ftNote2 = finetune>0 ? FTNotes[note+1] : FTNotes[note-1] ;
+
+        if (ftNote1 && ftNote2){
+            var delta = (ftNote2.period - ftNote1.period) / 127;
+            return ftNote1.period + (delta*finetune)
+        }
+        return ftNote1.period || 0;
     };
 
     // gives the non-finetuned baseperiod for a finetuned period
