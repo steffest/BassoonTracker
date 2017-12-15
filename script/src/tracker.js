@@ -3,6 +3,7 @@ var periodFinetuneTable = {};
 var nameNoteTable = {};
 var noteNames = [];
 var FTNotes = [];
+var FTPeriods = [];
 
 var Tracker = (function(){
 
@@ -96,11 +97,14 @@ var Tracker = (function(){
 			}
 		}
 
+		var ftCounter = 0;
 		for (key in FTNOTEPERIOD){
 			if (FTNOTEPERIOD.hasOwnProperty(key)){
 				var ftNote = FTNOTEPERIOD[key];
 				if (!ftNote.period) ftNote.period = 453;
 				FTNotes.push(ftNote);
+				FTPeriods[ftNote.period] = ftCounter;
+				ftCounter++;
 			}
 		}
 
@@ -457,15 +461,17 @@ var Tracker = (function(){
 		var trackEffects = {};
 
 		var sampleIndex = note.sample;
+		var notePeriod = note.period;
+		var noteIndex = note.note;
 
 		if (note.note){
 			// FTNote
 			var ftNote = FTNotes[note.note];
-			if (ftNote) note.period = ftNote.period;
+			if (ftNote) notePeriod = ftNote.period;
 
 		}
 
-		if (note.period && !note.sample){
+		if (notePeriod && !sampleIndex){
 			// reuse previous Sample
 			sampleIndex = trackNotes[track].currentSample;
 			defaultVolume = typeof trackNotes[track].currentVolume == "number" ? trackNotes[track].currentVolume : defaultVolume;
@@ -479,7 +485,7 @@ var Tracker = (function(){
 		}
 
 		if (typeof note.sample == "number"){
-			var sample = me.getSample(note.sample);
+			sample = me.getSample(note.sample);
 			if (sample) {
 				defaultVolume = 100 * (sample.volume/64);
 
@@ -490,9 +496,18 @@ var Tracker = (function(){
 					trackEffectCache[track].offset.sample = note.sample;
 				}
 			}
+
 		}
 
-		var notePeriod = note.period;
+		if (typeof sampleIndex == "number"){
+			sample = me.getSample(sampleIndex);
+			if (noteIndex && sample.relativeNote) {
+				noteIndex += sample.relativeNote;
+				ftNote = FTNotes[noteIndex];
+				if (ftNote) notePeriod = ftNote.period;
+			}
+		}
+
 
 		var volume = defaultVolume;
 		var doPlayNote = true;
@@ -522,7 +537,7 @@ var Tracker = (function(){
 						sample = me.getSample(playingSample);
 						if (sample && sample.finetune){
 							finetune = sample.finetune;
-							root = Audio.getFineTunePeriod(root,finetune);
+							root = Audio.getFineTuneForPeriod(root,finetune);
 						}
 					}
 
@@ -579,7 +594,7 @@ var Tracker = (function(){
 				// milkytracker tries, but not perfect
 				// the ProTracker clone of 8bitbubsy does this completely compatible to PT2.
 
-				var target = note.period;
+				var target = notePeriod;
 
 				// avoid using the fineTune of another sample if another sample index is present
 				if (trackNotes[track].currentSample) sampleIndex = trackNotes[track].currentSample;
@@ -588,7 +603,7 @@ var Tracker = (function(){
 					// check if the sample is finetuned
 					var sample = me.getSample(sampleIndex);
 					if (sample && sample.finetune){
-						target = Audio.getFineTunePeriod(target,sample.finetune);
+						target = Audio.getFineTuneForPeriod(target,sample.finetune);
 					}
 				}
 
@@ -648,13 +663,13 @@ var Tracker = (function(){
 			case 5:
 				// continue slide to note
 				doPlayNote = false;
-				var target = note.period;
+				target = notePeriod;
 
 				if (target && sampleIndex){
 					// check if the sample is finetuned
-					var sample = me.getSample(sampleIndex);
+					sample = me.getSample(sampleIndex);
 					if (sample && sample.finetune){
-						target = Audio.getFineTunePeriod(target,sample.finetune);
+						target = Audio.getFineTuneForPeriod(target,sample.finetune);
 					}
 				}
 
@@ -743,7 +758,7 @@ var Tracker = (function(){
 				// note: having a sample number without a period doesn't seem te have any effect (protracker)
 				// when only a period -> reset the wave form / timer
 
-				if (note.period && !note.sample) {
+				if (notePeriod && !note.sample) {
 					if (trackNotes[track].startVolume) {
 						trackEffects.volume = {
 							value: volume
@@ -825,7 +840,7 @@ var Tracker = (function(){
 					}
 
 					// bug in PT1 and PT2: re-apply sample offset in effect cache
-					if (note.period) {
+					if (notePeriod) {
 						//console.log("re-adding offset in effect cache");
 						trackEffectCache[track].offset.value += stepValue;
 					}
@@ -1039,7 +1054,7 @@ var Tracker = (function(){
 		if (doPlayNote && sampleIndex && notePeriod){
 			// cut off previous note on the same track;
 			cutNote(track,time);
-			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time);
+			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time,note.note);
 			trackEffectCache[track].defaultSlideTarget = trackNotes[track].startPeriod;
 		}
 
@@ -1444,39 +1459,40 @@ var Tracker = (function(){
 		}
 
 		loadFile(url,function(result){
-			var isMod = me.processFile(result,name);
-			if (UI) UI.setStatus("Ready");
+			me.processFile(result,name,function(isMod){
+				if (UI) UI.setStatus("Ready");
 
-			if (isMod){
-				var infoUrl = "";
-				var source = "";
+				if (isMod){
+					var infoUrl = "";
+					var source = "";
 
-				if (url.indexOf("modarchive.org")>0){
-					var id = url.split('moduleid=')[1];
-					song.filename = id.split("#")[1] || id;
-					id = id.split("#")[0];
-					id = id.split("&")[0];
+					if (url.indexOf("modarchive.org")>0){
+						var id = url.split('moduleid=')[1];
+						song.filename = id.split("#")[1] || id;
+						id = id.split("#")[0];
+						id = id.split("&")[0];
 
-					source = "modArchive";
-					infoUrl = "https://modarchive.org/index.php?request=view_by_moduleid&query=" + id;
-					EventBus.trigger(EVENT.songPropertyChange,song);
+						source = "modArchive";
+						infoUrl = "https://modarchive.org/index.php?request=view_by_moduleid&query=" + id;
+						EventBus.trigger(EVENT.songPropertyChange,song);
+					}
+					if (UI) UI.setInfo(song.title,source,infoUrl);
 				}
-				if (UI) UI.setInfo(song.title,source,infoUrl);
-			}
 
-			if (UI && isMod && !skipHistory){
+				if (UI && isMod && !skipHistory){
 
-				var path = window.location.pathname;
-				var filename = path.substring(path.lastIndexOf('/')+1);
+					var path = window.location.pathname;
+					var filename = path.substring(path.lastIndexOf('/')+1);
 
-				if (window.history.pushState){
-					window.history.pushState({},name, filename + "?file=" + encodeURIComponent(url));
+					if (window.history.pushState){
+						window.history.pushState({},name, filename + "?file=" + encodeURIComponent(url));
+					}
 				}
-			}
 
 
-			if (isMod) checkAutoPlay(skipHistory);
-			if (next) next();
+				if (isMod) checkAutoPlay(skipHistory);
+				if (next) next();
+			});
 		})
 	};
 
@@ -1495,14 +1511,15 @@ var Tracker = (function(){
 
 			var reader = new FileReader();
 			reader.onload = function(){
-				me.processFile(reader.result,file.name);
-				if (UI) UI.setStatus("Ready");
+				me.processFile(reader.result,file.name,function(isMod){
+					if (UI) UI.setStatus("Ready");
+				});
 			};
 			reader.readAsArrayBuffer(file);
 		}
 	};
 
-	me.processFile = function(arrayBuffer, name){
+	me.processFile = function(arrayBuffer, name , next){
 
 		var isMod = false;
 		var file = new BinaryStream(arrayBuffer,true);
@@ -1531,16 +1548,17 @@ var Tracker = (function(){
 					if (zipEntry){
 						zipEntry.getData(new zip.ArrayBufferWriter,function(data){
 							if (data && data.byteLength) {
-								isMod = me.processFile(data,name);
-								if (isMod) checkAutoPlay(true);
+								me.processFile(data,name,next);
 							}
 						})
 					}else{
-						console.error("Zip file could not be read ...")
+						console.error("Zip file could not be read ...");
+						if (next) next(false);
 					}
 				});
 			}, function(error) {
-				console.error("Zip file could not be read ...")
+				console.error("Zip file could not be read ...");
+				if (next) next(false);
 			});
 		}
 
@@ -1554,14 +1572,13 @@ var Tracker = (function(){
 
 			onModuleLoad();
 
-			//Audio.playSample(1);
 		}
 
 		if (result.isSample){
 			me.importSample(file,name);
 		}
 
-		return isMod;
+		if (next) next(isMod);
 
 	};
 
@@ -1765,6 +1782,7 @@ var Tracker = (function(){
 				note.period = 0;
 				note.effect = 0;
 				note.param = 0;
+				note.note = undefined;
 			}
 		}
 		EventBus.trigger(EVENT.patternChange,currentPattern);
@@ -1779,6 +1797,7 @@ var Tracker = (function(){
 					note.period = 0;
 					note.effect = 0;
 					note.param = 0;
+					note.note = undefined;
 				}
 			}
 		}
@@ -1797,7 +1816,8 @@ var Tracker = (function(){
 				sample: note.sample,
 				period : note.period,
 				effect: note.effect,
-				param: note.param
+				param: note.param,
+				note: note.note
 			});
 		}
 		if (hasTracknumber){
@@ -1841,6 +1861,7 @@ var Tracker = (function(){
 				note.period = source.period;
 				note.effect = source.effect;
 				note.param = source.param;
+				note.note = source.note;
 			}
 			if (!hasTracknumber) EventBus.trigger(EVENT.patternChange,currentPattern);
 

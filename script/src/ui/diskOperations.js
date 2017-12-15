@@ -455,9 +455,10 @@ UI.DiskOperations = function(){
 							Dropbox.getFile(item.url,function(blob){
 								var reader = new FileReader();
 								reader.onload = function(){
-									Tracker.processFile(reader.result,item.title);
-									UI.setStatus("Ready");
-									UI.mainPanel.setView("main");
+									Tracker.processFile(reader.result,item.title,function(isMod){
+										UI.setStatus("Ready");
+										UI.mainPanel.setView("main");
+									});
 								};
 								reader.readAsArrayBuffer(blob);
 							});
