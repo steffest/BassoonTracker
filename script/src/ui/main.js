@@ -236,6 +236,11 @@ var UI = (function(){
 		return target;
 	};
 
+	me.setLoading = function(){
+		me.setStatus("Loading");
+		EventBus.trigger(EVENT.songLoading);
+	};
+
 	me.setStatus = function(status){
 		EventBus.trigger(EVENT.statusChange,{status:status});
 	};

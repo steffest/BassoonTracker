@@ -1455,7 +1455,7 @@ var Tracker = (function(){
 
 		if (UI){
 			UI.setInfo("");
-			UI.setStatus("Loading");
+			UI.setLoading();
 		}
 
 		loadFile(url,function(result){

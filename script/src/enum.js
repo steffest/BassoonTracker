@@ -39,7 +39,8 @@ var EVENT = {
 	diskOperationTargetChange: 21,
 	trackCountChange:22,
 	patternHorizontalScrollChange:23,
-	songLoaded: 24
+	songLoaded: 24,
+	songLoading: 25
 };
 
 var COMMAND = {

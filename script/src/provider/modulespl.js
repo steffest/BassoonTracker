@@ -4,6 +4,7 @@ var ModulesPl = function(){
 	var apiUrl = "https://www.stef.be/bassoontracker/api/mpl/";
 	var proxyUrl = "https://www.stef.be/bassoontracker/api/modules.pl/";
 	var genres = [];
+	var artists = [];
 
 	me.get = function(url,next){
 		var params = url.split("/");
@@ -31,6 +32,9 @@ var ModulesPl = function(){
 					next(parseModList(data,params));
 				});
 				break;
+			case "artists":
+				loadArtists(next);
+				break;
 			case "artist":
 				var apiUrl = "artist/" + param;
 				if (page) apiUrl += "/" + page;
@@ -42,6 +46,23 @@ var ModulesPl = function(){
 				next([]);
 		}
 	};
+
+	function loadArtists(next){
+		if (artists.length) {
+			if (next) next(artists);
+		}else{
+			loadFromApi("artists",function(result){
+				if (result){
+					result.forEach(function(artist){
+						console.log(artist);
+						var item = {title: artist.handle + " (" + artist.count + ")", url : "artist/" + artist.id ,children : []};
+						artists.push(item);
+					});
+				}
+				if (next) next(artists);
+			})
+		}
+	}
 
 	function loadGenres(next){
 		if (genres.length) {

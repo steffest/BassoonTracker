@@ -364,6 +364,10 @@ UI.MainPanel = function(){
 	me.sortZIndex();
 
 	// events
+	EventBus.on(EVENT.songLoading,function(){
+		modNameInputBox.setValue("Loading ...",true);
+	});
+
 	EventBus.on(EVENT.songLoaded,function(song){
 		me.setPatternTable(song.patternTable);
 	});
