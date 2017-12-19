@@ -422,6 +422,30 @@ var Tracker = (function(){
 		var tracks = patternStep.length;
 		var result = {};
 		var r;
+
+		// hmmm ...
+		// The Speed setting influences other effects too,
+		// on Amiga players the effects are processed each tick, so the speed setting on a later channel can influence the effects on a previous channel ...
+		// This is implemented by setting the speed before all other effects
+		// example: see the ED2 command pattern 0, track 3, step 32 in AceMan - Dirty Tricks.mod
+		// not sure this is 100% correct, but in any case it's more correct then setting it at the track it self.
+		// Thinking ... ... yes ... should be fine as no speed related effects are processed on tick 0?
+
+		for (var i = 0; i<tracks; i++){
+			note = patternStep[i];
+			if (note && note.effect && note.effect == 15){
+				if (note.param <= 32){
+					if (note.param == 0) note.param = 1;
+					Tracker.setAmigaSpeed(note.param);
+				}else{
+					Tracker.setBPM(note.param)
+				}
+			}
+		}
+		// --- end Whut? ---
+
+
+
 		for (var i = 0; i<tracks; i++){
 			var note = patternStep[i];
 			var songPos = {position: songPostition, step: step};
@@ -1000,6 +1024,7 @@ var Tracker = (function(){
 								value: subValue,
 								fine: true
 							};
+							console.error(trackEffects.fade);
 							break;
 						case 11: // Fine volume slide down
 
