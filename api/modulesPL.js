@@ -5,6 +5,7 @@ var ModulesPL = (function(){
     var me = {};
     var db;
     var modules;
+    var artists = [];
     var genres = [];
 
     me.init = function(){
@@ -25,8 +26,12 @@ var ModulesPL = (function(){
                 returnJSON(res);
                 res.end(JSON.stringify(modules.find({genre:  genre })));
                 break;
+            case "artists":
+                returnJSON(res);
+                res.end(JSON.stringify(artists));
+                break;
             case "artist":
-                var artist = parseInt(params[2],10);
+                var artist = params[2];
                 returnJSON(res);
                 res.end(JSON.stringify(modules.find({author:  artist })));
                 break;
@@ -53,13 +58,19 @@ var ModulesPL = (function(){
 
     function databaseInitialize() {
         modules = db.getCollection("modules");
-        if (modules === null) {
-            modules = db.addCollection("modules");
+        if (modules === null) modules = db.addCollection("modules");
+
+        var artistsList = db.getCollection("artists");
+        if (artistsList != null){
+            var all = artistsList.find();
+            all.forEach(function(a){
+                artists.push({id: a.id, handle: a.handle, count: a.modCount});
+            });
         }
 
         // get genres
         var genreCount = {};
-        var all = modules.find();
+        all = modules.find();
         all.forEach(function(mod){
             var count = genreCount[mod.genre] || 0;
             //console.log(mod.genre +  " - " + count);

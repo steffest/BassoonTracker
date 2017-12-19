@@ -8,6 +8,7 @@ var port = process.env.PORT || 3000;
 
 modulesPL.init();
 
+
 var proxy = httpProxy.createProxyServer();
 proxy.on('error', function (err, req, res) {
 	res.writeHead(500, {
@@ -16,7 +17,7 @@ proxy.on('error', function (err, req, res) {
 	res.end('Could not proxy ' + req.url);
 });
 
-http.createServer(function (req, res) {
+var server = http.createServer(function (req, res) {
 	var reqUrl = req.url;
 
 	// handle IIS 403 and 404 errors when running on IISNODE
@@ -112,6 +113,13 @@ http.createServer(function (req, res) {
 			break;
 		case "mpl":
 			modulesPL.handleRequest(action,urlParts,res);
+			break;
+		case "restart":
+			res.writeHead(200, {'Content-Type': 'text/html'});
+			res.end("exiting ...");
+			setTimeout(function(){
+				throw "quit";
+			},2000);
 			break;
 		default:
 			res.writeHead(200, {'Content-Type': 'text/html'});
