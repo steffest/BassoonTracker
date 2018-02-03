@@ -74,7 +74,7 @@ var Tracker = (function(){
 
 	console.log("ticktime: " + tickTime);
 
-	me.init = function(initAudio){
+	me.init = function(config){
 		for (var i = -8; i<8;i++){
 			periodFinetuneTable[i] = {};
 		}
@@ -109,7 +109,11 @@ var Tracker = (function(){
 		}
 
 
-		if (initAudio) Audio.init();
+		if (config) {
+			Audio.init();
+			if (config.plugin) UI.initPlugin(config);
+		}
+
 	};
 
 	me.setCurrentSampleIndex = function(index){
@@ -849,7 +853,7 @@ var Tracker = (function(){
 					stepValue: stepValue
 				};
 
-				// note: keep previous trackEffectCache[track].offset.sample in tact
+				// note: keep previous trackEffectCache[track].offset.sample intact
 				trackEffectCache[track].offset = trackEffectCache[track].offset || {};
 				trackEffectCache[track].offset.value = trackEffects.offset.value;
 				trackEffectCache[track].offset.stepValue = trackEffects.offset.stepValue;
@@ -1476,14 +1480,13 @@ var Tracker = (function(){
 
 	me.load = function(url,skipHistory,next){
 		url = url || "demomods/StardustMemories.mod";
-		var name = url.substr(url.lastIndexOf("/")+1);
 
 		if (UI){
 			UI.setInfo("");
 			UI.setLoading();
 		}
 
-		loadFile(url,function(result){
+		var process=function(result){
 			me.processFile(result,name,function(isMod){
 				if (UI) UI.setStatus("Ready");
 
@@ -1491,28 +1494,29 @@ var Tracker = (function(){
 					var infoUrl = "";
 					var source = "";
 
-					if (url.indexOf("modarchive.org")>0){
-						var id = url.split('moduleid=')[1];
-						song.filename = id.split("#")[1] || id;
-						id = id.split("#")[0];
-						id = id.split("&")[0];
+					if (typeof url === "string"){
+						if (url.indexOf("modarchive.org")>0){
+							var id = url.split('moduleid=')[1];
+							song.filename = id.split("#")[1] || id;
+							id = id.split("#")[0];
+							id = id.split("&")[0];
 
-						source = "modArchive";
-						infoUrl = "https://modarchive.org/index.php?request=view_by_moduleid&query=" + id;
-						EventBus.trigger(EVENT.songPropertyChange,song);
+							source = "modArchive";
+							infoUrl = "https://modarchive.org/index.php?request=view_by_moduleid&query=" + id;
+							EventBus.trigger(EVENT.songPropertyChange,song);
+						}
+
+						if (url.indexOf("modules.pl")>0){
+							id = url.split('modules.pl/')[1];
+							song.filename = id.split("#")[1] || id;
+							id = id.split("#")[0];
+							id = id.split("&")[0];
+
+							source = "modules.pl";
+							infoUrl = "http://www.modules.pl/?id=module&mod=" + id;
+							EventBus.trigger(EVENT.songPropertyChange,song);
+						}
 					}
-
-					if (url.indexOf("modules.pl")>0){
-						id = url.split('modules.pl/')[1];
-						song.filename = id.split("#")[1] || id;
-						id = id.split("#")[0];
-						id = id.split("&")[0];
-
-						source = "modules.pl";
-						infoUrl = "http://www.modules.pl/?id=module&mod=" + id;
-						EventBus.trigger(EVENT.songPropertyChange,song);
-					}
-
 
 					if (UI) UI.setInfo(song.title,source,infoUrl);
 				}
@@ -1531,7 +1535,20 @@ var Tracker = (function(){
 				if (isMod) checkAutoPlay(skipHistory);
 				if (next) next();
 			});
-		})
+		}
+
+		var name = "";
+		if (typeof url === "string"){
+			name = url.substr(url.lastIndexOf("/")+1);
+			loadFile(url,function(result){
+				process(result);
+			})
+		}else{
+			name = url.name || "";
+			skipHistory = true;
+			process(url.buffer || url);
+		}
+
 	};
 
 	var checkAutoPlay = function(skipHistory){

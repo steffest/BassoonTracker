@@ -73,8 +73,8 @@ var Input = (function(){
 				touchData.isTouchDown = true;
 
 				var rect = canvas.getBoundingClientRect();
-				x -= rect.left;
-				y -= rect.top;
+				x -= (rect.left + window.pageXOffset);
+				y -= (rect.top + window.pageYOffset);
 
 				currentEventTarget = UI.getModalElement() ||  UI.getEventElement(x,y);
 
@@ -131,8 +131,8 @@ var Input = (function(){
 				if (touchIndex>=0){
 					var thisTouch =touchData.touches[touchIndex];
 
-					thisTouch.x = x;
-					thisTouch.y = y;
+					thisTouch.x = x-window.pageXOffset;
+					thisTouch.y = y-window.pageYOffset;
 
 					touchData.touches.splice(touchIndex, 1, thisTouch);
 
@@ -410,17 +410,17 @@ var Input = (function(){
 			Tracker.handleUpload(files);
 		}
 
-		function handleResize(){
-			// throttle resize events - resizing is expensive as all the canvas cache needs to be regenerated
-			clearTimeout(resizeTimer);
-			resizeTimer = setTimeout(function(){
-				UI.setSize(window.innerWidth,window.innerHeight)
-			},100);
+		if (!App.isPlugin){
+			function handleResize(){
+				// throttle resize events - resizing is expensive as all the canvas cache needs to be regenerated
+				clearTimeout(resizeTimer);
+				resizeTimer = setTimeout(function(){
+					UI.setSize(window.innerWidth,window.innerHeight)
+				},100);
+			}
+
+			handleResize();
 		}
-
-		handleResize();
-
-
 	};
 
 	var getTouchIndex = function (id) {

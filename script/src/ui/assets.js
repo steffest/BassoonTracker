@@ -8,6 +8,7 @@ UI.Assets = (function(){
 	me.preLoad = function(next){
 		var spriteMap;
 		var spriteSheet;
+		var baseUrl = Settings.baseUrl || "";
 
 		var createSprites = function(){
 			if (spriteMap && spriteSheet){
@@ -19,12 +20,12 @@ UI.Assets = (function(){
 			}
 		};
 
-		FetchService.json("skin/spritemap.json?v=" + buildNumber,function(data){
+		FetchService.json(baseUrl + "skin/spritemap.json?v=" + buildNumber,function(data){
 			spriteMap = data;
 			createSprites();
 		});
 
-		Y.loadImage("skin/spritesheet.png?v=" + buildNumber,function(img){
+		Y.loadImage(baseUrl + "skin/spritesheet.png?v=" + buildNumber,function(img){
 			spriteSheet = img;
 			createSprites();
 		})
@@ -290,9 +291,6 @@ UI.Assets = (function(){
 
 	};
 
-	me.preload = function(next){
-
-	};
 
 	me.get = function(name){
 		var result = assets[name];

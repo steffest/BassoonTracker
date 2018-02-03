@@ -1,7 +1,7 @@
 UI.panel = function(x,y,w,h){
 	var me = UI.element(x,y,w,h);
 	me.type = "panel";
-	var properties = ["left","top","width","height","name","type","zIndex"];
+	var properties = ["left","top","width","height","name","type","zIndex","backgroundColor","borderColor"];
 
 	me.setProperties = function(p){
 
@@ -16,12 +16,24 @@ UI.panel = function(x,y,w,h){
 	};
 
 	me.render = function(internal){
+
 		if (!me.isVisible()) return;
 
 		internal = !!internal;
 
 		if (this.needsRendering){
 			me.clearCanvas();
+
+			if (me.backgroundColor){
+				me.ctx.fillStyle = me.backgroundColor;
+				me.ctx.fillRect(0,0,me.width,me.height);
+			}
+			if (me.borderColor){
+				me.ctx.fillStyle = me.borderColor;
+				me.ctx.rect(0,0,me.width,me.height);
+				me.ctx.stroke();
+			}
+
 			this.children.forEach(function(elm){
 				elm.render();
 			});
