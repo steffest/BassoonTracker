@@ -8,6 +8,7 @@ module.exports = function(grunt) {
             },
             dist:{
                 src: [
+                    'script/wrapper/start.txt',
                     'script/src/enum.js',
                     'script/src/eventBus.js',
                     'script/src/audio.js',
@@ -17,12 +18,14 @@ module.exports = function(grunt) {
                     'script/src/ui/yascal*.js',
                     'script/src/ui/main.js',
                     'script/src/ui/**/*.js',
-                    'script/src/**/*.js'
+                    'script/src/**/*.js',
+                    'script/wrapper/end.txt'
                 ],
                 dest: 'script/bassoontracker.js'
             },
             player:{
                 src: [
+                    'script/wrapper/start.txt',
                     'script/src/enum.js',
                     'script/src/eventBus.js',
                     'script/src/filesystem.js',
@@ -36,7 +39,8 @@ module.exports = function(grunt) {
                     'script/src/fetchService.js',
                     'script/src/loader/detect.js',
                     'script/src/loader/protracker.js',
-                    'script/src/loader/soundtracker.js'
+                    'script/src/loader/soundtracker.js',
+                    'script/wrapper/end.txt'
 
                 ],
                 dest: 'player/bassoonplayer.js'

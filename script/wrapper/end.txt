@@ -1,0 +1,11 @@
+return {
+        init: Tracker.init,
+        load: Tracker.load,
+        playSong: Tracker.playSong,
+        stop: Tracker.stop,
+        togglePlay: Tracker.togglePlay,
+        isPlaying: Tracker.isPlaying,
+        getTrackCount: Tracker.getTrackCount,
+        getSong: Tracker.getSong
+    };
+})();
