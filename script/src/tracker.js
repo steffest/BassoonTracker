@@ -9,6 +9,7 @@ var Tracker = (function(){
 
 	// TODO: strip UI stuff
 	var me = {};
+	me.trackerMode = TRACKERMODE.PROTRACKER;
 
 	var clock;
 

@@ -57,8 +57,8 @@ UI.SampleView = function(){
 		name: "Finetune",
 		label: "Finetune",
 		value: 0,
-		max: 7,
-		min:-8,
+		max: (me.trackerMode === TRACKERMODE.PROTRACKER) ? 7 : 127,
+		min:(me.trackerMode === TRACKERMODE.PROTRACKER) ? -8 : -128,
 		font: window.fontMed,
 		onChange: function(value){
 			var sample = Tracker.getCurrentSample();
@@ -108,6 +108,22 @@ UI.SampleView = function(){
 		}
 	});
 	sideButtonPanel.addChild(spinBoxRepeatLength);
+
+	var spinBoxRelativeNote = UI.spinBox({
+		name: "relativeNote",
+		label: "relativeNote",
+		value: 0,
+		max: 128,
+		min:-127,
+		step:1,
+		font: window.fontMed,
+		onChange: function(value){
+			var sample = Tracker.getCurrentSample();
+			if (sample) sample.relativeNote = value;
+		}
+	});
+	sideButtonPanel.addChild(spinBoxRelativeNote);
+
 	me.addChild(sideButtonPanel);
 
 
@@ -154,6 +170,7 @@ UI.SampleView = function(){
 			spinBoxFineTune.setValue(sample.finetune);
 			spinBoxRepeat.setValue(sample.loopStart);
 			spinBoxRepeatLength.setValue(sample.loopRepeatLength);
+			spinBoxRelativeNote.setValue(sample.relativeNote);
 			waveForm.setSample(sample);
 		}else{
 			waveForm.setSample();
@@ -163,6 +180,7 @@ UI.SampleView = function(){
 			spinBoxFineTune.setValue(0);
 			spinBoxRepeat.setValue(0);
 			spinBoxRepeatLength.setValue(0);
+			spinBoxRelativeNote.setValue(0);
 		}
 	});
 
@@ -239,6 +257,13 @@ UI.SampleView = function(){
 		spinBoxRepeatLength.setProperties({
 			left:0,
 			top: spinButtonHeight * 5,
+			width: sideButtonPanel.width,
+			height: spinButtonHeight
+		});
+
+		spinBoxRelativeNote.setProperties({
+			left:0,
+			top: spinButtonHeight * 6,
 			width: sideButtonPanel.width,
 			height: spinButtonHeight
 		});

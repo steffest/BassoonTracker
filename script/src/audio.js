@@ -127,7 +127,7 @@ var Audio = (function(){
 
             if (sample.finetune){
                 period = noteIndex ?  me.getFineTuneForNote(noteIndex,sample.finetune) : me.getFineTuneForPeriod(period,sample.finetune);
-                console.log(period);
+                //console.log(period);
 
             }
             var sampleRate = PALFREQUENCY / (period*2);
@@ -470,7 +470,7 @@ var Audio = (function(){
 
         if (ftNote1 && ftNote2){
             var delta = (ftNote2.period - ftNote1.period) / 127;
-            return ftNote1.period + (delta*finetune)
+            return ftNote1.period - Math.round(delta*finetune)
         }
         return ftNote1.period || 0;
     };

@@ -435,6 +435,11 @@ var KEYBOARDTABLE = {
 	}
 };
 
+var TRACKERMODE = {
+	PROTRACKER: 1,
+	FASTTRACKER: 2
+};
+
 var SETTINGS = {
 	unrollLoops: false,
 	unrollShortLoops: false, // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
