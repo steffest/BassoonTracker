@@ -70,7 +70,7 @@ var App = (function(){
                     UI.setModalElement(dialog);
                     break;
                 case COMMAND.showHelp:
-                    window.open("http://www.stef.be/bassoontracker/docs/");
+                    window.open("https://www.stef.be/bassoontracker/docs/");
                     break;
                 case COMMAND.randomSong:
                     UI.diskOperations.playRandomSong();

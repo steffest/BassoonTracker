@@ -44,7 +44,7 @@ var Input = (function(){
 		canvas.addEventListener("dragover", handleDragover, false);
 		canvas.addEventListener("drop", handleDrop, false);
 
-		window.addEventListener("resize",handleResize,false);
+		if (!App.isPlugin) window.addEventListener("resize",handleResize,false);
 
 		function handleTouchDown(event){
 
@@ -52,7 +52,7 @@ var Input = (function(){
 
 			if (!isTouched){
 				// first touch - init media on IOS
-				Audio.playSilence();
+				if (typeof Audio !== "undefined" && Audio.playSilence) Audio.playSilence();
 				isTouched = true;
 			}
 
@@ -237,7 +237,7 @@ var Input = (function(){
 					var currentOctave = 4;
 					var index = baseNote.index + (currentOctave * 12);
 					var fNote = FTNotes[index];
-					console.log(fNote);
+					//console.log(fNote);
 					if (fNote){
 						note = {
 							period: fNote.period,

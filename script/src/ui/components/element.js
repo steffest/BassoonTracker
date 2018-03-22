@@ -51,8 +51,12 @@ UI.element = function(left,top,width,height){
     };
 
     me.getElementAtPoint = function(_x,_y){
-        _x -= me.left;
-        _y -= me.top;
+		_x -= (me.left + (me.scrollOffsetX || 0));
+		_y -= (me.top + (me.scrollOffsetY || 0));
+
+        if (me.scaleX) _x /= me.scaleX;
+        if (me.scaleY) _y /= me.scaleY;
+
         var currentEventTarget;
         for (var i = me.children.length-1; i>=0; i--){
             var elm = me.children[i];
