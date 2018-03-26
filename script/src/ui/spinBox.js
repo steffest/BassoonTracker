@@ -100,6 +100,11 @@ UI.spinBox = function(initialProperties){
 		if (value>max) me.setValue(max);
 	};
 
+	me.setMin = function(newMin){
+		min = newMin;
+		if (value<min) me.setValue(min);
+	};
+
 	me.render = function(internal){
 		internal = !!internal;
 		if (me.needsRendering){

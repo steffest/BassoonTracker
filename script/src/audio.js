@@ -159,6 +159,7 @@ var Audio = (function(){
 
             var volumeGain = audioContext.createGain();
             volumeGain.gain.value = volume/100;
+            // TODO: volumeGain.value has no result here ?
 
             if (sample.loopRepeatLength>2){
 

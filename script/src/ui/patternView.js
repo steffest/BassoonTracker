@@ -246,6 +246,8 @@ UI.PatternView = function(x,y,w,h){
                 me.ctx.fillStyle = "rgba(220,220,220,.3)";
                 me.ctx.fillRect(cursorX,centerLineTop,cursorWidth,lineHeight+2);
 
+                var displayVolume = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER;
+
 
                 for (var i = visibleStart; i< visibleEnd; i++){
                     if (i>=0 && i<Tracker.getPatternLength()){
@@ -345,11 +347,24 @@ UI.PatternView = function(x,y,w,h){
 
                                 x += (fontMed.charWidth*3) + 4;
                                 noteString = formatHex(note.sample,2,"0");
+                                if (noteString == "00") noteString = "..";
                                 drawText(noteString,x,y,"green");
+
+
+                                if (displayVolume){
+                                    x += (fontMed.charWidth*2) + 4;
+                                    var value = note.volumeEffect;
+                                    if (value) value -= 10;
+                                    noteString = formatHex(value,2,"0");
+                                    if (noteString == "00") noteString = "..";
+                                    drawText(noteString,x,y);
+                                }
+
 
                                 x += (fontMed.charWidth*2) + 4;
                                 noteString = formatHex(note.effect);
                                 noteString += formatHex(note.param,2,"0");
+                                if (noteString == "000") noteString = "...";
                                 drawText(noteString,x,y,"orange");
                             }
                         }

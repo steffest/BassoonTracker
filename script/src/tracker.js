@@ -9,7 +9,6 @@ var Tracker = (function(){
 
 	// TODO: strip UI stuff
 	var me = {};
-	me.trackerMode = TRACKERMODE.PROTRACKER;
 
 	var clock;
 
@@ -46,6 +45,7 @@ var Tracker = (function(){
 
 	var trackCount = 4;
 	var patternLength = 64;
+	var trackerMode = TRACKERMODE.PROTRACKER;
 
 	var swing = 0; // swing in milliseconds. NOTE: this is not part of any original Tracker format, just nice to have on beat sequences
 
@@ -295,7 +295,6 @@ var Tracker = (function(){
 				}catch (e){
 
 				}
-
 			}
 		}
 
@@ -493,12 +492,6 @@ var Tracker = (function(){
 		var notePeriod = note.period;
 		var noteIndex = note.note;
 
-		if (note.note){
-			// FTNote
-			var ftNote = FTNotes[note.note];
-			if (ftNote) notePeriod = ftNote.period;
-
-		}
 
 		if (notePeriod && !sampleIndex){
 			// reuse previous Sample
@@ -525,20 +518,35 @@ var Tracker = (function(){
 					trackEffectCache[track].offset.sample = note.sample;
 				}
 			}
-
-		}
-
-		if (typeof sampleIndex == "number"){
-			sample = me.getSample(sampleIndex);
-			if (noteIndex && sample.relativeNote) {
-				noteIndex += sample.relativeNote;
-				ftNote = FTNotes[noteIndex];
-				if (ftNote) notePeriod = ftNote.period;
-			}
 		}
 
 
 		var volume = defaultVolume;
+
+		if (typeof sampleIndex == "number"){
+			sample = me.getSample(sampleIndex);
+		}
+
+		if (noteIndex){
+			// FTNote
+			if (sample && sample.relativeNote) noteIndex +=  sample.relativeNote;
+			var ftNote = FTNotes[noteIndex];
+			if (ftNote) notePeriod = ftNote.period;
+		}
+
+		if (note.volumeEffect){
+			volume = ((note.volumeEffect-16)/64)*100;
+			defaultVolume = volume;
+			//note.effect = 12;
+			//note.param = (note.volumeEffect-10);
+
+			// not this is not relative to the default sample volume but sets the sample volume
+			trackEffects.volume = {
+				value: volume
+			};
+
+		}
+
 		var doPlayNote = true;
 		var value = note.param;
 		var x,y;
@@ -1084,7 +1092,7 @@ var Tracker = (function(){
 		if (doPlayNote && sampleIndex && notePeriod){
 			// cut off previous note on the same track;
 			cutNote(track,time);
-			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time,note.note);
+			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
 			trackEffectCache[track].defaultSlideTarget = trackNotes[track].startPeriod;
 		}
 
@@ -1961,6 +1969,15 @@ var Tracker = (function(){
 		song.samples = samples;
 		if (UI) UI.mainPanel.setInstruments(sampleContainer);
 		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
+	};
+
+	me.setTrackerMode = function(mode){
+		console.log("Set Trackermode to " + mode);
+		trackerMode = mode;
+		EventBus.trigger(EVENT.trackerModeChanged,mode);
+	};
+	me.getTrackerMode = function(){
+		return trackerMode;
 	};
 
 

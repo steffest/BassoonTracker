@@ -4,7 +4,9 @@ var FastTracker = function(){
     // see ftp://ftp.modland.com/pub/documents/format_documentation/FastTracker%202%20v2.04%20(.xm).html
     me.load = function(file,name){
 
-        console.error("load FT");
+        console.log("loading FastTracker");
+        Tracker.setTrackerMode(TRACKERMODE.FASTTRACKER);
+
         var mod = {};
         var song = {
             patterns:[],
@@ -67,21 +69,21 @@ var FastTracker = function(){
                         note: 0,
                         period: 0,
                         sample: 0,
-                        volume: 0,
+                        volumeEffect: 0,
                         effect: 0,
                         param: 0
                     };
                     var v = file.readUbyte();
-                    if (v & 128) {;
+                    if (v & 128) {
                         if (v &  1) trackStep.note   = file.readUbyte();
                         if (v &  2) trackStep.sample = file.readUbyte();
-                        if (v &  4) trackStep.volume = file.readUbyte();
+                        if (v &  4) trackStep.volumeEffect = file.readUbyte();
                         if (v &  8) trackStep.effect = file.readUbyte();
                         if (v & 16) trackStep.param  = file.readUbyte();
                     } else {
                         trackStep.note = v;
                         trackStep.sample = file.readUbyte();
-                        trackStep.volume = file.readUbyte();
+                        trackStep.volumeEffect = file.readUbyte();
                         trackStep.effect = file.readUbyte();
                         trackStep.param  = file.readUbyte();
                     }

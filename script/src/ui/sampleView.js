@@ -57,8 +57,8 @@ UI.SampleView = function(){
 		name: "Finetune",
 		label: "Finetune",
 		value: 0,
-		max: (me.trackerMode === TRACKERMODE.PROTRACKER) ? 7 : 127,
-		min:(me.trackerMode === TRACKERMODE.PROTRACKER) ? -8 : -128,
+		max: 7,
+		min: -8,
 		font: window.fontMed,
 		onChange: function(value){
 			var sample = Tracker.getCurrentSample();
@@ -194,6 +194,11 @@ UI.SampleView = function(){
 
 	EventBus.on(EVENT.songPropertyChange,function(song){
 		spinBoxSample.setMax(song.samples.length-1);
+	});
+
+	EventBus.on(EVENT.trackerModeChanged,function(mode){
+		spinBoxFineTune.setMax(mode === TRACKERMODE.PROTRACKER ? 7 : 127);
+		spinBoxFineTune.setMin(mode === TRACKERMODE.PROTRACKER ? -8 : -128);
 	});
 
 	me.setLayout = function(){

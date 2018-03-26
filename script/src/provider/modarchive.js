@@ -2,7 +2,7 @@ var ModArchive = function(){
 	var me = {};
 
 	var apiUrl = "http://localhost:3000/";
-	apiUrl = "http://www.stef.be/bassoontracker/api/";
+	apiUrl = "https://www.stef.be/bassoontracker/api/";
 	var genres = [];
 
 	me.get = function(url,next){

@@ -451,7 +451,10 @@ UI.MainPanel = function(){
 
 		for (i=trackControls.length;i<trackCount;i++){
 			trackControls[i] = UI.trackControl();
-			trackControls[i].setProperties({top: -200});
+			trackControls[i].setProperties({
+				track: i,
+				top: -200
+			});
 			me.addChild(trackControls[i]);
 		}
 		visualiser.connect(Audio.cutOffVolume);
@@ -913,6 +916,7 @@ UI.MainPanel = function(){
 				});
 			}else{
 				trackControls[i].setProperties({
+					track:i,
 					top: -100,
 					visible: false
 				});

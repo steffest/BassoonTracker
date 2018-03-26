@@ -2,6 +2,9 @@ var SoundTracker = function(){
 	var me = {};
 
 	me.load = function(file,name){
+
+		Tracker.setTrackerMode(TRACKERMODE.PROTRACKER);
+
 		var song = {
 			patterns:[]
 		};

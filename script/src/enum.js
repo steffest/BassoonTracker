@@ -40,7 +40,8 @@ var EVENT = {
 	trackCountChange:22,
 	patternHorizontalScrollChange:23,
 	songLoaded: 24,
-	songLoading: 25
+	songLoading: 25,
+	trackerModeChanged: 26
 };
 
 var COMMAND = {
