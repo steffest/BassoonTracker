@@ -3,41 +3,41 @@ UI.SampleView = function(){
 	var me = UI.panel();
 	me.hide();
 
-	var currentSampleIndex;
+	var currentInstrumentIndex;
 
 	var inputboxHeight = 20;
 
-	var sampleName = UI.inputbox({
-		name: "sampleName",
+	var instrumentName = UI.inputbox({
+		name: "instrumentName",
 		height: inputboxHeight,
 		onChange: function(value){
-			if (currentSampleIndex){
-				var sample = Tracker.getSample(currentSampleIndex);
-				if (sample) sample.name = value;
-				EventBus.trigger(EVENT.sampleNameChange,currentSampleIndex);
+			if (currentInstrumentIndex){
+				var instrument = Tracker.getInstrument(currentInstrumentIndex);
+				if (instrument) instrument.name = value;
+				EventBus.trigger(EVENT.instrumentNameChange,currentInstrumentIndex);
 			}
 		}
 	});
-	me.addChild(sampleName);
+	me.addChild(instrumentName);
 
 	var waveForm = UI.WaveForm();
 	me.addChild(waveForm);
 
 	var sideButtonPanel = new UI.panel();
 	sideButtonPanel.setProperties({
-		name: "sampleSideButtonPanel"
+		name: "instrumentSideButtonPanel"
 	});
 
-	var spinBoxSample = UI.spinBox({
-		name: "Sample",
-		label: "Sample",
+	var spinBoxInstrument = UI.spinBox({
+		name: "Instrument",
+		label: "Instrument",
 		value: 1,
 		max: 64,
 		min:1,
 		font: window.fontMed,
-		onChange : function(value){Tracker.setCurrentSampleIndex(value);}
+		onChange : function(value){Tracker.setCurrentInstrumentIndex(value);}
 	});
-	sideButtonPanel.addChild(spinBoxSample);
+	sideButtonPanel.addChild(spinBoxInstrument);
 
 	var spinBoxVolume = UI.spinBox({
 		name: "Volume",
@@ -47,8 +47,8 @@ UI.SampleView = function(){
 		min:0,
 		font: window.fontMed,
 		onChange: function(value){
-			var sample = Tracker.getCurrentSample();
-			if (sample) sample.volume = value;
+			var instrument = Tracker.getCurrentInstrument();
+			if (instrument) instrument.volume = value;
 		}
 	});
 	sideButtonPanel.addChild(spinBoxVolume);
@@ -61,8 +61,8 @@ UI.SampleView = function(){
 		min: -8,
 		font: window.fontMed,
 		onChange: function(value){
-			var sample = Tracker.getCurrentSample();
-			if (sample) sample.finetune = value;
+			var instrument = Tracker.getCurrentInstrument();
+			if (instrument) instrument.finetune = value;
 		}
 	});
 	sideButtonPanel.addChild(spinBoxFineTune);
@@ -86,8 +86,8 @@ UI.SampleView = function(){
 		step:2,
 		font: window.fontMed,
 		onChange: function(value){
-			var sample = Tracker.getCurrentSample();
-			if (sample) sample.loopStart = value;
+			var instrument= Tracker.getCurrentInstrument();
+			if (instrument) instrument.loopStart = value;
 			waveForm.refresh();
 		}
 	});
@@ -102,8 +102,8 @@ UI.SampleView = function(){
 		step:2,
 		font: window.fontMed,
 		onChange: function(value){
-			var sample = Tracker.getCurrentSample();
-			if (sample) sample.loopRepeatLength = value;
+			var instrument = Tracker.getCurrentInstrument();
+			if (instrument) instrument.loopRepeatLength = value;
 			waveForm.refresh();
 		}
 	});
@@ -118,8 +118,8 @@ UI.SampleView = function(){
 		step:1,
 		font: window.fontMed,
 		onChange: function(value){
-			var sample = Tracker.getCurrentSample();
-			if (sample) sample.relativeNote = value;
+			var instrument = Tracker.getCurrentInstrument();
+			if (instrument) instrument.relativeNote = value;
 		}
 	});
 	sideButtonPanel.addChild(spinBoxRelativeNote);
@@ -137,16 +137,16 @@ UI.SampleView = function(){
 	var clearButton = UI.Assets.generate("buttonLight");
 	clearButton.setLabel("Clear");
 	clearButton.onClick = function(){
-		var sample = Tracker.getSample()
+		var instrument = Tracker.getInstrument()
 	};
 	me.addChild(clearButton);
 
 	var reverseButton = UI.Assets.generate("buttonLight");
 	reverseButton.setLabel("Reverse");
 	reverseButton.onClick = function(){
-		var sample = Tracker.getSample(currentSampleIndex);
-		if (sample && sample.data) sample.data.reverse();
-		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
+		var instrument = Tracker.getInstrument(currentInstrumentIndex);
+		if (instrument && instrument.sample.data) instrument.sample.data.reverse();
+		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
 	};
 	me.addChild(reverseButton);
 
@@ -159,22 +159,22 @@ UI.SampleView = function(){
 
 
 	// events
-	EventBus.on(EVENT.sampleChange,function(value){
-		currentSampleIndex = value;
-		spinBoxSample.setValue(value,true);
-		var sample = Tracker.getSample(value);
-		if (sample){
-			sampleName.setValue(sample.name,true);
-			spinBoxVolume.setValue(sample.volume);
-			spinBoxLength.setValue(sample.length);
-			spinBoxFineTune.setValue(sample.finetune);
-			spinBoxRepeat.setValue(sample.loopStart);
-			spinBoxRepeatLength.setValue(sample.loopRepeatLength);
-			spinBoxRelativeNote.setValue(sample.relativeNote);
-			waveForm.setSample(sample);
+	EventBus.on(EVENT.instrumentChange,function(value){
+		currentInstrumentIndex = value;
+		spinBoxInstrument.setValue(value,true);
+		var instrument = Tracker.getInstrument(value);
+		if (instrument){
+			instrumentName.setValue(instrument.name,true);
+			spinBoxVolume.setValue(instrument.volume);
+			spinBoxLength.setValue(instrument.sample.length);
+			spinBoxFineTune.setValue(instrument.finetune);
+			spinBoxRepeat.setValue(instrument.loopStart);
+			spinBoxRepeatLength.setValue(instrument.loopRepeatLength);
+			spinBoxRelativeNote.setValue(instrument.relativeNote);
+			waveForm.setInstrument(instrument);
 		}else{
-			waveForm.setSample();
-			sampleName.setValue("",true);
+			waveForm.setInstrument();
+			instrumentName.setValue("",true);
 			spinBoxVolume.setValue(0);
 			spinBoxLength.setValue(0);
 			spinBoxFineTune.setValue(0);
@@ -185,15 +185,15 @@ UI.SampleView = function(){
 	});
 
 
-	EventBus.on(EVENT.samplePlay,function(context){
+	EventBus.on(EVENT.instrumentPlay,function(context){
 		if (!me.visible) return;
-		if (context && context.sampleIndex == currentSampleIndex){
+		if (context && context.instrumentIndex == currentInstrumentIndex){
 			waveForm.play(context.startPeriod);
 		}
 	});
 
 	EventBus.on(EVENT.songPropertyChange,function(song){
-		spinBoxSample.setMax(song.samples.length-1);
+		spinBoxInstrument.setMax(song.instruments.length-1);
 	});
 
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
@@ -209,7 +209,7 @@ UI.SampleView = function(){
 		waveForm.setPosition(UI.mainPanel.col2X,inputboxHeight + UI.mainPanel.defaultMargin + 8);
 		waveForm.setSize(UI.mainPanel.col4W,100);
 
-		sampleName.setProperties({
+		instrumentName.setProperties({
 			top: UI.mainPanel.defaultMargin,
 			left: UI.mainPanel.col2X,
 			width: UI.mainPanel.col4W
@@ -224,7 +224,7 @@ UI.SampleView = function(){
 			height:me.height
 		});
 
-		spinBoxSample.setProperties({
+		spinBoxInstrument.setProperties({
 			left:0,
 			top: 0,
 			width: sideButtonPanel.width,

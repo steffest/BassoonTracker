@@ -139,9 +139,9 @@ UI.vumeter = function(){
 		var max = 128;
 
 		for (var i = 0; i < len; i++) {
-			var sample = buffer[i];
-			if (sample < min) min = sample;
-			else if (sample > max) max = sample
+			var instrument = buffer[i];
+			if (instrument < min) min = instrument;
+			else if (instrument > max) max = instrument
 		}
 
 		return (max - min) / 255

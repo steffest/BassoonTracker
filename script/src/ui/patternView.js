@@ -312,8 +312,8 @@ UI.PatternView = function(x,y,w,h){
                                             if (note.effect == 12){
                                                 vu = note.param * 100/64;
                                             }else{
-                                                var sample = Tracker.getSample(note.sample);
-                                                if (sample) vu = sample.volume * 100/64;
+                                                var instrument = Tracker.getInstrument(note.instrument);
+                                                if (instrument) vu = instrument.volume * 100/64;
                                             }
                                             trackVULevel[j] = vu;
                                             trackVUHistory[j]=currentPos;
@@ -346,7 +346,7 @@ UI.PatternView = function(x,y,w,h){
                                 }
 
                                 x += (fontMed.charWidth*3) + 4;
-                                noteString = formatHex(note.sample,2,"0");
+                                noteString = formatHex(note.instrument,2,"0");
                                 if (noteString == "00") noteString = "..";
                                 drawText(noteString,x,y,"green");
 

@@ -474,7 +474,7 @@ UI.DiskOperations = function(){
 				break;
 			case "samples":
 				itemHandler = false;
-				label.setLabel("Load Sample to slot " + Tracker.getCurrentSampleIndex());
+				label.setLabel("Load Sample to slot " + Tracker.getCurrentInstrumentIndex());
 				listbox.onClick = function(e){
 					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 					if (item && item.data){
@@ -581,8 +581,8 @@ UI.DiskOperations = function(){
 	}
 
 
-	EventBus.on(EVENT.sampleChange,function(value){
-		if (me.isVisible() && currentView == "samples") label.setLabel("Load Sample to slot " + Tracker.getCurrentSampleIndex());
+	EventBus.on(EVENT.instrumentChange,function(value){
+		if (me.isVisible() && currentView == "samples") label.setLabel("Load Sample to slot " + Tracker.getCurrentInstrumentIndex());
 	});
 
 

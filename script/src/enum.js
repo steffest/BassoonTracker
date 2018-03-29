@@ -16,7 +16,7 @@ var PRELOADTYPE = {
 };
 
 var EVENT = {
-	sampleChange:1,
+	instrumentChange:1,
 	patternChange:2,
 	patternPosChange:3,
 	patternTableChange:4,
@@ -31,7 +31,7 @@ var EVENT = {
 	samplePlay:13,
 	screenRefresh: 14,
 	songPropertyChange: 15,
-	sampleNameChange:16,
+	instrumentNameChange:16,
 	command: 17,
 	pianoNoteOn : 18,
 	pianoNoteOff : 19,

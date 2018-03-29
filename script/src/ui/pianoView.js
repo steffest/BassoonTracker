@@ -147,7 +147,7 @@ UI.PianoView = function(){
 					// cursorPosition is not on note
 					// play anyway but don't input
 				}else{
-					Tracker.putNote(Tracker.getCurrentSampleIndex(),note.period);
+					Tracker.putNote(Tracker.getCurrentInstrumentIndex(),note.period);
 					if (Tracker.isPlaying()){
 
 					}else{
@@ -156,7 +156,7 @@ UI.PianoView = function(){
 				}
 			}
 
-			var playedNote = Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
+			var playedNote = Audio.playSample(Tracker.getCurrentInstrumentIndex(),note.period);
 			keyPlayed[key] = playedNote;
 			EventBus.trigger(EVENT.pianoNoteOn,playedNote);
 

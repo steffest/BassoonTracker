@@ -114,19 +114,19 @@ var Audio = (function(){
         track = track || Tracker.getCurrentTrack();
         time = time || 0;
 
-        var sample = Tracker.getSample(index);
+        var instrument = Tracker.getInstrument(index);
         var basePeriod = period;
 
-        if (sample){
+        if (instrument){
             var sampleBuffer;
             var offset = 0;
             var sampleLength = 0;
             var sampleLoopStart = 0;
 
-            volume = typeof volume == "undefined" ? (100*sample.volume/64) : volume;
+            volume = typeof volume == "undefined" ? (100*instrument.volume/64) : volume;
 
-            if (sample.finetune){
-                period = noteIndex ?  me.getFineTuneForNote(noteIndex,sample.finetune) : me.getFineTuneForPeriod(period,sample.finetune);
+            if (instrument.finetune){
+                period = noteIndex ?  me.getFineTuneForNote(noteIndex,instrument.finetune) : me.getFineTuneForPeriod(period,instrument.finetune);
                 //console.log(period);
 
             }
@@ -134,9 +134,9 @@ var Audio = (function(){
 
             var initialPlaybackRate = 1;
 
-            if (sample.data.length) {
-                sampleLength = sample.data.length;
-                sampleLoopStart = sample.loopStart;
+            if (instrument.sample.data.length) {
+                sampleLength = instrument.sample.data.length;
+                sampleLoopStart = instrument.loopStart;
                 if (effects && effects.offset){
                     if (effects.offset.value>=sampleLength) effects.offset.value = sampleLength-1;
                     offset = effects.offset.value/audioContext.sampleRate; // in seconds
@@ -145,13 +145,13 @@ var Audio = (function(){
                 sampleBuffer = audioContext.createBuffer(1, sampleLength,audioContext.sampleRate);
                 initialPlaybackRate = sampleRate / audioContext.sampleRate;
             }else {
-                // empty samples are often used to cut of the previous sample
+                // empty samples are often used to cut of the previous instrument
                 sampleBuffer = audioContext.createBuffer(1, 1, sampleRate);
                 offset = 0;
             }
             var buffering = sampleBuffer.getChannelData(0);
             for(i=0; i < sampleLength; i++) {
-                buffering[i] = sample.data[i];
+                buffering[i] = instrument.sample.data[i];
             }
 
             var source = audioContext.createBufferSource();
@@ -161,14 +161,14 @@ var Audio = (function(){
             volumeGain.gain.value = volume/100;
             // TODO: volumeGain.value has no result here ?
 
-            if (sample.loopRepeatLength>2){
+            if (instrument.loopRepeatLength>2){
 
                 if (!SETTINGS.unrollLoops){
 
                     source.loop = true;
                     // in seconds ...
                     source.loopStart = sampleLoopStart/audioContext.sampleRate;
-                    source.loopEnd = (sampleLoopStart + sample.loopRepeatLength)/audioContext.sampleRate;
+                    source.loopEnd = (sampleLoopStart + instrument.loopRepeatLength)/audioContext.sampleRate;
 
                     //audioContext.sampleRate = samples/second
                 }
@@ -191,7 +191,7 @@ var Audio = (function(){
                 startPeriod: period,
                 basePeriod: basePeriod,
                 startPlaybackRate: initialPlaybackRate,
-                sampleIndex: index,
+				instrumentIndex: index,
                 effects: effects,
                 track: track
             };
@@ -368,7 +368,7 @@ var Audio = (function(){
      @param {audioNode} source: audioBuffer of the root note
      @param {Number} root: period of the root note
      @param {Number} semitones: amount of semitones from the root note
-     @param {Number} finetune: finetune value of the base sample
+     @param {Number} finetune: finetune value of the base instrument
      @return {audioNode} audioBuffer of the new note
      */
     function semiTonesFrom(source,root,semitones,finetune){
@@ -426,11 +426,11 @@ var Audio = (function(){
         return result;
     };
 
-    me.getNearestSemiTone = function(period,sampleIndex){
+    me.getNearestSemiTone = function(period,instrumentIndex){
         var tuning = 8;
-        if (sampleIndex){
-            var sample = Tracker.getSample(sampleIndex);
-            if (sample && sample.finetune) tuning = tuning + sample.finetune;
+        if (instrumenteIndex){
+            var instrument = Tracker.getInstrument(instrumentIndex);
+            if (instrument && instrument.finetune) tuning = tuning + instrument.finetune;
         }
 
         var minDelta = 100000;

@@ -10,7 +10,7 @@ var SoundTracker = function(){
 		};
 
 		var patternLength = 64;
-		var sampleCount = 15;
+		var instrumentCount = 15;
 
 
 		//see https://www.aes.id.au/modformat.html
@@ -21,31 +21,29 @@ var SoundTracker = function(){
 		song.title = file.readString(20,0);
 
 		var sampleDataOffset = 0;
-		for (i = 1; i <= sampleCount; ++i) {
+		for (i = 1; i <= instrumentCount; ++i) {
 			var sampleName = file.readString(22);
 			var sampleLength = file.readWord(); // in words
 
-			var sample = {
-				name: sampleName,
-				data: []
-			};
+			instrument = Instrument();
+			instrument.name = sampleName;
 
-			sample.length = sample.realLen = sampleLength << 1;
-			sample.volume   = file.readWord();
+			instrument.sample.length = instrument.realLen = sampleLength << 1;
+			instrument.volume   = file.readWord();
 			// NOTE: does the high byte of the volume someties contain finetune data?
-			sample.finetune = 0;
-			sample.loopStart     = file.readWord(); // in bytes!
-			sample.loopRepeatLength   = file.readWord() << 1;
+			instrument.finetune = 0;
+			instrument.loopStart     = file.readWord(); // in bytes!
+			instrument.loopRepeatLength   = file.readWord() << 1;
 
-			// if a sample contains a loops, only the loop part is played
+			// if a instrument contains a loops, only the loop part is played
 			// TODO
 
-			sample.pointer = sampleDataOffset;
-			sampleDataOffset += sample.length;
-			Tracker.setSample(i,sample);
+			instrument.pointer = sampleDataOffset;
+			sampleDataOffset += instrument.sample.length;
+			Tracker.setInstrument(i,instrument);
 
 		}
-		song.samples = Tracker.getSamples();
+		song.instruments = Tracker.getInstruments();
 
 		file.goto(470);
 
@@ -77,7 +75,7 @@ var SoundTracker = function(){
 
 					trackStep.period = (trackStepInfo >> 16) & 0x0fff;
 					trackStep.effect = (trackStepInfo >>  8) & 0x0f;
-					trackStep.sample = (trackStepInfo >> 24) & 0xf0 | (trackStepInfo >> 12) & 0x0f;
+					trackStep.instrument = (trackStepInfo >> 24) & 0xf0 | (trackStepInfo >> 12) & 0x0f;
 					trackStep.param  = trackStepInfo & 0xff;
 
 					row.push(trackStep);
@@ -85,7 +83,7 @@ var SoundTracker = function(){
 
 				// fill with empty data for other channels
 				for (channel = 4; channel < Tracker.getTrackCount(); channel++){
-					row.push({note:0,effect:0,sample:0,param:0});
+					row.push({note:0,effect:0,instrument:0,param:0});
 				}
 
 				patternData.push(row);
@@ -95,33 +93,26 @@ var SoundTracker = function(){
 			//file.jump(1024);
 		}
 
-		var sampleContainer = [];
+		var instrumentContainer = [];
 
-		for(i=1; i <= sampleCount; i++) {
-			sample = Tracker.getSample(i);
-			if (sample){
-				console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + " bytes and repeat length of " + sample.loopRepeatLength);
-				//this.samples[i] = ds.readInt8Array(this.inst[i].sampleLength*2);
+		for(i=1; i <= instrumentCount; i++) {
+			instrument = Tracker.getInstrument(i);
+			if (instrument){
+				console.log("Reading sample from 0x" + file.index + " with length of " + instrument.sample.length + " bytes and repeat length of " + instrument.loopRepeatLength);
 
-				var sampleEnd = sample.length;
-
-				if (sample.loopRepeatLength>2 ){
-					// cut off trailing bytes for short looping samples
-					//sampleEnd = Math.min(sampleEnd,sample.loopStart + sample.loopRepeatLength);
-					//sample.length = sampleEnd;
-				}
+				var sampleEnd = instrument.sample.length;
 
 				for (j = 0; j<sampleEnd; j++){
 					var b = file.readByte();
 					// ignore first 2 bytes
 					if (j<2)b=0;
-					sample.data.push(b / 127)
+					instrument.sample.data.push(b / 127)
 				}
 
-				sampleContainer.push({label: i + " " + sample.name, data: i});
+				instrumentContainer.push({label: i + " " + instrument.name, data: i});
 			}
 		}
-		UI.mainPanel.setInstruments(sampleContainer);
+		UI.mainPanel.setInstruments(instrumentContainer);
 
 		return song;
 	};

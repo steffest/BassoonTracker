@@ -62,8 +62,7 @@ UI.DiskOperationSave = function(){
 			}
 		}
 		if (mainFileType == FILETYPE.sample){
-			var sample = Tracker.getCurrentSample();
-			console.error(sample);
+			var sample = Tracker.getCurrentInstrument().sample;
 
 
 			if (sample){
@@ -114,7 +113,7 @@ UI.DiskOperationSave = function(){
 			var label = "Export as";
 			if (mainFileType == FILETYPE.sample) {
 				label = "Export Sample as";
-				fileName = Tracker.getCurrentSample().name.replace(/ /g, '-').replace(/\W/g, '');
+				fileName = Tracker.getCurrentInstrument().name.replace(/ /g, '-').replace(/\W/g, '');
 			}
 			if (mainFileType == FILETYPE.module) {
 				label = "Export Module as";
@@ -130,9 +129,9 @@ UI.DiskOperationSave = function(){
 		}
 	});
 
-	EventBus.on(EVENT.sampleChange,function(value){
+	EventBus.on(EVENT.instrumentChange,function(value){
 		if (me.isVisible() && mainFileType == FILETYPE.sample) {
-			fileName = Tracker.getCurrentSample().name.replace(/ /g, '-').replace(/\W/g, '') || "Sample-" + Tracker.getCurrentSampleIndex();
+			fileName = Tracker.getCurrentInstrument().name.replace(/ /g, '-').replace(/\W/g, '') || "Sample-" + Tracker.getCurrentInstrumentIndex();
 			setFileName();
 		}
 	});

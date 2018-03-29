@@ -86,7 +86,7 @@ UI.MainPanel = function(){
 		var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 		if (item){
 			//Audio.playSample(item.data);
-			Tracker.setCurrentSampleIndex(item.data);
+			Tracker.setCurrentInstrumentIndex(item.data);
 		}
 	};
 
@@ -163,16 +163,16 @@ UI.MainPanel = function(){
 	me.addChild(spinBoxPatternLength);
 	*/
 
-	var spinBoxSample = UI.spinBox({
-		name: "Sample",
-		label: "Sample",
+	var spinBoxInstrument = UI.spinBox({
+		name: "Instrument",
+		label: "Instrument",
 		value: 1,
 		max: 64,
 		min:1,
 		font: window.fontMed,
-		onChange : function(value){Tracker.setCurrentSampleIndex(value);}
+		onChange : function(value){Tracker.setCurrentInstrumentIndex(value);}
 	});
-	me.addChild(spinBoxSample);
+	me.addChild(spinBoxInstrument);
 
 	var buttons = [];
 	var buttonsSide = [];
@@ -375,11 +375,11 @@ UI.MainPanel = function(){
 	EventBus.on(EVENT.songPropertyChange,function(song){
 		modNameInputBox.setValue(song.title,true);
 		spinBoxSongLength.setValue(song.length,true);
-		spinBoxSample.setMax(song.samples.length-1);
+		spinBoxInstrument.setMax(song.instruments.length-1);
 	});
 
-	EventBus.on(EVENT.sampleChange,function(value){
-		spinBoxSample.setValue(value,true);
+	EventBus.on(EVENT.instrumentChange,function(value){
+		spinBoxInstrument.setValue(value,true);
 	});
 	EventBus.on(EVENT.patternChange,function(value){
 		spinBoxPattern.setValue(value,true);
@@ -422,7 +422,7 @@ UI.MainPanel = function(){
 		me.setPatternTable(Tracker.getSong().patternTable);
 	});
 
-	EventBus.on(EVENT.sampleChange,function(value){
+	EventBus.on(EVENT.instrumentChange,function(value){
 		listbox.setSelectedIndex(value-1);
 	});
 
@@ -430,13 +430,13 @@ UI.MainPanel = function(){
 		//spinBoxBmp.setValue(value,true);
 	//});
 
-	EventBus.on(EVENT.sampleNameChange,function(sampleIndex){
-		var sample = Tracker.getSample(sampleIndex);
-		if (sample){
+	EventBus.on(EVENT.instrumentNameChange,function(instrumentIndex){
+		var instrument = Tracker.getInstrument(instrumentIndex);
+		if (instrument){
 			var instruments = me.getInstruments();
 			for (var i = 0, len = instruments.length; i<len;i++){
-				if (instruments[i].data == sampleIndex){
-					instruments[i].label = sampleIndex + " " + sample.name;
+				if (instruments[i].data == instrumentIndex){
+					instruments[i].label = instrumentIndex + " " + instrument.name;
 					UI.mainPanel.setInstruments(instruments);
 					break;
 				}
@@ -680,7 +680,7 @@ UI.MainPanel = function(){
 				width: me.col1W,
 				height: spinButtonHeight
 			},
-			spinBoxSample:{
+			spinBoxInstrument:{
 				left:me.col2X,
 				top: topRow2 + (spinButtonHeight*2) + 3,
 				width: me.col1W,
@@ -727,12 +727,12 @@ UI.MainPanel = function(){
 
 			layout.patternPanel.left = me.col3X;
 			layout.spinBoxPattern.left = me.col3X;
-			layout.spinBoxSample.left = me.col3X;
+			layout.spinBoxInstrument.left = me.col3X;
 			layout.spinBoxSongLength.left = me.col3X;
 
 			layout.patternPanel.width = me.col2W;
 			layout.spinBoxPattern.width = me.col2W;
-			layout.spinBoxSample.width = me.col2W;
+			layout.spinBoxInstrument.width = me.col2W;
 			layout.spinBoxSongLength.width = me.col2W;
 
 			layout.songPanel.width = me.col2W;
@@ -857,7 +857,7 @@ UI.MainPanel = function(){
 
 		setDimensions(spinBoxPattern,layout.spinBoxPattern);
 		//setDimensions(spinBoxPatternLength,layout.spinBoxPatternLength);
-		setDimensions(spinBoxSample,layout.spinBoxSample);
+		setDimensions(spinBoxInstrument,layout.spinBoxInstrument);
 		setDimensions(spinBoxSongLength,layout.spinBoxSongLength);
 		//setDimensions(spinBoxBmp,layout.spinBoxBmp);
 

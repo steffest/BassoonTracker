@@ -258,7 +258,7 @@ var Input = (function(){
 						}
 					}else{
 						if (note){
-							Tracker.putNote(Tracker.getCurrentSampleIndex(),note.period);
+							Tracker.putNote(Tracker.getCurrentInstrumentIndex(),note.period);
 							if (Tracker.isPlaying()){
 								doPlay = false;
 							}else{
@@ -272,15 +272,15 @@ var Input = (function(){
 					if (keyDown[key]) return;
 
 
-					var sample = Tracker.getCurrentSample();
+					var instrument = Tracker.getCurrentInstrument();
 
-					if (note.note && sample && sample.relativeNote){
-						note.note += sample.relativeNote;
+					if (note.note && instrument && instrument.relativeNote){
+						note.note += instrument.relativeNote;
 						var ftNote = FTNotes[note.note];
 						if (ftNote) note.period = ftNote.period;
 					}
 
-					keyDown[key] = Audio.playSample(Tracker.getCurrentSampleIndex(),note.period);
+					keyDown[key] = Audio.playSample(Tracker.getCurrentInstrumentIndex(),note.period);
 					inputNotes.push(keyDown[key]);
 					EventBus.trigger(EVENT.pianoNoteOn,keyDown[key]);
 					return;
@@ -457,7 +457,6 @@ var Input = (function(){
 
 				}
 			}
-
 		}
 	}
 

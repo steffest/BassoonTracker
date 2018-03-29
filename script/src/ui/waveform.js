@@ -2,7 +2,7 @@ UI.WaveForm = function(){
 
 	var me = UI.element();
 	var currentSampleData;
-	var currentSample;
+	var currentInstrument;
 	var isPlaying;
 	var isDraggingRange;
 	var startPlayTime;
@@ -46,10 +46,10 @@ UI.WaveForm = function(){
 		isDraggingRange = false;
 	};
 
-	me.setSample = function(sample){
-		currentSample = sample;
-		if (sample){
-			currentSampleData = currentSample.data;
+	me.setInstrument = function(instrument){
+		currentInstrument = instrument;
+		if (instrument){
+			currentSampleData = currentInstrument.sample.data;
 			sampleLength = currentSampleData.length;
 		}else{
 			currentSampleData = undefined;
@@ -87,7 +87,7 @@ UI.WaveForm = function(){
 				waveformDisplay.ctx.drawImage(background.render(true),0,0,me.width,me.height);
 
 				if (currentSampleData && currentSampleData.length && me.width){
-					// sample 1 value each pixel
+					// instrument 1 value each pixel
 					var step = sampleLength / me.width;
 					var mid = me.height/2;
 
@@ -128,16 +128,16 @@ UI.WaveForm = function(){
 
 			}
 
-			if (currentSample.loopRepeatLength>2){
+			if (currentInstrument.loopRepeatLength>2){
 
 				me.ctx.fillStyle = "rgb(241, 220, 71)";
 
-				var loopStart = currentSample.loopStart || 0;
+				var loopStart = currentInstrument.loopStart || 0;
 				var lineX = (loopStart/sampleLength) * me.width;
 				lineX = Math.max(5,lineX);
 				me.ctx.fillRect(lineX,0,2,me.height);
 
-				lineX = ((loopStart + currentSample.loopRepeatLength)/sampleLength) * me.width;
+				lineX = ((loopStart + currentInstrument.loopRepeatLength)/sampleLength) * me.width;
 				lineX = Math.min(lineX,me.width-6);
 
 				me.ctx.fillRect(lineX,0,2,me.height);

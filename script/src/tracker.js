@@ -16,10 +16,10 @@ var Tracker = (function(){
 	var isPlaying = false;
 
 	var song;
-	var samples = [];
+	var instruments = [];
 
-	var currentSampleIndex = 1;
-	var prevSampleIndex;
+	var currentInstrumentIndex = 1;
+	var prevInstrumentIndex;
 	var currentPattern = 0;
 	var prevPattern;
 	var currentPatternPos = 0;
@@ -117,20 +117,20 @@ var Tracker = (function(){
 
 	};
 
-	me.setCurrentSampleIndex = function(index){
-		if (song.samples[index]){
-			currentSampleIndex = index;
-			if (prevSampleIndex!=currentSampleIndex) EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
-			prevSampleIndex = currentSampleIndex;
+	me.setCurrentInstrumentIndex = function(index){
+		if (song.instruments[index]){
+			currentInstrumentIndex = index;
+			if (prevInstrumentIndex!=currentInstrumentIndex) EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
+			prevInstrumentIndex = currentInstrumentIndex;
 		}
 	};
 
-	me.getCurrentSampleIndex = function(){
-		return currentSampleIndex;
+	me.getCurrentInstrumentIndex = function(){
+		return currentInstrumentIndex;
 	};
 
-	me.getCurrentSample = function(){
-		return samples[currentSampleIndex];
+	me.getCurrentInstrument = function(){
+		return instruments[currentInstrumentIndex];
 	};
 
 	me.setCurrentPattern = function(index){
@@ -488,34 +488,34 @@ var Tracker = (function(){
 		var defaultVolume = 100;
 		var trackEffects = {};
 
-		var sampleIndex = note.sample;
+		var instrumentIndex = note.instrument;
 		var notePeriod = note.period;
 		var noteIndex = note.note;
 
 
-		if (notePeriod && !sampleIndex){
-			// reuse previous Sample
-			sampleIndex = trackNotes[track].currentSample;
+		if (notePeriod && !instrumentIndex){
+			// reuse previous instrument
+			instrumentIndex = trackNotes[track].currentInstrument;
 			defaultVolume = typeof trackNotes[track].currentVolume == "number" ? trackNotes[track].currentVolume : defaultVolume;
 
-			if (SETTINGS.emulateProtracker1OffsetBug && sampleIndex && trackEffectCache[track].offset){
-				if (trackEffectCache[track].offset.sample == sampleIndex){
-					console.log("applying sample offset cache to sample " + sampleIndex);
+			if (SETTINGS.emulateProtracker1OffsetBug && instrumentIndex && trackEffectCache[track].offset){
+				if (trackEffectCache[track].offset.instrument == instrumentIndex){
+					console.log("applying instrument offset cache to instrument " + instrumentIndex);
 					trackEffects.offset = trackEffectCache[track].offset;
 				}
 			}
 		}
 
-		if (typeof note.sample == "number"){
-			sample = me.getSample(note.sample);
-			if (sample) {
-				defaultVolume = 100 * (sample.volume/64);
+		if (typeof note.instrument == "number"){
+			instrument = me.getInstrument(note.instrument);
+			if (instrument) {
+				defaultVolume = 100 * (instrument.volume/64);
 
 				if (SETTINGS.emulateProtracker1OffsetBug){
-					// reset sample offset when a sample number is present;
+					// reset instrument offset when a instrument number is present;
 					trackEffectCache[track].offset = trackEffectCache[track].offset || {};
 					trackEffectCache[track].offset.value = 0;
-					trackEffectCache[track].offset.sample = note.sample;
+					trackEffectCache[track].offset.instrument = note.instrument;
 				}
 			}
 		}
@@ -523,13 +523,13 @@ var Tracker = (function(){
 
 		var volume = defaultVolume;
 
-		if (typeof sampleIndex == "number"){
-			sample = me.getSample(sampleIndex);
+		if (typeof instrumentIndex == "number"){
+			instrument = me.getInstrument(instrumentIndex);
 		}
 
 		if (noteIndex){
 			// FTNote
-			if (sample && sample.relativeNote) noteIndex +=  sample.relativeNote;
+			if (instrument && instrument.relativeNote) noteIndex +=  instrument.relativeNote;
 			var ftNote = FTNotes[noteIndex];
 			if (ftNote) notePeriod = ftNote.period;
 		}
@@ -540,7 +540,7 @@ var Tracker = (function(){
 			//note.effect = 12;
 			//note.param = (note.volumeEffect-10);
 
-			// not this is not relative to the default sample volume but sets the sample volume
+			// not this is not relative to the default instrument volume but sets the instrument volume
 			trackEffects.volume = {
 				value: volume
 			};
@@ -564,16 +564,16 @@ var Tracker = (function(){
 					var finetune = 0;
 
 
-					//todo: when a sample index is present other than the previous index, but no note
+					//todo: when a instrument index is present other than the previous index, but no note
 					// how does this work?
 					// see example just_about_seven.mod
 
-					// check if the sample is finetuned
-					var playingSample = sampleIndex || trackNotes[track] ? trackNotes[track].currentSample : 0;
-					if (playingSample){
-						sample = me.getSample(playingSample);
-						if (sample && sample.finetune){
-							finetune = sample.finetune;
+					// check if the instrument is finetuned
+					var playingInstrument = instrumentIndex || trackNotes[track] ? trackNotes[track].currentInstrument : 0;
+					if (playingInstrument){
+						instrument = me.getInstrument(playingInstrument);
+						if (instrument && instrument.finetune){
+							finetune = instrument.finetune;
 							root = Audio.getFineTuneForPeriod(root,finetune);
 						}
 					}
@@ -589,7 +589,7 @@ var Tracker = (function(){
 				// set volume, even if no effect present
 				// note: this is consistent with the Protracker 3.15 and later playback
 				// on Protracker 2.3 and 3.0, the volume effect seems much bigger - why ? (see "nugget - frust.mod")
-				if (note.sample){
+				if (note.instrument){
 					trackEffects.volume = {
 						value: defaultVolume
 					};
@@ -619,12 +619,12 @@ var Tracker = (function(){
 				break;
 			case 3:
 				// Slide to Note - if there's a note provided, it is not played directly,
-				// if the sample number is set, the default volume of that sample will be set
+				// if the instrument number is set, the default volume of that instrument will be set
 
 				// if value == 0 then the old slide will continue
 
 				doPlayNote = false;
-				// note: protracker2 switches samples on the fly if the sample index is different from the previous sample ...
+				// note: protracker2 switches samples on the fly if the instrument index is different from the previous instrument ...
 				// Should we implement that?
 				// fasttracker does not.
 				// protracker 3 does not
@@ -633,14 +633,14 @@ var Tracker = (function(){
 
 				var target = notePeriod;
 
-				// avoid using the fineTune of another sample if another sample index is present
-				if (trackNotes[track].currentSample) sampleIndex = trackNotes[track].currentSample;
+				// avoid using the fineTune of another instrument if another instrument index is present
+				if (trackNotes[track].currentInstrument) instrumentIndex = trackNotes[track].currentInstrument;
 
-				if (target && sampleIndex){
-					// check if the sample is finetuned
-					var sample = me.getSample(sampleIndex);
-					if (sample && sample.finetune){
-						target = Audio.getFineTuneForPeriod(target,sample.finetune);
+				if (target && instrumentIndex){
+					// check if the instrument is finetuned
+					var instrument = me.getInstrument(instrumentIndex);
+					if (instrument && instrument.finetune){
+						target = Audio.getFineTuneForPeriod(target,instrument.finetune);
 					}
 				}
 
@@ -660,7 +660,7 @@ var Tracker = (function(){
 				};
 				trackEffectCache[track].slide = trackEffects.slide;
 
-				if (note.sample){
+				if (note.instrument){
 					trackEffects.volume = {
 						value: defaultVolume
 					};
@@ -670,8 +670,8 @@ var Tracker = (function(){
 				break;
 			case 4:
 				// vibrato
-				// reset volume and vibrato timer if sample number is present
-				if (note.sample) {
+				// reset volume and vibrato timer if instrument number is present
+				if (note.instrument) {
 					if (trackNotes[track].startVolume) {
 						trackEffects.volume = {
 							value: volume
@@ -702,11 +702,11 @@ var Tracker = (function(){
 				doPlayNote = false;
 				target = notePeriod;
 
-				if (target && sampleIndex){
-					// check if the sample is finetuned
-					sample = me.getSample(sampleIndex);
-					if (sample && sample.finetune){
-						target = Audio.getFineTuneForPeriod(target,sample.finetune);
+				if (target && instrumentIndex){
+					// check if the instrument is finetuned
+					instrument = me.getInstrument(instrumentIndex);
+					if (instrument && instrument.finetune){
+						target = Audio.getFineTuneForPeriod(target,instrument.finetune);
 					}
 				}
 
@@ -724,7 +724,7 @@ var Tracker = (function(){
 				};
 				trackEffectCache[track].slide = trackEffects.slide;
 
-				if (note.sample){
+				if (note.instrument){
 					trackEffects.volume = {
 						value: defaultVolume
 					};
@@ -749,7 +749,7 @@ var Tracker = (function(){
 
 					trackEffects.fade = {
 						value: value,
-						resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, other wise the volue is remembered from the preious state
+						resetOnStep: !!note.instrument // volume only needs resetting when the instrument number is given, other wise the volue is remembered from the preious state
 					};
 					trackEffectCache[track].fade = trackEffects.fade;
 				}
@@ -760,8 +760,8 @@ var Tracker = (function(){
 			case 6:
 				// Continue Vibrato and do volume slide
 
-				// reset volume and vibrato timer if sample number is present
-				if (note.sample) {
+				// reset volume and vibrato timer if instrument number is present
+				if (note.instrument) {
 					if (trackNotes[track].startVolume) {
 						trackEffects.volume = {
 							value: volume
@@ -792,10 +792,10 @@ var Tracker = (function(){
 				break;
 			case 7:
 				// Tremolo
-				// note: having a sample number without a period doesn't seem te have any effect (protracker)
+				// note: having a instrument number without a period doesn't seem te have any effect (protracker)
 				// when only a period -> reset the wave form / timer
 
-				if (notePeriod && !note.sample) {
+				if (notePeriod && !note.instrument) {
 					if (trackNotes[track].startVolume) {
 						trackEffects.volume = {
 							value: volume
@@ -830,18 +830,18 @@ var Tracker = (function(){
 				// TODO: implement
 				break;
 			case 9:
-				// Set sample offset
+				// Set instrument offset
 
 				/* quirk in Protracker 1 and 2 ?
-				 if NO NOTE is given but a sample number is present,
-				 then the offset is remembered for the next note WITHOUT sample number
-				 but only when the derived sample number is the same as the offset sample number
+				 if NO NOTE is given but a instrument number is present,
+				 then the offset is remembered for the next note WITHOUT instrument number
+				 but only when the derived instrument number is the same as the offset instrument number
 				 see "professional tracker" mod for example
 
 				 also:
-				 * if no sample number is present: don't reset the offset
-				  -> the effect cache of the previous 9 command of the sample is used
-				 * if a note is present REAPPLY the offset in the effect cache (but don't set start of sample)
+				 * if no instrument number is present: don't reset the offset
+				  -> the effect cache of the previous 9 command of the instrument is used
+				 * if a note is present REAPPLY the offset in the effect cache (but don't set start of instrument)
 				  -> the effect cache now contains double the offset
 
 				 */
@@ -852,8 +852,8 @@ var Tracker = (function(){
 				}
 				var stepValue = value;
 
-				if (SETTINGS.emulateProtracker1OffsetBug && !note.sample && trackEffectCache[track].offset){
-					// bug in PT1 and PT2: add to existing offset if no sample number is given
+				if (SETTINGS.emulateProtracker1OffsetBug && !note.instrument && trackEffectCache[track].offset){
+					// bug in PT1 and PT2: add to existing offset if no instrument number is given
 					value += trackEffectCache[track].offset.value;
 				}
 
@@ -862,7 +862,7 @@ var Tracker = (function(){
 					stepValue: stepValue
 				};
 
-				// note: keep previous trackEffectCache[track].offset.sample intact
+				// note: keep previous trackEffectCache[track].offset.instrument intact
 				trackEffectCache[track].offset = trackEffectCache[track].offset || {};
 				trackEffectCache[track].offset.value = trackEffects.offset.value;
 				trackEffectCache[track].offset.stepValue = trackEffects.offset.stepValue;
@@ -870,13 +870,13 @@ var Tracker = (function(){
 
 				if (SETTINGS.emulateProtracker1OffsetBug){
 
-					// quirk in PT1 and PT2: remember sample offset for sample
-					if (note.sample) {
-						//console.log("set offset cache for sample " + note.sample);
-						trackEffectCache[track].offset.sample = note.sample;
+					// quirk in PT1 and PT2: remember instrument offset for instrument
+					if (note.instrument) {
+						//console.log("set offset cache for instrument " + note.instrument);
+						trackEffectCache[track].offset.instrument = note.instrument;
 					}
 
-					// bug in PT1 and PT2: re-apply sample offset in effect cache
+					// bug in PT1 and PT2: re-apply instrument offset in effect cache
 					if (notePeriod) {
 						//console.log("re-adding offset in effect cache");
 						trackEffectCache[track].offset.value += stepValue;
@@ -884,7 +884,7 @@ var Tracker = (function(){
 
 				}
 
-				if (note.sample){
+				if (note.instrument){
 					trackEffects.volume = {
 						value: defaultVolume
 					};
@@ -911,7 +911,7 @@ var Tracker = (function(){
 
 				trackEffects.fade = {
 					value: value,
-					resetOnStep: !!note.sample // volume only needs resetting when the sample number is given, otherwise the volume is remembered from the previous state
+					resetOnStep: !!note.instrument // volume only needs resetting when the instrument number is given, otherwise the volume is remembered from the previous state
 				};
 
 				break;
@@ -925,7 +925,7 @@ var Tracker = (function(){
 			case 12:
 				//volume
 				volume = (note.param/64)*100;
-				// not this is not relative to the default sample volume but sets the sample volume
+				// not this is not relative to the default instrument volume but sets the instrument volume
 				trackEffects.volume = {
 					value: volume
 				};
@@ -979,14 +979,14 @@ var Tracker = (function(){
 							}
 							break;
 						case 5: // Set Fine Tune
-							if (sampleIndex){
-								var sample = me.getSample(sampleIndex);
+							if (instrumentIndex){
+								var instrument = me.getInstrument(instrumentIndex);
 								trackEffects.fineTune = {
-									original: sample.finetune,
-									sample: sample
+									original: instrument.finetune,
+									instrument: instrument
 								};
-								sample.finetune = subValue;
-								if (subValue>7) sample.finetune = subValue-15;
+								instrument.finetune = subValue;
+								if (subValue>7) instrument.finetune = subValue-15;
 							}
 							break;
 						case 6: // Pattern Loop
@@ -1019,7 +1019,6 @@ var Tracker = (function(){
 								case 7: tremoloFunction = Audio.waveFormFunction.sine; break; // random, no retrigger
 								default: tremoloFunction = Audio.waveFormFunction.sine; break;
 							}
-							break;
 							break;
 						case 8: // Set Panning - is this used ?
 							console.warn("Set Panning - not implemented");
@@ -1089,20 +1088,26 @@ var Tracker = (function(){
 				break;
 		}
 
-		if (doPlayNote && sampleIndex && notePeriod){
+		if (doPlayNote && instrumentIndex && notePeriod){
 			// cut off previous note on the same track;
 			cutNote(track,time);
-			trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
+			trackNotes[track] = {};
+
+			if (instrument){
+				trackNotes[track] = instrument.play(noteIndex,notePeriod,volume,track,trackEffects,time);
+			}
+
+			//trackNotes[track] = Audio.playSample(instrumentIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
 			trackEffectCache[track].defaultSlideTarget = trackNotes[track].startPeriod;
 		}
 
 
-		if (sampleIndex) {
-			trackNotes[track].currentSample = sampleIndex;
+		if (instrumentIndex) {
+			trackNotes[track].currentInstrument = instrumentIndex;
 
-			// reset temporary sample settings
-			if (trackEffects.fineTune && trackEffects.fineTune.sample){
-				trackEffects.fineTune.sample.finetune = trackEffects.fineTune.original || 0;
+			// reset temporary instrument settings
+			if (trackEffects.fineTune && trackEffects.fineTune.instrument){
+				trackEffects.fineTune.instrument.finetune = trackEffects.fineTune.original || 0;
 			}
 
 		}
@@ -1220,7 +1225,7 @@ var Tracker = (function(){
 
 					var newPeriod = targetPeriod;
 					if (effects.slide.canUseGlissando && trackEffectCache[track].glissando){
-						newPeriod = Audio.getNearestSemiTone(targetPeriod,trackNote.sampleIndex);
+						newPeriod = Audio.getNearestSemiTone(targetPeriod,trackNote.instrumentIndex);
 					}
 
 					if (newPeriod != trackNote.currentPeriod){
@@ -1312,7 +1317,7 @@ var Tracker = (function(){
 		}
 
 		if (effects.reTrigger){
-			var sampleIndex = trackNote.sampleIndex;
+			var instrumentIndex = trackNote.instrumentIndex;
 			var notePeriod = trackNote.startPeriod;
 			volume = trackNote.startVolume;
 
@@ -1320,7 +1325,7 @@ var Tracker = (function(){
 			while (triggerStep<ticksPerStep){
 				var triggerTime = time + (triggerStep * tickTime);
 				cutNote(track,triggerTime);
-				trackNotes[track] = Audio.playSample(sampleIndex,notePeriod,volume,track,effects,triggerTime);
+				trackNotes[track] = Audio.playSample(instrumentIndex,notePeriod,volume,track,effects,triggerTime);
 				triggerStep += triggerStep;
 			}
 		}
@@ -1429,10 +1434,10 @@ var Tracker = (function(){
 		return isRecording;
 	};
 
-	me.putNote = function(sample,period){
+	me.putNote = function(instrument,period){
 		var note = song.patterns[currentPattern][currentPatternPos][currentTrack];
 		if (note){
-			note.sample = sample;
+			note.instrument = instrument;
 			note.period = period;
 		}
 		song.patterns[currentPattern][currentPatternPos][currentTrack] = note;
@@ -1444,12 +1449,12 @@ var Tracker = (function(){
 		var note = song.patterns[currentPattern][currentPatternPos][currentTrack];
 		if (note){
 			if (pos == 1 || pos == 2){
-				var sample = note.sample;
-				x = sample >> 4;
-				y = sample & 0x0f;
+				var instrument = note.instrumen;
+				x = instrument >> 4;
+				y = instrument & 0x0f;
 				if (pos == 1) x = value;
 				if (pos == 2) y = value;
-				note.sample = (x << 4) + y;
+				note.instrumen = (x << 4) + y;
 			}
 
 			if (pos == 3) note.effect = value;
@@ -1650,35 +1655,36 @@ var Tracker = (function(){
 		return song;
 	};
 
-	me.getSamples = function(){
-		return samples;
+	me.getInstruments = function(){
+		return instruments;
 	};
 
-	me.getSample = function(index){
-		return samples[index];
+	me.getInstrument = function(index){
+		return instruments[index];
 	};
 
-	me.setSample = function(index,sample){
-		samples[index] = sample;
+	me.setInstrument = function(index, instrument){
+		instrument.sampleIndex = index;
+		instruments[index] = instrument;
 	};
 
 	me.importSample = function(file,name){
-		console.log("Reading sample " + name + " with length of " + file.length + " bytes to index " + currentSampleIndex);
+		console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + currentInstrumentIndex);
 
-		var sample = samples[currentSampleIndex] || {};
+		var instrument = instruments[currentInstrumentIndex] || Instrument();
 
-		sample.name = name;
-		sample.length = file.length;
-		sample.loopStart = 0;
-		sample.loopRepeatLength = 0;
-		sample.finetune = 0;
-		sample.volume = 100;
-		sample.data = [];
+		instrument.name = name;
+		instrument.sample.length = file.length;
+		instrument.loopStart = 0;
+		instrument.loopRepeatLength = 0;
+		instrument.finetune = 0;
+		instrument.volume = 100;
+		instrument.sample.data = [];
 
-		detectSampleType(file,sample);
+		detectSampleType(file,instrument.sample);
 
-		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
-		EventBus.trigger(EVENT.sampleNameChange,currentSampleIndex);
+		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
+		EventBus.trigger(EVENT.instrumentNameChange,currentInstrumentIndex);
 
 	};
 
@@ -1708,9 +1714,9 @@ var Tracker = (function(){
 
 		fileSize += ((highestPattern+1)* (trackCount * 256));
 
-		samples.forEach(function(sample){
-			if (sample){
-				fileSize += sample.length;
+		instruments.forEach(function(instrument){
+			if (instrument){
+				fileSize += instrument.sample.length;
 			}else{
 				 // +4 ?
 			}
@@ -1724,20 +1730,20 @@ var Tracker = (function(){
 		// write title
 		file.writeStringSection(song.title,20);
 
-		// write sample data
-		samples.forEach(function(sample){
-			if (sample){
+		// write instrument data
+		instruments.forEach(function(instrument){
+			if (instrument){
 
-				// limit sample size to 128k
+				// limit instrument size to 128k
 				//TODO: show a warning when this is exceeded ...
-				sample.length = Math.min(sample.length, 131070); // = FFFF * 2
+				instrument.sample.length = Math.min(instrument.sample.length, 131070); // = FFFF * 2
 
-				file.writeStringSection(sample.name,22);
-				file.writeWord(sample.length >> 1);
-				file.writeUByte(sample.finetune);
-				file.writeUByte(sample.volume);
-				file.writeWord(sample.loopStart >> 1);
-				file.writeWord(sample.loopRepeatLength >> 1);
+				file.writeStringSection(instrument.name,22);
+				file.writeWord(instrument.sample.length >> 1);
+				file.writeUByte(instrument.finetune);
+				file.writeUByte(instrument.volume);
+				file.writeWord(instrument.loopStart >> 1);
+				file.writeWord(instrument.loopRepeatLength >> 1);
 			}else{
 				file.clear(30);
 			}
@@ -1768,11 +1774,11 @@ var Tracker = (function(){
 				for (var channel = 0; channel < trackCount; channel++){
 					var trackStep = row[channel];
 					var uIndex = 0;
-					var lIndex = trackStep.sample;
+					var lIndex = trackStep.instrument;
 
 					if (lIndex>15){
 						uIndex = 16; // TODO: Why is this 16 and not 1 ? Nobody wanted 255 instruments instead of 31 ?
-						lIndex = trackStep.sample - 16;
+						lIndex = trackStep.instrument - 16;
 					}
 
 					var v = (uIndex << 24) + (trackStep.period << 16) + (lIndex << 12) + (trackStep.effect << 8) + trackStep.param;
@@ -1782,17 +1788,17 @@ var Tracker = (function(){
 		}
 
 		// sampleData;
-		samples.forEach(function(sample){
-			if (sample && sample.data && sample.length){
+		instruments.forEach(function(instrument){
+			if (instrument && instrument.sample.data && instrument.sample.length){
 				// should we put repeat info here?
 				file.clear(2);
 				var d;
-				// sample length is in word
-				for (i = 0; i < sample.length-2; i++){
-					d = sample.data[i] || 0;
+				// instrument length is in word
+				for (i = 0; i < instrument.sample.length-2; i++){
+					d = instrument.sample.data[i] || 0;
 					file.writeByte(Math.round(d*127));
 				}
-				console.error("write sample with " + sample.length + " length");
+				console.error("write instrument with " + instrument.sample.length + " length");
 			}else{
 				// still write 4 bytes?
 			}
@@ -1808,13 +1814,13 @@ var Tracker = (function(){
 		if (song.channels) me.setTrackCount(song.channels);
 
 		prevPatternPos = undefined;
-		prevSampleIndex = undefined;
+		prevInstrumentIndex = undefined;
 		prevPattern = undefined;
 		prevSongPosition = undefined;
 
 		me.setCurrentSongPosition(0);
 		me.setCurrentPatternPos(0);
-		me.setCurrentSampleIndex(1);
+		me.setCurrentInstrumentIndex(1);
 
 		me.clearEffectCache();
 
@@ -1842,7 +1848,7 @@ var Tracker = (function(){
 		for (var i = 0; i<length;i++){
 			var note = song.patterns[currentPattern][i][currentTrack];
 			if (note){
-				note.sample = 0;
+				note.instrument = 0;
 				note.period = 0;
 				note.effect = 0;
 				note.param = 0;
@@ -1857,7 +1863,7 @@ var Tracker = (function(){
 			for (var j = 0; j<trackCount; j++){
 				var note = song.patterns[currentPattern][i][j];
 				if (note){
-					note.sample = 0;
+					note.instrument = 0;
 					note.period = 0;
 					note.effect = 0;
 					note.param = 0;
@@ -1877,7 +1883,7 @@ var Tracker = (function(){
 		for (var i = 0; i<length;i++){
 			var note = song.patterns[currentPattern][i][trackNumber];
 			data.push({
-				sample: note.sample,
+				instrument: note.instrument,
 				period : note.period,
 				effect: note.effect,
 				param: note.param,
@@ -1921,7 +1927,7 @@ var Tracker = (function(){
 			for (var i = 0; i<length;i++){
 				var note = song.patterns[currentPattern][i][trackNumber];
 				var source = data[i];
-				note.sample = source.sample;
+				note.instrument = source.instrument;
 				note.period = source.period;
 				note.effect = source.effect;
 				note.param = source.param;
@@ -1960,15 +1966,14 @@ var Tracker = (function(){
 	};
 
 	me.clearInstruments = function(){
-		// samples
-		var sampleContainer = [];
+		var instrumentContainer = [];
 		for (i = 1; i <= 31; ++i) {
-			samples[i] = getEmptySample();
-			sampleContainer.push({label: i + " ", data: i});
+			instruments[i] = getEmptySample();
+			instrumentContainer.push({label: i + " ", data: i});
 		}
-		song.samples = samples;
-		if (UI) UI.mainPanel.setInstruments(sampleContainer);
-		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
+		song.instruments = instruments;
+		if (UI) UI.mainPanel.setInstruments(instrumentContainer);
+		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
 	};
 
 	me.setTrackerMode = function(mode){
@@ -1985,9 +1990,9 @@ var Tracker = (function(){
 		resetDefaultSettings();
 		song = {
 			patterns:[],
-			samples:[]
+			instruments:[]
 		};
-		samples = [];
+		instruments = [];
 
 		song.typeId = "M.K.";
 		song.title = "new song";
@@ -2008,10 +2013,10 @@ var Tracker = (function(){
 		onModuleLoad();
 	};
 
-	me.clearSample = function(){
-		samples[currentSampleIndex]=getEmptySample();
-		EventBus.trigger(EVENT.sampleChange,currentSampleIndex);
-		EventBus.trigger(EVENT.sampleNameChange,currentSampleIndex);
+	me.clearInstrument = function(){
+		instruments[currentInstrumentIndex]=getEmptySample();
+		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
+		EventBus.trigger(EVENT.instrumentNameChange,currentInstrumentIndex);
 	};
 
 	me.getFileName = function(){
@@ -2024,7 +2029,7 @@ var Tracker = (function(){
 			var row = [];
 			var channel;
 			for (channel = 0; channel < 4; channel++){
-				row.push({note:0,effect:0,sample:0,param:0});
+				row.push({note:0,effect:0,instrument:0,param:0});
 			}
 			result.push(row);
 		}
