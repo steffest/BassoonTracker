@@ -128,6 +128,7 @@ UI.element = function(left,top,width,height){
         me.height = _h;
         me.canvas.width = me.width;
         me.canvas.height = me.height;
+        if (me.onResize) me.onResize();
         me.refresh();
     };
     me.setPosition = function(_x,_y){

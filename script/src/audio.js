@@ -107,8 +107,8 @@ var Audio = (function(){
         }
 
         if (noteIndex == 97){
-           volume = 0; // note off
-        }
+			volume = 0; // note off
+		}
 
         period = period || 428; // C-3
         track = track || Tracker.getCurrentTrack();
@@ -161,6 +161,7 @@ var Audio = (function(){
             volumeGain.gain.value = volume/100;
             // TODO: volumeGain.value has no result here ?
 
+
             if (instrument.loopRepeatLength>2){
 
                 if (!SETTINGS.unrollLoops){
@@ -174,7 +175,18 @@ var Audio = (function(){
                 }
             }
 
-            source.connect(volumeGain);
+            if (instrument.volumeEnvelope && instrument.volumeEnvelope.enabled){
+				var volumeEnvelope = audioContext.createGain();
+				volumeEnvelope.gain.value = 0.7;
+				volumeEnvelope.gain.linearRampToValueAtTime(1,time + 0.3);
+				volumeEnvelope.gain.linearRampToValueAtTime(0,time + 1.3);
+
+				source.connect(volumeEnvelope);
+				volumeEnvelope.connect(volumeGain);
+            }else{
+				source.connect(volumeGain);
+            }
+
             volumeGain.connect(filterChains[track].input());
 
             source.playbackRate.value = initialPlaybackRate;

@@ -23,6 +23,12 @@ UI.SampleView = function(){
 	var waveForm = UI.WaveForm();
 	me.addChild(waveForm);
 
+	var volumeEnvelope = UI.EnvelopePanel("volume");
+	me.addChild(volumeEnvelope);
+
+	var panningEnvelope = UI.EnvelopePanel("panning");
+	me.addChild(panningEnvelope);
+
 	var sideButtonPanel = new UI.panel();
 	sideButtonPanel.setProperties({
 		name: "instrumentSideButtonPanel"
@@ -172,8 +178,12 @@ UI.SampleView = function(){
 			spinBoxRepeatLength.setValue(instrument.loopRepeatLength);
 			spinBoxRelativeNote.setValue(instrument.relativeNote);
 			waveForm.setInstrument(instrument);
+			volumeEnvelope.setInstrument(instrument);
+			panningEnvelope.setInstrument(instrument);
 		}else{
 			waveForm.setInstrument();
+			volumeEnvelope.setInstrument();
+			panningEnvelope.setInstrument();
 			instrumentName.setValue("",true);
 			spinBoxVolume.setValue(0);
 			spinBoxLength.setValue(0);
@@ -208,6 +218,12 @@ UI.SampleView = function(){
 
 		waveForm.setPosition(UI.mainPanel.col2X,inputboxHeight + UI.mainPanel.defaultMargin + 8);
 		waveForm.setSize(UI.mainPanel.col4W,100);
+
+		volumeEnvelope.setPosition(UI.mainPanel.col2X,waveForm.top + waveForm.height + UI.mainPanel.defaultMargin + 30);
+		volumeEnvelope.setSize(UI.mainPanel.col2W,120);
+
+		panningEnvelope.setPosition(UI.mainPanel.col4X,volumeEnvelope.top);
+		panningEnvelope.setSize(UI.mainPanel.col2W,volumeEnvelope.height);
 
 		instrumentName.setProperties({
 			top: UI.mainPanel.defaultMargin,

@@ -269,6 +269,16 @@ var UI = (function(){
 		return target;
 	};
 
+	me.getInternalPoint = function(x,y,element){
+		var offset = {left: 0, top: 0};
+		while (element.parent){
+			offset.left += element.left;
+			offset.top += element.top;
+			element = element.parent;
+		}
+		return {x: x - offset.left, y: y - offset.top}
+	};
+
 	me.setLoading = function(){
 		me.setStatus("Loading");
 		EventBus.trigger(EVENT.songLoading);

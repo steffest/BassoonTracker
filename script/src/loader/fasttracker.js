@@ -97,9 +97,7 @@ var FastTracker = function(){
             file.goto(fileStartPos);
 
             song.patterns.push(patternData);
-
         }
-
 
         var instrumentContainer = [];
         for (i = 1; i <= mod.numberOfInstruments; ++i) {
@@ -113,8 +111,60 @@ var FastTracker = function(){
             instrument.numberOfSamples = file.readWord();
             instrument.samples = [];
             instrument.sampleHeaderSize = 0;
+
             if (instrument.numberOfSamples>0){
                 instrument.sampleHeaderSize = file.readDWord();
+
+                instrument.volumeEnvelope = {raw: []};
+				instrument.panningEnvelope = {raw: []};
+				instrument.vibrato = {};
+                instrument.sampleNumberForNotes = [];
+
+                for (var si = 0; si<96;  si++) instrument.sampleNumberForNotes.push(file.readUbyte());
+				for (si = 0; si<24;  si++) instrument.volumeEnvelope.raw.push(file.readWord());
+				for (si = 0; si<24;  si++) instrument.panningEnvelope.raw.push(file.readWord());
+
+				instrument.volumeEnvelope.count = file.readUbyte();
+				instrument.panningEnvelope.count = file.readUbyte();
+				instrument.volumeEnvelope.sustainPoint = file.readUbyte();
+				instrument.volumeEnvelope.loopStartPoint = file.readUbyte();
+				instrument.volumeEnvelope.loopEndPoint = file.readUbyte();
+				instrument.panningEnvelope.sustainPoint = file.readUbyte();
+				instrument.panningEnvelope.loopStartPoint = file.readUbyte();
+				instrument.panningEnvelope.endPoint = file.readUbyte();
+				instrument.volumeEnvelope.type = file.readUbyte();
+				instrument.panningEnvelope.Type = file.readUbyte();
+				instrument.vibrato.type = file.readUbyte();
+				instrument.vibrato.sweep = file.readUbyte();
+				instrument.vibrato.depth = file.readUbyte();
+				instrument.vibrato.rate = file.readUbyte();
+				instrument.fadeout = file.readWord();
+				instrument.reserved = file.readWord();
+
+				function processEnvelope(envelope){
+					envelope.points = [];
+					for (si = 0; si < 12; si++) envelope.points.push(envelope.raw.slice(si*2,si*2+2));
+					if (envelope.type & 1){ // on
+						envelope.enabled = true;
+					}
+
+					if (envelope.type & 2){
+						// sustain
+						envelope.sustain = true;
+					}
+
+					if (envelope.type & 4){
+						// loop
+						envelope.loop = true;
+					}
+
+					return envelope;
+
+				}
+
+				instrument.volumeEnvelope = processEnvelope(instrument.volumeEnvelope);
+				instrument.panningEnvelope = processEnvelope(instrument.panningEnvelope);
+
             }
 
             fileStartPos += instrument.headerSize;
@@ -167,7 +217,7 @@ var FastTracker = function(){
                 }
 
                 // sample data
-                console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + (instrument.bits == 16 ? " words" : " bytes") +  " and repeat length of " + instrument.loopRepeatLength);
+                console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + (instrument.bits === 16 ? " words" : " bytes") +  " and repeat length of " + instrument.loopRepeatLength);
                 var sampleEnd = sample.length;
 
                 if (instrument.loopRepeatLength>2 && SETTINGS.unrollShortLoops && instrument.loopRepeatLength<1000){
@@ -177,7 +227,7 @@ var FastTracker = function(){
                 }
 
                 var old = 0;
-                if (sample.bits == 16){
+                if (sample.bits === 16){
                     for (var j = 0; j<sampleEnd; j++){
                         var b = file.readShort() + old;
 						if (b < -32768) b += 65536;
@@ -204,137 +254,12 @@ var FastTracker = function(){
             Tracker.setInstrument(i,instrument);
             instrumentContainer.push({label: i + " " + instrument.name, data: i});
 
-
-            console.error(instrument);
-
-
-
-            //var sampleLength = file.readWord(); // in words
-
-
-           /* instrument.length = instrument.realLen = sampleLength << 1;
-            instrument.finetune = file.readUbyte();
-            if (instrument.finetune>7) instrument.finetune -= 16;
-            instrument.volume   = file.readUbyte();
-            instrument.loopStart     = file.readWord() << 1;
-            instrument.loopRepeatLength   = file.readWord() << 1;
-
-            instrument.pointer = sampleDataOffset;
-            sampleDataOffset += instrument.length;
-            Tracker.setInstrument(i,instrument);
-
-            */
-
         }
         if (UI) UI.mainPanel.setInstruments(instrumentContainer);
         song.instruments = Tracker.getInstruments();
 
         console.error(mod);
         console.error(song);
-
-
-
-        /*
-
-
-        // pattern data
-
-        for (i = 0; i <= highestPattern; ++i) {
-
-            var patternData = [];
-
-            for (var step = 0; step<patternLength; step++){
-                var row = [];
-                var channel;
-                for (channel = 0; channel < 4; channel++){
-                    var trackStep = {};
-                    var trackStepInfo = file.readUint();
-
-                    trackStep.period = (trackStepInfo >> 16) & 0x0fff;
-                    trackStep.effect = (trackStepInfo >>  8) & 0x0f;
-                    trackStep.instrument = (trackStepInfo >> 24) & 0xf0 | (trackStepInfo >> 12) & 0x0f;
-                    trackStep.param  = trackStepInfo & 0xff;
-
-                    row.push(trackStep);
-                }
-
-                // fill with empty data for other channels
-                for (channel = 4; channel < Tracker.getTrackCount(); channel++){
-                    row.push({note:0,effect:0,instrument:0,param:0});
-                }
-
-                patternData.push(row);
-            }
-            song.patterns.push(patternData);
-
-            //file.jump(1024);
-        }
-
-
-
-
-        for(i=1; i <= sampleCount; i++) {
-            instrument = Tracker.getInstrument(i);
-            if (instrument){
-                console.log("Reading instrument from 0x" + file.index + " with length of " + instrument.length + " bytes and repeat length of " + instrument.loopRepeatLength);
-                //this.samples[i] = ds.readInt8Array(this.inst[i].sampleLength*2);
-
-                var sampleEnd = instrument.length;
-
-                if (instrument.loopRepeatLength>2 && SETTINGS.unrollShortLoops && instrument.loopRepeatLength<1000){
-                    // cut off trailing bytes for short looping samples
-                    sampleEnd = Math.min(sampleEnd,instrument.loopStart + instrument.loopRepeatLength);
-                    instrument.length = sampleEnd;
-                }
-
-                for (j = 0; j<sampleEnd; j++){
-                    var b = file.readByte();
-                    // ignore first 2 bytes
-                    if (j<2)b=0;
-                    instrument.data.push(b / 127)
-                }
-
-                // unroll short loops?
-                // web audio loop start/end is in seconds
-                // doesn't work that well with tiny loops
-
-                if ((SETTINGS.unrollShortLoops || SETTINGS.unrollLoops) && instrument.loopRepeatLength>2){
-                    // TODO: pingpong and reverse loops in XM files? -> unroll once and append the reversed loop
-
-                    var loopCount = Math.ceil(40000 / instrument.loopRepeatLength) + 1;
-
-                    if (!SETTINGS.unrollLoops) loopCount = 0;
-
-                    var resetLoopNumbers = false;
-                    var loopLength = 0;
-                    if (SETTINGS.unrollShortLoops && instrument.loopRepeatLength<1600){
-
-                        loopCount = Math.floor(1000/instrument.loopRepeatLength);
-                        resetLoopNumbers = true;
-                    }
-
-                    for (var l=0;l<loopCount;l++){
-                        var start = instrument.loopStart;
-                        var end = start + instrument.loopRepeatLength;
-                        for (j=start; j<end; j++){
-                            instrument.data.push(instrument.data[j]);
-                        }
-                        loopLength += instrument.loopRepeatLength;
-                    }
-
-                    if (resetLoopNumbers && loopLength){
-                        instrument.loopRepeatLength += loopLength;
-                        instrument.length += loopLength;
-                    }
-                }
-
-                sampleContainer.push({label: i + " " + instrument.name, data: i});
-            }
-        }
-
-
-        */
-
 
         return song;
     };

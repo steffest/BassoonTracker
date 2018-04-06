@@ -532,6 +532,15 @@ var Tracker = (function(){
 			if (instrument && instrument.relativeNote) noteIndex +=  instrument.relativeNote;
 			var ftNote = FTNotes[noteIndex];
 			if (ftNote) notePeriod = ftNote.period;
+
+
+			if (noteIndex === 97){
+				console.error("note off");
+				volume = 0; // note off
+				defaultVolume = 0;
+
+				cutNote(track,time);
+			}
 		}
 
 		if (note.volumeEffect){

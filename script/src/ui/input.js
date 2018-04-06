@@ -46,6 +46,7 @@ var Input = (function(){
 
 		if (!App.isPlugin) window.addEventListener("resize",handleResize,false);
 
+
 		function handleTouchDown(event){
 
 			event.preventDefault();
@@ -271,18 +272,19 @@ var Input = (function(){
 				if (doPlay && note){
 					if (keyDown[key]) return;
 
-
 					var instrument = Tracker.getCurrentInstrument();
 
-					if (note.note && instrument && instrument.relativeNote){
-						note.note += instrument.relativeNote;
-						var ftNote = FTNotes[note.note];
-						if (ftNote) note.period = ftNote.period;
-					}
+					if (instrument){
+						if (note.note && instrument.relativeNote){
+							note.note += instrument.relativeNote;
+							var ftNote = FTNotes[note.note];
+							if (ftNote) note.period = ftNote.period;
+						}
 
-					keyDown[key] = Audio.playSample(Tracker.getCurrentInstrumentIndex(),note.period);
-					inputNotes.push(keyDown[key]);
-					EventBus.trigger(EVENT.pianoNoteOn,keyDown[key]);
+						keyDown[key] = instrument.play(null,note.period);
+						inputNotes.push(keyDown[key]);
+						EventBus.trigger(EVENT.pianoNoteOn,keyDown[key]);
+					}
 					return;
 				}
 
@@ -410,17 +412,19 @@ var Input = (function(){
 			Tracker.handleUpload(files);
 		}
 
-		if (!App.isPlugin){
-			function handleResize(){
+
+		function handleResize(){
+			if (!App.isPlugin) {
 				// throttle resize events - resizing is expensive as all the canvas cache needs to be regenerated
 				clearTimeout(resizeTimer);
-				resizeTimer = setTimeout(function(){
-					UI.setSize(window.innerWidth,window.innerHeight)
-				},100);
+				resizeTimer = setTimeout(function () {
+					UI.setSize(window.innerWidth, window.innerHeight)
+				}, 100);
 			}
-
-			handleResize();
 		}
+
+		handleResize();
+
 	};
 
 	var getTouchIndex = function (id) {
