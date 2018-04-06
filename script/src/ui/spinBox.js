@@ -157,6 +157,18 @@ UI.spinBox = function(initialProperties){
 
 	};
 
+	me.onMouseWheel = function(touchData){
+		if (touchData.mouseWheels[0] > 0){
+			value++;
+			if (value>max) value=max;
+			me.setValue(value);
+		}else{
+			value--;
+			if (value<min) value=min;
+			me.setValue(value);
+		}
+	};
+
 	return me;
 
 
