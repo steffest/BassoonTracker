@@ -353,7 +353,7 @@ var Tracker = (function(){
 		// start with a small delay then make it longer
 		// this is because Chrome on Android doesn't start playing until the first batch of scheduling is done?
 
-		var delay = 0.1;
+		var delay = 0.2;
 		var playingDelay = 1;
 
 		var playPatternData = currentPatternData;
@@ -386,7 +386,6 @@ var Tracker = (function(){
 					stepResult = playPatternStep(p,time,playPatternData,playSongPosition);
 					time += ticksPerStep * tickTime;
 					p++;
-
 					if (p>=thisPatternLength || stepResult.patternBreak){
 						if (!(stepResult.positionBreak && stepResult.targetSongPosition == playSongPosition)){
 							//We're not in a pattern loop
@@ -400,6 +399,7 @@ var Tracker = (function(){
 							playSongPosition = nextPosition;
 							patternIndex = song.patternTable[playSongPosition];
 							playPatternData = song.patterns[patternIndex];
+                            thisPatternLength = playPatternData.length;
 							if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
 						}else{
 							if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
@@ -1443,11 +1443,12 @@ var Tracker = (function(){
 		return isRecording;
 	};
 
-	me.putNote = function(instrument,period){
+	me.putNote = function(instrument,period,noteIndex){
 		var note = song.patterns[currentPattern][currentPatternPos][currentTrack];
 		if (note){
 			note.instrument = instrument;
 			note.period = period;
+			note.note = noteIndex;
 		}
 		song.patterns[currentPattern][currentPatternPos][currentTrack] = note;
 		EventBus.trigger(EVENT.patternChange,currentPattern);
