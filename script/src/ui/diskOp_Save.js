@@ -4,6 +4,7 @@ UI.DiskOperationSave = function(){
 	var fileName;
 	var saveAsFileType = FILETYPE.module;
 	var mainFileType = FILETYPE.module;
+	var saveAsFileFormat = MODULETYPE.mod;
 
 	var background = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkInsetScale9);
 	background.ignoreEvents = true;
@@ -25,9 +26,9 @@ UI.DiskOperationSave = function(){
 		{label:"wav",active:false, extention:".wav", fileType: FILETYPE.sample}
 	];
 	selectTypes[FILETYPE.sample] = [
-		{label:"wav 16 bit",active:false, extention:".wav", fileType: FILETYPE.sample},
-		{label:"wav 8 bit",active:true, extention:".wav", fileType: FILETYPE.sample},
-		{label:"RAW 8 bit",active:false, extention:".sample", fileType: FILETYPE.sample}
+		{label:"wav 16 bit",active:false, extention:".wav", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RIFF_16BIT},
+		{label:"wav 8 bit",active:true, extention:".wav", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RIFF_8BIT},
+		{label:"RAW 8 bit",active:false, extention:".sample", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RAW_8BIT}
 	];
 
 	var selectionType = UI.radioGroup();
@@ -41,6 +42,7 @@ UI.DiskOperationSave = function(){
 	selectionType.onChange = function(selectedIndex){
 		var item = this.getSelectedItem();
 		saveAsFileType = item && item.fileType ? item.fileType : FILETYPE.module;
+        saveAsFileFormat = item && item.fileFormat ? item.fileFormat : MODULETYPE.mod;
 		setFileName();
 	};
 	me.addChild(selectionType);
@@ -64,26 +66,32 @@ UI.DiskOperationSave = function(){
 		if (mainFileType == FILETYPE.sample){
 			var sample = Tracker.getCurrentInstrument().sample;
 
-
 			if (sample){
-				var fileSize = sample.length; // x2 ?
-				var arrayBuffer = new ArrayBuffer(fileSize);
-				var file = new BinaryStream(arrayBuffer,true);
+
+				console.error(saveAsFileFormat);
+
+				if (saveAsFileFormat === SAMPLETYPE.RAW_8BIT){
+                    var fileSize = sample.length; // x2 ?
+                    var arrayBuffer = new ArrayBuffer(fileSize);
+                    var file = new BinaryStream(arrayBuffer,true);
 
 
-				file.clear(2);
-				var d;
-				// sample length is in word
-				for (i = 0; i < sample.length-2; i++){
-					d = sample.data[i] || 0;
-					file.writeByte(Math.round(d*127));
+                    file.clear(2);
+                    var d;
+                    // sample length is in word
+                    for (i = 0; i < sample.length-2; i++){
+                        d = sample.data[i] || 0;
+                        file.writeByte(Math.round(d*127));
+                    }
+
+				}else{
+					file = encodeRIFFsample(sample.data,saveAsFileFormat === SAMPLETYPE.RIFF_16BIT ? 16 : 8);
 				}
 
-				var b = new Blob([file.buffer], {type: "application/octet-stream"});
+                var b = new Blob([file.buffer], {type: "application/octet-stream"});
+                saveAs(b,fileName);
+                console.error("write sample with " + sample.length + " length");
 
-				saveAs(b,fileName);
-
-				console.error("write sample with " + sample.length + " length");
 			}
 		}
 

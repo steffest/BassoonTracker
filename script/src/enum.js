@@ -82,6 +82,15 @@ var MODULETYPE = {
 	xm: 2
 };
 
+var SAMPLETYPE = {
+    RAW_8BIT:1,
+    WAVE_PCM:2,
+    IFF_8SVX:3,
+    MP3:4,
+	RIFF_8BIT: 5,
+	RIFF_16BIT: 6
+};
+
 var STEREOSEPARATION = {
 	FULL: 1,
 	BALANCED: 2,
@@ -212,7 +221,7 @@ var FTNOTEPERIOD = {
 	Gs0 : {name: "G#0",period:4304},
 	A0 : {name: "A-0",period:4064},
 	As0 : {name: "A#0",period:3840},
-	B0 : {name: "A-0",period:3628},
+	B0 : {name: "B-0",period:3628},
 	C1  : {name: "C-1",period:3424},
 	Cs1 : {name: "C#1",period:3232},
 	D1 : {name: "D-1",period:3048},
@@ -224,7 +233,7 @@ var FTNOTEPERIOD = {
 	Gs1 : {name: "G#1",period:2152},
 	A1 : {name: "A-1",period:2032},
 	As1 : {name: "A#1",period:1920},
-	B1 : {name: "A-1",period:1814},
+	B1 : {name: "B-1",period:1814},
 	C2  : {name: "C-2",period:1712},
 	Cs2 : {name: "C#2",period:1616},
 	D2 : {name: "D-2",period:1524},
@@ -236,7 +245,7 @@ var FTNOTEPERIOD = {
 	Gs2 : {name: "G#2",period:1076},
 	A2 : {name: "A-2",period:1016},
 	As2 : {name: "A#2",period:960},
-	B2 : {name: "A-2",period:907},
+	B2 : {name: "B-2",period:907},
 	C3  : {name: "C-3",period:856},
 	Cs3 : {name: "C#3",period:808},
 	D3 : {name: "D-3",period:762},
@@ -248,7 +257,7 @@ var FTNOTEPERIOD = {
 	Gs3 : {name: "G#3",period:538},
 	A3 : {name: "A-3",period:508},
 	As3 : {name: "A#3",period:480},
-	B3 : {name: "A-3",period:453},
+	B3 : {name: "B-3",period:453},
 	C4  : {name: "C-4",period:428},
 	Cs4 : {name: "C#4",period:404},
 	D4 : {name: "D-4",period:381},
@@ -260,7 +269,7 @@ var FTNOTEPERIOD = {
 	Gs4 : {name: "G#4",period:269},
 	A4 : {name: "A-4",period:254},
 	As4 : {name: "A#4",period:240},
-	B4 : {name: "A-4",period:227},
+	B4 : {name: "B-4",period:227},
 	C5  : {name: "C-5",period:214},
 	Cs5 : {name: "C#5",period:202},
 	D5 : {name: "D-5",period:190},
@@ -272,7 +281,7 @@ var FTNOTEPERIOD = {
 	Gs5 : {name: "G#5",period:134},
 	A5 : {name: "A-5",period:127},
 	As5 : {name: "A#5",period:120},
-	B5 : {name: "A-5",period:113},
+	B5 : {name: "B-5",period:113},
 	C6  : {name: "C-6",period:107},
 	Cs6 : {name: "C#6",period:101},
 	D6 : {name: "D-6",period:95},
@@ -284,7 +293,7 @@ var FTNOTEPERIOD = {
 	Gs6 : {name: "G#6",period:67},
 	A6 : {name: "A-6",period:63},
 	As6 : {name: "A#6",period:60},
-	B6 : {name: "A-6",period:57},
+	B6 : {name: "B-6",period:57},
 	C7  : {name: "C-7",period:53},
 	Cs7 : {name: "C#7",period:50},
 	D7 : {name: "D-7",period:48},
@@ -296,7 +305,7 @@ var FTNOTEPERIOD = {
 	Gs7 : {name: "G#7",period:34},
 	A7 : {name: "A-7",period:32},
 	As7 : {name: "A#7",period:30},
-	B7 : {name: "A-7",period:28},
+	B7 : {name: "B-7",period:28},
 	OFF : {name: "OFF",period:0}
 };
 

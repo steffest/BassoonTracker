@@ -1,10 +1,3 @@
-var SAMPLETYPE = {
-	RAW_8BIT:1,
-	WAVE_PCM:2,
-	IFF_8SVX:3,
-	MP3:4
-};
-
 function detectSampleType(file,sample){
 
 	// detects the sample type of a binary stream

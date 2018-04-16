@@ -144,6 +144,7 @@ function BinaryStream(arrayBuffer, bigEndian){
 	};
 
 	obj.readLong = obj.readDWord = obj.readUint;
+	obj.writeLong = obj.writeDWord = obj.writeUint;
 
 	obj.readShort = function(value,position){
 		setIndex(position);
