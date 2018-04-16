@@ -42,8 +42,6 @@ var FastTracker = function(){
         song.patternTable = patternTable;
         song.length = mod.songlength;
         song.channels = mod.numberOfChannels;
-        console.error(highestPattern);
-
 
         var fileStartPos = 60 + mod.headerSize;
         file.goto(fileStartPos);
@@ -210,6 +208,7 @@ var FastTracker = function(){
                     instrument.loopRepeatLength   >>= 1;
                 }
                 instrument.looptype = sample.type || 0;
+
                 if (!instrument.looptype){
                     // TODO should we preserve this in case the file gets saved again ?
                     instrument.loopStart = 0;
@@ -242,8 +241,24 @@ var FastTracker = function(){
 						if (b < -128) b += 256;
 						else if (b > 127) b -= 256;
 						old = b;
-						sample.data.push(b / 127);
+						sample.data.push(b / 127); // TODO: or /128 ? seems to introduce artifacts - see test-loop-fadeout.xm
                     }
+                }
+
+                // unroll ping pong loops
+                if (instrument.looptype == 2){
+
+                    // TODO: keep original sample
+                    instrument.loopRepeatLength = instrument.loopRepeatLength;
+                    var loopPart = sample.data.slice(instrument.loopStart,instrument.loopStart + instrument.loopRepeatLength);
+
+                    console.log(loopPart.length,instrument.loopRepeatLength);
+
+                    sample.data = sample.data.slice(0,instrument.loopStart + instrument.loopRepeatLength);
+                    sample.data = sample.data.concat(loopPart.reverse());
+                    instrument.loopRepeatLength = instrument.loopRepeatLength*2;
+                    instrument.samples[0].length = instrument.loopStart + instrument.loopRepeatLength;
+
                 }
 
                 file.goto(fileStartPos);
@@ -258,8 +273,8 @@ var FastTracker = function(){
         if (UI) UI.mainPanel.setInstruments(instrumentContainer);
         song.instruments = Tracker.getInstruments();
 
-        console.error(mod);
-        console.error(song);
+        Tracker.setBPM(mod.defaultBPM);
+        Tracker.setAmigaSpeed(mod.defaultTempo);
 
         return song;
     };

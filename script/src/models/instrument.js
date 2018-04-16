@@ -3,7 +3,7 @@ var Instrument = function(){
 
 	me.type = "sample";
 	me.sampleIndex = 0;
-	me.fineTune = 0;
+	me.finetune = 0;
 	me.relativeNote = 0;
 	me.data = [];
 	me.samples = [Sample()];

@@ -130,6 +130,21 @@ UI.SampleView = function(){
 	});
 	sideButtonPanel.addChild(spinBoxRelativeNote);
 
+    var spinBoxFadeOut = UI.spinBox({
+        name: "fadeOut",
+        label: "fadeOut",
+        value: 0,
+        max: 4046,
+        min:-0,
+        step:1,
+        font: window.fontMed,
+        onChange: function(value){
+            var instrument = Tracker.getCurrentInstrument();
+            if (instrument) instrument.fadeout = value;
+        }
+    });
+    sideButtonPanel.addChild(spinBoxFadeOut);
+
 	me.addChild(sideButtonPanel);
 
 
@@ -177,6 +192,7 @@ UI.SampleView = function(){
 			spinBoxRepeat.setValue(instrument.loopStart);
 			spinBoxRepeatLength.setValue(instrument.loopRepeatLength);
 			spinBoxRelativeNote.setValue(instrument.relativeNote);
+			spinBoxFadeOut.setValue(instrument.fadeout);
 			waveForm.setInstrument(instrument);
 			volumeEnvelope.setInstrument(instrument);
 			panningEnvelope.setInstrument(instrument);
@@ -191,6 +207,7 @@ UI.SampleView = function(){
 			spinBoxRepeat.setValue(0);
 			spinBoxRepeatLength.setValue(0);
 			spinBoxRelativeNote.setValue(0);
+			spinBoxFadeOut.setValue(0);
 		}
 	});
 
@@ -288,6 +305,13 @@ UI.SampleView = function(){
 			width: sideButtonPanel.width,
 			height: spinButtonHeight
 		});
+
+        spinBoxFadeOut.setProperties({
+            left:0,
+            top: spinButtonHeight * 7,
+            width: sideButtonPanel.width,
+            height: spinButtonHeight
+        });
 
 		var BottomPanelTop = waveForm.top + waveForm.height + UI.mainPanel.defaultMargin;
 

@@ -43,14 +43,19 @@ function readRIFFsample(file,sample){
 function encodeRIFFsample(sampleData,bits){
 
 	var length = sampleData.length;
-	var sampleRate = 8000;
+
+	var sampleRate = 8000; // how can we know this from raw samples?
 	var byteRate = sampleRate;
 
 	if (bits === 16){
         length = sampleData.length * 2;
         byteRate = sampleRate * 2;
 	}
-    var buffer = new ArrayBuffer(44 + length);
+
+	var chunkLength = length;
+	if (chunkLength%2 === 1) chunkLength++;
+
+    var buffer = new ArrayBuffer(46 + chunkLength);
 	var file = new BinaryStream(buffer,false);
     file.goto(0);
 
@@ -58,7 +63,7 @@ function encodeRIFFsample(sampleData,bits){
 	file.writeString('RIFF');
 
     /* RIFF chunk length */
-	file.writeDWord(36 + length);
+	file.writeDWord(38 + chunkLength);
 
     /* RIFF type */
     file.writeString('WAVE');
@@ -67,7 +72,7 @@ function encodeRIFFsample(sampleData,bits){
     file.writeString('fmt ');
 
     /* format chunk length */
-    file.writeDWord(16);
+    file.writeDWord(18);
 
     /* sample format (PCM) */
     file.writeWord(1);
@@ -87,6 +92,9 @@ function encodeRIFFsample(sampleData,bits){
     /* bits per sample */
     file.writeWord(bits);
 
+	/* padding (optional, most wave writers seem to prefer this) */
+	file.writeWord(0);
+
     /* data chunk identifier */
     file.writeString('data');
 
@@ -99,9 +107,12 @@ function encodeRIFFsample(sampleData,bits){
         }
     }else{
         for (var i = 0; i<sampleData.length; i++){
-            file.writeUByte((sampleData[i]*127) + 127);
+            file.writeUByte(Math.round(sampleData[i]*127) + 127);
         }
 	}
+
+	// pad byte
+	if (length<chunkLength) file.writeUByte(0);
 
     return file;
 

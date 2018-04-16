@@ -79,7 +79,6 @@ UI.menu = function(x,y,w,h){
 
         items.forEach(function(item){
             if (item.subItems){
-                console.error(me.parent);
 
                 var subMenu = UI.submenu();
                 subMenu.setProperties({
