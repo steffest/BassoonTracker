@@ -543,24 +543,29 @@ var Tracker = (function(){
 			}
 		}
 
-		if (note.volumeEffect){
-			volume = ((note.volumeEffect-16)/64)*100;
-			defaultVolume = volume;
-			//note.effect = 12;
-			//note.param = (note.volumeEffect-10);
-
-			// not this is not relative to the default instrument volume but sets the instrument volume
-			trackEffects.volume = {
-				value: volume
-			};
-
-		}
 
 		var doPlayNote = true;
 		var value = note.param;
 		var x,y;
 
 		var result = {};
+
+
+        if (note.volumeEffect){
+            x = note.volumeEffect >> 4;
+            if (x>1 && x<6){
+                volume = ((note.volumeEffect-16)/64)*100;
+                defaultVolume = volume;
+            }
+            //console.log(x,note.volumeEffect.toString(16));
+
+
+            // not this is not relative to the default instrument volume but sets the instrument volume
+            trackEffects.volume = {
+                value: volume
+            };
+
+        }
 
 		switch(note.effect){
 			case 0:

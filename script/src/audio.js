@@ -96,8 +96,6 @@ var Audio = (function(){
 
     me.playSample = function(index,period,volume,track,effects,time,noteIndex){
 
-        //console.log(noteIndex);
-
         var audioContext;
         if (isRendering){
             audioContext = offlineContext;
@@ -127,8 +125,6 @@ var Audio = (function(){
 
             if (instrument.finetune){
                 period = noteIndex ?  me.getFineTuneForNote(noteIndex,instrument.finetune) : me.getFineTuneForPeriod(period,instrument.finetune);
-                //console.log(period);
-
             }
             var sampleRate = PALFREQUENCY / (period*2);
 
@@ -176,10 +172,17 @@ var Audio = (function(){
             }
 
             if (instrument.volumeEnvelope && instrument.volumeEnvelope.enabled){
-				var volumeEnvelope = audioContext.createGain();
-				volumeEnvelope.gain.value = 0.7;
-				volumeEnvelope.gain.linearRampToValueAtTime(1,time + 0.3);
-				volumeEnvelope.gain.linearRampToValueAtTime(0,time + 1.3);
+                var tickTime = Tracker.getProperties().tickTime;
+                var volumeEnvelope = audioContext.createGain();
+
+                // volume envelope to time ramp
+                var maxPoint = instrument.volumeEnvelope.sustain ? instrument.volumeEnvelope.sustainPoint :  instrument.volumeEnvelope.count;
+
+                volumeEnvelope.gain.value =  instrument.volumeEnvelope.points[0][1]/64;
+                for (var p = 1; p<maxPoint;p++){
+                    var point = instrument.volumeEnvelope.points[p];
+                    volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime));
+                }
 
 				source.connect(volumeEnvelope);
 				volumeEnvelope.connect(volumeGain);
@@ -270,7 +273,7 @@ var Audio = (function(){
     me.startRendering = function(length){
         isRendering = true;
 
-        console.error("startRendering " + length);
+        console.log("startRendering " + length);
         offlineContext = new OfflineAudioContext(2,44100*length,44100);
         me.context = offlineContext;
         createAudioConnections(offlineContext);
@@ -476,13 +479,13 @@ var Audio = (function(){
 
     // gives the finetuned period for a base note (Fast Tracker)
     me.getFineTuneForNote = function(note,finetune){
-        console.log("get finetune " + finetune + "  for note " + note + " (" + note.period + ")");
+        //console.log("get finetune " + finetune + "  for note " + note);
 
         var ftNote1 = FTNotes[note];
         var ftNote2 = finetune>0 ? FTNotes[note+1] : FTNotes[note-1] ;
 
         if (ftNote1 && ftNote2){
-            var delta = (ftNote2.period - ftNote1.period) / 127;
+            var delta = Math.abs(ftNote2.period - ftNote1.period) / 127;
             return ftNote1.period - Math.round(delta*finetune)
         }
         return ftNote1.period || 0;
