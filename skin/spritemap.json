@@ -30,21 +30,21 @@
   {
     "name": "button_inlay",
     "x": 339,
-    "y": 433,
+    "y": 463,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_active",
-    "x": 213,
+    "x": 142,
     "y": 503,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_blue",
-    "x": 410,
-    "y": 463,
+    "x": 213,
+    "y": 503,
     "width": 71,
     "height": 30
   },
@@ -57,8 +57,8 @@
   },
   {
     "name": "button_inlay_green",
-    "x": 447,
-    "y": 363,
+    "x": 410,
+    "y": 463,
     "width": 71,
     "height": 30
   },
@@ -71,22 +71,22 @@
   },
   {
     "name": "button_inlay_plain",
-    "x": 339,
-    "y": 463,
+    "x": 410,
+    "y": 433,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_red",
-    "x": 142,
-    "y": 503,
+    "x": 339,
+    "y": 433,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_red_active",
-    "x": 410,
-    "y": 433,
+    "x": 447,
+    "y": 363,
     "width": 71,
     "height": 30
   },
@@ -96,6 +96,20 @@
     "y": 256,
     "width": 132,
     "height": 38
+  },
+  {
+    "name": "checkbox_off",
+    "x": 562,
+    "y": 444,
+    "width": 14,
+    "height": 14
+  },
+  {
+    "name": "checkbox_on",
+    "x": 562,
+    "y": 430,
+    "width": 14,
+    "height": 14
   },
   {
     "name": "dropbox",
@@ -121,21 +135,21 @@
   {
     "name": "disk",
     "x": 575,
-    "y": 430,
+    "y": 458,
     "width": 12,
     "height": 11
   },
   {
     "name": "module",
     "x": 575,
-    "y": 442,
+    "y": 470,
     "width": 12,
     "height": 11
   },
   {
     "name": "sample",
     "x": 562,
-    "y": 454,
+    "y": 482,
     "width": 12,
     "height": 11
   },
@@ -205,7 +219,7 @@
   {
     "name": "panel_black_insert",
     "x": 562,
-    "y": 324,
+    "y": 308,
     "width": 19,
     "height": 16
   },
@@ -219,21 +233,21 @@
   {
     "name": "panel_dark_blueish",
     "x": 562,
-    "y": 260,
+    "y": 292,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_greyish",
     "x": 562,
-    "y": 292,
+    "y": 276,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_insert",
     "x": 562,
-    "y": 276,
+    "y": 324,
     "width": 19,
     "height": 16
   },
@@ -254,21 +268,21 @@
   {
     "name": "panel_light",
     "x": 562,
-    "y": 188,
+    "y": 169,
     "width": 23,
     "height": 19
   },
   {
     "name": "panel_mid",
     "x": 562,
-    "y": 169,
+    "y": 188,
     "width": 23,
     "height": 19
   },
   {
     "name": "panel_trans",
     "x": 562,
-    "y": 308,
+    "y": 260,
     "width": 19,
     "height": 16
   },
@@ -331,7 +345,7 @@
   {
     "name": "radio_active",
     "x": 562,
-    "y": 442,
+    "y": 470,
     "width": 13,
     "height": 12
   },
@@ -352,7 +366,7 @@
   {
     "name": "radio_inactive",
     "x": 562,
-    "y": 430,
+    "y": 458,
     "width": 13,
     "height": 12
   },
@@ -387,7 +401,7 @@
   {
     "name": "vu_green_active",
     "x": 562,
-    "y": 376,
+    "y": 357,
     "width": 14,
     "height": 19
   },
@@ -401,7 +415,7 @@
   {
     "name": "vu_red_active",
     "x": 562,
-    "y": 395,
+    "y": 376,
     "width": 14,
     "height": 19
   },
@@ -415,7 +429,7 @@
   {
     "name": "vu_yellow_active",
     "x": 562,
-    "y": 357,
+    "y": 395,
     "width": 14,
     "height": 19
   },
