@@ -1,4 +1,4 @@
-UI.songControl = function(x,y,w,h,visible){
+UI.app_songControl = function(x,y,w,h,visible){
     var me = UI.element(x,y,w,h,visible);
     me.type = "songControl";
 
@@ -107,7 +107,7 @@ UI.songControl = function(x,y,w,h,visible){
         me.setSize(me.width,me.height);
         me.setPosition(me.left,me.top);
 
-        var buttonWidth = Math.floor(me.width/3) + 1;
+        var buttonWidth = Math.floor(me.width/3);
 
         radioGroup.setProperties({
             left: 0,

@@ -1,4 +1,4 @@
-UI.menu = function(x,y,w,h){
+UI.menu = function(x,y,w,h,submenuParent){
     var me = UI.element(x,y,w,h);
     var items;
 
@@ -76,6 +76,7 @@ UI.menu = function(x,y,w,h){
 
     me.setItems = function(newItems){
         items = newItems;
+        submenuParent = submenuParent || me.parent;
 
         items.forEach(function(item){
             if (item.subItems){
@@ -87,7 +88,7 @@ UI.menu = function(x,y,w,h){
                 subMenu.hide();
                 subMenu.setItems(item.subItems);
                 subMenu.zIndex = 200;
-                me.parent.addChild(subMenu);
+                submenuParent.addChild(subMenu);
                 item.subMenu = subMenu;
             }
         });

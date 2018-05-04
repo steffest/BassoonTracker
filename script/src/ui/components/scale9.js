@@ -2,6 +2,8 @@ UI.scale9Panel = function(x,y,w,h,base){
 	var me = UI.element(x,y,w,h,true);
 	me.type = "scale9";
 
+	base.scale = base.scale || "stretch";
+
 	me.setProperties = function(p){
 
 		var properties = ["left","top","width","height","name","type"];
@@ -36,31 +38,53 @@ UI.scale9Panel = function(x,y,w,h,base){
 			me.clearCanvas();
 
 			// topleft
-			me.ctx.drawImage(img,0,0,base.left,base.top,0,0,base.left,base.top);
+			if (base.top && base.left) me.ctx.drawImage(img,0,0,base.left,base.top,0,0,base.left,base.top);
 
 			// top
-			me.ctx.drawImage(img,base.left,0,centerW,base.top,base.left,0,targetCenterW,base.top);
+			if (base.top) me.ctx.drawImage(img,base.left,0,centerW,base.top,base.left,0,targetCenterW,base.top);
 
 			// topright
-			me.ctx.drawImage(img,base.left+centerW,0,base.right,base.top,base.left+targetCenterW,0,base.right,base.top);
+			if (base.top && base.right) me.ctx.drawImage(img,base.left+centerW,0,base.right,base.top,base.left+targetCenterW,0,base.right,base.top);
+
 
 			// midLeft
-			me.ctx.drawImage(img,0,base.top,base.left,centerH,0,base.top,base.left,targetCenterH);
+			if (base.left) me.ctx.drawImage(img,0,base.top,base.left,centerH,0,base.top,base.left,targetCenterH);
 
 			// mid
-			me.ctx.drawImage(img,base.left,base.top,centerW,centerH,base.left,base.top,targetCenterW,targetCenterH);
+			if (base.scale === "stretch"){
+				me.ctx.drawImage(img,base.left,base.top,centerW,centerH,base.left,base.top,targetCenterW,targetCenterH);
+			}
+
+
+			if (base.scale === "repeat"){
+				var tx = base.left;
+				var tMax = base.left+targetCenterW;
+				var tw;
+
+				// render first row
+				while (tx<tMax){
+					tw = centerW;
+					if (tx+tw>tMax) tw = tMax-tx;
+					me.ctx.drawImage(img,base.left,base.top,tw,centerH,tx,base.top,tw,centerH);
+					tx+=tw;
+				}
+
+				// TODO: repeat on Y axis;
+
+			}
+
 
 			// midRight
-			me.ctx.drawImage(img,base.left+centerW,base.top,base.right,centerH,base.left+targetCenterW,base.top,base.right,targetCenterH);
+			if (base.right) me.ctx.drawImage(img,base.left+centerW,base.top,base.right,centerH,base.left+targetCenterW,base.top,base.right,targetCenterH);
 
 			// bottomLeft
-			me.ctx.drawImage(img,0,base.top+centerH,base.left,base.bottom,0,base.top+targetCenterH,base.left,base.bottom);
+			if (base.bottom && base.left) me.ctx.drawImage(img,0,base.top+centerH,base.left,base.bottom,0,base.top+targetCenterH,base.left,base.bottom);
 
 			// bottom
-			me.ctx.drawImage(img,base.left,base.top+centerH,centerW,base.bottom,base.left,base.top+targetCenterH,targetCenterW,base.bottom);
+			if (base.bottom) me.ctx.drawImage(img,base.left,base.top+centerH,centerW,base.bottom,base.left,base.top+targetCenterH,targetCenterW,base.bottom);
 
-			// bottom
-			me.ctx.drawImage(img,base.left+centerW,base.top+centerH,base.right,base.bottom,base.left+targetCenterW,base.top+targetCenterH,base.right,base.bottom);
+			// bottomRight
+			if (base.bottom && base.right) me.ctx.drawImage(img,base.left+centerW,base.top+centerH,base.right,base.bottom,base.left+targetCenterW,base.top+targetCenterH,base.right,base.bottom);
 
 			//myCtx.drawImage(img,0,0);
 		}

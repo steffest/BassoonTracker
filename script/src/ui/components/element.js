@@ -22,6 +22,7 @@ UI.element = function(left,top,width,height){
     me.show = function(andRefresh,andRefreshAllChildren){
         me.visible = true;
         if (andRefresh) me.refresh(andRefreshAllChildren);
+        if (me.onShow) me.onShow();
     };
     me.toggle = function(){
         if (me.visible){
@@ -135,6 +136,20 @@ UI.element = function(left,top,width,height){
         me.left = _x;
         me.top = _y;
         me.refresh();
+    };
+
+    me.setDimensions = function(properties){
+        var visible = (typeof properties.visible === "boolean") ? properties.visible : true;
+        if (visible){
+            if (me.setProperties){
+                me.setProperties(properties);
+            }else{
+                me.setPosition(properties.left,properties.top);
+                me.setSize(properties.width,properties.height);
+            }
+        }else{
+            //element.hide();
+        }
     };
 
     me.clearCanvas = function(){

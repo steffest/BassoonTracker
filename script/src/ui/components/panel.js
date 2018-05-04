@@ -37,9 +37,11 @@ UI.panel = function(x,y,w,h){
 			this.children.forEach(function(elm){
 				elm.render();
 			});
+
+			if (me.renderInternal) me.renderInternal();
 		}
 
-		if (me.renderInternal) me.renderInternal();
+
 
 		this.needsRendering = false;
 		if (internal){

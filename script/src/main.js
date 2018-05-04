@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 left: 0,
                 ok:true
             });
-            dialog.onTouchDown = function(){window.location.href="https://www.google.com/chrome/"};
+            dialog.onDown = function(){window.location.href="https://www.google.com/chrome/"};
             dialog.setText("Sorry//Your browser does not support WebAudio//Supported browsers are/Chrome,Firefox,Safari and Edge");
 
             UI.setModalElement(dialog);

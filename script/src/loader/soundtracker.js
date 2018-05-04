@@ -112,7 +112,7 @@ var SoundTracker = function(){
 				instrumentContainer.push({label: i + " " + instrument.name, data: i});
 			}
 		}
-		UI.mainPanel.setInstruments(instrumentContainer);
+        EventBus.trigger(EVENT.instrumentListChange,instrumentContainer);
 
 		return song;
 	};

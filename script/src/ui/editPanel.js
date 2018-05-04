@@ -95,6 +95,8 @@ UI.editPanel = function(x,y,w,h,visible){
 	me.render = function(internal){
 		internal = !!internal;
 		if (me.needsRendering){
+
+			if (!me.isVisible()) return;
 			me.clearCanvas();
 
 			panel.render();

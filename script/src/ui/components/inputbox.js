@@ -148,7 +148,7 @@ UI.inputbox = function(initialProperties){
 
 		if (!handled && keyCode>31){
 			var key = event.key;
-			if (key.length == 1 && key.match(/[a-z0-9\._\-\ #]/i)){
+			if (key.length == 1 && key.match(/[a-z0-9\._:\-\ #]/i)){
 				value = value.substr(0,cursorPos+1) + key + value.substr(cursorPos+1);
 				if (me.onChange) me.onChange(value);
 				cursorPos++;

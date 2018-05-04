@@ -104,6 +104,7 @@ UI.trackControl = function(x,y,w,h,visible){
     }
 
     me.render = function(internal){
+
         internal = !!internal;
         if (me.needsRendering){
             me.clearCanvas();
@@ -117,7 +118,6 @@ UI.trackControl = function(x,y,w,h,visible){
             buttons.solo.render();
             buttons.mute.render();
             buttons.fx.render();
-
 
             // arrow glyphs
 

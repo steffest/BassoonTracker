@@ -13,6 +13,7 @@ UI.spinBox = function(initialProperties){
 	var properties;
 	var padLength = 4;
 	var padChar = " ";
+	var disabled = false;
 	var onChange;
 
 	if (initialProperties) setPropertiesValues(initialProperties);
@@ -29,6 +30,7 @@ UI.spinBox = function(initialProperties){
 
 	var buttonDown = UI.Assets.generate("button20_20");
 	buttonDown.onClick = function(){
+		if (disabled) return;
 		value -= step;
 		if (value<min) value=min;
 		me.setValue(value);
@@ -41,6 +43,7 @@ UI.spinBox = function(initialProperties){
 
 	var buttonUp = UI.Assets.generate("button20_20");
 	buttonUp.onClick = function(){
+		if (disabled) return;
 		value += step;
 		if (value>max) value=max;
 		me.setValue(value);
@@ -105,12 +108,17 @@ UI.spinBox = function(initialProperties){
 		if (value<min) me.setValue(min);
 	};
 
+	me.setDisabled = function(value){
+		disabled = value;
+		me.refresh();
+	};
+
 	me.render = function(internal){
 		internal = !!internal;
 		if (me.needsRendering){
 			me.clearCanvas();
 			if (font){
-				font.write(me.ctx,label.toUpperCase(),6,11,0);
+				font.write(me.ctx,label,6,11,0);
 			}else{
 				me.ctx.fillStyle = "white";
 				me.ctx.fillText(label,10,10);
@@ -143,6 +151,13 @@ UI.spinBox = function(initialProperties){
 			valueX +=4;
 			valueY = 7;
 			window.fontLed.write(me.ctx,padValue(),valueX,valueY,0);
+
+
+console.log(disabled);
+			if (disabled){
+				me.ctx.fillStyle = "rgba(34, 49, 85, 0.6)";
+				me.ctx.fillRect(0,0,me.width,me.height);
+			}
 
 			//var b = buttonUp.render(true);
 			//me.ctx.drawImage(b,10,10,50,30);

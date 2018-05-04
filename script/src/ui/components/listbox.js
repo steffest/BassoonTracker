@@ -3,6 +3,8 @@ UI.listbox = function(x,y,w,h){
     me.selectedIndex = 0;
     var previousSelectedIndex = 0;
 
+    var font = window.fontMed;
+
     var items = [];
     var visibleIndex = 0;
     var visibleIitems = 0;
@@ -143,24 +145,52 @@ UI.listbox = function(x,y,w,h){
                 var textX = 10;
                 var indent = 10;
                 var textY = startY + ((i-visibleIndex)*lineHeight);
+
                 if ((textY>0) && (textY<me.height)){
 
-                    if (me.selectedIndex == i){
-                        me.ctx.fillStyle = 'rgba(100,100,255,0.1';
-                        me.ctx.fillRect(0,textY-4,me.width-2,lineHeight);
+                    var targetCtx = me.ctx;
+                    var _y  = textY;
+                    var clip = textY>=me.height-lineHeight;
+                    var itemCanvas;
+
+                    if(clip){
+                        var lastItemHeight = me.height-textY-2;
+                        if (lastItemHeight>1){
+                            itemCanvas = document.createElement("canvas");
+                            itemCanvas.width = me.width-2;
+                            itemCanvas.height = lastItemHeight;
+                            targetCtx = itemCanvas.getContext("2d");
+                            _y = 0;
+                        }else {
+                            targetCtx = undefined;
+                        }
                     }
 
-                    if (item.level) textX += item.level*indent;
+                    if (targetCtx){
+                        if (me.selectedIndex === i){
+                            targetCtx.fillStyle = 'rgba(100,100,255,0.1';
+                            targetCtx.fillRect(0,_y-4,me.width-2,lineHeight);
+                        }
 
-                    if (item.icon){
-                        me.ctx.drawImage(item.icon,textX,textY-2);
-                        textX += item.icon.width + 4;
+                        if (item.level) textX += item.level*indent;
+
+                        if (item.icon){
+                            targetCtx.drawImage(item.icon,textX,_y-2);
+                            textX += item.icon.width + 4;
+                        }
+
+                        if (font) font.write(targetCtx,item.label,textX,_y,0);
+                        textY += 11;
+                        _y += 11;
+
+                        if (line) targetCtx.drawImage(line,0,_y,me.width-2,2);
+
+                        if(clip){
+                            me.ctx.drawImage(itemCanvas,0,textY-11);
+                        }
                     }
 
-                    if (fontMed) fontMed.write(me.ctx,item.label,textX,textY,0);
-                    textY += 11;
 
-                    if (line) me.ctx.drawImage(line,0,textY,me.width-2,2);
                 }
             }
 

@@ -30,18 +30,23 @@ var EVENT = {
 	songBPMChange:12,
 	samplePlay:13,
 	screenRefresh: 14,
-	songPropertyChange: 15,
-	instrumentNameChange:16,
-	command: 17,
-	pianoNoteOn : 18,
-	pianoNoteOff : 19,
-	statusChange: 20,
-	diskOperationTargetChange: 21,
-	trackCountChange:22,
-	patternHorizontalScrollChange:23,
-	songLoaded: 24,
-	songLoading: 25,
-	trackerModeChanged: 26
+    screenRender: 15,
+	songPropertyChange: 16,
+	instrumentNameChange:17,
+	command: 18,
+	pianoNoteOn : 19,
+	pianoNoteOff : 20,
+	statusChange: 21,
+	diskOperationTargetChange: 22,
+	trackCountChange:23,
+	patternHorizontalScrollChange:24,
+	songLoaded: 25,
+	songLoading: 26,
+	trackerModeChanged: 27,
+    instrumentListChange:28,
+	showView: 29,
+	toggleView: 30,
+	visibleTracksCountChange:31
 };
 
 var COMMAND = {
@@ -59,8 +64,8 @@ var COMMAND = {
 	showAbout : 12,
 	showHelp : 13,
 	togglePiano : 14,
-	showTop : 15,
-	showBottom: 16,
+	showTopMain : 15,
+	showBottomMain: 16,
 	randomSong: 17,
 	showGithub: 18
 };

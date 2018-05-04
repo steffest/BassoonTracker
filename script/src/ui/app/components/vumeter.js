@@ -147,6 +147,10 @@ UI.vumeter = function(){
 		return (max - min) / 255
 	}
 
+	EventBus.on(EVENT.screenRender,function(){
+		me.render();
+	});
+
 
 
 	return me;

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<style>
+    html,body{
+        height: 100%;
+        overflow: hidden;
+    }
+    body{
+        background-color: black;
+        margin: 0;
+        padding: 0;
+    }
+
+    canvas{
+        margin: auto;
+        display: block;
+    }
+    canvas:focus {
+        outline:none;
+    }
+</style>
+<html>
+<head>
+    <title>Sample Editor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <script src="../../src/eventBus.js"></script>
+
+    <script src="../loader.js"></script>
+    <script src="../screen.js"></script>
+
+    <script src="../../src/ui/input.js"></script>
+
+    <script src="../../src/ui/components/element.js"></script>
+    <script src="../../src/ui/components/panel.js"></script>
+
+
+    <script src="main.js"></script>
+</head>
+<body>
+
+
+<canvas id="canvas" tabindex='1' moz-opaque></canvas>
+
+
+<script>
+
+    var App = {};
+	var SETTINGS = {};
+
+	document.addEventListener('DOMContentLoaded', function() {
+		UI.init();
+		Input.init();
+		UI.showPlugin();
+	});
+
+
+
+
+</script>
+</body>
+</html>

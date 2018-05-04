@@ -9,8 +9,11 @@ var UI = (function(){
 	var fontSmall;
 	var fontMed;
 	var fontBig;
+	var fontFT;
+	var fontCondensed;
+	var fontDark;
 
-	var maxWidth = 960;
+	var maxWidth = 1200;
 	var modalElement;
 	var needsRendering =  true;
 	var maxRenderTime = 0;
@@ -101,7 +104,8 @@ var UI = (function(){
 			ctx.clearRect(0,0,canvas.width,canvas.height);
 			canvas.width = newWidth;
 			canvas.height = newHeight;
-			me.mainPanel.setLayout(0,0,newWidth,newHeight);
+            me.mainPanel.setSize(newWidth,newHeight);
+			//me.mainPanel.setLayout(0,0,newWidth,newHeight);
 
 			if (modalElement){
 				modalElement.setProperties({width: newWidth, height: newHeight});
@@ -120,8 +124,9 @@ var UI = (function(){
 			startY: 1,
 			charWidth: 6,
 			charHeight: 6,
+			spaceWidth: 6,
 			margin: 0,
-			charsPerLine:30,
+			charsPerLine:40,
 			chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_#",
 			onlyUpperCase:true
 		});
@@ -134,6 +139,7 @@ var UI = (function(){
 			startY: 110,
 			charWidth: 8,
 			charHeight: 8,
+			spaceWidth: 8,
 			margin: 1,
 			charsPerLine:26,
 			lineSpacing:1,
@@ -151,11 +157,46 @@ var UI = (function(){
 			startY: 10,
 			charWidth: 11,
 			charHeight: 11,
+			spaceWidth: 11,
 			margin: 1,
 			charsPerLine:20,
 			onlyUpperCase:true
 		});
 		window.fontBig = fontBig;
+
+		fontFT =  BitmapFont();
+		fontFT.generate({
+			image: fontImage,
+			startX: 1,
+			startY: 145,
+			charHeight: 12,
+			spaceWidth: 4,
+			margin: 1,
+			charsPerLine:[26,26,40],
+			lineSpacing:0,
+			chars: 	   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890#©_-&\"'()!.,?+=*$/\\;:[]{}",
+			charWidth: "888888883888998888888899987777757735739777757578987777777777778868864553348767888435555",
+			onlyUpperCase:false,
+			debug: true
+		});
+		window.fontFT = fontFT;
+
+
+		fontCondensed =  BitmapFont();
+		fontCondensed.generate({
+			image: fontImage,
+			startX: 1,
+			startY: 187,
+			charHeight: 10,
+			spaceWidth: 5,
+			margin: 0,
+			charsPerLine:[26,26,10],
+			lineSpacing:0,
+			chars: 	   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+			charWidth: "6666556625656666666666666655555455245365555454566555",
+			onlyUpperCase:false
+		});
+		window.fontCondensed = fontCondensed;
 
 		var fontLed =  BitmapFont();
 		fontLed.generate({
@@ -164,11 +205,28 @@ var UI = (function(){
 			startY: 68,
 			charWidth: 8,
 			charHeight: 13,
+			spaceWidth: 8,
 			margin: 0,
 			charsPerLine:20,
 			chars:" 0123456789"
 		});
 		window.fontLed = fontLed;
+
+		var fontDark =  BitmapFont();
+		fontDark.generate({
+			image: fontImage,
+			startX: 1,
+			startY: 216,
+			charHeight: 9,
+			spaceWidth: 5,
+			margin: 0,
+			charsPerLine:[14],
+			lineSpacing:0,
+			chars: 	   "XMOD123456789",
+			charWidth: "8877466666666",
+			onlyUpperCase:true
+		});
+		window.fontDark = fontDark;
 
 
 		UI.Assets.init();
@@ -211,8 +269,11 @@ var UI = (function(){
 					}
 				});
 
-				UI.mainPanel.visualiser.render();
-				UI.mainPanel.vumeter.render();
+                //EventBus.trigger(EVENT.screenRender);
+
+				window.visualiser.render();
+				window.vumeter.render();
+
 
 				if (modalElement){
 					modalElement.render();

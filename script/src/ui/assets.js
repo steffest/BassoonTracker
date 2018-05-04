@@ -20,12 +20,12 @@ UI.Assets = (function(){
 			}
 		};
 
-		FetchService.json(baseUrl + "skin/spritemap.json?v=" + buildNumber,function(data){
+		FetchService.json(baseUrl + "skin/spritemap_v2.json?v=" + buildNumber,function(data){
 			spriteMap = data;
 			createSprites();
 		});
 
-		Y.loadImage(baseUrl + "skin/spritesheet.png?v=" + buildNumber,function(img){
+		Y.loadImage(baseUrl + "skin/spritesheet_v2.png?v=" + buildNumber,function(img){
 			spriteSheet = img;
 			createSprites();
 		})
@@ -63,6 +63,12 @@ UI.Assets = (function(){
 		bottom: 5
 	};
 	me.buttonDarkActiveScale9 = {
+		left: 5,
+		top:5,
+		right: 5,
+		bottom: 5
+	};
+	me.buttonDarkActiveBlueScale9 = {
 		left: 5,
 		top:5,
 		right: 5,
@@ -134,13 +140,19 @@ UI.Assets = (function(){
 		right:2,
 		bottom: 2
 	};
-	me.menuMainScale9 = {
-		img: Y.getImage("menu"),
-		left:1,
-		top:1,
-		right:20,
-		bottom: 1
+	me.buttonKeyScale9 = {
+		left: 5,
+		top:5,
+		right: 5,
+		bottom: 5
 	};
+	me.buttonKeyActiveScale9 = {
+		left: 5,
+		top:5,
+		right: 5,
+		bottom: 5
+	};
+
 
 	var assetsInfo = {
 		button20_20:{
@@ -263,6 +275,24 @@ UI.Assets = (function(){
 					return result;
 				}
 			}
+		},
+		buttonKey:{
+			generate:function(andCache){
+				var result;
+				result = UI.button(0,0,20,20);
+				result.setProperties({
+					background: me.buttonKeyScale9,
+					activeBackground:UI.Assets.buttonKeyActiveScale9,
+					isActive:false,
+					textAlign: "center",
+					font: window.fontDark
+				});
+				if (andCache){
+					assets["buttonKey"] = result;
+				}else{
+					return result;
+				}
+			}
 		}
 	};
 
@@ -285,7 +315,8 @@ UI.Assets = (function(){
 		me.panelTransScale9.img = Y.getImage("panel_trans");
 		me.panelInsetScale9.img = Y.getImage("panel_inset");
 		me.panelDarkInsetScale9.img = Y.getImage("panel_dark");
-		me.menuMainScale9.img = Y.getImage("menu");
+		me.buttonKeyScale9.img = Y.getImage("keybutton");
+		me.buttonKeyActiveScale9.img = Y.getImage("keybutton_highlight3");
 
 		console.log("Assets init done");
 

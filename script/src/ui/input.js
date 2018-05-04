@@ -52,10 +52,18 @@ var Input = (function(){
 			event.preventDefault();
 
 			if (!isTouched){
-				// first touch - init media on IOS
-				if (typeof Audio !== "undefined" && Audio.playSilence) Audio.playSilence();
-				isTouched = true;
+				// first touch - init media on IOS and Android
+				// note: audioContext.resume must be called on touchup, touchdown is too soon.
+
+				if (typeof Audio !== "undefined" && Audio.playSilence){
+
+					if (Audio.context && Audio.context.state !== "suspended"){
+						Audio.playSilence();
+						isTouched = true;
+					}
+				}
 			}
+
 
 			if (event.touches && event.touches.length>0){
 				var touches = event.changedTouches;
@@ -92,7 +100,9 @@ var Input = (function(){
 
 				if (thisTouch.UIobject){
 					if (thisTouch.UIobject.onDragStart) thisTouch.UIobject.onDragStart(thisTouch);
-					if (thisTouch.UIobject.onTouchDown) thisTouch.UIobject.onTouchDown(thisTouch);
+					if (thisTouch.UIobject.onDown) thisTouch.UIobject.onDown(thisTouch);
+
+					console.log(thisTouch.UIobject);
 				}
 			}
 		}

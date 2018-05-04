@@ -59,14 +59,13 @@ UI.modalDialog = function(initialProperties){
                 var textX = background.left + 10;
 
                 var maxWidth = background.width - 20;
-                var fontWidth = 9; // TODO: get from font
 
                 lines.forEach(function(line){
                     var textX = 10;
-                    if (fontMed){
-                        var textLength = line.length * fontWidth;
+                    if (fontFT){
+                        var textLength = fontFT.getTextWidth(line,0);
                         textX = background.left + 10 + Math.floor((maxWidth - textLength)/2);
-                        fontMed.write(me.ctx,line,textX,textY,0);
+                        fontFT.write(me.ctx,line,textX,textY,0);
                     }
                     textY += 12;
                 });

@@ -48,17 +48,16 @@ UI.label = function(initialProperties){
 
 			if (label){
 				var fontSize = 10;
-				var fontWidth = 8; // TODO: get from font
 				var textY = Math.floor((me.height-fontSize)/2) + paddingTop;
 				var textX = 10;
 				if (font){
 					var textLength;
 					if (textAlign == "center"){
-						textLength = label.length * fontWidth;
+						textLength = font.getTextWidth(label,0);
 						textX = Math.floor((me.width - textLength)/2);
 					}
 					if (textAlign == "right"){
-						textLength = label.length * fontWidth;
+						textLength = font.getTextWidth(label,0);
 						textX = Math.floor(me.width - textLength) - 10;
 					}
 					font.write(me.ctx,label,textX,textY,0);

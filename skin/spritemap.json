@@ -30,20 +30,20 @@
   {
     "name": "button_inlay",
     "x": 339,
-    "y": 463,
+    "y": 433,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_active",
-    "x": 142,
+    "x": 213,
     "y": 503,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_blue",
-    "x": 213,
+    "x": 0,
     "y": 503,
     "width": 71,
     "height": 30
@@ -57,28 +57,28 @@
   },
   {
     "name": "button_inlay_green",
+    "x": 142,
+    "y": 503,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_green_active",
     "x": 410,
     "y": 463,
     "width": 71,
     "height": 30
   },
   {
-    "name": "button_inlay_green_active",
-    "x": 0,
-    "y": 503,
-    "width": 71,
-    "height": 30
-  },
-  {
     "name": "button_inlay_plain",
-    "x": 410,
-    "y": 433,
+    "x": 339,
+    "y": 463,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_red",
-    "x": 339,
+    "x": 410,
     "y": 433,
     "width": 71,
     "height": 30
@@ -176,8 +176,8 @@
   },
   {
     "name": "line_hor",
-    "x": 256,
-    "y": 253,
+    "x": 236,
+    "y": 351,
     "width": 272,
     "height": 2
   },
@@ -219,7 +219,7 @@
   {
     "name": "panel_black_insert",
     "x": 562,
-    "y": 308,
+    "y": 292,
     "width": 19,
     "height": 16
   },
@@ -233,21 +233,21 @@
   {
     "name": "panel_dark_blueish",
     "x": 562,
-    "y": 292,
+    "y": 308,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_greyish",
     "x": 562,
-    "y": 276,
+    "y": 324,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_insert",
     "x": 562,
-    "y": 324,
+    "y": 260,
     "width": 19,
     "height": 16
   },
@@ -268,21 +268,21 @@
   {
     "name": "panel_light",
     "x": 562,
-    "y": 169,
+    "y": 188,
     "width": 23,
     "height": 19
   },
   {
     "name": "panel_mid",
     "x": 562,
-    "y": 188,
+    "y": 169,
     "width": 23,
     "height": 19
   },
   {
     "name": "panel_trans",
     "x": 562,
-    "y": 260,
+    "y": 276,
     "width": 19,
     "height": 16
   },
@@ -323,7 +323,7 @@
   },
   {
     "name": "play",
-    "x": 327,
+    "x": 465,
     "y": 236,
     "width": 46,
     "height": 15
@@ -372,7 +372,7 @@
   },
   {
     "name": "record",
-    "x": 256,
+    "x": 394,
     "y": 236,
     "width": 71,
     "height": 17
@@ -383,6 +383,20 @@
     "y": 503,
     "width": 71,
     "height": 27
+  },
+  {
+    "name": "slider_back",
+    "x": 256,
+    "y": 236,
+    "width": 138,
+    "height": 20
+  },
+  {
+    "name": "slider_knob",
+    "x": 0,
+    "y": 533,
+    "width": 34,
+    "height": 23
   },
   {
     "name": "solo",

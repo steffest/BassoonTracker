@@ -33,29 +33,31 @@ var Audio = (function(){
     function createAudioConnections(audioContext){
 
         cutOffVolume = audioContext.createGain();
-        cutOffVolume.gain.value = 1;
+        cutOffVolume.gain.setValueAtTime(1,0);
         cutOffVolume.connect(audioContext.destination);
 
         masterVolume = audioContext.createGain();
-        masterVolume.gain.value = 0.7;
+        masterVolume.gain.setValueAtTime(0.7,0);
         masterVolume.connect(cutOffVolume);
 
         lowPassfilter = audioContext.createBiquadFilter();
         lowPassfilter.type = "lowpass";
-        lowPassfilter.frequency.value = 20000;
+        lowPassfilter.frequency.setValueAtTime(20000,0);
 
         lowPassfilter.connect(masterVolume);
     }
 
     if (AudioContext){
         context = new AudioContext();
-        createAudioConnections(context);
+		createAudioConnections(context);
     }
 
     me.init = function(audioContext){
 
         audioContext = audioContext || context;
         if (!audioContext) return;
+
+		createAudioConnections(context);
 
         var numberOfTracks = Tracker.getTrackCount();
         filterChains = [];
@@ -86,11 +88,13 @@ var Audio = (function(){
 
 
     me.enable = function(){
-        cutOffVolume.gain.value = 1;
+        cutOffVolume.gain.setValueAtTime(1,0);
+        me.cutOff = false;
     };
 
     me.disable = function(){
-        cutOffVolume.gain.value = 0;
+        cutOffVolume.gain.setValueAtTime(0,0);
+        me.cutOff = true;
     };
 
 
@@ -220,7 +224,7 @@ var Audio = (function(){
     };
 
     me.playSilence = function(){
-        // used to activate Audio engine on first touch in IOS devices
+        // used to activate Audio engine on first touch in IOS and Android devices
         if (context){
             var source = context.createBufferSource();
             source.connect(masterVolume);

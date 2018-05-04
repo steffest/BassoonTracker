@@ -45,9 +45,6 @@ UI.visualiser = function(){
         });
 
 
-
-
-
         me.needsRendering = true;
     };
 
@@ -148,7 +145,7 @@ UI.visualiser = function(){
 
         }else if (mode=="tracks"){
 
-            var hasVolume = Audio.cutOffVolume.gain.value>0;
+            var hasVolume = !Audio.cutOff;
 
             for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
                 var track = trackAnalyser[trackIndex];
@@ -164,6 +161,8 @@ UI.visualiser = function(){
                     me.ctx.beginPath();
 
                     var wy;
+                    aWidth -= 5;
+                    aLeft += 4;
 
                     if (hasVolume){
 

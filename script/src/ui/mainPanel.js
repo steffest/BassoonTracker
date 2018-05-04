@@ -1,8 +1,72 @@
 UI.MainPanel = function(){
 	var me = UI.panel(0,0,canvas.width,canvas.height,true);
+	me.setProperties({
+        backgroundColor: "#071028"
+    });
 	me.name = "mainPanel";
+
+    var menu = UI.app_menu(me);
+    me.addChild(menu);
+
+	var appPanel = UI.app_mainPanel();
+    me.addChild(appPanel);
+
+    var controlPanel = UI.app_controlPanel();
+    me.addChild(controlPanel);
+
+    var patternPanel = UI.app_patternPanel();
+    me.addChild(patternPanel);
+
+    var pianoPanel = UI.app_pianoView();
+    pianoPanel.hide();
+    me.addChild(pianoPanel);
+
+    me.onResize = function(){
+        Layout.setLayout(me.width,me.height);
+
+        menu.setSize(me.width,menu.height);
+        var panelTop = menu.height;
+
+        appPanel.setSize(me.width,appPanel.height);
+        appPanel.setPosition(0,panelTop);
+        panelTop += appPanel.height;
+
+        controlPanel.setSize(me.width,controlPanel.height);
+        controlPanel.setPosition(0,panelTop);
+        panelTop += controlPanel.height;
+
+        var remaining = me.height-panelTop;
+        if (pianoPanel.isVisible()){
+            pianoPanel.setSize(me.width,Layout.pianoHeight);
+            pianoPanel.setPosition(0,me.height-pianoPanel.height)
+            remaining = remaining- pianoPanel.height;
+        }
+
+        patternPanel.setPosition(0,panelTop);
+        patternPanel.setSize(me.width,remaining);
+
+	};
+
+    me.sortZIndex();
+    me.onResize();
+
+    EventBus.on(EVENT.toggleView,function(view){
+        if (view === "piano"){
+            pianoPanel.toggle();
+            var remaining = me.height - patternPanel.top;
+            if (pianoPanel.isVisible()){
+                pianoPanel.setSize(me.width,Layout.pianoHeight);
+                pianoPanel.setPosition(0,me.height-pianoPanel.height)
+                remaining = remaining-pianoPanel.height;
+            }
+            patternPanel.setSize(me.width,remaining);
+        }
+    });
+
+/*
+
+
 	var i;
-	var trackControls = [];
 	var currentView = "main";
 	var maxVisibleTracks = 4;
 
@@ -12,167 +76,23 @@ UI.MainPanel = function(){
 	if (getUrlParameter("layout")== "full") mainLayout = LAYOUTS.column5Full;
 	var mainDefaultLayout = mainLayout;
 
-	var mainBack = UI.scale9Panel(0,0,me.width,me.height,UI.Assets.panelMainScale9);
-	me.addChild(mainBack);
+	var spinbBoxFont = window.fontFT;
 
-	// menu
-	var menuBackground = UI.scale9Panel(0,0,0,0,UI.Assets.menuMainScale9);
-	me.addChild(menuBackground);
 
-	var menu = UI.menu(0,0,0,0);
-	me.addChild(menu);
-	menu.setProperties({
-		zIndex: 200
-	});
-	menu.setItems([
-		{label: "File" , subItems: [
-			{label: "new" , "command" : COMMAND.newFile},
-			{label: "open module" , "command" : COMMAND.openFile},
-			{label: "save module" , "command" : COMMAND.saveFile},
-			{label: "open random song" , "command" : COMMAND.randomSong}
-		]},
-		{label: "Edit", subItems: [
-			{label: "clear track" , "command" : COMMAND.clearTrack},
-			{label: "clear pattern" , "command" : COMMAND.clearPattern},
-			{label: "clear song" , "command" : COMMAND.clearSong},
-			{label: "clear instruments" , "command" : COMMAND.clearInstruments}
-		]},
-		{label: "View", subItems: [
-			{label: "main" , "command" : COMMAND.showMain},
-			{label: "options" , "command" : COMMAND.showOptions},
-			{label: "file operations" , "command" : COMMAND.showFileOperations},
-			{label: "sample editor" , "command" : COMMAND.showSampleEditor},
-			{label: "piano" , "command" : COMMAND.togglePiano}
-		]},
-		{label: "Help", subItems: [
-			{label: "about" , "command" : COMMAND.showAbout},
-			{label: "documentation" , "command" : COMMAND.showHelp},
-			{label: "Sourcecode on github" , "command" : COMMAND.showGithub}
-		]}
-	]);
 
-	var logo = UI.button();
-	logo.setProperties({
-		background: UI.Assets.panelInsetScale9,
-		activeBackground: UI.Assets.buttonDarkScale9,
-		image: Y.getImage("logo_grey_70"),
-		activeImage: Y.getImage("logo_colour_70")
-	});
-	logo.onClick = function(){
-		console.error("click");
-		logo.toggleActive();
-		console.error(logo.isActive);
-	};
-	me.addChild(logo);
-
-	//mod name
-	var modNameInputBox = UI.inputbox({
-		name: "modName",
-		onChange: function(value){
-			Tracker.getSong().title = value;
-			UI.setInfo(value);
-		}
-	});
-	me.addChild(modNameInputBox);
-
-	// instrument listbox
-	var listbox = UI.listbox();
-	listbox.setItems([
-		{label: "loading ...", data: 1}
-	]);
-	me.addChild(listbox);
-	listbox.onClick = function(e){
-		Input.setFocusElement(listbox);
-		var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
-		if (item){
-			//Audio.playSample(item.data);
-			Tracker.setCurrentInstrumentIndex(item.data);
-		}
-	};
-
-	var infoPanel = UI.InfoPanel(0,0,0,0);
-	me.addChild(infoPanel);
 
 
 	var songPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
 	me.addChild(songPanel);
 
-	var songlistbox = UI.listbox();
-	songlistbox.setItems([
-		{label: "00:00", data: 1}
-	]);
-	me.addChild(songlistbox);
-
-	var spPlus = UI.Assets.generate("button20_20");
-	spPlus.setLabel("↑");
-	spPlus.onClick = function(){
-		var index = songlistbox.getSelectedIndex();
-		var pattern = Tracker.getSong().patternTable[index];
-		pattern++;
-		Tracker.updatePatternTable(index,pattern);
-
-	};
-	me.addChild(spPlus);
-
-	var spMin = UI.Assets.generate("button20_20");
-	spMin.setLabel("↓");
-	spMin.onClick = function(){
-		var index = songlistbox.getSelectedIndex();
-		var pattern = Tracker.getSong().patternTable[index];
-		if (pattern>0) pattern--;
-		Tracker.updatePatternTable(index,pattern);
-	};
-	me.addChild(spMin);
-
-	for (i=0;i<Tracker.getTrackCount();i++){
-		trackControls[i] = UI.trackControl();
-		me.addChild(trackControls[i]);
-	}
 
 
 
-	var editPanel = UI.editPanel();
-	me.addChild(editPanel);
 
 
-	var songControl = UI.songControl();
-	me.addChild(songControl);
 
-	var patternPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
-	me.addChild(patternPanel);
-	var spinBoxPattern = UI.spinBox();
-	spinBoxPattern.setProperties({
-		name: "Pattern",
-		label: "Pattern",
-		value: 0,
-		max: 100,
-		min:0,
-		font: window.fontMed,
-		onChange : function(value){Tracker.setCurrentPattern(value);}
-	});
-	me.addChild(spinBoxPattern);
 
-	/*var spinBoxPatternLength = UI.spinBox({
-		value: 64,
-		name: "PatternLength",
-		label: "Length",
-		max: 64,
-		min:64,
-		font: window.fontMed
-	});
-	me.addChild(spinBoxPatternLength);
-	*/
 
-	var spinBoxInstrument = UI.spinBox({
-		name: "Instrument",
-		label: "Instrument",
-		value: 1,
-		max: 64,
-		min:1,
-		font: window.fontMed,
-		onChange : function(value){Tracker.setCurrentInstrumentIndex(value);}
-	});
-	me.addChild(spinBoxInstrument);
 
 	var buttons = [];
 	var buttonsSide = [];
@@ -202,113 +122,6 @@ UI.MainPanel = function(){
 	};
 
 
-	for (i = 0;i<buttonsInfo.length;i++){
-		var buttonInfo = buttonsInfo[i];
-		var buttonElm = UI.button();
-		buttonElm.info = buttonInfo;
-		buttonElm.onClick =  buttonInfo.onClick;
-		buttonElm.getLabel = function(width){
-			var maxChars = Math.floor((width - 30) / 8);
-			if (this.info.labels){
-				var label;
-				for (var i = 0, len = this.info.labels.length; i<len; i++){
-					label = this.info.labels[i];
-					if (label.length <= maxChars){
-						return label;
-					}
-				}
-				return label;
-			}else{
-				return this.info.label;
-			}
-		};
-		buttons[i] = buttonElm;
-		me.addChild(buttonElm);
-	}
-
-	var buttonsSideInfo=[
-		{label:"Demomusic", onClick:function(){Tracker.load('demomods/demomusic.mod')}},
-		{label:"Stardust", onClick:function(){Tracker.load('demomods/StardustMemories.mod')}},
-		{label:"Space Debris", onClick:function(){Tracker.load('demomods/spacedeb.mod')}},
-		{label:"Tinytune", onClick:function(){Tracker.load('demomods/Tinytune.mod')}},
-		{label:"Lotus 2", onClick:function(){Tracker.load('demomods/lotus20.mod')}},
-		//{label:"Lotus 1", onClick:function(){Tracker.load('demomods/lotus10.mod')}},
-		{label:"Professionaltracker", onClick:function(){Tracker.load('demomods/hoffman_and_daytripper_-_professional_tracker.mod')}},
-		//{label:"Monday", onClick:function(){Tracker.load('demomods/Monday.mod')}},
-		//{label:"Lunatic", onClick:function(){Tracker.load('demomods/sound-of-da-lunatic.mod')}},
-		//{label:"Ambrozia", onClick:function(){Tracker.load('demomods/Ambrozia.xm')}},
-		{label:"8CHN: AceMan", onClick:function(){Tracker.load('demomods/AceMan.mod')}},
-		{label:"28CHN: Dope", onClick:function(){Tracker.load('demomods/dope.mod')}},
-		{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
-		//{label:"Drum", onClick:function(){Tracker.load('demomods/drum.mod')}},
-		{label:"Random !", onClick:function(){App.doCommand(COMMAND.randomSong)}}
-	];
-
-	var sideButtonPanel = UI.panel();
-	sideButtonPanel.setProperties({
-		name: "sideButtonPanel"
-	});
-
-	var sideLabel = UI.label();
-	sideLabel.setProperties({
-		label: "Demosongs:",
-		font: fontMed
-	});
-	sideButtonPanel.addChild(sideLabel);
-
-	for (i = 0;i< buttonsSideInfo.length;i++){
-		var buttonSideInfo = buttonsSideInfo[i];
-		var buttonElm = UI.button();
-		buttonElm.info = buttonSideInfo;
-		buttonElm.onClick =  buttonSideInfo.onClick;
-		buttonsSide[i] = buttonElm;
-		//me.addChild(buttonElm);
-		sideButtonPanel.addChild(buttonElm);
-	}
-	me.addChild(sideButtonPanel);
-
-
-	var pianoButton = UI.button();
-	pianoButton.setProperties({
-		label: "",
-		textAlign:"center",
-		background: UI.Assets.buttonLightScale9,
-		image: Y.getImage("piano"),
-		font:window.fontMed
-	});
-	pianoButton.onClick = function(){App.doCommand(COMMAND.togglePiano)};
-	sideButtonPanel.addChild(pianoButton);
-
-	var spinBoxSongLength = UI.spinBox({
-		name: "SongLength",
-		label: "SongLen",
-		value: 1,
-		max: 200,
-		min:1,
-		font: window.fontMed,
-		onChange : function(value){
-			var currentLength = Tracker.getSong().length;
-			if (currentLength>value){
-				Tracker.removeFromPatternTable();
-			}else if(currentLength<value){
-				Tracker.addToPatternTable();
-			}
-
-		}
-	});
-	me.addChild(spinBoxSongLength);
-
-	/*var spinBoxBmp = UI.spinBox({
-		name: "BPM",
-		label: "BPM",
-		value: 125,
-		max: 200,
-		min:30,
-		font: window.fontMed,
-		onChange : function(value){Tracker.setBPM(value)}
-	});
-	me.addChild(spinBoxBmp);
-	*/
 
 	var patternView = UI.PatternView();
 	patternView.setProperties({
@@ -316,11 +129,7 @@ UI.MainPanel = function(){
 	});
 	me.addChild(patternView);
 
-	var sampleView = UI.SampleView();
-	sampleView.setProperties({
-		name: "sampleViewPanel"
-	});
-	me.addChild(sampleView);
+
 
 	var diskOperations = UI.DiskOperations();
 	diskOperations.setProperties({
@@ -337,133 +146,16 @@ UI.MainPanel = function(){
 	});
 	me.addChild(optionsPanel);
 
-	var pianoView = UI.PianoView();
-	pianoView.hide();
-	pianoView.setProperties({
-		name: "pianoViewPanel"
-	});
-	me.addChild(pianoView);
-
 	//var knob = UI.knob();
 	//me.addChild(knob);
 
-	var visualiser = UI.visualiser();
 
-	visualiser.connect(Audio.cutOffVolume);
-	visualiser.name = "mainAnalyser";
-	visualiser.onClick = function(){
-		visualiser.nextMode();
-	};
-	me.visualiser = visualiser;
-	// note: don't attach as child to main panel, this gets attached to main UI
-
-	var vumeter = UI.vumeter();
-	vumeter.connect(Audio.cutOffVolume);
-	me.vumeter = vumeter;
 
 	me.sortZIndex();
 
 	// events
-	EventBus.on(EVENT.songLoading,function(){
-		modNameInputBox.setValue("Loading ...",true);
-	});
-
-	EventBus.on(EVENT.songLoaded,function(song){
-		me.setPatternTable(song.patternTable);
-	});
-
-	EventBus.on(EVENT.songPropertyChange,function(song){
-		modNameInputBox.setValue(song.title,true);
-		spinBoxSongLength.setValue(song.length,true);
-		spinBoxInstrument.setMax(song.instruments.length-1);
-	});
-
-	EventBus.on(EVENT.instrumentChange,function(value){
-		spinBoxInstrument.setValue(value,true);
-	});
-	EventBus.on(EVENT.patternChange,function(value){
-		spinBoxPattern.setValue(value,true);
-		patternView.refresh();
-	});
-	EventBus.on(EVENT.patternPosChange,function(value){
-		patternView.refresh();
-	});
-	EventBus.on(EVENT.cursorPositionChange,function(value){
-		patternView.refresh();
-	});
-	EventBus.on(EVENT.recordingChange,function(value){
-		patternView.refresh();
-	});
-	EventBus.on(EVENT.trackStateChange,function(state){
-		// set other tracks to mute if a track is soloed
-
-		if(typeof state.track != "undefined"){
-			if (state.solo){
-				for (i = 0;i< Tracker.getTrackCount();i++){
-					if (i != state.track){
-						trackControls[i].setProperties({mute:true});
-					}
-				}
-			}else if (state.wasSolo){
-				for (i = 0;i< Tracker.getTrackCount();i++){
-					if (i != state.track){
-						trackControls[i].setProperties({mute:false});
-					}
-				}
-			}
-		}
-
-	});
-
-	EventBus.on(EVENT.songPositionChange,function(value){
-		songlistbox.setSelectedIndex(value,true);
-	});
-	EventBus.on(EVENT.patternTableChange,function(value){
-		me.setPatternTable(Tracker.getSong().patternTable);
-	});
-
-	EventBus.on(EVENT.instrumentChange,function(value){
-		listbox.setSelectedIndex(value-1);
-	});
-
-	//EventBus.on(EVENT.songBPMChange,function(event,value){
-		//spinBoxBmp.setValue(value,true);
-	//});
-
-	EventBus.on(EVENT.instrumentNameChange,function(instrumentIndex){
-		var instrument = Tracker.getInstrument(instrumentIndex);
-		if (instrument){
-			var instruments = me.getInstruments();
-			for (var i = 0, len = instruments.length; i<len;i++){
-				if (instruments[i].data == instrumentIndex){
-					instruments[i].label = instrumentIndex + " " + instrument.name;
-					UI.mainPanel.setInstruments(instruments);
-					break;
-				}
-			}
-		}
-	});
-
-	EventBus.on(EVENT.trackCountChange,function(trackCount){
-
-		me.visibleTracks = Math.min(maxVisibleTracks,trackCount);
 
 
-		for (i=trackControls.length;i<trackCount;i++){
-			trackControls[i] = UI.trackControl();
-			trackControls[i].setProperties({
-				track: i,
-				top: -200
-			});
-			me.addChild(trackControls[i]);
-		}
-		visualiser.connect(Audio.cutOffVolume);
-	});
-
-	EventBus.on(EVENT.patternHorizontalScrollChange,function(){
-		// update track Controls ... shouldn't they be part of the patternView?
-		setTrackControlsLayout();
-	});
 
 	me.setLayout = function(newX,newY,newW,newH){
 		me.clearCanvas();
@@ -583,7 +275,7 @@ UI.MainPanel = function(){
 		var layout = {
 			menuBackground: me.menuWidth,
 			logo:{
-				left: me.col1X,
+				left: me.col2X,
 				width: me.col2W,
 				height: topPanelHeight - songPanelHeight - me.defaultMargin,
 				top: topRow1
@@ -601,7 +293,7 @@ UI.MainPanel = function(){
 				top: me.menuHeight + me.defaultMargin + inputBoxHeight + me.defaultMargin
 			},
 			songPanel:{
-				left: me.defaultMargin,
+				left: me.col2X,
 				top: topRow2,
 				width: me.col1W,
 				height: songPanelHeight
@@ -613,7 +305,7 @@ UI.MainPanel = function(){
 				height: me.infoPanelHeight
 			},
 			patternPanel:{
-				left:me.col2X,
+				left:me.col3X,
 				top:topRow2,
 				width: me.col1W,
 				height:songPanelHeight
@@ -663,25 +355,25 @@ UI.MainPanel = function(){
 				songPatternSelector: "small"
 			},
 			spinBoxSongLength:{
-				left:me.col2X,
+				left:me.col3X,
 				top: topRow2 + 3,
 				width: me.col1W,
 				height: spinButtonHeight
 			},
 			spinBoxPattern:{
-				left:me.col2X,
+				left:me.col3X,
 				top: topRow2 + spinButtonHeight + 3,
 				width: me.col1W,
 				height: spinButtonHeight
 			},
 			spinBoxPatternLength:{
-				left:me.col2X,
+				left:me.col3X,
 				top: topRow2 + spinButtonHeight + 3,
 				width: me.col1W,
 				height: spinButtonHeight
 			},
 			spinBoxInstrument:{
-				left:me.col2X,
+				left:me.col3X,
 				top: topRow2 + (spinButtonHeight*2) + 3,
 				width: me.col1W,
 				height: spinButtonHeight
@@ -693,7 +385,7 @@ UI.MainPanel = function(){
 				width: me.col1W
 			},
 			buttonsInfo:{
-				left: me.col3X,
+				left: me.col1X,
 				top: topRow1,
 				width: me.col1W,
 				height:buttonHeight
@@ -756,80 +448,14 @@ UI.MainPanel = function(){
 		setDimensions(modNameInputBox,layout.modNameInputBox);
 		setDimensions(listbox,layout.listbox);
 
-		// buttons
-		var buttonCount = 0;
-		for (i = 0;i<buttonsInfo.length;i++){
-			var button = buttons[i];
-			var show = !button.info.hideOnBigScreen;
-			if (mainLayout == LAYOUTS.column5Full){
-				show = !button.info.hideOnSmallScreen;
-			}
-			if (show){
-				button.setProperties({
-					left:layout.buttonsInfo.left,
-					top: layout.buttonsInfo.top + (buttonCount*buttonHeight),
-					width: layout.buttonsInfo.width,
-					height:layout.buttonsInfo.height,
-					label: button.getLabel(layout.buttonsInfo.width),
-					textAlign:"left",
-					background: UI.Assets.buttonLightScale9,
-					font:window.fontMed
-				});
-				buttonCount++;
-			}else{
-				button.setProperties({left: -500});
-			}
 
-		}
-
-		sideLabel.setProperties({
-			left:layout.buttonsSideInfo.left,
-			top: layout.buttonsSideInfo.top,
-			width: layout.buttonsSideInfo.width,
-			height:layout.buttonsSideInfo.height
-		});
-
-		pianoButton.setProperties({
-			left:pianoView.isVisible()?-500:layout.buttonsSideInfo.left,
-			top: layout.sideButtonPanel.height - layout.buttonsSideInfo.height,
-			width: layout.buttonsSideInfo.width,
-			height:layout.buttonsSideInfo.height
-		});
-
-		for (i = 0;i<buttonsSideInfo.length;i++){
-			var button = buttonsSide[i];
-			var buttonTop = ((i+1)*buttonHeight) + layout.buttonsSideInfo.top;
-			var buttonLeft = layout.buttonsSideInfo.left;
-			if (buttonTop > pianoButton.top-buttonHeight){
-				buttonLeft = -500;
-			}
-			button.setProperties({
-				left:buttonLeft,
-				top: buttonTop,
-				width: layout.buttonsSideInfo.width,
-				height:layout.buttonsSideInfo.height,
-				label: button.info.label,
-				textAlign:"left",
-				background: UI.Assets.buttonLightScale9,
-				font:window.fontMed
-			});
-		}
 
 		setDimensions(sideButtonPanel,layout.sideButtonPanel);
 		setDimensions(songPanel,layout.songPanel);
 		setDimensions(infoPanel,layout.infoPanel);
 
 		//songlistbox
-		songlistbox.setProperties({
-			left: songPanel.left,
-			top: songPanel.top,
-			width: songlistboxWidth,
-			height: songPanel.height,
-			centerSelection: true,
-			onChange: function(){
-				Tracker.setCurrentSongPosition(songlistbox.getSelectedIndex(),true);
-			}
-		});
+
 
 		spMin.setProperties({
 			left: (songPanel.left + songPanel.width) - songlistboxButtonWidth,
@@ -845,8 +471,7 @@ UI.MainPanel = function(){
 			name:"PatternUp"
 		});
 
-		// controlBar
-		setTrackControlsLayout();
+
 
 
 		songControl.songPatternSelector = layout.songControl.songPatternSelector;
@@ -876,11 +501,11 @@ UI.MainPanel = function(){
 			height: me.equaliserPanelHeight
 		});
 
-		vumeter.setProperties({
+
+vumeter.setProperties({
 			width: vuWidth,
 			left: vuLeft
 		});
-
 		me.setSize(me.width,me.height);
 		infoPanel.setLayout();
 	};
@@ -899,31 +524,7 @@ UI.MainPanel = function(){
 		}
 	}
 
-	function setTrackControlsLayout(){
-		// controlBar
-		var startTrack = patternView.getStartTrack();
-		var endTrack = Math.min(startTrack + me.visibleTracks,Tracker.getTrackCount());
-		for (i = 0;i< trackControls.length;i++){
 
-			if ( i>=startTrack && i<endTrack){
-				trackControls[i].setProperties({
-					track:i,
-					left: me.patternViewLeft + me.patternMargin + (me.trackWidth+me.trackMargin)* (i-startTrack),
-					top: me.controlBarTop,
-					width: me.trackWidth,
-					height: me.controlBarHeight,
-					visible: true
-				});
-			}else{
-				trackControls[i].setProperties({
-					track:i,
-					top: -100,
-					visible: false
-				});
-			}
-
-		}
-	}
 
 	me.setLayout(0,0,me.width,me.height);
 
@@ -936,32 +537,13 @@ UI.MainPanel = function(){
 		return listbox.getItems();
 	};
 
-	me.setPatternTable = function(patternTable){
-		var items = [];
-		for (var i = 0, len = Tracker.getSong().length; i<len; i++){
-			var value = patternTable[i];
-			items.push({label: padd2(i) + ":" + padd2(value), data:value});
-		}
 
-
-		/*
-
-		 {label: "01:01", data: 1},
-		 {label: "02:01", data: 1},
-		 {label: "03:04", data: 4}
-		 */
-		songlistbox.setItems(items);
-	};
 
 	me.toggleFxPanel = function(track){
 		patternView.toggleFxPanel(track);
 	};
 
-	function padd2(s){
-		s = "" + s;
-		if (s.length < 2){s = "0" + s}
-		return s;
-	}
+
 
 	me.setView = function(viewName){
 
@@ -1033,6 +615,8 @@ UI.MainPanel = function(){
 		pianoView.toggle();
 		me.setLayout(0,0,me.width,me.height);
 	};
+
+	*/
 
 	return me;
 

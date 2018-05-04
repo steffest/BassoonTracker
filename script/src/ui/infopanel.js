@@ -70,7 +70,7 @@ UI.InfoPanel = function(){
             var fText = text;
             if (status) fText = status + ": " + fText;
 
-            window.fontMed.write(me.ctx,fText,6,11,0);
+            window.fontFT.write(me.ctx,fText,6,11,0);
 
         }
 

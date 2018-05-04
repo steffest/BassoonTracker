@@ -535,11 +535,17 @@ var Tracker = (function(){
 
 
 			if (noteIndex === 97){
-				console.error("note off");
-				volume = 0; // note off
-				defaultVolume = 0;
+				var offInstrument = instrument || me.getInstrument(trackNotes[track].currentInstrument);
 
-				cutNote(track,time);
+				if (offInstrument){
+					volume = offInstrument.noteOff(track,time);
+				}else{
+					console.log("no instrument on track " + track);
+					//cutNote(track,time);
+					volume = 0;
+				}
+				defaultVolume = volume;
+
 			}
 		}
 
@@ -1145,6 +1151,7 @@ var Tracker = (function(){
 
 		}
 	}
+	me.cutNote = cutNote;
 
 	function applyEffects(track,time){
 
@@ -1419,6 +1426,30 @@ var Tracker = (function(){
 
 	me.getPatternLength = function(){
 		return patternLength;
+	};
+
+	me.setPatternLength = function(value){
+		patternLength = value;
+
+		var currentLength = song.patterns[currentPattern].length;
+		if (currentLength === patternLength) return;
+
+		if (currentLength < patternLength){
+			for (var step = currentLength; step<patternLength; step++){
+				var row = [];
+				var channel;
+				for (channel = 0; channel < trackCount; channel++){
+					row.push(getEmptyNote());
+				}
+				song.patterns[currentPattern].push(row);
+			}
+		}else{
+			song.patterns[currentPattern] = song.patterns[currentPattern].splice(0,patternLength);
+		}
+		console.log(song.patterns[currentPattern]);
+
+
+		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
 
 	me.getTrackCount = function(){
@@ -1987,12 +2018,12 @@ var Tracker = (function(){
 			instrumentContainer.push({label: i + " ", data: i});
 		}
 		song.instruments = instruments;
-		if (UI) UI.mainPanel.setInstruments(instrumentContainer);
+
+		EventBus.trigger(EVENT.instrumentListChange,instrumentContainer);
 		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
 	};
 
 	me.setTrackerMode = function(mode){
-		console.log("Set Trackermode to " + mode);
 		trackerMode = mode;
 		EventBus.trigger(EVENT.trackerModeChanged,mode);
 	};
@@ -2043,12 +2074,16 @@ var Tracker = (function(){
 		for (var step = 0; step<patternLength; step++){
 			var row = [];
 			var channel;
-			for (channel = 0; channel < 4; channel++){
-				row.push({note:0,effect:0,instrument:0,param:0});
+			for (channel = 0; channel < trackCount; channel++){
+				row.push(getEmptyNote());
 			}
 			result.push(row);
 		}
 		return result;
+	}
+
+	function getEmptyNote(){
+		return {note:0,effect:0,instrument:0,param:0};
 	}
 
 

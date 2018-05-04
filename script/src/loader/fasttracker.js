@@ -270,7 +270,7 @@ var FastTracker = function(){
             instrumentContainer.push({label: i + " " + instrument.name, data: i});
 
         }
-        if (UI) UI.mainPanel.setInstruments(instrumentContainer);
+        EventBus.trigger(EVENT.instrumentListChange,instrumentContainer);
         song.instruments = Tracker.getInstruments();
 
         Tracker.setBPM(mod.defaultBPM);

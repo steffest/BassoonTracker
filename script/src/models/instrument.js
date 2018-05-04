@@ -16,5 +16,15 @@ var Instrument = function(){
 		return Audio.playSample(me.sampleIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
 	};
 
+	me.noteOff = function(track,time){
+		if (me.volumeEnvelope){
+			console.log("noteOff");
+			return 50;
+		}else{
+			//Tracker.cutNote(track,time);
+			return 0;
+		}
+	};
+
 	return me;
 };

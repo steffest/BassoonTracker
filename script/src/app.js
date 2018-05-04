@@ -8,10 +8,10 @@ var App = (function(){
                     Tracker.new();
                     break;
                 case COMMAND.openFile:
-                    UI.mainPanel.setView("diskop_load");
+                    EventBus.trigger(EVENT.showView,"diskop_load");
                     break;
                 case COMMAND.saveFile:
-                    UI.mainPanel.setView("diskop_save");
+                    EventBus.trigger(EVENT.showView,"diskop_save");
                     break;
                 case COMMAND.clearTrack:
                     Tracker.clearTrack();
@@ -23,34 +23,25 @@ var App = (function(){
                     Tracker.clearInstruments();
                     break;
                 case COMMAND.showMain:
-                    UI.mainPanel.setView("main");
+                    EventBus.trigger(EVENT.showView,"main");
                     break;
-                case COMMAND.showTop:
-                    UI.mainPanel.setView("resetTop");
+                case COMMAND.showTopMain:
+                    EventBus.trigger(EVENT.showView,"topmain");
+                    break;
+                case COMMAND.showBottomMain:
+                    EventBus.trigger(EVENT.showView,"bottommain");
                     break;
                 case COMMAND.showOptions:
-                    if (UI.mainPanel.getCurrentView() == "options"){
-                        UI.mainPanel.setView("resetTop");
-                    }else{
-                        UI.mainPanel.setView("options");
-                    }
+                    EventBus.trigger(EVENT.showView,"options");
                     break;
                 case COMMAND.showFileOperations:
-                    if (UI.mainPanel.getCurrentView() == "diskop_load"){
-                        UI.mainPanel.setView("main");
-                    }else{
-                        UI.mainPanel.setView("diskop_load");
-                    }
+                    EventBus.trigger(EVENT.showView,"diskop_load");
                     break;
                 case COMMAND.showSampleEditor:
-                    if (UI.mainPanel.getCurrentView() == "sample"){
-                        UI.mainPanel.setView("resetBottom");
-                    }else{
-                        UI.mainPanel.setView("sample");
-                    }
+                    EventBus.trigger(EVENT.showView,"sample");
                     break;
                 case COMMAND.togglePiano:
-                    UI.mainPanel.togglePiano();
+                    EventBus.trigger(EVENT.toggleView,"piano");
                     break;
                 case COMMAND.showAbout:
                     var dialog = UI.modalDialog();
@@ -65,7 +56,7 @@ var App = (function(){
 
                     var version = typeof versionNumber == "undefined" ? "dev" : versionNumber;
                     var build = typeof buildNumber == "undefined" ? new Date().getTime() : buildNumber;
-                    dialog.setText("Bassoontracker//Old School 4-channel Amiga mod tracker/in plain javascript//©2017 by Steffest//version " + version + "//Fork me on Github!");
+                    dialog.setText("BASSOONTRACKER//Old School 4-channel Amiga mod tracker/in plain javascript//©2017-2018 by Steffest//version " + version + "//Fork me on Github!");
 
                     UI.setModalElement(dialog);
                     break;

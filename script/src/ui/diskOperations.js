@@ -4,6 +4,7 @@ UI.DiskOperations = function(){
 	me.hide();
 
 	var currentView = "modules";
+	var currentsSubView = "";
 	var itemsMap = [];
 
 	var modules = [];
@@ -74,7 +75,7 @@ UI.DiskOperations = function(){
 	var closeButton = UI.Assets.generate("button20_20");
 	closeButton.setLabel("x");
 	closeButton.onClick = function(){
-		UI.mainPanel.setView("main");
+        App.doCommand(COMMAND.showTopMain);
 	};
 	me.addChild(closeButton);
 
@@ -126,122 +127,129 @@ UI.DiskOperations = function(){
 
 	});
 
-	me.setLayout = function(subView){
+    me.onShow = function(){
+        me.onResize();
+    };
 
-		if (!UI.mainPanel) return;
-		me.clearCanvas();
+	me.onResize = function(){
+		if(me.isVisible()){
+            me.clearCanvas();
 
-		background.setProperties({
-			left: 0,
-			top: 0,
-			height: me.height,
-			width: me.width
-		});
+            background.setProperties({
+                left: 0,
+                top: 0,
+                height: me.height,
+                width: me.width
+            });
 
-		var startTop = 5;
+            var startTop = 5;
 
-		closeButton.setProperties({
-			top: startTop-2,
-			width: 20,
-			heigth: 18,
-			left: me.width - 30
-		});
-
-
-		if (me.width >= 730){
-			actionPanel.setProperties({
-				top: startTop,
-				left: UI.mainPanel.defaultMargin,
-				width: UI.mainPanel.col1W,
-				height: me.height - 10
-			});
-			targetPanel.setProperties({
-				top: startTop,
-				left: UI.mainPanel.col2X,
-				width: UI.mainPanel.col1W,
-				height: me.height - 10
-			});
-
-			label.setProperties({
-				left: UI.mainPanel.col3X,
-				top: startTop,
-				height: 20,
-				width: UI.mainPanel.col2W
-			});
-
-			listbox.setProperties({
-				left: UI.mainPanel.col3X,
-				width: UI.mainPanel.col2W,
-				top: startTop + 19,
-				height: me.height - (19+startTop) - 5
-			});
-
-			savePanel.show();
-			savePanel.setProperties({
-				top: listbox.top,
-				left: UI.mainPanel.col5X,
-				width: UI.mainPanel.col1W,
-				height: listbox.height
-			});
-		}else{
-
-			actionPanel.setProperties({
-				top: startTop,
-				left: UI.mainPanel.defaultMargin,
-				width: UI.mainPanel.col2W,
-				height: (me.height / 2) - startTop - 16
-			});
-
-			targetPanel.setProperties({
-				top: me.height / 2 - 16,
-				left: UI.mainPanel.defaultMargin,
-				width: UI.mainPanel.col2W,
-				height: me.height / 2 + 16
-			});
-
-			listbox.setProperties({
-				left: UI.mainPanel.col3X,
-				width: UI.mainPanel.col3W,
-				top: startTop + 19,
-				height: me.height - (19+startTop) - 5
-			});
-
-			label.setProperties({
-				left: UI.mainPanel.col3X,
-				top: startTop,
-				height: 20,
-				width: UI.mainPanel.col3W
-			});
+            closeButton.setProperties({
+                top: startTop-2,
+                width: 20,
+                heigth: 18,
+                left: me.width - 30
+            });
 
 
-			if (subView == "save"){
+            if (me.width >= 730){
+                actionPanel.setProperties({
+                    top: startTop,
+                    left: Layout.defaultMargin,
+                    width: Layout.col1W,
+                    height: me.height - 10
+                });
+                targetPanel.setProperties({
+                    top: startTop,
+                    left: Layout.col2X,
+                    width: Layout.col1W,
+                    height: me.height - 10
+                });
 
-				savePanel.setProperties({
-					left: UI.mainPanel.defaultMargin,
-					width: UI.mainPanel.col2W,
-					top: startTop,
-					height:me.height - 10
-				});
+                label.setProperties({
+                    left: Layout.col3X,
+                    top: startTop,
+                    height: 20,
+                    width: Layout.col2W
+                });
 
-				actionPanel.hide();
-				targetPanel.hide();
-				savePanel.show();
-			}else{
-				actionPanel.show();
-				targetPanel.show();
-				savePanel.hide();
-			}
+                listbox.setProperties({
+                    left: Layout.col3X,
+                    width: Layout.col2W,
+                    top: startTop + 19,
+                    height: me.height - (19+startTop) - 5
+                });
+
+                savePanel.show();
+                savePanel.setProperties({
+                    top: listbox.top,
+                    left: Layout.col5X,
+                    width: Layout.col1W,
+                    height: listbox.height
+                });
+            }else{
+
+                actionPanel.setProperties({
+                    top: startTop,
+                    left: Layout.defaultMargin,
+                    width: Layout.col2W,
+                    height: (me.height / 2) - startTop - 16
+                });
+
+                targetPanel.setProperties({
+                    top: me.height / 2 - 16,
+                    left: Layout.defaultMargin,
+                    width: Layout.col2W,
+                    height: me.height / 2 + 16
+                });
+
+                listbox.setProperties({
+                    left: Layout.col3X,
+                    width: Layout.col3W,
+                    top: startTop + 19,
+                    height: me.height - (19+startTop) - 5
+                });
+
+                label.setProperties({
+                    left: Layout.col3X,
+                    top: startTop,
+                    height: 20,
+                    width: Layout.col3W
+                });
+
+
+                if (currentsSubView === "save"){
+
+                    savePanel.setProperties({
+                        left: Layout.defaultMargin,
+                        width: Layout.col2W,
+                        top: startTop,
+                        height:me.height - 10
+                    });
+
+                    actionPanel.hide();
+                    targetPanel.hide();
+                    savePanel.show();
+                }else{
+                    actionPanel.show();
+                    targetPanel.show();
+                    savePanel.hide();
+                }
+            }
+
+
+            dropzone.setProperties({
+                left: listbox.left,
+                width: listbox.width,
+                top: listbox.top,
+                height:listbox.height
+            });
 		}
+	};
 
-
-
-
-		dropzone.setProperties({
-			left: listbox.left,
-			width: listbox.width,
-			top: listbox.top,
-			height:listbox.height
-		});
+	me.setView = function(subView){
+        currentsSubView = subView;
+        me.refreshList(currentsSubView === "samples" ? "samples" : "");
 	};
 
 	me.refreshList = function(type){
@@ -301,7 +309,7 @@ UI.DiskOperations = function(){
 						}else{
 							listbox.setSelectedIndex(index);
 							Tracker.load(item.url);
-							UI.mainPanel.setView("main");
+							App.doCommand(COMMAND.showTopMain);
 						}
 					}
 				};
@@ -332,7 +340,7 @@ UI.DiskOperations = function(){
 							listbox.setSelectedIndex(index);
 							console.log(item);
 							Tracker.load(item.url);
-							UI.mainPanel.setView("main");
+                            App.doCommand(COMMAND.showTopMain);
 						}
 					}
 				};
@@ -389,7 +397,7 @@ UI.DiskOperations = function(){
 							listbox.setSelectedIndex(index);
 							console.log(item);
 							Tracker.load(item.url);
-							UI.mainPanel.setView("main");
+                            App.doCommand(COMMAND.showTopMain);
 						}
 					}
 				};
@@ -457,7 +465,6 @@ UI.DiskOperations = function(){
 								reader.onload = function(){
 									Tracker.processFile(reader.result,item.title,function(isMod){
 										UI.setStatus("Ready");
-										UI.mainPanel.setView("main");
 									});
 								};
 								reader.readAsArrayBuffer(blob);

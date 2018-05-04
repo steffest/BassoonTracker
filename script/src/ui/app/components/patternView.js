@@ -1,8 +1,8 @@
-UI.PatternView = function(x,y,w,h){
+UI.app_patternView = function(x,y,w,h){
 
     var me = UI.panel(x,y,w,h);
     var visibleLines = 0;
-    var visibleTracks = 4;
+    var visibleTracks = 8;
     var lineHeight = 13;
     var scrollBarItemOffset = 0;
     var startTrack = 0;
@@ -52,7 +52,7 @@ UI.PatternView = function(x,y,w,h){
     scrollBarHor.onDrag=function(touchData){
         var maxSteps = Tracker.getTrackCount()-visibleTracks;
         var delta =  touchData.dragX - touchData.startX;
-        var rest = UI.mainPanel.patternViewWidth - scrollBarHor.width;
+        var rest = me.width - scrollBarHor.width;
         var step = Math.floor(delta / (rest/maxSteps));
         me.setHorizontalScroll(scrollBarHor.startDragIndex + step);
     };
@@ -71,20 +71,6 @@ UI.PatternView = function(x,y,w,h){
     var trackVULevelDecay = 10;
     var trackVULevelMax = 70;
 
-    EventBus.on(EVENT.trackCountChange,function(trackCount){
-        if (visibleTracks<trackCount) visibleTracks = trackCount;
-        startTrack = Math.min(startTrack,trackCount-visibleTracks);
-        startTrack = Math.max(startTrack,0);
-        for (var i = fxPanels.length, len = trackCount; i<len;i++){
-            var fxPanel = UI.fxPanel(i);
-            fxPanels.push(fxPanel);
-            me.addChild(fxPanel);
-        }
-    });
-
-    EventBus.on(EVENT.songLoaded,function(){
-        me.setHorizontalScroll(0);
-    });
 
     me.setHorizontalScroll = function(newStartTrack){
         var maxSteps = Tracker.getTrackCount()-visibleTracks;
@@ -102,14 +88,10 @@ UI.PatternView = function(x,y,w,h){
             fxPanel.hide();
         }else{
 
-            var margin = UI.mainPanel.defaultMargin;
-            var trackWidth = UI.mainPanel.trackWidth;
-            var trackLeft = UI.mainPanel.patternMargin;
-            var visibleHeight = UI.mainPanel.patternHeight;
-
+            var visibleHeight = me.height;
 
             fxPanel.setPosition(fxPanel.left,0);
-            fxPanel.setSize(trackWidth,visibleHeight);
+            fxPanel.setSize(Layout.trackWidth,visibleHeight);
             fxPanel.setLayout();
             fxPanel.show();
         }
@@ -129,16 +111,14 @@ UI.PatternView = function(x,y,w,h){
             var song = Tracker.getSong();
             if (!song) return;
 
-            var margin = UI.mainPanel.defaultMargin;
-            var trackWidth = UI.mainPanel.trackWidth;
+            var margin = Layout.trackMargin;
 
-            visibleTracks = UI.mainPanel.visibleTracks;
+            visibleTracks = Layout.visibleTracks;
             var hasHorizontalScrollBar =  visibleTracks<Tracker.getTrackCount();
-            var visibleHeight = UI.mainPanel.patternHeight-30;
-
+            var visibleHeight = me.height-30;
 
             var trackY = 0;
-            var trackLeft = UI.mainPanel.patternMargin;
+            var trackLeft = 0;
 
             var patternNumberLeft = 10;
             var initialTrackTextOffset = 60;
@@ -152,7 +132,6 @@ UI.PatternView = function(x,y,w,h){
             if (hasHorizontalScrollBar){
                 visibleHeight -= 24;
             }
-
 
             visibleLines = Math.ceil(visibleHeight/lineHeight);
             if (visibleLines%2== 0) visibleLines--;
@@ -172,7 +151,7 @@ UI.PatternView = function(x,y,w,h){
 
             var darkPanel = cachedAssets.darkPanel;
             if (!darkPanel && Y.getImage("panel_dark")){
-                var p = UI.scale9Panel(0,0,trackWidth,panelHeight,{
+                var p = UI.scale9Panel(0,0,Layout.trackWidth,panelHeight,{
                     img: Y.getImage("panel_dark"),
                     left:3,
                     top:3,
@@ -191,15 +170,17 @@ UI.PatternView = function(x,y,w,h){
                 trackVULevelDecay = trackVULevelMax/10;
             }
 
+
+
             for (var i = 0; i<visibleTracks;i++){
 
                 var trackIndex = startTrack + i;
                 isTrackVisible[trackIndex] = !(fxPanels[trackIndex] && fxPanels[trackIndex].visible);
 
                 if (isTrackVisible[trackIndex]){
-                    var trackX = trackLeft + i*(trackWidth+margin);
-                    me.ctx.drawImage(darkPanel,trackX,0,trackWidth,panelHeight);
-                    me.ctx.drawImage(darkPanel,trackX,panelTop2,trackWidth,panelHeight);
+                    var trackX = trackLeft + i*(Layout.trackWidth+margin);
+                    me.ctx.drawImage(darkPanel,trackX,0,Layout.trackWidth,panelHeight);
+                    me.ctx.drawImage(darkPanel,trackX,panelTop2,Layout.trackWidth,panelHeight);
                     if (fxPanels[trackIndex]) fxPanels[trackIndex].left = trackX;
                 }
             }
@@ -219,7 +200,7 @@ UI.PatternView = function(x,y,w,h){
                 var textWidth = 68;
                 // used to center text in Column;
 
-                me.ctx.fillRect(UI.mainPanel.patternMargin,centerLineTop,(me.width-UI.mainPanel.patternMargin*2),centerLineHeight);
+                me.ctx.fillRect(0,centerLineTop,(me.width-0*2),centerLineHeight);
 
                 // draw cursor
                 var cursorPos = Tracker.getCurrentTrackPosition();
@@ -228,10 +209,10 @@ UI.PatternView = function(x,y,w,h){
                 var cursorX;
                 if (lineNumbersToTheLeft){
                     // center text in pattern
-                    trackX = trackLeft + Tracker.getCurrentTrack()*(trackWidth+margin);
-                    cursorX = trackX + Math.floor((trackWidth-textWidth)/2) + (cursorPos*cursorWidth) - 1;
+                    trackX = trackLeft + Tracker.getCurrentTrack()*(Layout.trackWidth+margin);
+                    cursorX = trackX + Math.floor((Layout.trackWidth-textWidth)/2) + (cursorPos*cursorWidth) - 1;
                 }else{
-                    cursorX = trackLeft + initialTrackTextOffset + ((Tracker.getCurrentTrack()) * trackWidth) + (cursorPos*cursorWidth) - 1;
+                    cursorX = trackLeft + initialTrackTextOffset + ((Tracker.getCurrentTrack()) * Layout.trackWidth) + (cursorPos*cursorWidth) - 1;
 
                 }
 
@@ -276,17 +257,18 @@ UI.PatternView = function(x,y,w,h){
                             drawText(ti,patternNumberLeft,y,color);
                         }
 
+
                         for (var j = 0; j<visibleTracks;j++){
                             trackIndex = j+startTrack;
-                            if (isTrackVisible[trackIndex]){
+                            if (isTrackVisible[trackIndex] && trackIndex<Tracker.getTrackCount()){
                                 var note = step[trackIndex];
                                 var x;
                                 if (lineNumbersToTheLeft){
                                     // center text in pattern
-                                    trackX = trackLeft + j*(trackWidth+margin);
-                                    x = trackX + Math.floor((trackWidth-textWidth)/2);
+                                    trackX = trackLeft + j*(Layout.trackWidth+margin);
+                                    x = trackX + Math.floor((Layout.trackWidth-textWidth)/2);
                                 }else{
-                                    x = trackLeft + initialTrackTextOffset + (j*trackWidth);
+                                    x = trackLeft + initialTrackTextOffset + (j*Layout.trackWidth);
                                 }
 
                                 if (note.note){
@@ -330,7 +312,7 @@ UI.PatternView = function(x,y,w,h){
                                                 me.ctx.drawImage(bar,0,100-sHeight,26,sHeight,x-12,centerLineTop-vuHeight,10,vuHeight);
                                             }
                                             if (SETTINGS.vubars == "trans"){
-                                                trackX = trackLeft + j*(trackWidth+margin);
+                                                trackX = trackLeft + j*(Layout.trackWidth+margin);
                                                 me.ctx.fillStyle = "rgba(120,190,255,0.3)";
                                                 me.ctx.fillRect(x-14,centerLineTop-vuHeight,10,vuHeight);
                                             }
@@ -353,7 +335,7 @@ UI.PatternView = function(x,y,w,h){
 
                                 if (displayVolume){
                                     x += (fontMed.charWidth*2) + 4;
-                                    var value = note.volumeEffect;
+                                    var value = note.volumeEffect || 0;
                                     if (value) value -= 10;
                                     noteString = formatHex(value,2,"0");
                                     if (noteString == "00") noteString = "..";
@@ -396,7 +378,7 @@ UI.PatternView = function(x,y,w,h){
                 for (j = 0; j<visibleTracks;j++){
                     trackIndex = j+startTrack;
                     if (isTrackVisible[trackIndex]){
-                        trackX = trackLeft + j*(trackWidth+margin) + 2;
+                        trackX = trackLeft + j*(Layout.trackWidth+margin) + 2;
                         drawText("" + (trackIndex+1),trackX,2);
                     }
                 }
@@ -458,7 +440,7 @@ UI.PatternView = function(x,y,w,h){
 
     function setScrollBarHorPosition(){
 
-        var max = UI.mainPanel.patternViewWidth;
+        var max = me.width;
         var width = Math.floor((max / Tracker.getTrackCount()) * visibleTracks);
         var step = (max - width) / (Tracker.getTrackCount()-visibleTracks);
 
@@ -468,7 +450,7 @@ UI.PatternView = function(x,y,w,h){
         scrollBarHor.setProperties({
             top: top,
             width: width,
-            left: UI.mainPanel.patternMargin + Math.floor((startTrack * step))
+            left: 0 + Math.floor((startTrack * step))
         });
     }
 
@@ -493,7 +475,7 @@ UI.PatternView = function(x,y,w,h){
         if (visibleTracks<Tracker.getTrackCount()){
             var maxSteps = Tracker.getTrackCount()-visibleTracks;
             var delta =  touchData.dragX - touchData.startX;
-            var rest = UI.mainPanel.patternViewWidth - scrollBarHor.width;
+            var rest = me.width - scrollBarHor.width;
             var step = Math.floor(delta / (rest/maxSteps));
             me.setHorizontalScroll(scrollBarHor.startDragIndex - step);
         }
@@ -512,7 +494,33 @@ UI.PatternView = function(x,y,w,h){
         return startTrack;
     };
 
-    return me;
+
+	EventBus.on(EVENT.trackCountChange,function(trackCount){
+		if (visibleTracks<trackCount) visibleTracks = trackCount;
+		startTrack = Math.min(startTrack,trackCount-visibleTracks);
+		startTrack = Math.max(startTrack,0);
+		for (var i = fxPanels.length, len = trackCount; i<len;i++){
+			var fxPanel = UI.fxPanel(i);
+			fxPanels.push(fxPanel);
+			me.addChild(fxPanel);
+		}
+	});
+
+	EventBus.on(EVENT.songLoaded,function(){
+		me.setHorizontalScroll(0);
+	});
+
+	EventBus.on(EVENT.visibleTracksCountChange,function(){
+	    startTrack = 0;
+        me.refresh();
+	});
+
+	EventBus.on(EVENT.trackerModeChanged,function(){
+		me.refresh();
+	});
+
+
+	return me;
 
 };
 

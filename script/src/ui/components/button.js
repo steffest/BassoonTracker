@@ -12,8 +12,10 @@ UI.button = function(x,y,w,h,text){
     var font;
     var textAlign = "left";
     var paddingTop = 0;
+    var paddingTopActive = 0;
+    var paddingLeft = 10;
 
-    var properties = ["left","top","width","height","name","type","image","backgroundImage","background","active","activeBackground","activeImage","font","label","textAlign","paddingTop"];
+    var properties = ["left","top","width","height","name","type","image","backgroundImage","background","active","activeBackground","activeImage","font","label","textAlign","paddingTop","paddingTopActive","paddingLeft"];
 
     me.setProperties = function(p){
 
@@ -25,6 +27,8 @@ UI.button = function(x,y,w,h,text){
                     case "font": font=p[key];break;
                     case "textAlign": textAlign=p[key];break;
                     case "paddingTop": paddingTop=parseInt(p[key]);break;
+                    case "paddingTopActive": paddingTopActive=parseInt(p[key]);break;
+                    case "paddingLeft": paddingLeft=parseInt(p[key]);break;
                     case "image": image=p[key];break;
                     case "backgroundImage": backgroundImage=p[key];break;
                     case "activeImage": activeImage=p[key];break;
@@ -120,15 +124,17 @@ UI.button = function(x,y,w,h,text){
             if (label && drawFonts){
                 var fontSize = 10;
                 var fontWidth = 8; // TODO: get from font
-                var textY = Math.floor((me.height-fontSize)/2) + paddingTop;
-                var textX = 10;
+                var textY = Math.floor((me.height-fontSize)/2) + (me.isActive?paddingTopActive:paddingTop);
+                var textX = paddingLeft;
                 if (font){
-                    if (textAlign == "center"){
+                    if (textAlign === "center"){
                         var textLength = label.length * fontWidth;
+                        if (!font.fixedWidth) textLength = font.getTextWidth(label,0);
                         textX = Math.floor((me.width - textLength)/2);
                     }
-                    if (textAlign == "right"){
+                    if (textAlign === "right"){
                         textLength = label.length * fontWidth;
+						if (!font.fixedWidth) textLength = font.getTextWidth(label,0);
                         textX = me.width - textLength - 5;
                     }
                     font.write(me.ctx,label,textX,textY,0);
@@ -138,7 +144,9 @@ UI.button = function(x,y,w,h,text){
                 }
             }
 
+			if (me.renderInternal) me.renderInternal();
         }
+
         me.needsRendering = false;
 
         if (internal){

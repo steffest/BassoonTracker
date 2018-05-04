@@ -17,20 +17,16 @@ UI.OptionsPanel = function(){
 	});
 	me.addChild(mainLabel);
 
-	var insetPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
-	me.addChild(insetPanel);
+	//var insetPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
+	//me.addChild(insetPanel);
 
 	var closeButton = UI.Assets.generate("button20_20");
 	closeButton.setLabel("x");
 	closeButton.onClick = function(){
-		UI.mainPanel.setView("resetTop");
+        App.doCommand(COMMAND.showTopMain);
 	};
 	me.addChild(closeButton);
 
-	var closeButton2 = UI.Assets.generate("buttonLight");
-	closeButton2.setLabel("Close");
-	closeButton2.onClick = closeButton.onClick;
-	me.addChild(closeButton2);
 
 	var options = [
 		{
@@ -103,8 +99,8 @@ UI.OptionsPanel = function(){
 		var label = UI.label();
 		label.setProperties({
 			label: option.label,
-			font: fontMed,
-			textAlign: "right"
+			font: fontFT,
+			textAlign: "center"
 		});
 		me.addChild(label);
 		option.label = label;
@@ -112,15 +108,13 @@ UI.OptionsPanel = function(){
 		var buttons = [];
 		var selectedIndex = option.getValue();
 
-		for (var i = 0; i<4; i++){
+		for (var i = 0; i<option.values.length; i++){
 			var value = option.values[i];
 			var button;
 			if (value){
-				button = UI.Assets.generate("buttonDarkGreen");
+				button = UI.Assets.generate("buttonKey");
 				button.setProperties({
-					label: value,
-					font: fontMed,
-					textAlign: "center"
+					label: value
 				});
 				button.setActive(i==selectedIndex);
 				button.index = i;
@@ -128,9 +122,8 @@ UI.OptionsPanel = function(){
 				button.onClick = function(){
 					activateOption(this);
 				}
-			}else{
-				button = UI.Assets.generate("buttonDark");
 			}
+
 			me.addChild(button);
 			buttons.push(button);
 		}
@@ -147,9 +140,15 @@ UI.OptionsPanel = function(){
 		option.setValue(button.index)
 	};
 
-	me.setLayout = function(){
 
-		if (!UI.mainPanel) return;
+    me.onShow = function(){
+        me.onResize();
+    };
+
+	me.onResize = function(){
+
+        if(!me.isVisible())return;
+
 		me.clearCanvas();
 
 		background.setProperties({
@@ -160,41 +159,41 @@ UI.OptionsPanel = function(){
 		});
 
 		var startTop = 5;
-		var innerHeight = me.height-(UI.mainPanel.defaultMargin*2) - startTop;
+		var innerHeight = me.height-(Layout.defaultMargin*2) - startTop;
 
 		closeButton.setProperties({
 			top: startTop,
 			left: me.width - 30
 		});
 
-		insetPanel.setProperties({
-			left: me.left + UI.mainPanel.defaultMargin,
+		/*insetPanel.setProperties({
+			left: me.left + Layout.defaultMargin,
 			top: me.top + startTop,
 			height: innerHeight - 6 - mainLabel.height,
-			width: me.width - (UI.mainPanel.defaultMargin*2) - 4
-		});
+			width: me.width - (Layout.defaultMargin*2) - 4
+		});*/
 
 		var optionTop = 35;
 		var optionHeight = 30;
-		var optionMargin = 5;
+		var buttonHeight = 20;
 		var i = 0;
 		options.forEach(function(option){
-			var thisTop = optionTop + (i* (optionHeight + optionMargin));
+			var thisLeft = Layout["col"+(i+1)+"X"];
 			option.label.setProperties({
-				top: thisTop,
-				width: UI.mainPanel.col1W,
+				top: optionTop,
+				width: Layout.col1W,
 				height: optionHeight,
-				left: 0
+				left: thisLeft
 			});
 			var selectedIndex = option.getValue();
 
-			for (var b = 0; b<4; b++){
+			for (var b = 0; b<option.buttons.length; b++){
 				var button = option.buttons[b];
 				button.setProperties({
-					top: thisTop,
-					height: optionHeight,
-					width: UI.mainPanel.col1W,
-					left: UI.mainPanel['col' + (b+2) + 'X']
+					top: optionTop + (b*buttonHeight) + 30,
+					height: buttonHeight,
+					width: Layout.col1W,
+					left: thisLeft
 				});
 
 				button.setActive(b == selectedIndex);
@@ -202,12 +201,6 @@ UI.OptionsPanel = function(){
 			i++;
 		});
 
-		closeButton2.setProperties({
-			left: UI.mainPanel.col1X + 5,
-			width: UI.mainPanel.col1W - 5,
-			height: optionHeight,
-			top: (innerHeight - optionHeight) + 5
-		});
 
 	};
 

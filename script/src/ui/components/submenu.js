@@ -64,6 +64,7 @@ UI.submenu = function(x,y,w,h){
         internal = !!internal;
 
         if (this.needsRendering){
+            me.clearCanvas();
             if (background)background.render();
 
             var line = Y.getImage("line_hor");
@@ -83,7 +84,7 @@ UI.submenu = function(x,y,w,h){
                 }
 
                 if (item.label){
-                    fontMed.write(me.ctx,item.label,textX + paddingLeft,textY + paddingTop);
+                    fontFT.write(me.ctx,item.label,textX + paddingLeft,textY + paddingTop);
                 }
                 textY += itemHeight;
                 if (i<max) me.ctx.drawImage(line,textX,textY,textWidth,2);

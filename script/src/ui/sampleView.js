@@ -6,6 +6,8 @@ UI.SampleView = function(){
 	var currentInstrumentIndex;
 
 	var inputboxHeight = 20;
+	var font = window.fontMed;
+	font = window.fontCondensed;
 
 	var instrumentName = UI.inputbox({
 		name: "instrumentName",
@@ -40,7 +42,7 @@ UI.SampleView = function(){
 		value: 1,
 		max: 64,
 		min:1,
-		font: window.fontMed,
+		font: font,
 		onChange : function(value){Tracker.setCurrentInstrumentIndex(value);}
 	});
 	sideButtonPanel.addChild(spinBoxInstrument);
@@ -51,7 +53,7 @@ UI.SampleView = function(){
 		value: 64,
 		max: 64,
 		min:0,
-		font: window.fontMed,
+		font: font,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) instrument.volume = value;
@@ -65,7 +67,7 @@ UI.SampleView = function(){
 		value: 0,
 		max: 7,
 		min: -8,
-		font: window.fontMed,
+		font: font,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) instrument.finetune = value;
@@ -79,7 +81,7 @@ UI.SampleView = function(){
 		value: 0,
 		max: 65535,
 		min:0,
-		font: window.fontMed
+		font: font
 	});
 	sideButtonPanel.addChild(spinBoxLength);
 
@@ -90,7 +92,7 @@ UI.SampleView = function(){
 		max: 65535,
 		min:0,
 		step:2,
-		font: window.fontMed,
+		font: font,
 		onChange: function(value){
 			var instrument= Tracker.getCurrentInstrument();
 			if (instrument) instrument.loopStart = value;
@@ -106,7 +108,7 @@ UI.SampleView = function(){
 		max: 65535,
 		min:0,
 		step:2,
-		font: window.fontMed,
+		font: font,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) instrument.loopRepeatLength = value;
@@ -117,12 +119,12 @@ UI.SampleView = function(){
 
 	var spinBoxRelativeNote = UI.spinBox({
 		name: "relativeNote",
-		label: "relativeNote",
+		label: "RelativeNote",
 		value: 0,
 		max: 128,
 		min:-127,
 		step:1,
-		font: window.fontMed,
+		font: font,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) instrument.relativeNote = value;
@@ -132,12 +134,12 @@ UI.SampleView = function(){
 
     var spinBoxFadeOut = UI.spinBox({
         name: "fadeOut",
-        label: "fadeOut",
+        label: "FadeOut",
         value: 0,
         max: 4046,
         min:-0,
         step:1,
-        font: window.fontMed,
+        font: font,
         onChange: function(value){
             var instrument = Tracker.getCurrentInstrument();
             if (instrument) instrument.fadeout = value;
@@ -145,13 +147,30 @@ UI.SampleView = function(){
     });
     sideButtonPanel.addChild(spinBoxFadeOut);
 
+
+	var slider = UI.sliderBox({
+		label: "FadeOut",
+		font: font,
+		height: 40,
+		width: 200,
+		value: 2000,
+		max: 4046,
+		min: 0,
+		step:1,
+		onChange: function(value){
+			console.log(value);
+		}
+	});
+	sideButtonPanel.addChild(slider);
+	window.slider = slider;
+
 	me.addChild(sideButtonPanel);
 
 
 	var loadButton = UI.Assets.generate("buttonLight");
 	loadButton.setLabel("Load");
 	loadButton.onClick = function(){
-		UI.mainPanel.setView("diskop_samples");
+		EventBus.trigger(EVENT.showView,"diskop_samples");
 	};
 	me.addChild(loadButton);
 
@@ -174,7 +193,7 @@ UI.SampleView = function(){
 	var closeButton = UI.Assets.generate("buttonLight");
 	closeButton.setLabel("Exit");
 	closeButton.onClick = function(){
-		UI.mainPanel.setView("main");
+        App.doCommand(COMMAND.showBottomMain);
 	};
 	me.addChild(closeButton);
 
@@ -228,24 +247,28 @@ UI.SampleView = function(){
 		spinBoxFineTune.setMin(mode === TRACKERMODE.PROTRACKER ? -8 : -128);
 	});
 
-	me.setLayout = function(){
+    me.onShow = function(){
+        me.onResize();
+    };
 
-		if (!UI.mainPanel) return;
+	me.onResize = function(){
+
+		if (!me.isVisible()) return;
 		me.clearCanvas();
 
-		waveForm.setPosition(UI.mainPanel.col2X,inputboxHeight + UI.mainPanel.defaultMargin + 8);
-		waveForm.setSize(UI.mainPanel.col4W,100);
+		waveForm.setPosition(Layout.col2X,inputboxHeight + Layout.defaultMargin + 8);
+		waveForm.setSize(Layout.col4W,100);
 
-		volumeEnvelope.setPosition(UI.mainPanel.col2X,waveForm.top + waveForm.height + UI.mainPanel.defaultMargin + 30);
-		volumeEnvelope.setSize(UI.mainPanel.col2W,120);
+		volumeEnvelope.setPosition(Layout.col2X,waveForm.top + waveForm.height + Layout.defaultMargin + 30);
+		volumeEnvelope.setSize(Layout.col2W,120);
 
-		panningEnvelope.setPosition(UI.mainPanel.col4X,volumeEnvelope.top);
-		panningEnvelope.setSize(UI.mainPanel.col2W,volumeEnvelope.height);
+		panningEnvelope.setPosition(Layout.col4X,volumeEnvelope.top);
+		panningEnvelope.setSize(Layout.col2W,volumeEnvelope.height);
 
 		instrumentName.setProperties({
-			top: UI.mainPanel.defaultMargin,
-			left: UI.mainPanel.col2X,
-			width: UI.mainPanel.col4W
+			top: Layout.defaultMargin,
+			left: Layout.col2X,
+			width: Layout.col4W
 		});
 
 		var spinButtonHeight = 28;
@@ -253,7 +276,7 @@ UI.SampleView = function(){
 		sideButtonPanel.setProperties({
 			left:0,
 			top: 0,
-			width: UI.mainPanel.col1W,
+			width: Layout.col1W,
 			height:me.height
 		});
 
@@ -313,33 +336,41 @@ UI.SampleView = function(){
             height: spinButtonHeight
         });
 
-		var BottomPanelTop = waveForm.top + waveForm.height + UI.mainPanel.defaultMargin;
+		slider.setProperties({
+			left:0,
+			top: spinButtonHeight * 8,
+			width: sideButtonPanel.width
+		});
+
+
+
+		var BottomPanelTop = waveForm.top + waveForm.height + Layout.defaultMargin;
 
 		loadButton.setProperties({
-			width: UI.mainPanel.col1W,
+			width: Layout.col1W,
 			height: spinButtonHeight,
-			left: UI.mainPanel.col2X,
+			left: Layout.col2X,
 			top: BottomPanelTop
 		});
 
 		clearButton.setProperties({
-			width: UI.mainPanel.col1W,
+			width: Layout.col1W,
 			height: spinButtonHeight,
-			left: UI.mainPanel.col3X,
+			left: Layout.col3X,
 			top: BottomPanelTop
 		});
 
 		reverseButton.setProperties({
-			width: UI.mainPanel.col1W,
+			width: Layout.col1W,
 			height: spinButtonHeight,
-			left: UI.mainPanel.col4X,
+			left: Layout.col4X,
 			top: BottomPanelTop
 		});
 
 		closeButton.setProperties({
-			width: UI.mainPanel.col1W,
+			width: Layout.col1W,
 			height: spinButtonHeight,
-			left: UI.mainPanel.col5X,
+			left: Layout.col5X,
 			top: BottomPanelTop
 		})
 
