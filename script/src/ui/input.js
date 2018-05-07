@@ -269,7 +269,6 @@ var Input = (function(){
 						}
 					}else{
 						if (note){
-							console.error(note);
 							Tracker.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.note);
 							if (Tracker.isPlaying()){
 								doPlay = false;
@@ -292,6 +291,7 @@ var Input = (function(){
 							if (ftNote) note.period = ftNote.period;
 						}
 
+						Audio.checkState();
 						keyDown[key] = instrument.play(note.note,note.period);
 						inputNotes.push(keyDown[key]);
 						EventBus.trigger(EVENT.pianoNoteOn,keyDown[key]);

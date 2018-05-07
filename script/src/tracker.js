@@ -261,6 +261,7 @@ var Tracker = (function(){
 
 	me.playSong = function(){
 		me.stop();
+		Audio.checkState();
 		me.setPlayType(PLAYTYPE.song);
 		isPlaying = true;
 		//Audio.startRecording();
@@ -270,6 +271,7 @@ var Tracker = (function(){
 
 	me.playPattern = function(){
 		me.stop();
+        Audio.checkState();
 		currentPatternPos = 0;
 		me.setPlayType(PLAYTYPE.pattern);
 		isPlaying = true;

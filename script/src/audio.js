@@ -97,6 +97,15 @@ var Audio = (function(){
         me.cutOff = true;
     };
 
+    me.checkState = function(){
+       if (context){
+           if (context.state === "suspended" && context.resume){
+               console.warn("Audio context is suspended - trying to resume");
+               context.resume();
+           }
+       }
+    };
+
 
     me.playSample = function(index,period,volume,track,effects,time,noteIndex){
 
