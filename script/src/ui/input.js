@@ -102,7 +102,7 @@ var Input = (function(){
 					if (thisTouch.UIobject.onDragStart) thisTouch.UIobject.onDragStart(thisTouch);
 					if (thisTouch.UIobject.onDown) thisTouch.UIobject.onDown(thisTouch);
 
-					console.log(thisTouch.UIobject);
+					//console.log(thisTouch.UIobject);
 				}
 			}
 		}

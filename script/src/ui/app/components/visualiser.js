@@ -38,10 +38,11 @@ UI.visualiser = function(){
             }
         }
 
-        EventBus.on(EVENT.trackCountChange,function(trackCount){
+        EventBus.on(EVENT.filterChainCountChange,function(trackCount){
             for (var i = trackAnalyser.length; i<trackCount; i++){
                 addAnalyser()
             }
+            me.connect()
         });
 
 
@@ -50,7 +51,7 @@ UI.visualiser = function(){
 
     me.connect = function(audioNode){
         if (Audio.context){
-            audioNode.connect(analyser);
+            if (audioNode) audioNode.connect(analyser);
 
             for (var i = 0; i< Tracker.getTrackCount(); i++){
                 Audio.filterChains[i].output().connect(trackAnalyser[i]);
@@ -82,6 +83,9 @@ UI.visualiser = function(){
         var dataArray;
 
         if (mode == "wave"){
+
+            me.ctx.clearRect(0,0,me.width,me.height);
+
             analyser.fftSize = 256;
             bufferLength = analyser.fftSize;
             dataArray = new Uint8Array(bufferLength);
@@ -89,13 +93,15 @@ UI.visualiser = function(){
             function drawWave() {
                 analyser.getByteTimeDomainData(dataArray);
 
+                me.ctx.lineWidth = 2;
+                me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
                 me.ctx.beginPath();
                 var sliceWidth = me.width * 1.0 / bufferLength;
                 var wx = 0;
 
                 for(var i = 0; i < bufferLength; i++) {
                     var v = dataArray[i] / 128.0;
-                    var wy = v * height/2;
+                    var wy = v * me.height/2;
 
                     if(i === 0) {
                         me.ctx.moveTo(wx, wy);
@@ -106,13 +112,16 @@ UI.visualiser = function(){
                     wx += sliceWidth;
                 }
 
-                me.ctx.lineTo(me.width, height/2);
+                me.ctx.lineTo(me.width, me.height/2);
                 me.ctx.stroke();
 
-                me.parentCtx.drawImage(me.canvas,x,y);
+                me.parentCtx.drawImage(me.canvas,me.left, me.top);
             }
             drawWave();
         }else if (mode=="spectrum"){
+
+            me.ctx.clearRect(0,0,me.width,me.height);
+
             analyser.fftSize = 128;
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
@@ -135,12 +144,12 @@ UI.visualiser = function(){
                 barHeight = dataArray[i];
 
                 me.ctx.fillStyle = 'rgb(' + (barHeight+100) + ',50,50)';
-                me.ctx.fillRect(wx,height-barHeight/2,barWidth,barHeight/2);
+                me.ctx.fillRect(wx,me.height-barHeight/2,barWidth,barHeight/2);
 
                 wx += barWidth + 1;
             }
 
-            ctx.drawImage(me.canvas,x,y);
+            ctx.drawImage(me.canvas,me.left, me.top);
 
 
         }else if (mode=="tracks"){
@@ -200,11 +209,15 @@ UI.visualiser = function(){
             ctx.drawImage(me.canvas,me.left, me.top);
         }
 
-
-
     };
 
     me.init();
+
+    EventBus.on(EVENT.screenRender,function(){
+        me.render();
+    });
+
+
 
     return me;
 

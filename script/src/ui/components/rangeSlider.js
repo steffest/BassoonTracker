@@ -78,7 +78,6 @@ UI.rangeSlider = function(initialProperties){
 	};
 
 	me.onResize = function(){
-		console.warn(me.height);
 		back.setSize(me.width,me.height);
 		me.setValue(value,true);
 	};

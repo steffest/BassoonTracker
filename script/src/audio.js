@@ -45,11 +45,14 @@ var Audio = (function(){
         lowPassfilter.frequency.setValueAtTime(20000,0);
 
         lowPassfilter.connect(masterVolume);
+
+        me.masterVolume = masterVolume;
+        me.cutOffVolume = cutOffVolume;
+        me.lowPassfilter = lowPassfilter;
     }
 
     if (AudioContext){
         context = new AudioContext();
-		createAudioConnections(context);
     }
 
     me.init = function(audioContext){
@@ -57,7 +60,7 @@ var Audio = (function(){
         audioContext = audioContext || context;
         if (!audioContext) return;
 
-		createAudioConnections(context);
+        createAudioConnections(context);
 
         var numberOfTracks = Tracker.getTrackCount();
         filterChains = [];
@@ -82,6 +85,7 @@ var Audio = (function(){
 
         EventBus.on(EVENT.trackCountChange,function(trackCount){
             for (i = filterChains.length; i<trackCount;i++)addFilterChain();
+            EventBus.trigger(EVENT.filterChainCountChange,trackCount);
             me.setStereoSeparation(currentStereoSeparation);
         });
     };
@@ -98,12 +102,12 @@ var Audio = (function(){
     };
 
     me.checkState = function(){
-       if (context){
-           if (context.state === "suspended" && context.resume){
-               console.warn("Audio context is suspended - trying to resume");
-               context.resume();
-           }
-       }
+        if (context){
+            if (context.state === "suspended" && context.resume){
+                console.warn("Audio context is suspended - trying to resume");
+                context.resume();
+            }
+        }
     };
 
 
@@ -118,8 +122,8 @@ var Audio = (function(){
         }
 
         if (noteIndex == 97){
-			volume = 0; // note off
-		}
+            volume = 0; // note off
+        }
 
         period = period || 428; // C-3
         track = track || Tracker.getCurrentTrack();
@@ -197,10 +201,10 @@ var Audio = (function(){
                     volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime));
                 }
 
-				source.connect(volumeEnvelope);
-				volumeEnvelope.connect(volumeGain);
+                source.connect(volumeEnvelope);
+                volumeEnvelope.connect(volumeGain);
             }else{
-				source.connect(volumeGain);
+                source.connect(volumeGain);
             }
 
             volumeGain.connect(filterChains[track].input());
@@ -219,7 +223,7 @@ var Audio = (function(){
                 startPeriod: period,
                 basePeriod: basePeriod,
                 startPlaybackRate: initialPlaybackRate,
-				instrumentIndex: index,
+                instrumentIndex: index,
                 effects: effects,
                 track: track
             };
@@ -339,9 +343,6 @@ var Audio = (function(){
         }
     };
 
-    me.masterVolume = masterVolume;
-    me.cutOffVolume = cutOffVolume;
-    me.lowPassfilter = lowPassfilter;
     me.context = context;
 
     function createPingPongDelay(){
@@ -464,14 +465,14 @@ var Audio = (function(){
         var minDelta = 100000;
         var result = period;
         for (var note in NOTEPERIOD){
-           if (NOTEPERIOD.hasOwnProperty(note)){
-               var p = NOTEPERIOD[note].tune[tuning];
-               var delta = Math.abs(p - period);
-               if (delta<minDelta) {
-                   minDelta = delta;
-                   result = p;
-               }
-           }
+            if (NOTEPERIOD.hasOwnProperty(note)){
+                var p = NOTEPERIOD[note].tune[tuning];
+                var delta = Math.abs(p - period);
+                if (delta<minDelta) {
+                    minDelta = delta;
+                    result = p;
+                }
+            }
         }
 
         return result;

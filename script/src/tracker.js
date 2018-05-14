@@ -176,8 +176,11 @@ var Tracker = (function(){
 
 	me.setCurrentCursorPosition = function(index){
 		currentCursorPosition = index;
-		currentTrack = Math.floor(currentCursorPosition / 6);
-		currentTrackPosition = currentCursorPosition % 6;
+
+		var stepsPerTrack = trackerMode === TRACKERMODE.FASTTRACKER ? 8 : 6;
+
+		currentTrack = Math.floor(currentCursorPosition / stepsPerTrack);
+		currentTrackPosition = currentCursorPosition % stepsPerTrack;
 		if (prevCursorPosition!=currentCursorPosition) EventBus.trigger(EVENT.cursorPositionChange,currentCursorPosition);
 		prevCursorPosition = currentTrackPosition;
 	};
@@ -185,8 +188,10 @@ var Tracker = (function(){
 		return currentCursorPosition;
 	};
 	me.moveCursorPosition = function(amount){
+		var stepsPerTrack = trackerMode === TRACKERMODE.FASTTRACKER ? 8 : 6;
+
 		var newPosition = currentCursorPosition+amount;
-		var max = trackCount*6 - 1;
+		var max = trackCount*stepsPerTrack - 1;
 		if (newPosition > max) newPosition=0;
 		if (newPosition < 0) newPosition=max;
 		me.setCurrentCursorPosition(newPosition);

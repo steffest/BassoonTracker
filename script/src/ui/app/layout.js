@@ -4,15 +4,20 @@ var Layout = function(){
   me.defaultMargin =  4;
 
   me.setLayout = function(w,h){
+
+  	  me.width = w || me.width;
+  	  me.height = h || me.height;
+
       // 5 column layout
-      me.col1W = Math.floor((w - (6*me.defaultMargin)- 3)/5);
+      // 5 column layout
+      me.col1W = Math.floor((me.width - (6*me.defaultMargin)- 3)/5);
       me.col2W = (me.col1W*2) + me.defaultMargin;
       me.col3W = (me.col1W*3) + (me.defaultMargin*2);
       me.col4W = (me.col1W*4) + (me.defaultMargin*3);
       me.col5W = (me.col1W*5) + (me.defaultMargin*4);
 
-      me.marginLeft = Math.floor((w-me.col5W)/2);
-      me.marginRight = w-me.marginLeft-me.col5W;
+      me.marginLeft = Math.floor((me.width-me.col5W)/2);
+      me.marginRight = me.width-me.marginLeft-me.col5W;
 
       me.col1X = me.marginLeft;
       me.col2X = me.col1X + me.defaultMargin + me.col1W;
@@ -22,30 +27,39 @@ var Layout = function(){
 
       me.trackWidth = me.col1W;
       me.trackMargin = me.defaultMargin;
-      me.visibleTracks = 4;
+      me.visibleTracks = me.visibleTracks || 4;
       me.infoPanelHeight = 24;
       me.trackControlHeight = 32;
       me.analyserHeight = 66;
       me.pianoHeight = 200;
 
-      if (h<800){
+
+      if (me.height<800){
           me.pianoHeight = 150;
       }
 
-      if (h<650){
+      if (me.height<650){
           me.pianoHeight = 100;
       }
 
-      me.showSideBar = true;
+	  var margins = me.defaultMargin*(me.visibleTracks-1);
+	  me.showSideBar = me.visibleTracks<5;
+
+	  var totalWidth = me.showSideBar ? me.col4W:me.col5W;
+	  me.trackWidth =  Math.floor((totalWidth - margins)/me.visibleTracks);
+	  console.log(me.trackWidth);
+
+	  me.firstTrackOffsetLeft = 0;
+	  if (me.trackWidth<125){
+		  me.firstTrackOffsetLeft = 18;
+		  me.trackWidth =  Math.floor((totalWidth - margins - me.firstTrackOffsetLeft)/me.visibleTracks);
+	  }
 
   };
 
   me.setVisibleTracks = function(count){
 	  me.visibleTracks = count;
-	  var margins = me.defaultMargin*(count-1);
-	  var totalWidth = count>4?me.col5W:me.col4W;
-	  me.trackWidth =  Math.floor((totalWidth - margins)/count);
-	  me.showSideBar = count<5;
+	  me.setLayout();
 	  EventBus.trigger(EVENT.visibleTracksCountChange,count);
   };
 

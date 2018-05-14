@@ -5,6 +5,7 @@ UI.app_patternPanel = function(){
     var trackControls = [];
     var maxVisibleTracks = 4;
 	var patternLeft;
+	var patternTrackLeft;
 	var currentView = "main";
 
     var editPanel = UI.editPanel();
@@ -19,7 +20,6 @@ UI.app_patternPanel = function(){
     }
 
     var visualiser = UI.visualiser();
-
     visualiser.connect(Audio.cutOffVolume);
     visualiser.name = "mainAnalyser";
     visualiser.onClick = function(){
@@ -50,10 +50,13 @@ UI.app_patternPanel = function(){
 
         var patternTop = Layout.infoPanelHeight + Layout.trackControlHeight + Layout.analyserHeight + (Layout.defaultMargin*2);
         var patternHeight = me.height - patternTop - Layout.defaultMargin;
+
 		patternLeft = sidebar.isVisible() ? Layout.col2X : Layout.col1X;
 		var patternWidth = sidebar.isVisible() ? Layout.col4W : Layout.col5W;
 
-        editPanel.setDimensions({
+		patternTrackLeft = patternLeft + Layout.firstTrackOffsetLeft;
+
+		editPanel.setDimensions({
             left: Layout.col1X,
             top : Layout.defaultMargin,
             width: Layout.col1W,
@@ -66,8 +69,6 @@ UI.app_patternPanel = function(){
             width: Layout.col4W,
             height: Layout.infoPanelHeight
         });
-
-
 
         patternView.setDimensions({
 				left: patternLeft,
@@ -84,9 +85,9 @@ UI.app_patternPanel = function(){
         });
 
         visualiser.setProperties({
-            left: patternLeft,
+            left: patternTrackLeft,
             top: me.top + Layout.infoPanelHeight + 3,
-            width: patternWidth,
+            width: patternWidth - Layout.firstTrackOffsetLeft,
             height: Layout.analyserHeight
         });
 
@@ -114,7 +115,7 @@ UI.app_patternPanel = function(){
             if ( i>=startTrack && i<endTrack){
                 trackControls[i].setProperties({
                     track:i,
-                    left: patternLeft + (Layout.trackWidth+Layout.trackMargin)* (i-startTrack),
+                    left: patternTrackLeft + (Layout.trackWidth+Layout.trackMargin)* (i-startTrack),
                     top: Layout.defaultMargin + Layout.infoPanelHeight + Layout.analyserHeight,
                     width: Layout.trackWidth,
                     height:Layout.trackControlHeight,

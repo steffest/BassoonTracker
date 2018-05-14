@@ -33,29 +33,14 @@ UI.DiskOperationActions = function(){
 	};
 	me.addChild(selectionType);
 
-	var exitButton = UI.button();
-	exitButton.setProperties({
-		label: "Exit",
-		textAlign:"center",
-		background: UI.Assets.buttonLightScale9,
-		font:window.fontMed
-	});
-	exitButton.onClick = function(){App.doCommand(COMMAND.showTop)};
-	me.addChild(exitButton);
-
-
 	me.setLayout = function(){
 
 		var innerWidth = me.width-2;
 		var innerHeight = 70;
 
 		if (me.height<100){
-			exitButton.hide();
 			innerHeight = me.height - 20;
-		}else{
-			exitButton.show();
 		}
-
 
 
 		if (!UI.mainPanel) return;
@@ -87,13 +72,6 @@ UI.DiskOperationActions = function(){
 			width: innerWidth-4,
 			height: innerHeight,
 			top: 18
-		});
-
-		exitButton.setProperties({
-			left:2,
-			width: innerWidth,
-			height: 30,
-			top: me.height - 29
 		});
 
 

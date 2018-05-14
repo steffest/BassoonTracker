@@ -7,6 +7,13 @@ FilterChain = (function(filters) {
 		panning: true
 	};
 
+    // disable for now sounds muffled;
+    filters = {
+        volume: true,
+        panning: true
+    };
+
+
 	var useVolume = filters.volume;
 	var usePanning = filters.panning;
 	var useHigh = filters.high;

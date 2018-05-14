@@ -248,7 +248,7 @@ UI.app_mainPanel = function(){
         spinBoxInstrument.setMax(song.instruments.length-1);
     });
 
-    EventBus.on(EVENT.songBPMChange,function(event,value){
+    EventBus.on(EVENT.songBPMChange,function(value){
         spinBoxBpm.setValue(value,true);
     });
 

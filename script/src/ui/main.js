@@ -269,11 +269,7 @@ var UI = (function(){
 					}
 				});
 
-                //EventBus.trigger(EVENT.screenRender);
-
-				window.visualiser.render();
-				window.vumeter.render();
-
+                EventBus.trigger(EVENT.screenRender);
 
 				if (modalElement){
 					modalElement.render();

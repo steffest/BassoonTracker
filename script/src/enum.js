@@ -46,7 +46,8 @@ var EVENT = {
     instrumentListChange:28,
 	showView: 29,
 	toggleView: 30,
-	visibleTracksCountChange:31
+	visibleTracksCountChange:31,
+    filterChainCountChange:32
 };
 
 var COMMAND = {

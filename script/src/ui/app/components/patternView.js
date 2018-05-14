@@ -117,12 +117,17 @@ UI.app_patternView = function(x,y,w,h){
             var hasHorizontalScrollBar =  visibleTracks<Tracker.getTrackCount();
             var visibleHeight = me.height-30;
 
-            var trackY = 0;
-            var trackLeft = 0;
+            var trackLeft = Layout.firstTrackOffsetLeft;
 
-            var patternNumberLeft = 10;
-            var initialTrackTextOffset = 60;
+			var displayVolume = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER;
+			var textWidth = displayVolume ? 92 : 72;
+			// used to center text in Column;
+
+			var patternNumberLeft = 10;
+            var initialTrackTextOffset = Math.floor((Layout.trackWidth-textWidth)/2) + patternNumberLeft;
             var lineNumbersToTheLeft = false;
+
+
             if (trackLeft) {
                 patternNumberLeft = 0;
                 initialTrackTextOffset = 0;
@@ -171,7 +176,6 @@ UI.app_patternView = function(x,y,w,h){
             }
 
 
-
             for (var i = 0; i<visibleTracks;i++){
 
                 var trackIndex = startTrack + i;
@@ -196,9 +200,6 @@ UI.app_patternView = function(x,y,w,h){
                 }else{
                     me.ctx.fillStyle = "#202E58";
                 }
-
-                var textWidth = 68;
-                // used to center text in Column;
 
                 me.ctx.fillRect(0,centerLineTop,(me.width-0*2),centerLineHeight);
 
@@ -227,7 +228,7 @@ UI.app_patternView = function(x,y,w,h){
                 me.ctx.fillStyle = "rgba(220,220,220,.3)";
                 me.ctx.fillRect(cursorX,centerLineTop,cursorWidth,lineHeight+2);
 
-                var displayVolume = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER;
+
 
 
                 for (var i = visibleStart; i< visibleEnd; i++){
@@ -492,6 +493,10 @@ UI.app_patternView = function(x,y,w,h){
 
     me.getStartTrack = function(){
         return startTrack;
+    };
+
+    me.onResize = function(){
+        
     };
 
 
