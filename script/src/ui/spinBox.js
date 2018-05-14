@@ -29,12 +29,21 @@ UI.spinBox = function(initialProperties){
 	}
 
 	var buttonDown = UI.Assets.generate("button20_20");
-	buttonDown.onClick = function(){
+	buttonDown.onDown = function(){
 		if (disabled) return;
 		value -= step;
 		if (value<min) value=min;
 		me.setValue(value);
+		UI.ticker.onEachTick4(function(){
+			value -= step;
+			if (value<min) value=min;
+			me.setValue(value);
+		},10);
 	};
+	buttonDown.onTouchUp = function(){
+		UI.ticker.onEachTick4();
+	};
+
 	buttonDown.setProperties({
 		name:"buttonDown",
 		label:"↓"
@@ -42,11 +51,19 @@ UI.spinBox = function(initialProperties){
 	me.addChild(buttonDown);
 
 	var buttonUp = UI.Assets.generate("button20_20");
-	buttonUp.onClick = function(){
+	buttonUp.onDown = function(){
 		if (disabled) return;
 		value += step;
 		if (value>max) value=max;
 		me.setValue(value);
+		UI.ticker.onEachTick4(function(){
+			value += step;
+			if (value>max) value=max;
+			me.setValue(value);
+		},10);
+	};
+	buttonUp.onTouchUp = function(){
+		UI.ticker.onEachTick4();
 	};
 	buttonUp.setProperties({
 		name:"buttonUp",
@@ -153,7 +170,6 @@ UI.spinBox = function(initialProperties){
 			window.fontLed.write(me.ctx,padValue(),valueX,valueY,0);
 
 
-console.log(disabled);
 			if (disabled){
 				me.ctx.fillStyle = "rgba(34, 49, 85, 0.6)";
 				me.ctx.fillRect(0,0,me.width,me.height);
