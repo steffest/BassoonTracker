@@ -7,6 +7,7 @@ UI.app_patternView = function(x,y,w,h){
     var scrollBarItemOffset = 0;
     var startTrack = 0;
     var max = Tracker.getPatternLength();
+    var font;
 
     var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
         img: Y.getImage("bar"),
@@ -111,6 +112,8 @@ UI.app_patternView = function(x,y,w,h){
             var song = Tracker.getSong();
             if (!song) return;
 
+            font = Layout.trackFont;
+
             var margin = Layout.trackMargin;
 
             visibleTracks = Layout.visibleTracks;
@@ -121,6 +124,10 @@ UI.app_patternView = function(x,y,w,h){
 
 			var displayVolume = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER;
 			var textWidth = displayVolume ? 92 : 72;
+			if (Layout.useCondensedTrackFont){
+				textWidth = displayVolume ? 46 : 36;
+            }
+
 			// used to center text in Column;
 
 			var patternNumberLeft = 10;
@@ -251,18 +258,16 @@ UI.app_patternView = function(x,y,w,h){
                         var color = false;
                         if (i%4 == 0) color = "orange";
 
-
                         drawText(ti,patternNumberLeft,y,color);
                         if (isCenter){
                             drawText(ti,patternNumberLeft,y,color);
                             drawText(ti,patternNumberLeft,y,color);
                         }
 
-
                         for (var j = 0; j<visibleTracks;j++){
                             trackIndex = j+startTrack;
                             if (isTrackVisible[trackIndex] && trackIndex<Tracker.getTrackCount()){
-                                var note = step[trackIndex];
+                                var note = step[trackIndex] || Tracker.getEmptyNote();
                                 var x;
                                 if (lineNumbersToTheLeft){
                                     // center text in pattern
@@ -328,14 +333,14 @@ UI.app_patternView = function(x,y,w,h){
                                     }
                                 }
 
-                                x += (fontMed.charWidth*3) + 4;
+                                x += (font.charWidth*3) + 4;
                                 noteString = formatHex(note.instrument,2,"0");
                                 if (noteString == "00") noteString = "..";
                                 drawText(noteString,x,y,"green");
 
 
                                 if (displayVolume){
-                                    x += (fontMed.charWidth*2) + 4;
+                                    x += (font.charWidth*2) + 4;
                                     var value = note.volumeEffect || 0;
                                     if (value) value -= 10;
                                     noteString = formatHex(value,2,"0");
@@ -344,7 +349,7 @@ UI.app_patternView = function(x,y,w,h){
                                 }
 
 
-                                x += (fontMed.charWidth*2) + 4;
+                                x += (font.charWidth*2) + 4;
                                 noteString = formatHex(note.effect);
                                 noteString += formatHex(note.param,2,"0");
                                 if (noteString == "000") noteString = "...";
@@ -395,7 +400,7 @@ UI.app_patternView = function(x,y,w,h){
     };
 
     function drawText(t,x,y,color){
-        fontMed.write(me.ctx,t,x,y,0,color);
+		font.write(me.ctx,t,x,y,0,color);
     }
 
     function formatHex(i,length,padString){
@@ -509,6 +514,7 @@ UI.app_patternView = function(x,y,w,h){
 			fxPanels.push(fxPanel);
 			me.addChild(fxPanel);
 		}
+		me.refresh();
 	});
 
 	EventBus.on(EVENT.songLoaded,function(){

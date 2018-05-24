@@ -8,7 +8,7 @@ var Layout = function(){
   	  me.width = w || me.width;
   	  me.height = h || me.height;
 
-      // 5 column layout
+
       // 5 column layout
       me.col1W = Math.floor((me.width - (6*me.defaultMargin)- 3)/5);
       me.col2W = (me.col1W*2) + me.defaultMargin;
@@ -25,6 +25,20 @@ var Layout = function(){
       me.col4X = me.col3X + me.defaultMargin + me.col1W;
       me.col5X = me.col4X + me.defaultMargin + me.col1W;
 
+	  me.colHalfW =  Math.floor(me.col1W/2);
+
+	  /* controlpanel */
+	  me.controlPanelHeight = 40;
+	  me.controlPanelLayout = "full";
+	  me.controlPanelButtonLayout = "1row";
+	  me.controlPanelButtonsLeft = me.col2X;
+	  me.controlPanelButtonsWidth = me.col3W;
+	  me.modeButtonsWidth = me.col1W;
+	  me.modeButtonsLeft = me.col5X;
+	  me.songControlWidth =  me.col1W;
+	  me.TrackCountSpinboxWidth = 60;
+
+	  /* patternview */
       me.trackWidth = me.col1W;
       me.trackMargin = me.defaultMargin;
       me.visibleTracks = me.visibleTracks || 4;
@@ -32,7 +46,34 @@ var Layout = function(){
       me.trackControlHeight = 32;
       me.analyserHeight = 66;
       me.pianoHeight = 200;
+      me.trackFont = fontMed;
+      me.useCondensedTrackFont = false;
 
+
+
+      if (me.width<820){
+		  //me.controlPanelHeight = 80;
+		  me.controlPanelButtonLayout = "condensed";
+		  me.modeButtonsWidth = me.col1W + me.colHalfW;
+		  me.modeButtonsLeft = me.col5X - me.colHalfW;
+		  me.songControlWidth = me.modeButtonsWidth;
+		  me.controlPanelButtonsLeft = me.col2X + me.colHalfW;
+		  me.controlPanelButtonsWidth = me.col2W;
+	  }
+
+	  if (me.width<650){
+		  me.controlPanelButtonLayout = "2row";
+		  me.controlPanelHeight = 80;
+
+		  me.controlPanelButtonsLeft = me.col1X;
+		  me.controlPanelButtonsWidth = me.col5W;
+		  me.controlPanelButtonsButton = Math.floor(me.controlPanelButtonsWidth/3);
+
+		  me.modeButtonsLeft =  (me.controlPanelButtonsButton*2)  - me.TrackCountSpinboxWidth;
+		  me.modeButtonsWidth = me.controlPanelButtonsButton  + me.TrackCountSpinboxWidth + me.defaultMargin;
+		  me.songControlWidth = me.col2W + me.colHalfW + me.defaultMargin;
+
+	  }
 
       if (me.height<800){
           me.pianoHeight = 150;
@@ -43,16 +84,19 @@ var Layout = function(){
       }
 
 	  var margins = me.defaultMargin*(me.visibleTracks-1);
-	  me.showSideBar = me.visibleTracks<5;
+	  me.showSideBar = me.visibleTracks<5 && me.width>620;
 
 	  var totalWidth = me.showSideBar ? me.col4W:me.col5W;
 	  me.trackWidth =  Math.floor((totalWidth - margins)/me.visibleTracks);
-	  console.log(me.trackWidth);
 
 	  me.firstTrackOffsetLeft = 0;
 	  if (me.trackWidth<125){
 		  me.firstTrackOffsetLeft = 18;
 		  me.trackWidth =  Math.floor((totalWidth - margins - me.firstTrackOffsetLeft)/me.visibleTracks);
+	  }
+	  if (me.trackWidth<78) {
+	  	  me.trackFont = fontSuperCondensed;
+		  me.useCondensedTrackFont = true;
 	  }
 
   };

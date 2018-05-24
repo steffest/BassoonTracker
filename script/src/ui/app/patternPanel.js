@@ -48,6 +48,17 @@ UI.app_patternPanel = function(){
 
     me.onPanelResize = function(){
 
+		if (Layout.showSideBar){
+			if (currentView === "main"){
+				sidebar.show();
+				editPanel.show();
+			}
+		}else{
+			sidebar.hide();
+			editPanel.hide();
+		}
+
+
         var patternTop = Layout.infoPanelHeight + Layout.trackControlHeight + Layout.analyserHeight + (Layout.defaultMargin*2);
         var patternHeight = me.height - patternTop - Layout.defaultMargin;
 
@@ -99,6 +110,8 @@ UI.app_patternPanel = function(){
         });
 
         setTrackControlsLayout();
+
+
     };
     me.onPanelResize();
 
@@ -180,6 +193,8 @@ UI.app_patternPanel = function(){
             });
             me.addChild(trackControls[i]);
         }
+		setTrackControlsLayout();
+        me.refresh();
         //visualiser.connect(Audio.cutOffVolume);
     });
 

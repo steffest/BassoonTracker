@@ -43,7 +43,7 @@ UI.app_controlPanel = function(){
 	var xmButton = UI.button();
 
 	modButton.setProperties(buttonProperties);
-	modButton.setLabel("Mod");
+	modButton.setLabel("mod");
 	modButton.onDown = function(){
 		Tracker.setTrackerMode(TRACKERMODE.PROTRACKER);
 	};
@@ -76,8 +76,14 @@ UI.app_controlPanel = function(){
 
 	var labelTrackerMode = UI.label();
 	labelTrackerMode.setProperties({
-		label : "Mode:",
-		font: fontFT,
+		label : "Mode",
+		labels:[
+			{width: 20, label:""},
+			{width: 78, label:"M"},
+			{width: 84, label:"Md"},
+			{width: 100, label:"Mode"}
+		],
+		font: fontSmall,
 		width: 100,
 		height: 20,
 		textAlign: "right"
@@ -86,22 +92,51 @@ UI.app_controlPanel = function(){
 
 	var labelTrackView = UI.label();
 	labelTrackView.setProperties({
-		label : "Display:",
-		font: fontFT,
+		label : "Display",
+		labels : [
+			{width: 10, label: ""},
+			{width: 78, label: "t"},
+			{width: 84, label: "tr"},
+			{width: 100, label: "trck"},
+			{width: 120, label: "Display"}
+		],
+		font: fontSmall,
 		width: 100,
 		height: 20,
 		textAlign: "right"
 	});
 	me.addChild(labelTrackView);
 
+
+	var trackCountSpinbox = UI.spinBox();
+	trackCountSpinbox.setProperties({
+		name: "Pattern",
+		value: Tracker.getTrackCount(),
+		max: 32,
+		min:2,
+		size: "big",
+		onChange : function(value){Tracker.setTrackCount(value)}
+	});
+	me.addChild(trackCountSpinbox);
+
 	me.onPanelResize = function(){
 
         me.innerHeight = me.height - (Layout.defaultMargin*2);
+        var row1Top = Layout.defaultMargin;
+        var row2Top = Layout.defaultMargin;
+
+		if (Layout.controlPanelButtonLayout === "2row"){
+			var halfHeight = Math.floor((me.innerHeight - Layout.defaultMargin)/2);
+			row2Top = me.height - halfHeight - Layout.defaultMargin;
+			me.innerHeight = halfHeight;
+		}
+
+
 
         songControl.setProperties({
             left: Layout.col1X,
-            top: Layout.defaultMargin,
-            width: Layout.col1W,
+            top: row1Top,
+            width: Layout.songControlWidth,
             height: me.innerHeight,
             songPatternSelector: "small"
         });
@@ -110,33 +145,46 @@ UI.app_controlPanel = function(){
 		buttonWidth = Math.max(buttonWidth,115);
         var buttonMargin = Math.floor((Layout.col1W - buttonWidth)/2);
 
+		var buttonSampleLeft = Layout.col4X + buttonMargin;
+		var buttonSampleLabel = "Sample Edit";
+
+		if (Layout.controlPanelButtonLayout !== "full"){
+			buttonWidth = Math.floor(Layout.controlPanelButtonsWidth / 3);
+			buttonMargin = 0;
+			buttonSampleLeft = Layout.controlPanelButtonsLeft + (buttonWidth*2);
+			buttonSampleLabel = "Sample";
+		}
+
+
+
+		var buttonHeight = me.innerHeight;
+
         buttonFileOperations.setProperties({
-			left: Layout.col2X + (buttonMargin * 1.5),
-			top: Layout.defaultMargin,
+			left: Layout.controlPanelButtonsLeft + (buttonMargin * 1.5),
+			top: row2Top,
 			width: buttonWidth,
-			height: me.innerHeight
+			height: buttonHeight
         });
 
 		buttonOptions.setProperties({
 			left: buttonFileOperations.left + buttonWidth + buttonMargin,
-			top: Layout.defaultMargin,
+			top: row2Top,
 			width: buttonWidth,
-			height: me.innerHeight
+			height: buttonHeight
 		});
 
 		buttonSampleEdit.setProperties({
-			left: Layout.col4X + buttonMargin,
-			top: Layout.defaultMargin,
+			left: buttonSampleLeft,
+			top: row2Top,
 			width: buttonWidth,
-			height: me.innerHeight
+			height: buttonHeight,
+			label: buttonSampleLabel
 		});
 
-
-
-		var marginLeft = Layout.col1W - 101;
+		var marginLeft = Layout.modeButtonsWidth - 101;
 		modButton.setProperties({
-			left: Layout.col5X + marginLeft,
-			top: Layout.defaultMargin,
+			left: Layout.modeButtonsLeft + marginLeft,
+			top: row1Top,
 			width: 51,
 			height: 16
 		});
@@ -164,13 +212,10 @@ UI.app_controlPanel = function(){
 		});
 
 
-
-
-
 		labelTrackerMode.setProperties({
-			left: Layout.col5X,
-			top: Layout.defaultMargin-2,
-			width: Layout.col1W - 95,
+			left: Layout.modeButtonsLeft,
+			top: row1Top+1,
+			width: Layout.modeButtonsWidth - 94	,
 			height: 20
 		});
 
@@ -180,13 +225,27 @@ UI.app_controlPanel = function(){
 			width: labelTrackerMode.width,
 			height: labelTrackerMode.height
 		});
+
+
+		trackCountSpinbox.setProperties({
+			left: Layout.modeButtonsLeft,
+			top: row1Top,
+			width: Layout.TrackCountSpinboxWidth,
+			height: me.innerHeight
+		});
     };
     me.onPanelResize();
 
     me.renderInternal = function(){
-		me.ctx.drawImage(Y.getImage("line_ver"),Layout.col2X-2,0,2,me.height-1);
+
+		if (Layout.controlPanelButtonLayout === "2row") return;
+
+		me.ctx.drawImage(Y.getImage("line_ver"),Layout.controlPanelButtonsLeft-2,0,2,me.height-1);
+		me.ctx.drawImage(Y.getImage("line_ver"),Layout.modeButtonsLeft-2,0,2,me.height-1);
+
+		if (Layout.controlPanelButtonLayout === "condensed") return;
+
 		me.ctx.drawImage(Y.getImage("line_ver"),Layout.col4X-2,0,2,me.height-1);
-		me.ctx.drawImage(Y.getImage("line_ver"),Layout.col5X-2,0,2,me.height-1);
 
         me.ctx.translate(0.5, 0.5);
 		me.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
@@ -243,6 +302,11 @@ UI.app_controlPanel = function(){
 		modButton.setActive(mode === TRACKERMODE.PROTRACKER);
 		xmButton.setActive(mode === TRACKERMODE.FASTTRACKER);
 	});
+
+    EventBus.on(EVENT.trackCountChange,function(count){
+       trackCountSpinbox.setValue(count,true);
+    });
+
 
 
     return me;

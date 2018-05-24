@@ -4,8 +4,18 @@ UI.app_songControl = function(x,y,w,h,visible){
 
     var radioGroup = UI.radioGroup();
     radioGroup.setItems([
-        {label:"   song",active:true},
-        {label:"pattern",active:false}
+        {
+            label:"song",
+            active:true
+        },
+        {
+            label:"pattern",
+			labels : [
+				{width: 10, label: "p"},
+				{width: 20, label: "pat"}
+			],
+            active:false
+        }
     ]);
     radioGroup.onChange = function(selectedIndex){
         if (selectedIndex == 0){
@@ -113,7 +123,8 @@ UI.app_songControl = function(x,y,w,h,visible){
             left: 0,
             width: buttonWidth,
             top:0,
-            height: me.height
+            height: me.height,
+            align: "right"
         });
         buttons.play.setProperties({
             left: buttonWidth,

@@ -69,7 +69,7 @@ UI.radioGroup = function(x,y,w,h){
 			var buttonX = me.width - 15;
 			buttonY = -3;
 
-			if (size == "med"){
+			if (size === "med"){
 				buttonActive = Y.getImage("radio_big_active");
 				buttonInactive = Y.getImage("radio_big_inactive");
 				buttonY = -6;
@@ -79,10 +79,12 @@ UI.radioGroup = function(x,y,w,h){
 
 			var paddingTop = (itemHeight - font.charHeight) / 2;
 
-			if (align == "left"){
+			if (align === "left"){
 				textX = 30;
 				buttonX = 5;
 			}
+
+
 
 			var line = Y.getImage("line_hor");
 
@@ -95,7 +97,21 @@ UI.radioGroup = function(x,y,w,h){
 					me.ctx.drawImage(line,0,itemTop,me.width,2);
 				}
 
-				if (font) font.write(me.ctx,item.label,textX,textTop,0);
+				if (font){
+					if (align === "right"){
+						var label = item.label;
+						textX = buttonX - font.getTextWidth(item.label,0) - 4;
+						if (textX<0 && item.labels){
+							var rest = buttonX - 4;
+							item.labels.forEach(function(lb){
+								if (lb.width<=rest) label = lb.label;
+							});
+							textX = buttonX - font.getTextWidth(label,0) - 4;
+						}
+					}
+
+					font.write(me.ctx,label,textX,textTop,0);
+				}
 
 				if (item.active){
 

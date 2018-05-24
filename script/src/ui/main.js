@@ -186,7 +186,7 @@ var UI = (function(){
 		fontCondensed.generate({
 			image: fontImage,
 			startX: 1,
-			startY: 187,
+			startY: 184,
 			charHeight: 10,
 			spaceWidth: 5,
 			margin: 0,
@@ -197,6 +197,24 @@ var UI = (function(){
 			onlyUpperCase:false
 		});
 		window.fontCondensed = fontCondensed;
+
+		var fontSuperCondensed =  BitmapFont();
+		fontSuperCondensed.generate({
+			image: fontImage,
+			startX: 2,
+			startY: 208,
+			charHeight: 8,
+			charWidth: 4,
+			spaceWidth: 4,
+			margin: 0,
+			charsPerLine:[40],
+			lineSpacing:0,
+			chars: 	   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_.-#",
+			onlyUpperCase:true
+		});
+		fontSuperCondensed.generateColor("green","rgba(80, 140, 0,0.9)");
+		fontSuperCondensed.generateColor("orange","rgba(161, 82, 0,0.9)");
+		window.fontSuperCondensed = fontSuperCondensed;
 
 		var fontLed =  BitmapFont();
 		fontLed.generate({
@@ -212,6 +230,20 @@ var UI = (function(){
 		});
 		window.fontLed = fontLed;
 
+        var fontLedBig =  BitmapFont();
+        fontLedBig.generate({
+            image: fontImage,
+            startX: 9,
+            startY: 82,
+            charWidth: 14,
+            charHeight: 22,
+            spaceWidth: 8,
+            margin: 0,
+            charsPerLine:11,
+            chars:" 0123456789"
+        });
+        window.fontLedBig = fontLedBig;
+
 		var fontDark =  BitmapFont();
 		fontDark.generate({
 			image: fontImage,
@@ -220,10 +252,10 @@ var UI = (function(){
 			charHeight: 9,
 			spaceWidth: 5,
 			margin: 0,
-			charsPerLine:[14],
+			charsPerLine:[40],
 			lineSpacing:0,
-			chars: 	   "XMOD123456789",
-			charWidth: "8877466666666",
+			chars: 	   "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789():-",
+			charWidth: "777766773676877787777888974666666664434",
 			onlyUpperCase:true
 		});
 		window.fontDark = fontDark;

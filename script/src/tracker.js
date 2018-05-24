@@ -1500,23 +1500,38 @@ var Tracker = (function(){
 	me.putNoteParam = function(pos,value){
 		var x,y;
 		var note = song.patterns[currentPattern][currentPatternPos][currentTrack];
+		console.error(pos);
 		if (note){
 			if (pos == 1 || pos == 2){
-				var instrument = note.instrumen;
+				var instrument = note.instrument;
 				x = instrument >> 4;
 				y = instrument & 0x0f;
 				if (pos == 1) x = value;
 				if (pos == 2) y = value;
-				note.instrumen = (x << 4) + y;
+				note.instrument = (x << 4) + y;
 			}
 
-			if (pos == 3) note.effect = value;
-			if (pos == 4 || pos == 5){
+			var xmOffset = 0;
+			if (trackerMode === TRACKERMODE.FASTTRACKER){
+				xmOffset = 2;
+
+				if (pos == 3  || pos == 4){
+					var vparam = note.volumeEffect;
+					x = vparam >> 4;
+					y = vparam & 0x0f;
+					if (pos == 3) x = value;
+					if (pos == 4) y = value;
+					note.volumeEffect = (x << 4) + y;
+				}
+			}
+
+			if (pos == 3 + xmOffset) note.effect = value;
+			if (pos == 4 + xmOffset || pos == 5 + xmOffset){
 				var param = note.param;
 				x = param >> 4;
 				y = param & 0x0f;
-				if (pos == 4) x = value;
-				if (pos == 5) y = value;
+				if (pos == 4 + xmOffset) x = value;
+				if (pos == 5 + xmOffset) y = value;
 				note.param = (x << 4) + y;
 			}
 		}
@@ -2092,6 +2107,7 @@ var Tracker = (function(){
 	function getEmptyNote(){
 		return {note:0,effect:0,instrument:0,param:0};
 	}
+	me.getEmptyNote = getEmptyNote;
 
 
 	function getEmptySample(){

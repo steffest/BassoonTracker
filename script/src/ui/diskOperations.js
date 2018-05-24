@@ -338,7 +338,6 @@ UI.DiskOperations = function(){
 							toggleDirectory(item,index);
 						}else{
 							listbox.setSelectedIndex(index);
-							console.log(item);
 							Tracker.load(item.url);
                             App.doCommand(COMMAND.showTopMain);
 						}
@@ -395,7 +394,6 @@ UI.DiskOperations = function(){
 							toggleDirectory(item,index);
 						}else{
 							listbox.setSelectedIndex(index);
-							console.log(item);
 							Tracker.load(item.url);
                             App.doCommand(COMMAND.showTopMain);
 						}
@@ -455,7 +453,6 @@ UI.DiskOperations = function(){
 							toggleDirectory(item,index);
 						}else{
 							listbox.setSelectedIndex(index);
-							console.log(item);
 
 							UI.setInfo(item.title);
 							UI.setStatus("Loading from Dropbox");

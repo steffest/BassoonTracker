@@ -31,14 +31,14 @@ UI.MainPanel = function(){
         appPanel.setPosition(0,panelTop);
         panelTop += appPanel.height;
 
-        controlPanel.setSize(me.width,controlPanel.height);
+        controlPanel.setSize(me.width,Layout.controlPanelHeight);
         controlPanel.setPosition(0,panelTop);
         panelTop += controlPanel.height;
 
         var remaining = me.height-panelTop;
         if (pianoPanel.isVisible()){
             pianoPanel.setSize(me.width,Layout.pianoHeight);
-            pianoPanel.setPosition(0,me.height-pianoPanel.height)
+            pianoPanel.setPosition(0,me.height-pianoPanel.height);
             remaining = remaining- pianoPanel.height;
         }
 

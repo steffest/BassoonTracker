@@ -55,6 +55,10 @@ UI.app_mainPanel = function(){
     spinBoxPattern.setProperties({
         name: "Pattern",
         label: "Pattern",
+		labels:[
+			{width: 10, label: "Pat."},
+			{width: 140, label: "Pattern"}
+		],
         value: 0,
         max: 100,
         min:0,
@@ -66,6 +70,11 @@ UI.app_mainPanel = function(){
     var spinBoxInstrument = UI.spinBox({
         name: "Instrument",
         label: "Instrument",
+		labels:[
+			{width: 10, label: "Ins."},
+			{width: 123, label: "Instr"},
+			{width: 160, label: "Instrument"}
+		],
         value: 1,
         max: 64,
         min:1,
@@ -77,6 +86,12 @@ UI.app_mainPanel = function(){
     var spinBoxSongLength = UI.spinBox({
         name: "SongLength",
         label: "Song length",
+		labels:[
+			{width: 10, label: "Len."},
+			{width: 138, label: "Length"},
+			{width: 156, label: "Song len"},
+			{width: 178, label: "Song length"}
+		],
         value: 1,
         max: 200,
         min:1,
@@ -93,9 +108,34 @@ UI.app_mainPanel = function(){
     });
     me.addChild(spinBoxSongLength);
 
+	var spinBoxSongRepeat = UI.spinBox({
+		name: "SongRepeat",
+		label: "Song repeat",
+		labels:[
+			{width: 10, label: "Rep."},
+			{width: 138, label: "Repeat"},
+			{width: 156, label: "Song rep"},
+			{width: 178, label: "Song repeat"}
+		],
+		value: 1,
+		max: 200,
+		min:0,
+		font: spinbBoxFont,
+		onChange : function(value){
+
+		}
+	});
+	me.addChild(spinBoxSongRepeat);
+
     var spinBoxPatternLength = UI.spinBox({
         name: "PatternLength",
         label: "Pattern length",
+        labels:[
+			{width: 10, label: "Plen"},
+			{width: 138, label: "Pat len"},
+			{width: 166, label: "Pattern len"},
+            {width: 188, label: "Pattern length"}
+        ],
         value: 64,
         max: 128,
         min:1,
@@ -151,7 +191,7 @@ UI.app_mainPanel = function(){
         var spinButtonWidth = Layout.col1W-2;
 
         logo.setDimensions({
-            left: Layout.col1X,
+            left: Layout.col2X,
             top: margin,
             width: Layout.col2W,
             height: logoHeight
@@ -206,6 +246,13 @@ UI.app_mainPanel = function(){
             height: spinButtonHeight
         });
 
+		spinBoxSongRepeat.setDimensions({
+			left:Layout.col2X,
+			top: patternPanel.top + 3 + spinButtonHeight*2,
+			width: spinButtonWidth,
+			height: spinButtonHeight
+		});
+
         spinBoxPattern.setDimensions({
             left:Layout.col3X,
             top: patternPanel.top + 3,
@@ -246,6 +293,7 @@ UI.app_mainPanel = function(){
         modNameInputBox.setValue(song.title,true);
         spinBoxSongLength.setValue(song.length,true);
         spinBoxInstrument.setMax(song.instruments.length-1);
+		spinBoxSongRepeat.setMax(song.length-1);
     });
 
     EventBus.on(EVENT.songBPMChange,function(value){

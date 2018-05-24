@@ -252,8 +252,6 @@ var FastTracker = function(){
                     instrument.loopRepeatLength = instrument.loopRepeatLength;
                     var loopPart = sample.data.slice(instrument.loopStart,instrument.loopStart + instrument.loopRepeatLength);
 
-                    console.log(loopPart.length,instrument.loopRepeatLength);
-
                     sample.data = sample.data.slice(0,instrument.loopStart + instrument.loopRepeatLength);
                     sample.data = sample.data.concat(loopPart.reverse());
                     instrument.loopRepeatLength = instrument.loopRepeatLength*2;
