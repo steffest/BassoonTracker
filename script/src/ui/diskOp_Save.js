@@ -5,20 +5,12 @@ UI.DiskOperationSave = function(){
 	var saveAsFileType = FILETYPE.module;
 	var mainFileType = FILETYPE.module;
 	var saveAsFileFormat = MODULETYPE.mod;
+	var saveTarget = "local";
 
 	var background = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkInsetScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
-	var label1 = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
-	label1.ignoreEvents = true;
-	me.addChild(label1);
-
-	var labelLoad = UI.label({
-		label: "Export Module as",
-		font: fontSmall
-	});
-	me.addChild(labelLoad);
 
 	var selectTypes = {};
 	selectTypes[FILETYPE.module] = [
@@ -57,10 +49,10 @@ UI.DiskOperationSave = function(){
 	saveButton.onClick = function(){
 		if (mainFileType == FILETYPE.module){
 			if (saveAsFileType == FILETYPE.module){
-				Tracker.save(fileName);
+				Tracker.save(fileName,saveTarget);
 			}
 			if (saveAsFileType == FILETYPE.sample){
-				Tracker.renderTrackToBuffer(fileName);
+				Tracker.renderTrackToBuffer(fileName,saveTarget);
 			}
 		}
 		if (mainFileType == FILETYPE.sample){
@@ -89,7 +81,14 @@ UI.DiskOperationSave = function(){
 				}
 
                 var b = new Blob([file.buffer], {type: "application/octet-stream"});
-                saveAs(b,fileName);
+
+
+				if (saveTarget === "dropbox"){
+					Dropbox.putFile("/" + fileName,b);
+				}else{
+					saveAs(b,fileName);
+				}
+
                 console.error("write sample with " + sample.length + " length");
 
 			}
@@ -115,19 +114,18 @@ UI.DiskOperationSave = function(){
 	});
 
 	EventBus.on(EVENT.diskOperationTargetChange,function(item){
+
+		saveTarget = item;
+		if (saveTarget.target) saveTarget = saveTarget.target;
 		if (item && item.fileType){
 
 			mainFileType = item.fileType;
-			var label = "Export as";
 			if (mainFileType == FILETYPE.sample) {
-				label = "Export Sample as";
 				fileName = Tracker.getCurrentInstrument().name.replace(/ /g, '-').replace(/\W/g, '');
 			}
 			if (mainFileType == FILETYPE.module) {
-				label = "Export Module as";
 				fileName = Tracker.getFileName();
 			}
-			labelLoad.setLabel(label);
 
 			if (selectTypes[mainFileType]){
 				selectionType.setItems(selectTypes[mainFileType]);
@@ -171,39 +169,27 @@ UI.DiskOperationSave = function(){
 			width: me.width
 		});
 
-		label1.setProperties({
-			left: 1,
-			top: 1,
-			height: 16,
-			width: innerWidth
-		});
-
-		labelLoad.setProperties({
-			left: -1,
-			top: 3,
-			height: 16,
-			width: innerWidth
-		});
-
 		fileNameInput.setProperties({
-			left:6,
-			width: innerWidth-8,
-			top: 24
+			left:4,
+			width: innerWidth-6,
+			top: 4
 		});
+
+        saveButton.setProperties({
+            left:2,
+            width: innerWidth,
+            height: 28,
+            top: me.height - 27
+        });
 
 		selectionType.setProperties({
 			left:4,
 			width: innerWidth-4,
-			height: 64,
-			top: 48
+			height: me.height - saveButton.height - 30,
+			top: 30
 		});
 
-		saveButton.setProperties({
-			left:2,
-			width: innerWidth,
-			height: 30,
-			top: me.height - 29
-		});
+
 
 
 

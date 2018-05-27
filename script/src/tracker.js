@@ -321,14 +321,18 @@ var Tracker = (function(){
 		}
 	};
 
-	me.save = function(filename){
+	me.save = function(filename,target){
+		console.error(target);
 		me.buildBinary(MODULETYPE.mod,function(file){
 			var b = new Blob([file.buffer], {type: "application/octet-stream"});
 
 			var fileName = filename || me.getFileName();
-			saveAs(b,fileName);
 
-			//Dropbox.putFile(fileName,b);
+			if (target === "dropbox"){
+				Dropbox.putFile("/" + fileName,b);
+			}else{
+				saveAs(b,fileName);
+			}
 		});
 	};
 
@@ -1360,7 +1364,7 @@ var Tracker = (function(){
 
 	}
 
-	me.renderTrackToBuffer = function(fileName){
+	me.renderTrackToBuffer = function(fileName,target){
 		var step = 0;
 		var patternStep = 0;
 		var thisPatternLength = 64;
@@ -1387,7 +1391,14 @@ var Tracker = (function(){
 			// save to wav
 			var b = new Blob([result], {type: "octet/stream"});
 			fileName = fileName || me.getSong().title.replace(/ /g, '-').replace(/\W/g, '') + ".wav" || "module-export.wav";
-			saveAs(b,fileName);
+
+
+			if (target === "dropbox"){
+				Dropbox.putFile("/" + fileName,b);
+			}else{
+				saveAs(b,fileName);
+			}
+
 
 			//var output = context.createBufferSource();
 			//output.buffer = renderedBuffer;
