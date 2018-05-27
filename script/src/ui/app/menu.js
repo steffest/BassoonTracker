@@ -47,16 +47,21 @@ UI.app_menu = function(container){
     // note: don't attach as child to main panel, this gets attached to main UI
 
     me.onPanelResize = function(){
+        var menuMin = 250;
+        var menuWidth = Math.max(Layout.col2W,menuMin);
+        var vuWidth = Layout.col5W - menuWidth;
+        var vuLeft = Layout.marginLeft + menuWidth + Layout.defaultMargin;
+
         menuBackground.setDimensions({
             left: Layout.marginLeft,
             top: 0,
             height: 26,
-            width: Layout.col2W
+            width: menuWidth
         });
 
         vumeter.setProperties({
-            width: Layout.col3W,
-            left: Layout.col3X
+            width: vuWidth,
+            left: vuLeft
         });
     };
 

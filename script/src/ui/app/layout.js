@@ -50,6 +50,16 @@ var Layout = function(){
       me.useCondensedTrackFont = false;
 
 
+	  me.maxVisibleTracks = 16;
+	  if (me.width<945) me.maxVisibleTracks=12;
+	  if (me.width<725) me.maxVisibleTracks=8;
+	  if (me.width<512) me.maxVisibleTracks=4;
+
+      if (me.visibleTracks>me.maxVisibleTracks){
+		  me.setVisibleTracks(me.maxVisibleTracks);
+		  return;
+	  }
+
 
       if (me.width<820){
 		  //me.controlPanelHeight = 80;
@@ -94,7 +104,8 @@ var Layout = function(){
 		  me.firstTrackOffsetLeft = 18;
 		  me.trackWidth =  Math.floor((totalWidth - margins - me.firstTrackOffsetLeft)/me.visibleTracks);
 	  }
-	  if (me.trackWidth<78) {
+	  var minTrackWidth = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER ? 100 : 78;
+	  if (me.trackWidth<minTrackWidth) {
 	  	  me.trackFont = fontSuperCondensed;
 		  me.useCondensedTrackFont = true;
 	  }

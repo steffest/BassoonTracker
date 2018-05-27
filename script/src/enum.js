@@ -38,16 +38,17 @@ var EVENT = {
 	pianoNoteOff : 20,
 	statusChange: 21,
 	diskOperationTargetChange: 22,
-	trackCountChange:23,
-	patternHorizontalScrollChange:24,
-	songLoaded: 25,
-	songLoading: 26,
-	trackerModeChanged: 27,
-    instrumentListChange:28,
-	showView: 29,
-	toggleView: 30,
-	visibleTracksCountChange:31,
-    filterChainCountChange:32
+	diskOperationActionChange: 23,
+	trackCountChange:24,
+	patternHorizontalScrollChange:25,
+	songLoaded: 26,
+	songLoading: 27,
+	trackerModeChanged: 28,
+    instrumentListChange:29,
+	showView: 30,
+	toggleView: 31,
+	visibleTracksCountChange:32,
+    filterChainCountChange:33
 };
 
 var COMMAND = {

@@ -1,4 +1,4 @@
-UI.DiskOperationActions = function(){
+UI.DiskOperationType = function(){
 
 	var me = UI.panel();
 
@@ -11,7 +11,7 @@ UI.DiskOperationActions = function(){
 	me.addChild(label1);
 
 	var labelLoad = UI.label({
-		label: "Action",
+		label: "Type",
 		font: fontSmall
 	});
 	me.addChild(labelLoad);
@@ -21,15 +21,15 @@ UI.DiskOperationActions = function(){
 		align: "right",
 		size:"med",
 		divider: "line",
-		type:"buttons",
 		highLightSelection:true
 	});
 	selectionType.setItems([
-		{label:"load",active:true},
-		{label:"save",active:false}
+		{label:"module",active:true, fileType: FILETYPE.module},
+		{label:"sample",active:false, fileType: FILETYPE.sample},
+		//{label:"pattern",active:false, fileType: FILETYPE.pattern}
 	]);
 	selectionType.onChange = function(selectedIndex){
-		EventBus.trigger(EVENT.diskOperationActionChange,this.getSelectedItem());
+		EventBus.trigger(EVENT.diskOperationTargetChange,this.getSelectedItem());
 	};
 	me.addChild(selectionType);
 
@@ -78,15 +78,12 @@ UI.DiskOperationActions = function(){
 
 	};
 
-	me.getAction = function(){
+	me.getType = function(){
 		var index = selectionType.getSelectedIndex();
-		var result = "load";
-		if (index == 1) result = "save";
+		var result = "modules";
+		if (index == 1) result = "samples";
+		if (index == 2) result = "patterns";
 		return result;
-	};
-
-	me.setSelectedIndex = function(index){
-        selectionType.setSelectedIndex(index);
 	};
 
 	return me;

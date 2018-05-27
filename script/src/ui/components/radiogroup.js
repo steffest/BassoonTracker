@@ -11,9 +11,10 @@ UI.radioGroup = function(x,y,w,h){
 	var buttonY = -3;
 	var itemHeight = 13;
 	var divider;
+	var type="radio";
 	var highLightSelection;
 
-	var properties = ["left","top","width","height","name","type"];
+	var properties = ["left","top","width","height","name"];
 
 	me.setProperties = function(p){
 		properties.forEach(function(key){
@@ -26,6 +27,7 @@ UI.radioGroup = function(x,y,w,h){
 		if (p.align) align = p.align;
 		if (p.size) size = p.size;
 		if (p.divider) divider = p.divider;
+		if (p.type) type = p.type;
 		if (p.highLightSelection) highLightSelection = true;
 	};
 
@@ -72,7 +74,7 @@ UI.radioGroup = function(x,y,w,h){
 			if (size === "med"){
 				buttonActive = Y.getImage("radio_big_active");
 				buttonInactive = Y.getImage("radio_big_inactive");
-				buttonY = -6;
+				buttonY = -2;
 				buttonX = me.width - 20;
 				font = fontMed;
 			}
@@ -83,7 +85,6 @@ UI.radioGroup = function(x,y,w,h){
 				textX = 30;
 				buttonX = 5;
 			}
-
 
 
 			var line = Y.getImage("line_hor");

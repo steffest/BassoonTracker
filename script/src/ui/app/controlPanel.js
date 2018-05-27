@@ -64,6 +64,7 @@ UI.app_controlPanel = function(){
 		button.setLabel("" + trackView[index]);
 		button.index = index;
 		button.onDown = function(){
+			if (this.isDisabled) return;
 			var activeIndex = this.index;
 			trackButtons.forEach(function(b,index){
 				b.setActive(index === activeIndex);
@@ -206,9 +207,9 @@ UI.app_controlPanel = function(){
 			});
 			bLeft += button.width - 1;
 
-			if (trackView[index] === Layout.visibleTracks) {
-				button.setActive(true);
-			}
+			button.setActive(trackView[index] === Layout.visibleTracks);
+			button.setDisabled(trackView[index] > Layout.maxVisibleTracks);
+
 		});
 
 
@@ -301,6 +302,7 @@ UI.app_controlPanel = function(){
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
 		modButton.setActive(mode === TRACKERMODE.PROTRACKER);
 		xmButton.setActive(mode === TRACKERMODE.FASTTRACKER);
+		Layout.setLayout();
 	});
 
     EventBus.on(EVENT.trackCountChange,function(count){

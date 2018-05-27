@@ -21,8 +21,19 @@ UI.DiskOperationTargets = function(){
 		{label: "Bassoon:" , target: "bassoon", active:true},
 		{label: "Modarchive:",target: "modarchive"},
 		{label: "Modules.pl:",target: "modulespl"},
-		//{label: "Dropbox:" , target: "dropbox"},
+		{label: "Dropbox:" , target: "dropbox"},
 		{label: "local:" , target: "local"}
+	];
+
+	var targetsSample = [
+		{label: "Bassoon:" , target: "bassoon", active:true},
+		{label: "Dropbox:" , target: "dropbox"},
+		{label: "local:" , target: "local"}
+	];
+
+	var targetsSave = [
+		{label: "local:" , target: "local", active:true},
+        {label: "Dropbox:" , target: "dropbox"}
 	];
 
 	var selectionTarget = UI.radioGroup();
@@ -37,12 +48,6 @@ UI.DiskOperationTargets = function(){
 		EventBus.trigger(EVENT.diskOperationTargetChange,this.getSelectedItem());
 	};
 	me.addChild(selectionTarget);
-
-	EventBus.on(EVENT.diskOperationTargetChange,function(target){
-		if (target && target.fileType){
-			selectionTarget.setSelectedIndex(0);
-		}
-	});
 
 
 	me.setLayout = function(){
@@ -88,6 +93,25 @@ UI.DiskOperationTargets = function(){
 	me.getTarget = function(){
 		return currentTarget;
 	};
+
+    EventBus.on(EVENT.diskOperationTargetChange,function(target){
+        if (target && target.fileType){
+            selectionTarget.setSelectedIndex(0);
+        }
+    });
+
+	EventBus.on(EVENT.diskOperationActionChange,function(target){
+		if (target.label === "save"){
+			label.setLabel("To");
+			selectionTarget.setItems(targetsSave);
+		}else{
+			label.setLabel("From");
+			selectionTarget.setItems(targetsModule);
+		}
+
+        EventBus.trigger(EVENT.diskOperationTargetChange,selectionTarget.getSelectedItem());
+
+	});
 
 	return me;
 

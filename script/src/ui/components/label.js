@@ -51,6 +51,7 @@ UI.label = function(initialProperties){
 	};
 
 	me.render = function(internal){
+        if (!me.isVisible()) return;
 		if (me.needsRendering){
 			internal = !!internal;
 

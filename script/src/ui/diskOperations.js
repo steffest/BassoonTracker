@@ -3,6 +3,7 @@ UI.DiskOperations = function(){
 	var me = UI.panel();
 	me.hide();
 
+	var currentAction = "load";
 	var currentView = "modules";
 	var currentsSubView = "";
 	var itemsMap = [];
@@ -23,6 +24,9 @@ UI.DiskOperations = function(){
 	var actionPanel = UI.DiskOperationActions();
 	me.addChild(actionPanel);
 
+	var typePanel = UI.DiskOperationType();
+	me.addChild(typePanel);
+
 	var targetPanel = UI.DiskOperationTargets();
 	me.addChild(targetPanel);
 
@@ -30,41 +34,39 @@ UI.DiskOperations = function(){
 	me.addChild(savePanel);
 
 
-	/*
 
-	var buttonsSide = [];
-	var buttonsSideInfo=[
-		{label:"Load Module", labels:["Load Module","Load Mod","Load","Lo"],onClick:function(){me.refreshList("modules")}},
-		{label:"Save Module", labels:["Save Module","Save Mod","Save","Sa"], onClick:function(){Tracker.save();}},
-		{label:"Render to Sample", labels:["Render to Sample","Render","Ren"], onClick:function(){Tracker.renderTrackToBuffer()}},
-		{label:"Load Sample", labels:["Load Sample","Sample","Sm"], onClick:function(){me.refreshList("samples")}},
-		{label:"Exit", labels:["Exit","Ex"],onClick:function(){App.doCommand(COMMAND.showTop)}}
-	];
+	// buttons for small screen UI
+    var buttonProperties = {
+        background: UI.Assets.buttonKeyScale9,
+        activeBackground:UI.Assets.buttonKeyActiveScale9,
+        isActive:false,
+        textAlign: "center",
+        font: window.fontDark,
+        paddingTopActive: 1,
+		height: 18,
+		width: 50
+    };
 
-	for (var i = 0;i< buttonsSideInfo.length;i++){
-		var buttonSideInfo = buttonsSideInfo[i];
-		var buttonElm = UI.button();
-		buttonElm.info = buttonSideInfo;
-		buttonElm.onClick =  buttonSideInfo.onClick;
-		buttonElm.getLabel = function(width){
-			var maxChars = Math.floor((width - 30) / 8);
-			if (this.info.labels){
-				var label;
-				for (var i = 0, len = this.info.labels.length; i<len; i++){
-					label = this.info.labels[i];
-					if (label.length <= maxChars){
-						return label;
-					}
-				}
-				return label;
-			}else{
-				return this.info.label;
-			}
-		};
-		buttonsSide[i] = buttonElm;
-		me.addChild(buttonElm);
-	}
-	*/
+    var saveButton = UI.button();
+    var loadButton = UI.button();
+    loadButton.setActive(true);
+
+    saveButton.setProperties(buttonProperties);
+    saveButton.setLabel("Save");
+    saveButton.onDown = function(){
+        actionPanel.setSelectedIndex(1);
+    };
+    me.addChild(saveButton);
+
+    loadButton.setProperties(buttonProperties);
+    loadButton.setLabel("Load");
+    loadButton.onDown = function(){
+        actionPanel.setSelectedIndex(0);
+    };
+    me.addChild(loadButton);
+
+
+
 
 	var label = UI.label({
 		label: "Load module",
@@ -115,18 +117,6 @@ UI.DiskOperations = function(){
 	dropzone.hide();
 
 
-	EventBus.on(EVENT.diskOperationTargetChange,function(target){
-
-		if (target && target.target) target = target.target;
-		if (target && target.fileType){
-			if (target.fileType == FILETYPE.module) target = "modules";
-			if (target.fileType == FILETYPE.sample) target = "samples";
-		}
-		if (typeof target == "undefined") target = targetPanel.getTarget();
-		me.refreshList(target);
-
-	});
-
     me.onShow = function(){
         me.onResize();
     };
@@ -153,43 +143,63 @@ UI.DiskOperations = function(){
 
 
             if (me.width >= 730){
-                actionPanel.setProperties({
-                    top: startTop,
-                    left: Layout.defaultMargin,
-                    width: Layout.col1W,
-                    height: me.height - 10
-                });
-                targetPanel.setProperties({
+
+                actionPanel.show();
+                label.show();
+                loadButton.hide();
+                saveButton.hide();
+
+				actionPanel.setProperties({
+					top: startTop,
+					left: Layout.col1X,
+					width: Layout.col1W,
+					height: me.height - 10
+				});
+                typePanel.setProperties({
                     top: startTop,
                     left: Layout.col2X,
                     width: Layout.col1W,
                     height: me.height - 10
                 });
+                targetPanel.setProperties({
+                    top: startTop,
+                    left: Layout.col3X,
+                    width: Layout.col1W,
+                    height: me.height - 10
+                });
 
                 label.setProperties({
-                    left: Layout.col3X,
+                    left: Layout.col4X,
                     top: startTop,
                     height: 20,
                     width: Layout.col2W
                 });
 
+
                 listbox.setProperties({
-                    left: Layout.col3X,
+                    left: Layout.col4X,
                     width: Layout.col2W,
                     top: startTop + 19,
                     height: me.height - (19+startTop) - 5
                 });
 
-                savePanel.show();
-                savePanel.setProperties({
-                    top: listbox.top,
-                    left: Layout.col5X,
-                    width: Layout.col1W,
-                    height: listbox.height
-                });
             }else{
 
-                actionPanel.setProperties({
+            	actionPanel.hide();
+                label.hide();
+                loadButton.show();
+                saveButton.show();
+
+                loadButton.setProperties({
+					top: 4,
+					left: Layout.col3X
+				});
+                saveButton.setProperties({
+                    top: 4,
+                    left: Layout.col3X + 50
+                });
+
+                typePanel.setProperties({
                     top: startTop,
                     left: Layout.defaultMargin,
                     width: Layout.col2W,
@@ -210,31 +220,22 @@ UI.DiskOperations = function(){
                     height: me.height - (19+startTop) - 5
                 });
 
-                label.setProperties({
-                    left: Layout.col3X,
-                    top: startTop,
-                    height: 20,
-                    width: Layout.col3W
+            }
+
+            if (currentAction === "save"){
+
+                savePanel.setProperties({
+                    left: listbox.left,
+                    width: listbox.width,
+                    top: listbox.top,
+                    height:listbox.height
                 });
 
-
-                if (currentsSubView === "save"){
-
-                    savePanel.setProperties({
-                        left: Layout.defaultMargin,
-                        width: Layout.col2W,
-                        top: startTop,
-                        height:me.height - 10
-                    });
-
-                    actionPanel.hide();
-                    targetPanel.hide();
-                    savePanel.show();
-                }else{
-                    actionPanel.show();
-                    targetPanel.show();
-                    savePanel.hide();
-                }
+                listbox.hide();
+                savePanel.show();
+            }else{
+                listbox.show();
+                savePanel.hide();
             }
 
 
@@ -250,9 +251,19 @@ UI.DiskOperations = function(){
 	me.setView = function(subView){
         currentsSubView = subView;
         me.refreshList(currentsSubView === "samples" ? "samples" : "");
+
+        if (subView === "diskop_save"){
+        	actionPanel.setSelectedIndex(1);
+		}
+        if (subView === "diskop_load"){
+            actionPanel.setSelectedIndex(0);
+        }
 	};
 
 	me.refreshList = function(type){
+
+		if (currentAction === "save") return;
+
 		var items = [];
 		var index = 0;
 
@@ -290,7 +301,7 @@ UI.DiskOperations = function(){
 			dropzone.hide();
 
 			if (currentView == "bassoon"){
-				currentView = actionPanel.getAction();
+				currentView = typePanel.getType();
 			}
 		}
 
@@ -585,11 +596,45 @@ UI.DiskOperations = function(){
 	}
 
 
+    EventBus.on(EVENT.diskOperationTargetChange,function(target){
+
+    	var action = actionPanel.getAction();
+
+        if (target && target.target) target = target.target;
+        if (target && target.fileType){
+            if (target.fileType === FILETYPE.module) target = "modules";
+            if (target.fileType === FILETYPE.sample) target = "samples";
+        }
+        if (typeof target === "undefined") target = targetPanel.getTarget();
+
+        console.log(target);
+
+    	if (action === "save"){
+            currentAction = "save";
+            currentView = typePanel.getType();
+
+            var labelText = "Export Module";
+            if (currentView === "samples")  labelText = "Export Sample";
+            label.setLabel(labelText);
+
+            if (loadButton.isActive) loadButton.setActive(false);
+            if (!saveButton.isActive) saveButton.setActive(true);
+
+			me.onResize();
+		}else{
+            currentAction = "load";
+            me.refreshList(target);
+
+            if (!loadButton.isActive) loadButton.setActive(true);
+            if (saveButton.isActive) saveButton.setActive(false);
+		}
+
+    });
+
+
 	EventBus.on(EVENT.instrumentChange,function(value){
 		if (me.isVisible() && currentView == "samples") label.setLabel("Load Sample to slot " + Tracker.getCurrentInstrumentIndex());
 	});
-
-
 
 	return me;
 

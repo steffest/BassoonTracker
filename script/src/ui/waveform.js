@@ -71,13 +71,18 @@ UI.WaveForm = function(){
 		//   TODO: put wave on separate canvas
 		if (this.needsRendering) {
 
+			console.log(waveformDisplay.needsRendering);
+
+			waveformDisplay.setPosition(0,0);
+			waveformDisplay.setSize(me.width,me.height);
+
+
 			if (waveformDisplay.needsRendering){
 
 				console.error("update wave");
 
 				waveformDisplay.clearCanvas();
-				waveformDisplay.setPosition(0,0);
-				waveformDisplay.setSize(me.width,me.height);
+
 
 				waveformDisplay.ctx.fillStyle = "rgb(13, 19, 27)";
 				waveformDisplay.ctx.fillRect(0, 0, me.width, me.height);
