@@ -175,5 +175,117 @@ var ProTracker = function(){
 		return song;
 	};
 
+	me.write = function(next){
+
+		var song = Tracker.getSong();
+		var instruments = Tracker.getInstruments();
+		var trackCount = Tracker.getTrackCount();
+		var patternLength = Tracker.getPatternLength();
+
+		// get filesize
+
+		var fileSize = 20 + (31*30) + 1 + 1 + 128 + 4;
+
+		var highestPattern = 0;
+		for (i = 0;i<128;i++){
+			var p = song.patternTable[i] || 0;
+			highestPattern = Math.max(highestPattern,p);
+		}
+
+		fileSize += ((highestPattern+1)* (trackCount * 256));
+
+		instruments.forEach(function(instrument){
+			if (instrument){
+				fileSize += instrument.sample.length;
+			}else{
+				// +4 ?
+			}
+		});
+
+		var i;
+		var arrayBuffer = new ArrayBuffer(fileSize);
+		var file = new BinaryStream(arrayBuffer,true);
+
+		// write title
+		file.writeStringSection(song.title,20);
+
+		// write instrument data
+		instruments.forEach(function(instrument){
+			if (instrument){
+
+				// limit instrument size to 128k
+				//TODO: show a warning when this is exceeded ...
+				instrument.sample.length = Math.min(instrument.sample.length, 131070); // = FFFF * 2
+
+				file.writeStringSection(instrument.name,22);
+				file.writeWord(instrument.sample.length >> 1);
+				file.writeUByte(instrument.finetune);
+				file.writeUByte(instrument.volume);
+				file.writeWord(instrument.loopStart >> 1);
+				file.writeWord(instrument.loopRepeatLength >> 1);
+			}else{
+				file.clear(30);
+			}
+		});
+
+		file.writeUByte(song.length);
+		file.writeUByte(127);
+
+		// patternPos
+		for (i = 0;i<128;i++){
+			var p = song.patternTable[i] || 0;
+			file.writeUByte(p);
+		}
+
+		file.writeString( trackCount == 8 ? "8CHN" : "M.K.");
+
+		// pattern Data
+
+		for (i=0;i<=highestPattern;i++){
+
+			// TODO: patternData
+			//file.clear(1024);
+
+			var patternData = song.patterns[i];
+
+			// TODO - should be patternLength of pattnern;
+			for (var step = 0; step<patternLength; step++){
+				var row = patternData[step];
+				for (var channel = 0; channel < trackCount; channel++){
+					var trackStep = row[channel];
+					var uIndex = 0;
+					var lIndex = trackStep.instrument;
+
+					if (lIndex>15){
+						uIndex = 16; // TODO: Why is this 16 and not 1 ? Nobody wanted 255 instruments instead of 31 ?
+						lIndex = trackStep.instrument - 16;
+					}
+
+					var v = (uIndex << 24) + (trackStep.period << 16) + (lIndex << 12) + (trackStep.effect << 8) + trackStep.param;
+					file.writeUint(v);
+				}
+			}
+		}
+
+		// sampleData;
+		instruments.forEach(function(instrument){
+			if (instrument && instrument.sample.data && instrument.sample.length){
+				// should we put repeat info here?
+				file.clear(2);
+				var d;
+				// instrument length is in word
+				for (i = 0; i < instrument.sample.length-2; i++){
+					d = instrument.sample.data[i] || 0;
+					file.writeByte(Math.round(d*127));
+				}
+				console.log("write instrument with " + instrument.sample.length + " length");
+			}else{
+				// still write 4 bytes?
+			}
+		});
+
+		if (next) next(file);
+	};
+
 	return me;
 };

@@ -103,9 +103,9 @@ UI.app_patternPanel = function(){
         });
 
         sampleView.setProperties({
-            left: Layout.col1X,
+            left: 0,
             top: patternTop,
-            width: Layout.col5W,
+            width: me.width,
             height: patternHeight
         });
 

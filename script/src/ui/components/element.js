@@ -24,12 +24,21 @@ UI.element = function(left,top,width,height){
         if (andRefresh) me.refresh(andRefreshAllChildren);
         if (me.onShow) me.onShow();
     };
-    me.toggle = function(){
-        if (me.visible){
-            me.hide();
+    me.toggle = function(state){
+        if (typeof state === "boolean"){
+            if (state) {
+                me.show();
+			}else{
+				me.hide();
+            }
         }else{
-            me.show();
+			if (me.visible){
+				me.hide();
+			}else{
+				me.show();
+			}
         }
+
     };
 
     me.isVisible = function(){

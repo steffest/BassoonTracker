@@ -35,11 +35,10 @@ UI.app_songPatternList = function(height){
     me.onResize = function(){
         songPanel.setSize(me.width,me.height);
 
-
         songlistbox.setProperties({
             left:0,
             top:0,
-            width:  me.width - 40,
+            width:  me.width - 42,
             height: me.height,
             centerSelection: true,
             onChange: function(){
@@ -47,8 +46,8 @@ UI.app_songPatternList = function(height){
             }
         });
 
-        spMin.setPosition(me.width - 20,Math.floor(me.height/2)-10);
-        spPlus.setPosition(me.width - 40,spMin.top);
+        spMin.setPosition(me.width - 22,Math.floor(me.height/2)-10);
+        spPlus.setPosition(me.width - 42,spMin.top);
     };
 
     EventBus.on(EVENT.patternTableChange,function(value){

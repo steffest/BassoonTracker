@@ -38,14 +38,15 @@ UI.SampleView = function(){
 
 	var spinBoxInstrument = UI.spinBox({
 		name: "Instrument",
-		label: "Instrument",
+		label: "",
 		value: 1,
 		max: 64,
+		padLength: 2,
 		min:1,
 		font: font,
 		onChange : function(value){Tracker.setCurrentInstrumentIndex(value);}
 	});
-	sideButtonPanel.addChild(spinBoxInstrument);
+	me.addChild(spinBoxInstrument);
 
 	var spinBoxVolume = UI.spinBox({
 		name: "Volume",
@@ -132,21 +133,6 @@ UI.SampleView = function(){
 	});
 	sideButtonPanel.addChild(spinBoxRelativeNote);
 
-    var spinBoxFadeOut = UI.spinBox({
-        name: "fadeOut",
-        label: "FadeOut",
-        value: 0,
-        max: 4046,
-        min:-0,
-        step:1,
-        font: font,
-        onChange: function(value){
-            var instrument = Tracker.getCurrentInstrument();
-            if (instrument) instrument.fadeout = value;
-        }
-    });
-    sideButtonPanel.addChild(spinBoxFadeOut);
-
 
 	var slider = UI.sliderBox({
 		label: "FadeOut",
@@ -211,7 +197,7 @@ UI.SampleView = function(){
 			spinBoxRepeat.setValue(instrument.loopStart);
 			spinBoxRepeatLength.setValue(instrument.loopRepeatLength);
 			spinBoxRelativeNote.setValue(instrument.relativeNote);
-			spinBoxFadeOut.setValue(instrument.fadeout);
+			//spinBoxFadeOut.setValue(instrument.fadeout);
 			waveForm.setInstrument(instrument);
 			volumeEnvelope.setInstrument(instrument);
 			panningEnvelope.setInstrument(instrument);
@@ -226,7 +212,7 @@ UI.SampleView = function(){
 			spinBoxRepeat.setValue(0);
 			spinBoxRepeatLength.setValue(0);
 			spinBoxRelativeNote.setValue(0);
-			spinBoxFadeOut.setValue(0);
+			//spinBoxFadeOut.setValue(0);
 		}
 	});
 
@@ -267,8 +253,8 @@ UI.SampleView = function(){
 
 		instrumentName.setProperties({
 			top: Layout.defaultMargin,
-			left: Layout.col2X,
-			width: Layout.col4W
+			left: Layout.col2X + 71,
+			width: Layout.col4W - 71
 		});
 
 		var spinButtonHeight = 28;
@@ -281,9 +267,9 @@ UI.SampleView = function(){
 		});
 
 		spinBoxInstrument.setProperties({
-			left:0,
-			top: 0,
-			width: sideButtonPanel.width,
+			left:Layout.col2X,
+			top: 1,
+			width: 68,
 			height: spinButtonHeight
 		});
 
@@ -328,13 +314,7 @@ UI.SampleView = function(){
 			width: sideButtonPanel.width,
 			height: spinButtonHeight
 		});
-
-        spinBoxFadeOut.setProperties({
-            left:0,
-            top: spinButtonHeight * 7,
-            width: sideButtonPanel.width,
-            height: spinButtonHeight
-        });
+		
 
 		slider.setProperties({
 			left:0,

@@ -27,6 +27,15 @@ var Layout = function(){
 
 	  me.colHalfW =  Math.floor(me.col1W/2);
 
+      // 3 column layout
+      me.col31W = Math.floor((me.width - (4*me.defaultMargin)- 5)/3);
+      me.col32W = (me.col31W*2) + me.defaultMargin;
+      me.col31X = me.col1X;
+      me.col32X = me.col31X + me.defaultMargin + me.col31W;
+      me.col33X = me.col32X + me.defaultMargin + me.col31W;
+
+      me.prefered = "col5";
+
 	  /* controlpanel */
 	  me.controlPanelHeight = 40;
 	  me.controlPanelLayout = "full";
@@ -82,7 +91,10 @@ var Layout = function(){
 		  me.modeButtonsLeft =  (me.controlPanelButtonsButton*2)  - me.TrackCountSpinboxWidth;
 		  me.modeButtonsWidth = me.controlPanelButtonsButton  + me.TrackCountSpinboxWidth + me.defaultMargin;
 		  me.songControlWidth = me.col2W + me.colHalfW + me.defaultMargin;
+	  }
 
+	  if (me.width<620){
+          me.prefered = "col3";
 	  }
 
       if (me.height<800){
@@ -104,7 +116,7 @@ var Layout = function(){
 		  me.firstTrackOffsetLeft = 18;
 		  me.trackWidth =  Math.floor((totalWidth - margins - me.firstTrackOffsetLeft)/me.visibleTracks);
 	  }
-	  var minTrackWidth = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER ? 100 : 78;
+	  var minTrackWidth = Tracker.inFTMode() ? 100 : 78;
 	  if (me.trackWidth<minTrackWidth) {
 	  	  me.trackFont = fontSuperCondensed;
 		  me.useCondensedTrackFont = true;

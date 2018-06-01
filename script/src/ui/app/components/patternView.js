@@ -277,15 +277,24 @@ UI.app_patternView = function(x,y,w,h){
                                     x = trackLeft + initialTrackTextOffset + (j*Layout.trackWidth);
                                 }
 
-                                if (note.note){
-                                    // XM module
-                                    var ftNote = FTNotes[note.note];
-                                    var noteString = ftNote ? ftNote.name : "???"
+                                if (Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER){
+									if (note.note){
+										var ftNote = FTNotes[note.note];
+										var noteString = ftNote ? ftNote.name : "???"
+									}else{
+										noteString = "---";
+										var baseNote = FTPeriods[note.period];
+										if (baseNote){
+											ftNote = FTNotes[baseNote];
+											if (ftNote) noteString = ftNote.name;
+                                        }else{
+										    if (note.period>0) console.error("no basenote for " + note.period)
+                                        }
+									}
                                 }else{
-                                    var baseNote = periodNoteTable[note.period];
-                                    noteString = baseNote ? baseNote.name : "---";
+									baseNote = periodNoteTable[note.period];
+									noteString = baseNote ? baseNote.name : "---";
                                 }
-
 
                                 drawText(noteString,x,y);
                                 if (isCenter){

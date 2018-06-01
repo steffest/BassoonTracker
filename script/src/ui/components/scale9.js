@@ -94,6 +94,8 @@ UI.scale9Panel = function(x,y,w,h,base){
 	me.render = function(internal){
 
 		internal = !!internal;
+		if (!me.isVisible()) return;
+
 		if (me.needsRendering){
 			createCanvas();
 		}

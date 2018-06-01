@@ -37,6 +37,7 @@ UI.inputbox = function(initialProperties){
 
 	me.render = function(internal){
 		internal = !!internal;
+		if (!me.isVisible()) return;
 
 		if (this.needsRendering){
 			background.render();

@@ -97,11 +97,11 @@ UI.spinBox = function(initialProperties){
 		}else{
 			buttonDown.setProperties({
 				left: me.width  - buttonDown.width,
-				top:5
+				top:3
 			});
 			buttonUp.setProperties({
 				left:me.width - buttonUp.width - buttonDown.width,
-				top:5
+				top:3
 			});
 		}
 	};
@@ -121,6 +121,7 @@ UI.spinBox = function(initialProperties){
 		if (typeof properties.max != "undefined") max = properties.max;
 		if (typeof properties.step != "undefined") step = properties.step;
 		if (typeof properties.onChange != "undefined") onChange = properties.onChange;
+		if (typeof properties.padLength != "undefined") padLength = properties.padLength;
 	}
 
 	me.setValue = function(newValue,internal){
@@ -150,6 +151,8 @@ UI.spinBox = function(initialProperties){
 
 	me.render = function(internal){
 		internal = !!internal;
+		if (!me.isVisible()) return;
+
 		if (me.needsRendering){
 			me.clearCanvas();
 			if (label){
@@ -184,7 +187,18 @@ UI.spinBox = function(initialProperties){
 				var valueW = 40;
 				var valueH = 24;
 
-				if (padLength == 5){
+
+				if (padLength === 2){
+					valueW = 24;
+					valueX += 16;
+				}
+
+				if (padLength === 3){
+					valueW = 32;
+					valueX += 8;
+				}
+
+				if (padLength === 5){
 					valueW = 48;
 					valueX -= 8;
 				}

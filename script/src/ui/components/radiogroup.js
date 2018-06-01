@@ -57,6 +57,7 @@ UI.radioGroup = function(x,y,w,h){
 
 	me.render = function(internal){
 		internal = !!internal;
+		if (!me.isVisible()) return;
 
 		if (this.needsRendering){
 

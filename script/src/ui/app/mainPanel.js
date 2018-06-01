@@ -1,6 +1,8 @@
 UI.app_mainPanel = function(){
     var me = UI.app_panelContainer(160);
     var currentView = "";
+    var currentSubView = "";
+	var radioGroup;
 
     var logo = UI.button();
     logo.setProperties({
@@ -103,7 +105,6 @@ UI.app_mainPanel = function(){
             }else if(currentLength<value){
                 Tracker.addToPatternTable();
             }
-
         }
     });
     me.addChild(spinBoxSongLength);
@@ -160,8 +161,6 @@ UI.app_mainPanel = function(){
     me.addChild(spinBoxBpm);
 
 
-
-
     var diskOperations = UI.DiskOperations();
     diskOperations.setProperties({
         name: "diskoperations",
@@ -190,89 +189,211 @@ UI.app_mainPanel = function(){
         var spinButtonHeight = 28;
         var spinButtonWidth = Layout.col1W-2;
 
-        logo.setDimensions({
-            left: Layout.col2X,
-            top: margin,
-            width: Layout.col2W,
-            height: logoHeight
-        });
 
-        modNameInputBox.setDimensions({
-            left: Layout.col4X,
-            width: Layout.col2W,
-            top: margin,
-            height: inputBoxHeight
-        });
+        if (Layout.prefered === "col3"){
+            if (!radioGroup) initSmallScreenUI();
 
-        listbox.setDimensions({
-            left: Layout.col4X,
-            width: Layout.col2W,
-            top: listBoxTop,
-            height: me.height - listBoxTop - (margin*2)
-        });
+			panelHeight = me.height - (margin*2);
+			panelTop = margin;
+			spinButtonWidth = Layout.col32W - 2;
+			spinButtonHeight = 28;
+			radioGroup.show();
 
-        songlistbox.setDimensions({
-            left: Layout.col1X,
-            width: Layout.col1W,
-            top: panelTop,
-            height: panelHeight
-        });
+			radioGroup.setDimensions({
+				left: Layout.col31X,
+				width: Layout.col31W,
+				top: margin,
+				height: panelHeight,
+                visible: true
+			});
 
-        patternPanel.setDimensions({
-            left: Layout.col2X,
-            width: Layout.col1W,
-            top: panelTop,
-            height: panelHeight
-        });
+			modNameInputBox.setDimensions({
+				left: Layout.col32X,
+				width: Layout.col32W,
+				top: margin,
+				height: inputBoxHeight
+			});
 
-        patternPanel2.setDimensions({
-            left: Layout.col3X,
-            width: Layout.col1W,
-            top: panelTop,
-            height: panelHeight
-        });
+			listbox.setDimensions({
+				left: Layout.col32X,
+				width: Layout.col32W,
+				top: listBoxTop,
+				height: me.height - listBoxTop - (margin*2)
+			});
 
-        spinBoxBpm.setDimensions({
-            left:Layout.col2X,
-            top: patternPanel.top + 3,
-            width: spinButtonWidth,
-            height: spinButtonHeight
-        });
+			var mainDimensions = {
+				left: Layout.col32X,
+				width: Layout.col32W,
+				top: panelTop,
+				height: panelHeight
+			};
 
-        spinBoxSongLength.setDimensions({
-            left:Layout.col2X,
-            top: patternPanel.top + 3 + spinButtonHeight,
-            width: spinButtonWidth,
-            height: spinButtonHeight
-        });
+			songlistbox.setDimensions(mainDimensions);
+			patternPanel.setDimensions(mainDimensions);
+			patternPanel2.setDimensions(mainDimensions);
+			logo.setDimensions(mainDimensions);
 
-		spinBoxSongRepeat.setDimensions({
-			left:Layout.col2X,
-			top: patternPanel.top + 3 + spinButtonHeight*2,
-			width: spinButtonWidth,
-			height: spinButtonHeight
-		});
+			var spinButtonLeft = Layout.col32X;
 
-        spinBoxPattern.setDimensions({
-            left:Layout.col3X,
-            top: patternPanel.top + 3,
-            width: spinButtonWidth,
-            height: spinButtonHeight
-        });
+			spinBoxBpm.setDimensions({
+				left:spinButtonLeft,
+				top: patternPanel.top + 3,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
 
-        spinBoxPatternLength.setDimensions({
-            left:Layout.col3X,
-            top: patternPanel.top + 3 + spinButtonHeight,
-            width: spinButtonWidth,
-            height: spinButtonHeight
-        });
+			spinBoxSongLength.setDimensions({
+				left:spinButtonLeft,
+				top: patternPanel.top + 3 + spinButtonHeight,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
 
-        spinBoxInstrument.setDimensions({
-            left:Layout.col3X,
-            top: patternPanel.top + 3 + spinButtonHeight*2,
-            width: spinButtonWidth,
-            height: spinButtonHeight
-        });
+			spinBoxSongRepeat.setDimensions({
+				left:spinButtonLeft,
+				top: patternPanel.top + 3 + spinButtonHeight*2,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
+			spinBoxSongRepeat.hide();
+
+			spinBoxPattern.setDimensions({
+				left:spinButtonLeft,
+				top: patternPanel.top + 3 + spinButtonHeight*2,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
+
+			spinBoxPatternLength.setDimensions({
+				left:spinButtonLeft,
+				top: patternPanel.top + 3 + spinButtonHeight*3,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
+
+			spinBoxInstrument.setDimensions({
+				left:spinButtonLeft,
+				top: patternPanel.top + 3 + spinButtonHeight*4,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
+
+			logo.toggle(currentSubView === "about");
+			modNameInputBox.toggle(currentSubView === "instruments");
+			listbox.toggle(currentSubView === "instruments");
+			songlistbox.toggle(currentSubView === "songdata");
+			patternPanel.toggle(currentSubView === "patterndata");
+			spinBoxBpm.toggle(currentSubView === "patterndata");
+			spinBoxSongLength.toggle(currentSubView === "patterndata");
+			spinBoxPattern.toggle(currentSubView === "patterndata");
+			spinBoxPatternLength.toggle(currentSubView === "patterndata");
+			spinBoxInstrument.toggle(currentSubView === "patterndata");
+
+			patternPanel2.hide();
+
+
+
+		}else{
+
+			if (radioGroup) radioGroup.hide();
+
+			logo.show();
+			modNameInputBox.show();
+			listbox.show();
+			songlistbox.show();
+			patternPanel.show();
+			patternPanel2.show();
+			spinBoxBpm.show();
+			spinBoxSongLength.show();
+			spinBoxPattern.show();
+			spinBoxPatternLength.show();
+			spinBoxInstrument.show();
+
+			logo.setDimensions({
+				left: Layout.col1X,
+				top: margin,
+				width: Layout.col3W,
+				height: logoHeight
+			});
+
+			modNameInputBox.setDimensions({
+				left: Layout.col4X,
+				width: Layout.col2W,
+				top: margin,
+				height: inputBoxHeight
+			});
+
+			listbox.setDimensions({
+				left: Layout.col4X,
+				width: Layout.col2W,
+				top: listBoxTop,
+				height: me.height - listBoxTop - (margin*2)
+			});
+
+			songlistbox.setDimensions({
+				left: Layout.col1X,
+				width: Layout.col1W,
+				top: panelTop,
+				height: panelHeight
+			});
+
+			patternPanel.setDimensions({
+				left: Layout.col2X,
+				width: Layout.col1W,
+				top: panelTop,
+				height: panelHeight
+			});
+
+			patternPanel2.setDimensions({
+				left: Layout.col3X,
+				width: Layout.col1W,
+				top: panelTop,
+				height: panelHeight
+			});
+
+			spinBoxBpm.setDimensions({
+				left:Layout.col2X,
+				top: patternPanel.top + 3,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
+
+			spinBoxSongLength.setDimensions({
+				left:Layout.col2X,
+				top: patternPanel.top + 3 + spinButtonHeight,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
+
+			spinBoxSongRepeat.setDimensions({
+				left:Layout.col2X,
+				top: patternPanel.top + 3 + spinButtonHeight*2,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
+
+			spinBoxPattern.setDimensions({
+				left:Layout.col3X,
+				top: patternPanel.top + 3,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
+
+			spinBoxPatternLength.setDimensions({
+				left:Layout.col3X,
+				top: patternPanel.top + 3 + spinButtonHeight,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
+
+			spinBoxInstrument.setDimensions({
+				left:Layout.col3X,
+				top: patternPanel.top + 3 + spinButtonHeight*2,
+				width: spinButtonWidth,
+				height: spinButtonHeight
+			});
+
+        }
 
 
         diskOperations.setSize(me.width,me.height);
@@ -283,6 +404,55 @@ UI.app_mainPanel = function(){
     me.getCurrentView = function(){
         return currentView;
     };
+
+    function initSmallScreenUI(){
+		currentSubView = "patterndata";
+		radioGroup = UI.radioGroup();
+		radioGroup.setProperties({
+			align: "right",
+			size:"med",
+			divider: "line",
+			highLightSelection:true,
+            zIndex: 1
+		});
+		radioGroup.setItems([
+			{
+				label:"About",
+				active:false
+			},
+			{
+				label:"Song data",
+				labels : [
+					{width: 30, label: "song"}
+				],
+				active:false
+			},
+			{
+				label:"Pattern data",
+				labels : [
+					{width: 40, label: "pattern"}
+				],
+				active:true
+			},
+			{
+				label:"Instruments",
+				labels : [
+					{width: 30, label: "Instr"}
+				],
+				active:false
+			}
+		]);
+		radioGroup.onChange = function(selectedIndex){
+			currentSubView = "about";
+			if (selectedIndex === 1) currentSubView = "songdata";
+			if (selectedIndex === 2) currentSubView = "patterndata";
+			if (selectedIndex === 3) currentSubView = "instruments";
+			me.onPanelResize();
+
+		};
+		me.addChild(radioGroup);
+		me.sortZIndex();
+    }
 
 
     EventBus.on(EVENT.songLoading,function(){
@@ -308,11 +478,11 @@ UI.app_mainPanel = function(){
     EventBus.on(EVENT.instrumentNameChange,function(instrumentIndex){
         var instrument = Tracker.getInstrument(instrumentIndex);
         if (instrument){
-            var instruments = me.getInstruments();
+            var instruments = listbox.getItems();
             for (var i = 0, len = instruments.length; i<len;i++){
                 if (instruments[i].data == instrumentIndex){
                     instruments[i].label = instrumentIndex + " " + instrument.name;
-                    EventBus.trigger(EVENT.instrumentListChange,instrumentContainer);
+                    EventBus.trigger(EVENT.instrumentListChange,instruments);
                     break;
                 }
             }
