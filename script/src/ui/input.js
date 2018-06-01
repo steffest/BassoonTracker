@@ -230,10 +230,9 @@ var Input = (function(){
 
 			if (key && (keyCode>40) && (keyCode<200)){
 
-
-				if (keyCode == 112) currentOctave = 1;
-				if (keyCode == 113) currentOctave = 2;
-				if (keyCode == 114) currentOctave = 3;
+				if (keyCode === 112) currentOctave = 1;
+				if (keyCode === 113) currentOctave = 2;
+				if (keyCode === 114) currentOctave = 3;
 
 
 				var baseNote = keyboardTable[key];
@@ -244,15 +243,16 @@ var Input = (function(){
 					var noteName = baseNote.name + (currentOctave + baseNote.octave);
 					note = NOTEPERIOD[noteName];
 
-					// get FT note
-					var currentOctave = 4;
-					var index = baseNote.index + (currentOctave * 12);
-					var fNote = FTNotes[index];
-					//console.log(fNote);
-					if (fNote){
-						note = {
-							period: fNote.period,
-							note: index
+					if (Tracker.inFTMode()){
+						// get FT note
+						var ftOctave = currentOctave + 2;
+						var index = baseNote.index + (ftOctave * 12);
+						var fNote = FTNotes[index];
+						if (fNote){
+							note = {
+								period: fNote.period,
+								note: index
+							}
 						}
 					}
 				}

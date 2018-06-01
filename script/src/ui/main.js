@@ -14,6 +14,7 @@ var UI = (function(){
 	var fontDark;
 
 	var maxWidth = 1200;
+	var minHeight = 800;
 	var modalElement;
 	var needsRendering =  true;
 	var maxRenderTime = 0;
@@ -100,6 +101,8 @@ var UI = (function(){
 
 	me.setSize = function(newWidth,newHeight){
 		if (newWidth>maxWidth) newWidth = maxWidth;
+		//if (newHeight<minHeight) newHeight = minHeight;
+
 		if ((newWidth != canvas.width) || (newHeight != canvas.height)){
 			ctx.clearRect(0,0,canvas.width,canvas.height);
 			canvas.width = newWidth;
@@ -254,8 +257,8 @@ var UI = (function(){
 			margin: 0,
 			charsPerLine:[40],
 			lineSpacing:0,
-			chars: 	   "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789():-",
-			charWidth: "777766773676877787777888974666666664434",
+			chars: 	   "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890():-",
+			charWidth: "7777667736768777877778887746666666664434",
 			onlyUpperCase:true
 		});
 		window.fontDark = fontDark;

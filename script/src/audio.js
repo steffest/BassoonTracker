@@ -60,7 +60,7 @@ var Audio = (function(){
         audioContext = audioContext || context;
         if (!audioContext) return;
 
-        createAudioConnections(context);
+        createAudioConnections(audioContext);
 
         var numberOfTracks = Tracker.getTrackCount();
         filterChains = [];
@@ -293,7 +293,6 @@ var Audio = (function(){
         console.log("startRendering " + length);
         offlineContext = new OfflineAudioContext(2,44100*length,44100);
         me.context = offlineContext;
-        createAudioConnections(offlineContext);
         me.init(offlineContext);
     };
 

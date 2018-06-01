@@ -177,11 +177,13 @@ UI.OptionsPanel = function(){
 		var optionHeight = 30;
 		var buttonHeight = 20;
 		var i = 0;
+
 		options.forEach(function(option){
-			var thisLeft = Layout["col"+(i+1)+"X"];
+			var thisLeft = Layout["col3"+(i+1)+"X"];
+
 			option.label.setProperties({
 				top: optionTop,
-				width: Layout.col1W,
+				width: Layout.col31W,
 				height: optionHeight,
 				left: thisLeft
 			});
@@ -192,7 +194,7 @@ UI.OptionsPanel = function(){
 				button.setProperties({
 					top: optionTop + (b*buttonHeight) + 30,
 					height: buttonHeight,
-					width: Layout.col1W,
+					width: Layout.col31W,
 					left: thisLeft
 				});
 
