@@ -5,7 +5,11 @@ UI.rangeSlider = function(initialProperties){
 	var properties = ["left","top","width","height","name","onChange"];
 
 	var knob = Y.getImage("slider_knob");
+	var knobVert = Y.getImage("slider_knob_vert");
 	var backImage = Y.getImage("slider_back");
+	var backImageVert = Y.getImage("slider_back_vert");
+    var vertical = false;
+    var maxHeight = 0;
 
 	var back = UI.scale9Panel(0,0,0,0,{
 		img: backImage,
@@ -13,13 +17,15 @@ UI.rangeSlider = function(initialProperties){
 		right: 4,
 		top: 0,
 		bottom: 0,
-		scale: "repeat"
+		scale: "repeatX"
 	});
 	me.addChild(back);
 	back.ignoreEvents = true;
 
 	var knobLeft = 0;
+	var knobTop = 0;
 	var startKnobLeft = 0;
+	var startKnobTop = 0;
 
 	var min = 0;
 	var max = 100;
@@ -36,7 +42,19 @@ UI.rangeSlider = function(initialProperties){
 		if (typeof p.min !== "undefined") min=p.min;
 		if (typeof p.max !== "undefined") max=p.max;
 		if (typeof p.value !== "undefined") me.setValue(p.value,true);
+		if (typeof p.vertical !== "undefined")  {
+			vertical = !!p.vertical;
 
+            back.setProperties({
+                img: backImageVert,
+                imgLeft: 0,
+                imgRight: 0,
+                imgTop: 4,
+                imgBottom: 4,
+                scale: "repeatY"
+            });
+
+        }
 	};
 
 	me.getValue = function(){
@@ -51,14 +69,29 @@ UI.rangeSlider = function(initialProperties){
 		var hasChanged = !internal && value!==v;
 		value = v;
 
-		var maxWidth = me.width-knob.width;
-		knobLeft = maxWidth * v/max;
+		if (vertical){
+			var relMax = max - min;
+			knobTop = maxHeight * (1 - (v-min)/relMax);
+		}else{
+			var maxWidth = me.width-knob.width;
+			knobLeft = maxWidth * v/max;
+		}
+
 		me.refresh();
 
-		if (hasChanged){
+		if (hasChanged && !internal){
 			if (me.onChange) me.onChange(value);
 		}
 	};
+
+	me.setMax = function(newMax,skipCheck){
+		max = newMax;
+		if (!skipCheck && value>max) me.setValue(max);
+	};
+    me.setMin = function(newMin,skipCheck){
+        min = newMin;
+        if (!skipCheck && value<min) me.setValue(min);
+    };
 
 
 	me.render = function(internal){
@@ -66,7 +99,11 @@ UI.rangeSlider = function(initialProperties){
 			internal = !!internal;
 			me.clearCanvas();
 			back.render();
-			me.ctx.drawImage(knob,knobLeft,-1,knob.width,knob.height);
+			if (vertical){
+                me.ctx.drawImage(knobVert,-1,knobTop,knobVert.width,knobVert.height);
+			}else{
+                me.ctx.drawImage(knob,knobLeft,-1,knob.width,knob.height);
+			}
 		}
 		me.needsRendering = false;
 
@@ -78,26 +115,47 @@ UI.rangeSlider = function(initialProperties){
 	};
 
 	me.onResize = function(){
+
+		maxHeight = me.height-knobVert.height+3;
+
 		back.setSize(me.width,me.height);
 		me.setValue(value,true);
 	};
 
 	me.onDragStart = function(){
 		startKnobLeft = knobLeft;
+        startKnobTop = knobTop;
 	};
 
 	me.onDrag=function(touchData){
-		var delta =  touchData.dragX - touchData.startX;
-		knobLeft = startKnobLeft + delta;
-		if (knobLeft<0) knobLeft=0;
+		if(vertical){
+            var delta =  touchData.dragY - touchData.startY;
+            knobTop = startKnobTop + delta;
+            if (knobTop<0) knobTop=0;
 
-		var maxWidth = me.width-knob.width;
-		if (knobLeft> maxWidth) knobLeft=maxWidth;
+            if (knobTop> maxHeight) knobTop=maxHeight;
 
-		if (maxWidth>knob.width){
-			value = Math.round(max * knobLeft/maxWidth);
+            if (maxHeight>knob.height){
+            	var relMax = max - min;
+            	var relValue = relMax - (Math.round(relMax * knobTop/maxHeight));
+                value = relValue + min;
+            }else{
+                value = max;
+            }
+
 		}else{
-			value = 0;
+            delta =  touchData.dragX - touchData.startX;
+            knobLeft = startKnobLeft + delta;
+            if (knobLeft<0) knobLeft=0;
+
+            var maxWidth = me.width-knob.width;
+            if (knobLeft> maxWidth) knobLeft=maxWidth;
+
+            if (maxWidth>knob.width){
+                value = Math.round(max * knobLeft/maxWidth);
+            }else{
+                value = 0;
+            }
 		}
 
 		me.refresh();

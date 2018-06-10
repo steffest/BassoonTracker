@@ -62,8 +62,18 @@ UI.app_patternPanel = function(){
         var patternTop = Layout.infoPanelHeight + Layout.trackControlHeight + Layout.analyserHeight + (Layout.defaultMargin*2);
         var patternHeight = me.height - patternTop - Layout.defaultMargin;
 
-		patternLeft = sidebar.isVisible() ? Layout.col2X : Layout.col1X;
-		var patternWidth = sidebar.isVisible() ? Layout.col4W : Layout.col5W;
+        Layout.expandSampleViewHeight = patternHeight<280;
+
+        if (Layout.expandSampleViewHeight && currentView==="sample"){
+            visualiser.hide();
+			editPanel.hide();
+        }else{
+            visualiser.show();
+			if (Layout.showSideBar) editPanel.show();
+        }
+
+		patternLeft = Layout.showSideBar ? Layout.col2X : Layout.col1X;
+		var patternWidth = Layout.showSideBar ? Layout.col4W : Layout.col5W;
 
 		patternTrackLeft = patternLeft + Layout.firstTrackOffsetLeft;
 
@@ -95,6 +105,7 @@ UI.app_patternPanel = function(){
             height: patternHeight + Layout.trackControlHeight
         });
 
+
         visualiser.setProperties({
             left: patternTrackLeft,
             top: me.top + Layout.infoPanelHeight + 3,
@@ -104,9 +115,9 @@ UI.app_patternPanel = function(){
 
         sampleView.setProperties({
             left: 0,
-            top: patternTop,
+            top: Layout.expandSampleViewHeight ? Layout.infoPanelHeight : patternTop,
             width: me.width,
-            height: patternHeight
+            height: Layout.expandSampleViewHeight ? me.height - Layout.infoPanelHeight - Layout.defaultMargin - 3 : patternHeight
         });
 
         setTrackControlsLayout();
@@ -123,6 +134,8 @@ UI.app_patternPanel = function(){
         var startTrack = patternView.getStartTrack();
         var endTrack = Math.min(startTrack + Layout.visibleTracks,Tracker.getTrackCount());
 
+        var isVisible = !(Layout.expandSampleViewHeight && currentView === "sample");
+
         for (i = 0;i< trackControls.length;i++){
 
             if ( i>=startTrack && i<endTrack){
@@ -132,7 +145,7 @@ UI.app_patternPanel = function(){
                     top: Layout.defaultMargin + Layout.infoPanelHeight + Layout.analyserHeight,
                     width: Layout.trackWidth,
                     height:Layout.trackControlHeight,
-                    visible: true
+                    visible: isVisible
                 });
             }else{
                 trackControls[i].setProperties({
@@ -209,13 +222,21 @@ UI.app_patternPanel = function(){
                 sampleView.show();
                 patternView.hide();
                 sidebar.hide();
+
+                if (Layout.expandSampleViewHeight){
+                    visualiser.hide();
+                    editPanel.hide();
+                }
+
 				currentView = view;
+				me.onPanelResize();
                 me.refresh();
                 break;
             case "bottommain":
             case "main":
                 sampleView.hide();
                 patternView.show();
+				visualiser.show();
                 if (Layout.showSideBar){
 					sidebar.show();
 					editPanel.show();

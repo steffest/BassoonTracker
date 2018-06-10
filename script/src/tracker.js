@@ -603,9 +603,9 @@ var Tracker = (function(){
 					var playingInstrument = instrumentIndex || trackNotes[track] ? trackNotes[track].currentInstrument : 0;
 					if (playingInstrument){
 						instrument = me.getInstrument(playingInstrument);
-						if (instrument && instrument.finetune){
-							finetune = instrument.finetune;
-							root = Audio.getFineTuneForPeriod(root,finetune);
+						if (instrument){
+							finetune = instrument.getFineTune();
+							if (finetune) root = Audio.getFineTuneForPeriod(root,finetune);
 						}
 					}
 

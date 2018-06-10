@@ -20,6 +20,14 @@ UI.scale9Panel = function(x,y,w,h,base){
 			if (typeof p[key] != "undefined") me[key] = p[key];
 		});
 
+		if (typeof p.img !== "undefined") base.img=p.img;
+		if (typeof p.scale !== "undefined") base.scale=p.scale;
+
+		if (typeof p.imgTop !== "undefined") base.top=p.imgTop;
+		if (typeof p.imgBottom !== "undefined") base.bottom=p.imgBottom;
+		if (typeof p.imgLeft !== "undefined") base.left=p.imgLeft;
+		if (typeof p.imgRight !== "undefined") base.right=p.imgRight;
+
 		me.setSize(me.width,me.height);
 		me.setPosition(me.left,me.top);
 
@@ -56,7 +64,7 @@ UI.scale9Panel = function(x,y,w,h,base){
 			}
 
 
-			if (base.scale === "repeat"){
+			if (base.scale === "repeatX"){
 				var tx = base.left;
 				var tMax = base.left+targetCenterW;
 				var tw;
@@ -69,9 +77,21 @@ UI.scale9Panel = function(x,y,w,h,base){
 					tx+=tw;
 				}
 
-				// TODO: repeat on Y axis;
-
 			}
+
+            if (base.scale === "repeatY"){
+                var ty = base.top;
+                tMax = base.top+targetCenterH;
+                var th;
+
+                // render first col
+                while (ty<tMax){
+                    th = centerH;
+                    if (ty+th>tMax) th = tMax-ty;
+                    me.ctx.drawImage(img,base.left,base.top,centerW,th,base.left,ty,centerW,th);
+                    ty+=th;
+                }
+            }
 
 
 			// midRight
@@ -107,6 +127,8 @@ UI.scale9Panel = function(x,y,w,h,base){
 			me.parentCtx.drawImage(me.canvas,me.left,me.top);
 		}
 	};
+
+    //if (base) me.setProperties(base);
 
 	return me;
 };

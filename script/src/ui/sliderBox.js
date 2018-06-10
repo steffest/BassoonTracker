@@ -12,8 +12,19 @@ UI.sliderBox = function(initialProperties){
 	var padLength = 4;
 	var padChar = " ";
 	var onChange;
+	var vertical;
+
+	var labelX=0;
+	var labelY=0;
+	var digitX=0;
+	var digitY=0;
+	var digitW=10;
+	var digitH=10;
 
 	var sliderHeight = 20;
+	var sliderwidth = 20;
+
+	var lineVer = Y.getImage("line_ver");
 
 	if (initialProperties) setPropertiesValues(initialProperties);
 
@@ -31,11 +42,14 @@ UI.sliderBox = function(initialProperties){
 		min: min,
 		max: max,
 		height: sliderHeight,
+		width: sliderwidth,
+		vertical: !!vertical,
 		onChange: function(v){
 				value = v;
 				if (onChange) onChange(v);
 		}
 	});
+
 	me.addChild(slider);
 
 
@@ -63,6 +77,10 @@ UI.sliderBox = function(initialProperties){
 		if (typeof properties.max != "undefined") max = properties.max;
 		if (typeof properties.step != "undefined") step = properties.step;
 		if (typeof properties.onChange != "undefined") onChange = properties.onChange;
+		if (typeof properties.vertical != "undefined") {
+			vertical = !!properties.vertical;
+            if (slider) slider.setProperties({vertical: vertical})
+        }
 	}
 
 	me.setValue = function(newValue,internal){
@@ -76,46 +94,38 @@ UI.sliderBox = function(initialProperties){
 		return value;
 	};
 
-	me.setMax = function(newMax){
+	me.setMax = function(newMax,skipCheck){
 		max = newMax;
-		if (value>max) me.setValue(max);
+		if (!skipCheck && value>max) me.setValue(max);
+		slider.setMax(max,skipCheck);
 	};
 
-	me.setMin = function(newMin){
+	me.setMin = function(newMin,skipCheck){
 		min = newMin;
-		if (value<min) me.setValue(min);
+		if (!skipCheck && value<min) me.setValue(min);
+        slider.setMin(min,skipCheck);
 	};
 
 	me.render = function(internal){
 		internal = !!internal;
 		if (me.needsRendering){
 			me.clearCanvas();
+
+			me.ctx.drawImage(Y.getImage("panel_inset_dark"),digitX,digitY,digitW,digitH);
+			window.fontLed.write(me.ctx,padValue(),digitX+4,digitY+2,0);
+			slider.render();
+
 			if (font){
-				font.write(me.ctx,label,6,8,0);
+				font.write(me.ctx,label,labelX,labelY,0);
 			}else{
 				me.ctx.fillStyle = "white";
-				me.ctx.fillText(label,10,10);
+				me.ctx.fillText(label,labelX,labelY);
 			}
 
-
-			var valueX = me.width - 40;
-			var valueY = 2;
-			var valueW = 40;
-			var valueH = 19;
-
-			if (padLength == 5){
-				valueW = 48;
-				valueX -= 8;
+			if (vertical){
+				me.ctx.drawImage(lineVer,me.width-2,0,2,me.height);
 			}
 
-			me.ctx.drawImage(Y.getImage("panel_inset_dark"),valueX,valueY,valueW,valueH);
-
-			valueX +=4;
-			valueY += 2;
-			window.fontLed.write(me.ctx,padValue(),valueX,valueY,0);
-
-
-			slider.render();
 
 		}
 		me.needsRendering = false;
@@ -139,10 +149,30 @@ UI.sliderBox = function(initialProperties){
 			me.setValue(value);
 		}
 	};
+	slider.onMouseWheel = me.onMouseWheel;
 
 	me.onResize = function(){
-		slider.setSize(me.width, sliderHeight);
-		slider.setPosition(0, me.height - sliderHeight);
+
+		digitW = 40;
+		digitH = 19;
+		if (padLength == 5){
+			digitW = 48;
+			digitX -= 8;
+		}
+
+		if (vertical){
+            slider.setSize(sliderwidth, me.height-36);
+            slider.setPosition(Math.floor((me.width-sliderwidth)/2),0);
+			digitX = Math.floor((me.width - 40)/2);
+			digitY = me.height-32;
+			labelX = Math.floor((me.width - font.getTextWidth(label,0))/2);
+			labelY = me.height-9;
+		}else{
+            slider.setSize(me.width, sliderHeight);
+            slider.setPosition(0, me.height - sliderHeight);
+			digitX = me.width - 40;
+			digitY = 2;
+		}
 	};
 
 	return me;

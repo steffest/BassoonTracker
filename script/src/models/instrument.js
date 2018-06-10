@@ -4,6 +4,7 @@ var Instrument = function(){
 	me.type = "sample";
 	me.sampleIndex = 0;
 	me.finetune = 0;
+	me.finetuneX = 0;
 	me.relativeNote = 0;
 	me.data = [];
 	me.samples = [Sample()];
@@ -23,6 +24,21 @@ var Instrument = function(){
 		}else{
 			//Tracker.cutNote(track,time);
 			return 0;
+		}
+	};
+
+	me.getFineTune = function(){
+        console.log(me.finetune,me.finetuneX);
+		return Tracker.inFTMode() ? me.finetuneX : me.finetune;
+	};
+
+	me.setFineTune = function(finetune){
+		if (Tracker.inFTMode()){
+			me.finetuneX = finetune;
+			me.finetune = finetune >> 4;
+		}else{
+			me.finetune = finetune;
+			me.finetuneX = finetune << 4;
 		}
 	};
 

@@ -21,6 +21,7 @@ var UI = (function(){
 	var skipRenderSteps = 0;
 	var renderStep = 0;
 	var renderTime = 0;
+	var renderTimes = [];
 
 	var UICache = {};
 
@@ -315,9 +316,12 @@ var UI = (function(){
 			if (startRenderTime){
 				renderTime = Audio.context.currentTime - startRenderTime;
 				maxRenderTime = Math.max(renderTime,maxRenderTime);
-				if (maxRenderTime>0.06) skipRenderSteps=1;
+				/*if (maxRenderTime>0.06) skipRenderSteps=1;
 				if (maxRenderTime>0.08) skipRenderSteps=2;
-				if (maxRenderTime>0.1) skipRenderSteps=4;
+				if (maxRenderTime>0.1) skipRenderSteps=4;*/
+
+				renderTimes.push(renderTime);
+				if (renderTimes.length>20) renderTimes.shift();
 			}
 		}
 		window.requestAnimationFrame(render);
@@ -388,6 +392,7 @@ var UI = (function(){
 		return {
 			maxRenderTime : maxRenderTime,
 			currentRenderTime: renderTime,
+			renderTimes:renderTimes,
 			skipRenderSteps: skipRenderSteps
 		}
 	};

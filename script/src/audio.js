@@ -140,8 +140,8 @@ var Audio = (function(){
 
             volume = typeof volume == "undefined" ? (100*instrument.volume/64) : volume;
 
-            if (instrument.finetune){
-                period = noteIndex ?  me.getFineTuneForNote(noteIndex,instrument.finetune) : me.getFineTuneForPeriod(period,instrument.finetune);
+            if (instrument.getFineTune()){
+                period = noteIndex ?  me.getFineTuneForNote(noteIndex,instrument.getFineTune()) : me.getFineTuneForPeriod(period,instrument.getFineTune());
             }
             var sampleRate = PALFREQUENCY / (period*2);
 

@@ -52,7 +52,7 @@ UI.trackControl = function(x,y,w,h,visible){
     });
     me.addChild(buttons.fx);
 
-    var properties = ["left","top","width","height","name","type","track","solo","mute"];
+    var properties = ["left","top","width","height","name","type","track","solo","mute","visible"];
     me.setProperties = function(p){
 
         properties.forEach(function(key){
@@ -105,7 +105,9 @@ UI.trackControl = function(x,y,w,h,visible){
 
     me.render = function(internal){
 
+		if (!me.isVisible()) return;
         internal = !!internal;
+
         if (me.needsRendering){
             me.clearCanvas();
             if (font){

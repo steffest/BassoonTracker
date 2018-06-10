@@ -31,7 +31,7 @@ var SoundTracker = function(){
 			instrument.sample.length = instrument.realLen = sampleLength << 1;
 			instrument.volume   = file.readWord();
 			// NOTE: does the high byte of the volume someties contain finetune data?
-			instrument.finetune = 0;
+			instrument.setFineTune(0);
 			instrument.loopStart     = file.readWord(); // in bytes!
 			instrument.loopRepeatLength   = file.readWord() << 1;
 

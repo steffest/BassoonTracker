@@ -30,13 +30,15 @@ UI.Envelope = function(type){
 
 	me.onHover = function(data){
 		if (!isDragging){
-			var x = Math.round(me.eventX/xScale);
-			var y = Math.round((me.height - me.eventY)/yScale);
-
 			activePointIndex = -1;
 			activePoint = undefined;
 
-			if (currentEnvelope){
+			if (currentEnvelope && currentEnvelope.enabled){
+
+                var x = Math.round(me.eventX/xScale);
+                var y = Math.round((me.height - me.eventY)/yScale);
+
+
 				for (var i = 0, max = currentEnvelope.count; i<max; i++){
 					var point = currentEnvelope.points[i];
 					if (Math.abs(x - point[0])<6 && Math.abs(y - point[1])<6){
@@ -132,7 +134,7 @@ UI.Envelope = function(type){
 				var yScale = me.height/64;
 
 
-				me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
+				me.ctx.strokeStyle = currentEnvelope.enabled ? 'rgba(120, 255, 50, 0.5)' : 'rgba(120, 120, 180, 0.5)';
 
 
 				me.ctx.beginPath();
@@ -144,7 +146,7 @@ UI.Envelope = function(type){
 					var y = me.height - (co[1] * yScale);
 
 					var size = 4;
-					var color = "#D2861B";
+					var color = currentEnvelope.enabled ? "#D2861B" : "#546888";
 
 					if (i === activePointIndex){
 						size = 6;

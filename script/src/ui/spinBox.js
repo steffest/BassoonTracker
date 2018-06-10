@@ -122,6 +122,7 @@ UI.spinBox = function(initialProperties){
 		if (typeof properties.step != "undefined") step = properties.step;
 		if (typeof properties.onChange != "undefined") onChange = properties.onChange;
 		if (typeof properties.padLength != "undefined") padLength = properties.padLength;
+		if (typeof properties.disabled != "undefined") disabled = !!properties.disabled;
 	}
 
 	me.setValue = function(newValue,internal){

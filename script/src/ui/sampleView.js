@@ -48,7 +48,9 @@ UI.SampleView = function(){
 	});
 	me.addChild(spinBoxInstrument);
 
-	var spinBoxVolume = UI.spinBox({
+
+
+	/*var spinBoxVolume = UI.spinBox({
 		name: "Volume",
 		label: "Volume",
 		value: 64,
@@ -59,34 +61,54 @@ UI.SampleView = function(){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) instrument.volume = value;
 		}
-	});
-	sideButtonPanel.addChild(spinBoxVolume);
+	});*/
 
-	var spinBoxFineTune = UI.spinBox({
+
+	var volumeSlider = UI.sliderBox({
+		label: "Volume",
+		font: font,
+		height: 200,
+		width: 40,
+		value: 64,
+		max: 64,
+		min: 0,
+		step:1,
+		vertical:true,
+		onChange: function(value){
+			var instrument = Tracker.getCurrentInstrument();
+			if (instrument) instrument.volume = value;
+		}
+	});
+	sideButtonPanel.addChild(volumeSlider);
+
+	var fineTuneSlider = UI.sliderBox({
 		name: "Finetune",
 		label: "Finetune",
+		font: font,
 		value: 0,
 		max: 7,
 		min: -8,
-		font: font,
+		step:1,
+		vertical:true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) instrument.finetune = value;
+			if (instrument) instrument.setFineTune(value);
 		}
 	});
-	sideButtonPanel.addChild(spinBoxFineTune);
+	sideButtonPanel.addChild(fineTuneSlider);
 
-	var spinBoxLength = UI.spinBox({
+	var lengthSlider = UI.sliderBox({
 		name: "Length",
 		label: "Length",
+		font: font,
 		value: 0,
 		max: 65535,
 		min:0,
-		font: font
+		vertical:true
 	});
-	sideButtonPanel.addChild(spinBoxLength);
+	sideButtonPanel.addChild(lengthSlider);
 
-	var spinBoxRepeat = UI.spinBox({
+	var repeatSlider = UI.sliderBox({
 		name: "Repeat",
 		label: "Repeat",
 		value: 0,
@@ -94,15 +116,16 @@ UI.SampleView = function(){
 		min:0,
 		step:2,
 		font: font,
+		vertical:true,
 		onChange: function(value){
 			var instrument= Tracker.getCurrentInstrument();
 			if (instrument) instrument.loopStart = value;
 			waveForm.refresh();
 		}
 	});
-	sideButtonPanel.addChild(spinBoxRepeat);
+	sideButtonPanel.addChild(repeatSlider);
 
-	var spinBoxRepeatLength = UI.spinBox({
+	var repeatLengthSlider = UI.sliderBox({
 		name: "Repeat Length",
 		label: "Repeat Length",
 		value: 0,
@@ -110,13 +133,30 @@ UI.SampleView = function(){
 		min:0,
 		step:2,
 		font: font,
+		vertical:true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) instrument.loopRepeatLength = value;
 			waveForm.refresh();
 		}
 	});
-	sideButtonPanel.addChild(spinBoxRepeatLength);
+	sideButtonPanel.addChild(repeatLengthSlider);
+
+	var fadeOutSlider = UI.sliderBox({
+		name: "Fadeout",
+		label: "Fadeout",
+		value: 0,
+		max: 100,
+		min:0,
+		step:1,
+		font: font,
+		vertical:true,
+		onChange: function(value){
+			var instrument = Tracker.getCurrentInstrument();
+			if (instrument) instrument.fadeout = value;
+		}
+	});
+	sideButtonPanel.addChild(fadeOutSlider);
 
 	var spinBoxRelativeNote = UI.spinBox({
 		name: "relativeNote",
@@ -134,21 +174,6 @@ UI.SampleView = function(){
 	sideButtonPanel.addChild(spinBoxRelativeNote);
 
 
-	var slider = UI.sliderBox({
-		label: "FadeOut",
-		font: font,
-		height: 40,
-		width: 200,
-		value: 2000,
-		max: 4046,
-		min: 0,
-		step:1,
-		onChange: function(value){
-			console.log(value);
-		}
-	});
-	sideButtonPanel.addChild(slider);
-	window.slider = slider;
 
 	me.addChild(sideButtonPanel);
 
@@ -190,29 +215,36 @@ UI.SampleView = function(){
 		spinBoxInstrument.setValue(value,true);
 		var instrument = Tracker.getInstrument(value);
 		if (instrument){
+
+			repeatSlider.setMax(instrument.sample.length);
+			repeatLengthSlider.setMax(instrument.sample.length);
+
+
 			instrumentName.setValue(instrument.name,true);
-			spinBoxVolume.setValue(instrument.volume);
-			spinBoxLength.setValue(instrument.sample.length);
-			spinBoxFineTune.setValue(instrument.finetune);
-			spinBoxRepeat.setValue(instrument.loopStart);
-			spinBoxRepeatLength.setValue(instrument.loopRepeatLength);
+			volumeSlider.setValue(instrument.volume);
+			lengthSlider.setValue(instrument.sample.length);
+			fineTuneSlider.setValue(instrument.getFineTune());
+			repeatSlider.setValue(instrument.loopStart);
+			repeatLengthSlider.setValue(instrument.loopRepeatLength);
 			spinBoxRelativeNote.setValue(instrument.relativeNote);
-			//spinBoxFadeOut.setValue(instrument.fadeout);
+			fadeOutSlider.setValue(instrument.fadeout || 0);
 			waveForm.setInstrument(instrument);
 			volumeEnvelope.setInstrument(instrument);
 			panningEnvelope.setInstrument(instrument);
+
+
 		}else{
 			waveForm.setInstrument();
 			volumeEnvelope.setInstrument();
 			panningEnvelope.setInstrument();
 			instrumentName.setValue("",true);
-			spinBoxVolume.setValue(0);
-			spinBoxLength.setValue(0);
-			spinBoxFineTune.setValue(0);
-			spinBoxRepeat.setValue(0);
-			spinBoxRepeatLength.setValue(0);
+			volumeSlider.setValue(0);
+			lengthSlider.setValue(0);
+			fineTuneSlider.setValue(0);
+			repeatSlider.setValue(0);
+			repeatLengthSlider.setValue(0);
 			spinBoxRelativeNote.setValue(0);
-			//spinBoxFadeOut.setValue(0);
+			fadeOutSlider.setValue(0);
 		}
 	});
 
@@ -224,13 +256,19 @@ UI.SampleView = function(){
 		}
 	});
 
+
 	EventBus.on(EVENT.songPropertyChange,function(song){
 		spinBoxInstrument.setMax(song.instruments.length-1);
 	});
 
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
-		spinBoxFineTune.setMax(mode === TRACKERMODE.PROTRACKER ? 7 : 127);
-		spinBoxFineTune.setMin(mode === TRACKERMODE.PROTRACKER ? -8 : -128);
+		fineTuneSlider.setMax(mode === TRACKERMODE.PROTRACKER ? 7 : 127,true);
+		fineTuneSlider.setMin(mode === TRACKERMODE.PROTRACKER ? -8 : -128,true);
+
+        var instrument = Tracker.getInstrument(currentInstrumentIndex);
+        if (instrument){
+            fineTuneSlider.setValue(instrument.getFineTune(),true);
+        }
 	});
 
     me.onShow = function(){
@@ -242,14 +280,17 @@ UI.SampleView = function(){
 		if (!me.isVisible()) return;
 		me.clearCanvas();
 
+		var envelopeHeight = 130;
+        var spinButtonHeight = 28;
+
 		waveForm.setPosition(Layout.col2X,inputboxHeight + Layout.defaultMargin + 8);
-		waveForm.setSize(Layout.col4W,100);
+		waveForm.setSize(Layout.col4W,me.height - waveForm.top - envelopeHeight - spinButtonHeight - 8);
 
 		volumeEnvelope.setPosition(Layout.col2X,waveForm.top + waveForm.height + Layout.defaultMargin + 30);
-		volumeEnvelope.setSize(Layout.col2W,120);
+		volumeEnvelope.setSize(Layout.col2W,envelopeHeight);
 
 		panningEnvelope.setPosition(Layout.col4X,volumeEnvelope.top);
-		panningEnvelope.setSize(Layout.col2W,volumeEnvelope.height);
+		panningEnvelope.setSize(Layout.col2W,envelopeHeight);
 
 		instrumentName.setProperties({
 			top: Layout.defaultMargin,
@@ -257,7 +298,7 @@ UI.SampleView = function(){
 			width: Layout.col4W - 71
 		});
 
-		var spinButtonHeight = 28;
+
 
 		sideButtonPanel.setProperties({
 			left:0,
@@ -266,6 +307,9 @@ UI.SampleView = function(){
 			height:me.height
 		});
 
+		var sliderWidth = Math.ceil(sideButtonPanel.width/3);
+		var sliderHeight = Math.floor(sideButtonPanel.height/2);
+
 		spinBoxInstrument.setProperties({
 			left:Layout.col2X,
 			top: 1,
@@ -273,56 +317,54 @@ UI.SampleView = function(){
 			height: spinButtonHeight
 		});
 
-		spinBoxVolume.setProperties({
+		volumeSlider.setProperties({
 			left:0,
-			top: spinButtonHeight,
-			width: sideButtonPanel.width,
-			height: spinButtonHeight
+			top: 0,
+			width: sliderWidth,
+			height: sliderHeight
 		});
 
-		spinBoxFineTune.setProperties({
-			left:0,
-			top: spinButtonHeight * 2,
-			width: sideButtonPanel.width,
-			height: spinButtonHeight
+		fineTuneSlider.setProperties({
+			left:sliderWidth,
+			top: 0,
+			width: sliderWidth,
+			height: sliderHeight
 		});
 
-		spinBoxLength.setProperties({
-			left:0,
-			top: spinButtonHeight * 3,
-			width: sideButtonPanel.width,
-			height: spinButtonHeight
+		fadeOutSlider.setProperties({
+			left:sliderWidth*2,
+			top: 0,
+			width: sliderWidth,
+			height: sliderHeight
 		});
 
-		spinBoxRepeat.setProperties({
+		lengthSlider.setProperties({
 			left:0,
-			top: spinButtonHeight * 4,
-			width: sideButtonPanel.width,
-			height: spinButtonHeight
+			top: sliderHeight,
+			width: sliderWidth,
+			height: sliderHeight
 		});
 
-		spinBoxRepeatLength.setProperties({
-			left:0,
-			top: spinButtonHeight * 5,
-			width: sideButtonPanel.width,
-			height: spinButtonHeight
+		repeatSlider.setProperties({
+			left:sliderWidth,
+			top: sliderHeight,
+			width: sliderWidth,
+			height: sliderHeight
+		});
+
+		repeatLengthSlider.setProperties({
+			left:sliderWidth*2,
+			top: sliderHeight,
+			width: sliderWidth,
+			height: sliderHeight
 		});
 
 		spinBoxRelativeNote.setProperties({
-			left:0,
-			top: spinButtonHeight * 6,
-			width: sideButtonPanel.width,
-			height: spinButtonHeight
+			left:0-500,
+			top: sliderHeight,
+			width: sliderWidth,
+			height: sliderHeight
 		});
-		
-
-		slider.setProperties({
-			left:0,
-			top: spinButtonHeight * 8,
-			width: sideButtonPanel.width
-		});
-
-
 
 		var BottomPanelTop = waveForm.top + waveForm.height + Layout.defaultMargin;
 

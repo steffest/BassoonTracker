@@ -70,6 +70,7 @@ UI.visualiser = function(){
     me.render = function(){
 
         if (!Audio.context) return;
+        if (!me.isVisible()) return;
 
 
         //me.ctx.fillStyle = 'green';
