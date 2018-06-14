@@ -323,7 +323,7 @@ var Tracker = (function(){
 
 	me.save = function(filename,target){
 		console.error(target);
-		me.buildBinary(MODULETYPE.mod,function(file){
+		me.buildBinary(me.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
 			var b = new Blob([file.buffer], {type: "application/octet-stream"});
 
 			var fileName = filename || me.getFileName();
@@ -1457,7 +1457,7 @@ var Tracker = (function(){
 				var row = [];
 				var channel;
 				for (channel = 0; channel < trackCount; channel++){
-					row.push(getEmptyNote());
+					row.push(Note());
 				}
 				song.patterns[currentPattern].push(row);
 			}
@@ -1501,8 +1501,11 @@ var Tracker = (function(){
 		var note = song.patterns[currentPattern][currentPatternPos][currentTrack];
 		if (note){
 			note.instrument = instrument;
-			note.period = period;
-			note.note = noteIndex;
+			if (noteIndex){
+				note.setIndex(noteIndex);
+			}else{
+				note.setPeriod(period);
+			}
 		}
 		song.patterns[currentPattern][currentPatternPos][currentTrack] = note;
 		EventBus.trigger(EVENT.patternChange,currentPattern);
@@ -1511,7 +1514,6 @@ var Tracker = (function(){
 	me.putNoteParam = function(pos,value){
 		var x,y;
 		var note = song.patterns[currentPattern][currentPatternPos][currentTrack];
-		console.error(pos);
 		if (note){
 			if (pos == 1 || pos == 2){
 				var instrument = note.instrument;
@@ -1771,13 +1773,19 @@ var Tracker = (function(){
 	// returns a binary stream
 	me.buildBinary = function(type,next){
 
-
 		type = type || MODULETYPE.mod;
+		var writer;
 
 		if (type === MODULETYPE.mod){
-			var writer = ProTracker();
-			writer.write(next);
+			writer = ProTracker();
+
 		}
+
+		if (type === MODULETYPE.xm){
+			writer = FastTracker();
+		}
+
+		if (writer) writer.write(next);
 
 	};
 
@@ -1820,13 +1828,7 @@ var Tracker = (function(){
 		var length = currentPatternData.length;
 		for (var i = 0; i<length;i++){
 			var note = song.patterns[currentPattern][i][currentTrack];
-			if (note){
-				note.instrument = 0;
-				note.period = 0;
-				note.effect = 0;
-				note.param = 0;
-				note.note = undefined;
-			}
+			if (note) note.clear();
 		}
 		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
@@ -1835,13 +1837,7 @@ var Tracker = (function(){
 		for (var i = 0; i<length;i++){
 			for (var j = 0; j<trackCount; j++){
 				var note = song.patterns[currentPattern][i][j];
-				if (note){
-					note.instrument = 0;
-					note.period = 0;
-					note.effect = 0;
-					note.param = 0;
-					note.note = undefined;
-				}
+				if (note) note.clear();
 			}
 		}
 		EventBus.trigger(EVENT.patternChange,currentPattern);
@@ -1860,7 +1856,8 @@ var Tracker = (function(){
 				period : note.period,
 				effect: note.effect,
 				param: note.param,
-				note: note.note
+				volumeEffect: note.volumeEffect,
+				note: note.index
 			});
 		}
 		if (hasTracknumber){
@@ -1903,8 +1900,9 @@ var Tracker = (function(){
 				note.instrument = source.instrument;
 				note.period = source.period;
 				note.effect = source.effect;
+				note.volumeEffect = source.volumeEffect;
 				note.param = source.param;
-				note.note = source.note;
+				note.index = source.index;
 			}
 			if (!hasTracknumber) EventBus.trigger(EVENT.patternChange,currentPattern);
 
@@ -1941,7 +1939,7 @@ var Tracker = (function(){
 	me.clearInstruments = function(){
 		var instrumentContainer = [];
 		for (i = 1; i <= 31; ++i) {
-			instruments[i] = getEmptySample();
+			instruments[i] = Instrument();
 			instrumentContainer.push({label: i + " ", data: i});
 		}
 		song.instruments = instruments;
@@ -1959,7 +1957,7 @@ var Tracker = (function(){
 	};
 	me.inFTMode = function(){
 		return trackerMode === TRACKERMODE.FASTTRACKER
-	}
+	};
 
 
 	me.new = function(){
@@ -1990,7 +1988,7 @@ var Tracker = (function(){
 	};
 
 	me.clearInstrument = function(){
-		instruments[currentInstrumentIndex]=getEmptySample();
+		instruments[currentInstrumentIndex]=Instrument();
 		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
 		EventBus.trigger(EVENT.instrumentNameChange,currentInstrumentIndex);
 	};
@@ -2005,30 +2003,14 @@ var Tracker = (function(){
 			var row = [];
 			var channel;
 			for (channel = 0; channel < trackCount; channel++){
-				row.push(getEmptyNote());
+				row.push(Note());
 			}
 			result.push(row);
 		}
 		return result;
 	}
 
-	function getEmptyNote(){
-		return {note:0,effect:0,instrument:0,param:0};
-	}
-	me.getEmptyNote = getEmptyNote;
 
-
-	function getEmptySample(){
-		return {
-			length: 0,
-			finetune: 0,
-			volume : 100,
-			loopStart: 0,
-			loopRepeatLength: 0,
-			name: "",
-			data: []
-		};
-	}
 
 	return me;
 }());

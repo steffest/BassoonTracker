@@ -108,39 +108,6 @@ UI.DiskOperationSave = function(){
 	me.addChild(fileNameInput);
 
 
-	EventBus.on(EVENT.songPropertyChange,function(song){
-		fileName = song.filename || "";
-		setFileName();
-	});
-
-	EventBus.on(EVENT.diskOperationTargetChange,function(item){
-
-		saveTarget = item;
-		if (saveTarget.target) saveTarget = saveTarget.target;
-		if (item && item.fileType){
-
-			mainFileType = item.fileType;
-			if (mainFileType == FILETYPE.sample) {
-				fileName = Tracker.getCurrentInstrument().name.replace(/ /g, '-').replace(/\W/g, '');
-			}
-			if (mainFileType == FILETYPE.module) {
-				fileName = Tracker.getFileName();
-			}
-
-			if (selectTypes[mainFileType]){
-				selectionType.setItems(selectTypes[mainFileType]);
-				selectionType.onChange();
-			}
-
-		}
-	});
-
-	EventBus.on(EVENT.instrumentChange,function(value){
-		if (me.isVisible() && mainFileType == FILETYPE.sample) {
-			fileName = Tracker.getCurrentInstrument().name.replace(/ /g, '-').replace(/\W/g, '') || "Sample-" + Tracker.getCurrentInstrumentIndex();
-			setFileName();
-		}
-	});
 
 	function setFileName(){
 		var thisFilename = fileName;
@@ -152,6 +119,7 @@ UI.DiskOperationSave = function(){
 		}
 		var type = selectionType.getSelectedItem();
 		if (type && type.extention) extention = type.extention;
+		if (extention === ".mod" && Tracker.inFTMode()) extention = ".xm";
 		fileNameInput.setValue(thisFilename + extention);
 	}
 
@@ -189,11 +157,49 @@ UI.DiskOperationSave = function(){
 			top: 30
 		});
 
-
-
-
-
 	};
+
+	EventBus.on(EVENT.songPropertyChange,function(song){
+		fileName = song.filename || "";
+		setFileName();
+	});
+
+	EventBus.on(EVENT.diskOperationTargetChange,function(item){
+
+		saveTarget = item;
+		if (saveTarget.target) saveTarget = saveTarget.target;
+		if (item && item.fileType){
+
+			mainFileType = item.fileType;
+			if (mainFileType == FILETYPE.sample) {
+				fileName = Tracker.getCurrentInstrument().name.replace(/ /g, '-').replace(/\W/g, '');
+			}
+			if (mainFileType == FILETYPE.module) {
+				fileName = Tracker.getFileName();
+			}
+
+			if (selectTypes[mainFileType]){
+				selectionType.setItems(selectTypes[mainFileType]);
+				selectionType.onChange();
+			}
+
+		}
+	});
+
+
+	EventBus.on(EVENT.instrumentChange,function(value){
+		if (me.isVisible() && mainFileType == FILETYPE.sample) {
+			fileName = Tracker.getCurrentInstrument().name.replace(/ /g, '-').replace(/\W/g, '') || "Sample-" + Tracker.getCurrentInstrumentIndex();
+			setFileName();
+		}
+	});
+
+	EventBus.on(EVENT.trackerModeChanged,function(value){
+		if (me.isVisible() && mainFileType == FILETYPE.module) {
+			fileName = Tracker.getSong().filename || "";
+			setFileName();
+		}
+	});
 
 	return me;
 

@@ -251,7 +251,7 @@ var Input = (function(){
 						if (fNote){
 							note = {
 								period: fNote.period,
-								note: index
+								index: index
 							}
 						}
 					}
@@ -269,7 +269,7 @@ var Input = (function(){
 						}
 					}else{
 						if (note){
-							Tracker.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.note);
+							Tracker.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.index);
 							if (Tracker.isPlaying()){
 								doPlay = false;
 							}else{

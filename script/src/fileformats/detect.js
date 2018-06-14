@@ -18,8 +18,8 @@ var FileDetector = function(){
 		id = file.readString(17,0);
 		if (id == "Extended Module: "){
 			return fileType.mod_FastTracker;
-			alert("Sorry, FastTracker XM files are not supported yet ... working on it.");
-			return fileType.unsupported;
+			//alert("Sorry, FastTracker XM files are not supported yet ... working on it.");
+			//return fileType.unsupported;
 		}
 
 

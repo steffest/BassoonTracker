@@ -85,21 +85,21 @@ var ProTracker = function(){
 				var row = [];
 				var channel;
 				for (channel = 0; channel < channelCount; channel++){
-					var trackStep = {};
+					var note = Note();
 					var trackStepInfo = file.readUint();
 
-					trackStep.period = (trackStepInfo >> 16) & 0x0fff;
-					trackStep.effect = (trackStepInfo >>  8) & 0x0f;
-					trackStep.instrument = (trackStepInfo >> 24) & 0xf0 | (trackStepInfo >> 12) & 0x0f;
-					trackStep.param  = trackStepInfo & 0xff;
+					note.setPeriod((trackStepInfo >> 16) & 0x0fff);
+					note.effect = (trackStepInfo >>  8) & 0x0f;
+					note.instrument = (trackStepInfo >> 24) & 0xf0 | (trackStepInfo >> 12) & 0x0f;
+					note.param  = trackStepInfo & 0xff;
 
-					row.push(trackStep);
+					row.push(note);
 				}
 
 				// fill with empty data for other channels
 				// TODO: not needed anymore ?
 				for (channel = channelCount; channel < Tracker.getTrackCount(); channel++){
-					row.push({note:0,effect:0,instrument:0,param:0});
+					row.push(Note())
 				}
 
 

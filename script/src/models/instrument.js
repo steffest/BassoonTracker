@@ -2,16 +2,22 @@ var Instrument = function(){
 	var me = {};
 
 	me.type = "sample";
+	me.name = "";
 	me.sampleIndex = 0;
 	me.finetune = 0;
 	me.finetuneX = 0;
 	me.relativeNote = 0;
+	me.volume = 100;
 	me.data = [];
 	me.samples = [Sample()];
 	me.sample = me.samples[0];
 
-	me.volumeEnvelope = undefined;
-	me.panningEnvelope = undefined;
+	me.volumeEnvelope = {raw: [], enabled: false};
+	me.panningEnvelope = {raw: [], enabled: false};
+	me.vibrato = {};
+	me.sampleNumberForNotes = [];
+	me.loopStart = 0;
+	me.loopRepeatLength = 0;
 
 	me.play = function(noteIndex,notePeriod,volume,track,trackEffects,time){
 		return Audio.playSample(me.sampleIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
@@ -28,7 +34,6 @@ var Instrument = function(){
 	};
 
 	me.getFineTune = function(){
-        console.log(me.finetune,me.finetuneX);
 		return Tracker.inFTMode() ? me.finetuneX : me.finetune;
 	};
 

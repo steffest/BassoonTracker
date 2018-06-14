@@ -267,7 +267,7 @@ UI.app_patternView = function(x,y,w,h){
                         for (var j = 0; j<visibleTracks;j++){
                             trackIndex = j+startTrack;
                             if (isTrackVisible[trackIndex] && trackIndex<Tracker.getTrackCount()){
-                                var note = step[trackIndex] || Tracker.getEmptyNote();
+                                var note = step[trackIndex] || Note();
                                 var x;
                                 if (lineNumbersToTheLeft){
                                     // center text in pattern
@@ -278,8 +278,8 @@ UI.app_patternView = function(x,y,w,h){
                                 }
 
                                 if (Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER){
-									if (note.note){
-										var ftNote = FTNotes[note.note];
+									if (note.index){
+										var ftNote = FTNotes[note.index];
 										var noteString = ftNote ? ftNote.name : "???"
 									}else{
 										noteString = "---";
