@@ -438,7 +438,7 @@ var Tracker = (function(){
 		var result = {};
 		var r;
 
-		// hmmm ...
+		// hmmm ... Whut?
 		// The Speed setting influences other effects too,
 		// on Amiga players the effects are processed each tick, so the speed setting on a later channel can influence the effects on a previous channel ...
 		// This is implemented by setting the speed before all other effects
@@ -471,6 +471,7 @@ var Tracker = (function(){
 				playtime += swingTime;
 			}
 
+
 			r = playNote(note,i,playtime,songPos);
 			if (r.patternBreak) {
 				result.patternBreak = true;
@@ -501,7 +502,7 @@ var Tracker = (function(){
 
 		var instrumentIndex = note.instrument;
 		var notePeriod = note.period;
-		var noteIndex = note.note;
+		var noteIndex = note.index;
 
 
 		if (notePeriod && !instrumentIndex){
@@ -538,16 +539,10 @@ var Tracker = (function(){
 			instrument = me.getInstrument(instrumentIndex);
 		}
 
-		if (noteIndex){
-			// FTNote
-			if (instrument && instrument.relativeNote) noteIndex +=  instrument.relativeNote;
-			var ftNote = FTNotes[noteIndex];
-			if (ftNote) notePeriod = ftNote.period;
-
+		if (noteIndex && me.inFTMode()){
 
 			if (noteIndex === 97){
 				var offInstrument = instrument || me.getInstrument(trackNotes[track].currentInstrument);
-
 				if (offInstrument){
 					volume = offInstrument.noteOff(track,time);
 				}else{
@@ -556,7 +551,10 @@ var Tracker = (function(){
 					volume = 0;
 				}
 				defaultVolume = volume;
-
+			}else{
+                if (instrument && instrument.relativeNote) noteIndex +=  instrument.relativeNote;
+                var ftNote = FTNotes[noteIndex];
+                if (ftNote) notePeriod = ftNote.period;
 			}
 		}
 
@@ -1950,6 +1948,7 @@ var Tracker = (function(){
 
 	me.setTrackerMode = function(mode){
 		trackerMode = mode;
+        SETTINGS.emulateProtracker1OffsetBug = !me.inFTMode();
 		EventBus.trigger(EVENT.trackerModeChanged,mode);
 	};
 	me.getTrackerMode = function(){

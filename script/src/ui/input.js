@@ -285,14 +285,14 @@ var Input = (function(){
 					var instrument = Tracker.getCurrentInstrument();
 
 					if (instrument){
-						if (note.note && instrument.relativeNote){
-							note.note += instrument.relativeNote;
-							var ftNote = FTNotes[note.note];
+						if (note.index && instrument.relativeNote){
+							note.index += instrument.relativeNote;
+							var ftNote = FTNotes[note.index];
 							if (ftNote) note.period = ftNote.period;
 						}
 
 						Audio.checkState();
-						keyDown[key] = instrument.play(note.note,note.period);
+						keyDown[key] = instrument.play(note.index,note.period);
 						inputNotes.push(keyDown[key]);
 						EventBus.trigger(EVENT.pianoNoteOn,keyDown[key]);
 					}

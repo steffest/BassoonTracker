@@ -141,7 +141,7 @@ var Audio = (function(){
             volume = typeof volume == "undefined" ? (100*instrument.volume/64) : volume;
 
             if (instrument.getFineTune()){
-                period = noteIndex ?  me.getFineTuneForNote(noteIndex,instrument.getFineTune()) : me.getFineTuneForPeriod(period,instrument.getFineTune());
+                period = Tracker.inFTMode() ?  me.getFineTuneForNote(noteIndex,instrument.getFineTune()) : me.getFineTuneForPeriod(period,instrument.getFineTune());
             }
             var sampleRate = PALFREQUENCY / (period*2);
 
@@ -188,7 +188,7 @@ var Audio = (function(){
                 }
             }
 
-            if (instrument.volumeEnvelope && instrument.volumeEnvelope.enabled){
+            if (instrument.volumeEnvelope.enabled){
                 var tickTime = Tracker.getProperties().tickTime;
                 var volumeEnvelope = audioContext.createGain();
 
