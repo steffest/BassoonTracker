@@ -227,7 +227,6 @@ var Input = (function(){
 			}
 
 
-
 			if (key && (keyCode>40) && (keyCode<200)){
 
 				if (keyCode === 112) currentOctave = 1;
@@ -237,7 +236,9 @@ var Input = (function(){
 
 				var baseNote = keyboardTable[key];
 
+
 				var note;
+				var doPlay = true;
 				if (baseNote){
 
 					var noteName = baseNote.name + (currentOctave + baseNote.octave);
@@ -245,19 +246,29 @@ var Input = (function(){
 
 					if (Tracker.inFTMode()){
 						// get FT note
-						var ftOctave = currentOctave + 2;
-						var index = baseNote.index + (ftOctave * 12);
-						var fNote = FTNotes[index];
-						if (fNote){
+						if (baseNote.name === "OFF"){
 							note = {
-								period: fNote.period,
-								index: index
+								period: 1,
+								index: 0
+							};
+							doPlay = false;
+						}else{
+							var ftOctave = currentOctave + 2;
+							var index = baseNote.index + (ftOctave * 12);
+							var fNote = FTNotes[index];
+							if (fNote){
+								note = {
+									period: fNote.period,
+									index: index
+								}
 							}
 						}
+
 					}
+					console.error(note);
 				}
 
-				var doPlay = true;
+
 				if (Tracker.isRecording()){
 					if (Tracker.getCurrentTrackPosition() > 0){
 						// cursorPosition is not on note
@@ -293,6 +304,8 @@ var Input = (function(){
 
 						Audio.checkState();
 						keyDown[key] = instrument.play(note.index,note.period);
+						keyDown[key].instrument = instrument;
+						keyDown[key].isKey = true;
 						inputNotes.push(keyDown[key]);
 						EventBus.trigger(EVENT.pianoNoteOn,keyDown[key]);
 					}
@@ -367,11 +380,12 @@ var Input = (function(){
 					//keyDown[key].source.stop();
 					// too harsh ... let's try a fade out, much better
 
-					if (keyDown[key].volume){
-						keyDown[key].volume.gain.linearRampToValueAtTime(0,Audio.context.currentTime + 0.5)
+					if (keyDown[key].instrument){
+						keyDown[key].instrument.noteOff(Audio.context.currentTime,keyDown[key]);
 					}else{
 						keyDown[key].source.stop();
 					}
+
 				}catch(e){
 
 				}

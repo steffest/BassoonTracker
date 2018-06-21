@@ -41,17 +41,18 @@ UI.InfoPanel = function(){
 
     me.setLayout = function(){
 
-        var width = me.parent.col1W;
-        var label = "More info";
+        var width = Layout.col1W;
+        var label = "More Info";
         if (width<100) label = "info";
         if (width<45) label = "i";
 
         infoButton.setProperties({
-            width: me.parent.col1W,
+            width: Layout.col1W,
             height: 26,
             top: 2,
-            left:me.parent.col5X - 2 - me.left,
-            label: label
+            left:Layout.col5X - 2 - me.left,
+            label: label,
+            font: fontFT
         });
 
     };

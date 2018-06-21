@@ -127,10 +127,11 @@ var Audio = (function(){
 
         period = period || 428; // C-3
         track = track || Tracker.getCurrentTrack();
-        time = time || 0;
+        time = time || context.currentTime;
 
         var instrument = Tracker.getInstrument(index);
         var basePeriod = period;
+		var volumeEnvelope;
 
         if (instrument){
             var sampleBuffer;
@@ -189,18 +190,7 @@ var Audio = (function(){
             }
 
             if (instrument.volumeEnvelope.enabled){
-                var tickTime = Tracker.getProperties().tickTime;
-                var volumeEnvelope = audioContext.createGain();
-
-                // volume envelope to time ramp
-                var maxPoint = instrument.volumeEnvelope.sustain ? instrument.volumeEnvelope.sustainPoint :  instrument.volumeEnvelope.count;
-
-                volumeEnvelope.gain.value =  instrument.volumeEnvelope.points[0][1]/64;
-                for (var p = 1; p<maxPoint;p++){
-                    var point = instrument.volumeEnvelope.points[p];
-                    volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime));
-                }
-
+                volumeEnvelope = instrument.noteOn(time);
                 source.connect(volumeEnvelope);
                 volumeEnvelope.connect(volumeGain);
             }else{
@@ -218,6 +208,7 @@ var Audio = (function(){
             var result = {
                 source: source,
                 volume: volumeGain,
+				volumeEnvelope: volumeEnvelope,
                 startVolume: volume,
                 currentVolume: volume,
                 startPeriod: period,

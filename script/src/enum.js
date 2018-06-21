@@ -48,7 +48,8 @@ var EVENT = {
 	showView: 30,
 	toggleView: 31,
 	visibleTracksCountChange:32,
-    filterChainCountChange:33
+    filterChainCountChange:33,
+    fxPanelToggle:34
 };
 
 var COMMAND = {
@@ -343,7 +344,8 @@ var KEYBOARDKEYS = {
 	BOctaveUp: {name: "B", octave: 1, index: 24},
 	COctaveUp2: {name: "C", octave: 2, index: 25},
 	CsharpOctaveUp2: {name: "Cs", octave: 2, index: 26},
-	DOctaveUp2: {name: "D", octave: 2, index: 27}
+	DOctaveUp2: {name: "D", octave: 2, index: 27},
+	OFF: {name: "OFF",octave: "", index:28}
 };
 
 
@@ -380,7 +382,9 @@ var KEYBOARDTABLE = {
 		d: KEYBOARDKEYS.Dsharp,
 		g: KEYBOARDKEYS.Fsharp,
 		h: KEYBOARDKEYS.Gsharp,
-		j: KEYBOARDKEYS.Asharp
+		j: KEYBOARDKEYS.Asharp,
+
+		"<": KEYBOARDKEYS.OFF
 	},
 	qwerty:{
 		q: KEYBOARDKEYS.COctaveUp,

@@ -534,8 +534,10 @@ var Tracker = (function(){
 
 
 		var volume = defaultVolume;
+		var doPlayNote = true;
 
-		if (typeof instrumentIndex == "number"){
+
+		if (typeof instrumentIndex === "number"){
 			instrument = me.getInstrument(instrumentIndex);
 		}
 
@@ -544,13 +546,13 @@ var Tracker = (function(){
 			if (noteIndex === 97){
 				var offInstrument = instrument || me.getInstrument(trackNotes[track].currentInstrument);
 				if (offInstrument){
-					volume = offInstrument.noteOff(track,time);
+					volume = offInstrument.noteOff(time,trackNotes[track]);
 				}else{
 					console.log("no instrument on track " + track);
-					//cutNote(track,time);
 					volume = 0;
 				}
 				defaultVolume = volume;
+				doPlayNote = false;
 			}else{
                 if (instrument && instrument.relativeNote) noteIndex +=  instrument.relativeNote;
                 var ftNote = FTNotes[noteIndex];
@@ -559,7 +561,7 @@ var Tracker = (function(){
 		}
 
 
-		var doPlayNote = true;
+
 		var value = note.param;
 		var x,y;
 

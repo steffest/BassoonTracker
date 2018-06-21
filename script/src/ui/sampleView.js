@@ -146,7 +146,7 @@ UI.SampleView = function(){
 		name: "Fadeout",
 		label: "Fadeout",
 		value: 0,
-		max: 100,
+		max: 4095,
 		min:0,
 		step:1,
 		font: font,

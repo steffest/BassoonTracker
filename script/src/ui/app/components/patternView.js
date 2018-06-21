@@ -82,23 +82,7 @@ UI.app_patternView = function(x,y,w,h){
         }
     };
 
-    me.toggleFxPanel = function(track){
-        fxPanel = fxPanels[track];
 
-        if (fxPanel.visible){
-            fxPanel.hide();
-        }else{
-
-            var visibleHeight = me.height;
-
-            fxPanel.setPosition(fxPanel.left,0);
-            fxPanel.setSize(Layout.trackWidth,visibleHeight);
-            fxPanel.setLayout();
-            fxPanel.show();
-        }
-
-        me.refresh();
-    };
 
     me.render = function(){
         if (!me.isVisible()) return;
@@ -538,6 +522,24 @@ UI.app_patternView = function(x,y,w,h){
 	EventBus.on(EVENT.trackerModeChanged,function(){
 		me.refresh();
 	});
+
+    EventBus.on(EVENT.fxPanelToggle,function(track){
+        fxPanel = fxPanels[track];
+
+        if (fxPanel.visible){
+            fxPanel.hide();
+        }else{
+
+            var visibleHeight = me.height;
+
+            fxPanel.setPosition(fxPanel.left,0);
+            fxPanel.setSize(Layout.trackWidth,visibleHeight);
+            fxPanel.setLayout();
+            fxPanel.show();
+        }
+
+        me.refresh();
+    });
 
 
 	return me;

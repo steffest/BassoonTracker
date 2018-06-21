@@ -23,13 +23,51 @@ var Instrument = function(){
 		return Audio.playSample(me.sampleIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
 	};
 
-	me.noteOff = function(track,time){
-		if (me.volumeEnvelope){
-			console.log("noteOff");
-			return 50;
+	me.noteOn = function(time){
+		var tickTime = Tracker.getProperties().tickTime;
+		var volumeEnvelope = Audio.context.createGain();
+
+		// volume envelope to time ramp
+		var maxPoint = me.volumeEnvelope.sustain ? me.volumeEnvelope.sustainPoint+1 :  me.volumeEnvelope.count;
+		volumeEnvelope.gain.setValueAtTime(me.volumeEnvelope.points[0][1]/64,time);
+		for (var p = 1; p<maxPoint;p++){
+			var point = me.volumeEnvelope.points[p];
+			volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime));
+		}
+
+		return volumeEnvelope;
+	};
+
+	me.noteOff = function(time,noteInfo){
+		console.error(noteInfo);
+
+		if (noteInfo.isKey && noteInfo.volume){
+			noteInfo.volume.gain.linearRampToValueAtTime(0,time + 0.5)
 		}else{
-			//Tracker.cutNote(track,time);
-			return 0;
+			if (Tracker.inFTMode()){
+				var tickTime = Tracker.getProperties().tickTime;
+
+				if (me.volumeEnvelope.enabled && me.volumeEnvelope.sustain && noteInfo.volumeEnvelope){
+					var timeOffset = 0;
+					var startPoint = me.volumeEnvelope.points[me.volumeEnvelope.sustainPoint];
+					if (startPoint) timeOffset = startPoint[0]*tickTime;
+					for (var p = me.volumeEnvelope.sustainPoint; p< me.volumeEnvelope.count;p++){
+						var point = me.volumeEnvelope.points[p];
+						noteInfo.volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime) - timeOffset);
+					}
+				}
+
+				if (me.fadeout){
+					var fadeOutTime = (65536/me.fadeout) * tickTime;
+					//TODO: this should be a separate gain control as volume commands after key off still have effect.
+					noteInfo.volume.gain.linearRampToValueAtTime(0,time + fadeOutTime);
+				}
+
+
+				return 100;
+			}else{
+				return 0;
+			}
 		}
 	};
 
