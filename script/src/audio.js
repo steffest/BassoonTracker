@@ -173,7 +173,7 @@ var Audio = (function(){
 
             var volumeGain = audioContext.createGain();
             volumeGain.gain.value = volume/100;
-            // TODO: volumeGain.value has no result here ?
+            // TODO: volumeGain.value has no result here ? -> setvalueattime ?
 
 
             if (instrument.loopRepeatLength>2){
@@ -197,7 +197,11 @@ var Audio = (function(){
                 source.connect(volumeGain);
             }
 
-            volumeGain.connect(filterChains[track].input());
+			var volumeFadeOut = Audio.context.createGain();
+			volumeFadeOut.gain.setValueAtTime(1,time);
+
+			volumeGain.connect(volumeFadeOut);
+			volumeFadeOut.connect(filterChains[track].input());
 
             source.playbackRate.value = initialPlaybackRate;
             var sourceDelayTime = 0;
@@ -209,6 +213,7 @@ var Audio = (function(){
                 source: source,
                 volume: volumeGain,
 				volumeEnvelope: volumeEnvelope,
+				volumeFadeOut: volumeFadeOut,
                 startVolume: volume,
                 currentVolume: volume,
                 startPeriod: period,

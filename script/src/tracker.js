@@ -567,20 +567,64 @@ var Tracker = (function(){
 
 		var result = {};
 
+        if (note.volumeEffect && me.inFTMode()){
+        	var ve = note.volumeEffect;
+            x = ve >> 4;
+			y = ve & 0x0f;
 
-        if (note.volumeEffect){
-            x = note.volumeEffect >> 4;
-            if (x>1 && x<6){
-                volume = ((note.volumeEffect-16)/64)*100;
+            if (ve>15 && ve<=80){
+                volume = ((ve-16)/64)*100;
                 defaultVolume = volume;
-            }
-            //console.log(x,note.volumeEffect.toString(16));
 
+				// note this is not relative to the default instrument volume but sets the instrument volume
+				trackEffects.volume = {
+					value: volume
+				};
+            }else{
 
-            // not this is not relative to the default instrument volume but sets the instrument volume
-            trackEffects.volume = {
-                value: volume
-            };
+            	// Are these even implemented in FastTracker or Milckytracker?
+				// Values above 80 can't even be set ?
+            	switch(x){
+					case 6:
+						// volume slide down
+						break;
+					case 7:
+						// volume slide up
+						break;
+					case 8:
+						// Fine volume slide down
+						console.warn("Fine volume slide down not implemented");
+						break;
+					case 9:
+						// Fine volume slide up
+						console.warn("Fine volume slide up not implemented");
+						break;
+					case 10:
+						// set vibrato speed
+						console.warn("set vibrato speed not implemented");
+						break;
+					case 11:
+						// Vibrato
+						console.warn("Vibrato not implemented");
+						break;
+					case 12:
+						// Set panning
+						console.warn("Set panning not implemented " + ve);
+						break;
+					case 13:
+						// Panning slide left
+						console.warn("Panning slide left not implemented");
+						break;
+					case 14:
+						// Panning slide right
+						console.warn("Panning slide right not implemented");
+						break;
+					case 15:
+						// Tone porta
+						console.warn("Tone Porta not implemented");
+						break;
+				}
+			}
 
         }
 
@@ -630,9 +674,14 @@ var Tracker = (function(){
 			case 1:
 				// Slide Up
 				value = value * -1;
+
 				// note: on protracker 2 and 3 , the effectcache is NOT used on this effect
 				// it is on Milkytracker (in all playback modes)
-				//if (!value && trackEffectCache[track].slideUp) value = trackEffectCache[track].slideUp.value;
+
+				if (me.inFTMode()){
+					if (!value && trackEffectCache[track].slideUp) value = trackEffectCache[track].slideUp.value;
+				}
+
 				trackEffects.slide = {
 					value: value
 				};
@@ -640,9 +689,14 @@ var Tracker = (function(){
 				break;
 			case 2:
 				// Slide Down
+
 				// note: on protracker 2 and 3 , the effectcache is NOT used on this effect
 				// it is on Milkytracker (in all playback modes)
-				//if (!value && trackEffectCache[track].slideDown) value = trackEffectCache[track].slideDown.value;
+
+				if (me.inFTMode()){
+					if (!value && trackEffectCache[track].slideDown) value = trackEffectCache[track].slideDown.value;
+				}
+
 				trackEffects.slide = {
 					value: value
 				};
@@ -945,6 +999,11 @@ var Tracker = (function(){
 					resetOnStep: !!note.instrument // volume only needs resetting when the instrument number is given, otherwise the volume is remembered from the previous state
 				};
 
+				//!!! in FT2 this effect is remembered - in Protracker it is not
+				if (me.inFTMode()){
+					trackEffectCache[track].fade = trackEffects.fade;
+				}
+
 				break;
 			case 11:
 				// Position Jump
@@ -1117,6 +1176,8 @@ var Tracker = (function(){
 					Tracker.setBPM(note.param)
 				}
 				break;
+			default:
+				console.warn("unhandled effect: " + note.effect);
 		}
 
 		if (doPlayNote && instrumentIndex && notePeriod){
@@ -1532,7 +1593,7 @@ var Tracker = (function(){
 					var vparam = note.volumeEffect;
 					x = vparam >> 4;
 					y = vparam & 0x0f;
-					if (pos == 3) x = value;
+					if (pos == 3) x = value+1;
 					if (pos == 4) y = value;
 					note.volumeEffect = (x << 4) + y;
 				}

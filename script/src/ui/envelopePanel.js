@@ -38,7 +38,8 @@ UI.EnvelopePanel = function(type){
     var loopToSpinbox = UI.spinBox();
 
     sustainCheckBox.onToggle = function(checked){
-        sustainSpinbox.setDisabled(!checked)
+        sustainSpinbox.setDisabled(!checked);
+		envelope.sustain = checked;
     };
     loopCheckBox.onToggle = function(checked){
         loopFromSpinbox.setDisabled(!checked);
@@ -54,7 +55,7 @@ UI.EnvelopePanel = function(type){
 		disabled: true,
 		font: window.fontFT,
 		onChange : function(value){
-			//Tracker.setCurrentPattern(value);
+			envelope.sustainPoint = value;
 		}
 	});
     loopFromSpinbox.setProperties({
@@ -66,7 +67,7 @@ UI.EnvelopePanel = function(type){
         disabled: true,
         font: window.fontSmall,
         onChange : function(value){
-            //Tracker.setCurrentPattern(value);
+			envelope.loopStartPoint = value;
         }
     });
     loopToSpinbox.setProperties({
@@ -78,7 +79,7 @@ UI.EnvelopePanel = function(type){
         disabled: true,
         font: window.fontSmall,
         onChange : function(value){
-            //Tracker.setCurrentPattern(value);
+			envelope.loopEndPoint = value;
         }
     });
 
@@ -116,6 +117,12 @@ UI.EnvelopePanel = function(type){
 
 		envelopeGraph.setInstrument(instrument);
 		enabledCheckbox.setState(envelope && envelope.enabled);
+		sustainCheckBox.setState(envelope && envelope.sustain);
+		loopCheckBox.setState(envelope && envelope.loop);
+
+		sustainSpinbox.setValue(envelope.sustainPoint || 0);
+		loopFromSpinbox.setValue(envelope.loopStartPoint || 0);
+		loopToSpinbox.setValue(envelope.loopEndPoint || 0);
 	};
 
 	me.onResize = function(){

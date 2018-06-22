@@ -26,7 +26,7 @@ var FastTracker = function(){
         mod.songlength = file.readWord();
         mod.restartPosition = file.readWord();
         mod.numberOfChannels = file.readWord();
-        mod.numberOfPatterns = file.readWord(); // this is sometimes more then the actual number? should we scan for highest pattern? -> YES!
+        mod.numberOfPatterns = file.readWord(); // this is sometimes more then the actual number? should we scan for highest pattern? -> YES! -> NO!
         mod.numberOfInstruments = file.readWord();
         mod.flags = file.readWord(); // TODO: implement difference between amiga frequency and linear frequency
         mod.defaultTempo = file.readWord();
@@ -46,7 +46,8 @@ var FastTracker = function(){
         var fileStartPos = 60 + mod.headerSize;
         file.goto(fileStartPos);
 
-        for (i = 0; i <= highestPattern; ++i) {
+
+        for (i = 0; i < mod.numberOfPatterns; i++) {
 
             var patternData = [];
             var thisPattern = {};
@@ -157,6 +158,8 @@ var FastTracker = function(){
             fileStartPos += instrument.headerSize;
             file.goto(fileStartPos);
 
+
+
             if (instrument.numberOfSamples === 0){
                 var sample = Sample();
                 instrument.samples.push(sample);
@@ -186,6 +189,8 @@ var FastTracker = function(){
                     fileStartPos += instrument.sampleHeaderSize;
                     file.goto(fileStartPos);
                 }
+
+
 
                 for (sampleI = 0; sampleI < instrument.numberOfSamples; sampleI++){
                     sample = instrument.samples[sampleI];

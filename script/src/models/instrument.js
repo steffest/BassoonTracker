@@ -39,36 +39,45 @@ var Instrument = function(){
 	};
 
 	me.noteOff = function(time,noteInfo){
-		console.error(noteInfo);
 
-		if (noteInfo.isKey && noteInfo.volume){
-			noteInfo.volume.gain.linearRampToValueAtTime(0,time + 0.5)
-		}else{
-			if (Tracker.inFTMode()){
-				var tickTime = Tracker.getProperties().tickTime;
+		noteInfo.volume.gain.cancelScheduledValues(time);
+		noteInfo.volumeFadeOut.gain.cancelScheduledValues(time);
 
-				if (me.volumeEnvelope.enabled && me.volumeEnvelope.sustain && noteInfo.volumeEnvelope){
+		if (Tracker.inFTMode()){
+			var tickTime = Tracker.getProperties().tickTime;
+
+			if (me.volumeEnvelope.enabled){
+
+				if (me.volumeEnvelope.sustain && noteInfo.volumeEnvelope){
 					var timeOffset = 0;
 					var startPoint = me.volumeEnvelope.points[me.volumeEnvelope.sustainPoint];
 					if (startPoint) timeOffset = startPoint[0]*tickTime;
 					for (var p = me.volumeEnvelope.sustainPoint; p< me.volumeEnvelope.count;p++){
 						var point = me.volumeEnvelope.points[p];
+						noteInfo.volumeEnvelope.gain.cancelScheduledValues(time);
 						noteInfo.volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime) - timeOffset);
 					}
 				}
 
 				if (me.fadeout){
-					var fadeOutTime = (65536/me.fadeout) * tickTime;
-					//TODO: this should be a separate gain control as volume commands after key off still have effect.
-					noteInfo.volume.gain.linearRampToValueAtTime(0,time + fadeOutTime);
+					var fadeOutTime = (65536/me.fadeout) * tickTime / 2;
+					noteInfo.volumeFadeOut.gain.linearRampToValueAtTime(0,time + fadeOutTime);
 				}
 
+			}else{
+				noteInfo.volumeFadeOut.gain.linearRampToValueAtTime(0,time + 0.1)
+			}
 
-				return 100;
+			return 100;
+
+		}else{
+			if (noteInfo.isKey && noteInfo.volume){
+				noteInfo.volume.gain.linearRampToValueAtTime(0,time + 0.5)
 			}else{
 				return 0;
 			}
 		}
+
 	};
 
 	me.getFineTune = function(){

@@ -335,7 +335,7 @@ UI.app_patternView = function(x,y,w,h){
                                 if (displayVolume){
                                     x += (font.charWidth*2) + 4;
                                     var value = note.volumeEffect || 0;
-                                    if (value) value -= 10;
+                                    if (value) value -= 16;
                                     noteString = formatHex(value,2,"0");
                                     if (noteString == "00") noteString = "..";
                                     drawText(noteString,x,y);
