@@ -1293,12 +1293,15 @@ var Tracker = (function(){
 
 				value = Math.abs(effects.slide.value);
 
+				var useLinear = me.inFTMode();
+
 				var steps = ticksPerStep;
 				if (effects.slide.fine){
 					// fine Slide Up or Down
 					steps = 2;
 				}
 
+				// TODO: Why don't we use a RampToValueAtTime here ?
 				for (var tick = 1; tick < steps; tick++){
 					if (effects.slide.target){
 						trackEffectCache[track].defaultSlideTarget = effects.slide.target;
@@ -1310,11 +1313,24 @@ var Tracker = (function(){
 							if (targetPeriod<effects.slide.target) targetPeriod = effects.slide.target;
 						}
 					}else{
-						targetPeriod += effects.slide.value;
-						if (trackEffectCache[track].defaultSlideTarget) trackEffectCache[track].defaultSlideTarget += effects.slide.value;
+
+						if (useLinear){
+							var curNote = FTPeriods[trackNote.startPeriod];
+							var nextNote = curNote + (effects.slide.value<0?-1:1);
+							if (curNote && nextNote){
+								var freqStep = (FTNotes[curNote].period - FTNotes[nextNote].period) / 16;
+								targetPeriod += freqStep;
+								if (trackEffectCache[track].defaultSlideTarget) trackEffectCache[track].defaultSlideTarget += freqStep;
+							}else{
+								console.warn("can't slide frequency: note " + curNote + " not found");
+							}
+						}else{
+							targetPeriod += effects.slide.value;
+							if (trackEffectCache[track].defaultSlideTarget) trackEffectCache[track].defaultSlideTarget += effects.slide.value;
+						}
 					}
 
-					targetPeriod = Audio.limitAmigaPeriod(targetPeriod);
+					if (!useLinear) targetPeriod = Audio.limitAmigaPeriod(targetPeriod);
 
 					var newPeriod = targetPeriod;
 					if (effects.slide.canUseGlissando && trackEffectCache[track].glissando){

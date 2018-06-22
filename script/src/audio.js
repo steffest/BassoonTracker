@@ -121,7 +121,7 @@ var Audio = (function(){
             me.enable();
         }
 
-        if (noteIndex == 97){
+        if (noteIndex === 97){
             volume = 0; // note off
         }
 
@@ -488,7 +488,7 @@ var Audio = (function(){
 
     // gives the finetuned period for a base note (Fast Tracker)
     me.getFineTuneForNote = function(note,finetune){
-        //console.log("get finetune " + finetune + "  for note " + note);
+        if (note === 97) return 1;
 
         var ftNote1 = FTNotes[note];
         var ftNote2 = finetune>0 ? FTNotes[note+1] : FTNotes[note-1] ;
@@ -497,7 +497,10 @@ var Audio = (function(){
             var delta = Math.abs(ftNote2.period - ftNote1.period) / 127;
             return ftNote1.period - Math.round(delta*finetune)
         }
-        return ftNote1.period || 0;
+
+        console.warn("unable to find finetune for note " + note);
+		return ftNote1 ? ftNote1.period : 1;
+
     };
 
     // gives the non-finetuned baseperiod for a finetuned period
