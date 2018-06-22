@@ -582,8 +582,6 @@ var Tracker = (function(){
 				};
             }else{
 
-            	// Are these even implemented in FastTracker or Milckytracker?
-				// Values above 80 can't even be set ?
             	switch(x){
 					case 6:
 						// volume slide down
@@ -593,11 +591,17 @@ var Tracker = (function(){
 						break;
 					case 8:
 						// Fine volume slide down
-						console.warn("Fine volume slide down not implemented");
+						trackEffects.fade = {
+							value: -y * 100/64,
+							fine: true
+						};
 						break;
 					case 9:
 						// Fine volume slide up
-						console.warn("Fine volume slide up not implemented");
+						trackEffects.fade = {
+							value: y * 100/64,
+							fine: true
+						};
 						break;
 					case 10:
 						// set vibrato speed
@@ -724,8 +728,8 @@ var Tracker = (function(){
 				if (target && instrumentIndex){
 					// check if the instrument is finetuned
 					var instrument = me.getInstrument(instrumentIndex);
-					if (instrument && instrument.finetune){
-						target = Audio.getFineTuneForPeriod(target,instrument.finetune);
+					if (instrument && instrument.getFineTune()){
+                        target = me.inFTMode() ?  Audio.getFineTuneForNote(noteIndex,instrument.getFineTune()) : me.getFineTuneForPeriod(target,instrument.getFineTune());
 					}
 				}
 
@@ -790,8 +794,8 @@ var Tracker = (function(){
 				if (target && instrumentIndex){
 					// check if the instrument is finetuned
 					instrument = me.getInstrument(instrumentIndex);
-					if (instrument && instrument.finetune){
-						target = Audio.getFineTuneForPeriod(target,instrument.finetune);
+					if (instrument && instrument.getFineTune()){
+                        target = me.inFTMode() ?  Audio.getFineTuneForNote(noteIndex,instrument.getFineTune()) : me.getFineTuneForPeriod(target,instrument.getFineTune());
 					}
 				}
 
@@ -1072,11 +1076,10 @@ var Tracker = (function(){
 							if (instrumentIndex){
 								var instrument = me.getInstrument(instrumentIndex);
 								trackEffects.fineTune = {
-									original: instrument.finetune,
+									original: instrument.getFineTune(),
 									instrument: instrument
 								};
-								instrument.finetune = subValue;
-								if (subValue>7) instrument.finetune = subValue-15;
+								instrument.setFineTune(subValue);
 							}
 							break;
 						case 6: // Pattern Loop
@@ -1126,7 +1129,6 @@ var Tracker = (function(){
 								value: subValue,
 								fine: true
 							};
-							console.error(trackEffects.fade);
 							break;
 						case 11: // Fine volume slide down
 
@@ -1199,7 +1201,7 @@ var Tracker = (function(){
 
 			// reset temporary instrument settings
 			if (trackEffects.fineTune && trackEffects.fineTune.instrument){
-				trackEffects.fineTune.instrument.finetune = trackEffects.fineTune.original || 0;
+				trackEffects.fineTune.instrument.setFineTune(trackEffects.fineTune.original || 0);
 			}
 
 		}
@@ -1703,11 +1705,10 @@ var Tracker = (function(){
 					}
 				}
 
-
-				if (isMod) checkAutoPlay(skipHistory);
+				if (isMod)checkAutoPlay(skipHistory);
 				if (next) next();
 			});
-		}
+		};
 
 		var name = "";
 		if (typeof url === "string"){
@@ -1835,7 +1836,7 @@ var Tracker = (function(){
 		instrument.sample.length = file.length;
 		instrument.loopStart = 0;
 		instrument.loopRepeatLength = 0;
-		instrument.finetune = 0;
+		instrument.setFineTune(0);
 		instrument.volume = 100;
 		instrument.sample.data = [];
 

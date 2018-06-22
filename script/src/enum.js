@@ -294,7 +294,7 @@ var FTNOTEPERIOD = {
 	Cs6 : {name: "C#6",period:101},
 	D6 : {name: "D-6",period:95},
 	Ds6 : {name: "D#6",period:90},
-	E6 : {name: "E-6",period: 85},
+	E6 : {name: "E-6",period:85},
 	F6 : {name: "F-6",period:80},
 	Fs6 : {name: "F#6",period:75},
 	G6 : {name: "G-6",period:71},

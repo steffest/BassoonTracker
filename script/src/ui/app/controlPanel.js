@@ -309,6 +309,16 @@ UI.app_controlPanel = function(){
        trackCountSpinbox.setValue(count,true);
     });
 
+    EventBus.on(EVENT.songLoaded,function(song){
+    	var targetChannels = song.channels;
+        if (targetChannels>12 && targetChannels<16) targetChannels=16;
+    	if (targetChannels>8 && targetChannels<12) targetChannels=12;
+    	if (targetChannels>4 && targetChannels<8) targetChannels=8;
+    	targetChannels = Math.min(targetChannels,Layout.maxVisibleTracks);
+		Layout.setVisibleTracks(targetChannels);
+        me.onPanelResize();
+	});
+
 
 
     return me;

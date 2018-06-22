@@ -54,8 +54,9 @@ var Instrument = function(){
 					if (startPoint) timeOffset = startPoint[0]*tickTime;
 					for (var p = me.volumeEnvelope.sustainPoint; p< me.volumeEnvelope.count;p++){
 						var point = me.volumeEnvelope.points[p];
-						noteInfo.volumeEnvelope.gain.cancelScheduledValues(time);
 						noteInfo.volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime) - timeOffset);
+
+						//console.error(point[1]/64,(point[0]*tickTime) - timeOffset);
 					}
 				}
 
@@ -89,6 +90,7 @@ var Instrument = function(){
 			me.finetuneX = finetune;
 			me.finetune = finetune >> 4;
 		}else{
+            if (finetune>7) finetune = finetune-15;
 			me.finetune = finetune;
 			me.finetuneX = finetune << 4;
 		}
