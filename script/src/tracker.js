@@ -181,7 +181,10 @@ var Tracker = (function(){
 
 		currentTrack = Math.floor(currentCursorPosition / stepsPerTrack);
 		currentTrackPosition = currentCursorPosition % stepsPerTrack;
-		if (prevCursorPosition!=currentCursorPosition) EventBus.trigger(EVENT.cursorPositionChange,currentCursorPosition);
+		if (prevCursorPosition!=currentCursorPosition) {
+
+			EventBus.trigger(EVENT.cursorPositionChange,currentCursorPosition);
+		}
 		prevCursorPosition = currentTrackPosition;
 	};
 	me.getCurrentCursorPosition = function(){
@@ -497,6 +500,7 @@ var Tracker = (function(){
 
 	function playNote(note,track,time,songPos){
 
+
 		var defaultVolume = 100;
 		var trackEffects = {};
 
@@ -508,17 +512,18 @@ var Tracker = (function(){
 		if (notePeriod && !instrumentIndex){
 			// reuse previous instrument
 			instrumentIndex = trackNotes[track].currentInstrument;
-			defaultVolume = typeof trackNotes[track].currentVolume == "number" ? trackNotes[track].currentVolume : defaultVolume;
+			defaultVolume = typeof trackNotes[track].currentVolume === "number" ? trackNotes[track].currentVolume : defaultVolume;
 
 			if (SETTINGS.emulateProtracker1OffsetBug && instrumentIndex && trackEffectCache[track].offset){
-				if (trackEffectCache[track].offset.instrument == instrumentIndex){
+				if (trackEffectCache[track].offset.instrument === instrumentIndex){
 					console.log("applying instrument offset cache to instrument " + instrumentIndex);
 					trackEffects.offset = trackEffectCache[track].offset;
 				}
 			}
 		}
 
-		if (typeof note.instrument == "number"){
+
+		if (typeof note.instrument === "number"){
 			instrument = me.getInstrument(note.instrument);
 			if (instrument) {
 				defaultVolume = 100 * (instrument.volume/64);
@@ -533,6 +538,7 @@ var Tracker = (function(){
 		}
 
 
+
 		var volume = defaultVolume;
 		var doPlayNote = true;
 
@@ -541,9 +547,14 @@ var Tracker = (function(){
 			instrument = me.getInstrument(instrumentIndex);
 		}
 
+
 		if (noteIndex && me.inFTMode()){
 
-			if (noteIndex === 97){
+			if (noteIndex === 97) {
+				noteIndex = NOTEOFF;
+			}
+
+			if (noteIndex === NOTEOFF){
 				var offInstrument = instrument || me.getInstrument(trackNotes[track].currentInstrument);
 				if (offInstrument){
 					volume = offInstrument.noteOff(time,trackNotes[track]);
@@ -554,12 +565,19 @@ var Tracker = (function(){
 				defaultVolume = volume;
 				doPlayNote = false;
 			}else{
-                if (instrument && instrument.relativeNote) noteIndex +=  instrument.relativeNote;
-                var ftNote = FTNotes[noteIndex];
-                if (ftNote) notePeriod = ftNote.period;
+                if (instrument && instrument.relativeNote) noteIndex += instrument.relativeNote;
+                // TODO - check of note gets out of range
+				// but apparently they still get played ... -> extend scale to 9, 10 or 11 octaves ?
+				// see jt_letgo.xm instrument 6 (track 20) for example
+
+				if (me.useLinearFrequency){
+					notePeriod = 7680 - (noteIndex-1)*64;
+				}else{
+					var ftNote = FTNotes[noteIndex];
+					if (ftNote) notePeriod = ftNote.period;
+				}
 			}
 		}
-
 
 
 		var value = note.param;
@@ -729,7 +747,7 @@ var Tracker = (function(){
 					// check if the instrument is finetuned
 					var instrument = me.getInstrument(instrumentIndex);
 					if (instrument && instrument.getFineTune()){
-                        target = me.inFTMode() ?  Audio.getFineTuneForNote(noteIndex,instrument.getFineTune()) : me.getFineTuneForPeriod(target,instrument.getFineTune());
+                        target = me.inFTMode() ?  instrument.getPeriodForNote(noteIndex,true) : me.getFineTuneForPeriod(target,instrument.getFineTune());
 					}
 				}
 
@@ -1178,6 +1196,15 @@ var Tracker = (function(){
 					Tracker.setBPM(note.param)
 				}
 				break;
+
+            case 16:
+                //Fasttracker only - global volume
+                console.warn("Global volume not implemented");
+                break;
+            case 21:
+                //Fasttracker only - Multi retrig note
+                console.warn("Multi retrig note not implemented");
+                break;
 			default:
 				console.warn("unhandled effect: " + note.effect);
 		}
@@ -1241,9 +1268,7 @@ var Tracker = (function(){
 			// vibrato or arpeggio is done
 			// for slow vibratos it seems logical to keep the current frequency, but apparently most trackers revert back to the pre-vibrato one
 			var targetPeriod = trackNote.currentPeriod || trackNote.startPeriod;
-			var rate = (trackNote.startPeriod / targetPeriod);
-			trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time);
-			trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + 0.01);
+			me.setPeriodAtTime(trackNote,targetPeriod,time);
 			trackNote.resetPeriodOnStep = false;
 		}
 
@@ -1290,18 +1315,19 @@ var Tracker = (function(){
 		if (effects.slide){
 			if (trackNote.source){
 				var currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
-				var currentRate = trackNote.startPlaybackRate;
 				var targetPeriod = currentPeriod;
 
-				value = Math.abs(effects.slide.value);
-
-				var useLinear = me.inFTMode();
 
 				var steps = ticksPerStep;
 				if (effects.slide.fine){
 					// fine Slide Up or Down
 					steps = 2;
 				}
+
+
+				var slideValue = effects.slide.value;
+				if (me.inFTMode() && me.useLinearFrequency) slideValue = effects.slide.value*4;
+				value = Math.abs(slideValue);
 
 				// TODO: Why don't we use a RampToValueAtTime here ?
 				for (var tick = 1; tick < steps; tick++){
@@ -1315,44 +1341,22 @@ var Tracker = (function(){
 							if (targetPeriod<effects.slide.target) targetPeriod = effects.slide.target;
 						}
 					}else{
-
-						if (useLinear){
-							var curNote = FTPeriods[trackNote.startPeriod];
-							var nextNote = curNote + (effects.slide.value<0?-1:1);
-							if (curNote && nextNote){
-								var freqStep = (FTNotes[curNote].period - FTNotes[nextNote].period) / 16;
-								targetPeriod += freqStep;
-								if (trackEffectCache[track].defaultSlideTarget) trackEffectCache[track].defaultSlideTarget += freqStep;
-							}else{
-								console.warn("can't slide frequency: note " + curNote + " not found");
-							}
-						}else{
-							targetPeriod += effects.slide.value;
-							if (trackEffectCache[track].defaultSlideTarget) trackEffectCache[track].defaultSlideTarget += effects.slide.value;
-						}
+						targetPeriod += slideValue;
+						if (trackEffectCache[track].defaultSlideTarget) trackEffectCache[track].defaultSlideTarget += slideValue;
 					}
 
-					if (!useLinear) targetPeriod = Audio.limitAmigaPeriod(targetPeriod);
+					if (!me.inFTMode()) targetPeriod = Audio.limitAmigaPeriod(targetPeriod);
 
 					var newPeriod = targetPeriod;
 					if (effects.slide.canUseGlissando && trackEffectCache[track].glissando){
 						newPeriod = Audio.getNearestSemiTone(targetPeriod,trackNote.instrumentIndex);
 					}
 
-					if (newPeriod != trackNote.currentPeriod){
+					if (newPeriod !== trackNote.currentPeriod){
 						trackNote.currentPeriod = targetPeriod;
-						var rate = (trackNote.startPeriod / newPeriod);
-
-						// note - seems to be a weird bug in chrome ?
-						// try setting it twice with a slight delay
-						// TODO: retest on Chrome windows and other browsers
-						trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime));
-						trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime) + 0.005);
-
-						//trackNote.source.playbackRate.value = trackNote.startPlaybackRate * rate;
+						me.setPeriodAtTime(trackNote,newPeriod,time + (tick*tickTime));
 					}
 				}
-				//trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate,time + (ticksPerStep*tickTime)+0.2);
 			}
 		}
 
@@ -1360,7 +1364,6 @@ var Tracker = (function(){
 			if (trackNote.source){
 
 				var currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
-				var currentRate = trackNote.startPlaybackRate;
 				var targetPeriod;
 
 				trackNote.resetPeriodOnStep = true;
@@ -1372,8 +1375,7 @@ var Tracker = (function(){
 					if (t == 1 && effects.arpeggio.interval1) targetPeriod = currentPeriod - effects.arpeggio.interval1;
 					if (t == 2 && effects.arpeggio.interval2) targetPeriod = currentPeriod - effects.arpeggio.interval2;
 
-					var rate = (currentPeriod / targetPeriod);
-					trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime));
+                    me.setPeriodAtTime(trackNote,targetPeriod,time + (tick*tickTime));
 				}
 			}
 		}
@@ -1381,6 +1383,7 @@ var Tracker = (function(){
 		if (effects.vibrato){
 			var freq = effects.vibrato.freq;
 			var amp = effects.vibrato.amplitude;
+			if (me.inFTMode() && me.useLinearFrequency) amp *= 4;
 
 			trackNote.vibratoTimer = trackNote.vibratoTimer||0;
 
@@ -1389,10 +1392,8 @@ var Tracker = (function(){
 				currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
 
 				for (var tick = 0; tick < ticksPerStep; tick++) {
-
 					targetPeriod = vibratoFunction(currentPeriod,trackNote.vibratoTimer,freq,amp);
-					var rate = (trackNote.startPeriod / targetPeriod);
-					trackNote.source.playbackRate.setValueAtTime(trackNote.startPlaybackRate * rate,time + (tick*tickTime));
+					me.setPeriodAtTime(trackNote,targetPeriod,time + (tick*tickTime));
 					trackNote.vibratoTimer++;
 				}
 			}
@@ -1652,6 +1653,24 @@ var Tracker = (function(){
 		return trackerStates;
 	};
 
+	me.setPeriodAtTime = function(trackNote,period,time){
+        // TODO: shouldn't we always set the full samplerate from the period?
+
+        if (me.inFTMode() && me.useLinearFrequency){
+            var sampleRate = (8363 * Math.pow(2,((4608 - period) / 768)));
+            var rate = sampleRate / Audio.context.sampleRate;
+        }else{
+            rate = (trackNote.startPeriod / period);
+            rate = trackNote.startPlaybackRate * rate;
+        }
+
+        // note - seems to be a weird bug in chrome ?
+        // try setting it twice with a slight delay
+        // TODO: retest on Chrome windows and other browsers
+        trackNote.source.playbackRate.setValueAtTime(rate,time);
+        trackNote.source.playbackRate.setValueAtTime(rate,time + 0.005);
+	};
+
 	me.load = function(url,skipHistory,next){
 		url = url || "demomods/StardustMemories.mod";
 
@@ -1834,8 +1853,8 @@ var Tracker = (function(){
 
 		instrument.name = name;
 		instrument.sample.length = file.length;
-		instrument.loopStart = 0;
-		instrument.loopRepeatLength = 0;
+		instrument.loop.start = 0;
+		instrument.loop.length = 0;
 		instrument.setFineTune(0);
 		instrument.volume = 100;
 		instrument.sample.data = [];
@@ -2088,6 +2107,8 @@ var Tracker = (function(){
 		}
 		return result;
 	}
+
+	me.useLinearFrequency = true;
 
 
 

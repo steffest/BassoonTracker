@@ -63,7 +63,7 @@ UI.WaveForm = function(){
 	me.play = function(period){
 		isPlaying = true;
 		startPlayTime = new Date().getTime();
-		sampleRate = PALFREQUENCY / (period*2);
+		sampleRate = AMIGA_PALFREQUENCY_HALF / period;
 		me.refresh();
 	};
 
@@ -133,16 +133,16 @@ UI.WaveForm = function(){
 
 			}
 
-			if (currentInstrument.loopRepeatLength>2){
+			if (currentInstrument.loop.length>2){
 
 				me.ctx.fillStyle = "rgb(241, 220, 71)";
 
-				var loopStart = currentInstrument.loopStart || 0;
+				var loopStart = currentInstrument.loop.start || 0;
 				var lineX = (loopStart/sampleLength) * me.width;
 				lineX = Math.max(5,lineX);
 				me.ctx.fillRect(lineX,0,2,me.height);
 
-				lineX = ((loopStart + currentInstrument.loopRepeatLength)/sampleLength) * me.width;
+				lineX = ((loopStart + currentInstrument.loop.length)/sampleLength) * me.width;
 				lineX = Math.min(lineX,me.width-6);
 
 				me.ctx.fillRect(lineX,0,2,me.height);

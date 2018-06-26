@@ -261,9 +261,11 @@ UI.app_patternView = function(x,y,w,h){
                                     x = trackLeft + initialTrackTextOffset + (j*Layout.trackWidth);
                                 }
 
-                                if (Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER){
+                                if (Tracker.inFTMode()){
 									if (note.index){
 										var ftNote = FTNotes[note.index];
+									    if (note.index === 97) ftNote = FTNotes[NOTEOFF];
+
 										var noteString = ftNote ? ftNote.name : "???"
 									}else{
 										noteString = "---";

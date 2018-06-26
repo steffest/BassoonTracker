@@ -121,13 +121,13 @@ var Audio = (function(){
             me.enable();
         }
 
-        if (noteIndex === 97){
+		period = period || 428; // C-3
+		track = track || Tracker.getCurrentTrack();
+		time = time || context.currentTime;
+
+        if (noteIndex === NOTEOFF){
             volume = 0; // note off
         }
-
-        period = period || 428; // C-3
-        track = track || Tracker.getCurrentTrack();
-        time = time || context.currentTime;
 
         var instrument = Tracker.getInstrument(index);
         var basePeriod = period;
@@ -137,20 +137,47 @@ var Audio = (function(){
             var sampleBuffer;
             var offset = 0;
             var sampleLength = 0;
-            var sampleLoopStart = 0;
 
-            volume = typeof volume == "undefined" ? (100*instrument.volume/64) : volume;
+            volume = typeof volume === "undefined" ? (100*instrument.volume/64) : volume;
 
-            if (instrument.getFineTune()){
-                period = Tracker.inFTMode() ?  me.getFineTuneForNote(noteIndex,instrument.getFineTune()) : me.getFineTuneForPeriod(period,instrument.getFineTune());
+
+			var sampleRate;
+            if (Tracker.inFTMode()){
+                if (Tracker.useLinearFrequency){
+					period -= instrument.getFineTune()/2;
+					sampleRate = (8363 * Math.pow(2,((4608 - period) / 768)));
+				}else{
+					if (instrument.getFineTune()){
+						period = me.getFineTuneForNote(noteIndex,instrument.getFineTune());
+					}
+					sampleRate = PC_FREQUENCY_HALF / period;
+                }
+            }else{
+                // protracker frequency
+				if (instrument.getFineTune()){
+					period = me.getFineTuneForPeriod(period,instrument.getFineTune());
+				}
+
+				sampleRate = AMIGA_PALFREQUENCY_HALF / period;
             }
-            var sampleRate = PALFREQUENCY / (period*2);
+
+
+            //if (state.song.get('flags') & 0x1) {
+                //var FineTune = 0;
+
+			    //period = 7680 - noteIndex*64 - FineTune/2;
+			    //console.error(period);
+                //sampleRate = (8363 * (2 ** ((4608.0 - period) / 768.0)));
+            //} else {
+                //sampleRate = ((8363 * 1712.0)/4) / period;
+            //}
+
+
 
             var initialPlaybackRate = 1;
 
             if (instrument.sample.data.length) {
                 sampleLength = instrument.sample.data.length;
-                sampleLoopStart = instrument.loopStart;
                 if (effects && effects.offset){
                     if (effects.offset.value>=sampleLength) effects.offset.value = sampleLength-1;
                     offset = effects.offset.value/audioContext.sampleRate; // in seconds
@@ -176,15 +203,14 @@ var Audio = (function(){
             // TODO: volumeGain.value has no result here ? -> setvalueattime ?
 
 
-            if (instrument.loopRepeatLength>2){
+            if (instrument.loop.enabled && instrument.loop.length>2){
 
                 if (!SETTINGS.unrollLoops){
 
                     source.loop = true;
                     // in seconds ...
-                    source.loopStart = sampleLoopStart/audioContext.sampleRate;
-                    source.loopEnd = (sampleLoopStart + instrument.loopRepeatLength)/audioContext.sampleRate;
-
+                    source.loopStart = instrument.loop.start/audioContext.sampleRate;
+                    source.loopEnd = (instrument.loop.start + instrument.loop.length)/audioContext.sampleRate;
                     //audioContext.sampleRate = samples/second
                 }
             }
@@ -218,7 +244,9 @@ var Audio = (function(){
                 currentVolume: volume,
                 startPeriod: period,
                 basePeriod: basePeriod,
+                noteIndex: noteIndex,
                 startPlaybackRate: initialPlaybackRate,
+                sampleRate: sampleRate,
                 instrumentIndex: index,
                 effects: effects,
                 track: track
@@ -488,7 +516,7 @@ var Audio = (function(){
 
     // gives the finetuned period for a base note (Fast Tracker)
     me.getFineTuneForNote = function(note,finetune){
-        if (note === 97) return 1;
+        if (note === NOTEOFF) return 1;
 
         var ftNote1 = FTNotes[note];
         var ftNote2 = finetune>0 ? FTNotes[note+1] : FTNotes[note-1] ;
@@ -498,8 +526,8 @@ var Audio = (function(){
             return ftNote1.period - Math.round(delta*finetune)
         }
 
-        console.warn("unable to find finetune for note " + note);
-		return ftNote1 ? ftNote1.period : 1;
+        console.warn("unable to find finetune for note " + note,ftNote1);
+		return ftNote1 ? ftNote1.period : 100000;
 
     };
 

@@ -119,7 +119,7 @@ UI.SampleView = function(){
 		vertical:true,
 		onChange: function(value){
 			var instrument= Tracker.getCurrentInstrument();
-			if (instrument) instrument.loopStart = value;
+			if (instrument) instrument.loop.start = value;
 			waveForm.refresh();
 		}
 	});
@@ -136,7 +136,7 @@ UI.SampleView = function(){
 		vertical:true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) instrument.loopRepeatLength = value;
+			if (instrument) instrument.loop.length = value;
 			waveForm.refresh();
 		}
 	});
@@ -216,16 +216,18 @@ UI.SampleView = function(){
 		var instrument = Tracker.getInstrument(value);
 		if (instrument){
 
-			repeatSlider.setMax(instrument.sample.length);
-			repeatLengthSlider.setMax(instrument.sample.length);
+			repeatSlider.setMax(instrument.sample.length,true);
+			repeatLengthSlider.setMax(instrument.sample.length,true);
 
 
 			instrumentName.setValue(instrument.name,true);
 			volumeSlider.setValue(instrument.volume);
 			lengthSlider.setValue(instrument.sample.length);
 			fineTuneSlider.setValue(instrument.getFineTune());
-			repeatSlider.setValue(instrument.loopStart);
-			repeatLengthSlider.setValue(instrument.loopRepeatLength);
+
+			repeatSlider.setValue(instrument.loop.start,true);
+			repeatLengthSlider.setValue(instrument.loop.length,true);
+
 			spinBoxRelativeNote.setValue(instrument.relativeNote);
 			fadeOutSlider.setValue(instrument.fadeout || 0);
 			waveForm.setInstrument(instrument);
@@ -251,7 +253,7 @@ UI.SampleView = function(){
 
 	EventBus.on(EVENT.instrumentPlay,function(context){
 		if (!me.visible) return;
-		if (context && context.instrumentIndex == currentInstrumentIndex){
+		if (context && context.instrumentIndex === currentInstrumentIndex){
 			waveForm.play(context.startPeriod);
 		}
 	});
@@ -360,7 +362,7 @@ UI.SampleView = function(){
 		});
 
 		spinBoxRelativeNote.setProperties({
-			left:0-500,
+			left:0,
 			top: sliderHeight,
 			width: sliderWidth,
 			height: sliderHeight

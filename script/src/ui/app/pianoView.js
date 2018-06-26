@@ -35,7 +35,7 @@ UI.app_pianoView = function(){
         name: "Octave",
         label: "Octave",
         value: 1,
-        max: 3,
+        max: 7,
         min:1,
         left: 4,
         top: 2,

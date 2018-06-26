@@ -1,0 +1,38 @@
+<script>
+
+    var table = [856,808,762,720,678,640,604,570,538,508,480,453];
+    var note = ["C","Cs","D","Ds","E","F","Fs","G","Gs","A","As","B"];
+    var noteName = ["C-","C#","D-","D#","E-","F-","F#","G-","G#","A-","A#","B-"];
+
+
+
+    var output = [];
+
+    for (var i = -3; i< 9; i++){
+
+		for (var n = 0; n< 12; n++){
+			var oct = i+3;
+			var period = table[n];
+
+			if (i<0) period = period * Math.pow(2,Math.abs(i));
+			if (i>0) period = period / Math.pow(2,i);
+
+			var s_modPeriod = "";
+			if (oct<8){
+				var modPeriod = Math.round(period);
+				if (modPeriod !== period){
+					s_modPeriod = ",modPeriod: " + modPeriod
+				}
+            }
+
+
+			output.push(note[n]+oct + ': {name: "'+noteName[n]+oct+'",period: '+period+s_modPeriod+'},');
+		}
+
+    }
+
+    document.write(output.join("<br>"));
+
+
+
+</script>

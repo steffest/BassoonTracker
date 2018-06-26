@@ -51,8 +51,11 @@ var ProTracker = function(){
 			if (finetune>7) finetune -= 16;
 			instrument.setFineTune(finetune);
 			instrument.volume   = file.readUbyte();
-			instrument.loopStart     = file.readWord() << 1;
-			instrument.loopRepeatLength   = file.readWord() << 1;
+			instrument.loop.start    = file.readWord() << 1;
+			instrument.loop.length   = file.readWord() << 1;
+
+			instrument.loop.enabled = instrument.loop.length>2;
+			instrument.loop.type = LOOPTYPE.PINGPONG;
 
 			instrument.pointer = sampleDataOffset;
 			sampleDataOffset += instrument.sample.length;
@@ -116,14 +119,14 @@ var ProTracker = function(){
 			instrument = Tracker.getInstrument(i);
 			if (instrument){
 				console.log(
-					"Reading sample from 0x" + file.index + " with length of " + instrument.sample.length + " bytes and repeat length of " + instrument.loopRepeatLength);
+					"Reading sample from 0x" + file.index + " with length of " + instrument.sample.length + " bytes and repeat length of " + instrument.loop.length);
 
 
 				var sampleEnd = instrument.sample.length;
 
-				if (instrument.loopRepeatLength>2 && SETTINGS.unrollShortLoops && instrument.loopRepeatLength<1000){
+				if (instrument.loop.length>2 && SETTINGS.unrollShortLoops && instrument.loop.length<1000){
 					// cut off trailing bytes for short looping samples
-					sampleEnd = Math.min(sampleEnd,instrument.loopStart + instrument.loopRepeatLength);
+					sampleEnd = Math.min(sampleEnd,instrument.loop.start + instrument.loop.length);
 					instrument.sample.length = sampleEnd;
 				}
 
@@ -138,32 +141,31 @@ var ProTracker = function(){
 				// web audio loop start/end is in seconds
 				// doesn't work that well with tiny loops
 
-				if ((SETTINGS.unrollShortLoops || SETTINGS.unrollLoops) && instrument.loopRepeatLength>2){
-					// TODO: pingpong and reverse loops in XM files? -> unroll once and append the reversed loop
+				if ((SETTINGS.unrollShortLoops || SETTINGS.unrollLoops) && instrument.loop.length>2){
 
-					var loopCount = Math.ceil(40000 / instrument.loopRepeatLength) + 1;
+					var loopCount = Math.ceil(40000 / instrument.loop.length) + 1;
 
 					if (!SETTINGS.unrollLoops) loopCount = 0;
 
 					var resetLoopNumbers = false;
 					var loopLength = 0;
-					if (SETTINGS.unrollShortLoops && instrument.loopRepeatLength<1600){
+					if (SETTINGS.unrollShortLoops && instrument.loop.length<1600){
 
-						loopCount = Math.floor(1000/instrument.loopRepeatLength);
+						loopCount = Math.floor(1000/instrument.loop.length);
 						resetLoopNumbers = true;
 					}
 
 					for (var l=0;l<loopCount;l++){
-						var start = instrument.loopStart;
-						var end = start + instrument.loopRepeatLength;
+						var start = instrument.loop.start;
+						var end = start + instrument.loop.length;
 						for (j=start; j<end; j++){
 							instrument.sample.data.push(instrument.sample.data[j]);
 						}
-						loopLength += instrument.loopRepeatLength;
+						loopLength += instrument.loop.length;
 					}
 
 					if (resetLoopNumbers && loopLength){
-						instrument.loopRepeatLength += loopLength;
+						instrument.loop.length += loopLength;
 						instrument.sample.length += loopLength;
 					}
 				}
@@ -222,8 +224,8 @@ var ProTracker = function(){
 				file.writeWord(instrument.sample.length >> 1);
 				file.writeUByte(instrument.finetune);
 				file.writeUByte(instrument.volume);
-				file.writeWord(instrument.loopStart >> 1);
-				file.writeWord(instrument.loopRepeatLength >> 1);
+				file.writeWord(instrument.loop.start >> 1);
+				file.writeWord(instrument.loop.length >> 1);
 			}else{
 				file.clear(30);
 			}

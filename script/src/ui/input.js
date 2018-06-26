@@ -232,6 +232,10 @@ var Input = (function(){
 				if (keyCode === 112) currentOctave = 1;
 				if (keyCode === 113) currentOctave = 2;
 				if (keyCode === 114) currentOctave = 3;
+				if (keyCode === 115) currentOctave = 4;
+				if (keyCode === 116) currentOctave = 5;
+				if (keyCode === 117) currentOctave = 6;
+				if (keyCode === 118) currentOctave = 7;
 
 
 				var baseNote = keyboardTable[key];
@@ -265,7 +269,6 @@ var Input = (function(){
 						}
 
 					}
-					console.error(note);
 				}
 
 

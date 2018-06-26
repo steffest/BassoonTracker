@@ -174,8 +174,8 @@ var FastTracker = function(){
                     sample = Sample();
 
                     sample.length = file.readDWord();
-                    instrument.loopStart = file.readDWord();
-                    instrument.loopRepeatLength = file.readDWord();
+                    instrument.loop.start = file.readDWord();
+                    instrument.loop.length = file.readDWord();
                     instrument.volume = file.readUbyte();
                     instrument.finetuneX = file.readByte();
                     sample.type = file.readUbyte();
@@ -202,26 +202,16 @@ var FastTracker = function(){
                         sample.bits       = 16;
                         sample.type      ^= 16;
                         sample.length    >>= 1;
-                        instrument.loopStart >>= 1;
-                        instrument.loopRepeatLength   >>= 1;
+                        instrument.loop.start >>= 1;
+                        instrument.loop.length   >>= 1;
                     }
-                    instrument.looptype = sample.type || 0;
-
-                    if (!instrument.looptype){
-                        // TODO should we preserve this in case the file gets saved again ? -> we probably should. Fasttracker does.
-                        instrument.loopStart = 0;
-                        instrument.loopRepeatLength = 0;
-                    }
+                    instrument.loop.type = sample.type || 0;
+                    instrument.loop.enabled = !!instrument.loop.type;
 
                     // sample data
-                    console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + (instrument.bits === 16 ? " words" : " bytes") +  " and repeat length of " + instrument.loopRepeatLength);
+                    console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + (instrument.bits === 16 ? " words" : " bytes") +  " and repeat length of " + instrument.loop.length);
                     var sampleEnd = sample.length;
 
-                    if (instrument.loopRepeatLength>2 && SETTINGS.unrollShortLoops && instrument.loopRepeatLength<1000){
-                        // cut off trailing bytes for short looping samples
-                        //sampleEnd = Math.min(sampleEnd,instrument.loopStart + instrument.loopRepeatLength);
-                        //instrument.sample.length = sampleEnd;
-                    }
 
                     var old = 0;
                     if (sample.bits === 16){
@@ -244,16 +234,15 @@ var FastTracker = function(){
                     }
 
                     // unroll ping pong loops
-                    if (instrument.looptype == 2){
+                    if (instrument.loop.type == LOOPTYPE.PINGPONG){
 
                         // TODO: keep original sample
-                        instrument.loopRepeatLength = instrument.loopRepeatLength;
-                        var loopPart = sample.data.slice(instrument.loopStart,instrument.loopStart + instrument.loopRepeatLength);
+                        var loopPart = sample.data.slice(instrument.loop.start,instrument.loop.start + instrument.loop.length);
 
-                        sample.data = sample.data.slice(0,instrument.loopStart + instrument.loopRepeatLength);
+                        sample.data = sample.data.slice(0,instrument.loop.start + instrument.loop.length);
                         sample.data = sample.data.concat(loopPart.reverse());
-                        instrument.loopRepeatLength = instrument.loopRepeatLength*2;
-                        instrument.samples[0].length = instrument.loopStart + instrument.loopRepeatLength;
+                        instrument.loop.length = instrument.loop.length*2;
+                        instrument.samples[0].length = instrument.loop.start + instrument.loop.length;
 
                     }
 
@@ -389,7 +378,7 @@ var FastTracker = function(){
                         + (instrument.panningEnvelope.loop && 4)) || 0;
 
                 var sampleType = 0;
-                if (instrument.loopRepeatLength>2) sampleType=1;
+                if (instrument.loop.length>2) sampleType=1;
                 //TODO pingpong loops and 16-bit samples , or are we keeping pingpong loops unrolled?
 
 				file.writeDWord(40); // sample header size;
@@ -425,8 +414,8 @@ var FastTracker = function(){
 
 				// write sample data
 				file.writeDWord(instrument.sample.length);
-				file.writeDWord(instrument.loopStart);
-				file.writeDWord(instrument.loopRepeatLength);
+				file.writeDWord(instrument.loop.start);
+				file.writeDWord(instrument.loop.length);
 				file.writeUByte(instrument.volume);
 				file.writeByte(instrument.finetuneX);
 				file.writeUByte(sampleType);
@@ -465,3 +454,23 @@ var FastTracker = function(){
 
     return me;
 };
+
+// TODO - fasttracker playback routine fixes:
+/*
+- Vibrato (effect 4) -> linear frerquency
+- example: Ambrozia.xm - jt_letgo.xm
+
+- Arpegio is off
+example: external.xm - pattern 5 track 8
+
+
+Finetune is a little off
+see aws_aq16.xm - pattern 23 - instrument 13
+
+
+really should implement different linear period table
+as there are slight differences
+
+see drumloop in Jugi-Onward.xm - songpos 16
+
+ */

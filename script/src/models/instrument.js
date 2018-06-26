@@ -15,11 +15,17 @@ var Instrument = function(){
 	me.volumeEnvelope = {raw: [], enabled: false};
 	me.panningEnvelope = {raw: [], enabled: false};
 	me.vibrato = {};
+	me.loop = {
+		enabled: false,
+		start: 0,
+		length: 0,
+		type: 0
+	};
 	me.sampleNumberForNotes = [];
-	me.loopStart = 0;
-	me.loopRepeatLength = 0;
+
 
 	me.play = function(noteIndex,notePeriod,volume,track,trackEffects,time){
+		if (Tracker.inFTMode()) notePeriod = me.getPeriodForNote(noteIndex);
 		return Audio.playSample(me.sampleIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
 	};
 
@@ -94,6 +100,27 @@ var Instrument = function(){
 			me.finetune = finetune;
 			me.finetuneX = finetune << 4;
 		}
+	};
+
+	// in FT mode
+	me.getPeriodForNote = function(noteIndex,withFineTune){
+		var result = 0;
+
+		if (Tracker.useLinearFrequency){
+			result =  7680 - (noteIndex-1)*64;
+			if (withFineTune) result -= me.getFineTune()/2;
+		}else{
+			result = FTNotes[noteIndex].period;
+			if (withFineTune && me.getFineTune()){
+				result = Audio.getFineTuneForNote(noteIndex,me.getFineTune());
+			}
+		}
+
+		return result;
+	};
+
+	me.getSampleRateForPeriod = function(period){
+
 	};
 
 	return me;
