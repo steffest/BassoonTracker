@@ -97,50 +97,52 @@ UI.SampleView = function(){
 	});
 	sideButtonPanel.addChild(fineTuneSlider);
 
-	var lengthSlider = UI.sliderBox({
-		name: "Length",
-		label: "Length",
+	var panningSlider = UI.sliderBox({
+		name: "Panning",
+		label: "Panning",
 		font: font,
 		value: 0,
-		max: 65535,
-		min:0,
-		vertical:true
+		max: 127,
+		min: -127,
+		vertical:true,
+		onChange: function(value){
+			var instrument = Tracker.getCurrentInstrument();
+			if (instrument) instrument.panning = value;
+		}
 	});
-	sideButtonPanel.addChild(lengthSlider);
+	sideButtonPanel.addChild(panningSlider);
 
-	var repeatSlider = UI.sliderBox({
+	var repeatSpinbox = UI.spinBox({
 		name: "Repeat",
-		label: "Repeat",
+		label: "Start",
 		value: 0,
 		max: 65535,
 		min:0,
 		step:2,
 		font: font,
-		vertical:true,
 		onChange: function(value){
 			var instrument= Tracker.getCurrentInstrument();
 			if (instrument) instrument.loop.start = value;
 			waveForm.refresh();
 		}
 	});
-	sideButtonPanel.addChild(repeatSlider);
+	sideButtonPanel.addChild(repeatSpinbox);
 
-	var repeatLengthSlider = UI.sliderBox({
+	var repeatLengthSpinbox = UI.spinBox({
 		name: "Repeat Length",
-		label: "Repeat Length",
+		label: "Length",
 		value: 0,
 		max: 65535,
 		min:0,
 		step:2,
 		font: font,
-		vertical:true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) instrument.loop.length = value;
 			waveForm.refresh();
 		}
 	});
-	sideButtonPanel.addChild(repeatLengthSlider);
+	sideButtonPanel.addChild(repeatLengthSpinbox);
 
 	var fadeOutSlider = UI.sliderBox({
 		name: "Fadeout",
@@ -209,6 +211,32 @@ UI.SampleView = function(){
 	me.addChild(closeButton);
 
 
+	var loopTitleBar = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
+	loopTitleBar.ignoreEvents = true;
+	me.addChild(loopTitleBar);
+
+	var loopTitleLabel = UI.label({
+		label: "Loop",
+		font: fontSmall,
+		width: 50
+	});
+    loopTitleLabel.onClick = function() {
+        loopEnabledCheckbox.toggle();
+    };
+	me.addChild(loopTitleLabel);
+
+	var loopEnabledCheckbox = UI.checkbox();
+	loopEnabledCheckbox.onToggle = function(checked){
+		var instrument = Tracker.getInstrument(currentInstrumentIndex);
+		if (instrument) instrument.loop.enabled = checked;
+
+		repeatSpinbox.setDisabled(!checked);
+		repeatLengthSpinbox.setDisabled(!checked);
+		waveForm.refresh();
+	};
+	me.addChild(loopEnabledCheckbox);
+
+
 	// events
 	EventBus.on(EVENT.instrumentChange,function(value){
 		currentInstrumentIndex = value;
@@ -216,23 +244,25 @@ UI.SampleView = function(){
 		var instrument = Tracker.getInstrument(value);
 		if (instrument){
 
-			repeatSlider.setMax(instrument.sample.length,true);
-			repeatLengthSlider.setMax(instrument.sample.length,true);
+			repeatSpinbox.setMax(instrument.sample.length,true);
+			repeatLengthSpinbox.setMax(instrument.sample.length,true);
 
 
 			instrumentName.setValue(instrument.name,true);
 			volumeSlider.setValue(instrument.volume);
-			lengthSlider.setValue(instrument.sample.length);
+			panningSlider.setValue(instrument.panning || 0);
 			fineTuneSlider.setValue(instrument.getFineTune());
 
-			repeatSlider.setValue(instrument.loop.start,true);
-			repeatLengthSlider.setValue(instrument.loop.length,true);
+			repeatSpinbox.setValue(instrument.loop.start,true);
+			repeatLengthSpinbox.setValue(instrument.loop.length,true);
 
 			spinBoxRelativeNote.setValue(instrument.relativeNote);
 			fadeOutSlider.setValue(instrument.fadeout || 0);
 			waveForm.setInstrument(instrument);
 			volumeEnvelope.setInstrument(instrument);
 			panningEnvelope.setInstrument(instrument);
+
+			loopEnabledCheckbox.setState(instrument.loop.enabled);
 
 
 		}else{
@@ -241,17 +271,17 @@ UI.SampleView = function(){
 			panningEnvelope.setInstrument();
 			instrumentName.setValue("",true);
 			volumeSlider.setValue(0);
-			lengthSlider.setValue(0);
+			panningSlider.setValue(0);
 			fineTuneSlider.setValue(0);
-			repeatSlider.setValue(0);
-			repeatLengthSlider.setValue(0);
+			repeatSpinbox.setValue(0);
+			repeatLengthSpinbox.setValue(0);
 			spinBoxRelativeNote.setValue(0);
 			fadeOutSlider.setValue(0);
 		}
 	});
 
 
-	EventBus.on(EVENT.instrumentPlay,function(context){
+	EventBus.on(EVENT.samplePlay,function(context){
 		if (!me.visible) return;
 		if (context && context.instrumentIndex === currentInstrumentIndex){
 			waveForm.play(context.startPeriod);
@@ -273,6 +303,14 @@ UI.SampleView = function(){
         }
 	});
 
+	EventBus.on(EVENT.samplePropertyChange,function(newProps){
+		var instrument = Tracker.getInstrument(currentInstrumentIndex);
+		if (instrument){
+			if (typeof newProps.loopStart !== "undefined") repeatSpinbox.setValue(newProps.loopStart);
+			if (typeof newProps.loopLength !== "undefined") repeatLengthSpinbox.setValue(newProps.loopLength);
+		}
+	});
+
     me.onShow = function(){
         me.onResize();
     };
@@ -284,6 +322,18 @@ UI.SampleView = function(){
 
 		var envelopeHeight = 130;
         var spinButtonHeight = 28;
+        var sliderHeight = sideButtonPanel.height - envelopeHeight- 10;
+		var sliderWidth = Math.ceil(sideButtonPanel.width/4);
+		var sliderRow2Top = 0;
+		var sliderRow2Left = sliderWidth*2;
+
+		console.error(sideButtonPanel.width);
+		if (sideButtonPanel.width<170){
+			sliderWidth = Math.ceil(sideButtonPanel.width/2);
+			sliderHeight = Math.floor(sliderHeight/2);
+			sliderRow2Top = sliderHeight;
+			sliderRow2Left = 0;
+		}
 
 		waveForm.setPosition(Layout.col2X,inputboxHeight + Layout.defaultMargin + 8);
 		waveForm.setSize(Layout.col4W,me.height - waveForm.top - envelopeHeight - spinButtonHeight - 8);
@@ -301,7 +351,6 @@ UI.SampleView = function(){
 		});
 
 
-
 		sideButtonPanel.setProperties({
 			left:0,
 			top: 0,
@@ -309,8 +358,6 @@ UI.SampleView = function(){
 			height:me.height
 		});
 
-		var sliderWidth = Math.ceil(sideButtonPanel.width/3);
-		var sliderHeight = Math.floor(sideButtonPanel.height/2);
 
 		spinBoxInstrument.setProperties({
 			left:Layout.col2X,
@@ -334,39 +381,19 @@ UI.SampleView = function(){
 		});
 
 		fadeOutSlider.setProperties({
-			left:sliderWidth*2,
-			top: 0,
+			left:sliderRow2Left,
+			top: sliderRow2Top,
 			width: sliderWidth,
 			height: sliderHeight
 		});
 
-		lengthSlider.setProperties({
-			left:0,
-			top: sliderHeight,
+		panningSlider.setProperties({
+			left:sliderRow2Left + sliderWidth,
+			top: sliderRow2Top,
 			width: sliderWidth,
 			height: sliderHeight
 		});
 
-		repeatSlider.setProperties({
-			left:sliderWidth,
-			top: sliderHeight,
-			width: sliderWidth,
-			height: sliderHeight
-		});
-
-		repeatLengthSlider.setProperties({
-			left:sliderWidth*2,
-			top: sliderHeight,
-			width: sliderWidth,
-			height: sliderHeight
-		});
-
-		spinBoxRelativeNote.setProperties({
-			left:0,
-			top: sliderHeight,
-			width: sliderWidth,
-			height: sliderHeight
-		});
 
 		var BottomPanelTop = waveForm.top + waveForm.height + Layout.defaultMargin;
 
@@ -396,8 +423,40 @@ UI.SampleView = function(){
 			height: spinButtonHeight,
 			left: Layout.col5X,
 			top: BottomPanelTop
-		})
+		});
 
+		loopTitleBar.setProperties({
+			width: Layout.col1W,
+			height: 18,
+			left: 2,
+			top: volumeEnvelope.top
+		});
+
+		loopEnabledCheckbox.setPosition(loopTitleBar.left+2,loopTitleBar.top+2);
+		loopTitleLabel.setPosition(loopTitleBar.left+12,loopTitleBar.top+1);
+
+		var loopSpinnerHeight = 34;
+
+		repeatSpinbox.setProperties({
+			left:0,
+			top: loopTitleBar.top + 24,
+			width: Layout.col1W,
+			height: loopSpinnerHeight
+		});
+
+		repeatLengthSpinbox.setProperties({
+			left:0,
+			top: loopTitleBar.top + 24 + loopSpinnerHeight,
+			width: Layout.col1W,
+			height: loopSpinnerHeight
+		});
+
+		spinBoxRelativeNote.setProperties({
+			left:0,
+			top: loopTitleBar.top + 24 + (loopSpinnerHeight*2),
+			width: Layout.col1W,
+			height: loopSpinnerHeight
+		});
 
 	};
 
