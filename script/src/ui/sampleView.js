@@ -179,36 +179,34 @@ UI.SampleView = function(){
 
 	me.addChild(sideButtonPanel);
 
+	var buttons = [];
+	var buttonsInfo = [
+		{label: "Load", onClick : function(){
+				EventBus.trigger(EVENT.showView,"diskop_samples");
+			}},
+		{label: "Zoom In", onClick : function(){
+				waveForm.zoom(2);
+		}},
+		{label: "Zoom Out", onClick : function(){
+				waveForm.zoom(0.5);
+			}},
+		{label: "Reverse", onClick : function(){
+				var instrument = Tracker.getInstrument(currentInstrumentIndex);
+				if (instrument && instrument.sample.data) instrument.sample.data.reverse();
+				EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
+			}},
+		{label: "Exit", onClick : function(){
+				App.doCommand(COMMAND.showBottomMain);
+			}}
+	];
 
-	var loadButton = UI.Assets.generate("buttonLight");
-	loadButton.setLabel("Load");
-	loadButton.onClick = function(){
-		EventBus.trigger(EVENT.showView,"diskop_samples");
-	};
-	me.addChild(loadButton);
-
-	var clearButton = UI.Assets.generate("buttonLight");
-	clearButton.setLabel("Clear");
-	clearButton.onClick = function(){
-		var instrument = Tracker.getInstrument()
-	};
-	me.addChild(clearButton);
-
-	var reverseButton = UI.Assets.generate("buttonLight");
-	reverseButton.setLabel("Reverse");
-	reverseButton.onClick = function(){
-		var instrument = Tracker.getInstrument(currentInstrumentIndex);
-		if (instrument && instrument.sample.data) instrument.sample.data.reverse();
-		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
-	};
-	me.addChild(reverseButton);
-
-	var closeButton = UI.Assets.generate("buttonLight");
-	closeButton.setLabel("Exit");
-	closeButton.onClick = function(){
-        App.doCommand(COMMAND.showBottomMain);
-	};
-	me.addChild(closeButton);
+	buttonsInfo.forEach(function(buttonInfo){
+		var button = UI.Assets.generate("buttonLight");
+		button.setLabel(buttonInfo.label);
+		button.onClick = buttonInfo.onClick;
+		me.addChild(button);
+		buttons.push(button);
+	});
 
 
 	var loopTitleBar = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
@@ -397,32 +395,14 @@ UI.SampleView = function(){
 
 		var BottomPanelTop = waveForm.top + waveForm.height + Layout.defaultMargin;
 
-		loadButton.setProperties({
-			width: Layout.col1W,
-			height: spinButtonHeight,
-			left: Layout.col2X,
-			top: BottomPanelTop
-		});
-
-		clearButton.setProperties({
-			width: Layout.col1W,
-			height: spinButtonHeight,
-			left: Layout.col3X,
-			top: BottomPanelTop
-		});
-
-		reverseButton.setProperties({
-			width: Layout.col1W,
-			height: spinButtonHeight,
-			left: Layout.col4X,
-			top: BottomPanelTop
-		});
-
-		closeButton.setProperties({
-			width: Layout.col1W,
-			height: spinButtonHeight,
-			left: Layout.col5X,
-			top: BottomPanelTop
+		var buttonWidth = Layout.col4W / buttons.length;
+		buttons.forEach(function(button,index){
+			button.setProperties({
+				width: buttonWidth,
+				height: spinButtonHeight,
+				left: Layout.col2X + (buttonWidth*index),
+				top: BottomPanelTop
+			});
 		});
 
 		loopTitleBar.setProperties({
