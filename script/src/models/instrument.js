@@ -119,9 +119,6 @@ var Instrument = function(){
 		return result;
 	};
 
-	me.getSampleRateForPeriod = function(period){
-
-	};
 
 	return me;
 };

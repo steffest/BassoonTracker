@@ -76,6 +76,8 @@ UI.app_patternView = function(x,y,w,h){
     me.setHorizontalScroll = function(newStartTrack){
         var maxSteps = Tracker.getTrackCount()-visibleTracks;
         if (newStartTrack!=startTrack && newStartTrack>=0 && newStartTrack<=maxSteps){
+            //var delta = newStartTrack-startTrack;
+			//Editor.setCurrentTrack(Editor.getCurrentTrack() + delta);
             startTrack = newStartTrack;
             EventBus.trigger(EVENT.patternHorizontalScrollChange,startTrack);
             setScrollBarHorPosition()
@@ -108,8 +110,13 @@ UI.app_patternView = function(x,y,w,h){
 
 			var displayVolume = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER;
 			var textWidth = displayVolume ? 92 : 72;
+			var cursorWidth1 = 9;
+			var cursorWidth3 = 28;
+
 			if (Layout.useCondensedTrackFont){
 				textWidth = displayVolume ? 46 : 36;
+				cursorWidth1 = 5;
+				cursorWidth3 = 15;
             }
 
 			// used to center text in Column;
@@ -195,30 +202,30 @@ UI.app_patternView = function(x,y,w,h){
                 me.ctx.fillRect(0,centerLineTop,(me.width-0*2),centerLineHeight);
 
                 // draw cursor
-                var cursorPos = Tracker.getCurrentTrackPosition();
-                var cursorWidth = 9;
+                var cursorPos = Editor.getCurrentTrackPosition();
+                var cursorWidth = cursorWidth1;
 
                 var cursorX;
                 if (lineNumbersToTheLeft){
                     // center text in pattern
-                    trackX = trackLeft + Tracker.getCurrentTrack()*(Layout.trackWidth+margin);
+                    trackX = trackLeft + (Editor.getCurrentTrack()-startTrack)*(Layout.trackWidth+margin);
                     cursorX = trackX + Math.floor((Layout.trackWidth-textWidth)/2) + (cursorPos*cursorWidth) - 1;
                 }else{
-                    cursorX = trackLeft + initialTrackTextOffset + ((Tracker.getCurrentTrack()) * Layout.trackWidth) + (cursorPos*cursorWidth) - 1;
+                    cursorX = trackLeft + initialTrackTextOffset + ((Editor.getCurrentTrack()-startTrack) * Layout.trackWidth) + (cursorPos*cursorWidth) - 1;
 
                 }
 
                 if (cursorPos > 0) {
                     cursorX += cursorWidth*2 + 1;
                     if (cursorPos > 2) cursorX += 2;
+					if ((cursorPos > 4) && displayVolume) cursorX += 2;
                 }else{
-                    cursorWidth = 28;
+                    cursorWidth = cursorWidth3;
                 }
 
                 //me.ctx.fillStyle = "rgba(231,198,46,.5)";
                 me.ctx.fillStyle = "rgba(220,220,220,.3)";
                 me.ctx.fillRect(cursorX,centerLineTop,cursorWidth,lineHeight+2);
-
 
 
 

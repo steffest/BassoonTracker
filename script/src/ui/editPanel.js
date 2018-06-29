@@ -11,26 +11,26 @@ UI.editPanel = function(x,y,w,h,visible){
 	var handleButton = function(button){
 		switch(button.index){
 			case 0:
-				Tracker.clearTrack();
+				Editor.clearTrack();
 				UI.setStatus("Track cleared");
 				break;
 			case 1:
-				Tracker.clearPattern();
+				Editor.clearPattern();
 				UI.setStatus("Pattern cleared");
 				break;
 			case 2:
-				Tracker.copyTrack();
+				Editor.copyTrack();
 				UI.setStatus("Track copied");
 				break;
 			case 3:
-				Tracker.copyPattern();
+				Editor.copyPattern();
 				UI.setStatus("Pattern copied");
 				break;
 			case 4:
-				UI.setStatus(Tracker.pasteTrack() ? "Track pasted" : "Nothing to paste!");
+				UI.setStatus(Editor.pasteTrack() ? "Track pasted" : "Nothing to paste!");
 				break;
 			case 5:
-				UI.setStatus(Tracker.pastePattern() ? "Pattern pasted" : "Nothing to paste!");
+				UI.setStatus(Editor.pastePattern() ? "Pattern pasted" : "Nothing to paste!");
 				break;
 		}
 	};

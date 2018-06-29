@@ -17,10 +17,10 @@ UI.checkbox = function(x,y,w,h){
 
 	};
 
-	me.setState = function(checked){
+	me.setState = function(checked,internal){
 		me.checked = checked;
 		me.refresh();
-		if (me.onToggle) me.onToggle(me.checked);
+		if (me.onToggle && !internal) me.onToggle(me.checked);
 	};
 
 	me.onClick=function(e){
@@ -32,6 +32,9 @@ UI.checkbox = function(x,y,w,h){
 	};
 	me.unCheck = function(){
 		me.setState(false);
+	};
+	me.toggle = function(){
+        me.setState(!me.checked);
 	};
 
 	me.render = function(internal){

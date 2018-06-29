@@ -14,6 +14,9 @@ UI.EnvelopePanel = function(type){
 		label: type + " Envelope",
 		font: fontSmall
 	});
+    titleLabel.onClick = function() {
+        enabledCheckbox.toggle();
+    };
 	me.addChild(titleLabel);
 
 	var enabledCheckbox = UI.checkbox();

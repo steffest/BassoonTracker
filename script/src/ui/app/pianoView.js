@@ -132,11 +132,11 @@ UI.app_pianoView = function(){
         if (note && note.period){
 
             if (Tracker.isRecording()){
-                if (Tracker.getCurrentTrackPosition() > 0){
+                if (Editor.getCurrentTrackPosition() > 0){
                     // cursorPosition is not on note
                     // play anyway but don't input
                 }else{
-                    Tracker.putNote(Tracker.getCurrentInstrumentIndex(),note.period);
+                    Editor.putNote(Tracker.getCurrentInstrumentIndex(),note.period);
                     if (Tracker.isPlaying()){
 
                     }else{

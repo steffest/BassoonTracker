@@ -14,10 +14,10 @@ var App = (function(){
                     EventBus.trigger(EVENT.showView,"diskop_save");
                     break;
                 case COMMAND.clearTrack:
-                    Tracker.clearTrack();
+                    Editor.clearTrack();
                     break;
                 case COMMAND.clearPattern:
-                    Tracker.clearPattern();
+					Editor.clearPattern();
                     break;
                 case COMMAND.clearInstruments:
                     Tracker.clearInstruments();

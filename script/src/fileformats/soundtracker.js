@@ -4,6 +4,7 @@ var SoundTracker = function(){
 	me.load = function(file,name){
 
 		Tracker.setTrackerMode(TRACKERMODE.PROTRACKER);
+        Tracker.useLinearFrequency = false;
 
 		var song = {
 			patterns:[]

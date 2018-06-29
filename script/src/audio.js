@@ -122,7 +122,7 @@ var Audio = (function(){
         }
 
 		period = period || 428; // C-3
-		track = track || Tracker.getCurrentTrack();
+		track = track || (Editor ? Editor.getCurrentTrack() : 0);
 		time = time || context.currentTime;
 
         if (noteIndex === NOTEOFF){
@@ -142,36 +142,24 @@ var Audio = (function(){
 
 
 			var sampleRate;
-            if (Tracker.inFTMode()){
+
+			// apply finetune
+			if (Tracker.inFTMode()){
                 if (Tracker.useLinearFrequency){
 					period -= instrument.getFineTune()/2;
-					sampleRate = (8363 * Math.pow(2,((4608 - period) / 768)));
 				}else{
 					if (instrument.getFineTune()){
 						period = me.getFineTuneForNote(noteIndex,instrument.getFineTune());
 					}
-					sampleRate = PC_FREQUENCY_HALF / period;
                 }
             }else{
                 // protracker frequency
 				if (instrument.getFineTune()){
 					period = me.getFineTuneForPeriod(period,instrument.getFineTune());
 				}
-
-				sampleRate = AMIGA_PALFREQUENCY_HALF / period;
             }
 
-
-            //if (state.song.get('flags') & 0x1) {
-                //var FineTune = 0;
-
-			    //period = 7680 - noteIndex*64 - FineTune/2;
-			    //console.error(period);
-                //sampleRate = (8363 * (2 ** ((4608.0 - period) / 768.0)));
-            //} else {
-                //sampleRate = ((8363 * 1712.0)/4) / period;
-            //}
-
+            sampleRate = me.getSampleRateForPeriod(period);
 
 
             var initialPlaybackRate = 1;
@@ -540,6 +528,14 @@ var Audio = (function(){
         }
         return result;
     };
+
+	me.getSampleRateForPeriod = function(period){
+		if (Tracker.inFTMode()){
+			if (Tracker.useLinearFrequency) return (8363 * Math.pow(2,((4608 - period) / 768)));
+			return PC_FREQUENCY_HALF / period;
+		}
+		return AMIGA_PALFREQUENCY_HALF / period;
+	};
 
     me.limitAmigaPeriod = function(period){
         // limits the period to the allowed Amiga frequency range, between 113 (B3) and 856 (C1)

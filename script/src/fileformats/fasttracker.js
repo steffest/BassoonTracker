@@ -29,6 +29,12 @@ var FastTracker = function(){
         mod.numberOfPatterns = file.readWord(); // this is sometimes more then the actual number? should we scan for highest pattern? -> YES! -> NO!
         mod.numberOfInstruments = file.readWord();
         mod.flags = file.readWord(); // TODO: implement difference between amiga frequency and linear frequency
+        if (mod.flags%2 === 1){
+            Tracker.useLinearFrequency = true;
+        }else{
+            Tracker.useLinearFrequency = false;
+        }
+
         mod.defaultTempo = file.readWord();
         mod.defaultBPM = file.readWord();
 
@@ -463,14 +469,6 @@ var FastTracker = function(){
 - Arpegio is off
 example: external.xm - pattern 5 track 8
 
-
-Finetune is a little off
-see aws_aq16.xm - pattern 23 - instrument 13
-
-
-really should implement different linear period table
-as there are slight differences
-
-see drumloop in Jugi-Onward.xm - songpos 16
+aws_aq16.xm : sample 2 and 3 - loop settings are wrong - don't play
 
  */

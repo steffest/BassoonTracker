@@ -273,17 +273,17 @@ var Input = (function(){
 
 
 				if (Tracker.isRecording()){
-					if (Tracker.getCurrentTrackPosition() > 0){
+					if (Editor.getCurrentTrackPosition() > 0){
 						// cursorPosition is not on note
 						doPlay = false;
 						var re = /[0-9A-Fa-f]/g;
 						if (re.test(key)){
-							Tracker.putNoteParam(Tracker.getCurrentTrackPosition(),parseInt(key,16));
+							Editor.putNoteParam(Editor.getCurrentTrackPosition(),parseInt(key,16));
 							Tracker.moveCurrentPatternPos(1);
 						}
 					}else{
 						if (note){
-							Tracker.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.index);
+							Editor.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.index);
 							if (Tracker.isPlaying()){
 								doPlay = false;
 							}else{
@@ -320,18 +320,16 @@ var Input = (function(){
 			switch(keyCode){
 				case 8:// backspace
 					if (Tracker.isRecording()){
-						Tracker.putNote(0,0);
+						Editor.putNote(0,0);
 						Tracker.moveCurrentPatternPos(1);
 					}else{
-						Tracker.playPatternStep(Tracker.getCurrentTrackPosition());
+						Tracker.playPatternStep(Editor.getCurrentTrackPosition());
 						Tracker.moveCurrentPatternPos(-1);
 						// on Mac this should probably be delete ...
 					}
 
 					break;
 				case 13:// enter
-					//Tracker.playPatternStep(Tracker.getCurrentTrackPosition());
-					//Tracker.moveCurrentPatternPos(1);
 					Tracker.togglePlay();
 					break;
 				case 16:// shift
@@ -347,20 +345,20 @@ var Input = (function(){
 					Tracker.setCurrentPatternPos(0);
 					break;
 				case 37:// left
-					Tracker.moveCursorPosition(-1);
+					Editor.moveCursorPosition(-1);
 					break;
 				case 38:// up
 					Tracker.moveCurrentPatternPos(-1);
 					break;
 				case 39:// right
-					Tracker.moveCursorPosition(1);
+					Editor.moveCursorPosition(1);
 					break;
 				case 40: // down
 					Tracker.moveCurrentPatternPos(1);
 					break;
 				case 46: // delete
 					if (Tracker.isRecording()){
-						Tracker.putNote(0,0);
+						Editor.putNote(0,0);
 						Tracker.moveCurrentPatternPos(1);
 					}
 					break;
