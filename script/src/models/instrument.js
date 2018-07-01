@@ -12,8 +12,8 @@ var Instrument = function(){
 	me.samples = [Sample()];
 	me.sample = me.samples[0];
 
-	me.volumeEnvelope = {raw: [], enabled: false};
-	me.panningEnvelope = {raw: [], enabled: false};
+	me.volumeEnvelope = {raw: [], enabled: false, points: [[0,48],[10,64],[20,40],[30,18],[40,28],[50,18]], count:6};
+	me.panningEnvelope = {raw: [], enabled: false, points: [[0,32],[20,40],[40,24],[60,32],[80,32]], count:5};
 	me.vibrato = {};
 	me.loop = {
 		enabled: false,

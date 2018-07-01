@@ -119,11 +119,9 @@ UI.Envelope = function(type){
 	};
 
 
-
 	me.render = function(){
 
 		if (this.needsRendering) {
-
 
 			if (background.width !== me.width) background.setSize(me.width,me.height);
 			me.ctx.drawImage(background.render(true),0,0,me.width,me.height);
@@ -138,6 +136,7 @@ UI.Envelope = function(type){
 
 
 				me.ctx.beginPath();
+				me.ctx.setLineDash([]);
 
 				for (var i = 0; i<currentEnvelope.count; i++){
 
@@ -165,6 +164,36 @@ UI.Envelope = function(type){
 					me.ctx.fillRect(x-h, y-h, size, size);
 				}
 				me.ctx.stroke();
+
+				if (currentEnvelope.enabled){
+					if (currentEnvelope.sustain){
+						me.ctx.strokeStyle = "#67b6d2";
+						me.ctx.setLineDash([1, 2]);
+						x = currentEnvelope.points[currentEnvelope.sustainPoint][0] * xScale;
+						me.ctx.beginPath();
+						me.ctx.moveTo(x, 0);
+						me.ctx.lineTo(x, me.height);
+						me.ctx.stroke();
+					}
+
+					if (currentEnvelope.loop){
+						me.ctx.strokeStyle = "#d2b637";
+						me.ctx.setLineDash([1, 2]);
+						x = currentEnvelope.points[currentEnvelope.loopStartPoint][0] * xScale;
+						me.ctx.beginPath();
+						me.ctx.moveTo(x, 0);
+						me.ctx.lineTo(x, me.height);
+
+						x = currentEnvelope.points[currentEnvelope.loopEndPoint][0] * xScale;
+						me.ctx.moveTo(x, 0);
+						me.ctx.lineTo(x, me.height);
+
+
+						me.ctx.stroke();
+					}
+				}
+
+
 
 			}
 

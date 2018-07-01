@@ -5,6 +5,7 @@ UI.EnvelopePanel = function(type){
 
 	var currentInstrument;
 	var envelope;
+	var disabled = false;
 
 	var titleBar = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
 	titleBar.ignoreEvents = true;
@@ -28,6 +29,43 @@ UI.EnvelopePanel = function(type){
 	};
 	me.addChild(enabledCheckbox);
 
+	var buttonAdd = UI.Assets.generate("button20_20");
+	buttonAdd.onDown = function(){
+		if (envelope.points.length > envelope.count){
+			envelope.count++;
+		}else{
+			var lastPoint = envelope.points[envelope.points.length-1];
+			if (lastPoint[0] + 10<320){
+				var newPoint = [lastPoint[0] + 10,32];
+				envelope.points.push(newPoint);
+				envelope.count = envelope.points.length;
+			}
+		}
+		envelopeGraph.refresh();
+	};
+	buttonAdd.setProperties({
+		label:"+",
+		width: 18,
+		height: 18
+	});
+	me.addChild(buttonAdd);
+
+	var buttonRemove = UI.Assets.generate("button20_20");
+	buttonRemove.onDown = function(){
+		if (envelope.points.length > 2){
+			envelope.count--;
+			me.checkMax();
+		}
+		envelopeGraph.refresh();
+	};
+	buttonRemove.setProperties({
+		label:"-",
+		width: 18,
+		height: 18
+	});
+	me.addChild(buttonRemove);
+
+
 	var envelopeGraph = UI.Envelope(type);
 	me.addChild(envelopeGraph);
 
@@ -43,10 +81,13 @@ UI.EnvelopePanel = function(type){
     sustainCheckBox.onToggle = function(checked){
         sustainSpinbox.setDisabled(!checked);
 		envelope.sustain = checked;
+		envelopeGraph.refresh();
     };
     loopCheckBox.onToggle = function(checked){
         loopFromSpinbox.setDisabled(!checked);
         loopToSpinbox.setDisabled(!checked);
+		envelope.loop = checked;
+		envelopeGraph.refresh();
     };
 
 	sustainSpinbox.setProperties({
@@ -59,6 +100,8 @@ UI.EnvelopePanel = function(type){
 		font: window.fontFT,
 		onChange : function(value){
 			envelope.sustainPoint = value;
+			me.checkMax();
+			envelopeGraph.refresh();
 		}
 	});
     loopFromSpinbox.setProperties({
@@ -71,6 +114,8 @@ UI.EnvelopePanel = function(type){
         font: window.fontSmall,
         onChange : function(value){
 			envelope.loopStartPoint = value;
+			me.checkMax();
+			envelopeGraph.refresh();
         }
     });
     loopToSpinbox.setProperties({
@@ -83,15 +128,14 @@ UI.EnvelopePanel = function(type){
         font: window.fontSmall,
         onChange : function(value){
 			envelope.loopEndPoint = value;
+			me.checkMax();
+			envelopeGraph.refresh();
         }
     });
-
 
     var background = UI.scale9Panel(0,0,panel.width,panel.height,UI.Assets.panelMainScale9);
     background.ignoreEvents = true;
     panel.addChild(background);
-
-
 
 	panel.addChild(sustainSpinbox);
 	panel.addChild(loopFromSpinbox);
@@ -128,13 +172,19 @@ UI.EnvelopePanel = function(type){
 		loopToSpinbox.setValue(envelope.loopEndPoint || 0);
 	};
 
+	me.setDisabled = function(value){
+		disabled = value;
+		me.ignoreEvents = disabled;
+		me.refresh();
+	};
+
 	me.onResize = function(){
 
         panel.setSize(120,me.height);
         var panelWidth = panel.width;
 
 
-		titleBar.setSize(me.width-panelWidth,18);
+		titleBar.setSize(me.width-panelWidth-36,18);
 		titleLabel.setSize(me.width-panelWidth,20);
 		enabledCheckbox.setPosition(2,2);
 		titleLabel.setPosition(12,2);
@@ -172,8 +222,24 @@ UI.EnvelopePanel = function(type){
             height: 28
         });
 
+		buttonAdd.setPosition(titleBar.width,titleBar.top);
+		buttonRemove.setPosition(titleBar.width + 18,titleBar.top);
+
 
     };
+
+	me.renderInternal = function(){
+		if (disabled){
+			me.ctx.fillStyle = "rgba(34, 49, 85, 0.4)";
+			me.ctx.fillRect(0,0,me.width,me.height);
+		}
+	};
+
+	me.checkMax = function(){
+		if (envelope.sustainPoint >= envelope.count) sustainSpinbox.setValue(envelope.count-1);
+		if (envelope.loopStartPoint >= envelope.count) loopFromSpinbox.setValue(envelope.count-1);
+		if (envelope.loopEndPoint >= envelope.count) loopToSpinbox.setValue(envelope.count-1);
+	};
 
 	return me;
 

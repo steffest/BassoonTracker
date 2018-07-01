@@ -299,6 +299,9 @@ UI.SampleView = function(){
         if (instrument){
             fineTuneSlider.setValue(instrument.getFineTune(),true);
         }
+
+        volumeEnvelope.setDisabled(!Tracker.inFTMode());
+        panningEnvelope.setDisabled(!Tracker.inFTMode());
 	});
 
 	EventBus.on(EVENT.samplePropertyChange,function(newProps){

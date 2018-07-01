@@ -205,6 +205,7 @@ UI.WaveForm = function(){
 		if (zoom>1){
 			scrollBar.setSize(Math.floor(me.width/zoom),18);
 		}
+		hasRange = false;
 
 	};
 
@@ -219,6 +220,7 @@ UI.WaveForm = function(){
 		}
 		isPlaying = false;
 		me.zoom(1);
+		hasRange = false;
 		me.refresh();
 	};
 
@@ -367,7 +369,7 @@ UI.WaveForm = function(){
 				me.ctx.fillRect(lineX+1,0,4,10);
 			}
 
-			if (isDraggingRange){
+			if (hasRange){
 				me.ctx.fillStyle = "rgba(241, 162, 71,0.3)";
 				me.ctx.fillRect(dragRangeStart,0,dragRangeEnd-dragRangeStart,me.height);
 			}
