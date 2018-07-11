@@ -715,7 +715,7 @@ var Tracker = (function(){
 					// check if the instrument is finetuned
 					var instrument = me.getInstrument(instrumentIndex);
 					if (instrument && instrument.getFineTune()){
-                        target = me.inFTMode() ?  instrument.getPeriodForNote(noteIndex,true) : me.getFineTuneForPeriod(target,instrument.getFineTune());
+                        target = me.inFTMode() ?  instrument.getPeriodForNote(noteIndex,true) : Audio.getFineTuneForPeriod(target,instrument.getFineTune());
 					}
 				}
 

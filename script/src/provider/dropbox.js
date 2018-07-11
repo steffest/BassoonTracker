@@ -1,12 +1,7 @@
 var Dropbox = function(){
     var me = {};
 
-    var redirect = 'https://www.stef.be/bassoontracker/';
-    redirect = window.location.href;
-    var authRedirect = redirect;
-    if (redirect.indexOf("https://www.stef.be/")>=0) {
-        authRedirect = "https://www.stef.be/bassoontracker/auth/dropbox.html"
-    }
+	var authRedirect = "https://www.stef.be/bassoontracker/auth/dropbox.html";
     me.isConnected = false;
 
     me.checkConnected = function(next){

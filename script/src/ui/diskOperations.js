@@ -482,10 +482,26 @@ UI.DiskOperations = function(){
 					}
 				};
 
-				Dropbox.list("",function(data){
-					console.log(data);
-					populate(data,0);
-				});
+				if (Dropbox.isConnected){
+					Dropbox.list("",function(data){
+						console.log(data);
+						populate(data,0);
+					});
+				}else{
+					Dropbox.checkConnected(function(isConnected){
+						if (isConnected){
+							Dropbox.list("",function(data){
+								console.log(data);
+								populate(data,0);
+							});
+						}else{
+							console.log("Dropbox not connected");
+							Dropbox.authenticate();
+						}
+					})
+				}
+
+
 				break;
 			case "samples":
 				itemHandler = false;

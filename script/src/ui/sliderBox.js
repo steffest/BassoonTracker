@@ -23,6 +23,7 @@ UI.sliderBox = function(initialProperties){
 
 	var sliderHeight = 20;
 	var sliderwidth = 20;
+    var disabled = false;
 
 	var lineVer = Y.getImage("line_ver");
 
@@ -106,6 +107,12 @@ UI.sliderBox = function(initialProperties){
         slider.setMin(min,skipCheck);
 	};
 
+    me.setDisabled = function(value){
+        disabled = value;
+        me.refresh();
+        me.ignoreEvents = disabled;
+    };
+
 	me.render = function(internal){
 		internal = !!internal;
 		if (me.needsRendering){
@@ -125,6 +132,11 @@ UI.sliderBox = function(initialProperties){
 			if (vertical){
 				me.ctx.drawImage(lineVer,me.width-2,0,2,me.height);
 			}
+
+            if (disabled){
+                me.ctx.fillStyle = "rgba(34, 49, 85, 0.6)";
+                me.ctx.fillRect(1,0,me.width-1,me.height);
+            }
 
 
 		}
@@ -166,7 +178,7 @@ UI.sliderBox = function(initialProperties){
 			digitX = Math.floor((me.width - 40)/2);
 			digitY = me.height-32;
 			labelX = Math.floor((me.width - font.getTextWidth(label,0))/2);
-			labelY = me.height-9;
+			labelY = me.height-10;
 		}else{
             slider.setSize(me.width, sliderHeight);
             slider.setPosition(0, me.height - sliderHeight);

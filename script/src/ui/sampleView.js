@@ -302,6 +302,9 @@ UI.SampleView = function(){
 
         volumeEnvelope.setDisabled(!Tracker.inFTMode());
         panningEnvelope.setDisabled(!Tracker.inFTMode());
+        spinBoxRelativeNote.setDisabled(!Tracker.inFTMode());
+        fadeOutSlider.setDisabled(!Tracker.inFTMode());
+        panningSlider.setDisabled(!Tracker.inFTMode());
 	});
 
 	EventBus.on(EVENT.samplePropertyChange,function(newProps){

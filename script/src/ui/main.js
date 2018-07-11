@@ -230,7 +230,7 @@ var UI = (function(){
 			spaceWidth: 8,
 			margin: 0,
 			charsPerLine:20,
-			chars:" 0123456789"
+			chars:" 0123456789-"
 		});
 		window.fontLed = fontLed;
 

@@ -218,7 +218,7 @@ UI.spinBox = function(initialProperties){
 
 			if (disabled){
 				me.ctx.fillStyle = "rgba(34, 49, 85, 0.6)";
-				me.ctx.fillRect(0,0,me.width,me.height);
+				me.ctx.fillRect(1,0,me.width-1,me.height);
 			}
 
 			//var b = buttonUp.render(true);
