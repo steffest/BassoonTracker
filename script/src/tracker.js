@@ -117,6 +117,23 @@ var Tracker = (function(){
 			currentInstrumentIndex = index;
 			if (prevInstrumentIndex!=currentInstrumentIndex) EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
 			prevInstrumentIndex = currentInstrumentIndex;
+		}else{
+			if (index<=me.getMaxInstruments()){
+				for (var i = song.instruments.length, max = index;i<=max;i++){
+					me.setInstrument(i,Instrument());
+				}
+
+				var instrumentContainer = [];
+				for (i = 1;i<=max;i++){
+					var instrument = song.instruments[i] || {name:""};
+					instrumentContainer.push({label: i + " " + instrument.name, data: i});
+					EventBus.trigger(EVENT.instrumentListChange,instrumentContainer);
+				}
+
+				currentInstrumentIndex = index;
+				if (prevInstrumentIndex!=currentInstrumentIndex) EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
+				prevInstrumentIndex = currentInstrumentIndex;
+			}
 		}
 	};
 
@@ -126,6 +143,10 @@ var Tracker = (function(){
 
 	me.getCurrentInstrument = function(){
 		return instruments[currentInstrumentIndex];
+	};
+
+	me.getMaxInstruments = function(){
+		return me.inFTMode() ? 128 : 31;
 	};
 
 	me.setCurrentPattern = function(index){
@@ -434,26 +455,28 @@ var Tracker = (function(){
 
 		for (var i = 0; i<tracks; i++){
 			var note = patternStep[i];
-			var songPos = {position: songPostition, step: step};
+			if (note){
+                var songPos = {position: songPostition, step: step};
 
-			var playtime = time;
-			if (swing){
-				var swingTime = ((Math.random() * swing * 2) - swing) / 1000;
-				playtime += swingTime;
-			}
+                var playtime = time;
+                if (swing){
+                    var swingTime = ((Math.random() * swing * 2) - swing) / 1000;
+                    playtime += swingTime;
+                }
 
 
-			r = playNote(note,i,playtime,songPos);
-			if (r.patternBreak) {
-				result.patternBreak = true;
-				result.targetPatternPosition = r.targetPatternPosition || 0;
+                r = playNote(note,i,playtime,songPos);
+                if (r.patternBreak) {
+                    result.patternBreak = true;
+                    result.targetPatternPosition = r.targetPatternPosition || 0;
+                }
+                if (r.positionBreak) {
+                    result.positionBreak = true;
+                    result.targetPatternPosition = r.targetPatternPosition || 0;
+                    result.targetSongPosition = r.targetSongPosition || 0;
+                }
+                if (r.patternDelay) result.patternDelay = r.patternDelay;
 			}
-			if (r.positionBreak) {
-				result.positionBreak = true;
-				result.targetPatternPosition = r.targetPatternPosition || 0;
-				result.targetSongPosition = r.targetSongPosition || 0;
-			}
-			if (r.patternDelay) result.patternDelay = r.patternDelay;
 		}
 
 		for (i = 0; i<tracks; i++){
@@ -467,7 +490,6 @@ var Tracker = (function(){
 	me.playPatternStep = playPatternStep;
 
 	function playNote(note,track,time,songPos){
-
 
 		var defaultVolume = 100;
 		var trackEffects = {};
@@ -1843,7 +1865,7 @@ var Tracker = (function(){
 
 	me.clearInstruments = function(){
 		var instrumentContainer = [];
-		for (i = 1; i <= 31; ++i) {
+		for (i = 1; i <= song.instruments.length; ++i) {
 			instruments[i] = Instrument();
 			instrumentContainer.push({label: i + " ", data: i});
 		}

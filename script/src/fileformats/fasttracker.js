@@ -296,6 +296,8 @@ var FastTracker = function(){
                 fileSize += (9 + (song.patterns[i].length * trackCount * 5));
             }
 
+            // TODO: trim instrument list;
+
             for (i = 1; i<instruments.length; i++){
                 var instrument = instruments[i];
                 if (instrument && instrument.sample.length){

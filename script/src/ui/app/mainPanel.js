@@ -78,7 +78,7 @@ UI.app_mainPanel = function(){
 			{width: 160, label: "Instrument"}
 		],
         value: 1,
-        max: 64,
+        max: 31,
         min:1,
         font: spinbBoxFont,
         onChange : function(value){Tracker.setCurrentInstrumentIndex(value);}
@@ -462,7 +462,7 @@ UI.app_mainPanel = function(){
     EventBus.on(EVENT.songPropertyChange,function(song){
         modNameInputBox.setValue(song.title,true);
         spinBoxSongLength.setValue(song.length,true);
-        spinBoxInstrument.setMax(song.instruments.length-1);
+        spinBoxInstrument.setMax(Tracker.getMaxInstruments());
 		spinBoxSongRepeat.setMax(song.length-1);
     });
 
@@ -500,12 +500,17 @@ UI.app_mainPanel = function(){
 
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
 		spinBoxPatternLength.setDisabled(mode === TRACKERMODE.PROTRACKER);
+		spinBoxInstrument.setMax(Tracker.getMaxInstruments());
 	});
 
     EventBus.on(EVENT.showView,function(view){
         switch (view){
             case "diskop_load":
             case "diskop_save":
+            case "diskop_samples_load":
+			case "diskop_modules_load":
+			case "diskop_samples_save":
+			case "diskop_modules_save":
                 diskOperations.setView(view);
                 diskOperations.show();
                 optionsPanel.hide();
