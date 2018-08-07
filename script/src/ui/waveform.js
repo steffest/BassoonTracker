@@ -148,6 +148,10 @@ UI.WaveForm = function(){
 		isDraggingRange = false;
 		dragMarker = 0;
 		isDown = false;
+
+		if (dragRangeEnd-dragRangeStart === 0){
+			hasRange = false;
+		};
 	};
 
 	me.onDown = function(touchData){
@@ -248,6 +252,13 @@ UI.WaveForm = function(){
 			// zoom to range
 			var start = Math.round((dragRangeStart/me.width) * zoomLength);
 			var end = Math.round((dragRangeEnd/me.width) * zoomLength);
+
+			if (start>end){
+				var t = start;
+				start = end;
+				end = t;
+			}
+
 			zoomEnd = zoomStart+end;
 			zoomStart = zoomStart+start;
 			zoomLength = zoomEnd-zoomStart;

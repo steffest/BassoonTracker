@@ -98,6 +98,34 @@ UI.rangeSlider = function(initialProperties){
 		if (me.needsRendering){
 			internal = !!internal;
 			me.clearCanvas();
+
+			var cx = Math.floor(me.width/2) + 3;
+			var cw = 6;
+			var ch = me.height;
+			if (min<0) ch = Math.floor(ch/2);
+
+			me.ctx.fillStyle = "rgba(255,255,255,0.1";
+
+			me.ctx.beginPath();
+			me.ctx.moveTo(cx, ch);
+			me.ctx.lineTo(cx, 2);
+			me.ctx.lineTo(cx+cw, 2);
+			me.ctx.fill();
+
+			if (min<0){
+				me.ctx.beginPath();
+				me.ctx.moveTo(cx-6,ch);
+				me.ctx.lineTo(cx-6, me.height);
+				me.ctx.lineTo(cx-6-cw, me.height);
+				me.ctx.fill();
+			}else{
+				me.ctx.beginPath();
+				me.ctx.moveTo(cx-6,ch);
+				me.ctx.lineTo(cx-6, 2);
+				me.ctx.lineTo(cx-6-cw, 2);
+				me.ctx.fill();
+			}
+
 			back.render();
 			if (vertical){
                 me.ctx.drawImage(knobVert,-1,knobTop,knobVert.width,knobVert.height);
