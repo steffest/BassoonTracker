@@ -15,7 +15,7 @@ UI.app_menu = function(container){
     menu.setItems([
         {label: "File" , subItems: [
                 {label: "New" , "command" : COMMAND.newFile},
-                {label: "Open Module" , "command" : COMMAND.openFile},
+                {label: "Load Module" , "command" : COMMAND.openFile},
                 {label: "Save Module" , "command" : COMMAND.saveFile},
                 {label: "Open Random Song" , "command" : COMMAND.randomSong}
             ]},

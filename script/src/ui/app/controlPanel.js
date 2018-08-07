@@ -274,6 +274,10 @@ UI.app_controlPanel = function(){
         switch (view){
             case "diskop_load":
             case "diskop_save":
+            case "diskop_samples_load":
+            case "diskop_modules_load":
+			case "diskop_samples_save":
+			case "diskop_modules_save":
 				buttonFileOperations.setActive(true);
 				buttonOptions.setActive(false);
                 break;

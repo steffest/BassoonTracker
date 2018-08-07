@@ -8,10 +8,10 @@ var App = (function(){
                     Tracker.new();
                     break;
                 case COMMAND.openFile:
-                    EventBus.trigger(EVENT.showView,"diskop_load");
+                    EventBus.trigger(EVENT.showView,"diskop_modules_load");
                     break;
                 case COMMAND.saveFile:
-                    EventBus.trigger(EVENT.showView,"diskop_save");
+                    EventBus.trigger(EVENT.showView,"diskop_modules_save");
                     break;
                 case COMMAND.clearTrack:
                     Editor.clearTrack();

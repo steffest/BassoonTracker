@@ -252,12 +252,19 @@ UI.DiskOperations = function(){
         currentsSubView = subView;
         me.refreshList(currentsSubView === "samples" ? "samples" : "");
 
-        if (subView === "diskop_save"){
+        if (subView.indexOf("_save")>0){
         	actionPanel.setSelectedIndex(1);
 		}
-        if (subView === "diskop_load"){
+		if (subView.indexOf("_load")>0){
             actionPanel.setSelectedIndex(0);
         }
+
+		if (subView.indexOf("_samples")>0){
+			typePanel.setType(1);
+		}
+		if (subView.indexOf("_modules")>0){
+			typePanel.setType(0);
+		}
 	};
 
 	me.refreshList = function(type){

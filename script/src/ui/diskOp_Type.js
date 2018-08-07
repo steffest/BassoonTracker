@@ -86,6 +86,10 @@ UI.DiskOperationType = function(){
 		return result;
 	};
 
+	me.setType = function(index){
+		selectionType.setSelectedIndex(index);
+	};
+
 	return me;
 
 };

@@ -182,7 +182,7 @@ UI.SampleView = function(){
 	var buttons = [];
 	var buttonsInfo = [
 		{label: "Load", onClick : function(){
-				EventBus.trigger(EVENT.showView,"diskop_samples");
+				EventBus.trigger(EVENT.showView,"diskop_samples_load");
 			}},
 		{label: "Zoom In", onClick : function(){
 				waveForm.zoom(2);
@@ -305,6 +305,7 @@ UI.SampleView = function(){
         spinBoxRelativeNote.setDisabled(!Tracker.inFTMode());
         fadeOutSlider.setDisabled(!Tracker.inFTMode());
         panningSlider.setDisabled(!Tracker.inFTMode());
+		spinBoxInstrument.setMax(Tracker.getMaxInstruments());
 	});
 
 	EventBus.on(EVENT.samplePropertyChange,function(newProps){
