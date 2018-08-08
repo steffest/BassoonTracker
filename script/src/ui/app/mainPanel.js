@@ -4,6 +4,16 @@ UI.app_mainPanel = function(){
     var currentSubView = "";
 	var radioGroup;
 
+	var steffestVersion = function(){
+		var img = Y.getImage("steffest");
+        var version = "V" + (typeof versionNumber == "undefined" ? "dev" : versionNumber);
+        var imgCtx = img.getContext("2d");
+
+		fontSmall.write(imgCtx,"By",44,10);
+        fontSmall.write(imgCtx,version,113 - (version.length*6),10);
+		return img;
+	};
+
     var logo = UI.button();
     logo.setProperties({
         background: UI.Assets.panelInsetScale9,
@@ -15,6 +25,18 @@ UI.app_mainPanel = function(){
 		logo.toggleActive();
 	};
     me.addChild(logo);
+
+    var tracker = UI.button();
+    tracker.setProperties({
+        background: UI.Assets.panelInsetScale9,
+        activeBackground: UI.Assets.panelInsetScale9,
+        image: Y.getImage("tracker"),
+        activeImage: steffestVersion()
+    });
+    tracker.onDown = function(){
+        tracker.toggleActive();
+    };
+    me.addChild(tracker);
 
 
     var modNameInputBox = UI.inputbox({
@@ -232,6 +254,7 @@ UI.app_mainPanel = function(){
 			patternPanel.setDimensions(mainDimensions);
 			patternPanel2.setDimensions(mainDimensions);
 			logo.setDimensions(mainDimensions);
+			tracker.hide();
 
 			var spinButtonLeft = Layout.col32X;
 
@@ -298,6 +321,7 @@ UI.app_mainPanel = function(){
 			if (radioGroup) radioGroup.hide();
 
 			logo.show();
+            tracker.show();
 			modNameInputBox.show();
 			listbox.show();
 			songlistbox.show();
@@ -308,13 +332,21 @@ UI.app_mainPanel = function(){
 			spinBoxPattern.show();
 			spinBoxPatternLength.show();
 			spinBoxInstrument.show();
+            spinBoxSongRepeat.show();
 
 			logo.setDimensions({
 				left: Layout.col1X,
 				top: margin,
-				width: Layout.col3W,
+				width: Layout.col2W,
 				height: logoHeight
 			});
+
+            tracker.setDimensions({
+                left: Layout.col3X,
+                top: margin,
+                width: Layout.col1W,
+                height: logoHeight
+            });
 
 			modNameInputBox.setDimensions({
 				left: Layout.col4X,

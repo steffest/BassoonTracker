@@ -14,15 +14,22 @@
     "height": 84
   },
   {
+    "name": "boing",
+    "x": 256,
+    "y": 219,
+    "width": 218,
+    "height": 18
+  },
+  {
     "name": "button_inlay",
-    "x": 213,
+    "x": 179,
     "y": 503,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_active",
-    "x": 142,
+    "x": 392,
     "y": 503,
     "width": 71,
     "height": 30
@@ -30,49 +37,49 @@
   {
     "name": "button_inlay_blue",
     "x": 71,
-    "y": 503,
+    "y": 557,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_blue_active",
-    "x": 447,
-    "y": 363,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_green",
-    "x": 339,
-    "y": 433,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_green_active",
-    "x": 410,
-    "y": 433,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_plain",
-    "x": 0,
+    "x": 108,
     "y": 503,
     "width": 71,
     "height": 30
   },
   {
+    "name": "button_inlay_green",
+    "x": 463,
+    "y": 503,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_green_active",
+    "x": 0,
+    "y": 557,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_plain",
+    "x": 454,
+    "y": 294,
+    "width": 71,
+    "height": 30
+  },
+  {
     "name": "button_inlay_red",
-    "x": 410,
-    "y": 463,
+    "x": 250,
+    "y": 503,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_red_active",
-    "x": 339,
-    "y": 463,
+    "x": 321,
+    "y": 503,
     "width": 71,
     "height": 30
   },
@@ -85,15 +92,15 @@
   },
   {
     "name": "checkbox_off",
-    "x": 546,
-    "y": 483,
+    "x": 562,
+    "y": 514,
     "width": 14,
     "height": 14
   },
   {
     "name": "checkbox_on",
-    "x": 510,
-    "y": 219,
+    "x": 562,
+    "y": 528,
     "width": 14,
     "height": 14
   },
@@ -127,64 +134,64 @@
   },
   {
     "name": "module",
-    "x": 550,
-    "y": 256,
+    "x": 576,
+    "y": 528,
     "width": 12,
     "height": 11
   },
   {
     "name": "sample",
-    "x": 550,
-    "y": 245,
+    "x": 576,
+    "y": 514,
     "width": 12,
     "height": 11
   },
   {
     "name": "keybutton",
-    "x": 475,
-    "y": 503,
+    "x": 142,
+    "y": 533,
     "width": 38,
     "height": 18
   },
   {
     "name": "keybutton_highlight2",
-    "x": 399,
-    "y": 503,
+    "x": 180,
+    "y": 533,
     "width": 38,
     "height": 18
   },
   {
     "name": "keybutton_highlight3",
-    "x": 437,
-    "y": 503,
+    "x": 218,
+    "y": 533,
     "width": 38,
     "height": 18
   },
   {
     "name": "knob_back",
-    "x": 339,
-    "y": 363,
+    "x": 54,
+    "y": 503,
     "width": 54,
     "height": 54
   },
   {
     "name": "knob_front",
-    "x": 393,
-    "y": 363,
+    "x": 0,
+    "y": 503,
     "width": 54,
     "height": 54
   },
   {
     "name": "lednumber",
-    "x": 419,
-    "y": 294,
+    "x": 427,
+    "y": 433,
     "width": 88,
     "height": 25
   },
   {
     "name": "line_hor",
     "x": 256,
-    "y": 245,
+    "y": 254,
     "width": 272,
     "height": 2
   },
@@ -198,28 +205,28 @@
   {
     "name": "logo_colour_70",
     "x": 0,
-    "y": 363,
+    "y": 433,
     "width": 339,
     "height": 70
   },
   {
     "name": "logo_grey_70",
     "x": 0,
-    "y": 433,
+    "y": 363,
     "width": 339,
     "height": 70
   },
   {
     "name": "menu",
-    "x": 256,
-    "y": 219,
+    "x": 339,
+    "y": 403,
     "width": 116,
     "height": 26
   },
   {
     "name": "mute",
-    "x": 355,
-    "y": 503,
+    "x": 477,
+    "y": 483,
     "width": 44,
     "height": 20
   },
@@ -233,7 +240,7 @@
   {
     "name": "panel_black_insert",
     "x": 562,
-    "y": 344,
+    "y": 360,
     "width": 19,
     "height": 16
   },
@@ -247,63 +254,63 @@
   {
     "name": "panel_dark_blueish",
     "x": 562,
-    "y": 408,
+    "y": 376,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_greyish",
     "x": 562,
-    "y": 360,
+    "y": 392,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_insert",
     "x": 562,
-    "y": 392,
+    "y": 408,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_inset",
-    "x": 530,
-    "y": 483,
+    "x": 562,
+    "y": 498,
     "width": 16,
     "height": 16
   },
   {
     "name": "panel_inset_dark",
-    "x": 481,
-    "y": 433,
+    "x": 462,
+    "y": 363,
     "width": 39,
     "height": 24
   },
   {
     "name": "panel_light",
     "x": 562,
-    "y": 308,
+    "y": 289,
     "width": 23,
     "height": 19
   },
   {
     "name": "panel_mid",
     "x": 562,
-    "y": 289,
+    "y": 308,
     "width": 23,
     "height": 19
   },
   {
     "name": "panel_trans",
     "x": 562,
-    "y": 376,
+    "y": 344,
     "width": 19,
     "height": 16
   },
   {
     "name": "piano",
-    "x": 419,
-    "y": 319,
+    "x": 427,
+    "y": 458,
     "width": 82,
     "height": 24
   },
@@ -337,8 +344,8 @@
   },
   {
     "name": "play",
-    "x": 463,
-    "y": 278,
+    "x": 474,
+    "y": 219,
     "width": 46,
     "height": 15
   },
@@ -351,57 +358,57 @@
   },
   {
     "name": "play_green",
-    "x": 331,
-    "y": 294,
+    "x": 339,
+    "y": 433,
     "width": 88,
     "height": 50
   },
   {
     "name": "radio_active",
-    "x": 550,
-    "y": 289,
+    "x": 573,
+    "y": 542,
     "width": 10,
     "height": 10
   },
   {
     "name": "radio_big_active",
-    "x": 550,
-    "y": 278,
+    "x": 562,
+    "y": 542,
     "width": 11,
     "height": 11
   },
   {
     "name": "radio_big_inactive",
-    "x": 550,
-    "y": 267,
+    "x": 578,
+    "y": 498,
     "width": 11,
     "height": 11
   },
   {
     "name": "radio_inactive",
     "x": 550,
-    "y": 299,
+    "y": 245,
     "width": 10,
     "height": 10
   },
   {
     "name": "record",
-    "x": 447,
-    "y": 393,
+    "x": 256,
+    "y": 237,
     "width": 71,
     "height": 17
   },
   {
     "name": "record_active",
-    "x": 284,
-    "y": 503,
+    "x": 142,
+    "y": 557,
     "width": 71,
     "height": 27
   },
   {
     "name": "slider_back",
-    "x": 372,
-    "y": 219,
+    "x": 339,
+    "y": 483,
     "width": 138,
     "height": 20
   },
@@ -414,7 +421,7 @@
   },
   {
     "name": "slider_knob",
-    "x": 0,
+    "x": 108,
     "y": 533,
     "width": 34,
     "height": 23
@@ -428,10 +435,24 @@
   },
   {
     "name": "solo",
-    "x": 481,
-    "y": 463,
+    "x": 455,
+    "y": 403,
     "width": 44,
     "height": 21
+  },
+  {
+    "name": "steffest",
+    "x": 331,
+    "y": 294,
+    "width": 123,
+    "height": 40
+  },
+  {
+    "name": "tracker",
+    "x": 339,
+    "y": 363,
+    "width": 123,
+    "height": 40
   },
   {
     "name": "vu_green",
