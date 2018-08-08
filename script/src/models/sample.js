@@ -6,6 +6,13 @@ var Sample = function(){
 	me.name = "";
 	me.bits = 8;
 
+    me.loop = {
+        enabled: false,
+        start: 0,
+        length: 0,
+        type: 0
+    };
+
 
 	return me;
 };

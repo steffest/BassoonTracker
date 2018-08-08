@@ -85,9 +85,9 @@ UI.app_patternPanel = function(){
         });
 
         infoPanel.setDimensions({
-            left: Layout.col2X,
+            left: Layout.showSideBar ? Layout.col2X : Layout.col1X,
             top : 0,
-            width: Layout.col4W,
+            width: Layout.showSideBar ? Layout.col4W : Layout.col5W,
             height: Layout.infoPanelHeight
         });
 

@@ -6,11 +6,17 @@ UI.app_mainPanel = function(){
 
 	var steffestVersion = function(){
 		var img = Y.getImage("steffest");
-        var version = "V" + (typeof versionNumber == "undefined" ? "dev" : versionNumber);
+        var version = typeof versionNumber == "undefined" ? "dev" : versionNumber;
+        if (version.indexOf(".")>0){
+            var p = version.split(".");
+            version = p[0]+"."+p[1];
+        }
+        version = "Version " + version;
         var imgCtx = img.getContext("2d");
 
-		fontSmall.write(imgCtx,"By",44,10);
-        fontSmall.write(imgCtx,version,113 - (version.length*6),10);
+        fontSmall.write(imgCtx,version,44,4);
+		fontSmall.write(imgCtx,"By",44,13);
+
 		return img;
 	};
 
@@ -253,8 +259,18 @@ UI.app_mainPanel = function(){
 			songlistbox.setDimensions(mainDimensions);
 			patternPanel.setDimensions(mainDimensions);
 			patternPanel2.setDimensions(mainDimensions);
-			logo.setDimensions(mainDimensions);
-			tracker.hide();
+			logo.setDimensions({
+                left: Layout.col32X,
+                width: Layout.col32W,
+                top: panelTop,
+                height: Math.floor(panelHeight/2)
+            });
+			tracker.setDimensions({
+                left: Layout.col32X,
+                width: Layout.col32W,
+                top:  Math.floor(panelHeight/2)+1,
+                height: Math.floor(panelHeight/2)
+            });
 
 			var spinButtonLeft = Layout.col32X;
 
@@ -302,6 +318,7 @@ UI.app_mainPanel = function(){
 			});
 
 			logo.toggle(currentSubView === "about");
+			tracker.toggle(currentSubView === "about");
 			modNameInputBox.toggle(currentSubView === "instruments");
 			listbox.toggle(currentSubView === "instruments");
 			songlistbox.toggle(currentSubView === "songdata");

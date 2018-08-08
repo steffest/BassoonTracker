@@ -574,10 +574,10 @@ UI.DiskOperations = function(){
 
 	};
 
-	me.playRandomSong = function(){
+	me.playRandomSong = function(format){
 		UI.setStatus("Fetching random song",true);
 		UI.setInfo("");
-		FetchService.json("https://www.stef.be/bassoontracker/api/random",function(data){
+		FetchService.json("https://www.stef.be/bassoontracker/api/random" + (format || ""),function(data){
 			if (data && data.modarchive && data.modarchive.module){
 				Tracker.load(data.modarchive.module.url);
 			}else{

@@ -72,7 +72,8 @@ var COMMAND = {
 	showTopMain : 15,
 	showBottomMain: 16,
 	randomSong: 17,
-	showGithub: 18
+    randomSongXM: 18,
+	showGithub: 19
 };
 
 var PLAYTYPE = {

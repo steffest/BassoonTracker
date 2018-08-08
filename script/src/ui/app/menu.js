@@ -17,7 +17,8 @@ UI.app_menu = function(container){
                 {label: "New" , "command" : COMMAND.newFile},
                 {label: "Load Module" , "command" : COMMAND.openFile},
                 {label: "Save Module" , "command" : COMMAND.saveFile},
-                {label: "Open Random Song" , "command" : COMMAND.randomSong}
+                {label: "Open Random MOD Song" , "command" : COMMAND.randomSong},
+                {label: "Open Random XM Song" , "command" : COMMAND.randomSongXM}
             ]},
         {label: "Edit", subItems: [
                 {label: "Clear Track" , "command" : COMMAND.clearTrack},

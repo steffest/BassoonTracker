@@ -66,6 +66,9 @@ var App = (function(){
                 case COMMAND.randomSong:
                     UI.diskOperations.playRandomSong();
                     break;
+                case COMMAND.randomSongXM:
+                    UI.diskOperations.playRandomSong("xm");
+                    break;
                 case COMMAND.showGithub:
                     window.open("https://github.com/steffest/bassoontracker");
                     break;

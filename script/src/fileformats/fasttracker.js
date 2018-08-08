@@ -176,27 +176,30 @@ var FastTracker = function(){
                     break;
                 }
 
+                if (instrument.numberOfSamples>1){
+                    console.warn("WARNING: XM files with multiple sammples per instrument not supported yet. (" + instrument.numberOfSamples + ")");
+                }
+
                 for (var sampleI = 0; sampleI < instrument.numberOfSamples; sampleI++){
                     sample = Sample();
 
                     sample.length = file.readDWord();
-                    instrument.loop.start = file.readDWord();
-                    instrument.loop.length = file.readDWord();
-                    instrument.volume = file.readUbyte();
-                    instrument.finetuneX = file.readByte();
+                    sample.loop.start = file.readDWord();
+                    sample.loop.length = file.readDWord();
+                    sample.volume = file.readUbyte();
+                    sample.finetuneX = file.readByte();
                     sample.type = file.readUbyte();
-                    instrument.panning = file.readUbyte();
-                    instrument.relativeNote = file.readByte();
-                    instrument.reserved = file.readByte();
+                    sample.panning = file.readUbyte();
+                    sample.relativeNote = file.readByte();
+                    sample.reserved = file.readByte();
                     sample.sName = file.readString(22);
                     sample.bits = 8;
 
                     instrument.samples.push(sample);
                     fileStartPos += instrument.sampleHeaderSize;
+
                     file.goto(fileStartPos);
                 }
-
-
 
                 for (sampleI = 0; sampleI < instrument.numberOfSamples; sampleI++){
                     sample = instrument.samples[sampleI];
@@ -208,14 +211,14 @@ var FastTracker = function(){
                         sample.bits       = 16;
                         sample.type      ^= 16;
                         sample.length    >>= 1;
-                        instrument.loop.start >>= 1;
-                        instrument.loop.length   >>= 1;
+                        sample.loop.start >>= 1;
+                        sample.loop.length   >>= 1;
                     }
-                    instrument.loop.type = sample.type || 0;
-                    instrument.loop.enabled = !!instrument.loop.type;
+                    sample.loop.type = sample.type || 0;
+                    sample.loop.enabled = !!sample.loop.type;
 
                     // sample data
-                    console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + (instrument.bits === 16 ? " words" : " bytes") +  " and repeat length of " + instrument.loop.length);
+                    console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + (sample.bits === 16 ? " words" : " bytes") +  " and repeat length of " + sample.loop.length);
                     var sampleEnd = sample.length;
 
 
@@ -240,15 +243,15 @@ var FastTracker = function(){
                     }
 
                     // unroll ping pong loops
-                    if (instrument.loop.type == LOOPTYPE.PINGPONG){
+                    if (sample.loop.type === LOOPTYPE.PINGPONG){
 
                         // TODO: keep original sample
-                        var loopPart = sample.data.slice(instrument.loop.start,instrument.loop.start + instrument.loop.length);
+                        var loopPart = sample.data.slice(sample.loop.start,sample.loop.start + sample.loop.length);
 
-                        sample.data = sample.data.slice(0,instrument.loop.start + instrument.loop.length);
+                        sample.data = sample.data.slice(0,sample.loop.start + sample.loop.length);
                         sample.data = sample.data.concat(loopPart.reverse());
-                        instrument.loop.length = instrument.loop.length*2;
-                        instrument.samples[0].length = instrument.loop.start + instrument.loop.length;
+                        sample.loop.length = sample.loop.length*2;
+                        sample.length = sample.loop.start + sample.loop.length;
 
                     }
 
@@ -259,7 +262,21 @@ var FastTracker = function(){
 
 
 
+
+
+            // set properties of instrument to the first sample properties until we fully support multiple samples per insrument.
             instrument.sample = instrument.samples[0];
+            if (instrument.sample){
+                instrument.loop.type = instrument.sample.loop.type;
+                instrument.loop.enabled = instrument.sample.loop.enabled;
+                instrument.loop.start = instrument.sample.loop.start;
+                instrument.loop.length = instrument.sample.loop.length;
+                instrument.volume = instrument.sample.volume;
+                instrument.finetuneX = instrument.sample.finetuneX;
+                instrument.panning = instrument.sample.panning;
+                instrument.relativeNote = instrument.sample.relativeNote;
+            }
+
             Tracker.setInstrument(i,instrument);
             instrumentContainer.push({label: i + " " + instrument.name, data: i});
 

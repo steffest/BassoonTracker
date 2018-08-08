@@ -26,9 +26,10 @@ UI.app_sidebar = function(){
         //{label:"Ambrozia", onClick:function(){Tracker.load('demomods/Ambrozia.xm')}},
         {label:"8CHN: AceMan", onClick:function(){Tracker.load('demomods/AceMan.mod')}},
         {label:"28CHN: Dope", onClick:function(){Tracker.load('demomods/dope.mod')}},
-        {label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
+        //{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
         //{label:"Drum", onClick:function(){Tracker.load('demomods/drum.mod')}},
-        {label:"Random !", onClick:function(){App.doCommand(COMMAND.randomSong)}}
+        {label:"Random MOD", onClick:function(){App.doCommand(COMMAND.randomSong)}},
+        {label:"Random XM", onClick:function(){App.doCommand(COMMAND.randomSongXM)}}
     ];
 
 
