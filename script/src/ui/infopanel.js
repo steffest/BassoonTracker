@@ -13,13 +13,20 @@ UI.InfoPanel = function(){
     };
     me.addChild(infoButton);
 
+    var spinner = UI.animsprite(5,7,20,18,"boing",11);
+    me.addChild(spinner);
+    spinner.hide();
+
     EventBus.on(EVENT.statusChange,function(context){
         if (context){
-            if (typeof context.status != "undefined") status = context.status;
-            if (typeof context.info != "undefined"){
+            if (typeof context.status !== "undefined") status = context.status;
+            if (typeof context.info !== "undefined"){
                 text = context.info;
                 source = context.source;
                 moreInfoUrl = context.url;
+            }
+            if (typeof context.showSpinner !== "undefined"){
+                spinner.toggle(!!context.showSpinner)
             }
         }
         me.refresh();
@@ -30,7 +37,7 @@ UI.InfoPanel = function(){
     me.setProperties = function(p){
 
         properties.forEach(function(key){
-            if (typeof p[key] != "undefined") me[key] = p[key];
+            if (typeof p[key] !== "undefined") me[key] = p[key];
         });
 
         me.setSize(me.width,me.height);
@@ -48,7 +55,7 @@ UI.InfoPanel = function(){
 
         infoButton.setProperties({
             width: Layout.col1W,
-            height: 26,
+            height: 24,
             top: 2,
             left:Layout.col5X - 2 - me.left,
             label: label,
@@ -71,7 +78,15 @@ UI.InfoPanel = function(){
             var fText = text;
             if (status) fText = status + ": " + fText;
 
-            window.fontFT.write(me.ctx,fText,6,11,0);
+            var textX = 6;
+            if (spinner.isVisible()){
+                spinner.render();
+                textX += 20;
+            }
+
+            window.fontFT.write(me.ctx,fText,textX,11,0);
+
+
 
         }
 

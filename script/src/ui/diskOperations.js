@@ -473,7 +473,7 @@ UI.DiskOperations = function(){
 							listbox.setSelectedIndex(index);
 
 							UI.setInfo(item.title);
-							UI.setStatus("Loading from Dropbox");
+							UI.setStatus("Loading from Dropbox",true);
 
 							Dropbox.getFile(item.url,function(blob){
 								var reader = new FileReader();
@@ -575,7 +575,7 @@ UI.DiskOperations = function(){
 	};
 
 	me.playRandomSong = function(){
-		UI.setStatus("Fetching random song");
+		UI.setStatus("Fetching random song",true);
 		UI.setInfo("");
 		FetchService.json("https://www.stef.be/bassoontracker/api/random",function(data){
 			if (data && data.modarchive && data.modarchive.module){

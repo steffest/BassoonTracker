@@ -376,12 +376,12 @@ var UI = (function(){
 	};
 
 	me.setLoading = function(){
-		me.setStatus("Loading");
+		me.setStatus("Loading",true);
 		EventBus.trigger(EVENT.songLoading);
 	};
 
-	me.setStatus = function(status){
-		EventBus.trigger(EVENT.statusChange,{status:status});
+	me.setStatus = function(status,showSpinner){
+		EventBus.trigger(EVENT.statusChange,{status:status, showSpinner: !!showSpinner});
 	};
 
 	me.setInfo = function(info,source,url){

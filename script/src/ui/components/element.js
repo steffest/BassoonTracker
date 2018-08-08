@@ -18,6 +18,7 @@ UI.element = function(left,top,width,height){
 
     me.hide = function(){
         me.visible = false;
+        if (me.onHide) me.onHide();
     };
     me.show = function(andRefresh,andRefreshAllChildren){
         me.visible = true;

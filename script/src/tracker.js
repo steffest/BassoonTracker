@@ -314,16 +314,19 @@ var Tracker = (function(){
 	};
 
 	me.save = function(filename,target){
-		console.error(target);
+        UI.setStatus("Exporting ...",true);
 		me.buildBinary(me.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
 			var b = new Blob([file.buffer], {type: "application/octet-stream"});
 
 			var fileName = filename || me.getFileName();
 
 			if (target === "dropbox"){
-				Dropbox.putFile("/" + fileName,b);
+				Dropbox.putFile("/" + fileName,b,function(){
+                    UI.setStatus("");
+				});
 			}else{
 				saveAs(b,fileName);
+                UI.setStatus("");
 			}
 		});
 	};

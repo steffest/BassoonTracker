@@ -91,6 +91,16 @@ UI.OptionsPanel = function(){
 				if (SETTINGS.stereoSeparation == STEREOSEPARATION.FULL) result = 0;
 				return result;
 			}
+		},
+		{
+			label: "Frequency table:",
+			values: ["Linear", "Amiga periods"],
+			setValue: function (index) {
+                Tracker.useLinearFrequency = index === 0;
+			},
+			getValue: function () {
+				return Tracker.useLinearFrequency ? 0 : 1;
+			}
 		}
 	];
 
@@ -120,6 +130,7 @@ UI.OptionsPanel = function(){
 				button.index = i;
 				button.option = option;
 				button.onClick = function(){
+					if (this.isDisabled) return;
 					activateOption(this);
 				}
 			}
@@ -176,14 +187,22 @@ UI.OptionsPanel = function(){
 		var optionTop = 35;
 		var optionHeight = 30;
 		var buttonHeight = 20;
-		var i = 0;
 
-		options.forEach(function(option){
-			var thisLeft = Layout["col3"+(i+1)+"X"];
+		var maxVisible = options.length;
+		if (me.width < 500) maxVisible = 3;
+
+		var bWidth = Math.floor(( me.width - Layout.defaultMargin*(maxVisible+1)) / maxVisible);
+
+		options.forEach(function(option,index){
+			//var thisLeft = Layout["col3"+(i+1)+"X"];
+			var thisLeft = Layout.defaultMargin + (index*(bWidth+Layout.defaultMargin));
+
+			if (index>=maxVisible) thisLeft = me.width + 100;
 
 			option.label.setProperties({
 				top: optionTop,
-				width: Layout.col31W,
+				_width: Layout.col31W,
+				width: bWidth,
 				height: optionHeight,
 				left: thisLeft
 			});
@@ -194,18 +213,35 @@ UI.OptionsPanel = function(){
 				button.setProperties({
 					top: optionTop + (b*buttonHeight) + 30,
 					height: buttonHeight,
-					width: Layout.col31W,
+					width: bWidth,
 					left: thisLeft
 				});
 
 				button.setActive(b == selectedIndex);
 			}
-			i++;
 		});
 
 
 	};
 
+    EventBus.on(EVENT.songPropertyChange,function(){
+        if (me.isVisible()){
+        	me.onResize();
+		}
+    });
+
+    EventBus.on(EVENT.trackerModeChanged,function(){
+
+        if (options[3].buttons && options[3].buttons.length){
+            options[3].buttons.forEach(function(button){
+            	button.setDisabled(!Tracker.inFTMode());
+            });
+		}
+
+        if (me.isVisible()){
+            me.onResize();
+        }
+    });
 
 	return me;
 
