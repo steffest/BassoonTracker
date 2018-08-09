@@ -58,11 +58,16 @@ var Dropbox = function(){
     };
 
     me.putFile = function(path,content,next){
-        dropboxService('files/upload', {path: path}, content,function(result,a,b){
-            console.log(result);
-            console.log(a);
-            console.log(b);
-            if (next) next(result);
+        dropboxService('files/upload', {path: path}, content,{
+            onComplete : function(result,a,b){
+                console.log(result);
+                console.log(a);
+                console.log(b);
+                if (next) next(result);
+            },
+            onError : function(result,a,b){
+                if (next) next(false);
+            }
         });
     };
 

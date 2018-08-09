@@ -44,8 +44,6 @@ UI.menu = function(x,y,w,h,submenuParent){
             }
         }
 
-
-        console.error(selectedItem);
     };
 
 

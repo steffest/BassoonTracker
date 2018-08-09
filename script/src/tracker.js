@@ -321,8 +321,12 @@ var Tracker = (function(){
 			var fileName = filename || me.getFileName();
 
 			if (target === "dropbox"){
-				Dropbox.putFile("/" + fileName,b,function(){
-                    UI.setStatus("");
+				Dropbox.putFile("/" + fileName,b,function(success){
+                    if (success){
+                        UI.setStatus("");
+					}else{
+                        UI.setStatus("Error while saving to Dropbox ...");
+					}
 				});
 			}else{
 				saveAs(b,fileName);
@@ -1856,6 +1860,8 @@ var Tracker = (function(){
 			trackNotes.push({});
 			trackEffectCache.push({});
 		}
+		me.useLinearFrequency = false;
+		me.setTrackerMode(TRACKERMODE.PROTRACKER);
 	}
 
 	me.clearEffectCache = function(){
@@ -1866,10 +1872,12 @@ var Tracker = (function(){
 		}
 	};
 
-	me.clearInstruments = function(){
+	me.clearInstruments = function(count){
 		var instrumentContainer = [];
-		for (i = 1; i <= song.instruments.length; ++i) {
-			instruments[i] = Instrument();
+		var max  = count || song.instruments.length-1;
+        instruments = [];
+		for (i = 1; i <= max; i++) {
+            me.setInstrument(i,Instrument());
 			instrumentContainer.push({label: i + " ", data: i});
 		}
 		song.instruments = instruments;
@@ -1897,23 +1905,19 @@ var Tracker = (function(){
 			patterns:[],
 			instruments:[]
 		};
-		instruments = [];
+        me.clearInstruments(32);
 
 		song.typeId = "M.K.";
 		song.title = "new song";
 		song.length = 1;
 
 		song.patterns.push(getEmptyPattern());
-		me.clearInstruments();
-
 
 		var patternTable = [];
 		for (var i = 0; i < 128; ++i) {
 			patternTable[i] = 0;
 		}
 		song.patternTable = patternTable;
-
-
 
 		onModuleLoad();
 	};

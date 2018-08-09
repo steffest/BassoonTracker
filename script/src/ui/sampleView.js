@@ -122,7 +122,13 @@ UI.SampleView = function(){
 		font: font,
 		onChange: function(value){
 			var instrument= Tracker.getCurrentInstrument();
-			if (instrument) instrument.loop.start = value;
+            if (instrument){
+                if ((instrument.loop.length+value)>instrument.sample.length) {
+                    value = instrument.sample.length-instrument.loop.length;
+                    repeatSpinbox.setValue(value,true);
+                }
+                instrument.loop.start = value;
+            }
 			waveForm.refresh();
 		}
 	});
@@ -138,7 +144,13 @@ UI.SampleView = function(){
 		font: font,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) instrument.loop.length = value;
+			if (instrument){
+				if ((instrument.loop.start+value)>instrument.sample.length) {
+					value = instrument.sample.length-instrument.loop.start;
+                    repeatLengthSpinbox.setValue(value,true);
+                }
+                instrument.loop.length = value;
+			}
 			waveForm.refresh();
 		}
 	});
@@ -242,8 +254,12 @@ UI.SampleView = function(){
 		var instrument = Tracker.getInstrument(value);
 		if (instrument){
 
+            console.log("val is " + instrument.loop.length);
+
 			repeatSpinbox.setMax(instrument.sample.length,true);
 			repeatLengthSpinbox.setMax(instrument.sample.length,true);
+
+            console.log("val is " + instrument.loop.length);
 
 
 			instrumentName.setValue(instrument.name,true);
@@ -252,6 +268,7 @@ UI.SampleView = function(){
 			fineTuneSlider.setValue(instrument.getFineTune());
 
 			repeatSpinbox.setValue(instrument.loop.start,true);
+			console.log("set val to " + instrument.loop.length);
 			repeatLengthSpinbox.setValue(instrument.loop.length,true);
 
 			spinBoxRelativeNote.setValue(instrument.relativeNote);
@@ -306,6 +323,20 @@ UI.SampleView = function(){
         fadeOutSlider.setDisabled(!Tracker.inFTMode());
         panningSlider.setDisabled(!Tracker.inFTMode());
 		spinBoxInstrument.setMax(Tracker.getMaxInstruments());
+
+		if (mode === TRACKERMODE.PROTRACKER){
+			repeatSpinbox.setProperties({step:2});
+			repeatLengthSpinbox.setProperties({step:2});
+            if (instrument){
+            	instrument.loop.start = Math.floor(instrument.loop.start/2)*2;
+                instrument.loop.length = Math.floor(instrument.loop.length/2)*2;
+            	repeatSpinbox.setValue(instrument.loop.start,true);
+            	repeatLengthSpinbox.setValue(instrument.loop.length,true);
+            }
+		}else{
+            repeatSpinbox.setProperties({step:1});
+            repeatLengthSpinbox.setProperties({step:1});
+		}
 	});
 
 	EventBus.on(EVENT.samplePropertyChange,function(newProps){

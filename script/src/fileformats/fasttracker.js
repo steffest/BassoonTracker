@@ -130,7 +130,7 @@ var FastTracker = function(){
 				instrument.panningEnvelope.loopStartPoint = file.readUbyte();
 				instrument.panningEnvelope.loopEndPoint = file.readUbyte();
 				instrument.volumeEnvelope.type = file.readUbyte();
-				instrument.panningEnvelope.Type = file.readUbyte();
+				instrument.panningEnvelope.type = file.readUbyte();
 				instrument.vibrato.type = file.readUbyte();
 				instrument.vibrato.sweep = file.readUbyte();
 				instrument.vibrato.depth = file.readUbyte();
@@ -192,7 +192,7 @@ var FastTracker = function(){
                     sample.volume = file.readUbyte();
                     sample.finetuneX = file.readByte();
                     sample.type = file.readUbyte();
-                    sample.panning = file.readUbyte();
+                    sample.panning = file.readUbyte() - 128;
                     sample.relativeNote = file.readByte();
                     sample.reserved = file.readByte();
                     sample.sName = file.readString(22);
@@ -262,9 +262,6 @@ var FastTracker = function(){
 
                 }
             }
-
-
-
 
 
             // set properties of instrument to the first sample properties until we fully support multiple samples per insrument.
@@ -451,7 +448,7 @@ var FastTracker = function(){
 				file.writeUByte(instrument.volume);
 				file.writeByte(instrument.finetuneX);
 				file.writeUByte(sampleType);
-				file.writeUByte(instrument.panning || 0);
+				file.writeUByte((instrument.panning || 0) + 128);
 				file.writeUByte(instrument.relativeNote || 0);
 				file.writeUByte(0);
 				file.writeStringSection(instrument.name,22);
