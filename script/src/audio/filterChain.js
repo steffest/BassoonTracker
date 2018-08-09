@@ -7,12 +7,15 @@ FilterChain = (function(filters) {
 		panning: true
 	};
 
-    // disable for now sounds muffled;
-    filters = {
-        volume: true,
-        panning: true
-    };
+    // disable for now: sounds muffled;
+	var disableFilters = true;
 
+	if (disableFilters){
+        filters = {
+            volume: true,
+            panning: true
+        };
+	}
 
 	var useVolume = filters.volume;
 	var usePanning = filters.panning;

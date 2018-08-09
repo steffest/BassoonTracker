@@ -7,7 +7,7 @@ UI.app_songPatternList = function(height){
 
     var songlistbox = UI.listbox();
     songlistbox.setItems([
-        {label: "00:00", data: 1}
+        {label: "01:00", data: 1}
     ]);
     me.addChild(songlistbox);
 
@@ -59,7 +59,7 @@ UI.app_songPatternList = function(height){
         var items = [];
         for (var i = 0, len = Tracker.getSong().length; i<len; i++){
             var value = patternTable[i];
-            items.push({label: padd2(i) + ":" + padd2(value), data:value});
+            items.push({label: padd2(i+1) + ":" + padd2(value), data:value});
         }
         songlistbox.setItems(items);
     };

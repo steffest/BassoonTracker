@@ -654,7 +654,7 @@ var Tracker = (function(){
 					x = value >> 4;
 					y = value & 0x0f;
 
-					var root = notePeriod || trackNotes[track].startPeriod;
+
 					var finetune = 0;
 
 
@@ -662,22 +662,42 @@ var Tracker = (function(){
 					// how does this work?
 					// see example just_about_seven.mod
 
-					// check if the instrument is finetuned
-					var playingInstrument = instrumentIndex || trackNotes[track] ? trackNotes[track].currentInstrument : 0;
-					if (playingInstrument){
-						instrument = me.getInstrument(playingInstrument);
-						if (instrument){
-							finetune = instrument.getFineTune();
-							if (finetune) root = Audio.getFineTuneForPeriod(root,finetune);
-						}
+                    instrument = instrument || me.getInstrument(trackNotes[track].currentInstrument);
+
+					if (me.inFTMode()){
+                        if (instrument){
+							var root = instrument.getPeriodForNote(noteIndex,true);
+                            if (noteIndex === NOTEOFF) {
+                            	root = trackNotes[track].startPeriod;
+                                trackEffects.arpeggio = trackEffectCache[track].arpeggio;
+                            }else{
+                                trackEffects.arpeggio = {
+                                    root: root,
+                                    interval1: root - instrument.getPeriodForNote(noteIndex+x,true),
+                                    interval2: root - instrument.getPeriodForNote(noteIndex+y,true),
+                                    step:1
+                                };
+
+                                trackEffectCache[track].arpeggio = trackEffects.arpeggio
+							}
+                        }
+					}else{
+                        root = notePeriod || trackNotes[track].startPeriod;
+                        // check if the instrument is finetuned
+                        if (instrument){
+                            finetune = instrument.getFineTune();
+                            if (finetune) root = Audio.getFineTuneForPeriod(root,finetune);
+                        }
+
+                        trackEffects.arpeggio = {
+                            root: root,
+                            interval1: root-Audio.getSemiToneFrom(root,x,finetune),
+                            interval2: root-Audio.getSemiToneFrom(root,y,finetune),
+                            step:1
+                        };
 					}
 
-					trackEffects.arpeggio = {
-						root: root,
-						interval1: root-Audio.getSemiToneFrom(root,x,finetune),
-						interval2: root-Audio.getSemiToneFrom(root,y,finetune),
-						step:1
-					};
+
 				}
 
 				// set volume, even if no effect present
@@ -733,7 +753,7 @@ var Tracker = (function(){
 				// fasttracker does not.
 				// protracker 3 does not
 				// milkytracker tries, but not perfect
-				// the ProTracker clone of 8bitbubsy does this completely compatible to PT2.
+				// the ProTracker clone of 8bitbubsy does this completely compatible to protracker2.
 
 				var target = notePeriod;
 
@@ -760,7 +780,9 @@ var Tracker = (function(){
 				trackEffects.slide = {
 					value: value,
 					target: target,
-					canUseGlissando: true
+					canUseGlissando: true,
+					resetVolume: !!note.instrument,
+					volume: defaultVolume
 				};
 				trackEffectCache[track].slide = trackEffects.slide;
 
@@ -769,7 +791,6 @@ var Tracker = (function(){
 						value: defaultVolume
 					};
 				}
-
 
 				break;
 			case 4:
@@ -1220,8 +1241,8 @@ var Tracker = (function(){
 		}
 
 
-		if (instrumentIndex) {
-			trackNotes[track].currentInstrument = instrumentIndex;
+		if (note.instrument) {
+			trackNotes[track].currentInstrument =  note.instrument;
 
 			// reset temporary instrument settings
 			if (trackEffects.fineTune && trackEffects.fineTune.instrument){
@@ -1325,6 +1346,13 @@ var Tracker = (function(){
 				var slideValue = effects.slide.value;
 				if (me.inFTMode() && me.useLinearFrequency) slideValue = effects.slide.value*4;
 				value = Math.abs(slideValue);
+
+				if (me.inFTMode() && effects.slide.resetVolume && (trackNote.volumeFadeOut || trackNote.volumeEnvelope)){
+					// crap ... this should reset the volume envelope to the beginning ... annoying ...
+					var instrument = me.getInstrument(trackNote.instrumentIndex);
+					if (instrument) instrument.resetVolume(time,trackNote);
+
+				}
 
 				// TODO: Why don't we use a RampToValueAtTime here ?
 				for (var tick = 1; tick < steps; tick++){

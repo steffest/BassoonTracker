@@ -468,7 +468,7 @@ var Audio = (function(){
 
     me.getNearestSemiTone = function(period,instrumentIndex){
         var tuning = 8;
-        if (instrumenteIndex){
+        if (instrumentIndex){
             var instrument = Tracker.getInstrument(instrumentIndex);
             if (instrument && instrument.finetune) tuning = tuning + instrument.finetune;
         }
@@ -489,7 +489,7 @@ var Audio = (function(){
         return result;
     };
 
-    // gives the finetuned period for a base period
+    // gives the finetuned period for a base period - protracker mode
     me.getFineTuneForPeriod = function(period,finetune){
         var result = period;
         var note = periodNoteTable[period];
@@ -502,7 +502,7 @@ var Audio = (function(){
         return result;
     };
 
-    // gives the finetuned period for a base note (Fast Tracker)
+    // gives the finetuned period for a base note (Fast Tracker Mode)
     me.getFineTuneForNote = function(note,finetune){
         if (note === NOTEOFF) return 1;
 

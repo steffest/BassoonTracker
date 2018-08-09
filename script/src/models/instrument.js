@@ -88,6 +88,25 @@ var Instrument = function(){
 
 	};
 
+	me.resetVolume = function(time,noteInfo){
+        if (noteInfo.volumeFadeOut) {
+            noteInfo.volumeFadeOut.gain.cancelScheduledValues(time);
+            noteInfo.volumeFadeOut.gain.setValueAtTime(1, time);
+        }
+
+        if (noteInfo.volumeEnvelope){
+            noteInfo.volumeEnvelope.gain.cancelScheduledValues(time);
+            var tickTime = Tracker.getProperties().tickTime;
+
+            var maxPoint = me.volumeEnvelope.sustain ? me.volumeEnvelope.sustainPoint+1 :  me.volumeEnvelope.count;
+            noteInfo.volumeEnvelope.gain.setValueAtTime(me.volumeEnvelope.points[0][1]/64,time);
+            for (var p = 1; p<maxPoint;p++){
+                var point = me.volumeEnvelope.points[p];
+                noteInfo.volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime));
+            }
+		}
+	};
+
 	me.getFineTune = function(){
 		return Tracker.inFTMode() ? me.finetuneX : me.finetune;
 	};
