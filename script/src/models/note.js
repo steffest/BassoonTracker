@@ -19,7 +19,8 @@ var Note = function(){
 		var ftNote = FTNotes[index];
 		if (ftNote){
 			me.period = ftNote.period;
-		}else{300
+			if (me.period === 1) me.period = 0;
+		}else{
 			console.warn("No note for index " + index);
 			me.period = 0;
 		}

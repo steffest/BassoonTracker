@@ -28,7 +28,7 @@ var FastTracker = function(){
         mod.numberOfChannels = file.readWord();
         mod.numberOfPatterns = file.readWord(); // this is sometimes more then the actual number? should we scan for highest pattern? -> YES! -> NO!
         mod.numberOfInstruments = file.readWord();
-        mod.flags = file.readWord(); // TODO: implement difference between amiga frequency and linear frequency
+        mod.flags = file.readWord();
         if (mod.flags%2 === 1){
             Tracker.useLinearFrequency = true;
         }else{
@@ -72,6 +72,7 @@ var FastTracker = function(){
                 for (channel = 0; channel < mod.numberOfChannels; channel++){
                     var note = Note();
                     var v = file.readUbyte();
+
                     if (v & 128) {
                         if (v &  1) note.setIndex(file.readUbyte());
                         if (v &  2) note.instrument = file.readUbyte();
@@ -87,6 +88,8 @@ var FastTracker = function(){
                     }
 
                     row.push(note);
+
+
                 }
                 patternData.push(row);
             }
@@ -344,12 +347,12 @@ var FastTracker = function(){
 		file.writeWord(Tracker.getTrackCount());
 		file.writeWord(highestPattern+1); // number of patterns
 		file.writeWord(instruments.length-1); // number of instruments
-		file.writeWord(0); // TODO: 1 for linear frequency instead of amiga frequency
+		file.writeWord(Tracker.useLinearFrequency?1:0);
 		file.writeWord(Tracker.getAmigaSpeed()); // default tempo
 		file.writeWord(Tracker.getBPM()); // default BPM
 
 
-		//CHECK: are most players compatible when we only only write the actual song length instead of all 256?
+		//TO CHECK: are most players compatible when we only only write the actual song length instead of all 256?
 		for (i = 0; i < 256; i++) {
 			file.writeUByte(song.patternTable[i] || 0);
 		}
@@ -372,11 +375,11 @@ var FastTracker = function(){
 				var row = thisPattern[step];
 				for (var channel=0; channel<trackCount;channel++){
 					var note = row[channel];
-					file.writeUByte(note.index);
-					file.writeUByte(note.instrument);
-					file.writeUByte(note.volumeEffect);
-					file.writeUByte(note.effect);
-					file.writeUByte(note.param);
+					file.writeUByte(note.index || 0);
+					file.writeUByte(note.instrument || 0);
+					file.writeUByte(note.volumeEffect || 0);
+					file.writeUByte(note.effect || 0);
+					file.writeUByte(note.param || 0);
 				}
 			}
 		}
@@ -393,17 +396,17 @@ var FastTracker = function(){
 				file.writeWord(1); // number of samples
 
                 var volumeEnvelopeType =
-                    ((instrument.volumeEnvelope.enabled && 1)
-                        + (instrument.volumeEnvelope.sustain && 2)
-                        + (instrument.volumeEnvelope.loop && 4)) || 0;
+                    (instrument.volumeEnvelope.enabled?1:0)
+                        + (instrument.volumeEnvelope.sustain?2:0)
+                        + (instrument.volumeEnvelope.loop?4:0);
 
                 var panningEnvelopeType =
-                    ((instrument.panningEnvelope.enabled && 1)
-                        + (instrument.panningEnvelope.sustain && 2)
-                        + (instrument.panningEnvelope.loop && 4)) || 0;
+                    (instrument.panningEnvelope.enabled?1:0)
+                        + (instrument.panningEnvelope.sustain?2:0)
+                        + (instrument.panningEnvelope.loop?4:0);
 
                 var sampleType = 0;
-                if (instrument.loop.length>2) sampleType=1;
+                if (instrument.loop.length>2 && instrument.loop.enabled) sampleType=1;
                 //TODO pingpong loops and 16-bit samples , or are we keeping pingpong loops unrolled?
 
 				file.writeDWord(40); // sample header size;
@@ -411,13 +414,17 @@ var FastTracker = function(){
 					file.writeUByte(0); // sample number for notes
 				}
 
-				//!!!
-				for (si = 0; si<24;  si++){
-					file.writeWord(0); // volume envelope
+				// volume envelope
+				for (si = 0; si<12;  si++){
+					var point = instrument.volumeEnvelope.points[si] || [0,0];
+					file.writeWord(point[0]);
+					file.writeWord(point[1]);
 				}
-				//!!!
-				for (si = 0; si<24;  si++){
-					file.writeWord(0); // panning envelope
+				// panning envelope
+				for (si = 0; si<12;  si++){
+					point = instrument.panningEnvelope.points[si] || [0,0];
+					file.writeWord(point[0]);
+					file.writeWord(point[1]);
 				}
 
 				file.writeUByte(instrument.volumeEnvelope.count || 0);
@@ -480,14 +487,3 @@ var FastTracker = function(){
     return me;
 };
 
-// TODO - fasttracker playback routine fixes:
-/*
-- Vibrato (effect 4) -> linear frerquency
-- example: Ambrozia.xm - jt_letgo.xm
-
-- Arpegio is off
-example: external.xm - pattern 5 track 8
-
-aws_aq16.xm : sample 2 and 3 - loop settings are wrong - don't play
-
- */
