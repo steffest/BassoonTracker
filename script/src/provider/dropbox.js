@@ -5,6 +5,11 @@ var Dropbox = function(){
     me.isConnected = false;
 
     me.checkConnected = function(next){
+
+        if (me.isConnected){
+			if (next) next(true);
+        }
+
         if (dropboxService.getAccessToken()){
             dropboxService('users/get_current_account',undefined,{onComplete:function(result){
                 if (result && result.account_id){
@@ -17,6 +22,34 @@ var Dropbox = function(){
         }else{
             if (next) next(false);
         }
+    };
+
+    me.showConnectDialog = function(){
+        var dialog = UI.modalDialog();
+        dialog.setProperties({
+            width: UI.mainPanel.width,
+            height: UI.mainPanel.height,
+            top: 0,
+            left: 0,
+            ok: true,
+            cancel: true
+        });
+
+        dialog.onClick = function(touchData){
+            var elm = dialog.getElementAtPoint(touchData.x,touchData.y);
+            if (elm && elm.name){
+				UI.setStatus("");
+                if (elm.name === "okbutton"){
+                    Dropbox.authenticate();
+                }else{
+                    dialog.close();
+                }
+            }
+        };
+
+        dialog.setText("DROPBOX ://BassoonTracker is not yet connected to DropBox//Do you want to do that now?//(Bassoontracker will only have access to its own Bassoontracker folder)");
+
+        UI.setModalElement(dialog);
     };
 
     me.authenticate = function(){
@@ -38,14 +71,23 @@ var Dropbox = function(){
 
             var result = [];
 
-            data.entries.forEach(function(file){
-                var size = Math.floor(file.size/1000) + "kb";
-                result.push({title:file.name + ' (' + size + ')' || "---",url:file.id});
+            data.entries.forEach(function(item){
+
+                if (item[".tag"] &&item[".tag"] === "folder"){
+					result.push({title:item.name,url:item.path_lower,children:[]});
+                }else{
+					var size = Math.floor(item.size/1000) + "kb";
+					result.push({title:item.name + ' (' + size + ')' || "---",url:item.id});
+                }
             });
 
             next(result);
 
         });
+    };
+
+    me.get = function(url,next){
+        me.list(url,next);
     };
 
     me.getFile = function(id,next){

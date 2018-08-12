@@ -12,6 +12,7 @@ UI.DiskOperations = function(){
 	var samples = [];
 	var modArchive = [];
 	var modulesPl = [];
+	var dropBoxList = [];
 	var sampleSelectedIndex = 0;
 	var moduleSelectedIndex = 0;
 	var onLoadChildren = function(){};
@@ -80,26 +81,6 @@ UI.DiskOperations = function(){
         App.doCommand(COMMAND.showTopMain);
 	};
 	me.addChild(closeButton);
-
-
-	/*var dropBoxButton = UI.Assets.generate("buttonDark");
-	dropBoxButton.setLabel("Dropbox ");
-	dropBoxButton.onClick = function(){
-		if (Dropbox.isConnected){
-			me.refreshList("dropbox");
-		}else{
-			Dropbox.checkConnected(function(isConnected){
-				if (isConnected){
-					me.refreshList("dropbox");
-				}else{
-					console.log("Dropbox not connected");
-					Dropbox.authenticate();
-				}
-			})
-		}
-	};
-	me.addChild(dropBoxButton);
-	*/
 
 	var listbox = UI.listbox();
 	me.addChild(listbox);
@@ -459,6 +440,7 @@ UI.DiskOperations = function(){
 				itemHandler = Dropbox;
 				label.setLabel("Browse Your Dropbox");
 
+				UI.setStatus("Contacting Dropbox",true);
 				listbox.setItems([{label: "loading ..."}]);
 
 				listbox.onClick = function(e){
@@ -489,24 +471,38 @@ UI.DiskOperations = function(){
 					}
 				};
 
-				if (Dropbox.isConnected){
-					Dropbox.list("",function(data){
-						console.log(data);
-						populate(data,0);
-					});
+				onLoadChildren = function(item,data){
+					if (data && data.length){
+						data.forEach(function(child){
+							child.parent = item;
+						});
+						item.children = data;
+					}else{
+						item.children = [{title:"error loading data"}];
+						console.error("this does not seem to be a valid dropbox API response");
+					}
+					me.refreshList();
+
+				};
+
+				if (dropBoxList.length){
+					populate(dropBoxList,0);
 				}else{
 					Dropbox.checkConnected(function(isConnected){
 						if (isConnected){
 							Dropbox.list("",function(data){
-								console.log(data);
+								UI.setStatus("");
+								dropBoxList = data;
 								populate(data,0);
 							});
 						}else{
 							console.log("Dropbox not connected");
-							Dropbox.authenticate();
+							Dropbox.showConnectDialog();
 						}
-					})
+					});
 				}
+
+
 
 
 				break;
@@ -600,6 +596,7 @@ UI.DiskOperations = function(){
 			}else{
 				console.log("load children from " + item.url);
 				item.children = [{title: "loading ..."}];
+
 				me.refreshList();
 
 				if (itemHandler){
@@ -644,6 +641,15 @@ UI.DiskOperations = function(){
             if (!saveButton.isActive) saveButton.setActive(true);
 
 			me.onResize();
+
+			if (target === "dropbox"){
+				Dropbox.checkConnected(function(isConnected){
+					if (!isConnected){
+						Dropbox.showConnectDialog();
+					}
+				})
+			}
+
 		}else{
             currentAction = "load";
             me.refreshList(target);

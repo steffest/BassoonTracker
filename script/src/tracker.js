@@ -831,7 +831,7 @@ var Tracker = (function(){
 					// check if the instrument is finetuned
 					instrument = me.getInstrument(instrumentIndex);
 					if (instrument && instrument.getFineTune()){
-                        target = me.inFTMode() ?  Audio.getFineTuneForNote(noteIndex,instrument.getFineTune()) : me.getFineTuneForPeriod(target,instrument.getFineTune());
+                        target = me.inFTMode() ?  Audio.getFineTuneForNote(noteIndex,instrument.getFineTune()) : Audio.getFineTuneForPeriod(target,instrument.getFineTune());
 					}
 				}
 
@@ -1241,15 +1241,15 @@ var Tracker = (function(){
 		}
 
 
-		if (note.instrument) {
-			trackNotes[track].currentInstrument =  note.instrument;
+		if (instrumentIndex) {
+			trackNotes[track].currentInstrument =  instrumentIndex;
 
 			// reset temporary instrument settings
 			if (trackEffects.fineTune && trackEffects.fineTune.instrument){
 				trackEffects.fineTune.instrument.setFineTune(trackEffects.fineTune.original || 0);
 			}
-
 		}
+
 		trackNotes[track].effects = trackEffects;
 		trackNotes[track].note = note;
 

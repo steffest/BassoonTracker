@@ -49,6 +49,7 @@ UI.listbox = function(x,y,w,h){
     me.setSelectedIndex = function(index,internal){
         me.selectedIndex = index;
         if (me.centerSelection) visibleIndex = me.selectedIndex;
+		setScrollBarPosition();
         me.refresh();
         if (!internal && me.onChange && previousSelectedIndex!=me.selectedIndex) me.onChange();
         previousSelectedIndex = me.selectedIndex;
@@ -98,10 +99,11 @@ UI.listbox = function(x,y,w,h){
             visibleIndex = Math.floor(scrollBar.startDragIndex + delta/scrollBarItemOffset);
             visibleIndex = Math.min(visibleIndex,getMaxIndex());
             visibleIndex = Math.max(visibleIndex,0);
-            setScrollBarPosition();
 
             if (me.centerSelection) {
                 me.setSelectedIndex(visibleIndex);
+            }else{
+				setScrollBarPosition();
             }
         }
     };
@@ -287,11 +289,10 @@ UI.listbox = function(x,y,w,h){
 
             if (me.centerSelection) {
                 me.setSelectedIndex(visibleIndex);
+            }else{
+				setScrollBarPosition();
             }
-
-            setScrollBarPosition();
         }
-
     };
 
     function getMaxIndex(){
