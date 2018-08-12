@@ -361,7 +361,7 @@ var UI = (function(){
 
 		if (target && target.children && target.children.length){
 			target = target.getElementAtPoint(x,y);
-		}
+    }
 		return target;
 	};
 

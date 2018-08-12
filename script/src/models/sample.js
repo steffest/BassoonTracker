@@ -6,6 +6,10 @@ var Sample = function(){
 	me.name = "";
 	me.bits = 8;
 
+	me.volume = 0;
+	me.finetune = 0;
+	me.finetuneX = 0;
+
     me.loop = {
         enabled: false,
         start: 0,

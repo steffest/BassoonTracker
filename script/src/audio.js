@@ -160,8 +160,6 @@ var Audio = (function(){
             }
 
             sampleRate = me.getSampleRateForPeriod(period);
-
-
             var initialPlaybackRate = 1;
 
             if (instrument.sample.data.length) {
@@ -175,7 +173,7 @@ var Audio = (function(){
                 initialPlaybackRate = sampleRate / audioContext.sampleRate;
             }else {
                 // empty samples are often used to cut of the previous instrument
-                sampleBuffer = audioContext.createBuffer(1, 1, sampleRate);
+                sampleBuffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
                 offset = 0;
             }
             var buffering = sampleBuffer.getChannelData(0);

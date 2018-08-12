@@ -248,7 +248,7 @@ var FastTracker = function(){
                     // unroll ping pong loops
                     if (sample.loop.type === LOOPTYPE.PINGPONG){
 
-                        // TODO: keep original sample
+                        // TODO: keep original sample?
                         var loopPart = sample.data.slice(sample.loop.start,sample.loop.start + sample.loop.length);
 
                         sample.data = sample.data.slice(0,sample.loop.start + sample.loop.length);
@@ -404,6 +404,7 @@ var FastTracker = function(){
 
                 var sampleType = 0;
                 if (instrument.loop.length>2 && instrument.loop.enabled) sampleType=1;
+
                 //TODO pingpong loops and 16-bit samples , or are we keeping pingpong loops unrolled?
 
 				file.writeDWord(40); // sample header size;
