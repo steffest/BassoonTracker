@@ -319,7 +319,9 @@ var FastTracker = function(){
             for (i = 1; i<instruments.length; i++){
                 var instrument = instruments[i];
                 if (instrument && instrument.sample.length){
-                    fileSize += 243 + 40 + instrument.sample.length;
+                	var len = instrument.sample.length;
+                	if (instrument.sample.bits === 16) len *= 2;
+                    fileSize += 243 + 40 + len;
                 }else{
                     fileSize += 29;
                 }
@@ -406,7 +408,17 @@ var FastTracker = function(){
                 var sampleType = 0;
                 if (instrument.loop.length>2 && instrument.loop.enabled) sampleType=1;
 
-                //TODO pingpong loops and 16-bit samples , or are we keeping pingpong loops unrolled?
+                //TODO pingpong loops, or are we keeping pingpong loops unrolled?
+
+				var sampleByteLength = instrument.sample.length;
+				var sampleLoopByteStart = instrument.loop.start;
+				var sampleLoopByteLength = instrument.loop.length;
+				if (instrument.sample.bits === 16) {
+					sampleType+=16;
+					sampleByteLength *= 2;
+					sampleLoopByteStart *= 2;
+					sampleLoopByteLength *= 2;
+				}
 
 				file.writeDWord(40); // sample header size;
 				for (var si = 0; si<96;  si++){
@@ -444,9 +456,9 @@ var FastTracker = function(){
 				file.writeWord(0);
 
 				// write sample data
-				file.writeDWord(instrument.sample.length);
-				file.writeDWord(instrument.loop.start);
-				file.writeDWord(instrument.loop.length);
+				file.writeDWord(sampleByteLength);
+				file.writeDWord(sampleLoopByteStart);
+				file.writeDWord(sampleLoopByteLength);
 				file.writeUByte(instrument.volume);
 				file.writeByte(instrument.finetuneX);
 				file.writeUByte(sampleType);
@@ -458,17 +470,30 @@ var FastTracker = function(){
 				var b;
 				var delta = 0;
 				var prev = 0;
-				for (si = 0, max=instrument.sample.length; si<max ; si++){
-				    // note - we convert all samples to 8-bit for now
-				    b = Math.round(instrument.sample.data[si] * 127);
-                    delta = b-prev;
-                    prev = b;
 
-                    if (delta < -128) delta += 256;
-                    else if (delta > 127) delta -= 256;
-					file.writeByte(delta);
+				if (instrument.sample.bits === 16){
+					for (si = 0, max=instrument.sample.length; si<max ; si++){
+						// write 16-bit sample data
+						b = Math.round(instrument.sample.data[si] * 32768);
+						delta = b-prev;
+						prev = b;
+
+						if (delta < -32768) delta += 65536;
+						else if (delta > 32767) delta -= 65536;
+						file.writeWord(delta);
+					}
+				}else{
+					for (si = 0, max=instrument.sample.length; si<max ; si++){
+						// write 8-bit sample data
+						b = Math.round(instrument.sample.data[si] * 127);
+						delta = b-prev;
+						prev = b;
+
+						if (delta < -128) delta += 256;
+						else if (delta > 127) delta -= 256;
+						file.writeByte(delta);
+					}
 				}
-
 			}else{
 				// empty sample
 				file.writeDWord(29); // header size;
@@ -477,7 +502,6 @@ var FastTracker = function(){
 				file.writeWord(0); // number of samples
 			}
 		}
-
 
 		if (next) next(file);
 
