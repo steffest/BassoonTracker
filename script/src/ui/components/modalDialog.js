@@ -2,15 +2,16 @@ UI.modalDialog = function(initialProperties){
     var me = UI.element();
     var text = "test";
 
-    var properties = ["left","top","width","height","name","ok"];
+    var properties = ["left","top","width","height","name","ok","cancel"];
 
     me.setProperties = function(p){
 
         properties.forEach(function(key){
-            if (typeof p[key] != "undefined") me[key] = p[key];
+            if (typeof p[key] !== "undefined") me[key] = p[key];
 
-            if (key == "ok"){
-                console.error("ok");
+            if (key === "cancel"){
+                console.error("cancel");
+                console.error(p[key]);
             }
         });
 
@@ -23,24 +24,39 @@ UI.modalDialog = function(initialProperties){
         var panelWidth = Math.max(Math.floor(me.width/2),380);
 
         background.setSize(panelWidth,panelHeight);
-        background.setPosition((me.width-panelWidth)/2,(me.height-panelHeight)/2);
+        background.setPosition(Math.floor((me.width-panelWidth)/2),Math.floor((me.height-panelHeight)/2));
 
-        okButton.setPosition(background.left + (background.width/2) - 50,background.top + background.height - 40);
+        if (me.cancel){
+            okButton.setPosition(background.left + Math.floor(background.width/2) - 110,background.top + background.height - 40);
+            cancelButton.setPosition(background.left + Math.floor(background.width/2) + 10,background.top + background.height - 40);
+        }else{
+            okButton.setPosition(background.left + Math.floor(background.width/2) - 50,background.top + background.height - 40);
+        }
 
     };
 
-    var background = UI.scale9Panel(0,0,me.width/2,200,UI.Assets.panelMainScale9);
+    var background = UI.scale9Panel(0,0,Math.floor(me.width/2),200,UI.Assets.panelMainScale9);
 
     background.ignoreEvents = true;
     me.addChild(background);
 
     var okButton = UI.Assets.generate("buttonLight");
     okButton.setProperties({
+        name: "okbutton",
         label: "OK",
         width: 100,
         height: 28
     });
     me.addChild(okButton);
+
+    var cancelButton = UI.Assets.generate("buttonLight");
+    cancelButton.setProperties({
+        name: "cancelbutton",
+        label: "Cancel",
+        width: 100,
+        height: 28
+    });
+    me.addChild(cancelButton);
 
 
     me.render = function(internal){
@@ -72,6 +88,7 @@ UI.modalDialog = function(initialProperties){
             }
 
             if (me.ok) okButton.render();
+            if (me.cancel) cancelButton.render();
 
         }
         this.needsRendering = false;

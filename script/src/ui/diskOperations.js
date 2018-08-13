@@ -457,7 +457,7 @@ UI.DiskOperations = function(){
 							UI.setInfo(item.title);
 							UI.setStatus("Loading from Dropbox",true);
 
-							Dropbox.getFile(item.url,function(blob){
+							Dropbox.getFile(item,function(blob){
 								var reader = new FileReader();
 								reader.onload = function(){
 									Tracker.processFile(reader.result,item.title,function(isMod){

@@ -80,7 +80,7 @@ UI.radioGroup = function(x,y,w,h){
 				font = fontMed;
 			}
 
-			var paddingTop = (itemHeight - font.charHeight) / 2;
+			var paddingTop = Math.floor((itemHeight - font.charHeight) / 2);
 
 			if (align === "left"){
 				textX = 30;

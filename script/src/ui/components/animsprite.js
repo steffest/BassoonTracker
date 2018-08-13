@@ -38,8 +38,7 @@ UI.animsprite = function(x,y,w,h,baseImageName,frames){
         if (this.needsRendering){
 
             me.clearCanvas();
-            me.ctx.drawImage(baseImage,step*w,0,h,w,0,0,h,w);
-
+            me.ctx.drawImage(baseImage,step*w,0,w,h,0,0,w,h);
         }
         this.needsRendering = false;
 

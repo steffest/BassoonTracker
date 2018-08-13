@@ -253,22 +253,14 @@ UI.SampleView = function(){
 		spinBoxInstrument.setValue(value,true);
 		var instrument = Tracker.getInstrument(value);
 		if (instrument){
-
-            console.log("val is " + instrument.loop.length);
-
 			repeatSpinbox.setMax(instrument.sample.length,true);
 			repeatLengthSpinbox.setMax(instrument.sample.length,true);
-
-            console.log("val is " + instrument.loop.length);
-
-
 			instrumentName.setValue(instrument.name,true);
 			volumeSlider.setValue(instrument.volume);
 			panningSlider.setValue(instrument.panning || 0);
 			fineTuneSlider.setValue(instrument.getFineTune());
 
 			repeatSpinbox.setValue(instrument.loop.start,true);
-			console.log("set val to " + instrument.loop.length);
 			repeatLengthSpinbox.setValue(instrument.loop.length,true);
 
 			spinBoxRelativeNote.setValue(instrument.relativeNote);
