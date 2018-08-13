@@ -148,10 +148,10 @@ UI.app_mainPanel = function(){
 		],
 		value: 1,
 		max: 200,
-		min:0,
+		min:1,
 		font: spinbBoxFont,
 		onChange : function(value){
-
+			Tracker.getSong().restartPosition = value;
 		}
 	});
 	me.addChild(spinBoxSongRepeat);
@@ -512,7 +512,12 @@ UI.app_mainPanel = function(){
         modNameInputBox.setValue(song.title,true);
         spinBoxSongLength.setValue(song.length,true);
         spinBoxInstrument.setMax(Tracker.getMaxInstruments());
-		spinBoxSongRepeat.setMax(song.length-1);
+		spinBoxSongRepeat.setMax(song.length);
+
+		if (song.restartPosition && song.restartPosition>song.length){
+			song.restartPosition = song.length;
+		}
+		spinBoxSongRepeat.setValue(song.restartPosition || 1);
     });
 
     EventBus.on(EVENT.songBPMChange,function(value){

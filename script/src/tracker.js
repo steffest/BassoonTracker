@@ -405,6 +405,9 @@ var Tracker = (function(){
 						p=0;
 						if (Tracker.getPlayType() == PLAYTYPE.song){
 							var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : ++playSongPosition;
+							if (nextPosition>=song.length) {
+								nextPosition = song.restartPosition ? song.restartPosition-1 : 0;
+							}
 							if (nextPosition>=song.length) nextPosition = 0;
 							playSongPosition = nextPosition;
 							patternIndex = song.patternTable[playSongPosition];
@@ -1938,6 +1941,7 @@ var Tracker = (function(){
 		song.typeId = "M.K.";
 		song.title = "new song";
 		song.length = 1;
+		song.restartPosition = 0;
 
 		song.patterns.push(getEmptyPattern());
 

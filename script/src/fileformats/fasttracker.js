@@ -48,6 +48,7 @@ var FastTracker = function(){
         song.patternTable = patternTable;
         song.length = mod.songlength;
         song.channels = mod.numberOfChannels;
+        song.restartPosition = (mod.restartPosition + 1);
 
         var fileStartPos = 60 + mod.headerSize;
         file.goto(fileStartPos);

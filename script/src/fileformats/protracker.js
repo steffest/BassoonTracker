@@ -7,7 +7,8 @@ var ProTracker = function(){
         Tracker.useLinearFrequency = false;
 
 		var song = {
-			patterns:[]
+			patterns:[],
+			restartPosition: 1
 		};
 
 		var patternLength = 64;
