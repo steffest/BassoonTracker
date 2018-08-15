@@ -22,6 +22,13 @@ UI.SampleView = function(){
 	});
 	me.addChild(instrumentName);
 
+	var closeButton = UI.Assets.generate("button20_20");
+	closeButton.setLabel("x");
+	closeButton.onClick = function(){
+		App.doCommand(COMMAND.showBottomMain);
+	};
+	me.addChild(closeButton);
+
 	var waveForm = UI.WaveForm();
 	me.addChild(waveForm);
 
@@ -49,21 +56,6 @@ UI.SampleView = function(){
 	me.addChild(spinBoxInstrument);
 
 
-
-	/*var spinBoxVolume = UI.spinBox({
-		name: "Volume",
-		label: "Volume",
-		value: 64,
-		max: 64,
-		min:0,
-		font: font,
-		onChange: function(value){
-			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) instrument.volume = value;
-		}
-	});*/
-
-
 	var volumeSlider = UI.sliderBox({
 		label: "Volume",
 		font: font,
@@ -76,7 +68,9 @@ UI.SampleView = function(){
 		vertical:true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) instrument.volume = value;
+			if (instrument) {
+				instrument.sample.volume = value;
+			}
 		}
 	});
 	sideButtonPanel.addChild(volumeSlider);
@@ -107,7 +101,10 @@ UI.SampleView = function(){
 		vertical:true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) instrument.panning = value;
+			if (instrument) {
+				instrument.panning = value;
+				instrument.sample.panning = value;
+			}
 		}
 	});
 	sideButtonPanel.addChild(panningSlider);
@@ -123,11 +120,11 @@ UI.SampleView = function(){
 		onChange: function(value){
 			var instrument= Tracker.getCurrentInstrument();
             if (instrument){
-                if ((instrument.loop.length+value)>instrument.sample.length) {
-                    value = instrument.sample.length-instrument.loop.length;
+                if ((instrument.sample.loop.length+value)>instrument.sample.length) {
+                    value = instrument.sample.length-instrument.sample.loop.length;
                     repeatSpinbox.setValue(value,true);
                 }
-                instrument.loop.start = value;
+                instrument.sample.loop.start = value;
             }
 			waveForm.refresh();
 		}
@@ -145,11 +142,11 @@ UI.SampleView = function(){
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument){
-				if ((instrument.loop.start+value)>instrument.sample.length) {
-					value = instrument.sample.length-instrument.loop.start;
+				if ((instrument.sample.loop.start+value)>instrument.sample.length) {
+					value = instrument.sample.length-instrument.sample.loop.start;
                     repeatLengthSpinbox.setValue(value,true);
                 }
-                instrument.loop.length = value;
+                instrument.sample.loop.length = value;
 			}
 			waveForm.refresh();
 		}
@@ -182,7 +179,9 @@ UI.SampleView = function(){
 		font: font,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) instrument.relativeNote = value;
+			if (instrument) {
+				instrument.sample.relativeNote = value;
+			}
 		}
 	});
 	sideButtonPanel.addChild(spinBoxRelativeNote);
@@ -238,7 +237,7 @@ UI.SampleView = function(){
 	var loopEnabledCheckbox = UI.checkbox();
 	loopEnabledCheckbox.onToggle = function(checked){
 		var instrument = Tracker.getInstrument(currentInstrumentIndex);
-		if (instrument) instrument.loop.enabled = checked;
+		if (instrument) instrument.sample.loop.enabled = checked;
 
 		repeatSpinbox.setDisabled(!checked);
 		repeatLengthSpinbox.setDisabled(!checked);
@@ -256,20 +255,20 @@ UI.SampleView = function(){
 			repeatSpinbox.setMax(instrument.sample.length,true);
 			repeatLengthSpinbox.setMax(instrument.sample.length,true);
 			instrumentName.setValue(instrument.name,true);
-			volumeSlider.setValue(instrument.volume);
-			panningSlider.setValue(instrument.panning || 0);
+			volumeSlider.setValue(instrument.sample.volume);
+			panningSlider.setValue(instrument.sample.panning || 0);
 			fineTuneSlider.setValue(instrument.getFineTune());
 
-			repeatSpinbox.setValue(instrument.loop.start,true);
-			repeatLengthSpinbox.setValue(instrument.loop.length,true);
+			repeatSpinbox.setValue(instrument.sample.loop.start,true);
+			repeatLengthSpinbox.setValue(instrument.sample.loop.length,true);
 
-			spinBoxRelativeNote.setValue(instrument.relativeNote);
+			spinBoxRelativeNote.setValue(instrument.sample.relativeNote);
 			fadeOutSlider.setValue(instrument.fadeout || 0);
 			waveForm.setInstrument(instrument);
 			volumeEnvelope.setInstrument(instrument);
 			panningEnvelope.setInstrument(instrument);
 
-			loopEnabledCheckbox.setState(instrument.loop.enabled);
+			loopEnabledCheckbox.setState(instrument.sample.loop.enabled);
 
 
 		}else{
@@ -320,10 +319,10 @@ UI.SampleView = function(){
 			repeatSpinbox.setProperties({step:2});
 			repeatLengthSpinbox.setProperties({step:2});
             if (instrument){
-            	instrument.loop.start = Math.floor(instrument.loop.start/2)*2;
-                instrument.loop.length = Math.floor(instrument.loop.length/2)*2;
-            	repeatSpinbox.setValue(instrument.loop.start,true);
-            	repeatLengthSpinbox.setValue(instrument.loop.length,true);
+            	instrument.sample.loop.start = Math.floor(instrument.sample.loop.start/2)*2;
+                instrument.sample.loop.length = Math.floor(instrument.sample.loop.length/2)*2;
+            	repeatSpinbox.setValue(instrument.sample.loop.start,true);
+            	repeatLengthSpinbox.setValue(instrument.sample.loop.length,true);
             }
 		}else{
             repeatSpinbox.setProperties({step:1});
@@ -336,6 +335,15 @@ UI.SampleView = function(){
 		if (instrument){
 			if (typeof newProps.loopStart !== "undefined") repeatSpinbox.setValue(newProps.loopStart);
 			if (typeof newProps.loopLength !== "undefined") repeatLengthSpinbox.setValue(newProps.loopLength);
+		}
+	});
+
+	EventBus.on(EVENT.sampleIndexChange,function(instrumentIndex){
+		if (!me.visible) return;
+		if (instrumentIndex === currentInstrumentIndex){
+			var instrument = Tracker.getInstrument(currentInstrumentIndex);
+			console.error(instrument.sampleIndex);
+			EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
 		}
 	});
 
@@ -375,7 +383,12 @@ UI.SampleView = function(){
 		instrumentName.setProperties({
 			top: Layout.defaultMargin,
 			left: Layout.col2X + 71,
-			width: Layout.col4W - 71
+			width: Layout.col4W - 71 - 25 - Layout.defaultMargin
+		});
+
+		closeButton.setProperties({
+			top: Layout.defaultMargin,
+			left: instrumentName.left + instrumentName.width + Layout.defaultMargin
 		});
 
 

@@ -3,11 +3,8 @@ var Instrument = function(){
 
 	me.type = "sample";
 	me.name = "";
-	me.sampleIndex = 0;
-	me.finetune = 0;
-	me.finetuneX = 0;
-	me.relativeNote = 0;
-	me.volume = 64;
+	me.instrumentIndex = 0;
+	me.sampleIndex = -1;
 	me.fadeout = 128;
 	me.data = [];
 	me.samples = [Sample()];
@@ -16,18 +13,14 @@ var Instrument = function(){
 	me.volumeEnvelope = {raw: [], enabled: false, points: [[0,48],[10,64],[20,40],[30,18],[40,28],[50,18]], count:6};
 	me.panningEnvelope = {raw: [], enabled: false, points: [[0,32],[20,40],[40,24],[60,32],[80,32]], count:5};
 	me.vibrato = {};
-	me.loop = {
-		enabled: false,
-		start: 0,
-		length: 0,
-		type: 0
-	};
+
 	me.sampleNumberForNotes = [];
 
-
 	me.play = function(noteIndex,notePeriod,volume,track,trackEffects,time){
-		if (Tracker.inFTMode()) notePeriod = me.getPeriodForNote(noteIndex);
-		return Audio.playSample(me.sampleIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
+		if (Tracker.inFTMode()) {
+			notePeriod = me.getPeriodForNote(noteIndex);
+		}
+		return Audio.playSample(me.instrumentIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
 	};
 
 	me.noteOn = function(time){
@@ -108,17 +101,17 @@ var Instrument = function(){
 	};
 
 	me.getFineTune = function(){
-		return Tracker.inFTMode() ? me.finetuneX : me.finetune;
+		return Tracker.inFTMode() ? me.sample.finetuneX : me.sample.finetune;
 	};
 
 	me.setFineTune = function(finetune){
 		if (Tracker.inFTMode()){
-			me.finetuneX = finetune;
-			me.finetune = finetune >> 4;
+			me.sample.finetuneX = finetune;
+			me.sample.finetune = finetune >> 4;
 		}else{
             if (finetune>7) finetune = finetune-15;
-			me.finetune = finetune;
-			me.finetuneX = finetune << 4;
+			me.sample.finetune = finetune;
+			me.sample.finetuneX = finetune << 4;
 		}
 	};
 
@@ -137,6 +130,28 @@ var Instrument = function(){
 		}
 
 		return result;
+	};
+
+	me.setSampleForNoteIndex = function(noteIndex){
+		var sampleIndex = me.sampleNumberForNotes[noteIndex-1];
+		if (sampleIndex !== me.sampleIndex && typeof sampleIndex === "number"){
+			me.setSampleIndex(sampleIndex);
+		}
+	};
+
+	me.setSampleIndex = function(index){
+		if (me.sampleIndex !== index){
+			me.sample = me.samples[index];
+			me.sampleIndex = index;
+
+			EventBus.trigger(EVENT.sampleIndexChange,me.instrumentIndex);
+		}
+	};
+
+	me.hasSamples = function(){
+		for (var i = 0, max = me.samples.length; i<max; i++){
+			if (me.samples[i].length) return true;
+		}
 	};
 
 

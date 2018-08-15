@@ -88,19 +88,19 @@ UI.WaveForm = function(){
 
 		var x = touchData.startX - me.left;
 
-		if (currentInstrument.loop.enabled){
+		if (currentInstrument.sample.loop.enabled){
 
 			markerX = getLoopMarkerPos(MARKERTYPE.end);
 			if (Math.abs(x-markerX)<5){
 				dragMarker = MARKERTYPE.end;
-				dragMarkerStart = currentInstrument.loop.length;
+				dragMarkerStart = currentInstrument.sample.loop.length;
 				return;
 			}
 
 			var markerX = getLoopMarkerPos(MARKERTYPE.start);
 			if (Math.abs(x-markerX)<5){
 				dragMarker = MARKERTYPE.start;
-				dragMarkerStart = currentInstrument.loop.start;
+				dragMarkerStart = currentInstrument.sample.loop.start;
 				return;
 			}
 
@@ -126,12 +126,12 @@ UI.WaveForm = function(){
 				value = Math.max(value,0);
 				newProps.loopStart = value;
 
-				if ((newProps.loopStart + currentInstrument.loop.length)>sampleLength){
+				if ((newProps.loopStart + currentInstrument.sample.loop.length)>sampleLength){
 					newProps.loopLength = sampleLength - newProps.loopStart;
 				}
 			}else{
 				value = Math.max(value,2);
-				value = Math.min(value,sampleLength-currentInstrument.loop.start);
+				value = Math.min(value,sampleLength-currentInstrument.sample.loop.start);
 
 				newProps.loopLength = value;
 			}
@@ -164,7 +164,7 @@ UI.WaveForm = function(){
 		var prevDragMarker = activeDragMarker;
 		if (!isDown) activeDragMarker = 0;
 
-		if (currentInstrument.loop.enabled){
+		if (currentInstrument.sample.loop.enabled){
 
 			if (!isDraggingRange && !dragMarker && !isDown){
 
@@ -172,7 +172,7 @@ UI.WaveForm = function(){
 				var x = me.eventX;
 				var y = me.eventY;
 
-				markerX = getLoopMarkerPos(MARKERTYPE.end);
+				var markerX = getLoopMarkerPos(MARKERTYPE.end);
 				if (Math.abs(x-markerX)<5){
 					activeDragMarker = MARKERTYPE.end;
 					if (prevDragMarker !== activeDragMarker){
@@ -346,8 +346,8 @@ UI.WaveForm = function(){
 				var delta = now - startPlayTime;
 				var index = (sampleRate * delta)/1000;
 
-				if (currentInstrument.loop.enabled && index>currentInstrument.loop.start){
-					index = currentInstrument.loop.start + ((index-currentInstrument.loop.start)%currentInstrument.loop.length);
+				if (currentInstrument.sample.loop.enabled && index>currentInstrument.sample.loop.start){
+					index = currentInstrument.sample.loop.start + ((index-currentInstrument.sample.loop.start)%currentInstrument.sample.loop.length);
 					//isPlaying=false;
 					var pos = (index / sampleLength) * me.width;
 					me.ctx.fillStyle = "rgb(241, 162, 71)";
@@ -363,9 +363,9 @@ UI.WaveForm = function(){
 				}
 			}
 
-			if (currentInstrument.loop.length>2 || currentInstrument.loop.enabled){
+			if (currentInstrument.sample.loop.length>2 || currentInstrument.sample.loop.enabled){
 
-				var color = currentInstrument.loop.enabled ? "rgb(241, 220, 71)" : "rgba(150, 150, 150,0.7)";
+				var color = currentInstrument.sample.loop.enabled ? "rgb(241, 220, 71)" : "rgba(150, 150, 150,0.7)";
 
 				me.ctx.fillStyle = color;
 				if (activeDragMarker === MARKERTYPE.start) me.ctx.fillStyle = "white";
@@ -402,7 +402,7 @@ UI.WaveForm = function(){
 
 	function getLoopMarkerPos(type){
 		var lineX;
-		var loopStart = currentInstrument.loop.start || 0;
+		var loopStart = currentInstrument.sample.loop.start || 0;
 
 
 		if (type === MARKERTYPE.start){
@@ -414,7 +414,7 @@ UI.WaveForm = function(){
 			return Math.max(zoomStart>5?0:5,lineX);
 		}
 
-		var point = (loopStart + currentInstrument.loop.length);
+		var point = (loopStart + currentInstrument.sample.loop.length);
 		if (point<zoomStart) return -10;
 		if (point>zoomEnd) return -10;
 

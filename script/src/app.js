@@ -72,6 +72,23 @@ var App = (function(){
                 case COMMAND.showGithub:
                     window.open("https://github.com/steffest/bassoontracker");
                     break;
+				case COMMAND.showStats:
+				    var stats = document.getElementById("MrDStats");
+				    if (!stats){
+						var script=document.createElement('script');
+						script.onload=function(){
+							var stats=new Stats();
+							document.body.appendChild(stats.dom);
+							requestAnimationFrame(function loop(){
+								stats.update();
+								requestAnimationFrame(loop)
+							});
+						};
+						script.src='script/plugins/stats.js';
+						document.head.appendChild(script);
+						break;
+                    }
+
             }
         });
     };

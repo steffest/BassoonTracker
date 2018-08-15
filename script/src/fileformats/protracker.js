@@ -51,15 +51,16 @@ var ProTracker = function(){
 			var finetune = file.readUbyte();
 			if (finetune>7) finetune -= 16;
 			instrument.setFineTune(finetune);
-			instrument.volume   = file.readUbyte();
-			instrument.loop.start    = file.readWord() << 1;
-			instrument.loop.length   = file.readWord() << 1;
+			instrument.sample.volume   = file.readUbyte();
+			instrument.sample.loop.start    = file.readWord() << 1;
+			instrument.sample.loop.length   = file.readWord() << 1;
 
-			instrument.loop.enabled = instrument.loop.length>2;
-			instrument.loop.type = LOOPTYPE.PINGPONG;
+			instrument.sample.loop.enabled = instrument.sample.loop.length>2;
+			instrument.sample.loop.type = LOOPTYPE.FORWARD;
 
 			instrument.pointer = sampleDataOffset;
 			sampleDataOffset += instrument.sample.length;
+			instrument.setSampleIndex(0);
 			Tracker.setInstrument(i,instrument);
 
 		}
@@ -120,14 +121,14 @@ var ProTracker = function(){
 			instrument = Tracker.getInstrument(i);
 			if (instrument){
 				console.log(
-					"Reading sample from 0x" + file.index + " with length of " + instrument.sample.length + " bytes and repeat length of " + instrument.loop.length);
+					"Reading sample from 0x" + file.index + " with length of " + instrument.sample.length + " bytes and repeat length of " + instrument.sample.loop.length);
 
 
 				var sampleEnd = instrument.sample.length;
 
-				if (instrument.loop.length>2 && SETTINGS.unrollShortLoops && instrument.loop.length<1000){
+				if (instrument.sample.loop.length>2 && SETTINGS.unrollShortLoops && instrument.sample.loop.length<1000){
 					// cut off trailing bytes for short looping samples
-					sampleEnd = Math.min(sampleEnd,instrument.loop.start + instrument.loop.length);
+					sampleEnd = Math.min(sampleEnd,instrument.sample.loop.start + instrument.sample.loop.length);
 					instrument.sample.length = sampleEnd;
 				}
 
@@ -142,31 +143,31 @@ var ProTracker = function(){
 				// web audio loop start/end is in seconds
 				// doesn't work that well with tiny loops
 
-				if ((SETTINGS.unrollShortLoops || SETTINGS.unrollLoops) && instrument.loop.length>2){
+				if ((SETTINGS.unrollShortLoops || SETTINGS.unrollLoops) && instrument.sample.loop.length>2){
 
-					var loopCount = Math.ceil(40000 / instrument.loop.length) + 1;
+					var loopCount = Math.ceil(40000 / instrument.sample.loop.length) + 1;
 
 					if (!SETTINGS.unrollLoops) loopCount = 0;
 
 					var resetLoopNumbers = false;
 					var loopLength = 0;
-					if (SETTINGS.unrollShortLoops && instrument.loop.length<1600){
+					if (SETTINGS.unrollShortLoops && instrument.sample.loop.length<1600){
 
-						loopCount = Math.floor(1000/instrument.loop.length);
+						loopCount = Math.floor(1000/instrument.sample.loop.length);
 						resetLoopNumbers = true;
 					}
 
 					for (var l=0;l<loopCount;l++){
-						var start = instrument.loop.start;
-						var end = start + instrument.loop.length;
+						var start = instrument.sample.loop.start;
+						var end = start + instrument.sample.loop.length;
 						for (j=start; j<end; j++){
 							instrument.sample.data.push(instrument.sample.data[j]);
 						}
-						loopLength += instrument.loop.length;
+						loopLength += instrument.sample.loop.length;
 					}
 
 					if (resetLoopNumbers && loopLength){
-						instrument.loop.length += loopLength;
+						instrument.sample.loop.length += loopLength;
 						instrument.sample.length += loopLength;
 					}
 				}
@@ -200,6 +201,10 @@ var ProTracker = function(){
 
 		instruments.forEach(function(instrument){
 			if (instrument){
+
+				// reset to first sample in case we come from a XM file
+				instrument.setSampleIndex(0);
+
 				fileSize += instrument.sample.length;
 			}else{
 				// +4 ?
@@ -223,10 +228,10 @@ var ProTracker = function(){
 
 				file.writeStringSection(instrument.name,22);
 				file.writeWord(instrument.sample.length >> 1);
-				file.writeUByte(instrument.finetune);
-				file.writeUByte(instrument.volume);
-				file.writeWord(instrument.loop.start >> 1);
-				file.writeWord(instrument.loop.length >> 1);
+				file.writeUByte(instrument.sample.finetune);
+				file.writeUByte(instrument.sample.volume);
+				file.writeWord(instrument.sample.loop.start >> 1);
+				file.writeWord(instrument.sample.loop.length >> 1);
 			}else{
 				file.clear(30);
 			}

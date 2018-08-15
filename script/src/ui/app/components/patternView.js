@@ -303,7 +303,7 @@ UI.app_patternView = function(x,y,w,h){
                                                 vu = note.param * 100/64;
                                             }else{
                                                 var instrument = Tracker.getInstrument(note.instrument);
-                                                if (instrument) vu = instrument.volume * 100/64;
+                                                if (instrument) vu = instrument.sample.volume * 100/64;
                                             }
                                             trackVULevel[j] = vu;
                                             trackVUHistory[j]=currentPos;

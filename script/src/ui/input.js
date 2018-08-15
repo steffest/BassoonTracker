@@ -299,10 +299,13 @@ var Input = (function(){
 					var instrument = Tracker.getCurrentInstrument();
 
 					if (instrument){
-						if (note.index && instrument.relativeNote){
-							note.index += instrument.relativeNote;
-							var ftNote = FTNotes[note.index];
-							if (ftNote) note.period = ftNote.period;
+						if (note.index){
+							instrument.setSampleForNoteIndex(note.index);
+							if (instrument.sample.relativeNote){
+								note.index += instrument.sample.relativeNote;
+								var ftNote = FTNotes[note.index];
+								if (ftNote) note.period = ftNote.period;
+							}
 						}
 
 						Audio.checkState();

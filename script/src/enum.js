@@ -50,7 +50,8 @@ var EVENT = {
 	visibleTracksCountChange:32,
     filterChainCountChange:33,
     fxPanelToggle:34,
-	samplePropertyChange:35
+	samplePropertyChange:35,
+	sampleIndexChange:36
 
 };
 
@@ -73,7 +74,8 @@ var COMMAND = {
 	showBottomMain: 16,
 	randomSong: 17,
     randomSongXM: 18,
-	showGithub: 19
+	showGithub: 19,
+	showStats: 20
 };
 
 var PLAYTYPE = {

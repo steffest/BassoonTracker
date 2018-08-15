@@ -25,7 +25,7 @@ UI.DiskOperationType = function(){
 	});
 	selectionType.setItems([
 		{label:"module",active:true, fileType: FILETYPE.module},
-		{label:"sample",active:false, fileType: FILETYPE.sample},
+		{label:"sample",active:false, fileType: FILETYPE.sample}
 		//{label:"pattern",active:false, fileType: FILETYPE.pattern}
 	]);
 	selectionType.onChange = function(selectedIndex){

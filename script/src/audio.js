@@ -138,7 +138,7 @@ var Audio = (function(){
             var offset = 0;
             var sampleLength = 0;
 
-            volume = typeof volume === "undefined" ? (100*instrument.volume/64) : volume;
+            volume = typeof volume === "undefined" ? (100*instrument.sample.volume/64) : volume;
 
 
 			var sampleRate;
@@ -189,14 +189,14 @@ var Audio = (function(){
             // TODO: volumeGain.value has no result here ? -> setvalueattime ?
 
 
-            if (instrument.loop.enabled && instrument.loop.length>2){
+            if (instrument.sample.loop.enabled && instrument.sample.loop.length>2){
 
                 if (!SETTINGS.unrollLoops){
 
                     source.loop = true;
                     // in seconds ...
-                    source.loopStart = instrument.loop.start/audioContext.sampleRate;
-                    source.loopEnd = (instrument.loop.start + instrument.loop.length)/audioContext.sampleRate;
+                    source.loopStart = instrument.sample.loop.start/audioContext.sampleRate;
+                    source.loopEnd = (instrument.sample.loop.start + instrument.sample.loop.length)/audioContext.sampleRate;
                     //audioContext.sampleRate = samples/second
                 }
             }
@@ -468,7 +468,7 @@ var Audio = (function(){
         var tuning = 8;
         if (instrumentIndex){
             var instrument = Tracker.getInstrument(instrumentIndex);
-            if (instrument && instrument.finetune) tuning = tuning + instrument.finetune;
+            if (instrument && instrument.sample.finetune) tuning = tuning + instrument.sample.finetune;
         }
 
         var minDelta = 100000;

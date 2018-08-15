@@ -31,7 +31,8 @@ UI.app_menu = function(container){
                 {label: "Options" , "command" : COMMAND.showOptions},
                 {label: "File Operations" , "command" : COMMAND.showFileOperations},
                 {label: "Sample Editor" , "command" : COMMAND.showSampleEditor},
-                {label: "Piano" , "command" : COMMAND.togglePiano}
+                {label: "Piano" , "command" : COMMAND.togglePiano},
+                {label: "Performance stats" , "command" : COMMAND.showStats}
             ]},
         {label: "Help", subItems: [
                 {label: "About" , "command" : COMMAND.showAbout},

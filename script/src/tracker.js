@@ -526,7 +526,7 @@ var Tracker = (function(){
 		if (typeof note.instrument === "number"){
 			instrument = me.getInstrument(note.instrument);
 			if (instrument) {
-				defaultVolume = 100 * (instrument.volume/64);
+				defaultVolume = 100 * (instrument.sample.volume/64);
 
 				if (SETTINGS.emulateProtracker1OffsetBug){
 					// reset instrument offset when a instrument number is present;
@@ -565,10 +565,15 @@ var Tracker = (function(){
 				defaultVolume = volume;
 				doPlayNote = false;
 			}else{
-                if (instrument && instrument.relativeNote) noteIndex += instrument.relativeNote;
-                // TODO - check of note gets out of range
-				// but apparently they still get played ... -> extend scale to 9, 10 or 11 octaves ?
-				// see jt_letgo.xm instrument 6 (track 20) for example
+
+				if (instrument){
+					instrument.setSampleForNoteIndex(noteIndex);
+
+					if (instrument.sample.relativeNote) noteIndex += instrument.sample.relativeNote;
+					// TODO - check of note gets out of range
+					// but apparently they still get played ... -> extend scale to 9, 10 or 11 octaves ?
+					// see jt_letgo.xm instrument 6 (track 20) for example
+				}
 
 				if (me.useLinearFrequency){
 					notePeriod = 7680 - (noteIndex-1)*64;
@@ -1814,7 +1819,7 @@ var Tracker = (function(){
 	};
 
 	me.setInstrument = function(index, instrument){
-		instrument.sampleIndex = index;
+		instrument.instrumentIndex = index;
 		instruments[index] = instrument;
 	};
 
@@ -1825,10 +1830,10 @@ var Tracker = (function(){
 
 		instrument.name = name;
 		instrument.sample.length = file.length;
-		instrument.loop.start = 0;
-		instrument.loop.length = 0;
+		instrument.sample.loop.start = 0;
+		instrument.sample.loop.length = 0;
 		instrument.setFineTune(0);
-		instrument.volume = 100;
+		instrument.sample.volume = 64;
 		instrument.sample.data = [];
 
 		detectSampleType(file,instrument.sample);

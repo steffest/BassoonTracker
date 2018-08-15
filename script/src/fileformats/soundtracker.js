@@ -27,24 +27,25 @@ var SoundTracker = function(){
 			var sampleName = file.readString(22);
 			var sampleLength = file.readWord(); // in words
 
-			instrument = Instrument();
+			var instrument = Instrument();
 			instrument.name = sampleName;
 
 			instrument.sample.length = instrument.realLen = sampleLength << 1;
-			instrument.volume   = file.readWord();
-			// NOTE: does the high byte of the volume someties contain finetune data?
+			instrument.sample.volume   = file.readWord();
+			// NOTE: does the high byte of the volume sometimes contain finetune data?
 			instrument.setFineTune(0);
-			instrument.loop.start     = file.readWord(); // in bytes!
-			instrument.loop.length   = file.readWord() << 1;
+			instrument.sample.loop.start     = file.readWord(); // in bytes!
+			instrument.sample.loop.length   = file.readWord() << 1;
 
-			instrument.loop.enabled = instrument.loop.length>2;
-			instrument.loop.type = LOOPTYPE.FORWARD;
+			instrument.sample.loop.enabled = instrument.sample.loop.length>2;
+			instrument.sample.loop.type = LOOPTYPE.FORWARD;
 
 			// if an instrument contains a loops, only the loop part is played
 			// TODO
 
 			instrument.pointer = sampleDataOffset;
 			sampleDataOffset += instrument.sample.length;
+			instrument.setSampleIndex(0);
 			Tracker.setInstrument(i,instrument);
 
 		}
@@ -103,7 +104,7 @@ var SoundTracker = function(){
 		for(i=1; i <= instrumentCount; i++) {
 			instrument = Tracker.getInstrument(i);
 			if (instrument){
-				console.log("Reading sample from 0x" + file.index + " with length of " + instrument.sample.length + " bytes and repeat length of " + instrument.loop.length);
+				console.log("Reading sample from 0x" + file.index + " with length of " + instrument.sample.length + " bytes and repeat length of " + instrument.sample.loop.length);
 
 				var sampleEnd = instrument.sample.length;
 

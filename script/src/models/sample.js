@@ -6,9 +6,11 @@ var Sample = function(){
 	me.name = "";
 	me.bits = 8;
 
-	me.volume = 0;
+	me.volume = 64;
 	me.finetune = 0;
 	me.finetuneX = 0;
+	me.panning = 0;
+	me.relativeNote = 0;
 
     me.loop = {
         enabled: false,
@@ -16,7 +18,6 @@ var Sample = function(){
         length: 0,
         type: 0
     };
-
 
 	return me;
 };

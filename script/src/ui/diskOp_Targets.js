@@ -36,6 +36,8 @@ UI.DiskOperationTargets = function(){
         {label: "Dropbox:" , target: "dropbox"}
 	];
 
+	var currentLoadTargets = targetsModule;
+
 	var selectionTarget = UI.radioGroup();
 	selectionTarget.setProperties({
 		align: "right",
@@ -96,9 +98,19 @@ UI.DiskOperationTargets = function(){
 
     EventBus.on(EVENT.diskOperationTargetChange,function(target){
         if (target && target.fileType){
+
+			if (target.fileType === FILETYPE.module) {
+				currentLoadTargets = targetsModule;
+			}
+			if (target.fileType === FILETYPE.sample){
+				currentLoadTargets = targetsSample;
+			}
+
+			selectionTarget.setItems(currentLoadTargets);
             selectionTarget.setSelectedIndex(0);
         }
     });
+
 
 	EventBus.on(EVENT.diskOperationActionChange,function(target){
 		if (target.label === "save"){
@@ -106,7 +118,7 @@ UI.DiskOperationTargets = function(){
 			selectionTarget.setItems(targetsSave);
 		}else{
 			label.setLabel("From");
-			selectionTarget.setItems(targetsModule);
+			selectionTarget.setItems(currentLoadTargets);
 		}
 
         EventBus.trigger(EVENT.diskOperationTargetChange,selectionTarget.getSelectedItem());
