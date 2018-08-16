@@ -88,6 +88,10 @@ var Audio = (function(){
             EventBus.trigger(EVENT.filterChainCountChange,trackCount);
             me.setStereoSeparation(currentStereoSeparation);
         });
+
+		EventBus.on(EVENT.trackerModeChanged,function(mode){
+			me.setStereoSeparation();
+		});
     };
 
 
@@ -132,14 +136,17 @@ var Audio = (function(){
         var instrument = Tracker.getInstrument(index);
         var basePeriod = period;
 		var volumeEnvelope;
+		var panningEnvelope;
+		var pan = 0;
 
-        if (instrument){
+		if (instrument){
             var sampleBuffer;
             var offset = 0;
             var sampleLength = 0;
 
             volume = typeof volume === "undefined" ? (100*instrument.sample.volume/64) : volume;
 
+            pan = (instrument.sample.panning || 0) / 128;
 
 			var sampleRate;
 
@@ -201,10 +208,25 @@ var Audio = (function(){
                 }
             }
 
-            if (instrument.volumeEnvelope.enabled){
-                volumeEnvelope = instrument.noteOn(time);
-                source.connect(volumeEnvelope);
-                volumeEnvelope.connect(volumeGain);
+            if (instrument.volumeEnvelope.enabled || instrument.panningEnvelope.enabled){
+            	var envelopes = instrument.noteOn(time);
+            	var target = source;
+
+            	if (envelopes.volume){
+					volumeEnvelope = envelopes.volume;
+					source.connect(volumeEnvelope);
+					target = volumeEnvelope;
+				}
+
+				if (envelopes.panning){
+					panningEnvelope = envelopes.panning;
+					target.connect(panningEnvelope);
+					target = panningEnvelope;
+				}
+
+				target.connect(volumeGain);
+
+
             }else{
                 source.connect(volumeGain);
             }
@@ -212,8 +234,12 @@ var Audio = (function(){
 			var volumeFadeOut = Audio.context.createGain();
 			volumeFadeOut.gain.setValueAtTime(1,time);
 
+			var panning = Audio.context.createStereoPanner();
+			panning.pan.setValueAtTime(pan,time);
+
 			volumeGain.connect(volumeFadeOut);
-			volumeFadeOut.connect(filterChains[track].input());
+			volumeFadeOut.connect(panning);
+			panning.connect(filterChains[track].input());
 
             source.playbackRate.value = initialPlaybackRate;
             var sourceDelayTime = 0;
@@ -224,7 +250,9 @@ var Audio = (function(){
             var result = {
                 source: source,
                 volume: volumeGain,
+                panning: panning,
 				volumeEnvelope: volumeEnvelope,
+				panningEnvelope: panningEnvelope,
 				volumeFadeOut: volumeFadeOut,
                 startVolume: volume,
                 currentVolume: volume,
@@ -324,27 +352,35 @@ var Audio = (function(){
 
     me.setStereoSeparation = function(value){
 
-        currentStereoSeparation = value;
-        var numberOfTracks = Tracker.getTrackCount();
+		var panAmount;
 
-        var panAmount;
-        switch(value){
-            case STEREOSEPARATION.NONE:
-                // mono, no panning
-                panAmount = 0;
-                SETTINGS.stereoSeparation = STEREOSEPARATION.NONE;
-                break;
-            case STEREOSEPARATION.FULL:
-                // Amiga style: pan even channels hard to the left, uneven to the right;
-                panAmount = 1;
-                SETTINGS.stereoSeparation = STEREOSEPARATION.FULL;
-                break;
-            default:
-                // balanced: pan even channels somewhat to the left, uneven to the right;
-                panAmount = 0.5;
-                SETTINGS.stereoSeparation = STEREOSEPARATION.BALANCED;
-                break;
-        }
+    	if (Tracker.inFTMode()){
+    		panAmount = 0;
+		}else{
+			value = value || currentStereoSeparation;
+
+			var numberOfTracks = Tracker.getTrackCount();
+			currentStereoSeparation = value;
+
+
+			switch(value){
+				case STEREOSEPARATION.NONE:
+					// mono, no panning
+					panAmount = 0;
+					SETTINGS.stereoSeparation = STEREOSEPARATION.NONE;
+					break;
+				case STEREOSEPARATION.FULL:
+					// Amiga style: pan even channels hard to the left, uneven to the right;
+					panAmount = 1;
+					SETTINGS.stereoSeparation = STEREOSEPARATION.FULL;
+					break;
+				default:
+					// balanced: pan even channels somewhat to the left, uneven to the right;
+					panAmount = 0.5;
+					SETTINGS.stereoSeparation = STEREOSEPARATION.BALANCED;
+					break;
+			}
+		}
 
         for (i = 0; i<numberOfTracks;i++){
             var filter = filterChains[i];

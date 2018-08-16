@@ -215,11 +215,16 @@ FilterChain = (function(filters) {
 		return volumeValue;
 	};
 
-	me.panningValue = function(value) {
+	me.panningValue = function(value,time) {
 		if (!usePanning) return;
 		if (typeof value !== "undefined"){
 			panningValue = value;
-			panner.pan.value = panningValue;
+			if (time){
+				panner.pan.setValueAtTime(panningValue,time);
+			}else{
+				panner.pan.value = panningValue;
+			}
+
 		}
 		return panningValue;
 	};

@@ -412,6 +412,13 @@ var Tracker = (function(){
 							playSongPosition = nextPosition;
 							patternIndex = song.patternTable[playSongPosition];
 							playPatternData = song.patterns[patternIndex];
+
+							// some invalid(?) XM files have non-existent patterns in their song list - eg. cybernautic_squierl.xm
+							if (!playPatternData) {
+								playPatternData =  getEmptyPattern();
+								song.patterns[patternIndex] = playPatternData;
+							}
+
                             thisPatternLength = playPatternData.length;
 							if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
 						}else{
@@ -636,11 +643,18 @@ var Tracker = (function(){
 						break;
 					case 12:
 						// Set panning
-						console.warn("Set panning not implemented " + ve);
+						trackEffects.panning = {
+							value: (ve-192)*17,
+							slide: false
+						};
 						break;
 					case 13:
 						// Panning slide left
 						console.warn("Panning slide left not implemented");
+						trackEffects.panning = {
+							value: ve,
+							slide: true
+						};
 						break;
 					case 14:
 						// Panning slide right
@@ -960,7 +974,10 @@ var Tracker = (function(){
 				break;
 			case 8:
 				// Set Panning position
-				// TODO: implement
+				trackEffects.panning = {
+					value:value,
+					slide: false
+				};
 				break;
 			case 9:
 				// Set instrument offset
@@ -1305,6 +1322,14 @@ var Tracker = (function(){
 				trackNote.volume.gain.setValueAtTime(volume/100,time);
 			}
 			trackNote.currentVolume = volume;
+		}
+
+		if (effects.panning){
+			value = effects.panning.value;
+			if (value === 255) value = 254;
+			if (trackNote.panning){
+				trackNote.panning.pan.setValueAtTime((value-127)/127,time);
+			}
 		}
 
 		if (effects.fade){

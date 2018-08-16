@@ -25,17 +25,34 @@ var Instrument = function(){
 
 	me.noteOn = function(time){
 		var tickTime = Tracker.getProperties().tickTime;
-		var volumeEnvelope = Audio.context.createGain();
+		var volumeEnvelope;
+		var panningEnvelope;
 
-		// volume envelope to time ramp
-		var maxPoint = me.volumeEnvelope.sustain ? me.volumeEnvelope.sustainPoint+1 :  me.volumeEnvelope.count;
-		volumeEnvelope.gain.setValueAtTime(me.volumeEnvelope.points[0][1]/64,time);
-		for (var p = 1; p<maxPoint;p++){
-			var point = me.volumeEnvelope.points[p];
-			volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime));
+		if (me.volumeEnvelope.enabled){
+			volumeEnvelope = Audio.context.createGain();
+
+			// volume envelope to time ramp
+			var maxPoint = me.volumeEnvelope.sustain ? me.volumeEnvelope.sustainPoint+1 :  me.volumeEnvelope.count;
+			volumeEnvelope.gain.setValueAtTime(me.volumeEnvelope.points[0][1]/64,time);
+			for (var p = 1; p<maxPoint;p++){
+				var point = me.volumeEnvelope.points[p];
+				volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime));
+			}
 		}
 
-		return volumeEnvelope;
+		if (me.panningEnvelope.enabled){
+			panningEnvelope = Audio.context.createStereoPanner();
+
+			// volume envelope to time ramp
+			maxPoint = me.panningEnvelope.sustain ? me.panningEnvelope.sustainPoint+1 :  me.panningEnvelope.count;
+			panningEnvelope.pan.setValueAtTime((me.panningEnvelope.points[0][1]-32)/32,time);
+			for (p = 1; p<maxPoint;p++){
+				point = me.panningEnvelope.points[p];
+				panningEnvelope.pan.linearRampToValueAtTime((point[1]-32)/32,time + (point[0]*tickTime));
+			}
+		}
+
+		return {volume: volumeEnvelope, panning: panningEnvelope};
 	};
 
 	me.noteOff = function(time,noteInfo){

@@ -238,6 +238,12 @@ UI.OptionsPanel = function(){
             });
 		}
 
+		if (options[2].buttons && options[2].buttons.length){
+			options[2].buttons.forEach(function(button){
+				button.setDisabled(Tracker.inFTMode());
+			});
+		}
+
         if (me.isVisible()){
             me.onResize();
         }
