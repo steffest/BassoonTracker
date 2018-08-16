@@ -1984,6 +1984,7 @@ var Tracker = (function(){
 		onModuleLoad();
 	};
 
+
 	me.clearInstrument = function(){
 		instruments[currentInstrumentIndex]=Instrument();
 		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);

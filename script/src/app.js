@@ -22,6 +22,9 @@ var App = (function(){
                 case COMMAND.clearInstruments:
                     Tracker.clearInstruments();
                     break;
+				case COMMAND.clearSong:
+					Editor.clearSong();
+					break;
                 case COMMAND.showMain:
                     EventBus.trigger(EVENT.showView,"main");
                     break;

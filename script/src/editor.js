@@ -132,6 +132,29 @@ var Editor = (function(){
 		}
 		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
+	me.clearSong = function(){
+		var song = Tracker.getSong();
+		Tracker.setCurrentPattern(0);
+		me.clearPattern();
+		var pattern = song.patterns[0];
+
+		song.patterns = [pattern];
+		song.length = 1;
+		song.restartPosition = 0;
+
+		var patternTable = [];
+		for (var i = 0; i < 128; ++i) {
+			patternTable[i] = 0;
+		}
+		song.patternTable = patternTable;
+
+		Tracker.setAmigaSpeed(6);
+		Tracker.setBPM(125);
+		me.setCurrentSongPosition(1);
+
+		EventBus.trigger(EVENT.songPropertyChange,song);
+		EventBus.trigger(EVENT.patternTableChange);
+	};
 
 	me.copyTrack = function(trackNumber){
 		var hasTracknumber = typeof trackNumber != "undefined";
