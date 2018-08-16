@@ -9,7 +9,10 @@ UI.visualiser = function(){
     var modeIndex = 2;
     var mode =  modes[modeIndex];
     var analyser;
+    var background;
     var trackAnalyser = [];
+    var analyserPos = [];
+    var analyserSize = 256;
 
     me.ctx.fillStyle = 'black';
     me.ctx.lineWidth = 2;
@@ -26,23 +29,25 @@ UI.visualiser = function(){
 
             function addAnalyser(){
                 var a = Audio.context.createAnalyser();
-                a.minDecibels = -90;
-                a.maxDecibels = -10;
-                a.smoothingTimeConstant = 0.85;
-                a.fftSize = 64;
+                a.smoothingTimeConstant = 0;
+                a.fftSize = analyserSize;
                 trackAnalyser.push(a);
             }
 
             for (var i = 0; i<Tracker.getTrackCount(); i++){
-                addAnalyser()
+                addAnalyser();
             }
+			setAnalyserPositions();
         }
+
+		background = Y.getImage("oscilloscope");
 
         EventBus.on(EVENT.filterChainCountChange,function(trackCount){
             for (var i = trackAnalyser.length; i<trackCount; i++){
                 addAnalyser()
             }
-            me.connect()
+			setAnalyserPositions();
+            me.connect();
         });
 
 
@@ -155,37 +160,38 @@ UI.visualiser = function(){
 
         }else if (mode=="tracks"){
 
+			me.ctx.clearRect(0,0,me.width,me.height);
+			me.ctx.lineWidth = 2;
+			me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
+
             var hasVolume = !Audio.cutOff;
 
             for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
-                var track = trackAnalyser[trackIndex];
-                var aWidth = me.width/Tracker.getTrackCount();
-                var aLeft = aWidth*trackIndex;
 
-                var background = Y.getImage("oscilloscope");
-                me.ctx.drawImage(background,aLeft,0,aWidth, me.height);
+                var track = trackAnalyser[trackIndex];
+                var pos = analyserPos[trackIndex];
+
+                me.ctx.drawImage(background,pos.left,pos.top,pos.width,pos.height);
 
                 if (track){
-                    me.ctx.lineWidth = 2;
-                    me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
                     me.ctx.beginPath();
 
                     var wy;
-                    aWidth -= 5;
-                    aLeft += 4;
+					var wx = pos.lineLeft;
+                    var ww = pos.lineWidth;
 
                     if (hasVolume){
 
+						track.fftSize = analyserSize;
                         bufferLength = track.fftSize;
                         dataArray = new Uint8Array(bufferLength);
                         track.getByteTimeDomainData(dataArray);
 
-                        var sliceWidth = aWidth * 1.0 / bufferLength;
-                        var wx = aLeft;
+                        var sliceWidth = ww/bufferLength;
 
                         for(var i = 0; i < bufferLength; i++) {
                             var v = dataArray[i] / 128.0;
-                            wy = v * me.height/2;
+                            wy = v * pos.height/2 + pos.top;
 
                             if(i === 0) {
                                 me.ctx.moveTo(wx, wy);
@@ -196,9 +202,9 @@ UI.visualiser = function(){
                             wx += sliceWidth;
                         }
                     }else{
-                        wy = me.height/2;
-                        me.ctx.moveTo(aLeft, wy);
-                        me.ctx.lineTo(aLeft + aWidth, wy);
+                        wy = pos.height/2 + pos.top;
+                        me.ctx.moveTo(wx, wy);
+                        me.ctx.lineTo(wx + ww-1, wy);
                     }
 
                     //myCtx.lineTo(aWidth, height/2);
@@ -214,9 +220,56 @@ UI.visualiser = function(){
 
     me.init();
 
+    function setAnalyserPositions(){
+		analyserPos = [];
+
+		var cols = Tracker.getTrackCount();
+		var aHeight = me.height;
+
+		if (Tracker.getTrackCount()>4){
+		    cols = Math.ceil(Tracker.getTrackCount()/2);
+			aHeight = me.height/2
+        }
+		var aWidth = me.width/cols;
+
+		for (var i = 0; i < Tracker.getTrackCount(); i++){
+		    var aLeft = i*aWidth;
+		    var aTop = 0;
+		    if (i>=cols){
+				aLeft = (i-cols)*aWidth;
+				aTop = me.height - aHeight;
+            }
+			analyserPos[i] = {
+			    left: Math.floor(aLeft),
+				top: Math.floor(aTop),
+			    width: Math.floor(aWidth),
+			    height: Math.floor(aHeight),
+                lineLeft: Math.ceil(aLeft + aWidth/70),
+                lineWidth: Math.floor(aWidth - (aWidth/30))
+            }
+        }
+    }
+
+	me.onResize = function(){
+		setAnalyserPositions();
+	};
+
     EventBus.on(EVENT.screenRender,function(){
         me.render();
     });
+
+	EventBus.on(EVENT.second,function(){
+		if (Tracker.isPlaying()){
+		    // lower fft size on slower machines
+			var fps = UI.getAverageFps();
+			if (fps<35){
+				analyserSize >>= 1;
+				analyserSize = Math.max(analyserSize,32);
+				UI.resetAverageFps();
+				console.error(analyserSize);
+            }
+        }
+	});
 
 
 

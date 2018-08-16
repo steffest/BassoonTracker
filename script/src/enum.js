@@ -51,7 +51,9 @@ var EVENT = {
     filterChainCountChange:33,
     fxPanelToggle:34,
 	samplePropertyChange:35,
-	sampleIndexChange:36
+	sampleIndexChange:36,
+	second:37,
+	minute:38
 
 };
 

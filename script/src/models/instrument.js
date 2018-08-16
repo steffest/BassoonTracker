@@ -39,6 +39,7 @@ var Instrument = function(){
 	};
 
 	me.noteOff = function(time,noteInfo){
+		if (!noteInfo || !noteInfo.volume) return;
 
 		noteInfo.volume.gain.cancelScheduledValues(time);
 		noteInfo.volumeFadeOut.gain.cancelScheduledValues(time);

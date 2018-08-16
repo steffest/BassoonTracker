@@ -21,7 +21,12 @@ var UI = (function(){
 	var skipRenderSteps = 0;
 	var renderStep = 0;
 	var renderTime = 0;
+	var beginTime = 0;
 	var renderTimes = [];
+	var frames = 0;
+	var fps;
+	var minFps = 100;
+	var fpsList = [];
 
 	var UICache = {};
 
@@ -295,8 +300,7 @@ var UI = (function(){
 		}
 		if(doRender){
 			renderStep = 0;
-			var startRenderTime = 0;
-			if (Audio.context) startRenderTime = Audio.context.currentTime;
+			var startRenderTime = Audio.context ? Audio.context.currentTime : 0;
 			EventBus.trigger(EVENT.screenRefresh);
 			if (needsRendering){
 				children.forEach(function(element){
@@ -313,8 +317,26 @@ var UI = (function(){
 				}
 
 			}
+
 			if (startRenderTime){
 				renderTime = Audio.context.currentTime - startRenderTime;
+
+				beginTime = beginTime || startRenderTime;
+				frames++;
+				//console.warn(beginTime);
+				if (startRenderTime>beginTime+1){
+					fps = frames / (startRenderTime-beginTime);
+					minFps = Math.min(minFps,fps);
+					beginTime = startRenderTime;
+					frames=0;
+
+					fpsList.push(fps);
+					if (fpsList.length>20) fpsList.shift();
+
+					EventBus.trigger(EVENT.second);
+				}
+
+
 				maxRenderTime = Math.max(renderTime,maxRenderTime);
 				/*if (maxRenderTime>0.06) skipRenderSteps=1;
 				if (maxRenderTime>0.08) skipRenderSteps=2;
@@ -322,6 +344,7 @@ var UI = (function(){
 
 				renderTimes.push(renderTime);
 				if (renderTimes.length>20) renderTimes.shift();
+
 			}
 		}
 		window.requestAnimationFrame(render);
@@ -390,14 +413,35 @@ var UI = (function(){
 
 	me.stats = function(){
 		return {
-			maxRenderTime : maxRenderTime,
+			fps : fps,
+			minFps : minFps,
+			averageFps: average(fpsList),
 			currentRenderTime: renderTime,
+			maxRenderTime : maxRenderTime,
+			averageRenderTime: average(renderTimes),
 			renderTimes:renderTimes,
+			fpsList: fpsList,
 			skipRenderSteps: skipRenderSteps
 		}
 	};
 
 	me.children = children;
+
+	me.getAverageFps = function(){
+		return fpsList.length>2 ? average(fpsList) : 60;
+	};
+
+	me.resetAverageFps = function(){
+		var last = fpsList.pop();
+		fpsList = last ? [last] : [];
+	};
+
+	function average(arr){
+		if (!arr.length) return 0;
+		var total = 0;
+		for (var i = 0, max = arr.length; i<max; i++) total+=arr[i];
+		return total/max;
+	}
 
 	return me;
 
