@@ -358,7 +358,8 @@ var Tracker = (function(){
 
 		// look-ahead playback - far less demanding, works OK on mobile devices
 		var p =  0;
-		var time = Audio.context.currentTime + 0.01;
+		//var time = Audio.context.currentTime + 0.01; // TODO - why is this 0.01 ?
+		var time = Audio.context.currentTime;
 
 		// start with a small delay then make it longer
 		// this is because Chrome on Android doesn't start playing until the first batch of scheduling is done?
@@ -427,9 +428,26 @@ var Tracker = (function(){
 					}
 				}
 
-
-
 			}
+
+			// check if a playing note has looping parameters that needs further scheduling
+
+            for (i = 0; i<trackCount; i++){
+                var trackNote = trackNotes[i];
+                if (trackNote && trackNote.time){
+                	if (trackNote.scheduled && trackNote.scheduled.volume){
+                		if ((time + delay) >= trackNote.scheduled.volume){
+                            //console.log("note needs scheduling");
+
+                            var instrument = me.getInstrument(trackNote.instrumentIndex);
+                            if(instrument){
+								var scheduledtime = instrument.scheduleVolumeLoop(trackNote.volumeEnvelope,trackNote.scheduled.volume,2);
+								trackNote.scheduled.volume += scheduledtime;
+							}
+                        }
+					}
+				}
+            }
 
 
 		},0.01).repeat(delay).tolerance({early: 0.1});
@@ -650,7 +668,7 @@ var Tracker = (function(){
 						break;
 					case 13:
 						// Panning slide left
-						console.warn("Panning slide left not implemented");
+						console.warn("Panning slide left not implemented - track " + track);
 						trackEffects.panning = {
 							value: ve,
 							slide: true
@@ -658,7 +676,7 @@ var Tracker = (function(){
 						break;
 					case 14:
 						// Panning slide right
-						console.warn("Panning slide right not implemented");
+						console.warn("Panning slide right not implemented - track " + track);
 						break;
 					case 15:
 						// Tone porta
@@ -1268,7 +1286,7 @@ var Tracker = (function(){
                 break;
 			case 25:
 				//Fasttracker only - Panning slide
-				console.warn("Panning slide not implemented");
+				console.warn("Panning slide not implemented - track " + track);
 				break;
 			case 27:
 				//Fasttracker only - Multi retrig note

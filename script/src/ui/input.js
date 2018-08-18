@@ -325,6 +325,9 @@ var Input = (function(){
 						keyDown[key].instrument = instrument;
 						keyDown[key].isKey = true;
 						inputNotes.push(keyDown[key]);
+						if (inputNotes.length>64){
+							clearInputNote();
+						}
 						EventBus.trigger(EVENT.pianoNoteOn,keyDown[key]);
 					}
 					return;
@@ -492,7 +495,7 @@ var Input = (function(){
 
 
 	function clearInputNote(){
-		// stops the oldes input note
+		// stops the oldest input note
 		if (inputNotes.length){
 			var note = inputNotes.shift();
 			if (note.source){
@@ -508,6 +511,28 @@ var Input = (function(){
 	me.clearInputNotes = function(){
 		while (inputNotes.length) clearInputNote();
 	};
+
+	EventBus.on(EVENT.second,function(){
+		// check for looping parameters of playing input notes
+		if (!Audio.context) return;
+		var time = Audio.context.currentTime;
+		var delay = 2;
+
+		inputNotes.forEach(function(note){
+			if (note && note.time){
+				if (note.scheduled && note.scheduled.volume){
+					if ((time + delay) >= note.scheduled.volume){
+
+						if(note.instrument){
+							var scheduledtime = note.instrument.scheduleVolumeLoop(note.volumeEnvelope,note.scheduled.volume,2);
+							note.scheduled.volume += scheduledtime;
+						}
+					}
+				}
+			}
+
+		});
+	});
 
 
 	return me;

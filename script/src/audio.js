@@ -137,6 +137,7 @@ var Audio = (function(){
         var basePeriod = period;
 		var volumeEnvelope;
 		var panningEnvelope;
+		var scheduled;
 		var pan = 0;
 
 		if (instrument){
@@ -224,6 +225,8 @@ var Audio = (function(){
 					target = panningEnvelope;
 				}
 
+				scheduled = envelopes.scheduled;
+
 				target.connect(volumeGain);
 
 
@@ -263,7 +266,9 @@ var Audio = (function(){
                 sampleRate: sampleRate,
                 instrumentIndex: index,
                 effects: effects,
-                track: track
+                track: track,
+                time: time,
+				scheduled: scheduled
             };
 
             if (!isRendering) EventBus.trigger(EVENT.samplePlay,result);

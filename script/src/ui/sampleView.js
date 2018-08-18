@@ -186,8 +186,6 @@ UI.SampleView = function(){
 	});
 	sideButtonPanel.addChild(spinBoxRelativeNote);
 
-
-
 	me.addChild(sideButtonPanel);
 
 	var buttons = [];
@@ -206,8 +204,10 @@ UI.SampleView = function(){
 				if (instrument && instrument.sample.data) instrument.sample.data.reverse();
 				EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
 			}},
-		{label: "Exit", onClick : function(){
-				App.doCommand(COMMAND.showBottomMain);
+		{label: "Stop", onClick : function(){
+				//App.doCommand(COMMAND.showBottomMain);
+				Input.clearInputNotes();
+				waveForm.stop();
 			}}
 	];
 
@@ -363,7 +363,6 @@ UI.SampleView = function(){
 		var sliderRow2Top = 0;
 		var sliderRow2Left = sliderWidth*2;
 
-		console.error(sideButtonPanel.width);
 		if (sideButtonPanel.width<170){
 			sliderWidth = Math.ceil(sideButtonPanel.width/2);
 			sliderHeight = Math.floor(sliderHeight/2);

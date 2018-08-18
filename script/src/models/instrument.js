@@ -27,16 +27,32 @@ var Instrument = function(){
 		var tickTime = Tracker.getProperties().tickTime;
 		var volumeEnvelope;
 		var panningEnvelope;
+		var scheduled;
 
 		if (me.volumeEnvelope.enabled){
 			volumeEnvelope = Audio.context.createGain();
 
 			// volume envelope to time ramp
-			var maxPoint = me.volumeEnvelope.sustain ? me.volumeEnvelope.sustainPoint+1 :  me.volumeEnvelope.count;
+
 			volumeEnvelope.gain.setValueAtTime(me.volumeEnvelope.points[0][1]/64,time);
+
+			var maxPoint = me.volumeEnvelope.sustain ? me.volumeEnvelope.sustainPoint+1 :  me.volumeEnvelope.count;
+			var doVolumeLoop = me.volumeEnvelope.loop && (me.volumeEnvelope.loopStartPoint<me.volumeEnvelope.loopEndPoint);
+			if (me.volumeEnvelope.sustain && me.volumeEnvelope.sustainPoint<=me.volumeEnvelope.loopStartPoint) doVolumeLoop=false;
+			if (doVolumeLoop) maxPoint = me.volumeEnvelope.loopEndPoint+1;
+			var scheduledTime = 0;
+			var lastX = 0;
 			for (var p = 1; p<maxPoint;p++){
 				var point = me.volumeEnvelope.points[p];
-				volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime));
+				lastX = point[0];
+				scheduledTime = lastX*tickTime;
+				volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + scheduledTime);
+			}
+
+			if (doVolumeLoop){
+				// param loop - schedule 2 seconds ahead, the rest will be picked up in the main scheduler loop
+				scheduledTime = me.scheduleVolumeLoop(volumeEnvelope,time,2,scheduledTime);
+				scheduled = {volume: (time + scheduledTime)};
 			}
 		}
 
@@ -52,7 +68,7 @@ var Instrument = function(){
 			}
 		}
 
-		return {volume: volumeEnvelope, panning: panningEnvelope};
+		return {volume: volumeEnvelope, panning: panningEnvelope, scheduled: scheduled};
 	};
 
 	me.noteOff = function(time,noteInfo){
@@ -74,7 +90,6 @@ var Instrument = function(){
 						var point = me.volumeEnvelope.points[p];
 						noteInfo.volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime) - timeOffset);
 
-						//console.error(point[1]/64,(point[0]*tickTime) - timeOffset);
 					}
 				}
 
@@ -96,6 +111,27 @@ var Instrument = function(){
 				return 0;
 			}
 		}
+
+	};
+
+	me.scheduleVolumeLoop = function(volumeEnvelope,startTime,seconds,scheduledTime){
+
+		scheduledTime = scheduledTime || 0;
+		var tickTime = Tracker.getProperties().tickTime;
+
+		var point = me.volumeEnvelope.points[me.volumeEnvelope.loopStartPoint];
+		var loopStartX = point[0]-1; // the -1 is to have at least 1 tick difference in the end and the start of the loop
+
+		while (scheduledTime < seconds){
+			var startScheduledTime = scheduledTime;
+			for (var p = me.volumeEnvelope.loopStartPoint; p<=me.volumeEnvelope.loopEndPoint;p++){
+				point = me.volumeEnvelope.points[p];
+				scheduledTime = startScheduledTime + ((point[0]-loopStartX)*tickTime);
+				volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,startTime + scheduledTime);
+			}
+		}
+
+		return scheduledTime;
 
 	};
 

@@ -236,6 +236,11 @@ UI.WaveForm = function(){
 		me.refresh();
 	};
 
+	me.stop = function(){
+		isPlaying = false;
+		me.refresh();
+	};
+
 	me.zoom = function(amount){
 
 		zoom *= amount;
@@ -295,7 +300,7 @@ UI.WaveForm = function(){
 
 			if (waveformDisplay.needsRendering){
 
-				console.error("update wave");
+				console.log("updating wave");
 
 				waveformDisplay.clearCanvas();
 
