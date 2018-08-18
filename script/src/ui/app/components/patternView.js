@@ -6,7 +6,7 @@ UI.app_patternView = function(x,y,w,h){
     var lineHeight = 13;
     var scrollBarItemOffset = 0;
     var startTrack = 0;
-    var max = Tracker.getPatternLength();
+    var max;
     var font;
     var displayVolume;
     var hasVU;
@@ -99,7 +99,6 @@ UI.app_patternView = function(x,y,w,h){
 
             var index = Tracker.getCurrentPattern() || 0;
             var patternPos = Tracker.getCurrentPatternPos() || 0;
-
             var song = Tracker.getSong();
             if (!song) return;
 
@@ -108,6 +107,8 @@ UI.app_patternView = function(x,y,w,h){
             var margin = Layout.trackMargin;
 
             visibleTracks = Layout.visibleTracks;
+            max = Tracker.getPatternLength();
+
             var hasHorizontalScrollBar =  visibleTracks<Tracker.getTrackCount();
             var visibleHeight = me.height-30;
 

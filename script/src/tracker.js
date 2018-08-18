@@ -187,7 +187,7 @@ var Tracker = (function(){
 	};
 	me.moveCurrentPatternPos = function(amount){
 		var newPos = currentPatternPos + amount;
-		var max = 63;
+		var max = patternLength-1;
 		if (newPos<0) newPos = max;
 		if (newPos>max) newPos = 0;
 		me.setCurrentPatternPos(newPos);
@@ -1635,8 +1635,10 @@ var Tracker = (function(){
 			}
 		}else{
 			song.patterns[currentPattern] = song.patterns[currentPattern].splice(0,patternLength);
+			if (currentPatternPos>=patternLength){
+				me.setCurrentPatternPos(patternLength-1);
+			}
 		}
-		console.log(song.patterns[currentPattern]);
 
 
 		EventBus.trigger(EVENT.patternChange,currentPattern);
