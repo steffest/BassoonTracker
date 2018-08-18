@@ -150,7 +150,7 @@ var Editor = (function(){
 
 		Tracker.setAmigaSpeed(6);
 		Tracker.setBPM(125);
-		me.setCurrentSongPosition(1);
+		Tracker.setCurrentSongPosition(1);
 
 		EventBus.trigger(EVENT.songPropertyChange,song);
 		EventBus.trigger(EVENT.patternTableChange);

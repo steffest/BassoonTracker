@@ -32,7 +32,14 @@ UI.EnvelopePanel = function(type){
 	var buttonAdd = UI.Assets.generate("button20_20");
 	buttonAdd.onDown = function(){
 		if (envelope.points.length > envelope.count){
-			envelope.count++;
+			var prevPoint = envelope.points[envelope.count-1];
+			var nextPoint = envelope.points[envelope.count];
+			if (prevPoint[0] + 10<320){
+				if (nextPoint[0]<=prevPoint[0]){
+					nextPoint[0] = prevPoint[0]+10;
+				}
+				envelope.count++;
+			}
 		}else{
 			var lastPoint = envelope.points[envelope.points.length-1];
 			if (lastPoint[0] + 10<320){

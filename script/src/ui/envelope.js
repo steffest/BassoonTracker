@@ -126,6 +126,18 @@ UI.Envelope = function(type){
 			if (background.width !== me.width) background.setSize(me.width,me.height);
 			me.ctx.drawImage(background.render(true),0,0,me.width,me.height);
 
+			me.ctx.lineWidth = 1;
+
+			if (me.type === "panning"){
+				me.ctx.strokeStyle = "#4a7c92";
+				me.ctx.setLineDash([1, 2]);
+				y = Math.floor(me.height/2);
+				me.ctx.beginPath();
+				me.ctx.moveTo(0, y);
+				me.ctx.lineTo(me.width, y);
+				me.ctx.stroke();
+			}
+
 			if (currentEnvelope && currentEnvelope.count){
 
 				var xScale = me.width/324;
@@ -133,7 +145,6 @@ UI.Envelope = function(type){
 
 
 				me.ctx.strokeStyle = currentEnvelope.enabled ? 'rgba(120, 255, 50, 0.5)' : 'rgba(120, 120, 180, 0.5)';
-
 
 				me.ctx.beginPath();
 				me.ctx.setLineDash([]);
@@ -191,6 +202,7 @@ UI.Envelope = function(type){
 
 						me.ctx.stroke();
 					}
+
 				}
 
 

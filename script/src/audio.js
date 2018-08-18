@@ -353,15 +353,13 @@ var Audio = (function(){
     me.setStereoSeparation = function(value){
 
 		var panAmount;
+		var numberOfTracks = Tracker.getTrackCount();
 
     	if (Tracker.inFTMode()){
     		panAmount = 0;
 		}else{
 			value = value || currentStereoSeparation;
-
-			var numberOfTracks = Tracker.getTrackCount();
 			currentStereoSeparation = value;
-
 
 			switch(value){
 				case STEREOSEPARATION.NONE:
