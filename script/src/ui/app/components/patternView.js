@@ -9,8 +9,10 @@ UI.app_patternView = function(x,y,w,h){
     var max = Tracker.getPatternLength();
     var font;
     var displayVolume;
+    var hasVU;
     var noteCache = {};
     var noteParamCache = {};
+    var lineNumberCache = {};
 
     var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
         img: Y.getImage("bar"),
@@ -72,7 +74,7 @@ UI.app_patternView = function(x,y,w,h){
 
     var trackVULevel = [];
     var trackVUHistory = [];
-    var trackVULevelDecay = 10;
+    var trackVULevelDecay = 5;
     var trackVULevelMax = 70;
 
 
@@ -169,7 +171,7 @@ UI.app_patternView = function(x,y,w,h){
             }
 
             var isTrackVisible = [];
-            var hasVU = false;
+            hasVU = false;
 
             if (trackVULevelMax > panelHeight){
                 trackVULevelMax = panelHeight;
@@ -247,15 +249,10 @@ UI.app_patternView = function(x,y,w,h){
                             isCenter = false;
                         }
 
-                        var ti = "" + i;
-                        if (i<10) ti = "0" + ti;
-                        var color = false;
-                        if (i%4 == 0) color = "orange";
-
-                        drawText(ti,patternNumberLeft,y,color);
+                        renderLineNumber(i,patternNumberLeft,y);
                         if (isCenter){
-                            drawText(ti,patternNumberLeft,y,color);
-                            drawText(ti,patternNumberLeft,y,color);
+                            renderLineNumber(i,patternNumberLeft,y);
+                            renderLineNumber(i,patternNumberLeft,y);
                         }
 
                         for (var j = 0; j<visibleTracks;j++){
@@ -266,60 +263,24 @@ UI.app_patternView = function(x,y,w,h){
                                 if (lineNumbersToTheLeft){
                                     // center text in pattern
                                     trackX = trackLeft + j*(Layout.trackWidth+margin);
-                                    x = trackX + Math.floor((Layout.trackWidth-textWidth)/2);
+                                    x = trackX + ((Layout.trackWidth-textWidth)>>1);
                                 }else{
                                     x = trackLeft + initialTrackTextOffset + (j*Layout.trackWidth);
                                 }
-
-                                renderNote(note,x,y);
 
                                 if (isCenter){
                                     renderNote(note,x,y);
                                     renderNote(note,x,y);
 
-                                    if (Tracker.isPlaying() || trackVULevel[j] && SETTINGS.vubars != "none"){
+                                    if (Tracker.isPlaying() || trackVULevel[j] && SETTINGS.vubars !== "none"){
                                         // draw VU of center note
-                                        var currentPos = index + "." + patternPos;
-                                        if (Tracker.isPlaying() && note && note.period && trackVUHistory[j]!=currentPos){
-                                            var vu = 100;
-                                            if (note.effect == 12){
-                                                vu = note.param * 100/64;
-                                            }else{
-                                                var instrument = Tracker.getInstrument(note.instrument);
-                                                if (instrument) vu = instrument.sample.volume * 100/64;
-                                            }
-                                            trackVULevel[j] = vu;
-                                            trackVUHistory[j]=currentPos;
-                                        }
-
-                                        if (trackVULevel[j]){
-                                            hasVU = true;
-                                            var vuHeight = trackVULevel[j] * trackVULevelMax / 100;
-
-                                            var sHeight = vuHeight * 100 / trackVULevelMax;
-
-                                            if (SETTINGS.vubars == "colour"){
-                                                var bar = Y.getImage("vubar");
-                                                me.ctx.drawImage(bar,0,100-sHeight,26,sHeight,x-12,centerLineTop-vuHeight,10,vuHeight);
-                                            }
-                                            if (SETTINGS.vubars == "trans"){
-                                                trackX = trackLeft + j*(Layout.trackWidth+margin);
-                                                me.ctx.fillStyle = "rgba(120,190,255,0.3)";
-                                                me.ctx.fillRect(x-14,centerLineTop-vuHeight,10,vuHeight);
-                                            }
-
-
-
-                                            trackVULevel[j] -= trackVULevelDecay;
-                                            if (trackVULevel[j]<0){
-                                                trackVULevel[j]=0;
-                                            }
-                                        }
+                                        renderVU(note,x-12,centerLineTop,j,index + "." + patternPos);
                                     }
                                 }
 
-                                x += (font.charWidth*3) + 4;
+                                renderNote(note,x,y);
                                 renderNoteParam(note,x,y);
+
                             }
                         }
 
@@ -346,16 +307,18 @@ UI.app_patternView = function(x,y,w,h){
                 setScrollBarHorPosition();
                 scrollBarHor.render();
 
-                // tracknumbers
-                for (j = 0; j<visibleTracks;j++){
-                    trackIndex = j+startTrack;
-                    if (isTrackVisible[trackIndex]){
-                        trackX = trackLeft + j*(Layout.trackWidth+margin) + 2;
-                        drawText("" + (trackIndex+1),trackX,2);
-                    }
+
+
+
+            }
+
+            // tracknumbers
+            for (j = 0; j<visibleTracks;j++){
+                trackIndex = j+startTrack;
+                if (isTrackVisible[trackIndex]){
+                    trackX = trackLeft + j*(Layout.trackWidth+margin) + 2;
+                    drawText("" + (trackIndex+1),trackX,2);
                 }
-
-
             }
 
 
@@ -415,6 +378,8 @@ UI.app_patternView = function(x,y,w,h){
 
     function renderNoteParam(note,x,y){
 
+        x += (font.charWidth*3) + 4;
+
         var id = "n" + note.instrument + "." + (displayVolume?note.volumeEffect:"") + "." + note.effect + "." + font.charWidth;
 
         if (!noteParamCache[id]){
@@ -455,6 +420,63 @@ UI.app_patternView = function(x,y,w,h){
         }
 
         me.ctx.drawImage(noteParamCache[id],x,y);
+
+    }
+
+    function renderVU(note,x,y,track,index){
+        if (Tracker.isPlaying() && note && note.period && trackVUHistory[track]!==index){
+            var vu = 100;
+            if (note.effect === 12){
+                vu = note.param * 100/64;
+            }else{
+                var instrument = Tracker.getInstrument(note.instrument);
+                if (instrument) vu = instrument.sample.volume * 100/64;
+            }
+            trackVULevel[track] = vu;
+            trackVUHistory[track]=index;
+        }
+
+        if (trackVULevel[track]){
+            hasVU = true;
+            var vuHeight = trackVULevel[track] * trackVULevelMax / 100;
+            var sHeight = vuHeight * 100 / trackVULevelMax;
+
+            if (SETTINGS.vubars === "colour"){
+                var bar = Y.getImage("vubar");
+                me.ctx.drawImage(bar,0,100-sHeight,26,sHeight,x,y-vuHeight,10,vuHeight);
+            }else if (SETTINGS.vubars === "trans"){
+                me.ctx.fillStyle = "rgba(120,190,255,0.3)";
+                me.ctx.fillRect(x,y-vuHeight,10,vuHeight);
+            }
+
+            trackVULevel[track] -= trackVULevelDecay;
+            if (trackVULevel[track]<0){
+                trackVULevel[track]=0;
+            }
+        }
+
+    }
+
+    function renderLineNumber(nr,x,y){
+
+        var ti = "" + nr;
+        if (nr<10) ti = "0" + ti;
+        var id = ti + "." + font.charWidth;
+
+        if (!lineNumberCache[id]){
+            var canvas = document.createElement("canvas");
+            canvas.height = lineHeight;
+            canvas.width = font.charWidth*3;
+            var c = canvas.getContext("2d");
+
+            var color = false;
+            if (nr%4 === 0) color = "orange";
+
+            font.write(c,ti,0,0,0,color);
+            lineNumberCache[id] = canvas;
+        }
+
+        me.ctx.drawImage(lineNumberCache[id],x,y);
 
     }
 
