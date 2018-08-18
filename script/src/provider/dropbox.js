@@ -4,8 +4,6 @@ var Dropbox = function(){
 	var authRedirect = "https://www.stef.be/bassoontracker/auth/dropbox.html";
     me.isConnected = false;
 
-    var currentDropboxItem;
-
     me.checkConnected = function(next){
 
         if (me.isConnected){
@@ -94,7 +92,6 @@ var Dropbox = function(){
 
     me.getFile = function(file,next){
         dropboxService('files/download', {path: file.url}, function(result,a,b){
-            currentDropboxItem = file;
             console.log(result);
             console.log(a); // content
             console.log(b);
@@ -104,14 +101,15 @@ var Dropbox = function(){
 
     me.putFile = function(path,content,next){
 
-        console.error(path);
-        console.error(currentDropboxItem);
-        console.error((path === currentDropboxItem.path));
-
-        if (currentDropboxItem && (path === currentDropboxItem.path)){
-            path = currentDropboxItem.url;
+        var options = {path: path};
+        if (SETTINGS.dropboxMode === "overwrite"){
+			options.mode =  "overwrite";
+        }else{
+			options.mode =  "add";
+			options.autorename = true;
         }
-        dropboxService('files/upload', {path: path}, content,{
+
+        dropboxService('files/upload', options, content,{
             onComplete : function(result,a,b){
                 console.log(result);
                 console.log(a);

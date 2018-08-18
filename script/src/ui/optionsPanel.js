@@ -53,7 +53,6 @@ UI.OptionsPanel = function(){
 			label: "VU bars:",
 			values: ["NONE", "COLOURS: AMIGA","TRANSPARENT"],
 			setValue: function (index) {
-				console.error("set option " + index);
 				if (index == 0){
 					SETTINGS.vubars = "none";
 				}else if (index == 2){
@@ -74,7 +73,6 @@ UI.OptionsPanel = function(){
 			label: "Stereo:",
 			values: ["Hard: Amiga", "Balanced", "None: mono"],
 			setValue: function (index) {
-				console.error("set option " + index);
 				if (index == 0){
 					Audio.setStereoSeparation(STEREOSEPARATION.FULL)
 				}else if (index == 2){
@@ -100,6 +98,23 @@ UI.OptionsPanel = function(){
 			},
 			getValue: function () {
 				return Tracker.useLinearFrequency ? 0 : 1;
+			}
+		},
+		{
+			label: "Dropbox: existing file",
+			values: ["Rename", "Overwrite"],
+			setValue: function (index) {
+				if (index === 0){
+					SETTINGS.dropboxMode = "rename";
+				}else{
+					SETTINGS.dropboxMode = "overwrite";
+				}
+				Settings.saveSettings();
+			},
+			getValue: function () {
+				var result = 0;
+				if (SETTINGS.dropboxMode === "overwrite") result = 1;
+				return result;
 			}
 		}
 	];

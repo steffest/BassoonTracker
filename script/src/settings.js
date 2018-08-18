@@ -31,7 +31,8 @@ var Settings = (function(){
 		var settings = {
 			vubars: SETTINGS.vubars,
 			keyboardTable: SETTINGS.keyboardTable,
-			stereoSeparation: SETTINGS.stereoSeparation
+			stereoSeparation: SETTINGS.stereoSeparation,
+			dropboxMode: SETTINGS.dropboxMode
 		};
 		Storage.set("bassoonTrackerSettings",JSON.stringify(settings));
 	};
@@ -46,6 +47,7 @@ var Settings = (function(){
 		SETTINGS.keyboardTable = "qwerty";
 		SETTINGS.vubars = "colour";
 		SETTINGS.stereoSeparation =  STEREOSEPARATION.BALANCED;
+		SETTINGS.dropboxMode = "rename";
 	}
 
 	return me;
