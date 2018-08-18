@@ -1244,10 +1244,44 @@ var Tracker = (function(){
                 //Fasttracker only - global volume
                 console.warn("Global volume not implemented");
                 break;
+			case 17:
+				//Fasttracker only - global volume slide
+				console.warn("Global volume slide not implemented");
+				break;
+			case 20:
+				//Fasttracker only - Key off
+				if (me.inFTMode()){
+					offInstrument = instrument || me.getInstrument(trackNotes[track].currentInstrument);
+					if (offInstrument){
+						volume = offInstrument.noteOff(time,trackNotes[track]);
+					}else{
+						console.log("no instrument on track " + track);
+						volume = 0;
+					}
+					defaultVolume = volume;
+					doPlayNote = false;
+				}
+				break;
             case 21:
-                //Fasttracker only - Multi retrig note
-                console.warn("Multi retrig note not implemented");
+                //Fasttracker only - Set envelope position
+                console.warn("Set envelope position not implemented");
                 break;
+			case 25:
+				//Fasttracker only - Panning slide
+				console.warn("Panning slide not implemented");
+				break;
+			case 27:
+				//Fasttracker only - Multi retrig note
+				console.warn("Multi retrig note not implemented");
+				break;
+			case 29:
+				//Fasttracker only - Tremor
+				console.warn("Tremor not implemented");
+				break;
+			case 33:
+				//Fasttracker only - Extra fine porta
+				console.warn("Extra fine porta not implemented");
+				break;
 			default:
 				console.warn("unhandled effect: " + note.effect);
 		}

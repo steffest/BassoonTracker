@@ -243,8 +243,6 @@ var Editor = (function(){
 	};
 
 
-
-
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
 		me.setCurrentTrackPosition(0);
 	});
@@ -260,7 +258,6 @@ var Editor = (function(){
 
 	EventBus.on(EVENT.trackCountChange,function(trackCount){
 		var max = trackCount*me.getStepsPerTrack();
-		console.log(max,currentCursorPosition);
 		if (currentCursorPosition >= max) me.setCurrentTrack(trackCount-1);
 	});
 

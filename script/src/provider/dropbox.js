@@ -43,6 +43,7 @@ var Dropbox = function(){
                     Dropbox.authenticate();
                 }else{
                     dialog.close();
+                    EventBus.trigger(EVENT.dropboxConnectCancel);
                 }
             }
         };

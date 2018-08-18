@@ -37,6 +37,7 @@ UI.DiskOperationTargets = function(){
 	];
 
 	var currentLoadTargets = targetsModule;
+	var currentAction = "load";
 
 	var selectionTarget = UI.radioGroup();
 	selectionTarget.setProperties({
@@ -81,7 +82,6 @@ UI.DiskOperationTargets = function(){
 		});
 
 		var buttonTop = 18;
-		var buttonHeight = (me.height - buttonTop - 1)/4;
 
 		selectionTarget.setProperties({
 			width: innerWidth,
@@ -99,14 +99,19 @@ UI.DiskOperationTargets = function(){
     EventBus.on(EVENT.diskOperationTargetChange,function(target){
         if (target && target.fileType){
 
-			if (target.fileType === FILETYPE.module) {
-				currentLoadTargets = targetsModule;
-			}
-			if (target.fileType === FILETYPE.sample){
-				currentLoadTargets = targetsSample;
+        	if (currentAction === "save"){
+				selectionTarget.setItems(targetsSave);
+			}else{
+				if (target.fileType === FILETYPE.module) {
+					currentLoadTargets = targetsModule;
+				}
+				if (target.fileType === FILETYPE.sample){
+					currentLoadTargets = targetsSample;
+				}
+
+				selectionTarget.setItems(currentLoadTargets);
 			}
 
-			selectionTarget.setItems(currentLoadTargets);
             selectionTarget.setSelectedIndex(0);
         }
     });
@@ -115,14 +120,20 @@ UI.DiskOperationTargets = function(){
 	EventBus.on(EVENT.diskOperationActionChange,function(target){
 		if (target.label === "save"){
 			label.setLabel("To");
+			currentAction = "save";
 			selectionTarget.setItems(targetsSave);
 		}else{
 			label.setLabel("From");
+			currentAction = "load";
 			selectionTarget.setItems(currentLoadTargets);
 		}
 
         EventBus.trigger(EVENT.diskOperationTargetChange,selectionTarget.getSelectedItem());
 
+	});
+
+	EventBus.on(EVENT.dropboxConnectCancel,function(){
+		selectionTarget.setSelectedIndex(0);
 	});
 
 	return me;

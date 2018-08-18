@@ -53,8 +53,9 @@ var EVENT = {
 	samplePropertyChange:35,
 	sampleIndexChange:36,
 	second:37,
-	minute:38
-
+	minute:38,
+	dropboxConnect: 39,
+	dropboxConnectCancel: 40
 };
 
 var COMMAND = {

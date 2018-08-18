@@ -277,8 +277,20 @@ var Input = (function(){
 						// cursorPosition is not on note
 						doPlay = false;
 						var re = /[0-9A-Fa-f]/g;
+						var value = -1;
+
 						if (re.test(key)){
-							Editor.putNoteParam(Editor.getCurrentTrackPosition(),parseInt(key,16));
+							value = parseInt(key,16);
+						}else{
+							if (Tracker.inFTMode() && Editor.getCurrentTrackPosition() === 5){
+								// Special Fasttracker commands // should we allow all keys ?
+								re = /[0-9A-Za-z]/g;
+								if (re.test(key)) value = parseInt(key,36)
+							}
+						}
+
+						if (value >= 0){
+							Editor.putNoteParam(Editor.getCurrentTrackPosition(),value);
 							Tracker.moveCurrentPatternPos(1);
 						}
 					}else{
