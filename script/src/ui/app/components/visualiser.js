@@ -262,17 +262,15 @@ UI.visualiser = function(){
 		if (Tracker.isPlaying()){
 		    // lower fft size on slower machines
 			var fps = UI.getAverageFps();
-			if (fps<35){
+			if (fps<32 && analyserSize>32){
 				analyserSize >>= 1;
 				analyserSize = Math.max(analyserSize,32);
 				UI.resetAverageFps();
-				console.error(analyserSize);
+				console.warn("Low framerate, setting analyser FFT size to " + analyserSize);
             }
         }
 	});
-
-
-
+	
     return me;
 
 

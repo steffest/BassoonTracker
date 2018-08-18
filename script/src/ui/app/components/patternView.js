@@ -8,6 +8,9 @@ UI.app_patternView = function(x,y,w,h){
     var startTrack = 0;
     var max = Tracker.getPatternLength();
     var font;
+    var displayVolume;
+    var noteCache = {};
+    var noteParamCache = {};
 
     var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
         img: Y.getImage("bar"),
@@ -108,7 +111,7 @@ UI.app_patternView = function(x,y,w,h){
 
             var trackLeft = Layout.firstTrackOffsetLeft;
 
-			var displayVolume = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER;
+			displayVolume = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER;
 			var textWidth = displayVolume ? 92 : 72;
 			var cursorWidth1 = 9;
 			var cursorWidth3 = 28;
@@ -268,31 +271,11 @@ UI.app_patternView = function(x,y,w,h){
                                     x = trackLeft + initialTrackTextOffset + (j*Layout.trackWidth);
                                 }
 
-                                if (Tracker.inFTMode()){
-									if (note.index){
-										var ftNote = FTNotes[note.index];
-									    if (note.index === 97) ftNote = FTNotes[NOTEOFF];
+                                renderNote(note,x,y);
 
-										var noteString = ftNote ? ftNote.name : "???"
-									}else{
-										noteString = "---";
-										var baseNote = FTPeriods[note.period];
-										if (baseNote){
-											ftNote = FTNotes[baseNote];
-											if (ftNote) noteString = ftNote.name;
-                                        }else{
-										    if (note.period>0) console.error("no basenote for " + note.period)
-                                        }
-									}
-                                }else{
-									baseNote = periodNoteTable[note.period];
-									noteString = baseNote ? baseNote.name : "---";
-                                }
-
-                                drawText(noteString,x,y);
                                 if (isCenter){
-                                    drawText(noteString,x,y);
-                                    drawText(noteString,x,y);
+                                    renderNote(note,x,y);
+                                    renderNote(note,x,y);
 
                                     if (Tracker.isPlaying() || trackVULevel[j] && SETTINGS.vubars != "none"){
                                         // draw VU of center note
@@ -336,26 +319,7 @@ UI.app_patternView = function(x,y,w,h){
                                 }
 
                                 x += (font.charWidth*3) + 4;
-                                noteString = formatHex(note.instrument,2,"0");
-                                if (noteString == "00") noteString = "..";
-                                drawText(noteString,x,y,"green");
-
-
-                                if (displayVolume){
-                                    x += (font.charWidth*2) + 4;
-                                    var value = note.volumeEffect || 0;
-                                    if (value) value -= 16;
-                                    noteString = formatHex(value,2,"0");
-                                    if (noteString == "00") noteString = "..";
-                                    drawText(noteString,x,y);
-                                }
-
-
-                                x += (font.charWidth*2) + 4;
-                                noteString = formatHex(note.effect);
-                                noteString += formatHex(note.param,2,"0");
-                                if (noteString == "000") noteString = "...";
-                                drawText(noteString,x,y,"orange");
+                                renderNoteParam(note,x,y);
                             }
                         }
 
@@ -401,6 +365,99 @@ UI.app_patternView = function(x,y,w,h){
         me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
     };
 
+    function renderNote(note,x,y){
+
+        if (Tracker.inFTMode()){
+            var id = "i" + note.index + "." + font.charWidth;
+        }else{
+            id = "p" + note.period + "." + font.charWidth;
+        }
+
+        if (!noteCache[id]){
+
+            //console.log("Caching note " + id);
+
+            var canvas = document.createElement("canvas");
+            canvas.height = lineHeight;
+            canvas.width = font.charWidth*3;
+            var c = canvas.getContext("2d");
+
+            if (Tracker.inFTMode()){
+                if (note.index){
+                    var ftNote = FTNotes[note.index];
+                    if (note.index === 97) ftNote = FTNotes[NOTEOFF];
+
+                    var noteString = ftNote ? ftNote.name : "???"
+                }else{
+                    noteString = "---";
+                    var baseNote = FTPeriods[note.period];
+                    if (baseNote){
+                        ftNote = FTNotes[baseNote];
+                        if (ftNote) noteString = ftNote.name;
+                    }else{
+                        if (note.period>0) console.error("no basenote for " + note.period)
+                    }
+                }
+            }else{
+                baseNote = periodNoteTable[note.period];
+                noteString = baseNote ? baseNote.name : "---";
+            }
+
+            font.write(c,noteString,0,0,0);
+
+            noteCache[id] = canvas;
+
+        }
+
+        me.ctx.drawImage(noteCache[id],x,y);
+
+    }
+
+    function renderNoteParam(note,x,y){
+
+        var id = "n" + note.instrument + "." + (displayVolume?note.volumeEffect:"") + "." + note.effect + "." + font.charWidth;
+
+        if (!noteParamCache[id]){
+            //console.log("Caching note param " + id);
+
+            var canvas = document.createElement("canvas");
+            canvas.height = lineHeight;
+            canvas.width = font.charWidth*7 + 8;
+            var c = canvas.getContext("2d");
+
+            var noteString = formatHex(note.instrument,2,"0");
+            if (noteString == "00") noteString = "..";
+            var nx=0;
+            font.write(c,noteString,nx,0,0,"green");
+
+            if (displayVolume){
+                nx += (font.charWidth*2) + 4;
+                var value = note.volumeEffect || 0;
+                if (value) value -= 16;
+                noteString = formatHex(value,2,"0");
+                if (noteString === "00") noteString = "..";
+                font.write(c,noteString,nx,0,0);
+            }
+
+            nx += (font.charWidth*2) + 4;
+
+            if (note.effect>15){
+                noteString = formatHexExtended(note.effect);
+            }else{
+                noteString = formatHex(note.effect);
+            }
+
+            noteString += formatHex(note.param,2,"0");
+            if (noteString === "000") noteString = "...";
+            font.write(c,noteString,nx,0,0,"orange");
+
+            noteParamCache[id] = canvas;
+        }
+
+        me.ctx.drawImage(noteParamCache[id],x,y);
+
+    }
+
     function drawText(t,x,y,color){
 		font.write(me.ctx,t,x,y,0,color);
     }
@@ -415,6 +472,18 @@ UI.app_patternView = function(x,y,w,h){
         }
         return h;
     }
+
+	function formatHexExtended(i,length,padString){
+		h = i.toString(36).toUpperCase();
+		if (length && h.length<length){
+			padString = padString || "0";
+			while (h.length<length){
+				h = padString + h;
+			}
+		}
+		return h;
+	}
+
 
     function setScrollBarPosition(){
 
