@@ -24,11 +24,10 @@ var Editor = (function(){
 
 		currentTrack = Math.floor(currentCursorPosition / stepsPerTrack);
 		currentTrackPosition = currentCursorPosition % stepsPerTrack;
-		if (prevCursorPosition!=currentCursorPosition) {
-
+		if (prevCursorPosition!==currentCursorPosition) {
 			EventBus.trigger(EVENT.cursorPositionChange,currentCursorPosition);
 		}
-		prevCursorPosition = currentTrackPosition;
+		prevCursorPosition = currentCursorPosition;
 	};
 	me.getCurrentCursorPosition = function(){
 		return currentCursorPosition;

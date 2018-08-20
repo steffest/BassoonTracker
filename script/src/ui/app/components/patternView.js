@@ -589,6 +589,12 @@ UI.app_patternView = function(x,y,w,h){
         Tracker.setCurrentPatternPos(targetPos);
     };
 
+    me.onClick = function(touchData){
+		var track = Math.floor((touchData.x - Layout.firstTrackOffsetLeft-me.left)/(Layout.trackWidth+Layout.trackMargin));
+		var stepsPerTrack = Editor.getStepsPerTrack();
+		Editor.setCurrentCursorPosition((startTrack+track)*stepsPerTrack);
+	};
+
 
     me.getStartTrack = function(){
         return startTrack;
