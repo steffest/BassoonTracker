@@ -434,17 +434,25 @@ var Tracker = (function(){
 
             for (i = 0; i<trackCount; i++){
                 var trackNote = trackNotes[i];
-                if (trackNote && trackNote.time){
-                	if (trackNote.scheduled && trackNote.scheduled.volume){
-                		if ((time + delay) >= trackNote.scheduled.volume){
-                            //console.log("note needs scheduling");
+                if (trackNote && trackNote.time && trackNote.scheduled){
 
-                            var instrument = me.getInstrument(trackNote.instrumentIndex);
-                            if(instrument){
-								var scheduledtime = instrument.scheduleVolumeLoop(trackNote.volumeEnvelope,trackNote.scheduled.volume,2);
-								trackNote.scheduled.volume += scheduledtime;
-							}
+					var instrument = me.getInstrument(trackNote.instrumentIndex);
+					if(instrument){
+
+					}
+
+                	if (trackNote.scheduled.volume){
+                		if ((time + delay) >= trackNote.scheduled.volume){
+							var scheduledtime = instrument.scheduleEnvelopeLoop(trackNote.volumeEnvelope,trackNote.scheduled.volume,2);
+							trackNote.scheduled.volume += scheduledtime;
                         }
+					}
+
+					if (trackNote.scheduled.panning){
+						if ((time + delay) >= trackNote.scheduled.panning){
+							scheduledtime = instrument.scheduleEnvelopeLoop(trackNote.panningEnvelope,trackNote.scheduled.panning,2);
+							trackNote.scheduled.panning += scheduledtime;
+						}
 					}
 				}
             }

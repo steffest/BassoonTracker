@@ -152,27 +152,30 @@ UI.Envelope = function(type){
 				for (var i = 0; i<currentEnvelope.count; i++){
 
 					var co = currentEnvelope.points[i];
-					var x = co[0] * xScale;
-					var y = me.height - (co[1] * yScale);
+					if (co){
+						var x = co[0] * xScale;
+						var y = me.height - (co[1] * yScale);
 
-					var size = 4;
-					var color = currentEnvelope.enabled ? "#D2861B" : "#546888";
+						var size = 4;
+						var color = currentEnvelope.enabled ? "#D2861B" : "#546888";
 
-					if (i === activePointIndex){
-						size = 6;
-						color = "#FFFFFF";
+						if (i === activePointIndex){
+							size = 6;
+							color = "#FFFFFF";
+						}
+
+						me.ctx.fillStyle = color;
+
+						if (i === 0){
+							me.ctx.moveTo(x, y);
+						}else{
+							me.ctx.lineTo(x, y);
+						}
+
+						var h = size/2;
+						me.ctx.fillRect(x-h, y-h, size, size);
 					}
 
-					me.ctx.fillStyle = color;
-
-					if (i === 0){
-						me.ctx.moveTo(x, y);
-					}else{
-						me.ctx.lineTo(x, y);
-					}
-
-					var h = size/2;
-					me.ctx.fillRect(x-h, y-h, size, size);
 				}
 				me.ctx.stroke();
 

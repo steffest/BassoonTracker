@@ -24,48 +24,22 @@ var Instrument = function(){
 	};
 
 	me.noteOn = function(time){
-		var tickTime = Tracker.getProperties().tickTime;
 		var volumeEnvelope;
 		var panningEnvelope;
-		var scheduled;
+		var scheduled = {};
 
 		if (me.volumeEnvelope.enabled){
 			volumeEnvelope = Audio.context.createGain();
-
-			// volume envelope to time ramp
-
-			volumeEnvelope.gain.setValueAtTime(me.volumeEnvelope.points[0][1]/64,time);
-
-			var maxPoint = me.volumeEnvelope.sustain ? me.volumeEnvelope.sustainPoint+1 :  me.volumeEnvelope.count;
-			var doVolumeLoop = me.volumeEnvelope.loop && (me.volumeEnvelope.loopStartPoint<me.volumeEnvelope.loopEndPoint);
-			if (me.volumeEnvelope.sustain && me.volumeEnvelope.sustainPoint<=me.volumeEnvelope.loopStartPoint) doVolumeLoop=false;
-			if (doVolumeLoop) maxPoint = me.volumeEnvelope.loopEndPoint+1;
-			var scheduledTime = 0;
-			var lastX = 0;
-			for (var p = 1; p<maxPoint;p++){
-				var point = me.volumeEnvelope.points[p];
-				lastX = point[0];
-				scheduledTime = lastX*tickTime;
-				volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + scheduledTime);
-			}
-
-			if (doVolumeLoop){
-				// param loop - schedule 2 seconds ahead, the rest will be picked up in the main scheduler loop
-				scheduledTime = me.scheduleVolumeLoop(volumeEnvelope,time,2,scheduledTime);
-				scheduled = {volume: (time + scheduledTime)};
-			}
+			var envelope = me.volumeEnvelope;
+			var scheduledTime = processEnvelop(envelope,volumeEnvelope,time);
+			if (scheduledTime) scheduled.volume = (time + scheduledTime);
 		}
 
 		if (me.panningEnvelope.enabled){
 			panningEnvelope = Audio.context.createStereoPanner();
-
-			// volume envelope to time ramp
-			maxPoint = me.panningEnvelope.sustain ? me.panningEnvelope.sustainPoint+1 :  me.panningEnvelope.count;
-			panningEnvelope.pan.setValueAtTime((me.panningEnvelope.points[0][1]-32)/32,time);
-			for (p = 1; p<maxPoint;p++){
-				point = me.panningEnvelope.points[p];
-				panningEnvelope.pan.linearRampToValueAtTime((point[1]-32)/32,time + (point[0]*tickTime));
-			}
+			envelope = me.panningEnvelope;
+			scheduledTime = processEnvelop(envelope,panningEnvelope,time);
+			if (scheduledTime) scheduled.panning = (time + scheduledTime);
 		}
 
 		return {volume: volumeEnvelope, panning: panningEnvelope, scheduled: scheduled};
@@ -114,20 +88,73 @@ var Instrument = function(){
 
 	};
 
-	me.scheduleVolumeLoop = function(volumeEnvelope,startTime,seconds,scheduledTime){
+	function processEnvelop(envelope,audioNode,time){
+		var tickTime = Tracker.getProperties().tickTime;
+		var maxPoint = envelope.sustain ? envelope.sustainPoint+1 : envelope.count;
+		var doLoop = envelope.loop && (envelope.loopStartPoint<envelope.loopEndPoint);
+		if (envelope.sustain && envelope.sustainPoint<=envelope.loopStartPoint) doLoop=false;
+
+		if (doLoop) maxPoint = envelope.loopEndPoint+1;
+		var scheduledTime = 0;
+		var lastX = 0;
+
+		if (audioNode.gain){
+			// volume
+			var audioParam = audioNode.gain;
+			var center = 0;
+			var max = 64;
+		}else{
+			// panning node
+			audioParam = audioNode.pan;
+			center = 32;
+			max = 32;
+		}
+
+		audioParam.setValueAtTime((envelope.points[0][1]-center)/max,time);
+
+		for (var p = 1; p<maxPoint;p++){
+			var point = envelope.points[p];
+			lastX = point[0];
+			scheduledTime = lastX*tickTime;
+			audioParam.linearRampToValueAtTime((point[1]-center)/max,time + scheduledTime);
+		}
+
+		if (doLoop){
+			return me.scheduleEnvelopeLoop(audioNode,time,2,scheduledTime);
+		}
+
+		return false;
+	}
+
+	me.scheduleEnvelopeLoop = function(audioNode,startTime,seconds,scheduledTime){
+
+		// note - this is not 100% accurate when the ticktime would change during the scheduled ahead time
 
 		scheduledTime = scheduledTime || 0;
 		var tickTime = Tracker.getProperties().tickTime;
 
-		var point = me.volumeEnvelope.points[me.volumeEnvelope.loopStartPoint];
+		if (audioNode.gain){
+			// volume
+			var envelope = me.volumeEnvelope;
+			var audioParam = audioNode.gain;
+			var center = 0;
+			var max = 64;
+		}else{
+			// panning node
+			envelope = me.panningEnvelope;
+			audioParam = audioNode.pan;
+			center = 32;
+			max = 32;
+		}
+		var point = envelope.points[envelope.loopStartPoint];
 		var loopStartX = point[0]-1; // the -1 is to have at least 1 tick difference in the end and the start of the loop
 
 		while (scheduledTime < seconds){
 			var startScheduledTime = scheduledTime;
-			for (var p = me.volumeEnvelope.loopStartPoint; p<=me.volumeEnvelope.loopEndPoint;p++){
-				point = me.volumeEnvelope.points[p];
+			for (var p = envelope.loopStartPoint; p<=envelope.loopEndPoint;p++){
+				point = envelope.points[p];
 				scheduledTime = startScheduledTime + ((point[0]-loopStartX)*tickTime);
-				volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,startTime + scheduledTime);
+				audioParam.linearRampToValueAtTime((point[1]-center)/max,startTime + scheduledTime);
 			}
 		}
 

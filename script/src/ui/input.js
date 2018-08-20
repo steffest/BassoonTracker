@@ -513,22 +513,32 @@ var Input = (function(){
 	};
 
 	EventBus.on(EVENT.second,function(){
-		// check for looping parameters of playing input notes
+		// check for looping parameters on playing input notes
 		if (!Audio.context) return;
 		var time = Audio.context.currentTime;
 		var delay = 2;
 
 		inputNotes.forEach(function(note){
-			if (note && note.time){
-				if (note.scheduled && note.scheduled.volume){
-					if ((time + delay) >= note.scheduled.volume){
+			if (note && note.time && note.scheduled){
 
+				if (note.scheduled.volume){
+					if ((time + delay) >= note.scheduled.volume){
 						if(note.instrument){
-							var scheduledtime = note.instrument.scheduleVolumeLoop(note.volumeEnvelope,note.scheduled.volume,2);
+							var scheduledtime = note.instrument.scheduleEnvelopeLoop(note.volumeEnvelope,note.scheduled.volume,2);
 							note.scheduled.volume += scheduledtime;
 						}
 					}
 				}
+
+				if (note.scheduled.panning){
+					if ((time + delay) >= note.scheduled.panning){
+						if(note.instrument){
+							scheduledtime = note.instrument.scheduleEnvelopeLoop(note.panningEnvelope,note.scheduled.panning,2);
+							note.scheduled.panning += scheduledtime;
+						}
+					}
+				}
+
 			}
 
 		});
