@@ -55,7 +55,8 @@ var EVENT = {
 	second:37,
 	minute:38,
 	dropboxConnect: 39,
-	dropboxConnectCancel: 40
+	dropboxConnectCancel: 40,
+	trackScopeClick: 41
 };
 
 var COMMAND = {

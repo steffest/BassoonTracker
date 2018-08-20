@@ -22,11 +22,16 @@ UI.app_patternPanel = function(){
     var visualiser = UI.visualiser();
     visualiser.connect(Audio.cutOffVolume);
     visualiser.name = "mainAnalyser";
-    visualiser.onClick = function(){
-        visualiser.nextMode();
-    };
-    window.visualiser = visualiser;
+
+    //window.visualiser = visualiser;
     // note: don't attach as child to main panel, this gets attached to main UI
+
+    var scopesClickHandler = UI.element();
+	scopesClickHandler.render = function(){};
+	scopesClickHandler.onClick = function(touchData){
+	    visualiser.onClick(touchData);
+    };
+	me.addChild(scopesClickHandler);
 
     var sidebar = UI.app_sidebar();
     me.addChild(sidebar);
@@ -113,6 +118,13 @@ UI.app_patternPanel = function(){
             height: Layout.analyserHeight
         });
 
+		scopesClickHandler.setDimensions({
+			left: visualiser.left,
+			top: Layout.infoPanelHeight + 3,
+			width: visualiser.width,
+			height: visualiser.height
+		});
+
         sampleView.setProperties({
             left: 0,
             top: Layout.expandSampleViewHeight ? Layout.infoPanelHeight : patternTop,
@@ -125,7 +137,6 @@ UI.app_patternPanel = function(){
 
     };
     me.onPanelResize();
-
 
 
     function setTrackControlsLayout(){

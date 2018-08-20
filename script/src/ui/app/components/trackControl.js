@@ -142,6 +142,12 @@ UI.trackControl = function(x,y,w,h,visible){
 
     };
 
+    EventBus.on(EVENT.trackScopeClick,function(track){
+       if (track === me.track){
+		   buttons.mute.onClick();
+       }
+    });
+
     return me;
 
 
