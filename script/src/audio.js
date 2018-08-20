@@ -16,6 +16,7 @@ var Audio = (function(){
     var recordingChunks = [];
     var offlineContext;
     var currentStereoSeparation = STEREOSEPARATION.BALANCED;
+    var lastMasterVolume = 0;
 
     var filters = {
         volume: true,
@@ -37,8 +38,8 @@ var Audio = (function(){
         cutOffVolume.connect(audioContext.destination);
 
         masterVolume = audioContext.createGain();
-        masterVolume.gain.setValueAtTime(0.7,0);
         masterVolume.connect(cutOffVolume);
+        me.setMasterVolume(1);
 
         lowPassfilter = audioContext.createBiquadFilter();
         lowPassfilter.type = "lowpass";
@@ -588,6 +589,14 @@ var Audio = (function(){
         var value = on ? 2000 : 20000;
         lowPassfilter.frequency.setValueAtTime(value,time);
     };
+
+    me.setMasterVolume = function (value,time) {
+        time=time||context.currentTime;
+        value = value*0.7;
+        masterVolume.gain.setValueAtTime(lastMasterVolume,time);
+		masterVolume.gain.linearRampToValueAtTime(value,time+0.02);
+		lastMasterVolume = value;
+	};
 
     me.waveFormFunction = {
         sine: function(period,progress,freq,amp){

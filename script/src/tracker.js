@@ -259,6 +259,7 @@ var Tracker = (function(){
 	me.playSong = function(){
 		me.stop();
 		Audio.checkState();
+		Audio.setMasterVolume(1);
 		me.setPlayType(PLAYTYPE.song);
 		isPlaying = true;
 		//Audio.startRecording();
@@ -269,6 +270,7 @@ var Tracker = (function(){
 	me.playPattern = function(){
 		me.stop();
         Audio.checkState();
+		Audio.setMasterVolume(1);
 		currentPatternPos = 0;
 		me.setPlayType(PLAYTYPE.pattern);
 		isPlaying = true;
@@ -279,6 +281,7 @@ var Tracker = (function(){
 	me.stop = function(){
 		if (clock) clock.stop();
 		Audio.disable();
+		Audio.setMasterVolume(1);
 		if (UI) {
 			UI.setStatus("Ready");
 			Input.clearInputNotes();
@@ -1268,7 +1271,8 @@ var Tracker = (function(){
 
             case 16:
                 //Fasttracker only - global volume
-                console.warn("Global volume not implemented");
+				value = Math.min(value,64);
+				Audio.setMasterVolume(value/64,time);
                 break;
 			case 17:
 				//Fasttracker only - global volume slide
@@ -1298,7 +1302,9 @@ var Tracker = (function(){
 				break;
 			case 27:
 				//Fasttracker only - Multi retrig note
-				console.warn("Multi retrig note not implemented");
+				trackEffects.reTrigger = {
+					value: note.param
+				};
 				break;
 			case 29:
 				//Fasttracker only - Tremor
@@ -1985,6 +1991,7 @@ var Tracker = (function(){
 		}
 		me.useLinearFrequency = false;
 		me.setTrackerMode(TRACKERMODE.PROTRACKER);
+		Audio.setMasterVolume(1);
 	}
 
 	me.clearEffectCache = function(){

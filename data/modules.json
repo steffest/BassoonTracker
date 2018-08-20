@@ -1,5 +1,7 @@
 {
   "modules":[
+    {"title":"Ambrozia","url":"demomods/Ambrozia.xm"},
+    {"title":"Aqua","url":"demomods/aws_aqua.xm"},
     {"title":"Aurora","url":"demomods/aurora.mod"},
     {"title":"Demo Music","url":"demomods/demomusic.mod"},
     {"title":"DKM Cass'ice raining","url":"demomods/dkm.cassicerainin.mod"},
@@ -7,8 +9,11 @@
     {"title":"Demo Music","url":"demomods/demomusic.mod"},
     {"title":"Enigma","url":"http://www.stef.be/amiga/mod/enigma.mod"},
     {"title":"Elek Funk !","url":"http://www.stef.be/amiga/mod/elekfunk.mod"},
+    {"title":"External","url":"demomods/external.xm"},
     {"title":"Haste","url":"http://www.stef.be/amiga/mod/woutervl_haste.mod"},
+    {"title":"Heximal_snow.xm","url":"demomods/heximal_snow.xm"},
     {"title":"Guitar Slinger","url":"http://www.stef.be/amiga/mod/gslinger.mod"},
+    {"title":"Onward","url":"demomods/Jugi-Onward.xm"},
     {"title":"Profession tracker","url":"demomods/hoffman_and_daytripper_-_professional_tracker.mod"},
     {"title":"Scrambled Mind","url":"http://www.stef.be/amiga/mod/scrambld.mod"},
     {"title":"Sounds of da Lunatic","url":"demomods/sound-of-da-lunatic.mod"},

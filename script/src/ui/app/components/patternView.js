@@ -381,7 +381,7 @@ UI.app_patternView = function(x,y,w,h){
 
         x += (font.charWidth*3) + 4;
 
-        var id = "n" + note.instrument + "." + (displayVolume?note.volumeEffect:"") + "." + note.effect + "." + font.charWidth;
+        var id = "n" + note.instrument + "." + (displayVolume?note.volumeEffect:"") + "." + note.effect + "." + note.param + "." + font.charWidth;
 
         if (!noteParamCache[id]){
             //console.log("Caching note param " + id);
