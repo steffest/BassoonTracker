@@ -11,6 +11,7 @@ UI.visualiser = function(){
     var analyser;
     var background;
     var trackAnalyser = [];
+    var trackMuteState = [];
     var analyserPos = [];
     var analyserSize = 256;
 
@@ -49,6 +50,12 @@ UI.visualiser = function(){
 			setAnalyserPositions();
             me.connect();
         });
+
+		EventBus.on(EVENT.trackStateChange,function(state){
+			if (typeof state.track !== "undefined"){
+				trackMuteState[state.track] = state.mute;
+			}
+		});
 
 
         me.needsRendering = true;
@@ -171,6 +178,8 @@ UI.visualiser = function(){
                 var track = trackAnalyser[trackIndex];
                 var pos = analyserPos[trackIndex];
 
+                var isMute = trackMuteState[trackIndex];
+
                 me.ctx.drawImage(background,pos.left,pos.top,pos.width,pos.height);
 
                 if (track){
@@ -180,7 +189,7 @@ UI.visualiser = function(){
 					var wx = pos.lineLeft;
                     var ww = pos.lineWidth;
 
-                    if (hasVolume){
+                    if (hasVolume && !isMute){
 
 						track.fftSize = analyserSize;
                         bufferLength = track.fftSize;
@@ -209,6 +218,11 @@ UI.visualiser = function(){
 
                     //myCtx.lineTo(aWidth, height/2);
                     me.ctx.stroke();
+
+                    if (isMute){
+						me.ctx.fillStyle = "rgba(34, 49, 85, 0.5)";
+						me.ctx.fillRect(pos.left,pos.top,pos.width,pos.height);
+                    }
                 }
             }
 
