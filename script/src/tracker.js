@@ -361,8 +361,8 @@ var Tracker = (function(){
 
 		// look-ahead playback - far less demanding, works OK on mobile devices
 		var p =  0;
-		//var time = Audio.context.currentTime + 0.01; // TODO - why is this 0.01 ?
-		var time = Audio.context.currentTime;
+		var time = Audio.context.currentTime + 0.1; //  add small delay to allow some time to render the first notes before playing
+
 
 		// start with a small delay then make it longer
 		// this is because Chrome on Android doesn't start playing until the first batch of scheduling is done?
@@ -1568,49 +1568,7 @@ var Tracker = (function(){
 
 	}
 
-	me.renderTrackToBuffer = function(fileName,target){
-		var step = 0;
-		var patternStep = 0;
-		var thisPatternLength = 64;
-		var time = 0;
 
-		//var length = (ticksPerStep * tickTime * thisPatternLength) * song.length;
-		var length = (ticksPerStep * tickTime * thisPatternLength);
-		Audio.startRendering(length);
-
-
-		//while (patternStep<song.length){
-		//	var patternIndex = song.patternTable[patternStep];
-		//	currentPatternData = song.patterns[patternIndex];
-			while (step<thisPatternLength){
-				var stepResult = playPatternStep(step,time);
-				time += ticksPerStep * tickTime;
-				step++;
-			}
-			step = 0;
-			patternStep++;
-		//}
-
-		Audio.stopRendering(function(result){
-			// save to wav
-			var b = new Blob([result], {type: "octet/stream"});
-			fileName = fileName || me.getSong().title.replace(/ /g, '-').replace(/\W/g, '') + ".wav" || "module-export.wav";
-
-
-			if (target === "dropbox"){
-				Dropbox.putFile("/" + fileName,b);
-			}else{
-				saveAs(b,fileName);
-			}
-
-
-			//var output = context.createBufferSource();
-			//output.buffer = renderedBuffer;
-			//output.connect(context.destination);
-			//output.start();
-
-		});
-	};
 
 	me.setBPM = function(newBPM){
 		console.log("set BPM: " + bpm + " to " + newBPM);

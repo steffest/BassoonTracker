@@ -241,6 +241,66 @@ var Editor = (function(){
 
 	};
 
+	me.renderTrackToBuffer = function(fileName,target){
+		var song = Tracker.getSong();
+		var step = 0;
+		var patternStep = Tracker.getCurrentSongPosition();
+		var thisPatternLength = Tracker.getCurrentPatternData().length;
+
+		// apparently needs some leading time, otherwise the first note is not rendered.
+		var time = 0.1;
+
+
+		var props =  Tracker.getProperties();
+		var ticksPerStep = props.ticksPerStep;
+		var tickTime = props.tickTime;
+
+		var patternCount = 1;
+		var maxPosition = patternStep+patternCount;
+		maxPosition = Math.min(maxPosition,song.length);
+		patternCount = maxPosition-patternStep;
+
+		// TODO - we should first calculate the real length of the pattern, scanning all tempo changes.
+		var length = (ticksPerStep * tickTime * thisPatternLength * patternCount) + 0.2;
+		Audio.startRendering(length);
+
+		while (patternStep<maxPosition){
+			var patternIndex = song.patternTable[patternStep];
+			var currentPatternData = song.patterns[patternIndex];
+			thisPatternLength = currentPatternData.length;
+
+			while (step<thisPatternLength){
+				Tracker.playPatternStep(step,time,currentPatternData);
+				time += ticksPerStep * tickTime;
+				step++;
+			}
+			step = 0;
+			patternStep++;
+		}
+
+		Audio.stopRendering(function(result){
+
+			// TODO cutoff the first 0.1 seconds -> start time
+
+			// save to wav
+			var b = new Blob([result], {type: "octet/stream"});
+			fileName = fileName || Tracker.getSong().title.replace(/ /g, '-').replace(/\W/g, '') + ".wav" || "module-export.wav";
+
+			if (target === "dropbox"){
+				Dropbox.putFile("/" + fileName,b);
+			}else{
+				saveAs(b,fileName);
+			}
+
+
+			//var output = context.createBufferSource();
+			//output.buffer = renderedBuffer;
+			//output.connect(context.destination);
+			//output.start();
+
+		});
+	};
+
 
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
 		me.setCurrentTrackPosition(0);

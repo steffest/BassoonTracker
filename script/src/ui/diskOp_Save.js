@@ -52,7 +52,7 @@ UI.DiskOperationSave = function(){
 				Tracker.save(fileName,saveTarget);
 			}
 			if (saveAsFileType == FILETYPE.sample){
-				Tracker.renderTrackToBuffer(fileName,saveTarget);
+				Editor.renderTrackToBuffer(fileName,saveTarget);
 			}
 		}
 		if (mainFileType == FILETYPE.sample){

@@ -89,17 +89,18 @@ var Audio = (function(){
                     filterChains[state.track].volumeValue(state.mute?0:70);
                 }
             });
+
+
+			EventBus.on(EVENT.trackCountChange,function(trackCount){
+				for (i = filterChains.length; i<trackCount;i++)addFilterChain();
+				EventBus.trigger(EVENT.filterChainCountChange,trackCount);
+				me.setStereoSeparation(currentStereoSeparation);
+			});
+
+			EventBus.on(EVENT.trackerModeChanged,function(mode){
+				me.setStereoSeparation();
+			});
         }
-
-        EventBus.on(EVENT.trackCountChange,function(trackCount){
-            for (i = filterChains.length; i<trackCount;i++)addFilterChain();
-            EventBus.trigger(EVENT.filterChainCountChange,trackCount);
-            me.setStereoSeparation(currentStereoSeparation);
-        });
-
-		EventBus.on(EVENT.trackerModeChanged,function(mode){
-			me.setStereoSeparation();
-		});
     };
 
 
@@ -362,6 +363,7 @@ var Audio = (function(){
             // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
         });
 
+        // switch back to online Audio context;
         me.context = context;
         createAudioConnections(context);
         me.init(context);
