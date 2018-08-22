@@ -6,6 +6,7 @@ return {
         togglePlay: Tracker.togglePlay,
         isPlaying: Tracker.isPlaying,
         getTrackCount: Tracker.getTrackCount,
-        getSong: Tracker.getSong
+        getSong: Tracker.getSong,
+        audio: Audio
     };
 })();

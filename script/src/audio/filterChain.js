@@ -18,7 +18,7 @@ FilterChain = (function(filters) {
 	}
 
 	var useVolume = filters.volume;
-	var usePanning = filters.panning;
+	var usePanning = filters.panning && Audio.context.createStereoPanner;
 	var useHigh = filters.high;
 	var useMid = filters.mid;
 	var useLow = filters.low;

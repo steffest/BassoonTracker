@@ -35,7 +35,7 @@ var Instrument = function(){
 			if (scheduledTime) scheduled.volume = (time + scheduledTime);
 		}
 
-		if (me.panningEnvelope.enabled){
+		if (me.panningEnvelope.enabled && Audio.usePanning){
 			panningEnvelope = Audio.context.createStereoPanner();
 			envelope = me.panningEnvelope;
 			scheduledTime = processEnvelop(envelope,panningEnvelope,time);
@@ -79,7 +79,7 @@ var Instrument = function(){
 				noteInfo.volumeFadeOut.gain.linearRampToValueAtTime(0,time + 0.1)
 			}
 
-            if (me.panningEnvelope.enabled){
+            if (me.panningEnvelope.enabled && Audio.usePanning){
                 timeOffset = 0;
                 startPoint = me.panningEnvelope.points[me.panningEnvelope.sustainPoint];
                 if (startPoint) timeOffset = startPoint[0]*tickTime;

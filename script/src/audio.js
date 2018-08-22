@@ -17,6 +17,7 @@ var Audio = (function(){
     var offlineContext;
     var currentStereoSeparation = STEREOSEPARATION.BALANCED;
     var lastMasterVolume = 0;
+    var usePanning;
 
     var filters = {
         volume: true,
@@ -61,6 +62,11 @@ var Audio = (function(){
         audioContext = audioContext || context;
         if (!audioContext) return;
 
+        usePanning = !!Audio.context.createStereoPanner;
+        if (!usePanning){
+            console.warn("Warning: Your browser does not support StereoPanners ... all mods will be played in mono!")
+        }
+
         createAudioConnections(audioContext);
 
         var numberOfTracks = Tracker.getTrackCount();
@@ -75,6 +81,7 @@ var Audio = (function(){
         for (i = 0; i<numberOfTracks;i++)addFilterChain();
 
         me.filterChains = filterChains;
+		me.usePanning = usePanning;
 
         if (!isRendering){
             EventBus.on(EVENT.trackStateChange,function(state){
@@ -237,13 +244,17 @@ var Audio = (function(){
 
 			var volumeFadeOut = Audio.context.createGain();
 			volumeFadeOut.gain.setValueAtTime(1,time);
-
-			var panning = Audio.context.createStereoPanner();
-			panning.pan.setValueAtTime(pan,time);
-
 			volumeGain.connect(volumeFadeOut);
-			volumeFadeOut.connect(panning);
-			panning.connect(filterChains[track].input());
+
+			if (usePanning){
+				var panning = Audio.context.createStereoPanner();
+				panning.pan.setValueAtTime(pan,time);
+				volumeFadeOut.connect(panning);
+				panning.connect(filterChains[track].input());
+            }else{
+				volumeFadeOut.connect(filterChains[track].input());
+            }
+
 
             source.playbackRate.value = initialPlaybackRate;
             var sourceDelayTime = 0;

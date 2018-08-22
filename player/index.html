@@ -53,22 +53,25 @@
         document.addEventListener('DOMContentLoaded', function() {
             var loading = document.getElementById("loading");
             var controls = document.getElementById("controls");
-            Tracker.init(true);
-            if (!Audio.context){
-                loading.innerHTML = "Sorry<br>Your browser does not support WebAudio.<br>Supported browsers are Chrome,Firefox,Safari and Edge";
-            }else{
+			BassoonTracker.init(true);
+            //if (!Audio.context){
+              //  loading.innerHTML = "Sorry<br>Your browser does not support WebAudio.<br>Supported browsers are Chrome,Firefox,Safari and Edge";
+            //}else{
 
-                Tracker.load("../demomods/StardustMemories.mod",false,function(){
+            var demoMod = "StardustMemories.mod";
+            demoMod = "deadlock.xm";
+
+				BassoonTracker.load("../demomods/" + demoMod,false,function(){
                     loading.style.display = "none";
                     controls.style.display = "block";
                 });
-            }
+           // }
         });
 
         function togglePlay(){
-            Tracker.togglePlay();
+			BassoonTracker.togglePlay();
             var button = document.getElementById("button");
-            button.innerHTML = Tracker.isPlaying() ? "Pause" : "Play";
+            button.innerHTML = BassoonTracker.isPlaying() ? "Pause" : "Play";
         }
 
     </script>
