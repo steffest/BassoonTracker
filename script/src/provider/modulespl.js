@@ -104,7 +104,7 @@ var ModulesPl = function(){
 		var result = [];
 		if (data){
 			data.forEach(function(mod){
-				result.push({title:mod.title || "---",url:proxyUrl + mod.id});
+				result.push({title:mod.title || "---",url:proxyUrl + mod.id,info:formatFileSize(mod.size),icon:mod.format});
 			});
 		}
 		return result;

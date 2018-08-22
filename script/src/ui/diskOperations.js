@@ -255,14 +255,16 @@ UI.DiskOperations = function(){
 		var items = [];
 		var index = 0;
 
-		if (currentView != type) listbox.setSelectedIndex(0,true);
+		if (currentView !== type) listbox.setSelectedIndex(0,true);
 		currentView = type || currentView;
 
 		function addListatLevel(data,level){
 			data.forEach(function(item){
-				var icon = currentView == "modules" ? Y.getImage("module") : Y.getImage("sample");
+                var icon;
+                if (item.icon) icon = Y.getImage(item.icon);
+				if (!icon) icon = currentView === "modules" ? Y.getImage("module") : Y.getImage("sample");
 				if (item.children) icon = Y.getImage("disk");
-				items.push({label: item.title, data: item, level: level, index: index, icon: icon});
+				items.push({label: item.title, data: item, level: level, index: index, icon: icon, info: item.info});
 				itemsMap[index] = item;
 				index++;
 
