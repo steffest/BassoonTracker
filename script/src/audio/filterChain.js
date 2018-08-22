@@ -217,12 +217,14 @@ FilterChain = (function(filters) {
 
 	me.panningValue = function(value,time) {
 		if (!usePanning) return;
+
 		if (typeof value !== "undefined"){
 			panningValue = value;
 			if (time){
 				panner.pan.setValueAtTime(panningValue,time);
 			}else{
-				panner.pan.value = panningValue;
+				// very weird bug in safari on OSX ... setting pan.value directy to 0 does not work
+				panner.pan.setValueAtTime(panningValue,Audio.context.currentTime);
 			}
 
 		}
