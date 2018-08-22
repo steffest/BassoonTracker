@@ -9,6 +9,17 @@ UI.app_songPatternList = function(height){
     songlistbox.setItems([
         {label: "01:00", data: 1}
     ]);
+    songlistbox.onClick = function(){
+
+        var item = songlistbox.getItemAtPosition(songlistbox.eventX,songlistbox.eventY);
+        if (item){
+            var index = item.index;
+            if (item !== songlistbox.getSelectedIndex()){
+                songlistbox.setSelectedIndex(index);
+            }
+        }
+
+    };
     me.addChild(songlistbox);
 
     var spPlus = UI.Assets.generate("button20_20");
@@ -59,7 +70,7 @@ UI.app_songPatternList = function(height){
         var items = [];
         for (var i = 0, len = Tracker.getSong().length; i<len; i++){
             var value = patternTable[i];
-            items.push({label: padd2(i+1) + ":" + padd2(value), data:value});
+            items.push({label: padd2(i+1) + ":" + padd2(value), data:value, index: i});
         }
         songlistbox.setItems(items);
     };

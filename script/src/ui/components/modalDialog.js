@@ -8,11 +8,6 @@ UI.modalDialog = function(initialProperties){
 
         properties.forEach(function(key){
             if (typeof p[key] !== "undefined") me[key] = p[key];
-
-            if (key === "cancel"){
-                console.error("cancel");
-                console.error(p[key]);
-            }
         });
 
         me.setSize(me.width,me.height);

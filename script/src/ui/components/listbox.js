@@ -4,6 +4,7 @@ UI.listbox = function(x,y,w,h){
     var previousSelectedIndex = 0;
 
     var font = window.fontMed;
+    var fontSmall = window.fontSmall;
 
     var items = [];
     var visibleIndex = 0;
@@ -11,6 +12,8 @@ UI.listbox = function(x,y,w,h){
     var lineHeight = 18;
     var startY = 10;
     var scrollBarItemOffset = 0;
+    var hoverIndex;
+    var prevHoverIndex;
     var properties = ["left","top","width","height","name","type","onChange","selectedIndex","centerSelection"];
 
     me.setProperties = function(p){
@@ -146,6 +149,7 @@ UI.listbox = function(x,y,w,h){
                 var item = items[i];
                 var textX = 10;
                 var indent = 10;
+                var highlightY = 6;
                 var textY = startY + ((i-visibleIndex)*lineHeight);
 
                 if ((textY>0) && (textY<me.height)){
@@ -156,23 +160,31 @@ UI.listbox = function(x,y,w,h){
                     var itemCanvas;
 
                     if(clip){
-                        var lastItemHeight = me.height-textY-2;
+                        var lastItemHeight = me.height-textY+1;
                         if (lastItemHeight>1){
                             itemCanvas = document.createElement("canvas");
                             itemCanvas.width = me.width-2;
                             itemCanvas.height = lastItemHeight;
                             targetCtx = itemCanvas.getContext("2d");
-                            _y = 0;
+                            _y = 4;
+                            highlightY = 6;
                         }else {
                             targetCtx = undefined;
                         }
                     }
 
                     if (targetCtx){
-                        if (me.selectedIndex === i){
-                            targetCtx.fillStyle = 'rgba(100,100,255,0.1';
-                            targetCtx.fillRect(0,_y-4,me.width-2,lineHeight);
+                        if (hoverIndex+visibleIndex === i){
+                            targetCtx.fillStyle = 'rgba(110,130,220,0.07)';
+                            targetCtx.fillRect(0,_y-highlightY,me.width-2,lineHeight);
                         }
+
+                        if (me.selectedIndex === i){
+                            targetCtx.fillStyle = 'rgba(110,130,220,0.15)';
+                            targetCtx.fillRect(0,_y-highlightY,me.width-2,lineHeight);
+                        }
+
+
 
                         if (item.level) textX += item.level*indent;
 
@@ -181,14 +193,32 @@ UI.listbox = function(x,y,w,h){
                             textX += item.icon.width + 4;
                         }
 
-                        if (font) font.write(targetCtx,item.label,textX,_y,0);
+                        var text = item.label;
+
+                        if (font){
+
+                            if (item.info){
+                                var infoLength = (item.info.length*7)+16;
+                                fontSmall.write(targetCtx,item.info,me.width-infoLength,_y,0);
+                                text = text.substr(0,Math.floor((me.width-infoLength-textX-26)/font.charWidth));
+                            }
+
+                            font.write(targetCtx,text,textX,_y,0);
+                        }
+
+
+
+
+
+
+
                         textY += 11;
                         _y += 11;
 
                         if (line) targetCtx.drawImage(line,0,_y,me.width-2,2);
 
                         if(clip){
-                            me.ctx.drawImage(itemCanvas,0,textY-11);
+                            me.ctx.drawImage(itemCanvas,0,textY-11-4);
                         }
                     }
 
@@ -294,6 +324,28 @@ UI.listbox = function(x,y,w,h){
             }
         }
     };
+
+
+    me.onHover = function(data){
+        var index = Math.floor((me.eventY-startY)/lineHeight);
+        if (index !== prevHoverIndex){
+            hoverIndex = index;
+            prevHoverIndex = hoverIndex;
+            me.refresh();
+        }
+    };
+
+    me.onHoverExit = function(){
+        if (hoverIndex){
+            hoverIndex = undefined;
+            prevHoverIndex = undefined;
+            me.refresh();
+        }
+
+    };
+
+
+
 
     function getMaxIndex(){
         var max = items.length-1;
