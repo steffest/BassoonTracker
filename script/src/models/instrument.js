@@ -51,6 +51,10 @@ var Instrument = function(){
 		noteInfo.volume.gain.cancelScheduledValues(time);
 		noteInfo.volumeFadeOut.gain.cancelScheduledValues(time);
 
+		if (noteInfo.volumeEnvelope) noteInfo.volumeEnvelope.gain.cancelScheduledValues(time);
+		if (noteInfo.panningEnvelope) noteInfo.panningEnvelope.pan.cancelScheduledValues(time);
+        noteInfo.scheduled = undefined;
+
 		if (Tracker.inFTMode()){
 			var tickTime = Tracker.getProperties().tickTime;
 
@@ -63,7 +67,6 @@ var Instrument = function(){
 					for (var p = me.volumeEnvelope.sustainPoint; p< me.volumeEnvelope.count;p++){
 						var point = me.volumeEnvelope.points[p];
 						noteInfo.volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime) - timeOffset);
-
 					}
 				}
 
@@ -75,6 +78,16 @@ var Instrument = function(){
 			}else{
 				noteInfo.volumeFadeOut.gain.linearRampToValueAtTime(0,time + 0.1)
 			}
+
+            if (me.panningEnvelope.enabled){
+                timeOffset = 0;
+                startPoint = me.panningEnvelope.points[me.panningEnvelope.sustainPoint];
+                if (startPoint) timeOffset = startPoint[0]*tickTime;
+                for (p = me.panningEnvelope.sustainPoint; p< me.panningEnvelope.count;p++){
+                    point = me.panningEnvelope.points[p];
+                    noteInfo.panningEnvelope.pan.linearRampToValueAtTime((point[1]-32)/32,time + (point[0]*tickTime) - timeOffset);
+                }
+            }
 
 			return 100;
 
