@@ -198,19 +198,13 @@ UI.listbox = function(x,y,w,h){
                         if (font){
 
                             if (item.info){
-                                var infoLength = (item.info.length*7)+16;
+                                var infoLength = (item.info.length*6)+20;
                                 fontSmall.write(targetCtx,item.info,me.width-infoLength,_y,0);
                                 text = text.substr(0,Math.floor((me.width-infoLength-textX-26)/font.charWidth));
                             }
 
                             font.write(targetCtx,text,textX,_y,0);
                         }
-
-
-
-
-
-
 
                         textY += 11;
                         _y += 11;
@@ -242,7 +236,7 @@ UI.listbox = function(x,y,w,h){
 
     me.setItems = function(newItems){
         items = newItems;
-        visibleIndex = Math.min(visibleIndex,getMaxIndex()+1);
+        visibleIndex = Math.min(visibleIndex,getMaxIndex());
         setScrollBarPosition();
         me.refresh();
     };

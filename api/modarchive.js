@@ -15,10 +15,17 @@ var ModArchive = (function(){
 	};
 
 	function getModArchiveResult(url,page,res){
+
+        var format = "mod";
+        if (url.indexOf("xm.") === 0){
+        	url = url.substr(3);
+        	format = "xm";
+		}
+
 		page = page || 1;
 		url = baseUrl + url;
 
-		url += "&format=mod";
+		url += "&format=" + format;
 		url += "&page=" + page;
 		https.get(url,function(modArchiveResponse){
 			var xml = '';

@@ -5,41 +5,50 @@ var ModulesPL = (function(){
     var xml2js = require('xml2js');
     var loki= require('lokijs');
 
+    var formats = [1,2]; // 1: mod, 2: xm
+
     var me = {};
 	var idLookup = {};
 
-    me.refresh = function(){
+    me.refresh = function(next){
         console.log("Refreshing modules.pl database");
-        loadModulesFromApi(function(){
-            importModules(function(){
-                console.log("done");
-            });
-        });
+		loadModulesFromApi(1,function(){
+			loadModulesFromApi(2,function(){
+				importModules(function(){
+					console.log("done");
+					if (next) next();
+				});
+			});
+		});
     };
-    me.rebuild = function(){
+    me.rebuild = function(next){
 		console.log("Rebuilding db");
 		importModules(function(){
-			console.log("done");
+			if (next) next();
 		});
     };
 
     var xmlFileName = "modules.pl.xml";
     var DBFileName = "../data/modules.pl.json";
 
-    var loadModulesFromApi = function(next){
-        var url = "http://www.modules.pl/xml.php?mode=modules&format=1";
+    var loadModulesFromApi = function(format,next){
+
+
+
+        var url = "http://www.modules.pl/xml.php?mode=modules&format=" + format;
         // for formats see http://www.modules.pl/xml.php?mode=formats
 
-        console.log("connecting to API");
-        var file = fs.createWriteStream(xmlFileName);
+        console.log("connecting to API ) loafing " + (format === 1? "mod":"xm"));
+
+        var file = fs.createWriteStream(format + "_" + xmlFileName);
         var request = http.get(url, function(response) {
             response.pipe(file);
             file.on('finish', function() {
-                console.log("Done, saved as " + xmlFileName);
+                console.log("Done, saved as " + format + "_" + xmlFileName);
                 file.close(next);
             });
         }).on('error', function(err) {
-            fs.unlink(xmlFileName);
+            fs.unlink(format + "_" + xmlFileName);
             console.log("Error: " + err.message);
         });
     };
@@ -54,32 +63,46 @@ var ModulesPL = (function(){
             indices: ['genre']
         });
 
-        var fileData = fs.readFileSync(xmlFileName, 'ascii');
-        fileData = fileData.replace(new RegExp('&', 'g'),'');
 
-        var parser = new xml2js.Parser({explicitArray: false});
-        parser.parseString(fileData, function (err, result) {
-            var list = result.xml.modules.module ;
-
-            console.log(list.length + " modules imported");
-            //console.log(list[0]);
-
-            list.forEach(function(item){
-                modules.insert({
-                    id: item["$"].id,
-                    title: item.title,
-                    author: item.authorId,
-                    //author: idLookup[item["$"].id] || 0,
-                    genre: item.genre,
-                    rate: item.rate,
-                    score: item.bayesianScore
-                });
-            });
-
-            db.saveDatabase(function(){
-                if (next) next();
-            });
+        importFile(1,function(){
+           importFile(2,function(){
+			   db.saveDatabase(function(){
+				   if (next) next();
+			   });
+            })
         });
+
+        function importFile(format,_next){
+
+            var fileData = fs.readFileSync(format + "_" + xmlFileName, 'ascii');
+
+            fileData = fileData.replace(new RegExp('&', 'g'),'');
+
+			var parser = new xml2js.Parser({explicitArray: false});
+			parser.parseString(fileData, function (err, result) {
+				var list = result.xml.modules.module ;
+
+				console.log(list.length + " modules imported for format " + (format === 1?"mod":"xm"));
+				//console.log(list[0]);
+
+				list.forEach(function(item){
+					modules.insert({
+						id: item["$"].id,
+						title: item.title,
+						author: item.authorId,
+						//author: idLookup[item["$"].id] || 0,
+						genre: item.genre,
+						rate: item.rate,
+						score: item.bayesianScore,
+						format: item.format,
+                        size: parseInt(item.filesize,10)
+					});
+				});
+
+				_next();
+			});
+
+        }
 
     };
 

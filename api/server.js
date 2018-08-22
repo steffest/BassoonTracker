@@ -1,13 +1,14 @@
 var http = require('http');
 var url = require('url');
 var modArchive  = require('./modArchive');
+var modArchiveCached  = require('./modArchiveCached');
 var modulesPL  = require('./modulesPL');
 var httpProxy = require('http-proxy');
 
 var port = process.env.PORT || 3000;
 
 modulesPL.init();
-
+modArchiveCached.init();
 
 var proxy = httpProxy.createProxyServer();
 proxy.on('error', function (err, req, res) {
@@ -42,6 +43,7 @@ var server = http.createServer(function (req, res) {
 	var section = urlParts[0];
 	var action = urlParts[1];
 
+
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
 
@@ -64,6 +66,9 @@ var server = http.createServer(function (req, res) {
 		case "random":
 			modArchive.getResult("random",page,res);
 			break;
+        case "randomxm":
+            modArchive.getResult("xm.random",page,res);
+            break;
 		case "genres":
 			modArchive.getResult("view_genres",page,res);
 			break;
@@ -114,6 +119,9 @@ var server = http.createServer(function (req, res) {
 		case "mpl":
 			modulesPL.handleRequest(action,urlParts,res);
 			break;
+        case "ma":
+            modArchiveCached.handleRequest(action,urlParts,res);
+            break;
 		case "restart":
 			res.writeHead(200, {'Content-Type': 'text/html'});
 			res.end("exiting ...");

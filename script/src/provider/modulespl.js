@@ -23,13 +23,13 @@ var ModulesPl = function(){
 			case "toprating":
 				page = param || 1;
 				loadFromApi("toprating/" + page,function(data){
-					next(parseModList(data,params));
+					next(parseModList(data,"rate"));
 				});
 				break;
 			case "topscore":
 				page = param || 1;
 				loadFromApi("topscore/" + page,function(data){
-					next(parseModList(data,params));
+					next(parseModList(data,"score"));
 				});
 				break;
 			case "artists":
@@ -39,7 +39,7 @@ var ModulesPl = function(){
 				var apiUrl = "artist/" + param;
 				if (page) apiUrl += "/" + page;
 				loadFromApi(apiUrl,function(data){
-					next(parseModList(data,params));
+					next(parseModList(data));
 				});
 				break;
 			default:
@@ -55,7 +55,7 @@ var ModulesPl = function(){
 				if (result){
 					result.forEach(function(artist){
 						console.log(artist);
-						var item = {title: artist.handle + " (" + artist.count + ")", url : "artist/" + artist.id ,children : []};
+						var item = {title: artist.handle, info:  artist.count + " >", url : "artist/" + artist.id ,children : []};
 						artists.push(item);
 					});
 				}
@@ -71,9 +71,7 @@ var ModulesPl = function(){
 			loadFromApi("genres",function(result){
 				if (result){
 					result.forEach(function(genre){
-						console.log(genre);
-						var id = genre.split("(")[0].trim();
-						var item = {title: genre, url : "genre/" + id ,children : []};
+						var item = {title: genre.name, url : "genre/" + genre.name ,children : [],info:genre.count + " >"};
 						genres.push(item);
 					});
 				}
@@ -89,7 +87,7 @@ var ModulesPl = function(){
 			url += "/" + page;
 		}
 		loadFromApi(url,function(data){
-			next(parseModList(data,["genre",id,page]));
+			next(parseModList(data));
 		})
 	}
 
@@ -100,11 +98,16 @@ var ModulesPl = function(){
 		})
 	}
 
-	function parseModList(data){
+	function parseModList(data,extraInfo){
 		var result = [];
 		if (data){
 			data.forEach(function(mod){
-				result.push({title:mod.title || "---",url:proxyUrl + mod.id,info:formatFileSize(mod.size),icon:mod.format});
+			    var info = formatFileSize(mod.size);
+			    var title = mod.title || "---";
+			    if (extraInfo){
+                    title = mod[extraInfo] + ": " + title;
+                }
+				result.push({title:title,url:proxyUrl + mod.id,info:info,icon:mod.format});
 			});
 		}
 		return result;

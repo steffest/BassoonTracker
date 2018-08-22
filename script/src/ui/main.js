@@ -135,8 +135,8 @@ var UI = (function(){
 			charHeight: 6,
 			spaceWidth: 6,
 			margin: 0,
-			charsPerLine:41,
-			chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.+-_#",
+			charsPerLine:42,
+			chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.+-_#>",
 			onlyUpperCase:true
 		});
 		window.fontSmall = fontSmall;
