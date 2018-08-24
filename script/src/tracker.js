@@ -100,7 +100,7 @@ var Tracker = (function(){
 				if (!ftNote.period) ftNote.period = 1;
 				FTNotes.push(ftNote);
 				FTPeriods[ftNote.period] = ftCounter;
-				if (ftNote.modperiod) FTPeriods[ftNote.modperiod] = ftCounter;
+				if (ftNote.modPeriod) FTPeriods[ftNote.modPeriod] = ftCounter;
 				ftCounter++;
 			}
 		}

@@ -495,6 +495,7 @@ var Input = (function(){
                     Tracker.moveCurrentPatternPos(1);
                 }
             }else{
+                if (keyDown[index]) return;
                 if (note){
                     Editor.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.index);
                     if (Tracker.isPlaying()){

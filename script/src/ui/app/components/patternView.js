@@ -343,7 +343,7 @@ UI.app_patternView = function(x,y,w,h){
 
             var canvas = document.createElement("canvas");
             canvas.height = lineHeight;
-            canvas.width = font.charWidth*3;
+            canvas.width = font.charWidth*3 + 2;
             var c = canvas.getContext("2d");
 
             if (Tracker.inFTMode()){

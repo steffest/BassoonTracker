@@ -18,13 +18,12 @@ var Note = function(){
 		me.index = index;
 		var ftNote = FTNotes[index];
 		if (ftNote){
-			me.period = ftNote.period;
+			me.period = ftNote.modPeriod || ftNote.period;
 			if (me.period === 1) me.period = 0;
 		}else{
 			console.warn("No note for index " + index);
 			me.period = 0;
 		}
-
 	};
 
 	me.clear = function(){
