@@ -7,6 +7,8 @@ return {
         isPlaying: Tracker.isPlaying,
         getTrackCount: Tracker.getTrackCount,
         getSong: Tracker.getSong,
+        getStateAtTime: Tracker.getStateAtTime,
+        setCurrentSongPosition: Tracker.setCurrentSongPosition,
         audio: Audio
     };
 })();

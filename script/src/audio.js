@@ -18,6 +18,7 @@ var Audio = (function(){
     var currentStereoSeparation = STEREOSEPARATION.BALANCED;
     var lastMasterVolume = 0;
     var usePanning;
+    var hasUI;
 
     var filters = {
         volume: true,
@@ -66,6 +67,7 @@ var Audio = (function(){
         if (!usePanning){
             console.warn("Warning: Your browser does not support StereoPanners ... all mods will be played in mono!")
         }
+        hasUI = typeof Editor !== "undefined";
 
         createAudioConnections(audioContext);
 
@@ -135,7 +137,7 @@ var Audio = (function(){
         }
 
 		period = period || 428; // C-3
-		track = track || (Editor ? Editor.getCurrentTrack() : 0);
+		track = track || (hasUI ? Editor.getCurrentTrack() : 0);
 		time = time || context.currentTime;
 
         if (noteIndex === NOTEOFF){

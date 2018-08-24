@@ -3,24 +3,26 @@ UI.app_pianoView = function(){
     var me = UI.app_panelContainer(200);
     me.name = "pianoViewPanel";
 
-
     var keyWidth = 64;
+    var keyOverlap = 4;
 
-    var keys = [];
-    var bKeys = [];
-    var periodKeys = {};
+    var keySizeX = keyWidth-keyOverlap;
+
     var keyDown = [];
-    var keyPlayed = [];
-    var touchKey = {};
+    var prevDown;
+    var keyMapWhite = [0,2,4,5,7,9,11];
+    var keyMapBlack = [-1,1,0,3,0,-1,0,6,0,8,0,10,0,-1];
 
     var keyImg = Y.getImage("pianokey_white");
     var keyImgDown = Y.getImage("pianokey_white_down");
     var bKeyImg = Y.getImage("pianokey_black");
     var bKeyImgDown = Y.getImage("pianokey_black_down");
 
-    var octave = 1;
     var keyTop = 30;
     var bKeyHeight = 0;
+    var octave;
+    var maxOctave = 3;
+    var minOctave = 1;
 
 
     var closeButton = UI.Assets.generate("button20_20");
@@ -30,30 +32,28 @@ UI.app_pianoView = function(){
     };
     me.addChild(closeButton);
 
-    var octaveBoxBmp = UI.spinBox();
-    octaveBoxBmp.setProperties({
+    var octaveBox = UI.spinBox();
+    octaveBox.setProperties({
         name: "Octave",
         label: "Octave",
         value: 1,
-        max: 7,
-        min:1,
+        max: maxOctave,
+        min:minOctave,
         left: 4,
         top: 2,
         height: 28,
         width: 150,
         font: window.fontMed,
-        onChange : function(value){octave=value}
+        onChange : function(value){Input.setCurrentOctave(value)}
     });
-    me.addChild(octaveBoxBmp);
+    me.addChild(octaveBox);
 
     me.onShow = function(){
         me.onPanelResize();
     };
 
     me.onPanelResize = function(){
-
         me.innerHeight = me.height - (Layout.defaultMargin*2);
-
         closeButton.setProperties({
             top: 4,
             left: me.width - 24
@@ -63,177 +63,89 @@ UI.app_pianoView = function(){
     me.onPanelResize();
 
 
-    if (!keys.length){
-        for (var note in NOTEPERIOD){
-            if (NOTEPERIOD.hasOwnProperty(note)){
-                if (note.indexOf("s")<0){
-                    // white key
-                    periodKeys[NOTEPERIOD[note].period] = keys.length;
-                    keys.push(note);
-                }else{
-                    // black key
-                    periodKeys[NOTEPERIOD[note].period] = 1000 + bKeys.length;
-                    bKeys.push(note);
-                }
-
-            }
-        }
-    }
-
-    EventBus.on(EVENT.pianoNoteOn,function(note){
+    EventBus.on(EVENT.pianoNoteOn,function(index){
         if (!me.isVisible()) return;
-        if (note && note.basePeriod){
-            var keyIndex = periodKeys[note.basePeriod];
-            if (keyIndex >= 0){
-
-                if (keyIndex>=1000){
-                    keyIndex = keyIndex - (octave-1)*5;
-                }else{
-                    keyIndex = keyIndex - (octave-1)*7;
-                }
-
-                keyDown[keyIndex] = {
-                    startTime: Audio.context.currentTime,
-                    source: note.source
-                };
-                me.refresh();
-            }
-        }
+        keyDown[index] = true;
+        me.refresh();
     });
 
-    EventBus.on(EVENT.pianoNoteOff,function(note){
+    EventBus.on(EVENT.pianoNoteOff,function(index){
         if (!me.isVisible()) return;
-        if (note && note.basePeriod){
-            var keyIndex = periodKeys[note.basePeriod];
-
-            if (keyIndex>=1000){
-                keyIndex = keyIndex - (octave-1)*5;
-            }else{
-                keyIndex = keyIndex - (octave-1)*7;
-            }
-
-            if (keyIndex >= 0){
-                keyDown[keyIndex] = false;
-                me.refresh();
-            }
-        }
+        keyDown[index] = false;
+        me.refresh();
     });
 
-    var keyNoteOn = function(key){
-
-        var note;
-        if (key<1000 && keys[key]){
-            note =  NOTEPERIOD[keys[key + (octave-1)*7]];
-        }else{
-            var bkey = key - 1000;
-            if (bKeys[bkey]) note =  NOTEPERIOD[bKeys[bkey + (octave-1)*5]];
-        }
-
-        if (note && note.period){
-
-            if (Tracker.isRecording()){
-                if (Editor.getCurrentTrackPosition() > 0){
-                    // cursorPosition is not on note
-                    // play anyway but don't input
-                }else{
-                    Editor.putNote(Tracker.getCurrentInstrumentIndex(),note.period);
-                    if (Tracker.isPlaying()){
-
-                    }else{
-                        Tracker.moveCurrentPatternPos(1);
-                    }
-                }
-            }
-
-            var playedNote = Audio.playSample(Tracker.getCurrentInstrumentIndex(),note.period);
-            keyPlayed[key] = playedNote;
-            EventBus.trigger(EVENT.pianoNoteOn,playedNote);
-
-        }
-
-    };
-
-    var keyNoteOff = function(key){
-
-        var note;
-        if (keyPlayed[key]){
-            if (key<1000 && keys[key]){
-                note =  NOTEPERIOD[keys[key + (octave-1)*7]];
-            }else{
-                var bkey = key - 1000;
-                if (bKeys[bkey]) note =  NOTEPERIOD[bKeys[bkey + (octave-1)*5]];
-            }
-
-            if (note && note.period){
-                EventBus.trigger(EVENT.pianoNoteOff,keyPlayed[key]);
-                if (keyPlayed[key].volume){
-                    keyPlayed[key].volume.gain.linearRampToValueAtTime(0,Audio.context.currentTime + 0.5)
-                }else{
-                    keyPlayed[key].source.stop();
-                }
-                keyPlayed[key] = false;
-            }
-        }
-    };
 
     var getKeyAtPoint = function(x,y){
         var key = -1;
-        y = y-keyTop;
+
+        var octaveWidth = keySizeX*7;
+
+        var keyX = x%octaveWidth;
+        var keyOctave = Math.floor(x/octaveWidth);
+
+
+        //console.log(x);
         if (y>= 0){
             if (y>bKeyHeight){
                 // white key
-                key = Math.floor(x/(keyWidth-4));
+                var keyIndex = Math.floor(keyX/keySizeX);
+                key = keyMapWhite[keyIndex] + (keyOctave*12);
             }else{
-                var subKeyWidth = ((keyWidth-4)/2);
+                var subKeyWidth = (keySizeX/2);
                 var margin = subKeyWidth/2;
-                var subKey = Math.floor((x - margin)/subKeyWidth);
+                var subKey = Math.floor((keyX - margin)/subKeyWidth);
                 if (subKey<0) subKey=0;
+                if (subKey>12) subKey=12;
 
-                if (subKey%2 == 0){
+                if (subKey%2 === 0){
                     // white key
-                    key = subKey/2;
+                    keyIndex = subKey/2;
+                    key = keyMapWhite[keyIndex];
                 }else{
                     // black key
-                    var keyIndex = {
-                        1:0,3:1,5:-1,7:2,9:3,11:4,13:-1,15:5,17:6,19:-1,21:7,23:8,25:9,27:-1,29:10,31:11,33:-1,35:12,37:13,39:14,41:-1
-                    };
-                    key = 1000 + keyIndex[subKey];
-                    if (key<1000){ // no black key
-                        key = Math.floor(x/(keyWidth-4));
+                    key = keyMapBlack[subKey];
+                    if (key<0){
+                        // no black key
+                        keyIndex = Math.floor(keyX/keySizeX);
+                        key = keyMapWhite[keyIndex];
                     }
                 }
-
+                key += (keyOctave*12);
             }
         }
-        return key;
+        return key+1;
     };
 
-    me.onDown = function(data){
-        var key = getKeyAtPoint(me.eventX,me.eventY);
-        if (key>=0){
-            touchKey[data.id] = key;
-            keyNoteOn(key);
-        }
-    };
 
     me.onTouchUp = function(data){
         var x = data.dragX || me.eventX;
-        var key = getKeyAtPoint(x,me.eventY);
-        if (key>=0){
-            touchKey[data.id] = false;
-            keyNoteOff(key);
+        var y = me.eventY - keyTop;
+
+        var key = getKeyAtPoint(x,y);
+        if (!key) key=prevDown;
+        if (key){
+            Input.handleNoteOff(key + (octave*12));
+            prevDown = undefined;
         }
+
+        if (prevDown) Input.handleNoteOff(prevDown + (octave*12));
+        prevDown = undefined;
+
     };
 
     me.onDrag = function(data){
+        // todo: multitouch?
         var x = data.dragX;
         var y = data.dragY - me.top - keyTop;
+
+
         var key = getKeyAtPoint(x,y);
-        if (key>=0){
-            if (touchKey[data.id] != key){
-                keyNoteOff(touchKey[data.id]);
-                touchKey[data.id] = key;
-                keyNoteOn(key);
+        if (key) {
+            if (key !== prevDown){
+                Input.handleNoteOn(key + (octave*12));
+                if (prevDown) Input.handleNoteOff(prevDown + (octave*12));
+                prevDown = key;
             }
         }
     };
@@ -245,17 +157,19 @@ UI.app_pianoView = function(){
 
         if (this.needsRendering){
 
-
             // draw white keys
             var keyHeight = me.height - keyTop;
 
             var keyX = 0;
-            var keyOverlap = 4;
 
             var counter = 0;
             while (keyX<me.width){
+                var thisOctave = Math.floor(counter/7);
+                var octaveIndex = counter%7;
 
-                var img = keyDown[counter] ? keyImgDown : keyImg;
+                var keyIndex = ((octave+thisOctave)*12) + keyMapWhite[octaveIndex] + 1;
+
+                var img = keyDown[keyIndex] ? keyImgDown : keyImg;
                 me.ctx.drawImage(img,keyX,keyTop,keyWidth,keyHeight);
 
                 counter++;
@@ -271,11 +185,12 @@ UI.app_pianoView = function(){
             var keyCounter = 0;
 
             while (bkeyX<me.width){
-                var octaveIndex = counter%7;
+                thisOctave = Math.floor(counter/7);
+                octaveIndex = counter%7;
 
-                var bImg = keyDown[1000+ keyCounter] ? bKeyImgDown : bKeyImg;
-
-                if (octaveIndex != 2 && octaveIndex != 6){
+                if (octaveIndex !== 2 && octaveIndex !== 6){
+                    keyIndex = ((octave+thisOctave)*12) + keyMapBlack[(octaveIndex*2)+1] + 1;
+                    var bImg = keyDown[keyIndex] ? bKeyImgDown : bKeyImg;
                     me.ctx.drawImage(bImg,bkeyX,keyTop,bKeyWidth,bKeyHeight);
                     keyCounter++
                 }
@@ -295,7 +210,17 @@ UI.app_pianoView = function(){
 
     };
 
+    EventBus.on(EVENT.octaveChanged,function(value){
+        octave = value;
+		octaveBox.setValue(octave,true);
+    });
 
+    EventBus.on(EVENT.trackerModeChanged,function(mode){
+		maxOctave = Tracker.inFTMode() ? 7 : 3;
+		minOctave = Tracker.inFTMode() ? 0 : 1;
+		octaveBox.setMax(maxOctave,true);
+		octaveBox.setMin(minOctave,true);
+    });
 
     return me;
 

@@ -388,7 +388,7 @@ UI.app_patternView = function(x,y,w,h){
 
             var canvas = document.createElement("canvas");
             canvas.height = lineHeight;
-            canvas.width = font.charWidth*7 + 8;
+            canvas.width = font.charWidth*7 + 10;
             var c = canvas.getContext("2d");
 
             var noteString = formatHex(note.instrument,2,"0");

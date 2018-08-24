@@ -13,6 +13,8 @@ var Input = (function(){
 	var keyDown = {};
 
 	var currentOctave = 2;
+	var maxOctave = 3;
+	var minOctave = 1;
 
 	var prevHoverTarget;
 
@@ -227,112 +229,25 @@ var Input = (function(){
 			}
 
 
-			if (key && (keyCode>40) && (keyCode<200)){
+			if (key && (keyCode>40) && (keyCode<230)){
 
-				if (keyCode === 112) currentOctave = 1;
-				if (keyCode === 113) currentOctave = 2;
-				if (keyCode === 114) currentOctave = 3;
-				if (keyCode === 115) currentOctave = 4;
-				if (keyCode === 116) currentOctave = 5;
-				if (keyCode === 117) currentOctave = 6;
-				if (keyCode === 118) currentOctave = 7;
+				if (keyCode === 112) me.setCurrentOctave(1);
+				if (keyCode === 113) me.setCurrentOctave(2);
+				if (keyCode === 114) me.setCurrentOctave(3);
+				if (keyCode === 115) me.setCurrentOctave(4);
+				if (keyCode === 116) me.setCurrentOctave(5);
+				if (keyCode === 117) me.setCurrentOctave(6);
+				if (keyCode === 118) me.setCurrentOctave(7);
 
+                var index = -1;
+				var keyboardNote = keyboardTable[key];
 
-				var baseNote = keyboardTable[key];
-
-
-				var note;
-				var doPlay = true;
-				if (baseNote){
-
-					var noteName = baseNote.name + (currentOctave + baseNote.octave);
-					note = NOTEPERIOD[noteName];
-
-					if (Tracker.inFTMode()){
-						// get FT note
-						if (baseNote.name === "OFF"){
-							note = {
-								period: 1,
-								index: 0
-							};
-							doPlay = false;
-						}else{
-							var ftOctave = currentOctave + 2;
-							var index = baseNote.index + (ftOctave * 12);
-							var fNote = FTNotes[index];
-							if (fNote){
-								note = {
-									period: fNote.period,
-									index: index
-								}
-							}
-						}
-
-					}
+				if (typeof keyboardNote === "number"){
+					index = (currentOctave*12) + keyboardNote;
+					if (keyboardNote === 0) index = 0;
 				}
 
-
-				if (Tracker.isRecording()){
-					if (Editor.getCurrentTrackPosition() > 0){
-						// cursorPosition is not on note
-						doPlay = false;
-						var re = /[0-9A-Fa-f]/g;
-						var value = -1;
-
-						if (re.test(key)){
-							value = parseInt(key,16);
-						}else{
-							if (Tracker.inFTMode() && Editor.getCurrentTrackPosition() === 5){
-								// Special Fasttracker commands // should we allow all keys ?
-								re = /[0-9A-Za-z]/g;
-								if (re.test(key)) value = parseInt(key,36)
-							}
-						}
-
-						if (value >= 0){
-							Editor.putNoteParam(Editor.getCurrentTrackPosition(),value);
-							Tracker.moveCurrentPatternPos(1);
-						}
-					}else{
-						if (note){
-							Editor.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.index);
-							if (Tracker.isPlaying()){
-								doPlay = false;
-							}else{
-								Tracker.moveCurrentPatternPos(1);
-							}
-						}
-					}
-				}
-
-				if (doPlay && note){
-					if (keyDown[key]) return;
-
-					var instrument = Tracker.getCurrentInstrument();
-
-					if (instrument){
-						if (note.index){
-							instrument.setSampleForNoteIndex(note.index);
-							if (instrument.sample.relativeNote){
-								note.index += instrument.sample.relativeNote;
-								var ftNote = FTNotes[note.index];
-								if (ftNote) note.period = ftNote.period;
-							}
-						}
-
-						Audio.checkState();
-						keyDown[key] = instrument.play(note.index,note.period);
-						keyDown[key].instrument = instrument;
-						keyDown[key].isKey = true;
-						inputNotes.push(keyDown[key]);
-						if (inputNotes.length>64){
-							clearInputNote();
-						}
-						EventBus.trigger(EVENT.pianoNoteOn,keyDown[key]);
-					}
-					return;
-				}
-
+                return me.handleNoteOn(index,key);
 			}
 
 			switch(keyCode){
@@ -393,23 +308,16 @@ var Input = (function(){
 				key = String.fromCharCode(parseInt(id,16)).toLowerCase();
 			}
 
-			if (!SETTINGS.sustainKeyboardNotes && keyDown[key] && keyDown[key].source && Audio.context){
-				EventBus.trigger(EVENT.pianoNoteOff,keyDown[key]);
-				try{
-					//keyDown[key].source.stop();
-					// too harsh ... let's try a fade out, much better
+            var keyCode = event.keyCode;
 
-					if (keyDown[key].instrument){
-						keyDown[key].instrument.noteOff(Audio.context.currentTime,keyDown[key]);
-					}else{
-						keyDown[key].source.stop();
-					}
+            if (key && (keyCode>40) && (keyCode<200)){
+                var keyboardTable = KEYBOARDTABLE[SETTINGS.keyboardTable] || KEYBOARDTABLE.azerty;
+                var keyboardNote = keyboardTable[key];
 
-				}catch(e){
-
-				}
-			}
-			keyDown[key] = false;
+                if (typeof keyboardNote === "number"){
+                    return me.handleNoteOff((currentOctave*12) + keyboardNote);
+                }
+            }
 		}
 
 
@@ -512,6 +420,141 @@ var Input = (function(){
 		while (inputNotes.length) clearInputNote();
 	};
 
+	me.getCurrentOctave =function(){
+		return currentOctave;
+	};
+
+	me.setCurrentOctave =function(value){
+		if (value<=maxOctave && value>=minOctave){
+			currentOctave = value;
+			EventBus.trigger(EVENT.octaveChanged,currentOctave);
+		}
+	};
+
+	// handles the input for an indexed note
+	me.handleNoteOn = function(index,key){
+
+        var note;
+        var doPlay = true;
+        var noteOctave;
+        var noteIndex;
+        var baseNote;
+
+        if (index>=0){
+            noteOctave = Math.floor((index-1)/12) + 1;
+            noteIndex = (index-1)%12 + 1;
+            baseNote = OCTAVENOTES[noteIndex];
+
+            if (baseNote){
+                if (Tracker.inFTMode()){
+                    // get FT note
+                    if (baseNote.name === "OFF"){
+                        note = {
+                            period: 1,
+                            index: 0
+                        };
+                        doPlay = false;
+                    }else{
+                        var fNote = FTNotes[index];
+                        if (fNote){
+                            note = {
+                                period: fNote.period,
+                                index: index
+                            }
+                        }
+                    }
+
+                }else{
+                    var noteName = baseNote.name + (noteOctave-1);
+                    note = NOTEPERIOD[noteName];
+                }
+			}
+		}
+
+
+        if (Tracker.isRecording()){
+            if (Editor.getCurrentTrackPosition() > 0){
+                // cursorPosition is not on note
+                doPlay = false;
+                var re = /[0-9A-Fa-f]/g;
+                var value = -1;
+                key = key||"";
+
+                if (re.test(key)){
+                    value = parseInt(key,16);
+                }else{
+                    if (Tracker.inFTMode() && Editor.getCurrentTrackPosition() === 5){
+                        // Special Fasttracker commands // should we allow all keys ?
+                        re = /[0-9A-Za-z]/g;
+                        if (re.test(key)) value = parseInt(key,36)
+                    }
+                }
+
+                if (value >= 0){
+                    Editor.putNoteParam(Editor.getCurrentTrackPosition(),value);
+                    Tracker.moveCurrentPatternPos(1);
+                }
+            }else{
+                if (note){
+                    Editor.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.index);
+                    if (Tracker.isPlaying()){
+                        doPlay = false;
+                    }else{
+                        Tracker.moveCurrentPatternPos(1);
+                    }
+                }
+            }
+        }
+
+        if (doPlay && note){
+            if (keyDown[index]) return;
+
+            var instrument = Tracker.getCurrentInstrument();
+
+            if (instrument){
+                if (note.index){
+                    instrument.setSampleForNoteIndex(note.index);
+                    if (instrument.sample.relativeNote){
+                        note.index += instrument.sample.relativeNote;
+                        var ftNote = FTNotes[note.index];
+                        if (ftNote) note.period = ftNote.period;
+                    }
+                }
+
+                Audio.checkState();
+                keyDown[index] = instrument.play(note.index,note.period);
+                keyDown[index].instrument = instrument;
+                keyDown[index].isKey = true;
+                inputNotes.push(keyDown[index]);
+                if (inputNotes.length>64){
+                    clearInputNote();
+                }
+                EventBus.trigger(EVENT.pianoNoteOn,index);
+            }
+        }
+
+
+
+	};
+
+	me.handleNoteOff = function(index){
+		if (!SETTINGS.sustainKeyboardNotes && keyDown[index] && keyDown[index].source && Audio.context){
+            EventBus.trigger(EVENT.pianoNoteOff,index);
+            try{
+                if (keyDown[index].instrument){
+                    keyDown[index].instrument.noteOff(Audio.context.currentTime,keyDown[index]);
+                }else{
+                    keyDown[index].source.stop();
+                }
+            }catch(e){
+
+            }
+        }
+        keyDown[index] = false;
+	};
+
+
+
 	EventBus.on(EVENT.second,function(){
 		// check for looping parameters on playing input notes
 		if (!Audio.context) return;
@@ -542,6 +585,19 @@ var Input = (function(){
 			}
 
 		});
+	});
+
+
+	EventBus.on(EVENT.trackerModeChanged,function(mode){
+		if (Tracker.inFTMode()){
+            maxOctave = 7;
+            minOctave = 0;
+			me.setCurrentOctave(currentOctave+2);
+		}else{
+            maxOctave = 3;
+            minOctave = 1;
+			me.setCurrentOctave(Math.min(Math.max(currentOctave-2,minOctave),maxOctave));
+		}
 	});
 
 

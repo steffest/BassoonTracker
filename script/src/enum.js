@@ -56,7 +56,8 @@ var EVENT = {
 	minute:38,
 	dropboxConnect: 39,
 	dropboxConnectCancel: 40,
-	trackScopeClick: 41
+	trackScopeClick: 41,
+	octaveChanged: 42
 };
 
 var COMMAND = {
@@ -342,34 +343,50 @@ var FTNOTEPERIOD = {
 var NOTEOFF = 145;
 
 var KEYBOARDKEYS = {
-	C: {name: "C", octave: 0, index: 1},
-	Csharp: {name: "Cs", octave: 0, index: 2},
-	D: {name: "D", octave: 0, index: 3},
-	Dsharp: {name: "Ds", octave: 0, index: 4},
-	E: {name: "E", octave: 0, index: 5},
-	F: {name: "F", octave: 0, index: 6},
-	Fsharp: {name: "Fs", octave: 0, index: 7},
-	G: {name: "G", octave: 0, index: 8},
-	Gsharp: {name: "Gs", octave: 0, index: 9},
-	A: {name: "A", octave: 0, index: 10},
-	Asharp: {name: "As", octave: 0, index: 11},
-	B: {name: "B", octave: 0, index: 12},
-	COctaveUp: {name: "C", octave: 1, index: 13},
-	CsharpOctaveUp: {name: "Cs", octave: 1, index: 14},
-	DOctaveUp: {name: "D", octave: 1, index: 15},
-	DsharpOctaveUp: {name: "Ds", octave: 1, index: 16},
-	EOctaveUp: {name: "E", octave: 1, index: 17},
-	FOctaveUp: {name: "F", octave: 1, index: 18},
-	FsharpOctaveUp: {name: "Fs", octave: 1, index: 19},
-	GOctaveUp: {name: "G", octave: 1, index: 20},
-	GsharpOctaveUp: {name: "Gs", octave: 1, index: 21},
-	AOctaveUp: {name: "A", octave: 1, index: 22},
-	AsharpOctaveUp: {name: "As", octave: 1, index: 23},
-	BOctaveUp: {name: "B", octave: 1, index: 24},
-	COctaveUp2: {name: "C", octave: 2, index: 25},
-	CsharpOctaveUp2: {name: "Cs", octave: 2, index: 26},
-	DOctaveUp2: {name: "D", octave: 2, index: 27},
-	OFF: {name: "OFF",octave: "", index:28}
+    OFF: 0,
+	C: 1,
+	Csharp: 2,
+	D: 3,
+	Dsharp: 4,
+	E: 5,
+	F: 6,
+	Fsharp: 7,
+	G: 8,
+	Gsharp: 9,
+	A: 10,
+	Asharp: 11,
+	B: 12,
+	COctaveUp: 13,
+	CsharpOctaveUp: 14,
+	DOctaveUp: 15,
+	DsharpOctaveUp: 16,
+	EOctaveUp: 17,
+	FOctaveUp: 18,
+	FsharpOctaveUp: 19,
+	GOctaveUp: 20,
+	GsharpOctaveUp: 21,
+	AOctaveUp: 22,
+	AsharpOctaveUp: 23,
+	BOctaveUp: 24,
+	COctaveUp2: 25,
+	CsharpOctaveUp2: 26,
+	DOctaveUp2: 27
+};
+
+var OCTAVENOTES = {
+    0: {name: "OFF"},
+	1: {name: "C"},
+	2: {name: "Cs"},
+    3: {name: "D"},
+    4: {name: "Ds"},
+    5: {name: "E"},
+    6: {name: "F"},
+	7: {name: "Fs"},
+    8: {name: "G"},
+    9: {name: "Gs"},
+    10: {name: "A"},
+    11: {name: "As"},
+    12: {name: "B"}
 };
 
 
@@ -442,7 +459,9 @@ var KEYBOARDTABLE = {
 		d: KEYBOARDKEYS.Dsharp,
 		g: KEYBOARDKEYS.Fsharp,
 		h: KEYBOARDKEYS.Gsharp,
-		j: KEYBOARDKEYS.Asharp
+		j: KEYBOARDKEYS.Asharp,
+
+        "\\": KEYBOARDKEYS.OFF
 	},
 	qwertz:{
 		q: KEYBOARDKEYS.COctaveUp,
@@ -476,7 +495,9 @@ var KEYBOARDTABLE = {
 		d: KEYBOARDKEYS.Dsharp,
 		g: KEYBOARDKEYS.Fsharp,
 		h: KEYBOARDKEYS.Gsharp,
-		j: KEYBOARDKEYS.Asharp
+		j: KEYBOARDKEYS.Asharp,
+
+        "\\": KEYBOARDKEYS.OFF
 	}
 };
 
