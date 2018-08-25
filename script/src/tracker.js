@@ -295,7 +295,6 @@ var Tracker = (function(){
 				try{
 					trackNotes[i].source.stop();
 				}catch (e){
-
 				}
 			}
 		}
@@ -382,6 +381,7 @@ var Tracker = (function(){
 			}
 
 			var maxTime = event.deadline + delay;
+			Audio.clearScheduledNotesCache();
 
 			while (time<maxTime){
 

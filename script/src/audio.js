@@ -19,6 +19,8 @@ var Audio = (function(){
     var lastMasterVolume = 0;
     var usePanning;
     var hasUI;
+    var scheduledNotes = [[],[],[]];
+    var scheduledNotesBucket = 0;
 
     var filters = {
         volume: true,
@@ -114,6 +116,18 @@ var Audio = (function(){
     me.disable = function(){
         cutOffVolume.gain.setValueAtTime(0,0);
         me.cutOff = true;
+
+        var totalNotes = 0;
+		scheduledNotes.forEach(function(bucket,index){
+			totalNotes += bucket.length;
+		    bucket.forEach(function(volume){
+		        volume.gain.cancelScheduledValues(0);
+		        volume.gain.setValueAtTime(0,0);
+			});
+			scheduledNotes[index] = [];
+        });
+
+        if (totalNotes) console.log(totalNotes + " cleared");
     };
 
     me.checkState = function(){
@@ -285,6 +299,8 @@ var Audio = (function(){
                 time: time,
 				scheduled: scheduled
             };
+
+			scheduledNotes[scheduledNotesBucket].push(volumeGain);
 
             if (!isRendering) EventBus.trigger(EVENT.samplePlay,result);
 
@@ -612,6 +628,13 @@ var Audio = (function(){
 		masterVolume.gain.linearRampToValueAtTime(value,time+0.02);
 		lastMasterVolume = value;
 	};
+
+    me.clearScheduledNotesCache = function(){
+        // 3 rotating caches
+		scheduledNotesBucket++;
+		if (scheduledNotesBucket>2) scheduledNotesBucket=0;
+        scheduledNotes[scheduledNotesBucket] = [];
+    };
 
     me.waveFormFunction = {
         sine: function(period,progress,freq,amp){
