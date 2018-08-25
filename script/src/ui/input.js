@@ -223,21 +223,108 @@ var Input = (function(){
 				key = String.fromCharCode(parseInt(id,16)).toLowerCase();
 			}
 
+			//console.log(keyCode);
+
 			if (focusElement && focusElement.onKeyDown){
 				var handled = focusElement.onKeyDown(keyCode,event);
 				if (handled) return;
 			}
 
+            switch(keyCode){
+                case 8:// backspace
+                    if (Tracker.isRecording()){
+                        if (Tracker.isRecording()){
+                            pos = Editor.getCurrentTrackPosition();
+                            if (pos===0){
+                                Editor.putNote(0,0);
+                            }else{
+                                Editor.putNoteParam(pos,0);
+                            }
+                            Tracker.moveCurrentPatternPos(1);
+                        }
+                        return;
+                    }else{
+                        Tracker.playPatternStep(Editor.getCurrentTrackPosition());
+                        Tracker.moveCurrentPatternPos(-1);
+                        // on Mac this should probably be delete ...
+                    }
+
+                    return;
+                case 13:// enter
+                    Tracker.togglePlay();
+                    return;
+                case 16:// shift
+                    //Tracker.playPattern();
+                    break;
+                case 32:// space
+                    Tracker.toggleRecord();
+                    return;
+                case 33:// pageup
+                    var step = Math.floor(Tracker.getPatternLength()/4);
+                    if (step === 0) step = 1;
+                    var pos = Math.floor(Tracker.getCurrentPatternPos()/step) * step;
+                    if (Tracker.getCurrentPatternPos()===pos) pos -= step;
+                    if (pos<0) pos=0;
+                    Tracker.setCurrentPatternPos(pos);
+                    return;
+                case 34:// pagedown
+                    step = Math.floor(Tracker.getPatternLength()/4);
+                    if (step === 0) step = 1;
+                    pos = Math.ceil(Tracker.getCurrentPatternPos()/step) * step;
+                    if (Tracker.getCurrentPatternPos()===pos) pos += step;
+                    if (pos>=Tracker.getPatternLength()-1) pos=Tracker.getPatternLength()-1;
+                    Tracker.setCurrentPatternPos(pos);
+                    return;
+                case 35:// end
+                    Tracker.setCurrentPatternPos(Tracker.getPatternLength()-1);
+                    return;
+                case 36:// home
+                    Tracker.setCurrentPatternPos(0);
+                    return;
+                case 37:// left
+                    Editor.moveCursorPosition(-1);
+                    return;
+                case 38:// up
+                    Tracker.moveCurrentPatternPos(-1);
+                    return;
+                case 39:// right
+                    Editor.moveCursorPosition(1);
+                    return;
+                case 40: // down
+                    Tracker.moveCurrentPatternPos(1);
+                    return;
+                case 46: // delete
+                    if (Tracker.isRecording()){
+                    	pos = Editor.getCurrentTrackPosition();
+                    	if (pos===0){
+                            Editor.putNote(0,0);
+						}else{
+                            Editor.putNoteParam(pos,0);
+						}
+                        Tracker.moveCurrentPatternPos(1);
+                    }
+                    return;
+                case 112: //F1
+                case 113: //F2
+                case 114: //F3
+                case 115: //F4
+                case 116: //F5
+                case 117: //F6
+                case 118: //F7
+                    me.setCurrentOctave(keyCode-111);
+                    return;
+                case 119: //F8
+                case 120: //F9
+                case 121: //F10
+                case 122: //F11
+                case 123: //F12
+                    return;
+                case 221: // ¨^
+                    return;
+            }
+
 
 			if (key && (keyCode>40) && (keyCode<230)){
-
-				if (keyCode === 112) me.setCurrentOctave(1);
-				if (keyCode === 113) me.setCurrentOctave(2);
-				if (keyCode === 114) me.setCurrentOctave(3);
-				if (keyCode === 115) me.setCurrentOctave(4);
-				if (keyCode === 116) me.setCurrentOctave(5);
-				if (keyCode === 117) me.setCurrentOctave(6);
-				if (keyCode === 118) me.setCurrentOctave(7);
 
                 var index = -1;
 				var keyboardNote = keyboardTable[key];
@@ -247,55 +334,9 @@ var Input = (function(){
 					if (keyboardNote === 0) index = 0;
 				}
 
-                return me.handleNoteOn(index,key);
+				me.handleNoteOn(index,key);
 			}
 
-			switch(keyCode){
-				case 8:// backspace
-					if (Tracker.isRecording()){
-						Editor.putNote(0,0);
-						Tracker.moveCurrentPatternPos(1);
-					}else{
-						Tracker.playPatternStep(Editor.getCurrentTrackPosition());
-						Tracker.moveCurrentPatternPos(-1);
-						// on Mac this should probably be delete ...
-					}
-
-					break;
-				case 13:// enter
-					Tracker.togglePlay();
-					break;
-				case 16:// shift
-					//Tracker.playPattern();
-					break;
-				case 32:// space
-					Tracker.toggleRecord();
-					break;
-				case 35:// end
-					Tracker.setCurrentPatternPos(63);
-					break;
-				case 36:// home
-					Tracker.setCurrentPatternPos(0);
-					break;
-				case 37:// left
-					Editor.moveCursorPosition(-1);
-					break;
-				case 38:// up
-					Tracker.moveCurrentPatternPos(-1);
-					break;
-				case 39:// right
-					Editor.moveCursorPosition(1);
-					break;
-				case 40: // down
-					Tracker.moveCurrentPatternPos(1);
-					break;
-				case 46: // delete
-					if (Tracker.isRecording()){
-						Editor.putNote(0,0);
-						Tracker.moveCurrentPatternPos(1);
-					}
-					break;
-			}
 		}
 
 		function handleKeyUp(event){
