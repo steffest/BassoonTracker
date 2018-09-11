@@ -436,6 +436,10 @@ var UI = (function(){
 		fpsList = last ? [last] : [];
 	};
 
+	me.skipFrame = function(value){
+		skipRenderSteps = value;
+	};
+
 	function average(arr){
 		if (!arr.length) return 0;
 		var total = 0;

@@ -22,63 +22,63 @@
   },
   {
     "name": "button_inlay",
-    "x": 454,
-    "y": 294,
+    "x": 375,
+    "y": 503,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_active",
-    "x": 108,
-    "y": 503,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_blue",
-    "x": 321,
-    "y": 503,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_blue_active",
-    "x": 392,
-    "y": 503,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_green",
-    "x": 0,
-    "y": 557,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_green_active",
     "x": 71,
     "y": 557,
     "width": 71,
     "height": 30
   },
   {
+    "name": "button_inlay_blue",
+    "x": 0,
+    "y": 557,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_blue_active",
+    "x": 142,
+    "y": 557,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_green",
+    "x": 162,
+    "y": 503,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_green_active",
+    "x": 233,
+    "y": 503,
+    "width": 71,
+    "height": 30
+  },
+  {
     "name": "button_inlay_plain",
-    "x": 463,
+    "x": 304,
     "y": 503,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_red",
-    "x": 250,
-    "y": 503,
+    "x": 454,
+    "y": 294,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_red_active",
-    "x": 179,
+    "x": 446,
     "y": 503,
     "width": 71,
     "height": 30
@@ -128,14 +128,14 @@
   {
     "name": "disk",
     "x": 576,
-    "y": 528,
+    "y": 479,
     "width": 12,
     "height": 11
   },
   {
     "name": "mod",
     "x": 576,
-    "y": 479,
+    "y": 514,
     "width": 12,
     "height": 11
   },
@@ -149,7 +149,7 @@
   {
     "name": "sample",
     "x": 576,
-    "y": 514,
+    "y": 528,
     "width": 12,
     "height": 11
   },
@@ -162,21 +162,21 @@
   },
   {
     "name": "keybutton",
-    "x": 180,
+    "x": 162,
     "y": 533,
     "width": 38,
     "height": 18
   },
   {
     "name": "keybutton_highlight2",
-    "x": 142,
+    "x": 200,
     "y": 533,
     "width": 38,
     "height": 18
   },
   {
     "name": "keybutton_highlight3",
-    "x": 218,
+    "x": 238,
     "y": 533,
     "width": 38,
     "height": 18
@@ -189,8 +189,15 @@
     "height": 54
   },
   {
-    "name": "knob_front",
+    "name": "knob_back_inactive",
     "x": 0,
+    "y": 503,
+    "width": 54,
+    "height": 54
+  },
+  {
+    "name": "knob_front",
+    "x": 108,
     "y": 503,
     "width": 54,
     "height": 54
@@ -254,7 +261,7 @@
   {
     "name": "panel_black_insert",
     "x": 562,
-    "y": 344,
+    "y": 360,
     "width": 19,
     "height": 16
   },
@@ -268,21 +275,21 @@
   {
     "name": "panel_dark_blueish",
     "x": 562,
-    "y": 360,
+    "y": 376,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_greyish",
     "x": 562,
-    "y": 408,
+    "y": 392,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_insert",
     "x": 562,
-    "y": 392,
+    "y": 408,
     "width": 19,
     "height": 16
   },
@@ -317,7 +324,7 @@
   {
     "name": "panel_trans",
     "x": 562,
-    "y": 376,
+    "y": 344,
     "width": 19,
     "height": 16
   },
@@ -414,7 +421,7 @@
   },
   {
     "name": "record_active",
-    "x": 142,
+    "x": 213,
     "y": 557,
     "width": 71,
     "height": 27
@@ -435,8 +442,8 @@
   },
   {
     "name": "slider_knob",
-    "x": 108,
-    "y": 533,
+    "x": 517,
+    "y": 503,
     "width": 34,
     "height": 23
   },
@@ -456,15 +463,15 @@
   },
   {
     "name": "steffest",
-    "x": 339,
-    "y": 363,
+    "x": 331,
+    "y": 294,
     "width": 123,
     "height": 40
   },
   {
     "name": "tracker",
-    "x": 331,
-    "y": 294,
+    "x": 339,
+    "y": 363,
     "width": 123,
     "height": 40
   },

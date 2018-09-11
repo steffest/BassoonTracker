@@ -14,6 +14,10 @@ UI.app_patternView = function(x,y,w,h){
     var noteParamCache = {};
     var lineNumberCache = {};
 
+
+	var trackLeft;
+	var margin;
+
     var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
         img: Y.getImage("bar"),
         left:2,
@@ -61,6 +65,7 @@ UI.app_patternView = function(x,y,w,h){
         var rest = me.width - scrollBarHor.width;
         var step = Math.floor(delta / (rest/maxSteps));
         me.setHorizontalScroll(scrollBarHor.startDragIndex + step);
+        me.onResize();
     };
     me.addChild(scrollBarHor);
 
@@ -89,7 +94,32 @@ UI.app_patternView = function(x,y,w,h){
         }
     };
 
+    me.onResize = function(){
 
+		trackLeft = Layout.firstTrackOffsetLeft;
+		margin = Layout.trackMargin;
+		visibleTracks = Layout.visibleTracks;
+
+		var visibleHeight = me.height;
+		var hasHorizontalScrollBar =  visibleTracks<Tracker.getTrackCount();
+		if (hasHorizontalScrollBar) visibleHeight -= 24;
+
+
+		for (var i = 0; i<visibleTracks;i++){
+
+			var trackIndex = startTrack + i;
+			fxPanel = fxPanels[trackIndex];
+			if (fxPanel && fxPanel.visible){
+				var trackX = trackLeft + i*(Layout.trackWidth+margin);
+
+				fxPanel.setPosition(trackX,0);
+				fxPanel.setSize(Layout.trackWidth,visibleHeight);
+				fxPanel.setLayout();
+				fxPanel.show();
+			}
+		}
+
+	};
 
     me.render = function(){
         if (!me.isVisible()) return;
@@ -103,16 +133,10 @@ UI.app_patternView = function(x,y,w,h){
             if (!song) return;
 
             font = Layout.trackFont;
-
-            var margin = Layout.trackMargin;
-
-            visibleTracks = Layout.visibleTracks;
             max = Tracker.getPatternLength();
 
             var hasHorizontalScrollBar =  visibleTracks<Tracker.getTrackCount();
             var visibleHeight = me.height-30;
-
-            var trackLeft = Layout.firstTrackOffsetLeft;
 
 			displayVolume = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER;
 			var textWidth = displayVolume ? 92 : 72;
@@ -600,9 +624,6 @@ UI.app_patternView = function(x,y,w,h){
         return startTrack;
     };
 
-    me.onResize = function(){
-        
-    };
 
 
 	EventBus.on(EVENT.trackCountChange,function(trackCount){
@@ -614,6 +635,7 @@ UI.app_patternView = function(x,y,w,h){
 			fxPanels.push(fxPanel);
 			me.addChild(fxPanel);
 		}
+		me.onResize();
 		me.refresh();
 	});
 
@@ -623,6 +645,7 @@ UI.app_patternView = function(x,y,w,h){
 
 	EventBus.on(EVENT.visibleTracksCountChange,function(){
 	    startTrack = 0;
+	    me.onResize();
         me.refresh();
 	});
 
@@ -638,6 +661,8 @@ UI.app_patternView = function(x,y,w,h){
         }else{
 
             var visibleHeight = me.height;
+			var hasHorizontalScrollBar =  visibleTracks<Tracker.getTrackCount();
+			if (hasHorizontalScrollBar) visibleHeight -= 24;
 
             fxPanel.setPosition(fxPanel.left,0);
             fxPanel.setSize(Layout.trackWidth,visibleHeight);

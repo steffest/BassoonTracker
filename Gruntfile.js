@@ -34,7 +34,6 @@ module.exports = function(grunt) {
                     'script/src/lib/waaclock.js',
                     'script/src/audio/filterChain.js',
                     'script/src/tracker.js',
-                    'script/src/editor.js',
                     'script/src/preloader.js',
                     'script/src/fetchService.js',
                     'script/src/fileformats/detect.js',

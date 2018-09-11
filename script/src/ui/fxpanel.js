@@ -15,17 +15,23 @@ UI.fxPanel= function(track){
 
     var KnobTop = 0;
     var knobLeft = 10;
+    var knobs = [];
     for (var i = 0, len = effects.length; i<len;i++){
         var knob = UI.knob();
         knob.setProperties({
             top: KnobTop,
             left: knobLeft,
-            label: effects[i]
+            label: effects[i],
+            disabled: i>1
         });
         knob.onChange = function(value){
             handleKnob(this,value);
         };
+		knob.onToggle = function(value){
+			handleKnobState(this,value);
+		};
         me.addChild(knob);
+		knobs.push(knob);
 
         if ((i%2) == 0){
             knobLeft = knobLeft + knobSpaceX;
@@ -41,6 +47,7 @@ UI.fxPanel= function(track){
     function handleKnob(knob,value){
 
         if (!filterChain) return;
+        if (knob.isDisabled) return;
 
         var label = knob.getLabel();
 
@@ -77,11 +84,35 @@ UI.fxPanel= function(track){
 
     }
 
+	function handleKnobState(knob,value){
+
+		if (!filterChain) return;
+		var label = knob.getLabel();
+		filterChain.setState(label,value);
+	}
+
     me.setLayout = function(){
         if (!UI.mainPanel) return;
         //me.clearCanvas();
 
         background.setSize(me.width,me.height);
+
+		var knobSize = 70;
+
+        var cols = Math.max(1,Math.floor(me.width/knobSize));
+
+        var margin = Math.floor((me.width - cols*knobSize)/2);
+		var colWidth = Math.floor((me.width - margin*2)/cols);
+		var knobSpaceY = 70;
+		var knobTop = 0;
+
+		knobs.forEach(function(knob,index){
+		    var colIndex = index%cols;
+		    knob.setPosition((colIndex * colWidth) + margin,knobTop);
+		    if (colIndex === cols-1){
+				knobTop += knobSpaceY;
+            }
+        })
 
     };
 

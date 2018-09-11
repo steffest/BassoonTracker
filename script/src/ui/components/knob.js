@@ -14,9 +14,10 @@ UI.knob = function(initialProperties){
 	var min = -160;
 	var max = 160;
 
-	var properties = ["left","top","width","height","name","font","label","textAlign","paddingTop"];
+	var properties = ["left","top","width","height","name","font","label","textAlign","paddingTop","disabled"];
 
 	var img = Y.getImage("knob_back");
+	var imgDisabled = Y.getImage("knob_back_inactive");
 	var front = Y.getImage("knob_front");
 	var padding = 16;
 	me.width = img.width + (padding*2);
@@ -33,6 +34,7 @@ UI.knob = function(initialProperties){
 					case "font": font=p[key];break;
 					case "textAlign": textAlign=p[key];break;
 					case "paddingTop": paddingTop=parseInt(p[key]);break;
+					case "disabled": me.isDisabled = !!p[key];
 					default:
 						me[key] = p[key];
 				}
@@ -83,7 +85,7 @@ UI.knob = function(initialProperties){
 
 			me.ctx.save();
 			me.ctx.translate(padding+w,padding+h);
-			me.ctx.drawImage(img,-w,-h,imgw,imgh);
+			me.ctx.drawImage(me.isDisabled ? imgDisabled : img,-w,-h,imgw,imgh);
 
 
 			// value is from 0 to 100;
@@ -98,7 +100,7 @@ UI.knob = function(initialProperties){
 			var startAngle = minAngle * Math.PI/180;
 			var endAngle = angleValue * Math.PI/180;
 
-			me.ctx.fillStyle = "rgba(130,200,255,0.5)";
+			me.ctx.fillStyle = me.isDisabled ? "rgba(170,170,170,0.5)" : "rgba(130,200,255,0.5)";
 			me.ctx.beginPath();
 			me.ctx.arc(0,0,30,startAngle,endAngle, false); // outer (filled)
 			me.ctx.arc(0,0,25,endAngle,startAngle, true); // outer (unfills it)
@@ -133,6 +135,8 @@ UI.knob = function(initialProperties){
 
 	me.onDrag=function(touchData){
 
+		if (me.isDisabled) return;
+
 			var delta =  touchData.dragY - touchData.startY;
 			value = startValue + delta;
 			value = Math.max(value,0);
@@ -140,7 +144,18 @@ UI.knob = function(initialProperties){
 			me.refresh();
 
 			if (me.onChange) me.onChange(value);
+	};
 
+	me.onClick = function(e){
+		if (Math.abs(e.x-e.startX)<3 && Math.abs(e.y-e.startY)<3){
+			me.toggleDisabled();
+		}
+	};
+
+	me.toggleDisabled = function(){
+		me.isDisabled = !me.isDisabled;
+		if (me.onToggle) me.onToggle(!me.isDisabled);
+		me.refresh();
 	};
 
 	return me;

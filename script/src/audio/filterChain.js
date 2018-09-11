@@ -41,81 +41,117 @@ FilterChain = (function(filters) {
 
 	var volumeGain,highGain,midGain,lowGain,lowPassfilter,reverb,reverbGain,panner;
 
-	if (useHigh){
-		highGain = context.createBiquadFilter();
-		highGain.type = "highshelf";
-		highGain.frequency.value = 3200.0;
-		highGain.gain.value = highValue;
-		input = highGain;
-		output = highGain;
+	// use a simple Gain as input so that we can leave this connected while changing filters
+	input = context.createGain();
+    input.gain.value=1;
+    output = input;
+
+
+    function connectFilters(){
+
+    	output = input;
+
+        if (useHigh){
+            highGain = highGain || createHigh();
+            output.connect(highGain);
+            output = highGain;
+        }
+
+        if (useMid){
+            midGain = midGain || createMid();
+            output.connect(midGain);
+            output = midGain;
+        }
+
+        if (useLow){
+            lowGain = lowGain || createLow();
+            output.connect(lowGain);
+            output = lowGain;
+        }
+
+        if (useLowPass){
+            lowPassfilter = lowPassfilter || createLowPass();
+            output.connect(lowPassfilter);
+            output = lowPassfilter;
+        }
+
+        if (useReverb){
+            reverb = reverb || context.createConvolver();
+            reverbGain = reverbGain || context.createGain();
+            reverbGain.gain.value = 0;
+
+            output.connect(reverbGain);
+            reverbGain.connect(reverb);
+            output2 = reverb;
+        }
+
+        if (useDistortion){
+            var distortion = context.createWaveShaper();
+            distortion.curve = distortionCurve(400);
+            distortion.oversample = '4x';
+        }
+
+        if (usePanning){
+            panner =  panner || Audio.context.createStereoPanner();
+            output.connect(panner);
+            output = panner;
+        }
+
+        // always use volume as last node - never disconnect this
+
+		volumeGain = volumeGain ||context.createGain();
+        output.connect(volumeGain);
+        if (output2) output2.connect(volumeGain);
+        output = volumeGain;
+
 	}
 
-	if (useMid){
-		midGain = context.createBiquadFilter();
-		midGain.type = "peaking";
-		midGain.frequency.value = 1000.0;
-		midGain.Q.value = 0.5;
-		midGain.gain.value = midValue;
-		if (!input) input = midGain;
-		if (output) output.connect(midGain);
-		output = midGain;
+	function disConnectFilter(){
+        input.disconnect();
+        if (highGain) highGain.disconnect();
+        if (midGain) midGain.disconnect();
+        if (lowGain) lowGain.disconnect();
+        if (lowPassfilter) lowPassfilter.disconnect();
+        if (reverbGain) reverbGain.disconnect();
+		if (panner) panner.disconnect();
+        output2 = undefined;
 	}
 
-	if (useLow){
-		lowGain = context.createBiquadFilter();
-		lowGain.type = "lowshelf";
-		lowGain.frequency.value = 320.0;
-		lowGain.gain.value = lowValue;
 
-		if (!input) input = lowGain;
-		if (output) output.connect(lowGain);
-		output = lowGain;
+	function createHigh(){
+		var filter = context.createBiquadFilter();
+		filter.type = "highshelf";
+		filter.frequency.value = 3200.0;
+		filter.gain.value = highValue;
+		return filter;
 	}
 
-	if (useLowPass){
-		lowPassfilter = context.createBiquadFilter();
-		lowPassfilter.type = "lowpass";
-		lowPassfilter.frequency.value = 5000;
-
-
-		if (!input) input = lowPassfilter;
-		if (output) output.connect(lowPassfilter);
-		output = lowPassfilter;
+	function createMid(){
+        var filter = context.createBiquadFilter();
+        filter.type = "peaking";
+        filter.frequency.value = 1000.0;
+        filter.Q.value = 0.5;
+        filter.gain.value = midValue;
+        return filter;
 	}
 
-	if (useReverb){
-		reverb = context.createConvolver();
-		reverbGain = context.createGain();
-		reverbGain.gain.value = 0;
-
-		if (!input) input = reverbGain;
-		if (output) output.connect(reverbGain);
-		reverbGain.connect(reverb);
-		output2 = reverb;
+	function createLow(){
+        var filter = context.createBiquadFilter();
+        filter.type = "lowshelf";
+        filter.frequency.value = 320.0;
+        filter.gain.value = lowValue;
+        return filter;
 	}
 
-	if (useDistortion){
-		var distortion = context.createWaveShaper();
-		distortion.curve = distortionCurve(400);
-		distortion.oversample = '4x';
-	}
-
-	if (useVolume){
-		volumeGain = context.createGain();
-		if (!input) input = volumeGain;
-		if (output) output.connect(volumeGain);
-		if (output2) output2.connect(volumeGain);
-		output = volumeGain;
-	}
-
-	if (usePanning){
-		panner = Audio.context.createStereoPanner();
-		if (!input) input = panner;
-		if (output) output.connect(panner);
-		output = panner;
+	function createLowPass(){
+        var filter =  context.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.value = 5000;
+        return filter;
 	}
 
 	function init(){
+        connectFilters();
 		me.volumeValue(volumeValue);
 	}
 
@@ -229,6 +265,22 @@ FilterChain = (function(filters) {
 
 		}
 		return panningValue;
+	};
+
+	me.setState = function(name,value){
+		console.error(name,value);
+
+		disConnectFilter();
+
+        if (name==="high") useHigh=!!value;
+        if (name==="mid") useMid=!!value;
+        if (name==="low") useLow=!!value;
+        if (name==="lowPass") useLowPass=!!value;
+        if (name==="reverb") useReverb=!!value;
+        if (name==="panning") usePanning=(!!value) && Audio.context.createStereoPanner;
+
+        connectFilters();
+
 	};
 
 	me.input = function(){
