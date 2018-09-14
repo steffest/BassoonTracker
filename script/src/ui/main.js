@@ -17,12 +17,9 @@ var UI = (function(){
 	var minHeight = 800;
 	var modalElement;
 	var needsRendering =  true;
-	var maxRenderTime = 0;
 	var skipRenderSteps = 0;
 	var renderStep = 0;
-	var renderTime = 0;
 	var beginTime = 0;
-	var renderTimes = [];
 	var frames = 0;
 	var fps;
 	var minFps = 100;
@@ -278,6 +275,7 @@ var UI = (function(){
 	};
 
 	var render = function(time){
+
 		var doRender = true;
 
 		if (Tracker.isPlaying()){
@@ -298,9 +296,10 @@ var UI = (function(){
 			renderStep++;
 			doRender = (renderStep>skipRenderSteps);
 		}
+
+        var startRenderTime = Audio.context ? Audio.context.currentTime : 0;
 		if(doRender){
 			renderStep = 0;
-			var startRenderTime = Audio.context ? Audio.context.currentTime : 0;
 			EventBus.trigger(EVENT.screenRefresh);
 			if (needsRendering){
 				children.forEach(function(element){
@@ -317,36 +316,30 @@ var UI = (function(){
 				}
 
 			}
-
-			if (startRenderTime){
-				renderTime = Audio.context.currentTime - startRenderTime;
-
-				beginTime = beginTime || startRenderTime;
-				frames++;
-				//console.warn(beginTime);
-				if (startRenderTime>beginTime+1){
-					fps = frames / (startRenderTime-beginTime);
-					minFps = Math.min(minFps,fps);
-					beginTime = startRenderTime;
-					frames=0;
-
-					fpsList.push(fps);
-					if (fpsList.length>20) fpsList.shift();
-
-					EventBus.trigger(EVENT.second);
-				}
-
-
-				maxRenderTime = Math.max(renderTime,maxRenderTime);
-				/*if (maxRenderTime>0.06) skipRenderSteps=1;
-				if (maxRenderTime>0.08) skipRenderSteps=2;
-				if (maxRenderTime>0.1) skipRenderSteps=4;*/
-
-				renderTimes.push(renderTime);
-				if (renderTimes.length>20) renderTimes.shift();
-
-			}
 		}
+
+        if (startRenderTime){
+            beginTime = beginTime || startRenderTime;
+            frames++;
+            //console.warn(beginTime);
+            if (startRenderTime>beginTime+1){
+                fps = frames / (startRenderTime-beginTime);
+                minFps = Math.min(minFps,fps);
+                beginTime = startRenderTime;
+                frames=0;
+
+                fpsList.push(fps);
+                if (fpsList.length>20) fpsList.shift();
+
+                EventBus.trigger(EVENT.second);
+            }
+
+
+        }
+
+
+
+
 		window.requestAnimationFrame(render);
 	};
 
@@ -416,10 +409,6 @@ var UI = (function(){
 			fps : fps,
 			minFps : minFps,
 			averageFps: average(fpsList),
-			currentRenderTime: renderTime,
-			maxRenderTime : maxRenderTime,
-			averageRenderTime: average(renderTimes),
-			renderTimes:renderTimes,
 			fpsList: fpsList,
 			skipRenderSteps: skipRenderSteps
 		}
@@ -438,6 +427,11 @@ var UI = (function(){
 
 	me.skipFrame = function(value){
 		skipRenderSteps = value;
+		EventBus.trigger(EVENT.skipFrameChanged,skipRenderSteps);
+	};
+
+	me.getSkipFrame = function(){
+		return skipRenderSteps;
 	};
 
 	function average(arr){

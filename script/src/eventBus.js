@@ -4,7 +4,7 @@ var EventBus = (function() {
 
     var me = {};
 
-    me.onEvent = function (event, listener) {
+    me.on = function (event, listener) {
         var eventHandlers = allEventHandlers[event];
         if (!eventHandlers) {
             eventHandlers = [];
@@ -13,7 +13,7 @@ var EventBus = (function() {
         eventHandlers.push(listener);
     };
 
-    me.sendEvent = function(event, context) {
+    me.trigger = function(event, context) {
         var eventHandlers = allEventHandlers[event];
         if (eventHandlers) {
             var i, len = eventHandlers.length;
@@ -21,14 +21,6 @@ var EventBus = (function() {
                 eventHandlers[i](context,event);
             }
         }
-    };
-
-    // alias
-    me.trigger = function(event, context){
-        me.sendEvent(event, context)
-    };
-    me.on = function(event, listener){
-        me.onEvent(event, listener);
     };
 
     return me;

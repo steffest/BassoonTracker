@@ -27,10 +27,13 @@ UI.OptionsPanel = function(){
 	};
 	me.addChild(closeButton);
 
-
 	var options = [
 		{
-			label: "Keyboard Layout:",
+			label: "Keyboard Layout",
+            labels : [
+                {width: 56, label: "Keyboard"},
+                {width: 110, label: "Keyboard Layout"}
+            ],
 			values: ["QWERTY","AZERTY","QWERTZ"],
 			setValue:function(index){
 				if (index == 0){
@@ -50,7 +53,7 @@ UI.OptionsPanel = function(){
 			}
 		},
 		{
-			label: "VU bars:",
+			label: "VU bars",
 			values: ["NONE", "COLOURS: AMIGA","TRANSPARENT"],
 			setValue: function (index) {
 				if (index == 0){
@@ -69,8 +72,23 @@ UI.OptionsPanel = function(){
 				return result;
 			}
 		},
+        {
+            label: "Screen refresh",
+            labels : [
+                {width: 56, label: "Screen"},
+                {width: 100, label: "Screen refresh"}
+            ],
+            values: ["Smooth", "Normal", "Economical" , "Low CPU"],
+            setValue: function (index) {
+				UI.skipFrame(index);
+                Settings.saveSettings();
+            },
+            getValue: function () {
+                return UI.getSkipFrame();
+            }
+        },
 		{
-			label: "Stereo:",
+			label: "Stereo",
 			values: ["Hard: Amiga", "Balanced", "None: mono"],
 			setValue: function (index) {
 				if (index == 0){
@@ -91,7 +109,11 @@ UI.OptionsPanel = function(){
 			}
 		},
 		{
-			label: "Frequency table:",
+			label: "Frequency table",
+            labels : [
+                {width: 56, label: "Frequency"},
+                {width: 110, label: "Frequency table"}
+            ],
 			values: ["Linear", "Amiga periods"],
 			setValue: function (index) {
                 Tracker.useLinearFrequency = index === 0;
@@ -102,6 +124,11 @@ UI.OptionsPanel = function(){
 		},
 		{
 			label: "Dropbox: existing file",
+            labels : [
+                {width: 20, label: "Dropbox"},
+                {width: 80, label: "Dropbox save"},
+                {width: 160, label: "Dropbox existing file"}
+            ],
 			values: ["Rename", "Overwrite"],
 			setValue: function (index) {
 				if (index === 0){
@@ -121,13 +148,22 @@ UI.OptionsPanel = function(){
 
 
 	options.forEach(function(option){
+
+
+        var labelBox = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
+        labelBox.ignoreEvents = true;
+        me.addChild(labelBox);
+
+
 		var label = UI.label();
 		label.setProperties({
 			label: option.label,
-			font: fontFT,
+			labels: option.labels,
+			font: fontSmall,
 			textAlign: "center"
 		});
 		me.addChild(label);
+		option.labelBox = labelBox;
 		option.label = label;
 
 		var buttons = [];
@@ -199,41 +235,68 @@ UI.OptionsPanel = function(){
 			width: me.width - (Layout.defaultMargin*2) - 4
 		});*/
 
-		var optionTop = 35;
-		var optionHeight = 30;
+		var optionTops = [27,103];
+		var optionHeight = 26;
 		var buttonHeight = 20;
+		var col=0;
+		var row=0;
+		var useMultipleRows = false;
 
 		var maxVisible = options.length;
-		if (me.width < 500) maxVisible = 3;
+		var maxCols = options.length;
+		if (me.width < 600){
+			//maxVisible = 3;
+            useMultipleRows = true;
+            optionTops = [27,103];
+            optionHeight = 18;
+            buttonHeight = 18;
+            maxCols = 4;
+        }
 
-		var bWidth = Math.floor(( me.width - Layout.defaultMargin*(maxVisible+1)) / maxVisible);
+		var bWidth = Math.floor(( me.width - Layout.defaultMargin*(maxCols+1)) / maxCols);
 
 		options.forEach(function(option,index){
 			//var thisLeft = Layout["col3"+(i+1)+"X"];
-			var thisLeft = Layout.defaultMargin + (index*(bWidth+Layout.defaultMargin));
+
+			var thisLeft = Layout.defaultMargin + (col*(bWidth+Layout.defaultMargin));
+			var thisTop =  optionTops[row];
 
 			if (index>=maxVisible) thisLeft = me.width + 100;
 
+            option.labelBox.setProperties({
+                top: thisTop,
+                width: bWidth,
+                height: optionHeight,
+                left: thisLeft
+			});
+
 			option.label.setProperties({
-				top: optionTop,
+				top: thisTop+3,
 				_width: Layout.col31W,
 				width: bWidth,
 				height: optionHeight,
-				left: thisLeft
+				left: thisLeft+2
 			});
 			var selectedIndex = option.getValue();
 
 			for (var b = 0; b<option.buttons.length; b++){
 				var button = option.buttons[b];
 				button.setProperties({
-					top: optionTop + (b*buttonHeight) + 30,
+					top: thisTop + (b*buttonHeight) + optionHeight,
 					height: buttonHeight,
 					width: bWidth,
 					left: thisLeft
 				});
 
-				button.setActive(b == selectedIndex);
+				button.setActive(b === selectedIndex);
 			}
+
+            col++;
+			if (useMultipleRows && col>=4) {
+				col=0;
+				row++;
+            }
+
 		});
 
 

@@ -79,156 +79,226 @@ UI.visualiser = function(){
         console.log("setting visualiser to mode " + mode);
     };
 
-    me.render = function(){
+    var modeWaveRender = function(){
+        var bufferLength;
+        var dataArray;
+        me.ctx.clearRect(0,0,me.width,me.height);
 
-        if (!Audio.context) return;
-        if (!me.isVisible()) return;
+        analyser.fftSize = 256;
+        bufferLength = analyser.fftSize;
+        dataArray = new Uint8Array(bufferLength);
 
+        function drawWave() {
+            analyser.getByteTimeDomainData(dataArray);
 
-        //me.ctx.fillStyle = 'green';
-        //me.ctx.fillRect(0, 0, width, height);
+            me.ctx.lineWidth = 2;
+            me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
+            me.ctx.beginPath();
+            var sliceWidth = me.width * 1.0 / bufferLength;
+            var wx = 0;
 
-        // note - this is expensive!
-        // maybe find another way instead of stroke() ?
+            for(var i = 0; i < bufferLength; i++) {
+                var v = dataArray[i] / 128.0;
+                var wy = v * me.height/2;
 
+                if(i === 0) {
+                    me.ctx.moveTo(wx, wy);
+                } else {
+                    me.ctx.lineTo(wx, wy);
+                }
+
+                wx += sliceWidth;
+            }
+
+            me.ctx.lineTo(me.width, me.height/2);
+            me.ctx.stroke();
+
+            me.parentCtx.drawImage(me.canvas,me.left, me.top);
+        }
+        drawWave();
+    };
+
+    var modeSpectrumRender = function() {
+
+        me.ctx.clearRect(0,0,me.width,me.height);
 
         var bufferLength;
         var dataArray;
 
-        if (mode == "wave"){
+        analyser.fftSize = 128;
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
 
-            me.ctx.clearRect(0,0,me.width,me.height);
+        var lowTreshold = 8;
+        var highTreshold = 8;
+        var max = bufferLength-highTreshold;
 
-            analyser.fftSize = 256;
-            bufferLength = analyser.fftSize;
-            dataArray = new Uint8Array(bufferLength);
+        var visualBufferLength = bufferLength - lowTreshold - highTreshold;
 
-            function drawWave() {
-                analyser.getByteTimeDomainData(dataArray);
+        analyser.getByteFrequencyData(dataArray);
 
-                me.ctx.lineWidth = 2;
-                me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
+        var barWidth = (me.width - visualBufferLength) / visualBufferLength;
+        var barHeight;
+        var wx = 0;
+
+        // only display range
+
+        for(var i = lowTreshold; i < max; i++) {
+            barHeight = dataArray[i];
+
+            me.ctx.fillStyle = 'rgb(' + (barHeight+100) + ',50,50)';
+            me.ctx.fillRect(wx,me.height-barHeight/2,barWidth,barHeight/2);
+
+            wx += barWidth + 1;
+        }
+
+        ctx.drawImage(me.canvas,me.left, me.top);
+
+
+    };
+
+    var modeTracksRender = function(){
+        me.ctx.clearRect(0,0,me.width,me.height);
+        me.ctx.lineWidth = 2;
+        me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
+
+        var hasVolume = !Audio.cutOff;
+        var bufferLength;
+        var dataArray;
+
+        for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
+
+            var track = trackAnalyser[trackIndex];
+            var pos = analyserPos[trackIndex];
+
+            var isMute = trackMuteState[trackIndex];
+
+            me.ctx.drawImage(background,pos.left,pos.top,pos.width,pos.height);
+
+            if (track){
                 me.ctx.beginPath();
-                var sliceWidth = me.width * 1.0 / bufferLength;
-                var wx = 0;
 
-                for(var i = 0; i < bufferLength; i++) {
-                    var v = dataArray[i] / 128.0;
-                    var wy = v * me.height/2;
+                var wy;
+                var wx = pos.lineLeft;
+                var ww = pos.lineWidth;
 
-                    if(i === 0) {
-                        me.ctx.moveTo(wx, wy);
-                    } else {
-                        me.ctx.lineTo(wx, wy);
+                if (hasVolume && !isMute){
+
+                    track.fftSize = analyserSize;
+                    bufferLength = track.fftSize;
+                    dataArray = new Uint8Array(bufferLength);
+                    track.getByteTimeDomainData(dataArray);
+
+                    var sliceWidth = ww/bufferLength;
+
+                    for(var i = 0; i < bufferLength; i++) {
+                        var v = dataArray[i] / 128.0;
+                        wy = v * pos.height/2 + pos.top;
+
+                        if(i === 0) {
+                            me.ctx.moveTo(wx, wy);
+                        } else {
+                            me.ctx.lineTo(wx, wy);
+                        }
+
+                        wx += sliceWidth;
                     }
-
-                    wx += sliceWidth;
+                }else{
+                    wy = pos.height/2 + pos.top;
+                    me.ctx.moveTo(wx, wy);
+                    me.ctx.lineTo(wx + ww-1, wy);
                 }
 
-                me.ctx.lineTo(me.width, me.height/2);
+                //myCtx.lineTo(aWidth, height/2);
                 me.ctx.stroke();
 
-                me.parentCtx.drawImage(me.canvas,me.left, me.top);
-            }
-            drawWave();
-        }else if (mode=="spectrum"){
-
-            me.ctx.clearRect(0,0,me.width,me.height);
-
-            analyser.fftSize = 128;
-            bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
-
-            var lowTreshold = 8;
-            var highTreshold = 8;
-            var max = bufferLength-highTreshold;
-
-            var visualBufferLength = bufferLength - lowTreshold - highTreshold;
-
-            analyser.getByteFrequencyData(dataArray);
-
-            var barWidth = (me.width - visualBufferLength) / visualBufferLength;
-            var barHeight;
-            var wx = 0;
-
-            // only display range
-
-            for(var i = lowTreshold; i < max; i++) {
-                barHeight = dataArray[i];
-
-                me.ctx.fillStyle = 'rgb(' + (barHeight+100) + ',50,50)';
-                me.ctx.fillRect(wx,me.height-barHeight/2,barWidth,barHeight/2);
-
-                wx += barWidth + 1;
-            }
-
-            ctx.drawImage(me.canvas,me.left, me.top);
-
-
-        }else if (mode=="tracks"){
-
-			me.ctx.clearRect(0,0,me.width,me.height);
-			me.ctx.lineWidth = 2;
-			me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
-
-            var hasVolume = !Audio.cutOff;
-
-            for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
-
-                var track = trackAnalyser[trackIndex];
-                var pos = analyserPos[trackIndex];
-
-                var isMute = trackMuteState[trackIndex];
-
-                me.ctx.drawImage(background,pos.left,pos.top,pos.width,pos.height);
-
-                if (track){
-                    me.ctx.beginPath();
-
-                    var wy;
-					var wx = pos.lineLeft;
-                    var ww = pos.lineWidth;
-
-                    if (hasVolume && !isMute){
-
-						track.fftSize = analyserSize;
-                        bufferLength = track.fftSize;
-                        dataArray = new Uint8Array(bufferLength);
-                        track.getByteTimeDomainData(dataArray);
-
-                        var sliceWidth = ww/bufferLength;
-
-                        for(var i = 0; i < bufferLength; i++) {
-                            var v = dataArray[i] / 128.0;
-                            wy = v * pos.height/2 + pos.top;
-
-                            if(i === 0) {
-                                me.ctx.moveTo(wx, wy);
-                            } else {
-                                me.ctx.lineTo(wx, wy);
-                            }
-
-                            wx += sliceWidth;
-                        }
-                    }else{
-                        wy = pos.height/2 + pos.top;
-                        me.ctx.moveTo(wx, wy);
-                        me.ctx.lineTo(wx + ww-1, wy);
-                    }
-
-                    //myCtx.lineTo(aWidth, height/2);
-                    me.ctx.stroke();
-
-                    if (isMute){
-						me.ctx.fillStyle = "rgba(34, 49, 85, 0.5)";
-						me.ctx.fillRect(pos.left,pos.top,pos.width,pos.height);
-                    }
+                if (isMute){
+                    me.ctx.fillStyle = "rgba(34, 49, 85, 0.5)";
+                    me.ctx.fillRect(pos.left,pos.top,pos.width,pos.height);
                 }
             }
-
-            //me.parentCtx.drawImage(me.canvas,me.left, me.top);
-            ctx.drawImage(me.canvas,me.left, me.top);
         }
+
+        //me.parentCtx.drawImage(me.canvas,me.left, me.top);
+        ctx.drawImage(me.canvas,me.left, me.top);
+    };
+
+    var modeDotsRender = function(){
+        me.ctx.clearRect(0,0,me.width,me.height);
+
+        me.ctx.fillStyle = 'rgba(120, 255, 50, 0.7)';
+        me.ctx.lineStyle = 'rgba(120, 255, 50, 0.5)';
+
+        var hasVolume = !Audio.cutOff;
+        var bufferLength = analyserSize;
+        var dataArray = new Uint8Array(bufferLength);
+
+        for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
+
+            var track = trackAnalyser[trackIndex];
+            var pos = analyserPos[trackIndex];
+
+            var isMute = trackMuteState[trackIndex];
+
+            me.ctx.drawImage(background,pos.left,pos.top,pos.width,pos.height);
+
+            if (track){
+                me.ctx.beginPath();
+
+                var wy;
+                var wx = pos.lineLeft;
+                var ww = pos.lineWidth;
+
+                if (hasVolume && !isMute){
+
+                    track.fftSize = analyserSize;
+                    track.getByteTimeDomainData(dataArray);
+
+                    var sliceWidth = ww/bufferLength;
+
+                    for(var i = 0; i < bufferLength; i++) {
+                        var v = dataArray[i] / 128.0;
+                        wy = v * pos.height/2 + pos.top;
+
+                        me.ctx.fillRect(wx,wy,sliceWidth,2);
+
+                        //if(i === 0) {
+                            //me.ctx.moveTo(wx, wy);
+                        //} else {
+                            //me.ctx.lineTo(wx, wy);
+                        //}
+
+                        wx += sliceWidth;
+                    }
+                }else{
+                    wy = pos.height/2 + pos.top;
+                    me.ctx.fillRect(wx,wy,ww-1,2);
+                    //me.ctx.moveTo(wx, wy);
+                    //me.ctx.lineTo(wx + ww-1, wy);
+                }
+
+                //myCtx.lineTo(aWidth, height/2);
+                //me.ctx.stroke();
+
+                if (isMute){
+                    me.ctx.fillStyle = "rgba(34, 49, 85, 0.5)";
+                    me.ctx.fillRect(pos.left,pos.top,pos.width,pos.height);
+                }
+            }
+        }
+
+        //me.parentCtx.drawImage(me.canvas,me.left, me.top);
+        ctx.drawImage(me.canvas,me.left, me.top);
+    };
+
+
+    me.render = function(){
+
+        if (!Audio.context) return;
+        if (!me.isVisible()) return;
+        //modeDotsRender();
+        modeTracksRender();
+        //modeSpectrumRender();
 
     };
 

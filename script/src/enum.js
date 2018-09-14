@@ -57,7 +57,8 @@ var EVENT = {
 	dropboxConnect: 39,
 	dropboxConnectCancel: 40,
 	trackScopeClick: 41,
-	octaveChanged: 42
+	octaveChanged: 42,
+	skipFrameChanged: 43
 };
 
 var COMMAND = {

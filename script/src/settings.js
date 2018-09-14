@@ -18,6 +18,10 @@ var Settings = (function(){
 		for (var key in settings){
 			if (SETTINGS.hasOwnProperty(key) && settings.hasOwnProperty(key)){
 				SETTINGS[key] = settings[key];
+				if (key  === "skipFrame"){
+					var value = parseInt(SETTINGS[key],10);
+					if (!isNaN(value)) UI.skipFrame(value);
+				}
 			}
 		}
 
@@ -32,7 +36,8 @@ var Settings = (function(){
 			vubars: SETTINGS.vubars,
 			keyboardTable: SETTINGS.keyboardTable,
 			stereoSeparation: SETTINGS.stereoSeparation,
-			dropboxMode: SETTINGS.dropboxMode
+			dropboxMode: SETTINGS.dropboxMode,
+			skipFrame: UI.getSkipFrame()
 		};
 		Storage.set("bassoonTrackerSettings",JSON.stringify(settings));
 	};
@@ -48,6 +53,8 @@ var Settings = (function(){
 		SETTINGS.vubars = "colour";
 		SETTINGS.stereoSeparation =  STEREOSEPARATION.BALANCED;
 		SETTINGS.dropboxMode = "rename";
+        SETTINGS.skipFrame = 1;
+		UI.skipFrame(SETTINGS.skipFrame);
 	}
 
 	return me;

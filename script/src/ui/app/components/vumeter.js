@@ -8,6 +8,8 @@ UI.vumeter = function(){
 	var analyserLeft;
 	var analyserRight;
 	var connected;
+    var bufferLength;
+    var dataArray;
 
 	if (Audio.context){
 		analyserLeft = Audio.context.createAnalyser();
@@ -19,6 +21,11 @@ UI.vumeter = function(){
 		analyserRight.minDecibels = -90;
 		analyserRight.maxDecibels = -10;
 		analyserRight.smoothingTimeConstant = 0.85;
+
+        analyserLeft.fftSize = 32;
+        analyserRight.fftSize = 32;
+        bufferLength = analyserLeft.fftSize;
+        dataArray = new Uint8Array(bufferLength);
 	}
 
 	var vuWidth = 500;
@@ -63,6 +70,7 @@ UI.vumeter = function(){
 			baseCtx.drawImage(img,i*(dotWidth+margin),0,dotWidth,vuHeight);
 			baseActiveCtx.drawImage(imgActive,i*(dotWidth+margin),0,dotWidth,vuHeight);
 		}
+        me.ctx.fillStyle = "#253352";
 	}
 
 
@@ -96,19 +104,12 @@ UI.vumeter = function(){
 
 		if (!connected) return;
 
-		var bufferLength;
-		var dataArray;
-		analyserLeft.fftSize = 32;
-		analyserRight.fftSize = 32;
-		bufferLength = analyserLeft.fftSize;
-		dataArray = new Uint8Array(bufferLength);
-
 		analyserLeft.getByteTimeDomainData(dataArray);
 		var rangeLeft = getDynamicRange(dataArray) * (Math.E - 1);
 		analyserRight.getByteTimeDomainData(dataArray);
 		var rangeRight = getDynamicRange(dataArray) * (Math.E - 1);
 
-		me.ctx.fillStyle = "#253352";
+
 		me.ctx.fillRect(0,0,me.width,me.height);
 
 		me.ctx.drawImage(base,0,0);

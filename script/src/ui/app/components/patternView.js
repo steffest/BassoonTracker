@@ -673,6 +673,10 @@ UI.app_patternView = function(x,y,w,h){
         me.refresh();
     });
 
+    EventBus.on(EVENT.skipFrameChanged,function(value){
+        trackVULevelDecay = 5 * (value+1);
+    });
+
 
 	return me;
 
