@@ -34,14 +34,16 @@ UI.OptionsPanel = function(){
                 {width: 56, label: "Keyboard"},
                 {width: 110, label: "Keyboard Layout"}
             ],
-			values: ["QWERTY","AZERTY","QWERTZ"],
+			values: ["QWERTY","AZERTY","QWERTZ","Dvorak"],
 			setValue:function(index){
 				if (index == 0){
 					SETTINGS.keyboardTable = "qwerty";
-				}if (index == 1){
+				}else if (index == 1){
 					SETTINGS.keyboardTable = "azerty";
-				}else{
+				}else if (index == 2) {
 					SETTINGS.keyboardTable = "qwertz";
+				}else{
+					SETTINGS.keyboardTable = "dvorak";
 				}
 				Settings.saveSettings();
 			},
@@ -49,6 +51,7 @@ UI.OptionsPanel = function(){
 				var result = 0;
 				if (SETTINGS.keyboardTable == "azerty") result = 1;
 				if (SETTINGS.keyboardTable == "qwertz") result = 2;
+				if (SETTINGS.keyboardTable == "dvorak") result = 3;
 				return result;
 			}
 		},
