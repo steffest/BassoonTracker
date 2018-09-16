@@ -28,6 +28,47 @@ UI.OptionsPanel = function(){
 	me.addChild(closeButton);
 
 	var options = [
+        {
+            label: "VU bars",
+            values: ["NONE", "COLOURS: AMIGA","TRANSPARENT"],
+            setValue: function (index) {
+                if (index === 0){
+                    SETTINGS.vubars = "none";
+                }else if (index === 2){
+                    SETTINGS.vubars = "trans";
+                }else{
+                    SETTINGS.vubars = "colour";
+                }
+                Settings.saveSettings();
+            },
+            getValue: function () {
+                var result = 1;
+                if (SETTINGS.vubars === "none") result = 0;
+                if (SETTINGS.vubars === "trans") result = 2;
+                return result;
+            }
+        },
+        {
+            label: "Stereo",
+            values: ["Hard: Amiga", "Balanced", "None: mono"],
+            setValue: function (index) {
+                if (index === 0){
+                    Audio.setStereoSeparation(STEREOSEPARATION.FULL)
+                }else if (index === 2){
+                    Audio.setStereoSeparation(STEREOSEPARATION.NONE)
+                }
+                else{
+                    Audio.setStereoSeparation(STEREOSEPARATION.BALANCED)
+                }
+                Settings.saveSettings();
+            },
+            getValue: function () {
+                var result = 1;
+                if (SETTINGS.stereoSeparation === STEREOSEPARATION.NONE) result = 2;
+                if (SETTINGS.stereoSeparation === STEREOSEPARATION.FULL) result = 0;
+                return result;
+            }
+        },
 		{
 			label: "Keyboard Layout",
             labels : [
@@ -36,11 +77,11 @@ UI.OptionsPanel = function(){
             ],
 			values: ["QWERTY","AZERTY","QWERTZ","Dvorak"],
 			setValue:function(index){
-				if (index == 0){
+				if (index === 0){
 					SETTINGS.keyboardTable = "qwerty";
-				}else if (index == 1){
+				}else if (index === 1){
 					SETTINGS.keyboardTable = "azerty";
-				}else if (index == 2) {
+				}else if (index === 2) {
 					SETTINGS.keyboardTable = "qwertz";
 				}else{
 					SETTINGS.keyboardTable = "dvorak";
@@ -49,29 +90,9 @@ UI.OptionsPanel = function(){
 			},
 			getValue:function(){
 				var result = 0;
-				if (SETTINGS.keyboardTable == "azerty") result = 1;
-				if (SETTINGS.keyboardTable == "qwertz") result = 2;
-				if (SETTINGS.keyboardTable == "dvorak") result = 3;
-				return result;
-			}
-		},
-		{
-			label: "VU bars",
-			values: ["NONE", "COLOURS: AMIGA","TRANSPARENT"],
-			setValue: function (index) {
-				if (index == 0){
-					SETTINGS.vubars = "none";
-				}else if (index == 2){
-					SETTINGS.vubars = "trans";
-				}else{
-					SETTINGS.vubars = "colour";
-				}
-				Settings.saveSettings();
-			},
-			getValue: function () {
-				var result = 1;
-				if (SETTINGS.vubars == "none") result = 0;
-				if (SETTINGS.vubars == "trans") result = 2;
+				if (SETTINGS.keyboardTable === "azerty") result = 1;
+				if (SETTINGS.keyboardTable === "qwertz") result = 2;
+				if (SETTINGS.keyboardTable === "dvorak") result = 3;
 				return result;
 			}
 		},
@@ -90,27 +111,6 @@ UI.OptionsPanel = function(){
                 return UI.getSkipFrame();
             }
         },
-		{
-			label: "Stereo",
-			values: ["Hard: Amiga", "Balanced", "None: mono"],
-			setValue: function (index) {
-				if (index == 0){
-					Audio.setStereoSeparation(STEREOSEPARATION.FULL)
-				}else if (index == 2){
-					Audio.setStereoSeparation(STEREOSEPARATION.NONE)
-				}
-				else{
-					Audio.setStereoSeparation(STEREOSEPARATION.BALANCED)
-				}
-				Settings.saveSettings();
-			},
-			getValue: function () {
-				var result = 1;
-				if (SETTINGS.stereoSeparation == STEREOSEPARATION.NONE) result = 2;
-				if (SETTINGS.stereoSeparation == STEREOSEPARATION.FULL) result = 0;
-				return result;
-			}
-		},
 		{
 			label: "Frequency table",
             labels : [
@@ -180,7 +180,7 @@ UI.OptionsPanel = function(){
 				button.setProperties({
 					label: value
 				});
-				button.setActive(i==selectedIndex);
+				button.setActive(i===selectedIndex);
 				button.index = i;
 				button.option = option;
 				button.onClick = function(){
@@ -312,15 +312,16 @@ UI.OptionsPanel = function(){
     });
 
     EventBus.on(EVENT.trackerModeChanged,function(){
-
-        if (options[3].buttons && options[3].buttons.length){
-            options[3].buttons.forEach(function(button){
+    	var freqOptions = options[4];
+        if (freqOptions.buttons && freqOptions.buttons.length){
+            freqOptions.buttons.forEach(function(button){
             	button.setDisabled(!Tracker.inFTMode());
             });
 		}
 
-		if (options[2].buttons && options[2].buttons.length){
-			options[2].buttons.forEach(function(button){
+        var stereoOptions = options[1];
+		if (stereoOptions.buttons && stereoOptions.buttons.length){
+            stereoOptions.buttons.forEach(function(button){
 				button.setDisabled(Tracker.inFTMode());
 			});
 		}
