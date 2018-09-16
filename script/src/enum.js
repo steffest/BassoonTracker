@@ -428,6 +428,43 @@ var KEYBOARDTABLE = {
 
 		"<": KEYBOARDKEYS.OFF
 	},
+	dvorak:{
+		"\'": KEYBOARDKEYS.COctaveUp,
+		',': KEYBOARDKEYS.DOctaveUp,
+		'.': KEYBOARDKEYS.EOctaveUp,
+		p: KEYBOARDKEYS.FOctaveUp,
+		y: KEYBOARDKEYS.GOctaveUp,
+		f: KEYBOARDKEYS.AOctaveUp,
+		g: KEYBOARDKEYS.BOctaveUp,
+		c: KEYBOARDKEYS.COctaveUp2,
+		r: KEYBOARDKEYS.DOctaveUp2,
+
+		"2": KEYBOARDKEYS.CsharpOctaveUp,
+		'3': KEYBOARDKEYS.DsharpOctaveUp,
+		"5": KEYBOARDKEYS.FsharpOctaveUp,
+		"6": KEYBOARDKEYS.GsharpOctaveUp,
+		"7": KEYBOARDKEYS.AsharpOctaveUp,
+		"9": KEYBOARDKEYS.CsharpOctaveUp2,
+
+		';': KEYBOARDKEYS.C,
+		q: KEYBOARDKEYS.D,
+		j: KEYBOARDKEYS.E,
+		k: KEYBOARDKEYS.F,
+		x: KEYBOARDKEYS.G,
+		b: KEYBOARDKEYS.A,
+		m: KEYBOARDKEYS.B,
+		w: KEYBOARDKEYS.COctaveUp,
+		v: KEYBOARDKEYS.DOctaveUp,
+
+		o: KEYBOARDKEYS.Csharp,
+		e: KEYBOARDKEYS.Dsharp,
+		i: KEYBOARDKEYS.Fsharp,
+		d: KEYBOARDKEYS.Gsharp,
+		h: KEYBOARDKEYS.Asharp,
+		n: KEYBOARDKEYS.CsharpOctaveUp,
+
+        "\\": KEYBOARDKEYS.OFF
+	},
 	qwerty:{
 		q: KEYBOARDKEYS.COctaveUp,
 		w: KEYBOARDKEYS.DOctaveUp,
