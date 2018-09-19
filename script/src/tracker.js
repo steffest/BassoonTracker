@@ -424,7 +424,10 @@ var Tracker = (function(){
 							}
 
                             thisPatternLength = playPatternData.length;
-							if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
+							if (stepResult.patternBreak){
+								p = stepResult.targetPatternPosition || 0;
+								if (p>playPatternData.length) p=0; // occurs in the wild - example "Lake Of Sadness" - last pattern
+                            }
 						}else{
 							if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
 						}
