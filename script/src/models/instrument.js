@@ -66,7 +66,7 @@ var Instrument = function(){
 					if (startPoint) timeOffset = startPoint[0]*tickTime;
 					for (var p = me.volumeEnvelope.sustainPoint; p< me.volumeEnvelope.count;p++){
 						var point = me.volumeEnvelope.points[p];
-						noteInfo.volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime) - timeOffset);
+						if (point) noteInfo.volumeEnvelope.gain.linearRampToValueAtTime(point[1]/64,time + (point[0]*tickTime) - timeOffset);
 					}
 				}
 
@@ -85,7 +85,7 @@ var Instrument = function(){
                 if (startPoint) timeOffset = startPoint[0]*tickTime;
                 for (p = me.panningEnvelope.sustainPoint; p< me.panningEnvelope.count;p++){
                     point = me.panningEnvelope.points[p];
-                    noteInfo.panningEnvelope.pan.linearRampToValueAtTime((point[1]-32)/32,time + (point[0]*tickTime) - timeOffset);
+                    if (point) noteInfo.panningEnvelope.pan.linearRampToValueAtTime((point[1]-32)/32,time + (point[0]*tickTime) - timeOffset);
                 }
             }
 
