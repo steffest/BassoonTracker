@@ -235,6 +235,7 @@ UI.spinBox = function(initialProperties){
 	};
 
 	me.onMouseWheel = function(touchData){
+        if (disabled) return;
 		if (touchData.mouseWheels[0] > 0){
 			value++;
 			if (value>max) value=max;
