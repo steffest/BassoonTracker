@@ -31,6 +31,7 @@ UI.EnvelopePanel = function(type){
 
 	var buttonAdd = UI.Assets.generate("button20_20");
 	buttonAdd.onDown = function(){
+		if (!envelope.enabled) return;
 		if (envelope.points.length > envelope.count){
 			var prevPoint = envelope.points[envelope.count-1];
 			var nextPoint = envelope.points[envelope.count];
@@ -59,6 +60,7 @@ UI.EnvelopePanel = function(type){
 
 	var buttonRemove = UI.Assets.generate("button20_20");
 	buttonRemove.onDown = function(){
+		if (!envelope.enabled) return;
 		if (envelope.points.length > 2){
 			envelope.count--;
 			me.checkMax();
