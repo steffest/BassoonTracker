@@ -540,7 +540,7 @@ var Input = (function(){
                 if (note){
                     Editor.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.index);
                     if (Tracker.isPlaying()){
-                        doPlay = false;
+                        //doPlay = false;
                     }else{
                         Tracker.moveCurrentPatternPos(1);
                     }
