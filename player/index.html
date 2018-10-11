@@ -54,9 +54,9 @@
             var loading = document.getElementById("loading");
             var controls = document.getElementById("controls");
 			BassoonTracker.init(true);
-            //if (!Audio.context){
-              //  loading.innerHTML = "Sorry<br>Your browser does not support WebAudio.<br>Supported browsers are Chrome,Firefox,Safari and Edge";
-            //}else{
+            if (!BassoonTracker.audio.context){
+                loading.innerHTML = "Sorry<br>Your browser does not support WebAudio.<br>Supported browsers are Chrome,Firefox,Safari and Edge";
+            }else{
 
             var demoMod = "StardustMemories.mod";
             demoMod = "deadlock.xm";
@@ -65,7 +65,7 @@
                     loading.style.display = "none";
                     controls.style.display = "block";
                 });
-           // }
+            }
         });
 
         function togglePlay(){
@@ -95,8 +95,8 @@
     <xmp>
         <script src="bassoonplayer-min.js"></script>
         <script>
-            Tracker.init(true);
-            Tracker.load("url/to/file.mod",true);
+			BassoonTracker.init(true);
+			BassoonTracker.load("url/to/file.mod",true);
         </script>
     </xmp>
 
@@ -107,7 +107,7 @@
 
     <xmp>
         <script>
-            Tracker.load("url/to/file.mod",false,function(){
+			BassoonTracker.load("url/to/file.mod",false,function(){
                 ... do something
             });
         </script>
@@ -116,15 +116,15 @@
     After Tracker.init you might want to check "Audio.context" to see if the browser supports Webaudio.<br>
     <br>Some usefull methods:
     <ul>
-        <li><code>Tracker.togglePlay()</code></li>
-        <li><code>Tracker.isPlaying()</code></li>
-        <li><code>Tracker.playSong()</code></li>
-        <li><code>Tracker.stop()</code></li>
-        <li><code>Tracker.getTrackCount()</code></li>
-        <li><code>Tracker.getSong()</code> <span>(gets the current song</span>
+        <li><code>BassoonTracker.togglePlay()</code></li>
+        <li><code>BassoonTracker.isPlaying()</code></li>
+        <li><code>BassoonTracker.playSong()</code></li>
+        <li><code>BassoonTracker.stop()</code></li>
+        <li><code>BassoonTracker.getTrackCount()</code></li>
+        <li><code>BassoonTracker.getSong()</code> <span>(gets the current song)</span>
             <ul>
-                <li><code>Tracker.getSong().title</code></li>
-                <li><code>Tracker.getSong().length</code> <span>(in patterns)</span></li>
+                <li><code>BassoonTracker.getSong().title</code></li>
+                <li><code>BassoonTracker.getSong().length</code> <span>(in patterns)</span></li>
             </ul>
         </li>
     </ul>
@@ -136,7 +136,7 @@
         <code>Tracker.getStateAtTime(time)</code> periodically <br>(or <code>Tracker.getTimeStates()</code> to get the complete list).<br>
         Note that the Tracker schedules audio ahead, so the last item in the Tracker.getTimeStates() list will be in the future.<br><br>
 
-        If you want to adjust to volume, you can use <code>Audio.masterVolume</code> which is a WebAudio GainNode.
+        If you want to adjust to volume, you can use <code>BassoonTracker.audio.masterVolume</code> which is a WebAudio GainNode.
 
 
 </div>

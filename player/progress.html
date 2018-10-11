@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Bassoon Tracker - Standalone Player</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body{
+            font-family: "Trebuchet MS" , Arial, Helvetica, sans-serif;
+            padding: 30px;
+        }
+
+        #player{
+            width: 320px;
+            background-color: #eaeaea;
+            border: 1px solid #b7b7b7;
+            padding: 6px;
+            border-radius: 5px;
+            margin: auto;
+        }
+
+        #play{
+            border-radius: 5px;
+            display: inline-block;
+            padding: 8px;
+            border: 1px solid #b7b7b7;
+            background-color: #f2f2f2;
+            width: 80px;
+            height: 36px;
+            text-align: center;
+            box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.3);
+            font-size: 16px;
+        }
+
+        #play:hover{
+            background-color: white;
+            cursor: pointer;
+        }
+
+        #songname{
+            padding: 4px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #b7b7b7;
+            text-transform: capitalize;
+            font-size: 16px;
+        }
+
+        .range{
+            font-size: 11px;
+            padding: 16px 6px 6px 6px;
+            display: inline-block;
+            width: 80px;
+        }
+
+        .range.wide{
+            width: 215px;
+            float: right;
+        }
+
+        .range input{
+            display: block;
+            width: 100%;
+        }
+
+        #scope{
+            border: 1px solid #b7b7b7;
+            height: 36px;
+            display: inline-block;
+            width: 215px;
+            float: right;
+            border-radius: 5px;
+        }
+
+        #playlist{
+            width: 320px;
+            background-color: #f1f1f1;
+            border: 1px solid #b7b7b7;
+            padding: 6px;
+            border-radius: 5px;
+            margin: 4px auto;
+        }
+
+        #playlist h2{
+            padding: 4px;
+            margin: 10px 0 4px 0;
+            font-size: 14px;
+        }
+
+        #playlist ul{
+            margin: 0;
+            padding: 0;
+        }
+
+        #playlist ul li{
+            list-style: none;
+            padding: 6px;
+            font-size: 12px;
+            border-top: 1px solid #b7b7b7;
+            color: #6b6b6b;
+        }
+
+        #playlist ul li:hover{
+            background-color: white;
+            cursor: pointer;
+        }
+
+    </style>
+
+</head>
+<body>
+
+
+<div id="player">
+    <div id="songname">Loading song ...</div>
+    <div id="play">Play</div>
+    <div id="scope"></div>
+    <div class="range">
+        Volume:
+        <input id="volume" type="range" min="0" max="100" value="70">
+    </div>
+    <div class="range wide">
+        Progress:
+        <input id="progress" type="range" min="0" max="100" value="0">
+    </div>
+</div>
+
+
+<div id="playlist">
+    <h2>Playlist</h2>
+   <ul>
+       <li onclick="play('../demomods/StardustMemories.mod')">Stardust Memories</li>
+       <li onclick="play('../demomods/GSLINGER.MOD')">Guitar Slinger</li>
+       <li onclick="play('../demomods/Ambrozia.xm')">Ambrozia</li>
+       <li onclick="play('../demomods/Deadlock.xm')">Deadlock</li>
+       <li onclick="play('../demomods/Tinytune.mod')">TinyTune</li>
+       <li onclick="play('../demomods/external.xm')">External</li>
+   </ul>
+</div>
+
+
+<script src="bassoonplayer-min.js"></script>
+<script>
+    var playItem;
+	var autoPlay = false;
+
+	document.addEventListener('DOMContentLoaded', function() {
+		var playButton = document.getElementById("play");
+		var progressBar = document.getElementById("progress");
+		var volumeBar = document.getElementById("volume");
+		var songName = document.getElementById("songname");
+
+		// create canvas to display scope
+		var scopeCanvas = document.createElement("canvas");
+		var scopeWidth = scopeCanvas.width = 215;
+		var scopeHeight = scopeCanvas.height = 34;
+		var scope = scopeCanvas.getContext("2d");
+		document.getElementById("scope").appendChild(scopeCanvas);
+
+		var analyser = BassoonTracker.audio.context.createAnalyser();
+		analyser.smoothingTimeConstant = 0.85;
+
+		BassoonTracker.init(true);
+		if (!BassoonTracker.audio.context){
+			songName.innerHTML = "Sorry<br>Your browser does not support WebAudio.<br>Supported browsers are Chrome,Firefox,Safari and Edge";
+		}else{
+
+			var demoMod = "../demomods/StardustMemories.mod";
+
+			var startTime;
+			var wasPlaying;
+			var patternLength;
+			var songLength;
+
+			playItem = function(url){
+				stopPlay();
+				songName.innerHTML = "Loading ...";
+				BassoonTracker.load(url,false,function(){
+					var song = BassoonTracker.getSong();
+					songName.innerHTML = song.title;
+
+					// We could loop over all the patterns to get the real length, but a rough estimate is good enough.
+					patternLength = song.patterns[song.patternTable[0]].length;
+					songLength = song.length*patternLength;
+
+					// only autostart
+					if (autoPlay) togglePlay();
+				});
+			};
+
+			// setup UI
+
+			playButton.onclick = function(){
+				autoPlay = true;
+				togglePlay();
+			};
+
+			// setup progress bar to seek into the song
+			progressBar.oninput = function(){
+				wasPlaying = wasPlaying || BassoonTracker.isPlaying();
+				stopPlay();
+			};
+			progressBar.onchange = function(){
+				// align to start of pattern
+				var songPos = Math.floor((songLength*progressBar.value/100)/patternLength);
+				BassoonTracker.setCurrentSongPosition(songPos);
+				if (wasPlaying) togglePlay();
+				wasPlaying = false;
+			};
+
+			// setup progress bar to seek into the song
+			volumeBar.oninput = volumeBar.onchange = function(){
+				BassoonTracker.audio.masterVolume.gain.setValueAtTime(volumeBar.value/100,0)
+			};
+
+			BassoonTracker.audio.cutOffVolume.connect(analyser);
+
+
+			// setup simple timer
+			// this has nothing to do with audio playback, it's only used to update the UI once in a while;
+			requestAnimationFrame(function loop(){
+				if (startTime){
+
+					if (BassoonTracker.isPlaying()){
+						var time = new Date().getTime() - startTime;
+						var state = BassoonTracker.getStateAtTime(time);
+						if (state){
+							var currentPos = state.songPos*patternLength + state.patternPos;
+							var percentage = currentPos*100/songLength;
+							progressBar.value = percentage;
+						}
+					}
+					renderScope();
+				}
+				requestAnimationFrame(loop)
+			});
+
+            // load first song
+			playItem(demoMod);
+		}
+
+
+
+		function togglePlay(){
+			BassoonTracker.togglePlay();
+			if (BassoonTracker.isPlaying()){
+				startTime = new Date().getTime();
+				playButton.innerHTML = "Pause";
+			}else{
+				playButton.innerHTML = "Play";
+			}
+		}
+
+		function stopPlay(){
+			BassoonTracker.stop();
+			playButton.innerHTML = "Play";
+		}
+
+		// render a frequency scope
+		function renderScope(){
+			scope.clearRect(0,0,scopeWidth,scopeHeight);
+			scope.fillStyle = '#000000';
+
+			analyser.fftSize = 128;
+			var bufferLength = analyser.frequencyBinCount;
+			var dataArray = new Uint8Array(bufferLength);
+
+			var lowTreshold = 8;
+			var highTreshold = 8;
+			var max = bufferLength-highTreshold;
+
+			var visualBufferLength = bufferLength - lowTreshold - highTreshold;
+
+			analyser.getByteFrequencyData(dataArray);
+
+			var barWidth = (scopeWidth - visualBufferLength) / visualBufferLength;
+			var barHeight;
+			var wx = 0;
+
+			// only display range
+
+			for(var i = lowTreshold; i < max; i++) {
+				barHeight = dataArray[i] * (scopeHeight + (i * 2.5)) / 750;
+				scope.fillRect(wx,scopeHeight-barHeight,barWidth,barHeight);
+
+				wx += barWidth + 1;
+			}
+		}
+
+
+	});
+
+	function play(url){
+		autoPlay = true;
+		if (playItem) playItem(url);
+    }
+
+
+
+
+
+</script>
+
+
+
+
+</body>
+</html>
