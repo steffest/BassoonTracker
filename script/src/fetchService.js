@@ -14,6 +14,37 @@ var FetchService = (function() {
 		});
 	};
 
+	me.post = function(url,data,next){
+		var sData = data;
+		if (typeof data === "object"){
+			sData = "";
+			for (var key in data){
+				if (data.hasOwnProperty(key)){
+					sData += "&" + key + "=" + encodeURIComponent(data[key]);
+				}
+			}
+			if (sData.length) sData = sData.substr(1);
+		}
+		me.ajax({
+			method: "POST",
+			url : url,
+			data: sData,
+			datatype: "form",
+			success: function(data){next(data)},
+			error: function(xhr){next(undefined,xhr)}
+		})
+	};
+
+	me.sendBinary = function(url,data,next){
+		me.ajax({
+			method: "POST",
+			url : url,
+			data: data,
+			success: function(data){next(data)},
+			error: function(xhr){next(undefined,xhr)}
+		})
+	};
+
 	me.json = function(url,next){
 		if (typeof next == "undefined") next=function(){};
 		me.ajax({
@@ -90,7 +121,7 @@ var FetchService = (function() {
 		}
 
 		var data = config.data || '';
-		if (method == "POST" && config.data){
+		if (method === "POST" && config.data && config.datatype === "form"){
 			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		}
 

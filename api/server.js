@@ -4,6 +4,7 @@ var modArchive  = require('./modArchive');
 var modArchiveCached  = require('./modArchiveCached');
 var modulesPL  = require('./modulesPL');
 var httpProxy = require('http-proxy');
+var storage = require('./storage');
 
 var port = process.env.PORT || 3000;
 
@@ -122,6 +123,9 @@ var server = http.createServer(function (req, res) {
         case "ma":
             modArchiveCached.handleRequest(action,urlParts,res);
             break;
+		case "storage":
+			storage.handleRequest(action,urlParts,req,res);
+			break;
 		case "restart":
 			res.writeHead(200, {'Content-Type': 'text/html'});
 			res.end("exiting ...");

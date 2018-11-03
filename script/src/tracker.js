@@ -315,6 +315,7 @@ var Tracker = (function(){
 		}
 	};
 
+	// TODO: move to editor
 	me.save = function(filename,target){
         UI.setStatus("Exporting ...",true);
 		me.buildBinary(me.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){

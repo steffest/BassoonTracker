@@ -256,6 +256,11 @@ var Editor = (function(){
 		var tickTime = props.tickTime;
 
 		var patternCount = 1;
+
+        patternStep = 0;
+        patternCount = 8;
+
+
 		var maxPosition = patternStep+patternCount;
 		maxPosition = Math.min(maxPosition,song.length);
 		patternCount = maxPosition-patternStep;
@@ -265,6 +270,7 @@ var Editor = (function(){
 		Audio.startRendering(length);
 
 		while (patternStep<maxPosition){
+			console.log("rendering step " + patternStep);
 			var patternIndex = song.patternTable[patternStep];
 			var currentPatternData = song.patterns[patternIndex];
 			thisPatternLength = currentPatternData.length;
