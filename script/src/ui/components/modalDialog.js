@@ -1,6 +1,6 @@
 UI.modalDialog = function(initialProperties){
     var me = UI.element();
-    var text = "test";
+    var text = "";
 
     var properties = ["left","top","width","height","name","ok","cancel"];
 

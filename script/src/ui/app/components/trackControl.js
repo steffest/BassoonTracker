@@ -4,7 +4,7 @@ UI.trackControl = function(x,y,w,h,visible){
     me.track = 0;
 
     var font;
-    var label = "test";
+    var label = "";
 
     var buttons = {};
 

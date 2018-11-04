@@ -93,14 +93,14 @@
   {
     "name": "checkbox_off",
     "x": 562,
-    "y": 528,
+    "y": 509,
     "width": 14,
     "height": 14
   },
   {
     "name": "checkbox_on",
     "x": 562,
-    "y": 514,
+    "y": 495,
     "width": 14,
     "height": 14
   },
@@ -128,35 +128,35 @@
   {
     "name": "disk",
     "x": 576,
-    "y": 479,
+    "y": 495,
     "width": 12,
     "height": 11
   },
   {
     "name": "mod",
     "x": 576,
-    "y": 514,
+    "y": 441,
     "width": 12,
     "height": 11
   },
   {
     "name": "module",
-    "x": 562,
-    "y": 542,
+    "x": 576,
+    "y": 509,
     "width": 12,
     "height": 11
   },
   {
     "name": "sample",
     "x": 576,
-    "y": 528,
+    "y": 460,
     "width": 12,
     "height": 11
   },
   {
     "name": "xm",
-    "x": 574,
-    "y": 542,
+    "x": 562,
+    "y": 523,
     "width": 12,
     "height": 11
   },
@@ -296,7 +296,7 @@
   {
     "name": "panel_inset",
     "x": 562,
-    "y": 498,
+    "y": 479,
     "width": 16,
     "height": 16
   },
@@ -386,29 +386,29 @@
   },
   {
     "name": "radio_active",
-    "x": 550,
-    "y": 256,
+    "x": 579,
+    "y": 424,
     "width": 10,
     "height": 10
   },
   {
     "name": "radio_big_active",
-    "x": 550,
-    "y": 245,
+    "x": 574,
+    "y": 523,
     "width": 11,
     "height": 11
   },
   {
     "name": "radio_big_inactive",
     "x": 578,
-    "y": 498,
+    "y": 479,
     "width": 11,
     "height": 11
   },
   {
     "name": "radio_inactive",
-    "x": 550,
-    "y": 266,
+    "x": 562,
+    "y": 534,
     "width": 10,
     "height": 10
   },
@@ -477,24 +477,24 @@
   },
   {
     "name": "vu_green",
-    "x": 579,
-    "y": 424,
+    "x": 576,
+    "y": 471,
     "width": 10,
-    "height": 15
+    "height": 6
   },
   {
     "name": "vu_green_active",
-    "x": 562,
-    "y": 460,
-    "width": 14,
-    "height": 19
+    "x": 572,
+    "y": 534,
+    "width": 10,
+    "height": 6
   },
   {
     "name": "vu_red",
-    "x": 576,
-    "y": 441,
+    "x": 579,
+    "y": 434,
     "width": 10,
-    "height": 15
+    "height": 6
   },
   {
     "name": "vu_red_active",
@@ -506,14 +506,14 @@
   {
     "name": "vu_yellow",
     "x": 576,
-    "y": 460,
+    "y": 452,
     "width": 10,
-    "height": 15
+    "height": 6
   },
   {
     "name": "vu_yellow_active",
     "x": 562,
-    "y": 479,
+    "y": 460,
     "width": 14,
     "height": 19
   },

@@ -29,7 +29,7 @@ UI.vumeter = function(){
 	}
 
 	var vuWidth = 500;
-	var vuHeight = 5;
+	var vuHeight = 6;
 	var dotWidth = 10;
 	var margin = 2;
 	var middleMargin = 4;
