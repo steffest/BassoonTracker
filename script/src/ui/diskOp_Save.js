@@ -15,7 +15,8 @@ UI.DiskOperationSave = function(){
 	var selectTypes = {};
 	selectTypes[FILETYPE.module] = [
 		{label:"module",active:true, extention:".mod", fileType: FILETYPE.module},
-		{label:"wav",active:false, extention:".wav", fileType: FILETYPE.sample}
+		{label:"wav",active:false, extention:".wav", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.WAVE_PCM},
+		{label:"mp3",active:false, extention:".mp3", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.MP3}
 	];
 	selectTypes[FILETYPE.sample] = [
 		{label:"wav 16 bit",active:false, extention:".wav", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RIFF_16BIT},
@@ -52,7 +53,8 @@ UI.DiskOperationSave = function(){
 				Tracker.save(fileName,saveTarget);
 			}
 			if (saveAsFileType == FILETYPE.sample){
-				Editor.renderTrackToBuffer(fileName,saveTarget);
+				//Editor.renderTrackToBuffer(fileName,saveTarget);
+				BassoonProvider.renderFile(fileName,saveAsFileFormat === SAMPLETYPE.MP3);
 			}
 		}
 		if (mainFileType == FILETYPE.sample){
