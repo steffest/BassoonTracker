@@ -117,8 +117,24 @@ UI.app_pianoView = function(){
         return key+1;
     };
 
+	me.onDown = function(data){
+		var x = data.x;
+		var y = data.y - me.top - keyTop;
 
-    me.onTouchUp = function(data){
+
+		var key = getKeyAtPoint(x,y);
+		if (key) {
+			if (key !== prevDown){
+				Input.handleNoteOn(key + (octave*12));
+				if (prevDown) Input.handleNoteOff(prevDown + (octave*12));
+				prevDown = key;
+			}
+		}
+	};
+
+
+
+	me.onTouchUp = function(data){
         var x = data.dragX || me.eventX;
         var y = me.eventY - keyTop;
 
