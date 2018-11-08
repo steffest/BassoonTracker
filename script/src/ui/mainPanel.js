@@ -5,6 +5,8 @@ UI.MainPanel = function(){
     });
 	me.name = "mainPanel";
 
+	var contextMenus = {};
+
     var menu = UI.app_menu(me);
     me.addChild(menu);
 
@@ -20,6 +22,26 @@ UI.MainPanel = function(){
     var pianoPanel = UI.app_pianoView();
     pianoPanel.hide();
     me.addChild(pianoPanel);
+
+
+	me.createContextMenu = function(properties){
+		var contextMenu = contextMenus[properties.name];
+		if (!contextMenu){
+			contextMenu = UI.menu(100,100,128,42,me);
+			contextMenu.zIndex = 100;
+			contextMenu.setProperties({
+				background: UI.Assets.panelMainScale9,
+				layout: "buttons"
+			});
+			contextMenu.setItems(properties.items);
+			contextMenu.hide();
+			me.addChild(contextMenu);
+			contextMenus[properties.name] = contextMenu;
+
+        }
+        return contextMenu;
+	};
+
 
     me.onResize = function(){
         Layout.setLayout(me.width,me.height);
@@ -62,6 +84,22 @@ UI.MainPanel = function(){
             patternPanel.setSize(me.width,remaining);
         }
     });
+
+	EventBus.on(EVENT.showContextMenu,function(properties){
+	    var contextMenu = me.createContextMenu(properties);
+		var x = properties.x;
+		if ((x+contextMenu.width)>me.width) x = me.width-contextMenu.width;
+		contextMenu.setPosition(x,properties.y-contextMenu.height-2);
+		contextMenu.show();
+		me.refresh();
+	});
+
+	EventBus.on(EVENT.hideContextMenu,function(){
+	    for (var key in contextMenus){
+			contextMenus[key].hide();
+        }
+		me.refresh();
+	});
 
 	return me;
 

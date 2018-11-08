@@ -35,6 +35,26 @@ var Note = function(){
 		me.volumeEffect = 0;
 	};
 
+	me.duplicate = function(){
+		return {
+			instrument: me.instrument,
+			period : me.period,
+			effect: me.effect,
+			param: me.param,
+			volumeEffect: me.volumeEffect,
+			note: me.index
+		}
+	};
+
+	me.populate = function(data){
+			me.instrument = data.instrument || 0;
+			me.period = data.period|| 0;
+			me.effect = data.effect || 0;
+			me.param = data.param || 0;
+			me.volumeEffect =  data.volumeEffect || 0;
+			me.index =  data.note || data.index || 0;
+	};
+
 
 	return me;
 };

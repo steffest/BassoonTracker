@@ -1,14 +1,23 @@
 UI.menu = function(x,y,w,h,submenuParent){
     var me = UI.element(x,y,w,h);
+	me.keepSelection = true;
     var items;
 
-    var properties = ["left","top","width","height","name","type"];
+    var properties = ["left","top","width","height","name","type","background","layout"];
+    var background;
+    var buttons = [];
 
     me.setProperties = function(p){
 
         properties.forEach(function(key){
             if (typeof p[key] != "undefined") me[key] = p[key];
         });
+
+		if (p["background"]){
+			background = UI.scale9Panel(0,0,me.width,me.height,p["background"]);
+			background.ignoreEvents = true;
+			me.addChild(background);
+		}
 
         me.setSize(me.width,me.height);
         me.setPosition(me.left,me.top);
@@ -48,6 +57,7 @@ UI.menu = function(x,y,w,h,submenuParent){
 
 
     me.render = function(internal){
+		if (!me.isVisible()) return;
         internal = !!internal;
 
         if (this.needsRendering){
@@ -56,11 +66,21 @@ UI.menu = function(x,y,w,h,submenuParent){
             var fontWidth = 9;
             var itemMargin = 24;
 
-            items.forEach(function(item){
-                item.startX = textX;
-                fontMed.write(me.ctx,item.label,textX,textY);
-                textX += (item.label.length*fontWidth) + itemMargin;
-            });
+			me.clearCanvas();
+			if (background)background.render();
+
+			if (buttons.length){
+                buttons.forEach(function(button){
+                    button.render();
+                })
+            }else if (items){
+				items.forEach(function(item){
+					item.startX = textX;
+					fontMed.write(me.ctx,item.label,textX,textY);
+					textX += (item.label.length*fontWidth) + itemMargin;
+				});
+            }
+
         }
         this.needsRendering = false;
 
@@ -75,8 +95,38 @@ UI.menu = function(x,y,w,h,submenuParent){
     me.setItems = function(newItems){
         items = newItems;
         submenuParent = submenuParent || me.parent;
+        buttons = [];
+		var buttonProperties = {
+			background: UI.Assets.buttonKeyScale9,
+			activeBackground:UI.Assets.buttonKeyActiveScale9,
+			isActive:false,
+			textAlign: "center",
+			font: window.fontDark,
+			paddingTopActive: 1
+		};
 
-        items.forEach(function(item){
+		var buttonX = 3;
+		var buttonY = 3;
+        items.forEach(function(item,index){
+
+            if (me.layout === "buttons"){
+				var button = UI.button(buttonX,buttonY,60,18);
+				buttonX += 60;
+				if (index === 1){
+                    buttonX = 3;
+                    buttonY += 18;
+                }
+
+
+				button.setProperties(buttonProperties);
+				button.setLabel(item.label);
+				if (item.onClick) button.onClick = function(){
+                    item.onClick();
+				};
+				buttons.push(button);
+				me.addChild(button);
+            }
+
             if (item.subItems){
 
                 var subMenu = UI.submenu();

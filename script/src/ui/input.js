@@ -95,7 +95,8 @@ var Input = (function(){
 					y: y,
 					startX: x,
 					startY: y,
-					UIobject: currentEventTarget
+					UIobject: currentEventTarget,
+					isMeta: event.shiftKey || event.metaKey || event.ctrlKey || event.altKey
 				};
 
 				touchData.touches.push(thisTouch);
@@ -172,7 +173,7 @@ var Input = (function(){
 					endTouch(getTouchIndex(touch.identifier));
 				}
 
-				if (event.touches.length == 0){
+				if (event.touches.length === 0){
 					resetInput();
 				}
 			}else{
@@ -183,19 +184,23 @@ var Input = (function(){
 			function endTouch(touchIndex){
 				if (touchIndex>=0){
 					var thisTouch =touchData.touches[touchIndex];
+					var deltaX = thisTouch.startX-thisTouch.x;
+					var deltaY = thisTouch.startY-thisTouch.y;
+					var distance = Math.sqrt( deltaX*deltaX + deltaY*deltaY );
+					var clearSelection = true;
 					if (thisTouch.UIobject){
 						var elm = thisTouch.UIobject;
+						if (elm.keepSelection) clearSelection = false;
 
-						if (elm.onClick) {
-							var deltaX = thisTouch.startX-thisTouch.x;
-							var deltaY = thisTouch.startY-thisTouch.y;
-
-							var distance = Math.sqrt( deltaX*deltaX + deltaY*deltaY );
-
-							if (distance<8) elm.onClick(thisTouch);
+						if (distance<8 && elm.onClick){
+							elm.onClick(thisTouch);
 						}
+
 						if (elm.onTouchUp) elm.onTouchUp(thisTouch);
 					}
+
+					if (clearSelection && distance<8) UI.clearSelection();
+
 					touchData.touches.splice(touchIndex, 1);
 				}
 			}
@@ -216,6 +221,14 @@ var Input = (function(){
 			var keyCode = event.keyCode;
 			var key = event.key;
 
+			var meta={
+				shift: event.shiftKey,
+				control: event.ctrlKey,
+				alt: event.altKey,
+				command: event.metaKey
+			};
+			var hasMeta = (meta.command || meta.control || meta.alt || meta.shift);
+
 			if (!key && event.keyIdentifier){
 				// safari on osX ...
 				var id = event.keyIdentifier;
@@ -233,7 +246,10 @@ var Input = (function(){
             switch(keyCode){
                 case 8:// backspace
                     if (Tracker.isRecording()){
-                        if (Tracker.isRecording()){
+                        if (hasMeta) {
+							Editor.removeNote();
+							Tracker.moveCurrentPatternPos(-1);
+						}else{
                             pos = Editor.getCurrentTrackPosition();
                             if (pos===0){
                                 Editor.putNote(0,0);
@@ -251,7 +267,12 @@ var Input = (function(){
 
                     return;
                 case 13:// enter
-                    Tracker.togglePlay();
+					if (Tracker.isRecording() && hasMeta){
+						Editor.insertNote();
+						Tracker.moveCurrentPatternPos(1);
+					}else{
+						Tracker.togglePlay();
+					}
                     return;
                 case 16:// shift
                     //Tracker.playPattern();
@@ -482,6 +503,9 @@ var Input = (function(){
         var baseNote;
 
         if (index>=0){
+
+			UI.clearSelection();
+
             noteOctave = Math.floor((index-1)/12) + 1;
             noteIndex = (index-1)%12 + 1;
             baseNote = OCTAVENOTES[noteIndex];

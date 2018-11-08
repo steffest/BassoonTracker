@@ -4,6 +4,7 @@ UI.app_patternView = function(x,y,w,h){
     var visibleLines = 0;
     var visibleTracks = 8;
     var lineHeight = 13;
+    var centerLineTop = 0;
     var scrollBarItemOffset = 0;
     var startTrack = 0;
     var max;
@@ -14,6 +15,10 @@ UI.app_patternView = function(x,y,w,h){
     var noteParamCache = {};
     var lineNumberCache = {};
 
+	var range = {};
+	var rangeNormalized = {};
+	var rangeCopy = [];
+	var hasRange = false;
 
 	var trackLeft;
 	var margin;
@@ -28,20 +33,19 @@ UI.app_patternView = function(x,y,w,h){
 
     scrollBar.onDragStart=function(){
         if (Tracker.isPlaying()) return;
-        scrollBar.startDragIndex = Tracker.getCurrentPatternPos();
-
+		scrollBar.startDragIndex = Tracker.getCurrentPatternPos();
     };
 
     scrollBar.onDrag=function(touchData){
         if (Tracker.isPlaying()) return;
-        if (visibleLines && scrollBarItemOffset){
-            var delta =  touchData.dragY - touchData.startY;
-            var pos = Math.floor(scrollBar.startDragIndex + delta/scrollBarItemOffset);
-            pos = Math.min(pos,max-1);
-            pos = Math.max(pos,0);
-            Tracker.setCurrentPatternPos(pos);
-            //setScrollBarPosition();
-        }
+		if (visibleLines && scrollBarItemOffset){
+			var delta =  touchData.dragY - touchData.startY;
+			var pos = Math.floor(scrollBar.startDragIndex + delta/scrollBarItemOffset);
+			pos = Math.min(pos,max-1);
+			pos = Math.max(pos,0);
+			Tracker.setCurrentPatternPos(pos);
+			//setScrollBarPosition();
+		}
     };
 
     me.addChild(scrollBar);
@@ -175,7 +179,7 @@ UI.app_patternView = function(x,y,w,h){
             var visibleEnd = visibleStart + visibleLines;
 
             var centerLineHeight = lineHeight + 2;
-            var centerLineTop = Math.floor((visibleHeight + centerLineHeight)/2);
+            centerLineTop = Math.floor((visibleHeight + centerLineHeight)/2);
 
             var baseY = centerLineTop - (topLines*lineHeight) + 4;
 
@@ -259,6 +263,10 @@ UI.app_patternView = function(x,y,w,h){
 
 
 
+				me.ctx.fillStyle = "rgba(200,150,70,.3)";
+				var noteWidth = font.charWidth*8 + 14;
+				if (displayVolume) noteWidth += font.charWidth*2 + 2;
+
                 for (var i = visibleStart; i< visibleEnd; i++){
                     if (i>=0 && i<Tracker.getPatternLength()){
                         var step = pattern[i];
@@ -293,6 +301,12 @@ UI.app_patternView = function(x,y,w,h){
                                     x = trackLeft + initialTrackTextOffset + (j*Layout.trackWidth);
                                 }
 
+								if (hasRange && i>=rangeNormalized.start[0] && i<=rangeNormalized.end[0] && trackIndex >= rangeNormalized.start[1] && trackIndex <= rangeNormalized.end[1]){
+									range.top = Math.min(range.top,y-2);
+									range.left = Math.min(range.left,x-2);
+								    me.ctx.fillRect(x-2,y-2,noteWidth,lineHeight);
+								}
+
                                 if (isCenter){
                                     renderNote(note,x,y);
                                     renderNote(note,x,y);
@@ -305,6 +319,8 @@ UI.app_patternView = function(x,y,w,h){
 
                                 renderNote(note,x,y);
                                 renderNoteParam(note,x,y);
+
+
 
                             }
                         }
@@ -592,25 +608,84 @@ UI.app_patternView = function(x,y,w,h){
         scrollBarHor.startDragIndex = startTrack;
         if (Tracker.isPlaying()) return;
         me.startDragPos = Tracker.getCurrentPatternPos();
+
+		if (touchData.isMeta || Tracker.isRecording()){
+
+			var track = Math.floor((touchData.x - Layout.firstTrackOffsetLeft-me.left)/(Layout.trackWidth+Layout.trackMargin));
+			var stepsPerTrack = Editor.getStepsPerTrack();
+			Editor.setCurrentCursorPosition((startTrack+track)*stepsPerTrack);
+
+
+			UI.clearSelection();
+			me.startDragTrackX = (track * (Layout.trackWidth+Layout.trackMargin)) + (Layout.firstTrackOffsetLeft + me.left);
+            var offsetY = Math.floor((touchData.y-me.top-me.parent.top-centerLineTop)/lineHeight);
+			range.start = [Tracker.getCurrentPatternPos()+offsetY,Editor.getCurrentTrack()];
+			range.end = range.start;
+			range.top = range.left = 100000;
+			me.refresh();
+		}
     };
 
     me.onDrag = function(touchData){
 
-        if (visibleTracks<Tracker.getTrackCount()){
-            var maxSteps = Tracker.getTrackCount()-visibleTracks;
-            var delta =  touchData.dragX - touchData.startX;
-            var rest = me.width - scrollBarHor.width;
-            var step = Math.floor(delta / (rest/maxSteps));
-            me.setHorizontalScroll(scrollBarHor.startDragIndex - step);
+		if (visibleTracks<Tracker.getTrackCount() && !doSelect){
+			var maxSteps = Tracker.getTrackCount()-visibleTracks;
+			var delta =  touchData.dragX - touchData.startX;
+			var rest = me.width - scrollBarHor.width;
+			var step = Math.floor(delta / (rest/maxSteps));
+			me.setHorizontalScroll(scrollBarHor.startDragIndex - step);
+		}
+
+		if (Tracker.isPlaying()) return;
+
+
+		delta =  Math.round((touchData.dragY - touchData.startY)/lineHeight);
+		var targetPos = me.startDragPos - delta;
+		targetPos = Math.max(targetPos,0);
+		targetPos = Math.min(targetPos,max-1);
+
+
+		if (touchData.isMeta || Tracker.isRecording()){
+			hasRange = true;
+			delta =  Math.floor((touchData.dragY - touchData.startY)/lineHeight);
+			var deltaX = Math.floor((touchData.dragX - me.startDragTrackX)/Layout.trackWidth);
+			range.end = [range.start[0] + delta,Editor.getCurrentTrack()+deltaX];
+			normalizeRange();
+			me.refresh();
+		}else{
+			Tracker.setCurrentPatternPos(targetPos);
         }
 
-        if (Tracker.isPlaying()) return;
 
-        delta =  Math.round((touchData.dragY - touchData.startY)/lineHeight);
-        var targetPos = me.startDragPos - delta;
-        targetPos = Math.max(targetPos,0);
-        targetPos = Math.min(targetPos,max-1);
-        Tracker.setCurrentPatternPos(targetPos);
+    };
+
+    me.onTouchUp = function(){
+        if (hasRange){
+            window.r = me;
+            UI.setSelection(me.processSelection);
+
+            UI.showContextMenu({
+                name: "patternActions",
+                items: [
+					{label: "Clear", onClick: function(){
+							me.processSelection(SELECTION.CLEAR)
+					}},
+					{label: "Cut", onClick: function(){
+							me.processSelection(SELECTION.DELETE)
+					}},
+					{label: "Copy", onClick: function(){
+							me.processSelection(SELECTION.COPY)
+						}},
+					{label: "Paste",  onClick: function(){
+							me.processSelection(SELECTION.PASTE);
+					}}
+				],
+                x: range.left + me.left,
+                y: range.top + me.top + me.parent.top
+            });
+        }
+		//hasRange = false;
+		//me.refresh();
     };
 
     me.onClick = function(touchData){
@@ -619,10 +694,87 @@ UI.app_patternView = function(x,y,w,h){
 		Editor.setCurrentCursorPosition((startTrack+track)*stepsPerTrack);
 	};
 
-
     me.getStartTrack = function(){
         return startTrack;
     };
+
+	me.processSelection = function(state){
+		switch (state) {
+			case SELECTION.RESET:
+				hasRange = false;
+				UI.hideContextMenu();
+				me.refresh();
+				break;
+			case SELECTION.CLEAR:
+				var pattern = Tracker.getCurrentPatternData();
+				if (pattern && hasRange){
+					for (var i = rangeNormalized.start[0]; i<= rangeNormalized.end[0]; i++){
+                        var step = pattern[i];
+                        for (var j = rangeNormalized.start[1]; j<= rangeNormalized.end[1]; j++){
+                            var note = step[j];
+                            if (note) note.clear();
+                        }
+					}
+				}
+				me.refresh();
+				break;
+			case SELECTION.COPY:
+			    rangeCopy = [];
+				var pattern = Tracker.getCurrentPatternData();
+				if (pattern && hasRange){
+					for (var i = rangeNormalized.start[0]; i<= rangeNormalized.end[0]; i++){
+						var step = pattern[i];
+						var stepCopy = [];
+						for (var j = rangeNormalized.start[1]; j<=rangeNormalized.end[1]; j++){
+							var note = step[j];
+							if (note) stepCopy.push(note.duplicate());
+						}
+						rangeCopy.push(stepCopy);
+					}
+				}
+				console.error(rangeCopy);
+				me.refresh();
+				break;
+			case SELECTION.PASTE:
+				var pattern = Tracker.getCurrentPatternData();
+				if (pattern && hasRange && rangeCopy.length){
+					for (var i = 0; i< rangeCopy.length; i++){
+						var step = pattern[rangeNormalized.start[0] + i];
+						var stepCopy = rangeCopy[i];
+						if (step){
+							for (var j = 0; j<stepCopy.length; j++){
+								var note = step[rangeNormalized.start[1] + j];
+								if (note) note.populate(stepCopy[j]);
+							}
+                        }
+					}
+				}
+				me.refresh();
+				break;
+			case SELECTION.DELETE:
+				if (hasRange){
+					for (var j = rangeNormalized.start[1]; j <= rangeNormalized.end[1]; j++){
+						for (var i = rangeNormalized.end[0]; i >= rangeNormalized.start[0]; i--){
+							Editor.removeNote(j,i);
+						}
+					}
+				}
+				break;
+		}
+	};
+
+	function normalizeRange(){
+		rangeNormalized = {
+			start: [range.start[0],range.start[1]],
+			end: [range.end[0],range.end[1]]
+		};
+		for (var i = 0; i<2;i++){
+			if (range.start[i]>range.end[i]){
+				rangeNormalized.start[i] = range.end[i];
+				rangeNormalized.end[i] = range.start[i];
+			}
+		}
+	}
 
 
 
@@ -676,6 +828,7 @@ UI.app_patternView = function(x,y,w,h){
     EventBus.on(EVENT.skipFrameChanged,function(value){
         trackVULevelDecay = 5 * (value+1);
     });
+
 
 
 	return me;

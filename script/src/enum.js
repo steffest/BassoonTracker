@@ -58,7 +58,9 @@ var EVENT = {
 	dropboxConnectCancel: 40,
 	trackScopeClick: 41,
 	octaveChanged: 42,
-	skipFrameChanged: 43
+	skipFrameChanged: 43,
+	showContextMenu: 44,
+	hideContextMenu: 45
 };
 
 var COMMAND = {
@@ -125,6 +127,14 @@ var LOOPTYPE =  {
 	NONE: 0,
 	FORWARD : 1,
 	PINGPONG : 2
+};
+
+var SELECTION = {
+	RESET : 1,
+	CLEAR: 2,
+	CUT: 3,
+	COPY : 4,
+	PASTE : 5
 };
 
 

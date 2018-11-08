@@ -24,6 +24,7 @@ var UI = (function(){
 	var fps;
 	var minFps = 100;
 	var fpsList = [];
+	var selection;
 
 	var UICache = {};
 
@@ -359,6 +360,30 @@ var UI = (function(){
 		UI.mainPanel.refresh();
 		needsRendering = true;
 		window.requestAnimationFrame(render);
+	};
+
+	me.setSelection = function(_selection){
+		console.log("setting selection");
+		selection = _selection;
+	};
+
+	me.getSelection = function(){
+		return selection;
+	};
+
+	me.clearSelection = function(){
+		if (selection){
+			selection(SELECTION.RESET);
+		}
+		selection = undefined;
+	};
+
+	me.showContextMenu = function(properties){
+		EventBus.trigger(EVENT.showContextMenu,properties);
+	};
+
+	me.hideContextMenu = function(){
+		EventBus.trigger(EVENT.hideContextMenu);
 	};
 
 	me.getChildren = function(){

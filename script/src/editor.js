@@ -164,14 +164,7 @@ var Editor = (function(){
 		console.error(trackNumber);
 		for (var i = 0; i<length;i++){
 			var note = Tracker.getSong().patterns[currentPattern][i][trackNumber];
-			data.push({
-				instrument: note.instrument,
-				period : note.period,
-				effect: note.effect,
-				param: note.param,
-				volumeEffect: note.volumeEffect,
-				note: note.index
-			});
+			data.push(note.duplicate());
 		}
 		if (hasTracknumber){
 			return data;
@@ -210,12 +203,7 @@ var Editor = (function(){
 			for (var i = 0; i<length;i++){
 				var note = Tracker.getSong().patterns[currentPattern][i][trackNumber];
 				var source = data[i];
-				note.instrument = source.instrument;
-				note.period = source.period;
-				note.effect = source.effect;
-				note.volumeEffect = source.volumeEffect;
-				note.param = source.param;
-				note.index = source.index;
+				note.populate(source);
 			}
 			if (!hasTracknumber) EventBus.trigger(EVENT.patternChange,currentPattern);
 
@@ -239,6 +227,55 @@ var Editor = (function(){
 			return false;
 		}
 
+	};
+
+	me.insertNote = function(){
+		var end = Tracker.getSong().patterns[currentPattern].length-2;
+		var start = currentPatternPos;
+
+		for (var i = end; i>=start; i--){
+			var from = Tracker.getSong().patterns[currentPattern][i][currentTrack];
+			var to = Tracker.getSong().patterns[currentPattern][i+1][currentTrack];
+
+			to.instrument = from.instrument;
+			to.period = from.period;
+			to.effect = from.effect;
+			to.volumeEffect = from.volumeEffect;
+			to.param = from.param;
+			to.index = from.index;
+		}
+
+		from = Tracker.getSong().patterns[currentPattern][currentPatternPos][currentTrack];
+		if (from) from.clear();
+
+		EventBus.trigger(EVENT.patternChange,currentPattern);
+	};
+
+	me.removeNote = function(track,step){
+		if (typeof track === "undefined") track = currentTrack;
+		if (typeof step === "undefined") step = currentPatternPos;
+
+		if (step===0) return;
+
+		var start = step;
+		var end = Tracker.getSong().patterns[currentPattern].length-1;
+
+		for (var i = start; i<=end; i++){
+			var from = Tracker.getSong().patterns[currentPattern][i][track];
+			var to = Tracker.getSong().patterns[currentPattern][i-1][track];
+
+			to.instrument = from.instrument;
+			to.period = from.period;
+			to.effect = from.effect;
+			to.volumeEffect = from.volumeEffect;
+			to.param = from.param;
+			to.index = from.index;
+		}
+
+		from = Tracker.getSong().patterns[currentPattern][end][track];
+		if (from) from.clear();
+
+		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
 
 	me.renderTrackToBuffer = function(fileName,target){
@@ -311,7 +348,6 @@ var Editor = (function(){
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
 		me.setCurrentTrackPosition(0);
 	});
-
 
 	EventBus.on(EVENT.patternChange,function(pattern){
 		currentPattern = pattern;
