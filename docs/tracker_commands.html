@@ -1,0 +1,136 @@
+<h2>Tracker Commands</h2>
+    <table border="0">
+        <tr>
+            <td class="blue">0</td>
+            <td>Normal play or Arpeggio</td>
+            <td>0xy : Arpeggio x-first halfnote add, y-second</td>
+        </tr>
+        <tr>
+            <td class="blue">1</td>
+            <td>Slide Up</td>
+            <td>1xx : upspeed</td>
+        </tr>
+        <tr>
+            <td class="blue">2</td>
+            <td>Slide Down</td>
+            <td>2xx : downspeed</td>
+        </tr>
+        <tr>
+            <td class="blue">3</td>
+            <td>Tone Portamento</td>
+            <td>3xx : up/down speed</td>
+        </tr>
+        <tr>
+            <td class="blue">4</td>
+            <td>Vibrato</td>
+            <td>4xy : x-speed,   y-depth</td>
+        </tr>
+        <tr>
+            <td class="blue">5</td>
+            <td>Tone Portamento + Volume Slide</td>
+            <td>5xy : x-upspeed, y-downspeed</td>
+        </tr>
+        <tr>
+            <td class="blue">6</td>
+            <td>Vibrato + Volume Slide </td>
+            <td>6xy : x-upspeed, y-downspeed</td>
+        </tr>
+        <tr>
+            <td class="blue">7</td>
+            <td>Tremolo</td>
+            <td>7xy : x-speed,   y-depth</td>
+        </tr>
+        <tr>
+            <td class="blue">8</td>
+            <td>Set panning</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="blue">9</td>
+            <td>Set SampleOffset</td>
+            <td>9xx : offset (23 -&gt; 2300)</td>
+        </tr>
+        <tr>
+            <td class="blue">A</td>
+            <td>VolumeSlide</td>
+            <td>Axy : x-upspeed, y-downspeed</td>
+        </tr>
+        <tr>
+            <td class="blue">B</td>
+            <td>Position Jump</td>
+            <td>Bxx : songposition</td>
+        </tr>
+        <tr>
+            <td class="blue">C</td>
+            <td>Set Volume</td>
+            <td>Cxx : volume, 00-40</td>
+        </tr>
+        <tr>
+            <td class="blue">D</td>
+            <td>Pattern Break</td>
+            <td>Dxx : break position in next pattern</td>
+        </tr>
+        <tr>
+            <td class="blue">F</td>
+            <td>et Speed</td>
+            <td>speed (00-1F) / tempo (20-FF)</td>
+        </tr>
+
+    </table>
+
+
+<br>
+Extended Commands
+<table border="0">
+    <tr>
+        <td class="blue">E0</td>
+        <td>Toggle Filter</td>
+        <td class="blue">E8</td>
+        <td>*not used*</td>
+    </tr>
+    <tr>
+        <td class="blue">E1</td>
+        <td>Fine pitch slide up</td>
+        <td class="blue">E9</td>
+        <td>Retrigger note</td>
+    </tr>
+    <tr>
+        <td class="blue">E2</td>
+        <td>Fine pitch slide down</td>
+        <td class="blue">EA</td>
+        <td>Fine volume slide up</td>
+    </tr>
+    <tr>
+        <td class="blue">E3</td>
+        <td>Glissando control</td>
+        <td class="blue">EB</td>
+        <td>Fine volume slide down</td>
+    </tr>
+    <tr>
+        <td class="blue">E4</td>
+        <td>Vibrato control</td>
+        <td class="blue">EC</td>
+        <td>Cut note</td>
+    </tr>
+    <tr>
+        <td class="blue">E5</td>
+        <td>Set instrument fine tune</td>
+        <td class="blue">ED</td>
+        <td>Note delay</td>
+    </tr>
+    <tr>
+        <td class="blue">E6</td>
+        <td>Pattern loop</td>
+        <td class="blue">EE</td>
+        <td>Pattern delay</td>
+    </tr>
+    <tr>
+        <td class="blue">E7</td>
+        <td>Tremolo control</td>
+        <td class="blue">EF</td>
+        <td>Invert loop</td>
+    </tr>
+</table>
+
+<br>
+For a more detailed explanation, please refer to the <a href="ProtrackerCommandReference.pdf" target="_blank">Protracker Command Reference</a>

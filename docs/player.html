@@ -1,0 +1,69 @@
+<h2>Standalone Player</h2>
+<div id="info">
+    Bassoontracker provides a standalone player library without the interface that you can use in your own projects.
+    <br>Next to playing songs, you can also trigger samples individually.<br>
+    This is especially well suited for small (web) games:
+    <ul>
+        <li>.mod and .xm files are usually much smaller than .mp3 files</li>
+        <li>You can have several looping "subsongs" in 1 file, so for example you could have a different tune for each game section without loading additional data</li>
+        <li>You can embed you sound-FX samples in the same file and still one-shot play them</li>
+    </ul>
+    The complete playback library is 51 kb.
+
+    You'll find a <a href="http://www.stef.be/bassoontracker/player/" target="_blank">simple example here</a>.<br>
+    Hit the "play" button above to start the playback.
+    <br><br>
+
+    Just include the "bassoonplayer-min.js" file and you're good to go.
+    The most simple example would be
+    <xmp>
+        <script src="bassoonplayer-min.js"></script>
+        <script>
+            BassoonTracker.init(true);
+            BassoonTracker.load("url/to/file.mod",true);
+        </script>
+    </xmp>
+
+
+    The second parameter in Tracker.load defines autoplay. (please note that some browser need user interaction first before audio is enabled)<br>
+    You can use a third parameter as callback function when the loading of the file is done.<br>
+
+    <xmp>
+        <script>
+            BassoonTracker.load("url/to/file.mod",false,function(){
+            	... do something
+            });
+        </script>
+    </xmp>
+
+    After Tracker.init you might want to check "Audio.context" to see if the browser supports Webaudio.<br>
+    <br>Some usefull methods:
+    <ul>
+        <li><code>BassoonTracker.togglePlay()</code></li>
+        <li><code>BassoonTracker.isPlaying()</code></li>
+        <li><code>BassoonTracker.playSong()</code></li>
+        <li><code>BassoonTracker.stop()</code></li>
+        <li><code>BassoonTracker.getTrackCount()</code></li>
+        <li><code>BassoonTracker.getSong()</code> <span>(gets the current song)</span>
+            <ul>
+                <li><code>BassoonTracker.getSong().title</code></li>
+                <li><code>BassoonTracker.getSong().length</code> <span>(in patterns)</span></li>
+            </ul>
+        </li>
+        <li><code>BassoonTracker.setCurrentSongPosition(songPos)</code></li>
+        <li><code>BassoonTracker.playSample(sampleIndex,sampleRate)</code></li>
+    </ul>
+
+    The playback itself is scheduled in webAudio and completely detached from the main JS thread.<br>
+    Therefore there are no direct events to indicated playback progress.<br>
+    If you want to display some UI with a progress indicator you will have to keep track of the start time of the song (Audio.context.currentTime)
+    and call
+    <code>Tracker.getStateAtTime(time)</code> periodically <br>(or <code>Tracker.getTimeStates()</code> to get the complete list).<br>
+    Note that the Tracker schedules audio ahead, so the last item in the Tracker.getTimeStates() list will be in the future.<br><br>
+
+    If you want to adjust to volume, you can use <code>BassoonTracker.audio.masterVolume</code> which is a WebAudio GainNode.
+    <br><br>
+    A more <a href="http://www.stef.be/bassoontracker/player/progress.html" target="_blank">more advanced example</a> of the player, with playlist, progress bar, volume and visualisation <a href="http://www.stef.be/bassoontracker/player/progress.html" target="_blank">is here</a>.
+    <a href="http://www.stef.be/bassoontracker/player/progress.html" target="_blank"><img src="_img/player.png" border="0"></a>
+
+</div>

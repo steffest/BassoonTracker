@@ -1,6 +1,192 @@
 <html>
+<head>
+    <style>
+        body{
+            background-color: #3f4048;
+            color: #e5e5e5;
+            font-family: sans-serif;
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        .panel{
+            border: 1px solid #4E5B77;
+            border-bottom-color: black;
+            border-right-color: black;
+        }
+
+        .container{
+            position: relative;
+            width: 1200px;
+            max-width: 96%;
+            margin: auto;
+            background-color: #242e46;
+        }
+
+        #menu{
+            position: absolute;
+            width: 180px;
+            padding: 10px;
+            border-right: 1px solid #4E5B77;
+        }
+
+        #menu:after{
+            content: "";
+            position: absolute;
+            width: 1px;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            border-right: 1px solid black;
+
+        }
+
+        #menu a{
+            display: block;
+            padding: 4px;
+            text-decoration: none;
+            color: #91b6c5;
+            transition: all 400ms ease;
+        }
+
+        #menu a:hover,
+        #menu a.active{
+            color: white;
+            background-color: rgba(145, 182, 197, 0.1);
+        }
+
+        #content{
+            padding: 30px 10px 30px 220px;
+            min-height: 200px;
+            line-height: 130%;
+        }
+
+        #content img{
+            display: block;
+            margin: 10px 0;
+            border: 2px solid black;
+            max-width: 100%;
+        }
+
+        #content a{
+            color: white;
+        }
+
+        #content a:hover{
+            color: #72c4ff;
+        }
+
+
+        h1,h2,h3,h4,h5{
+            font-weight: 300;
+            margin: 0;
+        }
+
+        h1{
+            background-color: #202840;
+            padding: 10px;
+            font-size: 24px;
+        }
+
+        h2{
+            padding: 0 0 4px 0;
+            margin: 0 0 10px 0;
+            border-bottom: 1px solid #e4ac45;
+            color: #e4ac45;
+            font-size: 22px;
+        }
+
+        h3{
+            padding: 4px 0;
+            margin: 20px 0 10px 0;
+            border-bottom: 1px dotted #3269a0;
+            color: #72c4ff;
+            font-size: 20px;
+        }
+
+        .padded{
+            padding: 4px 10px 4px 20px;
+        }
+
+        .blue{
+            color: #72c4ff;
+        }
+
+        td{
+            padding: 2px;
+            border-bottom: 1px dotted #3269a0;
+        }
+
+        xmp{
+            border: 1px solid #66769a;
+            padding: 4px;
+            background-color: #3e485a;
+        }
+
+
+    </style>
+
+</head>
 <body>
-<h2>Bassoontracker Documentation</h2>
-Still needs to be written ...
+<div class="container">
+    <h1 class="panel">Bassoontracker Documentation</h1>
+    <div id="menu">
+        <a href="?about" class="active">About</a>
+        <a href="?tracker">What is a tracker?</a>
+        <a href="?keyboard_commands">Keyboard Commands</a>
+        <a href="?tracker_commands">Tracker Commands</a>
+        <a href="?history">History</a>
+        <a href="?player">Standalone player</a>
+    </div>
+    <div id="content" class="panel">
+
+    </div>
+
+
+</div>
+
+<script>
+	var menu = document.getElementById("menu");
+	var content = document.getElementById("content");
+    function loadPage(url){
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function(){
+			if(xhr.readyState < 4) {
+				return;
+			}
+			if(xhr.readyState === 4) {
+				if(xhr.status !== 200 && xhr.status !== 201) {
+					console.error(xhr);
+					content.innerHTML = 'Sorry<br>The page "' + url + '" does not exist';
+				}else{
+					content.innerHTML = xhr.responseText;
+					window.location.hash = url;
+				}
+			}
+		};
+
+		xhr.open("GET", url + ".html", true);
+		xhr.send();
+    }
+
+	menu.addEventListener('click', function (event) {
+
+		if (!event.target.tagName.toLowerCase() === "a") return;
+		event.preventDefault();
+
+		menu.querySelectorAll("a").forEach(function(a){
+            a.classList.remove("active");
+        });
+		event.target.classList.add("active");
+
+		loadPage(event.target.href.split("?")[1]);
+
+	}, false);
+
+    loadPage(window.location.hash ? window.location.hash.substr(1) : "about");
+
+</script>
+
+
 </body>
 </html>
