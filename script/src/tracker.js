@@ -1143,7 +1143,7 @@ var Tracker = (function(){
 							};
 							trackEffectCache[track].fineSlide = trackEffects.slide;
 							break;
-						case 2: // Fine slide up
+						case 2: // Fine slide down
 							if (!subValue && trackEffectCache[track].fineSlide) subValue = trackEffectCache[track].fineSlide.value;
 							trackEffects.slide = {
 								value: subValue,

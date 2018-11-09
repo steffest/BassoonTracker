@@ -63,6 +63,33 @@ var UI = (function(){
 			}
 			Tracker.load(initialFile,true);
 
+
+			// check version
+			if (typeof versionNumber !== "undefined"){
+				FetchService.json("package.json?ts=" + new Date().getTime(),function(result){
+					if (result && result.version && result.version !== versionNumber){
+						console.error("app needs updating");
+
+						var lastMessage = localStorage.getItem("updatemessageshown") || 0;
+						lastMessage = parseInt(lastMessage,10);
+						if (isNaN(lastMessage)) lastMessage=0;
+
+						window.reload = function(){
+							localStorage.setItem("updatemessageshown",new Date().getTime());
+							window.location.reload(true);
+						};
+
+						if (new Date().getTime() - lastMessage > 1000*60*30){
+							var message = document.createElement("div");
+							message.className = "message";
+							message.innerHTML = 'A new version of BassoonTracker is available. Please <a href="#" onclick="reload()">refresh your browser</a>';
+							document.body.appendChild(message);
+						}
+					}
+				});
+			}
+
+
 			if (next) next();
 
 		});
