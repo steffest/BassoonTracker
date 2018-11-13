@@ -50,7 +50,7 @@ UI.DiskOperationSave = function(){
 	saveButton.onClick = function(){
 		if (mainFileType == FILETYPE.module){
 			if (saveAsFileType == FILETYPE.module){
-				Tracker.save(fileName,saveTarget);
+				Editor.save(fileName,saveTarget);
 			}
 			if (saveAsFileType == FILETYPE.sample){
 				//Editor.renderTrackToBuffer(fileName,saveTarget);

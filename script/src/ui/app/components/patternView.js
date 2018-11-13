@@ -628,7 +628,7 @@ UI.app_patternView = function(x,y,w,h){
 
     me.onDrag = function(touchData){
 
-		if (visibleTracks<Tracker.getTrackCount() && !doSelect){
+		if (visibleTracks<Tracker.getTrackCount() && !(touchData.isMeta || Tracker.isRecording())){
 			var maxSteps = Tracker.getTrackCount()-visibleTracks;
 			var delta =  touchData.dragX - touchData.startX;
 			var rest = me.width - scrollBarHor.width;

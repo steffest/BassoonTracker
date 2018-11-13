@@ -344,6 +344,69 @@ var Editor = (function(){
 		});
 	};
 
+    me.save = function(filename,target){
+        UI.setStatus("Exporting ...",true);
+        me.buildBinary(Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
+            var b = new Blob([file.buffer], {type: "application/octet-stream"});
+
+            var fileName = filename || me.getFileName();
+
+            if (target === "dropbox"){
+                Dropbox.putFile("/" + fileName,b,function(success){
+                    if (success){
+                        UI.setStatus("");
+                    }else{
+                        UI.setStatus("Error while saving to Dropbox ...");
+                    }
+                });
+            }else{
+                saveAs(b,fileName);
+                UI.setStatus("");
+            }
+        });
+    };
+
+    me.importSample = function(file,name){
+        console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + Tracker.getCurrentInstrumentIndex());
+
+        var instrument = Tracker.getCurrentInstrument() || Instrument();
+
+        instrument.name = name;
+        instrument.sample.length = file.length;
+        instrument.sample.loop.start = 0;
+        instrument.sample.loop.length = 0;
+        instrument.setFineTune(0);
+        instrument.sample.volume = 64;
+        instrument.sample.data = [];
+        instrument.sample.name = name;
+
+        detectSampleType(file,instrument.sample);
+
+        EventBus.trigger(EVENT.instrumentChange,Tracker.getCurrentInstrumentIndex());
+        EventBus.trigger(EVENT.instrumentNameChange,Tracker.getCurrentInstrumentIndex());
+
+    };
+
+
+    // returns a binary stream
+    me.buildBinary = function(type,next){
+
+        type = type || MODULETYPE.mod;
+        var writer;
+
+        if (type === MODULETYPE.mod){
+            writer = ProTracker();
+
+        }
+
+        if (type === MODULETYPE.xm){
+            writer = FastTracker();
+        }
+
+        if (writer) writer.write(next);
+
+    };
+
 
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
 		me.setCurrentTrackPosition(0);

@@ -45,18 +45,6 @@ var Tracker = (function(){
 
 	var swing = 0; // swing in milliseconds. NOTE: this is not part of any original Tracker format, just nice to have on beat sequences
 
-
-	var tracks = getUrlParameter("tracks");
-	if (tracks == 8) trackCount = 8;
-	if (tracks == 16) trackCount = 16;
-	if (tracks == 22) trackCount = 22;
-	if (tracks == 32) trackCount = 32;
-	if (tracks == 64) trackCount = 64;
-	if (tracks == 128) trackCount = 128;
-	if (tracks == 256) trackCount = 256;
-	if (tracks == 512) trackCount = 512;
-	if (tracks == 1024) trackCount = 1024;
-
 	var trackNotes = [];
 	var trackEffectCache = [];
 	var trackerStates = [];
@@ -313,29 +301,6 @@ var Tracker = (function(){
 				me.playSong();
 			}
 		}
-	};
-
-	// TODO: move to editor
-	me.save = function(filename,target){
-        UI.setStatus("Exporting ...",true);
-		me.buildBinary(me.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
-			var b = new Blob([file.buffer], {type: "application/octet-stream"});
-
-			var fileName = filename || me.getFileName();
-
-			if (target === "dropbox"){
-				Dropbox.putFile("/" + fileName,b,function(success){
-                    if (success){
-                        UI.setStatus("");
-					}else{
-                        UI.setStatus("Error while saving to Dropbox ...");
-					}
-				});
-			}else{
-				saveAs(b,fileName);
-                UI.setStatus("");
-			}
-		});
 	};
 
 	me.getProperties = function(){
@@ -1854,7 +1819,7 @@ var Tracker = (function(){
 		}
 
 		if (result.isSample){
-			me.importSample(file,name);
+			Editor.importSample(file,name);
 		}
 
 		if (next) next(isMod);
@@ -1878,45 +1843,6 @@ var Tracker = (function(){
 		instruments[index] = instrument;
 	};
 
-	me.importSample = function(file,name){
-		console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + currentInstrumentIndex);
-
-		var instrument = instruments[currentInstrumentIndex] || Instrument();
-
-		instrument.name = name;
-		instrument.sample.length = file.length;
-		instrument.sample.loop.start = 0;
-		instrument.sample.loop.length = 0;
-		instrument.setFineTune(0);
-		instrument.sample.volume = 64;
-		instrument.sample.data = [];
-
-		detectSampleType(file,instrument.sample);
-
-		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
-		EventBus.trigger(EVENT.instrumentNameChange,currentInstrumentIndex);
-
-	};
-
-
-	// returns a binary stream
-	me.buildBinary = function(type,next){
-
-		type = type || MODULETYPE.mod;
-		var writer;
-
-		if (type === MODULETYPE.mod){
-			writer = ProTracker();
-
-		}
-
-		if (type === MODULETYPE.xm){
-			writer = FastTracker();
-		}
-
-		if (writer) writer.write(next);
-
-	};
 
 	function onModuleLoad(){
 		if (UI) UI.setInfo(song.title);

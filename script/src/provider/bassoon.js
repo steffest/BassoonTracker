@@ -7,7 +7,7 @@ var BassoonProvider = function(){
 	me.putFile = function(){
 		var url = baseUrl + "put/";
 
-		Tracker.buildBinary(Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
+		Editor.buildBinary(Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
 			//var b = new Blob([file.buffer], {type: "application/octet-stream"});
 
 			var fileName = Tracker.getFileName();
@@ -28,7 +28,7 @@ var BassoonProvider = function(){
 		var url =  baseUrl + "render/" + (Tracker.inFTMode() ? "xm" : "mod");
 		var fileName = fileName || Tracker.getFileName();
 		UI.setStatus("saving file ...",true);
-		Tracker.buildBinary(Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
+		Editor.buildBinary(Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
 
 			//var b = new Blob([file.buffer], {type: "application/octet-stream"});
 
