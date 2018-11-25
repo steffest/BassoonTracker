@@ -130,16 +130,17 @@
     Event.prototype._execute = function() {
         this._armed = false
         if (this.clock.context.currentTime < this._latestTime)
-            this.func(this)
+            this.func(this);
         else {
-            if (this.onexpired) this.onexpired(this)
-            console.warn('event expired')
+            //if (this.onexpired) this.onexpired(this)
+			console.warn('event expired');
+            if (EventBus) EventBus.trigger(EVENT.clockEventExpired);
         }
         // In the case `schedule` is called inside `func`, we need to avoid
         // overrwriting with yet another `schedule`
         if (this._armed === false && this.isRepeated())
             this.schedule(this.deadline + this.repeatTime)
-    }
+    };
 
 // This recalculates some cached values and re-insert the event in the clock's list
 // to maintain order.

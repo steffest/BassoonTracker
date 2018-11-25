@@ -60,7 +60,8 @@ var EVENT = {
 	octaveChanged: 42,
 	skipFrameChanged: 43,
 	showContextMenu: 44,
-	hideContextMenu: 45
+	hideContextMenu: 45,
+	clockEventExpired: 46
 };
 
 var COMMAND = {
