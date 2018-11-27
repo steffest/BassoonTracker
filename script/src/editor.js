@@ -416,8 +416,8 @@ var Editor = (function(){
 		currentPattern = pattern;
 	});
 
-	EventBus.on(EVENT.patternPosChange,function(patternPos){
-		currentPatternPos = patternPos;
+	EventBus.on(EVENT.patternPosChange,function(positions){
+		currentPatternPos = positions.current;
 	});
 
 	EventBus.on(EVENT.trackCountChange,function(trackCount){

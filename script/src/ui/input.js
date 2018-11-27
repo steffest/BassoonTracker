@@ -11,6 +11,7 @@ var Input = (function(){
 	var isTouched = false;
 	var inputNotes = []; // keep track of notes played through keyboard input
 	var keyDown = {};
+	var isMetaKeyDown = false;
 
 	var currentOctave = 2;
 	var maxOctave = 3;
@@ -45,6 +46,11 @@ var Input = (function(){
 		canvas.addEventListener("dragenter", handleDragenter, false);
 		canvas.addEventListener("dragover", handleDragover, false);
 		canvas.addEventListener("drop", handleDrop, false);
+
+		window.addEventListener("paste", handlePaste,false);
+		window.addEventListener("copy", handleCopy,false);
+		window.addEventListener("cut", handleCut,false);
+		window.addEventListener("delete", handleDelete,false);
 
 		if (!App.isPlugin) window.addEventListener("resize",handleResize,false);
 
@@ -227,7 +233,7 @@ var Input = (function(){
 				alt: event.altKey,
 				command: event.metaKey
 			};
-			var hasMeta = (meta.command || meta.control || meta.alt || meta.shift);
+			isMetaKeyDown = (meta.command || meta.control || meta.alt || meta.shift);
 
 			if (!key && event.keyIdentifier){
 				// safari on osX ...
@@ -246,7 +252,7 @@ var Input = (function(){
             switch(keyCode){
                 case 8:// backspace
                     if (Tracker.isRecording()){
-                        if (hasMeta) {
+                        if (isMetaKeyDown) {
 							Editor.removeNote();
 							Tracker.moveCurrentPatternPos(-1);
 						}else{
@@ -266,8 +272,13 @@ var Input = (function(){
                     }
 
                     return;
+				case 9:// tab
+					event.stopPropagation();
+					event.preventDefault();
+					Editor.moveCursorPosition(Editor.getStepsPerTrack());
+					return;
                 case 13:// enter
-					if (Tracker.isRecording() && hasMeta){
+					if (Tracker.isRecording() && isMetaKeyDown){
 						Editor.insertNote();
 						Tracker.moveCurrentPatternPos(1);
 					}else{
@@ -277,6 +288,9 @@ var Input = (function(){
                 case 16:// shift
                     //Tracker.playPattern();
                     break;
+				case 27:// esc
+					UI.clearSelection();
+					break;
                 case 32:// space
                     Tracker.toggleRecord();
                     return;
@@ -347,6 +361,38 @@ var Input = (function(){
 
 			if (key && (keyCode>40) && (keyCode<230)){
 
+				if (isMetaKeyDown && keyCode>=65 && keyCode<=90){
+					// A-Z with shift key
+					console.log("meta " + keyCode);
+
+					event.stopPropagation();
+					event.preventDefault();
+
+					switch (keyCode) {
+						case 65: //a - select all
+							EventBus.trigger(EVENT.commandSelectAll);
+							return;
+						case 67: //c - copy
+							UI.copySelection(true);
+							return;
+						case 86: //v - paste
+							UI.pasteSelection(true);
+							return;
+						case 88: //x - cut
+							UI.cutSelection(true);
+							return;
+						case 89: //z - redo
+							EventBus.trigger(EVENT.commandRedo);
+							return;
+						case 90: //z - undo
+							EventBus.trigger(EVENT.commandUndo);
+							return;
+					}
+
+					return;
+				}
+
+
                 var index = -1;
 				var keyboardNote = keyboardTable[key];
 
@@ -372,6 +418,8 @@ var Input = (function(){
 
             var keyCode = event.keyCode;
 
+			if (isMetaKeyCode(keyCode)) isMetaKeyDown = false;
+
             if (key && (keyCode>40) && (keyCode<200)){
                 var keyboardTable = KEYBOARDTABLE[SETTINGS.keyboardTable] || KEYBOARDTABLE.azerty;
                 var keyboardNote = keyboardTable[key];
@@ -380,6 +428,8 @@ var Input = (function(){
                     return me.handleNoteOff((currentOctave*12) + keyboardNote);
                 }
             }
+
+
 		}
 
 
@@ -436,6 +486,27 @@ var Input = (function(){
 				}, 100);
 			}
 		}
+
+		function handlePaste(e) {
+			UI.pasteSelection(true);
+		}
+
+		function handleCopy(e) {
+			UI.copySelection(true);
+		}
+
+		function handleCut(e) {
+			UI.cutSelection(true);
+		}
+
+		function handleDelete(e) {
+			console.error("delete");
+		}
+
+		function isMetaKeyCode(keyCode){
+			return ((keyCode === 16) || (keyCode === 17) || (keyCode === 18) || (keyCode === 91) || (keyCode === 93));
+		}
+
 
 		handleResize();
 
@@ -619,6 +690,9 @@ var Input = (function(){
         keyDown[index] = false;
 	};
 
+	me.isMetaKeyDown = function(){
+		return isMetaKeyDown;
+	};
 
 
 	EventBus.on(EVENT.second,function(){

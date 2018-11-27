@@ -25,6 +25,7 @@ var UI = (function(){
 	var minFps = 100;
 	var fpsList = [];
 	var selection;
+	var prevSelection;
 	var prevEventExpired = 0;
 
 	var UICache = {};
@@ -393,6 +394,7 @@ var UI = (function(){
 	me.setSelection = function(_selection){
 		console.log("setting selection");
 		selection = _selection;
+		prevSelection = selection;
 	};
 
 	me.getSelection = function(){
@@ -402,6 +404,34 @@ var UI = (function(){
 	me.clearSelection = function(){
 		if (selection){
 			selection(SELECTION.RESET);
+		}
+		selection = undefined;
+	};
+
+	me.copySelection = function(andClear){
+		if (selection){
+			selection(SELECTION.COPY);
+			if (andClear) selection(SELECTION.RESET);
+		}
+		selection = undefined;
+	};
+
+	me.cutSelection = function(andClear){
+		if (selection){
+			selection(SELECTION.CUT);
+			if (andClear) selection(SELECTION.RESET);
+		}
+		selection = undefined;
+	};
+
+	me.pasteSelection = function(andClear){
+		if (!selection && prevSelection){
+			selection = prevSelection;
+			selection(SELECTION.POSITION);
+		}
+		if (selection){
+			selection(SELECTION.PASTE);
+			if (andClear) selection(SELECTION.RESET);
 		}
 		selection = undefined;
 	};

@@ -167,7 +167,7 @@ var Tracker = (function(){
 
 	me.setCurrentPatternPos = function(index){
 		currentPatternPos = index;
-		if (prevPatternPos!=currentPatternPos) EventBus.trigger(EVENT.patternPosChange,currentPatternPos);
+		if (prevPatternPos!=currentPatternPos) EventBus.trigger(EVENT.patternPosChange,{current: currentPatternPos, prev: prevPatternPos});
 		prevPatternPos = currentPatternPos;
 	};
 	me.getCurrentPatternPos = function(){

@@ -61,7 +61,10 @@ var EVENT = {
 	skipFrameChanged: 43,
 	showContextMenu: 44,
 	hideContextMenu: 45,
-	clockEventExpired: 46
+	clockEventExpired: 46,
+	commandUndo: 50,
+	commandRedo: 51,
+	commandSelectAll: 52
 };
 
 var COMMAND = {
@@ -135,7 +138,9 @@ var SELECTION = {
 	CLEAR: 2,
 	CUT: 3,
 	COPY : 4,
-	PASTE : 5
+	PASTE : 5,
+	POSITION: 6
+
 };
 
 

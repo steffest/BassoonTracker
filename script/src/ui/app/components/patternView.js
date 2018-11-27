@@ -661,31 +661,8 @@ UI.app_patternView = function(x,y,w,h){
 
     me.onTouchUp = function(){
         if (hasRange){
-            window.r = me;
-            UI.setSelection(me.processSelection);
-
-            UI.showContextMenu({
-                name: "patternActions",
-                items: [
-					{label: "Clear", onClick: function(){
-							me.processSelection(SELECTION.CLEAR)
-					}},
-					{label: "Cut", onClick: function(){
-							me.processSelection(SELECTION.DELETE)
-					}},
-					{label: "Copy", onClick: function(){
-							me.processSelection(SELECTION.COPY)
-						}},
-					{label: "Paste",  onClick: function(){
-							me.processSelection(SELECTION.PASTE);
-					}}
-				],
-                x: range.left + me.left,
-                y: range.top + me.top + me.parent.top
-            });
+			me.showSelectionUI();
         }
-		//hasRange = false;
-		//me.refresh();
     };
 
     me.onClick = function(touchData){
@@ -718,7 +695,8 @@ UI.app_patternView = function(x,y,w,h){
 				}
 				me.refresh();
 				break;
-			case SELECTION.COPY:
+            case SELECTION.COPY:
+            case SELECTION.CUT:
 			    rangeCopy = [];
 				var pattern = Tracker.getCurrentPatternData();
 				if (pattern && hasRange){
@@ -732,7 +710,28 @@ UI.app_patternView = function(x,y,w,h){
 						rangeCopy.push(stepCopy);
 					}
 				}
-				console.error(rangeCopy);
+				if (state === SELECTION.CUT){
+					if (hasRange){
+
+					    // really Cut or just Clear?
+                        // cut:
+                        /*
+						for (var j = rangeNormalized.start[1]; j <= rangeNormalized.end[1]; j++){
+							for (var i = rangeNormalized.end[0]+1; i > rangeNormalized.start[0]; i--){
+								Editor.removeNote(j,i);
+							}
+						}*/
+
+                        // clear
+						for (var i = rangeNormalized.start[0]; i<= rangeNormalized.end[0]; i++){
+							var step = pattern[i];
+							for (var j = rangeNormalized.start[1]; j<= rangeNormalized.end[1]; j++){
+								var note = step[j];
+								if (note) note.clear();
+							}
+						}
+					}
+                }
 				me.refresh();
 				break;
 			case SELECTION.PASTE:
@@ -751,17 +750,38 @@ UI.app_patternView = function(x,y,w,h){
 				}
 				me.refresh();
 				break;
-			case SELECTION.DELETE:
-				if (hasRange){
-					for (var j = rangeNormalized.start[1]; j <= rangeNormalized.end[1]; j++){
-						for (var i = rangeNormalized.end[0]; i >= rangeNormalized.start[0]; i--){
-							Editor.removeNote(j,i);
-						}
-					}
-				}
+			case SELECTION.POSITION:
+				range.start = range.end = [Tracker.getCurrentPatternPos(),Editor.getCurrentTrack()];
+				normalizeRange();
+				hasRange = true;
+				me.refresh();
 				break;
 		}
 	};
+
+	me.showSelectionUI = function(){
+		UI.setSelection(me.processSelection);
+
+		UI.showContextMenu({
+			name: "patternActions",
+			items: [
+				{label: "Clear", onClick: function(){
+						me.processSelection(SELECTION.CLEAR)
+					}},
+				{label: "Cut", onClick: function(){
+						me.processSelection(SELECTION.CUT)
+					}},
+				{label: "Copy", onClick: function(){
+						me.processSelection(SELECTION.COPY)
+					}},
+				{label: "Paste",  onClick: function(){
+						me.processSelection(SELECTION.PASTE);
+					}}
+			],
+			x: range.left + me.left,
+			y: range.top + me.top + me.parent.top
+		});
+    };
 
 	function normalizeRange(){
 		rangeNormalized = {
@@ -776,6 +796,33 @@ UI.app_patternView = function(x,y,w,h){
 		}
 	}
 
+	function initRange(positions){
+		if (!hasRange){
+			range.start = [positions.prev || 0,Editor.getCurrentTrack()];
+			range.end = [positions.current,Editor.getCurrentTrack()];
+			range.top = range.left = 100000;
+			normalizeRange();
+			hasRange = true;
+			me.showSelectionUI();
+			me.refresh();
+		}else{
+			range.end = [Tracker.getCurrentPatternPos(),Editor.getCurrentTrack()];
+			normalizeRange();
+			me.refresh();
+		}
+    }
+
+
+	EventBus.on(EVENT.patternPosChange,function(positions){
+		if (Input.isMetaKeyDown() && !Tracker.isRecording() && !Tracker.isPlaying()){
+			initRange(positions)
+		}
+    });
+	EventBus.on(EVENT.cursorPositionChange,function(pos){
+		if (Input.isMetaKeyDown() && !Tracker.isRecording() && !Tracker.isPlaying()){
+			initRange({current: Tracker.getCurrentPatternPos(),prev: Tracker.getCurrentPatternPos()})
+		}
+	});
 
 
 	EventBus.on(EVENT.trackCountChange,function(trackCount){
@@ -811,7 +858,6 @@ UI.app_patternView = function(x,y,w,h){
         if (fxPanel.visible){
             fxPanel.hide();
         }else{
-
             var visibleHeight = me.height;
 			var hasHorizontalScrollBar =  visibleTracks<Tracker.getTrackCount();
 			if (hasHorizontalScrollBar) visibleHeight -= 24;
@@ -829,6 +875,18 @@ UI.app_patternView = function(x,y,w,h){
         trackVULevelDecay = 5 * (value+1);
     });
 
+	EventBus.on(EVENT.commandSelectAll,function(){
+		if (me.isVisible()){
+			UI.clearSelection();
+			range.start = [0,Editor.getCurrentTrack()];
+			range.end = [Tracker.getCurrentPatternData().length-1,Editor.getCurrentTrack()];
+			normalizeRange();
+			hasRange = true;
+			range.top = range.left = 100000;
+			me.showSelectionUI();
+			me.refresh();
+        }
+	});
 
 
 	return me;
