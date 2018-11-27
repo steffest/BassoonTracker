@@ -90,7 +90,7 @@ var Editor = (function(){
 
 				if (pos == 3  || pos == 4){
 					var vparam = note.volumeEffect;
-					x = vparam >> 4;
+					x = (vparam >> 4) || 1;
 					y = vparam & 0x0f;
 					if (pos == 3) x = value+1;
 					if (pos == 4) y = value;
