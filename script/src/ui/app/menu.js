@@ -21,6 +21,9 @@ UI.app_menu = function(container){
                 {label: "Open Random XM Song" , "command" : COMMAND.randomSongXM}
             ]},
         {label: "Edit", subItems: [
+				{label: "Cut" , "command" : COMMAND.cut},
+				{label: "Copy" , "command" : COMMAND.copy},
+				{label: "Paste" , "command" : COMMAND.paste},
                 {label: "Clear Track" , "command" : COMMAND.clearTrack},
                 {label: "Clear Pattern" , "command" : COMMAND.clearPattern},
                 {label: "Clear Song" , "command" : COMMAND.clearSong},

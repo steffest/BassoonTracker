@@ -91,6 +91,16 @@ var App = (function(){
 						document.head.appendChild(script);
 						break;
                     }
+					break;
+				case COMMAND.cut:
+					UI.cutSelection(true);
+					break;
+				case COMMAND.copy:
+					UI.copySelection(true);
+					break;
+				case COMMAND.paste:
+					UI.pasteSelection(true);
+					break;
 
             }
         });

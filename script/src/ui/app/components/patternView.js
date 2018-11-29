@@ -676,12 +676,13 @@ UI.app_patternView = function(x,y,w,h){
     };
 
 	me.processSelection = function(state){
+	    if (!me.isVisible()) return;
 		switch (state) {
 			case SELECTION.RESET:
 				hasRange = false;
 				UI.hideContextMenu();
 				me.refresh();
-				break;
+				return true;
 			case SELECTION.CLEAR:
 				var pattern = Tracker.getCurrentPatternData();
 				if (pattern && hasRange){
@@ -702,12 +703,14 @@ UI.app_patternView = function(x,y,w,h){
 				if (pattern && hasRange){
 					for (var i = rangeNormalized.start[0]; i<= rangeNormalized.end[0]; i++){
 						var step = pattern[i];
-						var stepCopy = [];
-						for (var j = rangeNormalized.start[1]; j<=rangeNormalized.end[1]; j++){
-							var note = step[j];
-							if (note) stepCopy.push(note.duplicate());
+						if (step){
+							var stepCopy = [];
+							for (var j = rangeNormalized.start[1]; j<=rangeNormalized.end[1]; j++){
+								var note = step[j];
+								if (note) stepCopy.push(note.duplicate());
+							}
+							rangeCopy.push(stepCopy);
 						}
-						rangeCopy.push(stepCopy);
 					}
 				}
 				if (state === SELECTION.CUT){
@@ -725,10 +728,13 @@ UI.app_patternView = function(x,y,w,h){
                         // clear
 						for (var i = rangeNormalized.start[0]; i<= rangeNormalized.end[0]; i++){
 							var step = pattern[i];
-							for (var j = rangeNormalized.start[1]; j<= rangeNormalized.end[1]; j++){
-								var note = step[j];
-								if (note) note.clear();
+							if (step){
+								for (var j = rangeNormalized.start[1]; j<= rangeNormalized.end[1]; j++){
+									var note = step[j];
+									if (note) note.clear();
+								}
 							}
+
 						}
 					}
                 }

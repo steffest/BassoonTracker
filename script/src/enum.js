@@ -87,7 +87,10 @@ var COMMAND = {
 	randomSong: 17,
     randomSongXM: 18,
 	showGithub: 19,
-	showStats: 20
+	showStats: 20,
+	cut: 21,
+	copy: 22,
+	paste: 23
 };
 
 var PLAYTYPE = {

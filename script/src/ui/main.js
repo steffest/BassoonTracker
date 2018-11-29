@@ -403,9 +403,10 @@ var UI = (function(){
 
 	me.clearSelection = function(){
 		if (selection){
-			selection(SELECTION.RESET);
+			var doClear = selection(SELECTION.RESET);
+			if (doClear) selection = undefined;
 		}
-		selection = undefined;
+
 	};
 
 	me.copySelection = function(andClear){

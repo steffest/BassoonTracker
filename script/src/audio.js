@@ -21,6 +21,7 @@ var Audio = (function(){
     var hasUI;
     var scheduledNotes = [[],[],[]];
     var scheduledNotesBucket = 0;
+    var prevSampleRate = 4143.569;
 
     var filters = {
         volume: true,
@@ -214,6 +215,7 @@ var Audio = (function(){
                 buffering[i] = instrument.sample.data[i];
             }
 
+			prevSampleRate = sampleRate;
             var source = audioContext.createBufferSource();
             source.buffer = sampleBuffer;
 
@@ -319,6 +321,21 @@ var Audio = (function(){
         }
     };
 
+	me.playRaw = function(data,sampleRate){
+		// used to loose snippets of samples (ranges etc)
+		if (context && data && data.length){
+			var sampleBuffer;
+			sampleBuffer = context.createBuffer(1,data.length,context.sampleRate);
+			var initialPlaybackRate = sampleRate / audioContext.sampleRate;
+			var source = context.createBufferSource();
+			source.buffer = sampleBuffer;
+			source.loop = true;
+			source.playbackRate.value = initialPlaybackRate;
+			source.connect(masterVolume);
+			source.start();
+		}
+	};
+
 
     me.isRecording = function(){
         return isRecording;
@@ -422,6 +439,10 @@ var Audio = (function(){
             if (filter) filter.panningValue(i%2==0 ? -panAmount : panAmount);
         }
     };
+
+    me.getPrevSampleRate = function(){
+    	return prevSampleRate;
+	};
 
     me.context = context;
 

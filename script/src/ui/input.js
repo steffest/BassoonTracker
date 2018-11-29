@@ -18,6 +18,7 @@ var Input = (function(){
 	var minOctave = 1;
 
 	var prevHoverTarget;
+	var prevIndex = 13;
 
 	me.init = function(){
 
@@ -565,7 +566,7 @@ var Input = (function(){
 	};
 
 	// handles the input for an indexed note
-	me.handleNoteOn = function(index,key){
+	me.handleNoteOn = function(index,key,offset){
 
         var note;
         var doPlay = true;
@@ -574,7 +575,7 @@ var Input = (function(){
         var baseNote;
 
         if (index>=0){
-
+			prevIndex = index;
 			UI.clearSelection();
 
             noteOctave = Math.floor((index-1)/12) + 1;
@@ -659,7 +660,17 @@ var Input = (function(){
                 }
 
                 Audio.checkState();
-                keyDown[index] = instrument.play(note.index,note.period);
+                var effects = undefined;
+
+                if (offset){
+                	effects = {
+                		offset:{
+                			value: offset
+						}
+					}
+				}
+
+                keyDown[index] = instrument.play(note.index,note.period,undefined,undefined,effects);
                 keyDown[index].instrument = instrument;
                 keyDown[index].isKey = true;
                 inputNotes.push(keyDown[index]);
@@ -692,6 +703,10 @@ var Input = (function(){
 
 	me.isMetaKeyDown = function(){
 		return isMetaKeyDown;
+	};
+
+	me.getPrevIndex = function(){
+		return prevIndex;
 	};
 
 
