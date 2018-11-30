@@ -295,7 +295,10 @@ var FastTracker = function(){
 		var fileSize = 60 + 276;
 
             for (i = 0; i<=highestPattern; i++){
-                fileSize += (9 + (song.patterns[i].length * trackCount * 5));
+                if (song.patterns[i]){
+                    fileSize += (9 + (song.patterns[i].length * trackCount * 5));
+                }
+
             }
 
             // TODO: trim instrument list;
@@ -347,26 +350,34 @@ var FastTracker = function(){
 		for (i = 0; i <= highestPattern; i++) {
 
 			var thisPattern = song.patterns[i];
+			var patternLength = 0;
+			var patternSize = 0;
+
+			if (thisPattern) {
+			    patternLength = thisPattern.length;
+                patternSize = patternLength * trackCount * 5;
+            }
 
 			file.writeDWord(9); // header size;
 			file.writeUByte(0); // packing type
-			file.writeWord(thisPattern.length);
-
-			// TODO: packing?
-			var patternSize = thisPattern.length * trackCount * 5;
+			file.writeWord(patternLength);
 			file.writeWord(patternSize);
 
-			for (var step=0, max=thisPattern.length; step<max;step++){
-				var row = thisPattern[step];
-				for (var channel=0; channel<trackCount;channel++){
-					var note = row[channel];
-					file.writeUByte(note.index || 0);
-					file.writeUByte(note.instrument || 0);
-					file.writeUByte(note.volumeEffect || 0);
-					file.writeUByte(note.effect || 0);
-					file.writeUByte(note.param || 0);
-				}
-			}
+            if (thisPattern){
+                // TODO: packing?
+                for (var step=0, max=thisPattern.length; step<max;step++){
+                    var row = thisPattern[step];
+                    for (var channel=0; channel<trackCount;channel++){
+                        var note = row[channel];
+                        file.writeUByte(note.index || 0);
+                        file.writeUByte(note.instrument || 0);
+                        file.writeUByte(note.volumeEffect || 0);
+                        file.writeUByte(note.effect || 0);
+                        file.writeUByte(note.param || 0);
+                    }
+                }
+            }
+
 		}
 
 		// write instrument data
