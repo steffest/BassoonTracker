@@ -523,11 +523,11 @@ var UI = (function(){
 	EventBus.on(EVENT.clockEventExpired,function(){
 		var now = new Date().getTime();
 		if (now-prevEventExpired>2000){
-			console.warn("throttling back");
+			Logger.warn("throttling back");
 			if (skipRenderSteps<4){
 				me.skipFrame(skipRenderSteps+1);
 			}else{
-				console.error("Browser can't keep up");
+                Logger.warn("Browser can't keep up");
 			}
 			prevEventExpired = now;
 		}

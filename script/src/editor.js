@@ -352,6 +352,7 @@ var Editor = (function(){
             var fileName = filename || me.getFileName();
 
             if (target === "dropbox"){
+                Logger.info("save to dropbox " + fileName);
                 Dropbox.putFile("/" + fileName,b,function(success){
                     if (success){
                         UI.setStatus("");
@@ -360,6 +361,7 @@ var Editor = (function(){
                     }
                 });
             }else{
+                Logger.info("save " + fileName);
                 saveAs(b,fileName);
                 UI.setStatus("");
             }

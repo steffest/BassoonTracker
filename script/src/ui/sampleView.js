@@ -584,31 +584,38 @@ UI.SampleView = function(){
 		spinBoxInstrument.setValue(value,true);
 		var instrument = Tracker.getInstrument(value);
 		if (instrument){
-			repeatSpinbox.setMax(instrument.sample.length,true);
-			repeatLengthSpinbox.setMax(instrument.sample.length,true);
-			instrumentName.setValue(instrument.name,true);
-			volumeSlider.setValue(instrument.sample.volume);
-			panningSlider.setValue(instrument.sample.panning || 0);
+
+            instrumentName.setValue(instrument.name,true);
 			fineTuneSlider.setValue(instrument.getFineTune());
-
-			repeatSpinbox.setValue(instrument.sample.loop.start,true);
-			repeatLengthSpinbox.setValue(instrument.sample.loop.length,true);
-
-			spinBoxRelativeNote.setValue(instrument.sample.relativeNote);
 			fadeOutSlider.setValue(instrument.fadeout || 0);
+
+			if (instrument.sample){
+                repeatSpinbox.setMax(instrument.sample.length,true);
+                repeatLengthSpinbox.setMax(instrument.sample.length,true);
+
+                volumeSlider.setValue(instrument.sample.volume);
+                panningSlider.setValue(instrument.sample.panning || 0);
+                repeatSpinbox.setValue(instrument.sample.loop.start,true);
+                repeatLengthSpinbox.setValue(instrument.sample.loop.length,true);
+                spinBoxRelativeNote.setValue(instrument.sample.relativeNote);
+                loopEnabledCheckbox.setState(instrument.sample.loop.enabled);
+
+                if (instrument.sample.bits === 8){
+                    bit8Button.setActive(true);
+                    bit16Button.setActive(false);
+                }else{
+                    bit8Button.setActive(false);
+                    bit16Button.setActive(true);
+                }
+			}
+
 			waveForm.setInstrument(instrument);
 			volumeEnvelope.setInstrument(instrument);
 			panningEnvelope.setInstrument(instrument);
 
-			loopEnabledCheckbox.setState(instrument.sample.loop.enabled);
 
-			if (instrument.sample.bits === 8){
-				bit8Button.setActive(true);
-				bit16Button.setActive(false);
-			}else{
-				bit8Button.setActive(false);
-				bit16Button.setActive(true);
-			}
+
+
 
 
 		}else{

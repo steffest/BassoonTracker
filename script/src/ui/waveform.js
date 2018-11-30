@@ -309,7 +309,8 @@ UI.WaveForm = function(){
 		}
 
 		EventBus.trigger(EVENT.samplePropertyChange,{
-			sampleLength: sampleLength
+			sampleLength: sampleLength,
+            loopLength: instrument.sample.loop.length
 		});
 
 		if (ignoreInstrumentChange) return;
