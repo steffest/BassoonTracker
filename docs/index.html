@@ -148,6 +148,7 @@
 <script>
 	var menu = document.getElementById("menu");
 	var content = document.getElementById("content");
+	var currentPage="";
     function loadPage(url){
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function(){
@@ -160,6 +161,7 @@
 					content.innerHTML = 'Sorry<br>The page "' + url + '" does not exist';
 				}else{
 					content.innerHTML = xhr.responseText;
+					currentPage = url;
 					window.location.hash = url;
 				}
 			}
@@ -182,6 +184,14 @@
 		loadPage(event.target.href.split("?")[1]);
 
 	}, false);
+
+
+	window.onhashchange = function(){
+        if (window.location.hash.substr(1) !== currentPage){
+			window.scrollTo(0, 0);
+        	loadPage(window.location.hash.substr(1));
+        }
+    };
 
     loadPage(window.location.hash ? window.location.hash.substr(1) : "about");
 
