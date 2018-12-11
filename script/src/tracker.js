@@ -1653,6 +1653,8 @@ var Tracker = (function(){
 	me.setPeriodAtTime = function(trackNote,period,time){
         // TODO: shouldn't we always set the full samplerate from the period?
 
+		period = Math.max(period,1);
+
         if (me.inFTMode() && me.useLinearFrequency){
             var sampleRate = (8363 * Math.pow(2,((4608 - period) / 768)));
             var rate = sampleRate / Audio.context.sampleRate;
