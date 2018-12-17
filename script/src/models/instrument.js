@@ -48,12 +48,16 @@ var Instrument = function(){
 	me.noteOff = function(time,noteInfo){
 		if (!noteInfo || !noteInfo.volume) return;
 
-		noteInfo.volume.gain.cancelScheduledValues(time);
-		noteInfo.volumeFadeOut.gain.cancelScheduledValues(time);
+		function cancelScheduledValues(){
+			// Note: we should cancel Volume and Panning scheduling independently ...
+			noteInfo.volume.gain.cancelScheduledValues(time);
+			noteInfo.volumeFadeOut.gain.cancelScheduledValues(time);
 
-		if (noteInfo.volumeEnvelope) noteInfo.volumeEnvelope.gain.cancelScheduledValues(time);
-		if (noteInfo.panningEnvelope) noteInfo.panningEnvelope.pan.cancelScheduledValues(time);
-        noteInfo.scheduled = undefined;
+			if (noteInfo.volumeEnvelope) noteInfo.volumeEnvelope.gain.cancelScheduledValues(time);
+			if (noteInfo.panningEnvelope) noteInfo.panningEnvelope.pan.cancelScheduledValues(time);
+			noteInfo.scheduled = undefined;
+		}
+
 
 		if (Tracker.inFTMode()){
 			var tickTime = Tracker.getProperties().tickTime;
@@ -61,6 +65,7 @@ var Instrument = function(){
 			if (me.volumeEnvelope.enabled){
 
 				if (me.volumeEnvelope.sustain && noteInfo.volumeEnvelope){
+					cancelScheduledValues();
 					var timeOffset = 0;
 					var startPoint = me.volumeEnvelope.points[me.volumeEnvelope.sustainPoint];
 					if (startPoint) timeOffset = startPoint[0]*tickTime;
@@ -76,6 +81,7 @@ var Instrument = function(){
 				}
 
 			}else{
+				cancelScheduledValues();
 				noteInfo.volumeFadeOut.gain.linearRampToValueAtTime(0,time + 0.1)
 			}
 
@@ -92,6 +98,7 @@ var Instrument = function(){
 			return 100;
 
 		}else{
+			cancelScheduledValues();
 			if (noteInfo.isKey && noteInfo.volume){
 				noteInfo.volume.gain.linearRampToValueAtTime(0,time + 0.5)
 			}else{
