@@ -104,8 +104,15 @@ var Instrument = function(){
 	function processEnvelop(envelope,audioNode,time){
 		var tickTime = Tracker.getProperties().tickTime;
 		var maxPoint = envelope.sustain ? envelope.sustainPoint+1 : envelope.count;
+
+		// some XM files seem to have loop points outside the range.
+		// e.g. springmellow_p_ii.xm - instrument 15;
+		envelope.loopStartPoint = Math.min(envelope.loopStartPoint,envelope.count-1);
+		envelope.loopEndPoint = Math.min(envelope.loopEndPoint,envelope.count-1);
+
 		var doLoop = envelope.loop && (envelope.loopStartPoint<envelope.loopEndPoint);
 		if (envelope.sustain && envelope.sustainPoint<=envelope.loopStartPoint) doLoop=false;
+
 
 		if (doLoop) maxPoint = envelope.loopEndPoint+1;
 		var scheduledTime = 0;
