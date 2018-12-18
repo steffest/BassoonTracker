@@ -776,6 +776,7 @@ var Tracker = (function(){
 				// the ProTracker clone of 8bitbubsy does this completely compatible to protracker2.
 
 				var target = notePeriod;
+				if (me.inFTMode() && noteIndex === NOTEOFF) target = 0;
 
 				// avoid using the fineTune of another instrument if another instrument index is present
 				if (trackNotes[track].currentInstrument) instrumentIndex = trackNotes[track].currentInstrument;
