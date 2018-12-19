@@ -613,9 +613,15 @@ var Tracker = (function(){
             	switch(x){
 					case 6:
 						// volume slide down
+                        trackEffects.fade = {
+                            value: y * -1 * 100/64
+                        };
 						break;
 					case 7:
 						// volume slide up
+                        trackEffects.fade = {
+                            value: y * 100/64
+                        };
 						break;
 					case 8:
 						// Fine volume slide down
