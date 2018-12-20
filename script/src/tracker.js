@@ -1524,7 +1524,9 @@ var Tracker = (function(){
 		}
 
 		if (effects.cutNote){
-			trackNote.volume.gain.setValueAtTime(0,time + (effects.cutNote.value*tickTime));
+			if (trackNote.volume) {
+				trackNote.volume.gain.setValueAtTime(0,time + (effects.cutNote.value*tickTime));
+			}
 			trackNote.currentVolume = 0;
 		}
 
