@@ -38,6 +38,8 @@ var FastTracker = function(){
         mod.defaultTempo = file.readWord();
         mod.defaultBPM = file.readWord();
 
+        console.log("File was made in " + mod.trackerName + " version " + mod.trackerVersion);
+
 
         var patternTable = [];
         var highestPattern = 0;
@@ -105,69 +107,79 @@ var FastTracker = function(){
 
         for (i = 1; i <= mod.numberOfInstruments; ++i) {
 
-            var instrument = Instrument();
 
-            instrument.filePosition = file.index;
-            instrument.headerSize = file.readDWord();
-            instrument.name = file.readString(22);
-            instrument.type = file.readUbyte();
-            instrument.numberOfSamples = file.readWord();
-            instrument.samples = [];
-            instrument.sampleHeaderSize = 0;
+			var instrument = Instrument();
 
-            if (instrument.numberOfSamples>0){
-                instrument.sampleHeaderSize = file.readDWord();
+			try{
+				instrument.filePosition = file.index;
+				instrument.headerSize = file.readDWord();
 
-                for (var si = 0; si<96;  si++) instrument.sampleNumberForNotes.push(file.readUbyte());
-				for (si = 0; si<24;  si++) instrument.volumeEnvelope.raw.push(file.readWord());
-				for (si = 0; si<24;  si++) instrument.panningEnvelope.raw.push(file.readWord());
+				instrument.name = file.readString(22);
+				instrument.type = file.readUbyte();
+				instrument.numberOfSamples = file.readWord();
+				instrument.samples = [];
+				instrument.sampleHeaderSize = 0;
 
-				instrument.volumeEnvelope.count = file.readUbyte();
-				instrument.panningEnvelope.count = file.readUbyte();
-				instrument.volumeEnvelope.sustainPoint = file.readUbyte();
-				instrument.volumeEnvelope.loopStartPoint = file.readUbyte();
-				instrument.volumeEnvelope.loopEndPoint = file.readUbyte();
-				instrument.panningEnvelope.sustainPoint = file.readUbyte();
-				instrument.panningEnvelope.loopStartPoint = file.readUbyte();
-				instrument.panningEnvelope.loopEndPoint = file.readUbyte();
-				instrument.volumeEnvelope.type = file.readUbyte();
-				instrument.panningEnvelope.type = file.readUbyte();
-				instrument.vibrato.type = file.readUbyte();
-				instrument.vibrato.sweep = file.readUbyte();
-				instrument.vibrato.depth = file.readUbyte();
-				instrument.vibrato.rate = file.readUbyte();
-				instrument.fadeout = file.readWord();
-				instrument.reserved = file.readWord();
+				if (instrument.numberOfSamples>0){
+					instrument.sampleHeaderSize = file.readDWord();
 
-				function processEnvelope(envelope){
-					envelope.points = [];
-					for (si = 0; si < 12; si++) envelope.points.push(envelope.raw.slice(si*2,si*2+2));
-					if (envelope.type & 1){ // on
-						envelope.enabled = true;
+					// some files report incorrect sampleheadersize (18, without the samplename)
+					// e.g. dubmood - cybernostra weekends.xm
+					// sample header should be at least 40 bytes
+					instrument.sampleHeaderSize = Math.max(instrument.sampleHeaderSize,40);
+
+					for (var si = 0; si<96;  si++) instrument.sampleNumberForNotes.push(file.readUbyte());
+					for (si = 0; si<24;  si++) instrument.volumeEnvelope.raw.push(file.readWord());
+					for (si = 0; si<24;  si++) instrument.panningEnvelope.raw.push(file.readWord());
+
+					instrument.volumeEnvelope.count = file.readUbyte();
+					instrument.panningEnvelope.count = file.readUbyte();
+					instrument.volumeEnvelope.sustainPoint = file.readUbyte();
+					instrument.volumeEnvelope.loopStartPoint = file.readUbyte();
+					instrument.volumeEnvelope.loopEndPoint = file.readUbyte();
+					instrument.panningEnvelope.sustainPoint = file.readUbyte();
+					instrument.panningEnvelope.loopStartPoint = file.readUbyte();
+					instrument.panningEnvelope.loopEndPoint = file.readUbyte();
+					instrument.volumeEnvelope.type = file.readUbyte();
+					instrument.panningEnvelope.type = file.readUbyte();
+					instrument.vibrato.type = file.readUbyte();
+					instrument.vibrato.sweep = file.readUbyte();
+					instrument.vibrato.depth = file.readUbyte();
+					instrument.vibrato.rate = file.readUbyte();
+					instrument.fadeout = file.readWord();
+					instrument.reserved = file.readWord();
+
+					function processEnvelope(envelope){
+						envelope.points = [];
+						for (si = 0; si < 12; si++) envelope.points.push(envelope.raw.slice(si*2,si*2+2));
+						if (envelope.type & 1){ // on
+							envelope.enabled = true;
+						}
+
+						if (envelope.type & 2){
+							// sustain
+							envelope.sustain = true;
+						}
+
+						if (envelope.type & 4){
+							// loop
+							envelope.loop = true;
+						}
+
+						return envelope;
+
 					}
 
-					if (envelope.type & 2){
-						// sustain
-						envelope.sustain = true;
-					}
-
-					if (envelope.type & 4){
-						// loop
-						envelope.loop = true;
-					}
-
-					return envelope;
+					instrument.volumeEnvelope = processEnvelope(instrument.volumeEnvelope);
+					instrument.panningEnvelope = processEnvelope(instrument.panningEnvelope);
 
 				}
-
-				instrument.volumeEnvelope = processEnvelope(instrument.volumeEnvelope);
-				instrument.panningEnvelope = processEnvelope(instrument.panningEnvelope);
-
-            }
+			}catch (e) {
+				console.error("error",e);
+			}
 
             fileStartPos += instrument.headerSize;
             file.goto(fileStartPos);
-
 
 
             if (instrument.numberOfSamples === 0){
