@@ -1891,6 +1891,7 @@ var Tracker = (function(){
 		me.useLinearFrequency = false;
 		me.setTrackerMode(TRACKERMODE.PROTRACKER);
 		Audio.setMasterVolume(1);
+		Audio.setAmigaLowPassFilter(false,0);
 	}
 
 	me.clearEffectCache = function(){
