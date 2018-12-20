@@ -1104,7 +1104,7 @@ var Tracker = (function(){
 				var subValue = value & 0x0f;
 					switch (subEffect){
 						case 0:
-							Audio.setAmigaLowPassFilter(!subValue,time);
+							if (!me.inFTMode()) Audio.setAmigaLowPassFilter(!subValue,time);
 							break;
 						case 1: // Fine slide up
 							subValue = subValue*-1;
