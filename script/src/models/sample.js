@@ -19,5 +19,16 @@ var Sample = function(){
         type: 0
     };
 
+	me.check = function(){
+		var min = 0;
+		var max = 0;
+		for (var i = 0, len = me.data.length; i<len; i++){
+			min = Math.min(min,me.data[i]);
+			max = Math.max(max,me.data[i]);
+		}
+		return {min: min, max: max};
+	};
+
+
 	return me;
 };

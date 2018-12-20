@@ -368,7 +368,7 @@ var FastTracker = function(){
                 for (var step=0, max=thisPattern.length; step<max;step++){
                     var row = thisPattern[step];
                     for (var channel=0; channel<trackCount;channel++){
-                        var note = row[channel];
+                        var note = row[channel] || {};
                         file.writeUByte(note.index || 0);
                         file.writeUByte(note.instrument || 0);
                         file.writeUByte(note.volumeEffect || 0);
