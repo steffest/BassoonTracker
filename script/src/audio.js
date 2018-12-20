@@ -392,7 +392,7 @@ var Audio = (function(){
 
         offlineContext.startRendering().then(function(renderedBuffer) {
             console.log('Rendering completed successfully');
-            if (next) next(audioBufferToWav(renderedBuffer));
+            if (next) next(renderedBuffer);
         }).catch(function(err) {
             console.log('Rendering failed: ' + err);
             // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext

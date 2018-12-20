@@ -101,7 +101,9 @@ var App = (function(){
 				case COMMAND.paste:
 					UI.pasteSelection(true);
 					break;
-
+				case COMMAND.pattern2Sample:
+					Editor.renderTrackToBuffer();
+					break;
             }
         });
     };

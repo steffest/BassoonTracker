@@ -90,7 +90,8 @@ var COMMAND = {
 	showStats: 20,
 	cut: 21,
 	copy: 22,
-	paste: 23
+	paste: 23,
+	pattern2Sample: 24
 };
 
 var PLAYTYPE = {

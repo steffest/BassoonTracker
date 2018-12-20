@@ -800,7 +800,6 @@ UI.WaveForm = function(){
 				break;
 			case SELECTION.COPY:
 			case SELECTION.CUT:
-				console.error(rangeLength);
 				if (rangeLength>0){
 					var data = splitRange();
 					rangeCache = data.range.slice(0);

@@ -279,6 +279,10 @@ var Editor = (function(){
 	};
 
 	me.renderTrackToBuffer = function(fileName,target){
+
+		// TODO: timing is off when not played first?
+		// TODO: when rendering to sample - we should switch to mono first
+
 		var song = Tracker.getSong();
 		var step = 0;
 		var patternStep = Tracker.getCurrentSongPosition();
@@ -295,8 +299,6 @@ var Editor = (function(){
 		var patternCount = 1;
 
         patternStep = 0;
-        patternCount = 8;
-
 
 		var maxPosition = patternStep+patternCount;
 		maxPosition = Math.min(maxPosition,song.length);
@@ -321,25 +323,29 @@ var Editor = (function(){
 			patternStep++;
 		}
 
-		Audio.stopRendering(function(result){
+		Audio.stopRendering(function(renderedBuffer){
+
+
 
 			// TODO cutoff the first 0.1 seconds -> start time
 
-			// save to wav
-			var b = new Blob([result], {type: "octet/stream"});
-			fileName = fileName || Tracker.getSong().title.replace(/ /g, '-').replace(/\W/g, '') + ".wav" || "module-export.wav";
+			var saveToFile = false;
 
-			if (target === "dropbox"){
-				Dropbox.putFile("/" + fileName,b);
+			// save to wav
+			if (saveToFile){
+				var result = audioBufferToWav(renderedBuffer);
+				var b = new Blob([result], {type: "octet/stream"});
+				fileName = fileName || Tracker.getSong().title.replace(/ /g, '-').replace(/\W/g, '') + ".wav" || "module-export.wav";
+
+				//if (target === "dropbox"){
+				//	Dropbox.putFile("/" + fileName,b);
+				//}else{
+					saveAs(b,fileName);
+				//}
 			}else{
-				saveAs(b,fileName);
+				me.buffer2Sample(renderedBuffer);
 			}
 
-
-			//var output = context.createBufferSource();
-			//output.buffer = renderedBuffer;
-			//output.connect(context.destination);
-			//output.start();
 
 		});
 	};
@@ -388,6 +394,37 @@ var Editor = (function(){
         EventBus.trigger(EVENT.instrumentNameChange,Tracker.getCurrentInstrumentIndex());
 
     };
+
+	me.buffer2Sample = function(buffer){
+
+		var instrument = Tracker.getCurrentInstrument() || Instrument();
+		var name = "pattern " + Tracker.getCurrentPattern();
+		instrument.name = name;
+		instrument.sample.loop.start = 0;
+		instrument.sample.loop.length = 0;
+		instrument.setFineTune(0);
+		instrument.sample.volume = 64;
+		instrument.sample.name = name;
+
+		var numChannels = buffer.numberOfChannels;
+		var sampleRate = buffer.sampleRate;
+		var data = buffer.getChannelData(0); // TODO: mix stereo;
+
+		instrument.sample.data = [];
+
+		// downsample to ... 22050 ... 11025 ?
+		var leadingTimeCount = Math.floor(Audio.context.sampleRate/10);
+
+		// TODO - is creating a fixed length Float32Array faster ?
+		for (i = leadingTimeCount, len = data.length; i<len; i+=4){
+			instrument.sample.data.push(data[i]);
+		}
+		instrument.sample.length = instrument.sample.data.length;
+
+		EventBus.trigger(EVENT.instrumentChange,Tracker.getCurrentInstrumentIndex());
+		EventBus.trigger(EVENT.instrumentNameChange,Tracker.getCurrentInstrumentIndex());
+
+	};
 
 
     // returns a binary stream

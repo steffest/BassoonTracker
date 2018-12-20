@@ -27,7 +27,8 @@ UI.app_menu = function(container){
                 {label: "Clear Track" , "command" : COMMAND.clearTrack},
                 {label: "Clear Pattern" , "command" : COMMAND.clearPattern},
                 {label: "Clear Song" , "command" : COMMAND.clearSong},
-                {label: "Clear Instruments" , "command" : COMMAND.clearInstruments}
+                {label: "Clear Instruments" , "command" : COMMAND.clearInstruments},
+                {label: "Render Pattern 2 Sample" , "command" : COMMAND.pattern2Sample}
             ]},
         {label: "View", subItems: [
                 {label: "Main" , "command" : COMMAND.showMain},

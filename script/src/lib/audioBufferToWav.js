@@ -9,7 +9,6 @@ function audioBufferToWav (buffer, opt) {
 	var bitDepth = format === 3 ? 32 : 16;
 
 
-
 	function interleave (inputL, inputR) {
 		var length = inputL.length + inputR.length;
 		var interleaveResult = new Float32Array(length);
@@ -34,8 +33,9 @@ function audioBufferToWav (buffer, opt) {
 
 	return encodeWAV(result, format, sampleRate, numChannels, bitDepth);
 
-
 }
+
+
 
 function encodeWAV (samples, format, sampleRate, numChannels, bitDepth) {
 

@@ -135,8 +135,8 @@ UI.element = function(left,top,width,height){
     };
 
     me.setSize = function(_w,_h){
-        me.width = _w;
-        me.height = _h;
+		me.width = Math.max(_w,1);
+		me.height = Math.max(_h,1);
         me.canvas.width = me.width;
         me.canvas.height = me.height;
         if (me.onResize) me.onResize();
