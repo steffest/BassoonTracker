@@ -128,6 +128,12 @@ var FastTracker = function(){
 					// sample header should be at least 40 bytes
 					instrument.sampleHeaderSize = Math.max(instrument.sampleHeaderSize,40);
 
+					// and not too much ... (Files saved with sk@letracker)
+					if (instrument.sampleHeaderSize>200) instrument.sampleHeaderSize=40;
+
+					//should we assume it's always 40? not according to specs ...
+
+
 					for (var si = 0; si<96;  si++) instrument.sampleNumberForNotes.push(file.readUbyte());
 					for (si = 0; si<24;  si++) instrument.volumeEnvelope.raw.push(file.readWord());
 					for (si = 0; si<24;  si++) instrument.panningEnvelope.raw.push(file.readWord());
