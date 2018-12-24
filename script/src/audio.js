@@ -650,6 +650,17 @@ var Audio = (function(){
 		lastMasterVolume = value;
 	};
 
+	me.slideMasterVolume = function (value,time) {
+		time=time||context.currentTime;
+		value = value*0.7;
+		masterVolume.gain.linearRampToValueAtTime(value,time);
+		lastMasterVolume = value;
+	};
+
+	me.getLastMasterVolume = function(){
+		return lastMasterVolume/0.7;
+	};
+
     me.clearScheduledNotesCache = function(){
         // 3 rotating caches
 		scheduledNotesBucket++;

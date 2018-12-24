@@ -247,7 +247,7 @@ var Tracker = (function(){
 	me.playSong = function(){
 		me.stop();
 		Audio.checkState();
-		Audio.setMasterVolume(1);
+		//Audio.setMasterVolume(1);
 		me.setPlayType(PLAYTYPE.song);
 		isPlaying = true;
 		//Audio.startRecording();
@@ -258,7 +258,7 @@ var Tracker = (function(){
 	me.playPattern = function(){
 		me.stop();
         Audio.checkState();
-		Audio.setMasterVolume(1);
+		//Audio.setMasterVolume(1);
 		currentPatternPos = 0;
 		me.setPlayType(PLAYTYPE.pattern);
 		isPlaying = true;
@@ -269,7 +269,7 @@ var Tracker = (function(){
 	me.stop = function(){
 		if (clock) clock.stop();
 		Audio.disable();
-		Audio.setMasterVolume(1);
+		//Audio.setMasterVolume(1);
 		if (UI) {
 			UI.setStatus("Ready");
 			Input.clearInputNotes();
@@ -1237,6 +1237,9 @@ var Tracker = (function(){
 				break;
 			case 15:
 				//speed
+				// Note: shouldn't this be "set speed at time" instead of setting it directly?
+				// TODO: -> investigate
+
 				if (note.param <= 32){
 					if (note.param == 0) note.param = 1;
 					Tracker.setAmigaSpeed(note.param);
@@ -1252,7 +1255,28 @@ var Tracker = (function(){
                 break;
 			case 17:
 				//Fasttracker only - global volume slide
-				console.warn("Global volume slide not implemented");
+
+				x = value >> 4;
+				y = value & 0x0f;
+				var currentVolume = Audio.getLastMasterVolume()*64;
+
+				var amount = 0;
+				if (x){
+					var targetTime = time + (x * tickTime);
+					amount = x*(ticksPerStep-1);
+				}else if (y){
+					targetTime = time + (y * tickTime);
+					amount = -y*(ticksPerStep-1);
+				}
+
+				if (amount){
+					value = (currentVolume+amount)/64;
+					value = Math.max(0,value);
+					value = Math.min(1,value);
+
+					Audio.slideMasterVolume(value,targetTime);
+				}
+
 				break;
 			case 20:
 				//Fasttracker only - Key off
