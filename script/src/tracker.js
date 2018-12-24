@@ -395,7 +395,10 @@ var Tracker = (function(){
 								if (p>playPatternData.length) p=0; // occurs in the wild - example "Lake Of Sadness" - last pattern
                             }
 						}else{
-							if (stepResult.patternBreak) p = stepResult.targetPatternPosition || 0;
+							if (stepResult.patternBreak) {
+								p = stepResult.targetPatternPosition || 0;
+								if (p>patternLength) p=0;
+							}
 						}
 					}
 				}
@@ -1096,7 +1099,6 @@ var Tracker = (function(){
 				x = value >> 4;
 				y = value & 0x0f;
 				result.targetPatternPosition = x*10 + y;
-				if (result.targetPatternPosition >= patternLength) result.targetPatternPosition=0;
 				break;
 			case 14:
 				// Subeffects
