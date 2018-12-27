@@ -220,9 +220,7 @@ var Audio = (function(){
             source.buffer = sampleBuffer;
 
             var volumeGain = audioContext.createGain();
-            volumeGain.gain.value = volume/100;
-            // TODO: volumeGain.value has no result here ? -> setvalueattime ?
-
+			volumeGain.gain.setValueAtTime(1,time);
 
             if (instrument.sample.loop.enabled && instrument.sample.loop.length>2){
 
@@ -262,7 +260,8 @@ var Audio = (function(){
             }
 
 			var volumeFadeOut = Audio.context.createGain();
-			volumeFadeOut.gain.setValueAtTime(1,time);
+			volumeFadeOut.gain.setValueAtTime(0,time);
+			volumeFadeOut.gain.linearRampToValueAtTime(1,time + 0.01);
 			volumeGain.connect(volumeFadeOut);
 
 			if (usePanning){

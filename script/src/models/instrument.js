@@ -174,14 +174,17 @@ var Instrument = function(){
 			max = 32;
 		}
 		var point = envelope.points[envelope.loopStartPoint];
-		var loopStartX = point[0]-1; // the -1 is to have at least 1 tick difference in the end and the start of the loop
+		var loopStartX = point[0];
 
-		while (scheduledTime < seconds){
-			var startScheduledTime = scheduledTime;
-			for (var p = envelope.loopStartPoint; p<=envelope.loopEndPoint;p++){
-				point = envelope.points[p];
-				scheduledTime = startScheduledTime + ((point[0]-loopStartX)*tickTime);
-				audioParam.linearRampToValueAtTime((point[1]-center)/max,startTime + scheduledTime);
+		var doLoop = envelope.loop && (envelope.loopStartPoint<envelope.loopEndPoint);
+		if (doLoop){
+			while (scheduledTime < seconds){
+				var startScheduledTime = scheduledTime;
+				for (var p = envelope.loopStartPoint; p<=envelope.loopEndPoint;p++){
+					point = envelope.points[p];
+					scheduledTime = startScheduledTime + ((point[0]-loopStartX)*tickTime);
+					audioParam.linearRampToValueAtTime((point[1]-center)/max,startTime + scheduledTime);
+				}
 			}
 		}
 
