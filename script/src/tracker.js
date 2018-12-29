@@ -695,15 +695,15 @@ var Tracker = (function(){
 
 					if (me.inFTMode()){
                         if (instrument){
-							var root = instrument.getPeriodForNote(noteIndex,true);
+							var _noteIndex = noteIndex || trackNotes[track].noteIndex;
+							var root = instrument.getPeriodForNote(_noteIndex,true);
                             if (noteIndex === NOTEOFF) {
-                            	root = trackNotes[track].startPeriod;
                                 trackEffects.arpeggio = trackEffectCache[track].arpeggio;
                             }else{
                                 trackEffects.arpeggio = {
                                     root: root,
-                                    interval1: root - instrument.getPeriodForNote(noteIndex+x,true),
-                                    interval2: root - instrument.getPeriodForNote(noteIndex+y,true),
+                                    interval1: root - instrument.getPeriodForNote(_noteIndex+x,true),
+                                    interval2: root - instrument.getPeriodForNote(_noteIndex+y,true),
                                     step:1
                                 };
 
