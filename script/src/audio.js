@@ -220,7 +220,7 @@ var Audio = (function(){
             source.buffer = sampleBuffer;
 
             var volumeGain = audioContext.createGain();
-			volumeGain.gain.setValueAtTime(1,time);
+			volumeGain.gain.setValueAtTime(volume/100,time);
 
             if (instrument.sample.loop.enabled && instrument.sample.loop.length>2){
 
