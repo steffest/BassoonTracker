@@ -1565,12 +1565,13 @@ var Tracker = (function(){
 			var instrumentIndex = trackNote.instrumentIndex;
 			var notePeriod = trackNote.startPeriod;
 			volume = trackNote.startVolume;
+			var noteIndex = trackNote.noteIndex;
 
 			var triggerStep = effects.reTrigger.value || 1;
 			while (triggerStep<ticksPerStep){
 				var triggerTime = time + (triggerStep * tickTime);
 				cutNote(track,triggerTime);
-				trackNotes[track] = Audio.playSample(instrumentIndex,notePeriod,volume,track,effects,triggerTime);
+				trackNotes[track] = Audio.playSample(instrumentIndex,notePeriod,volume,track,effects,triggerTime,noteIndex);
 				triggerStep += triggerStep;
 			}
 		}
