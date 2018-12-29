@@ -941,6 +941,11 @@ var Tracker = (function(){
 						value: value
 					};
 					trackEffectCache[track].fade = trackEffects.fade;
+				}else{
+					// on Fasttracker this command is remembered - on Protracker it is not.
+					if (Tracker.inFTMode()){
+						if (trackEffectCache[track].fade) trackEffects.fade = trackEffectCache[track].fade;
+					}
 				}
 
 				if (trackEffectCache[track].vibrato) trackEffects.vibrato = trackEffectCache[track].vibrato;
