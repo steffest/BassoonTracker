@@ -220,6 +220,7 @@ var Audio = (function(){
             source.buffer = sampleBuffer;
 
             var volumeGain = audioContext.createGain();
+            volumeGain.gain.value = volume/100;
 			volumeGain.gain.setValueAtTime(volume/100,time);
 
             if (instrument.sample.loop.enabled && instrument.sample.loop.length>2){
@@ -600,7 +601,7 @@ var Audio = (function(){
 
         if (ftNote1 && ftNote2){
             var delta = Math.abs(ftNote2.period - ftNote1.period) / 127;
-            return ftNote1.period - Math.round(delta*finetune)
+            return ftNote1.period - (delta*finetune)
         }
 
         console.warn("unable to find finetune for note " + note,ftNote1);
