@@ -24,23 +24,42 @@ UI.app_songPatternList = function(height){
 
     var spPlus = UI.Assets.generate("button20_20");
     spPlus.setLabel("↑");
-    spPlus.onClick = function(){
+    spPlus.onDown = function(){
         var index = songlistbox.getSelectedIndex();
         var pattern = Tracker.getSong().patternTable[index];
         pattern++;
         Tracker.updatePatternTable(index,pattern);
+		UI.ticker.onEachTick4(function(){
+			var index = songlistbox.getSelectedIndex();
+			var pattern = Tracker.getSong().patternTable[index];
+			pattern++;
+			Tracker.updatePatternTable(index,pattern);
+		},5);
 
     };
+	spPlus.onTouchUp = function(){
+		UI.ticker.onEachTick4();
+	};
     me.addChild(spPlus);
+
 
     var spMin = UI.Assets.generate("button20_20");
     spMin.setLabel("↓");
-    spMin.onClick = function(){
+    spMin.onDown = function(){
         var index = songlistbox.getSelectedIndex();
         var pattern = Tracker.getSong().patternTable[index];
         if (pattern>0) pattern--;
         Tracker.updatePatternTable(index,pattern);
+		UI.ticker.onEachTick4(function(){
+			var index = songlistbox.getSelectedIndex();
+			var pattern = Tracker.getSong().patternTable[index];
+			if (pattern>0) pattern--;
+			Tracker.updatePatternTable(index,pattern);
+		},5);
     };
+	spMin.onTouchUp = function(){
+		UI.ticker.onEachTick4();
+	};
     me.addChild(spMin);
 
     me.onResize = function(){
