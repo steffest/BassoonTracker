@@ -627,6 +627,29 @@ var Input = (function(){
                     }
                 }
 
+				if (Tracker.inFTMode() && Editor.getCurrentTrackPosition() === 3){
+					// Special Fasttracker volume commands
+					value = -1;
+					switch (key) {
+						case "1": value=1; break;
+						case "2": value=2; break;
+						case "3": value=3; break;
+						case "4": value=4; break;
+						case "-": value=5; break;
+						case "+": value=6; break;
+						case "d": case "D": value=7; break;
+						case "u": case "U": value=8; break;
+						case "s": case "S": value=9; break;
+						case "v": case "V":value=10; break;
+						case "p": case "P":value=11; break;
+						case "<": value=12; break;
+						case ">": value=13; break;
+						case "M": value=14; break;
+					}
+				}
+
+				if (value>255) value=-1;
+
                 if (value >= 0){
                     Editor.putNoteParam(Editor.getCurrentTrackPosition(),value);
                     Tracker.moveCurrentPatternPos(1);

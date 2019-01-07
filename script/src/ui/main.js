@@ -243,9 +243,9 @@ var UI = (function(){
 			charWidth: 4,
 			spaceWidth: 4,
 			margin: 0,
-			charsPerLine:[40],
+			charsPerLine:[45],
 			lineSpacing:0,
-			chars: 	   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_.-#",
+			chars: 	   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_.-#+><↑↓",
 			onlyUpperCase:true
 		});
 		fontSuperCondensed.generateColor("green","rgba(80, 140, 0,0.9)");

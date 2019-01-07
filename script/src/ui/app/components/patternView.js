@@ -440,7 +440,35 @@ UI.app_patternView = function(x,y,w,h){
                 nx += (font.charWidth*2) + 4;
                 var value = note.volumeEffect || 0;
                 if (value) value -= 16;
-                noteString = formatHex(value,2,"0");
+
+
+
+				if (value<80){
+					noteString = formatHex(value,2,"0");
+                }else{
+					var vuX = (value >> 4).toString(16).toUpperCase();
+					var vuY = (value & 0x0f).toString(16).toUpperCase();
+
+					var mapping = {
+						"5" : "-",
+						"6" : "+",
+						"7" : "↓",
+						"8" : "↑",
+						"9" : "S",
+						"A" : "V",
+						"B" : "P",
+						"C" : "<",
+						"D" : ">",
+						"E" : "M"
+                    };
+					vuX = mapping[vuX] || vuX;
+					noteString = vuX + vuY;
+				}
+
+
+
+
+
                 if (noteString === "00") noteString = "..";
                 font.write(c,noteString,nx,0,0);
             }
