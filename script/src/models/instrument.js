@@ -42,6 +42,12 @@ var Instrument = function(){
 			if (scheduledTime) scheduled.panning = (time + scheduledTime);
 		}
 
+		if (me.vibrato.rate && me.vibrato.depth){
+			scheduled.ticks = 0;
+			scheduled.vibrato = time;
+			scheduled.vibratoFunction = me.getAutoVibratoFunction();
+		}
+
 		return {volume: volumeEnvelope, panning: panningEnvelope, scheduled: scheduled};
 	};
 
@@ -192,6 +198,54 @@ var Instrument = function(){
 
 	};
 
+
+	me.scheduleAutoVibrato = function(note,seconds){
+		// this is only used for keyboard notes as in the player the main playback timer is used for this
+		var scheduledTime = 0;
+		note.scheduled.ticks = note.scheduled.ticks || 0;
+		var tickTime = Tracker.getProperties().tickTime;
+
+		var freq = -me.vibrato.rate/40;
+		var amp = me.vibrato.depth/8;
+		if (Tracker.useLinearFrequency) amp *= 4;
+
+		var currentPeriod,vibratoFunction,time,tick;
+		if (note.source) {
+			currentPeriod = note.startPeriod;
+			vibratoFunction = note.scheduled.vibratoFunction || Audio.waveFormFunction.sine;
+			time = note.scheduled.vibrato || Audio.context.currentTime;
+			tick = 0;
+		}
+
+
+		while (scheduledTime < seconds){
+			scheduledTime += tickTime;
+
+			if (currentPeriod){
+                var sweepAmp = 1;
+                if (me.vibrato.sweep && note.scheduled.ticks<me.vibrato.sweep){
+                    sweepAmp = 1-((me.vibrato.sweep-note.scheduled.ticks)/me.vibrato.sweep);
+                }
+
+				var targetPeriod = vibratoFunction(currentPeriod,note.scheduled.ticks,freq,amp*sweepAmp);
+				Tracker.setPeriodAtTime(note,targetPeriod,time + (tick*tickTime));
+				tick++;
+			}
+			note.scheduled.ticks++;
+		}
+
+		return scheduledTime;
+	};
+
+	me.getAutoVibratoFunction = function(){
+        switch(me.vibrato.type){
+            case 1: return Audio.waveFormFunction.square;
+            case 2: return Audio.waveFormFunction.saw;
+            case 3: return Audio.waveFormFunction.sawInverse;
+        }
+        return Audio.waveFormFunction.sine;
+	};
+
 	me.resetVolume = function(time,noteInfo){
         if (noteInfo.volumeFadeOut) {
             noteInfo.volumeFadeOut.gain.cancelScheduledValues(time);
@@ -263,6 +317,10 @@ var Instrument = function(){
 		for (var i = 0, max = me.samples.length; i<max; i++){
 			if (me.samples[i].length) return true;
 		}
+	};
+
+	me.hasVibrato = function(){
+		return me.vibrato.rate && me.vibrato.depth;
 	};
 
 

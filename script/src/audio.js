@@ -235,7 +235,8 @@ var Audio = (function(){
                 }
             }
 
-            if (instrument.volumeEnvelope.enabled || instrument.panningEnvelope.enabled){
+            if (instrument.volumeEnvelope.enabled || instrument.panningEnvelope.enabled || instrument.hasVibrato()){
+
             	var envelopes = instrument.noteOn(time);
             	var target = source;
 
@@ -254,7 +255,6 @@ var Audio = (function(){
 				scheduled = envelopes.scheduled;
 
 				target.connect(volumeGain);
-
 
             }else{
                 source.connect(volumeGain);
@@ -681,6 +681,12 @@ var Audio = (function(){
         square : function(period,progress,freq,amp){
             var value = Math.sin(progress * freq) <= 0 ? -1 : 1;
             value = value * amp * 2;
+            return period + value;
+        },
+        sawInverse : function(period,progress,freq,amp){
+            var value = 1 - ((progress * freq/7) % 1); // from 1 to 0
+            value = (value * 2) - 1; // from -1 to 1
+            value = value * amp * -2;
             return period + value;
         }
     };

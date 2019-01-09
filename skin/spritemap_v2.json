@@ -128,55 +128,55 @@
   {
     "name": "disk",
     "x": 576,
-    "y": 495,
+    "y": 509,
     "width": 12,
     "height": 11
   },
   {
     "name": "mod",
     "x": 576,
-    "y": 441,
+    "y": 460,
     "width": 12,
     "height": 11
   },
   {
     "name": "module",
-    "x": 576,
-    "y": 509,
+    "x": 577,
+    "y": 523,
     "width": 12,
     "height": 11
   },
   {
     "name": "sample",
     "x": 576,
-    "y": 460,
+    "y": 495,
     "width": 12,
     "height": 11
   },
   {
     "name": "xm",
-    "x": 562,
-    "y": 523,
+    "x": 576,
+    "y": 441,
     "width": 12,
     "height": 11
   },
   {
     "name": "keybutton",
-    "x": 162,
+    "x": 238,
     "y": 533,
     "width": 38,
     "height": 18
   },
   {
     "name": "keybutton_highlight2",
-    "x": 200,
+    "x": 162,
     "y": 533,
     "width": 38,
     "height": 18
   },
   {
     "name": "keybutton_highlight3",
-    "x": 238,
+    "x": 200,
     "y": 533,
     "width": 38,
     "height": 18
@@ -261,7 +261,7 @@
   {
     "name": "panel_black_insert",
     "x": 562,
-    "y": 360,
+    "y": 344,
     "width": 19,
     "height": 16
   },
@@ -275,21 +275,21 @@
   {
     "name": "panel_dark_blueish",
     "x": 562,
-    "y": 376,
+    "y": 360,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_greyish",
     "x": 562,
-    "y": 392,
+    "y": 376,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_insert",
     "x": 562,
-    "y": 408,
+    "y": 392,
     "width": 19,
     "height": 16
   },
@@ -310,21 +310,21 @@
   {
     "name": "panel_light",
     "x": 562,
-    "y": 289,
+    "y": 308,
     "width": 23,
     "height": 19
   },
   {
     "name": "panel_mid",
     "x": 562,
-    "y": 308,
+    "y": 289,
     "width": 23,
     "height": 19
   },
   {
     "name": "panel_trans",
     "x": 562,
-    "y": 344,
+    "y": 408,
     "width": 19,
     "height": 16
   },
@@ -393,8 +393,8 @@
   },
   {
     "name": "radio_big_active",
-    "x": 574,
-    "y": 523,
+    "x": 577,
+    "y": 534,
     "width": 11,
     "height": 11
   },
@@ -407,8 +407,8 @@
   },
   {
     "name": "radio_inactive",
-    "x": 562,
-    "y": 534,
+    "x": 577,
+    "y": 545,
     "width": 10,
     "height": 10
   },
@@ -484,36 +484,36 @@
   },
   {
     "name": "vu_green_active",
-    "x": 572,
-    "y": 534,
+    "x": 550,
+    "y": 245,
     "width": 10,
     "height": 6
   },
   {
     "name": "vu_red",
-    "x": 579,
-    "y": 434,
-    "width": 10,
-    "height": 6
-  },
-  {
-    "name": "vu_red_active",
-    "x": 562,
-    "y": 441,
-    "width": 14,
-    "height": 19
-  },
-  {
-    "name": "vu_yellow",
     "x": 576,
     "y": 452,
     "width": 10,
     "height": 6
   },
   {
-    "name": "vu_yellow_active",
+    "name": "vu_red_active",
     "x": 562,
     "y": 460,
+    "width": 14,
+    "height": 19
+  },
+  {
+    "name": "vu_yellow",
+    "x": 579,
+    "y": 434,
+    "width": 10,
+    "height": 6
+  },
+  {
+    "name": "vu_yellow_active",
+    "x": 562,
+    "y": 441,
     "width": 14,
     "height": 19
   },
@@ -523,5 +523,33 @@
     "y": 383,
     "width": 26,
     "height": 100
+  },
+  {
+    "name": "wave_saw",
+    "x": 562,
+    "y": 545,
+    "width": 15,
+    "height": 11
+  },
+  {
+    "name": "wave_saw_inverse",
+    "x": 530,
+    "y": 483,
+    "width": 15,
+    "height": 11
+  },
+  {
+    "name": "wave_sin",
+    "x": 562,
+    "y": 534,
+    "width": 15,
+    "height": 11
+  },
+  {
+    "name": "wave_square",
+    "x": 562,
+    "y": 523,
+    "width": 15,
+    "height": 11
   }
 ]

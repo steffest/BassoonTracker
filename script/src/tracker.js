@@ -1348,6 +1348,10 @@ var Tracker = (function(){
 			}
 		}
 
+		if (instrument && instrument.hasVibrato()){
+            trackNotes[track].hasAutoVibrato = true;
+		}
+
 		trackNotes[track].effects = trackEffects;
 		trackNotes[track].note = note;
 
@@ -1380,7 +1384,7 @@ var Tracker = (function(){
 
 		var value;
 
-		if (trackNote.resetPeriodOnStep && trackNote.source){
+        if (trackNote.resetPeriodOnStep && trackNote.source){
 			// vibrato or arpeggio is done
 			// for slow vibratos it seems logical to keep the current frequency, but apparently most trackers revert back to the pre-vibrato one
 			var targetPeriod = trackNote.currentPeriod || trackNote.startPeriod;
@@ -1511,7 +1515,8 @@ var Tracker = (function(){
 			}
 		}
 
-		if (effects.vibrato){
+		if (effects.vibrato || trackNote.hasAutoVibrato){
+            effects.vibrato = effects.vibrato || {freq:0,amplitude:0};
 			var freq = effects.vibrato.freq;
 			var amp = effects.vibrato.amplitude;
 			if (me.inFTMode() && me.useLinearFrequency) amp *= 4;
@@ -1524,6 +1529,26 @@ var Tracker = (function(){
 
 				for (var tick = 0; tick < ticksPerStep; tick++) {
 					targetPeriod = vibratoFunction(currentPeriod,trackNote.vibratoTimer,freq,amp);
+
+					// should we add or average the 2 effects?
+					if (trackNote.hasAutoVibrato && me.inFTMode()){
+
+                        var instrument = me.getInstrument(trackNote.instrumentIndex);
+                        if (instrument){
+                            var _freq = -instrument.vibrato.rate/40;
+                            var _amp = instrument.vibrato.depth/8;
+                            if (me.useLinearFrequency) _amp *= 4;
+
+                            if (instrument.vibrato.sweep && trackNote.vibratoTimer<instrument.vibrato.sweep){
+                                var sweepAmp = 1-((instrument.vibrato.sweep-trackNote.vibratoTimer)/instrument.vibrato.sweep);
+								_amp *= sweepAmp;
+							}
+                            var instrumentVibratoFunction = instrument.getAutoVibratoFunction();
+                            targetPeriod = instrumentVibratoFunction(targetPeriod,trackNote.vibratoTimer,_freq,_amp);
+						}
+
+					}
+
 					me.setPeriodAtTime(trackNote,targetPeriod,time + (tick*tickTime));
 					trackNote.vibratoTimer++;
 				}

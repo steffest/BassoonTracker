@@ -697,6 +697,14 @@ var Input = (function(){
                 keyDown[index].instrument = instrument;
                 keyDown[index].isKey = true;
                 inputNotes.push(keyDown[index]);
+
+				var note = keyDown[index];
+                if (note.scheduled && note.scheduled.vibrato){
+					var scheduledtime = instrument.scheduleAutoVibrato(note,2);
+					note.scheduled.vibrato += scheduledtime;
+					console.error(note.scheduled.vibrato);
+				}
+
                 if (inputNotes.length>64){
                     clearInputNote();
                 }
@@ -760,8 +768,15 @@ var Input = (function(){
 					}
 				}
 
+				if (note.scheduled.vibrato){
+					if ((time + delay) >= note.scheduled.vibrato){
+						if(note.instrument){
+							scheduledtime = note.instrument.scheduleAutoVibrato(note,2);
+							note.scheduled.vibrato += scheduledtime;
+						}
+					}
+				}
 			}
-
 		});
 	});
 

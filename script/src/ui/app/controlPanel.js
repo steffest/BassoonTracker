@@ -143,13 +143,13 @@ UI.app_controlPanel = function(){
         });
 
         var buttonWidth = Layout.col1W - 60;
-		buttonWidth = Math.max(buttonWidth,115);
+		buttonWidth = Math.max(buttonWidth,120);
         var buttonMargin = Math.floor((Layout.col1W - buttonWidth)/2);
 
 		var buttonSampleLeft = Layout.col4X + buttonMargin;
 		var buttonSampleLabel = "Sample Edit";
 
-		if (Layout.controlPanelButtonLayout !== "full"){
+		if (Layout.controlPanelButtonLayout !== "1row"){
 			buttonWidth = Math.floor(Layout.controlPanelButtonsWidth / 3);
 			buttonMargin = 0;
 			buttonSampleLeft = Layout.controlPanelButtonsLeft + (buttonWidth*2);

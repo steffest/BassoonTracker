@@ -33,7 +33,7 @@ UI.EnvelopePanel = function(type){
 	buttonAdd.onDown = function(){
 		if (!envelope.enabled) return;
 		if (envelope.points.length > envelope.count){
-			var prevPoint = envelope.points[envelope.count-1];
+			var prevPoint = envelope.points[envelope.count-1] || [0,0];
 			var nextPoint = envelope.points[envelope.count];
 			if (prevPoint[0] + 10<320){
 				if (nextPoint[0]<=prevPoint[0]){
@@ -245,9 +245,11 @@ UI.EnvelopePanel = function(type){
 	};
 
 	me.checkMax = function(){
-		if (envelope.sustainPoint >= envelope.count) sustainSpinbox.setValue(envelope.count-1);
-		if (envelope.loopStartPoint >= envelope.count) loopFromSpinbox.setValue(envelope.count-1);
-		if (envelope.loopEndPoint >= envelope.count) loopToSpinbox.setValue(envelope.count-1);
+		if (envelope.count){
+            if (envelope.sustainPoint >= envelope.count) sustainSpinbox.setValue(envelope.count-1);
+            if (envelope.loopStartPoint >= envelope.count) loopFromSpinbox.setValue(envelope.count-1);
+            if (envelope.loopEndPoint >= envelope.count) loopToSpinbox.setValue(envelope.count-1);
+		}
 	};
 
 	return me;

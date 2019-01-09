@@ -40,7 +40,7 @@ UI.Envelope = function(type){
 
 
 				for (var i = 0, max = currentEnvelope.count; i<max; i++){
-					var point = currentEnvelope.points[i];
+					var point = currentEnvelope.points[i] || [0,0];
 					if (Math.abs(x - point[0])<6 && Math.abs(y - point[1])<6){
 						activePointIndex = i;
 						activePoint = {

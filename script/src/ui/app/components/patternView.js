@@ -441,8 +441,6 @@ UI.app_patternView = function(x,y,w,h){
                 var value = note.volumeEffect || 0;
                 if (value) value -= 16;
 
-
-
 				if (value<80){
 					noteString = formatHex(value,2,"0");
                 }else{
@@ -464,10 +462,6 @@ UI.app_patternView = function(x,y,w,h){
 					vuX = mapping[vuX] || vuX;
 					noteString = vuX + vuY;
 				}
-
-
-
-
 
                 if (noteString === "00") noteString = "..";
                 font.write(c,noteString,nx,0,0);
