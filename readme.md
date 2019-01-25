@@ -38,7 +38,7 @@ It works best in Chrome.
   - Extended volume commands
 - Next to the tracker effects, there are per-channel effects for low, mid, high frequency, panning and reverb control
 - Mute/solo tracks  
-- Edit pattern data and sample properties  
+- Edit pattern data and sample properties, use ranges and cut/copy/paste for quick editing
 - Up to 32 channels 
 - Import 8bit WAV, 8SVX and RAW samples (as well as any other format AudioContext can read, like .mp3 and .ogg)
 - Integrated sample editor: Edit and slice your samples right inside Bassoontracker
@@ -47,6 +47,7 @@ It works best in Chrome.
 - The [modules.pl API](http://modules.pl/) is integrated to access even more music files
 - Export to .mod, .xm, wav and .mp3
 - Connect your Dropbox account to directly read and write your own files
+- Read more in [The Docs](https://www.stef.be/bassoontracker/docs/]
 
 The playback engine has gone through extensive compatibility testing, but as the Protracker code itself is somewhat messy and muddy
 throughout different versions, there's always room for improvement.

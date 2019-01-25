@@ -58,6 +58,11 @@
 		ga('create', 'UA-2499735-7', 'auto');
 		ga('send', 'pageview');
 
+		// force HTTPS - it is needed for the Dropbox integration
+        if (document.location.href.indexOf("stef.be")>0 && document.location.href.indexOf("https:")<0){
+            document.location.href = document.location.href.replace("http:","https:");
+        }
+
         if (document.location.href.indexOf("updateversion")<0){
             if (window.XMLHttpRequest) {
                 var req = new XMLHttpRequest();
