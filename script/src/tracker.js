@@ -1309,6 +1309,9 @@ var Tracker = (function(){
 				break;
 			case 27:
 				//Fasttracker only - Multi retrig note
+				// still not 100% sure how this is supposed to work ...
+				// see https://forum.openmpt.org/index.php?topic=4999.15
+				// see lupo.xm for an example (RO1 command)
 				trackEffects.reTrigger = {
 					value: note.param
 				};
@@ -1593,11 +1596,12 @@ var Tracker = (function(){
 			var noteIndex = trackNote.noteIndex;
 
 			var triggerStep = effects.reTrigger.value || 1;
-			while (triggerStep<ticksPerStep){
-				var triggerTime = time + (triggerStep * tickTime);
+			var triggerCount = triggerStep;
+			while (triggerCount<ticksPerStep){
+				var triggerTime = time + (triggerCount * tickTime);
 				cutNote(track,triggerTime);
 				trackNotes[track] = Audio.playSample(instrumentIndex,notePeriod,volume,track,effects,triggerTime,noteIndex);
-				triggerStep += triggerStep;
+				triggerCount += triggerStep;
 			}
 		}
 
