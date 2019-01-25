@@ -58,6 +58,24 @@
 		ga('create', 'UA-2499735-7', 'auto');
 		ga('send', 'pageview');
 
+        if (document.location.href.indexOf("updateversion")<0){
+            if (window.XMLHttpRequest) {
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function() {
+                    if (this.readyState === 4 && this.status === 200) {
+                        var version = this.responseText;
+                        if (version != versionNumber){
+                            console.log("update available");
+                            var char = document.location.href.indexOf("?") > 0 ? "&" : "?";
+                            document.location.href = document.location.href + char + "updateversion=" + version;
+                        }
+                    }
+                };
+                req.open("GET", "version.txt?r=" + new Date().getTime(), true);
+                req.send();
+            }
+        }
+
     </script>
 </head>
 <body>

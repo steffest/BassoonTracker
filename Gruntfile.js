@@ -112,6 +112,16 @@ module.exports = function(grunt) {
                             return grunt.template.process('<%= pkg.version %>');
                         }
                     }]
+            },
+            versioncheck: {
+                src: ['version_src.txt'],
+                dest: 'version.txt',
+                replacements: [{
+                        from: '{version}',
+                        to: function (matchedWord) {
+                            return grunt.template.process('<%= pkg.version %>');
+                        }
+                    }]
             }
         },
         sprite:{
@@ -146,6 +156,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-spritesmith');
+
 
     // Default task(s).
     // note:  use concat before uglify to keep the order of the JS files
