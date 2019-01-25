@@ -672,23 +672,23 @@ var Audio = (function(){
         sine: function(period,progress,freq,amp){
             return period + (Math.sin(progress * freq) * amp * 2);
         },
-        saw : function(period,progress,freq,amp){
-            var value = (progress * freq/7) % 1; // from 0 to 1
-            value = (value * 2) - 1; // from -1 to 1
-            value = value * amp * -2;
-            return period + value;
-        },
+		saw : function(period,progress,freq,amp){
+			var value = 1 - Math.abs(((progress * freq/7) % 1)); // from 1 to 0
+			value = (value * 2) - 1; // from -1 to 1
+			value = value * amp * -2;
+			return period + value;
+		},
         square : function(period,progress,freq,amp){
             var value = Math.sin(progress * freq) <= 0 ? -1 : 1;
             value = value * amp * 2;
             return period + value;
         },
-        sawInverse : function(period,progress,freq,amp){
-            var value = 1 - ((progress * freq/7) % 1); // from 1 to 0
-            value = (value * 2) - 1; // from -1 to 1
-            value = value * amp * -2;
-            return period + value;
-        }
+		sawInverse : function(period,progress,freq,amp){
+			var value = Math.abs((progress * freq/7) % 1); // from 0 to 1
+			value = (value * 2) - 1; // from -1 to 1
+			value = value * amp * -2;
+			return period + value;
+		}
     };
 
     return me;
