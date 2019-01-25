@@ -47,7 +47,7 @@ It works best in Chrome.
 - The [modules.pl API](http://modules.pl/) is integrated to access even more music files
 - Export to .mod, .xm, wav and .mp3
 - Connect your Dropbox account to directly read and write your own files
-- Read more in [The Docs](https://www.stef.be/bassoontracker/docs/]
+- Read more in [The Docs](https://www.stef.be/bassoontracker/docs/)
 
 The playback engine has gone through extensive compatibility testing, but as the Protracker code itself is somewhat messy and muddy
 throughout different versions, there's always room for improvement.
