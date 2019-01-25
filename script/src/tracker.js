@@ -1377,6 +1377,27 @@ var Tracker = (function(){
 	}
 	me.cutNote = cutNote;
 
+	function applyAutoVibrato(trackNote,currentPeriod){
+
+        var instrument = me.getInstrument(trackNote.instrumentIndex);
+        if (instrument){
+            var _freq = -instrument.vibrato.rate/40;
+            var _amp = instrument.vibrato.depth/8;
+            if (me.useLinearFrequency) _amp *= 4;
+            trackNote.vibratoTimer = trackNote.vibratoTimer||0;
+
+            if (instrument.vibrato.sweep && trackNote.vibratoTimer<instrument.vibrato.sweep){
+                var sweepAmp = 1-((instrument.vibrato.sweep-trackNote.vibratoTimer)/instrument.vibrato.sweep);
+                _amp *= sweepAmp;
+            }
+            var instrumentVibratoFunction = instrument.getAutoVibratoFunction();
+            var targetPeriod = instrumentVibratoFunction(currentPeriod,trackNote.vibratoTimer,_freq,_amp);
+            trackNote.vibratoTimer++;
+            return targetPeriod
+        }
+        return currentPeriod;
+	}
+
 	function applyEffects(track,time){
 
 		var trackNote = trackNotes[track];
@@ -1386,6 +1407,8 @@ var Tracker = (function(){
 		if (!effects) return;
 
 		var value;
+		var autoVibratoHandled = false;
+        trackNote.startVibratotimer = trackNote.vibratoTimer||0;
 
         if (trackNote.resetPeriodOnStep && trackNote.source){
 			// vibrato or arpeggio is done
@@ -1467,6 +1490,8 @@ var Tracker = (function(){
 
 				}
 
+                trackNote.vibratotimer = trackNote.startVibratotimer;
+
 				// TODO: Why don't we use a RampToValueAtTime here ?
 				for (var tick = 1; tick < steps; tick++){
 					if (effects.slide.target){
@@ -1492,7 +1517,13 @@ var Tracker = (function(){
 
 					if (newPeriod !== trackNote.currentPeriod){
 						trackNote.currentPeriod = targetPeriod;
+
+                        if (trackNote.hasAutoVibrato && me.inFTMode()){
+                            targetPeriod = applyAutoVibrato(trackNote,targetPeriod);
+                            autoVibratoHandled = true;
+                        }
 						me.setPeriodAtTime(trackNote,newPeriod,time + (tick*tickTime));
+
 					}
 				}
 			}
@@ -1505,6 +1536,7 @@ var Tracker = (function(){
 				var targetPeriod;
 
 				trackNote.resetPeriodOnStep = true;
+                trackNote.vibratotimer = trackNote.startVibratotimer;
 
 				for (var tick = 0; tick < ticksPerStep; tick++){
 					var t = tick%3;
@@ -1513,12 +1545,18 @@ var Tracker = (function(){
 					if (t == 1 && effects.arpeggio.interval1) targetPeriod = currentPeriod - effects.arpeggio.interval1;
 					if (t == 2 && effects.arpeggio.interval2) targetPeriod = currentPeriod - effects.arpeggio.interval2;
 
+                    if (trackNote.hasAutoVibrato && me.inFTMode()){
+                        targetPeriod = applyAutoVibrato(trackNote,targetPeriod);
+                        autoVibratoHandled = true;
+                    }
+
                     me.setPeriodAtTime(trackNote,targetPeriod,time + (tick*tickTime));
+
 				}
 			}
 		}
 
-		if (effects.vibrato || trackNote.hasAutoVibrato){
+		if (effects.vibrato || (trackNote.hasAutoVibrato && !autoVibratoHandled)){
             effects.vibrato = effects.vibrato || {freq:0,amplitude:0};
 			var freq = effects.vibrato.freq;
 			var amp = effects.vibrato.amplitude;
@@ -1530,30 +1568,19 @@ var Tracker = (function(){
 				trackNote.resetPeriodOnStep = true;
 				currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
 
+                trackNote.vibratotimer = trackNote.startVibratotimer;
 				for (var tick = 0; tick < ticksPerStep; tick++) {
 					targetPeriod = vibratoFunction(currentPeriod,trackNote.vibratoTimer,freq,amp);
 
 					// should we add or average the 2 effects?
 					if (trackNote.hasAutoVibrato && me.inFTMode()){
-
-                        var instrument = me.getInstrument(trackNote.instrumentIndex);
-                        if (instrument){
-                            var _freq = -instrument.vibrato.rate/40;
-                            var _amp = instrument.vibrato.depth/8;
-                            if (me.useLinearFrequency) _amp *= 4;
-
-                            if (instrument.vibrato.sweep && trackNote.vibratoTimer<instrument.vibrato.sweep){
-                                var sweepAmp = 1-((instrument.vibrato.sweep-trackNote.vibratoTimer)/instrument.vibrato.sweep);
-								_amp *= sweepAmp;
-							}
-                            var instrumentVibratoFunction = instrument.getAutoVibratoFunction();
-                            targetPeriod = instrumentVibratoFunction(targetPeriod,trackNote.vibratoTimer,_freq,_amp);
-						}
-
+                        targetPeriod = applyAutoVibrato(trackNote,targetPeriod);
+                        autoVibratoHandled = true;
 					}
 
+					// TODO: if we ever allow multiple effect on the same tick then we should rework this as you can't have concurrent "setPeriodAtTime" commands
 					me.setPeriodAtTime(trackNote,targetPeriod,time + (tick*tickTime));
-					trackNote.vibratoTimer++;
+
 				}
 			}
 		}
@@ -1606,6 +1633,7 @@ var Tracker = (function(){
 		}
 
 	}
+
 
 
 
