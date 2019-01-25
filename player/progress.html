@@ -20,6 +20,12 @@
             padding: 30px;
         }
 
+        h1{
+            font-weight: 100;
+            text-align: center;
+            font-size: 22px;
+        }
+
         #player{
             width: 320px;
             background-color: #eaeaea;
@@ -119,7 +125,7 @@
 </head>
 <body>
 
-
+<h1>Bassoon Tracker Playlist Demo</h1>
 <div id="player">
     <div id="songname">Loading song ...</div>
     <div id="play">Play</div>
@@ -152,6 +158,7 @@
 <script>
     var playItem;
 	var autoPlay = false;
+	var scopeActive = true;
 
 	document.addEventListener('DOMContentLoaded', function() {
 		var playButton = document.getElementById("play");
@@ -164,6 +171,10 @@
 		var scopeWidth = scopeCanvas.width = 215;
 		var scopeHeight = scopeCanvas.height = 34;
 		var scope = scopeCanvas.getContext("2d");
+		scopeCanvas.onclick = function(){
+			scopeActive = !scopeActive;
+			clearScope();
+        };
 		document.getElementById("scope").appendChild(scopeCanvas);
 
 		var analyser = BassoonTracker.audio.context.createAnalyser();
@@ -239,7 +250,7 @@
 							progressBar.value = percentage;
 						}
 					}
-					renderScope();
+					if (scopeActive) renderScope();
 				}
 				requestAnimationFrame(loop)
 			});
@@ -294,6 +305,15 @@
 
 				wx += barWidth + 1;
 			}
+		}
+
+		function clearScope(){
+			scope.clearRect(0,0,scopeWidth,scopeHeight);
+			scope.fillStyle = '#CCCCCC';
+			scope.font = "18px sans-serif";
+			if (!scopeActive){
+				scope.fillText("inactive",10,scopeHeight/2 + 6);
+            }
 		}
 
 

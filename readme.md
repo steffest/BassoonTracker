@@ -31,10 +31,11 @@ It works best in Chrome.
   - Speed settings (Effect F))
   - Sample Delay, Cut, Retrigger and Finetune (Effect E13, E12, E9 and E5)
   - Lowpass/LED filter (effect E0)
-- Almost all FastTracker audio effects are supported
+- Almost all FastTracker audio effects are supported (95% accurate)
   - Volume and Panning Envelopes
   - Auto Vibrato
-  - Multiple samples per instrument   
+  - Multiple samples per instrument
+  - Extended volume commands
 - Next to the tracker effects, there are per-channel effects for low, mid, high frequency, panning and reverb control
 - Mute/solo tracks  
 - Edit pattern data and sample properties  
@@ -64,7 +65,7 @@ There are still some very specific [Protracker 1 and 2 playback quirks](http://w
 Note: if you use an AZERTY, QWERTZ or DVORAK keyboard, you can set that option in the settings to have the correct layout when playing notes on your computer keyboard.
 
 **How to Build**  
-  - the build step is optional, there are no runtime dependencies (*bliss!*)  
+  - the build step is **optional**, there are no runtime dependencies (*bliss!*)
   - just open dev.html in a browser to load the plain uncompressed scripts 
   - to build the packaged version:
     - run "npm i" to install the grunt build tools.
@@ -90,7 +91,7 @@ Note: if you use an AZERTY, QWERTZ or DVORAK keyboard, you can set that option i
   	- Nibbles... we definitely need Nibbles.
   
 
-**player**  
-If you want to integrate the Bassoontracker playback routines in your own website, check out the "Standalone Player" examples in the "player"
-or visit the (live demo)(http://www.stef.be/bassoontracker/player/)
+**Player**
+If you want to integrate the Bassoontracker playback routines in your own website, check out the "Standalone Player" examples in the "[player](https://github.com/steffest/BassoonTracker/tree/master/player)" directory
+or visit the [live Player demo](http://www.stef.be/bassoontracker/player/)
 
