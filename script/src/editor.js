@@ -95,6 +95,7 @@ var Editor = (function(){
 					if (pos == 3) x = value+1;
 					if (pos == 4) y = value;
 					note.volumeEffect = (x << 4) + y;
+					if (note.volumeEffect<16){note.volumeEffect=0}
 				}
 			}
 

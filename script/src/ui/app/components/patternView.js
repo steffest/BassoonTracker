@@ -142,7 +142,7 @@ UI.app_patternView = function(x,y,w,h){
             var hasHorizontalScrollBar =  visibleTracks<Tracker.getTrackCount();
             var visibleHeight = me.height-30;
 
-			displayVolume = Tracker.getTrackerMode() === TRACKERMODE.FASTTRACKER;
+			displayVolume = Tracker.inFTMode();
 			var textWidth = displayVolume ? 92 : 72;
 			var cursorWidth1 = 9;
 			var cursorWidth3 = 28;
@@ -463,7 +463,7 @@ UI.app_patternView = function(x,y,w,h){
 					noteString = vuX + vuY;
 				}
 
-                if (noteString === "00") noteString = "..";
+                if (!note.volumeEffect) noteString = "..";
                 font.write(c,noteString,nx,0,0);
             }
 

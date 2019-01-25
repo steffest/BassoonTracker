@@ -261,7 +261,11 @@ var Input = (function(){
                             if (pos===0){
                                 Editor.putNote(0,0);
                             }else{
-                                Editor.putNoteParam(pos,0);
+								if (Tracker.inFTMode() && (pos === 3 || pos === 4)){
+									Editor.putNoteParam(pos,-1);
+								}else{
+									Editor.putNoteParam(pos,0);
+								}
                             }
                             Tracker.moveCurrentPatternPos(1);
                         }
@@ -631,6 +635,7 @@ var Input = (function(){
 					// Special Fasttracker volume commands
 					value = -1;
 					switch (key) {
+						case "0": value=0; break;
 						case "1": value=1; break;
 						case "2": value=2; break;
 						case "3": value=3; break;
@@ -702,7 +707,6 @@ var Input = (function(){
                 if (note.scheduled && note.scheduled.vibrato){
 					var scheduledtime = instrument.scheduleAutoVibrato(note,2);
 					note.scheduled.vibrato += scheduledtime;
-					console.error(note.scheduled.vibrato);
 				}
 
                 if (inputNotes.length>64){
