@@ -180,32 +180,34 @@ UI.Envelope = function(type){
 				me.ctx.stroke();
 
 				if (currentEnvelope.enabled){
-					if (currentEnvelope.sustain){
-						me.ctx.strokeStyle = "#67b6d2";
-						me.ctx.setLineDash([1, 2]);
-						x = currentEnvelope.points[currentEnvelope.sustainPoint][0] * xScale;
-						me.ctx.beginPath();
-						me.ctx.moveTo(x, 0);
-						me.ctx.lineTo(x, me.height);
-						me.ctx.stroke();
+					var loopStartPoint = currentEnvelope.points[currentEnvelope.loopStartPoint];
+					if (loopStartPoint){
+						if (currentEnvelope.sustain){
+							me.ctx.strokeStyle = "#67b6d2";
+							me.ctx.setLineDash([1, 2]);
+							x = loopStartPoint[0] * xScale;
+							me.ctx.beginPath();
+							me.ctx.moveTo(x, 0);
+							me.ctx.lineTo(x, me.height);
+							me.ctx.stroke();
+						}
+
+						if (currentEnvelope.loop){
+							me.ctx.strokeStyle = "#d2b637";
+							me.ctx.setLineDash([1, 2]);
+							x = loopStartPoint[0] * xScale;
+							me.ctx.beginPath();
+							me.ctx.moveTo(x, 0);
+							me.ctx.lineTo(x, me.height);
+
+							x = loopStartPoint[0] * xScale;
+							me.ctx.moveTo(x, 0);
+							me.ctx.lineTo(x, me.height);
+
+
+							me.ctx.stroke();
+						}
 					}
-
-					if (currentEnvelope.loop){
-						me.ctx.strokeStyle = "#d2b637";
-						me.ctx.setLineDash([1, 2]);
-						x = currentEnvelope.points[currentEnvelope.loopStartPoint][0] * xScale;
-						me.ctx.beginPath();
-						me.ctx.moveTo(x, 0);
-						me.ctx.lineTo(x, me.height);
-
-						x = currentEnvelope.points[currentEnvelope.loopEndPoint][0] * xScale;
-						me.ctx.moveTo(x, 0);
-						me.ctx.lineTo(x, me.height);
-
-
-						me.ctx.stroke();
-					}
-
 				}
 
 
