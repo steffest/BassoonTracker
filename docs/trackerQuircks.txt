@@ -1,0 +1,24 @@
+### Protracker 1 and 2 Playback quirks ###
+
+There are still some original Protracker 1/2 playback quirks that are not implemented and probably never will as they are just too bat-shit-crazy.
+Those are
+
+
+  * On the fly sample swapping behaviour
+    (when you have new sample numbers without notes)
+    Protracker 1 and 2 reset the loop to the new sample when the loop reaches it's end.
+    I do not and only set the volume of the new sample.
+    Also the finetune value of the new sample is applied in Protracker. I do not.
+    This is consistent with ProTracker 3 and beyond.
+
+  * Slide-to-Note sample swapping
+    Similar to the above: When in a range of Slide-to-note effects (effect 3) there 
+    is a new sample number used, and the old sample has a loop, 
+    the sample data of the new sample is played in the old loop.
+    I do not and just keep the original sample data 
+    (thus sequential 3 effect ignore the sample number)
+
+  * Arpeggio parameter wrapping
+    When an arpeggio parameter exceeds the frequency range, it wraps around in Protracker 1 and 2
+    I do not and simply limit the frequency
+
