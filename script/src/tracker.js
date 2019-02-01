@@ -1408,7 +1408,8 @@ var Tracker = (function(){
 
 		var value;
 		var autoVibratoHandled = false;
-        trackNote.startVibratotimer = trackNote.vibratoTimer||0;
+
+        trackNote.startVibratoTimer = trackNote.vibratoTimer||0;
 
         if (trackNote.resetPeriodOnStep && trackNote.source){
 			// vibrato or arpeggio is done
@@ -1490,7 +1491,7 @@ var Tracker = (function(){
 
 				}
 
-                trackNote.vibratotimer = trackNote.startVibratotimer;
+                trackNote.vibratoTimer = trackNote.startVibratoTimer;
 
 				// TODO: Why don't we use a RampToValueAtTime here ?
 				for (var tick = 1; tick < steps; tick++){
@@ -1536,7 +1537,7 @@ var Tracker = (function(){
 				var targetPeriod;
 
 				trackNote.resetPeriodOnStep = true;
-                trackNote.vibratotimer = trackNote.startVibratotimer;
+                trackNote.vibratoTimer = trackNote.startVibratoTimer;
 
 				for (var tick = 0; tick < ticksPerStep; tick++){
 					var t = tick%3;
@@ -1568,7 +1569,7 @@ var Tracker = (function(){
 				trackNote.resetPeriodOnStep = true;
 				currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
 
-                trackNote.vibratotimer = trackNote.startVibratotimer;
+                trackNote.vibratoTimer = trackNote.startVibratoTimer;
 				for (var tick = 0; tick < ticksPerStep; tick++) {
 					targetPeriod = vibratoFunction(currentPeriod,trackNote.vibratoTimer,freq,amp);
 
@@ -1576,6 +1577,8 @@ var Tracker = (function(){
 					if (trackNote.hasAutoVibrato && me.inFTMode()){
                         targetPeriod = applyAutoVibrato(trackNote,targetPeriod);
                         autoVibratoHandled = true;
+					}else{
+                        trackNote.vibratoTimer++;
 					}
 
 					// TODO: if we ever allow multiple effect on the same tick then we should rework this as you can't have concurrent "setPeriodAtTime" commands
@@ -1770,6 +1773,8 @@ var Tracker = (function(){
 
 	me.load = function(url,skipHistory,next){
 		url = url || "demomods/StardustMemories.mod";
+		
+		//if (url.indexOf("://")<0 && url.indexOf("/") !== 0) url = Host.getBaseUrl() + url;
 
 		if (UI){
 			UI.setInfo("");
