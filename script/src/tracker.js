@@ -269,7 +269,7 @@ var Tracker = (function(){
 	me.stop = function(){
 		if (clock) clock.stop();
 		Audio.disable();
-		//Audio.setMasterVolume(1);
+		Audio.setMasterVolume(1);
 		if (UI) {
 			UI.setStatus("Ready");
 			Input.clearInputNotes();
@@ -1774,7 +1774,7 @@ var Tracker = (function(){
 	me.load = function(url,skipHistory,next){
 		url = url || "demomods/StardustMemories.mod";
 		
-		//if (url.indexOf("://")<0 && url.indexOf("/") !== 0) url = Host.getBaseUrl() + url;
+		if (url.indexOf("://")<0 && url.indexOf("/") !== 0) url = Host.getBaseUrl() + url;
 
 		if (UI){
 			UI.setInfo("");
