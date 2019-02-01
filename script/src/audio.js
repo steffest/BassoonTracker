@@ -670,7 +670,7 @@ var Audio = (function(){
 
     me.waveFormFunction = {
         sine: function(period,progress,freq,amp){
-            return period + (Math.sin(progress * freq * 0.8) * amp * 1.75);
+            return period + (Math.sin(progress * freq * 0.8) * amp * 1.7);
             // I got the impression that this formaula is more like  amp * 2 in FT2
             // in Protracker a lookuptable is used - maybe we should adopt that
         },

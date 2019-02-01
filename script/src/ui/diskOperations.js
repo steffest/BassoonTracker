@@ -318,7 +318,7 @@ UI.DiskOperations = function(){
 				if (modules.length){
 					populate(modules,moduleSelectedIndex);
 				}else{
-					FetchService.json("data/modules.json",function(data){
+					FetchService.json(Host.getBaseUrl() + "data/modules.json",function(data){
 						if (data && data.modules){
 							modules = data.modules;
 							populate(modules,moduleSelectedIndex);
@@ -372,7 +372,7 @@ UI.DiskOperations = function(){
 				}else{
 					listbox.setItems([{label: "loading ..."}]);
 
-					FetchService.json("data/modarchive.json",function(data){
+					FetchService.json(Host.getBaseUrl() + "data/modarchive.json",function(data){
 						if (data && data.modarchive){
 							modArchive = data.modarchive;
 							populate(modArchive,0);
@@ -428,7 +428,7 @@ UI.DiskOperations = function(){
 				}else{
 					listbox.setItems([{label: "loading ..."}]);
 
-					FetchService.json("data/modulespl.json",function(data){
+					FetchService.json(Host.getBaseUrl() + "data/modulespl.json",function(data){
 						if (data && data.modulespl){
 							modulesPl = data.modulespl;
 							populate(modulesPl,0);
@@ -556,7 +556,7 @@ UI.DiskOperations = function(){
 				if (samples.length){
 					populate(samples,sampleSelectedIndex);
 				}else{
-					FetchService.json("data/samples.json",function(data){
+					FetchService.json(Host.getBaseUrl() + "/data/samples.json",function(data){
 						if (data && data.samples){
 							samples = data.samples;
 							populate(samples,sampleSelectedIndex);
@@ -573,15 +573,32 @@ UI.DiskOperations = function(){
 	};
 
 	me.playRandomSong = function(format){
-		UI.setStatus("Fetching random song",true);
-		UI.setInfo("");
-		FetchService.json("https://www.stef.be/bassoontracker/api/random" + (format || ""),function(data){
-			if (data && data.modarchive && data.modarchive.module){
-				Tracker.load(data.modarchive.module.url);
-			}else{
-				console.error("this does not seem to be a valid modArchive API response");
-			}
-		})
+		
+		//Todo: Add API rate check?
+		//Or move this to the local database?
+		
+		var useModArchiveAPI = true;
+		
+		if (useModArchiveAPI){
+			UI.setStatus("Fetching random song",true);
+			UI.setInfo("");
+			FetchService.json("https://www.stef.be/bassoontracker/api/random" + (format || ""),function(data){
+				if (data && data.modarchive && data.modarchive.module){
+					Tracker.load(data.modarchive.module.url);
+				}else{
+					console.error("this does not seem to be a valid modArchive API response");
+				}
+			})
+		}else{
+			var message = document.createElement("div");
+			message.className = "message";
+			message.innerHTML = 'Due to a sudden spike of traffic, the ModArchive API has reached its limit and is currently unavailable.<br>We are working on a solution.';
+			document.body.appendChild(message);
+
+			setTimeout(function(){
+				document.body.removeChild(message)
+			},4000);
+		}
 	};
 
 

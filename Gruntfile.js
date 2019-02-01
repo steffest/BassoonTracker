@@ -26,6 +26,7 @@ module.exports = function(grunt) {
             player:{
                 src: [
                     'script/wrapper/start.txt',
+                    'script/src/host.js',
                     'script/src/enum.js',
                     'script/src/eventBus.js',
                     'script/src/filesystem.js',

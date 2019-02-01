@@ -1,5 +1,8 @@
 var App = (function(){
     var me = {};
+    
+    me.buildNummer = (typeof buildNumber === "undefined") ? "" : buildNumber; 
+    
 
     me.init = function(){
         EventBus.on(EVENT.command,function(command){

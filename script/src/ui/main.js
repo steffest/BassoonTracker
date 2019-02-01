@@ -61,7 +61,7 @@ var UI = (function(){
 			if (initialFile){
 				initialFile = decodeURIComponent(initialFile);
 			}else{
-				initialFile = 'demomods/Tinytune.mod';
+				initialFile = Host.getBaseUrl() + 'demomods/Tinytune.mod';
 			}
 			Tracker.load(initialFile,true);
 

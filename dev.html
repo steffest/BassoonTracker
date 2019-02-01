@@ -38,6 +38,11 @@
         .message a{
             color: white;
         }
+
+        .message button{
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
     </style>
 
     <title>Bassoon Tracker - Amiga music tracker</title>
@@ -48,6 +53,8 @@
     <meta name="mobile-web-app-capable" content="yes">
 
     <script>var buildNumber = new Date().getTime();</script>
+
+    <script src="script/src/host.js?v6"></script>
 
     <script src="script/src/enum.js?v6"></script>
     <script src="script/src/eventBus.js?v6"></script>
@@ -158,7 +165,7 @@
 </head>
 <body>
 
-
 <canvas id="canvas" tabindex='1' moz-opaque></canvas>
+
 </body>
 </html>

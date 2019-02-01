@@ -357,6 +357,11 @@ var Editor = (function(){
             var b = new Blob([file.buffer], {type: "application/octet-stream"});
 
             var fileName = filename || me.getFileName();
+            
+            if (typeof target === "function"){
+            	target(b);
+            	return;
+			}
 
             if (target === "dropbox"){
                 Logger.info("save to dropbox " + fileName);
