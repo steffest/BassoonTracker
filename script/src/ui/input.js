@@ -170,6 +170,10 @@ var Input = (function(){
 
 		function handleTouchUp(event){
 
+			if (!isTouched){
+				Audio.checkState();
+			}
+			
 			touchData.isTouchDown = false;
 
 			if (event && event.touches){
@@ -218,6 +222,7 @@ var Input = (function(){
 				//Input.isLeft(false);
 				//Input.isRight(false);
 			}
+			
 
 		}
 

@@ -20,13 +20,18 @@ var UI = (function(){
 	var skipRenderSteps = 0;
 	var renderStep = 0;
 	var beginTime = 0;
+	var beginRenderTime = 0;
+	var lastRenderTime = 0;
 	var frames = 0;
 	var fps;
 	var minFps = 100;
 	var fpsList = [];
+	var renderfpsList = [];
 	var selection;
 	var prevSelection;
 	var prevEventExpired = 0;
+	var maxRenderFps = 60;
+	var fpsCalculated = false;
 
 	var UICache = {};
 
@@ -305,7 +310,7 @@ var UI = (function(){
 	};
 
 	var render = function(time){
-
+		
 		var doRender = true;
 
 		if (Tracker.isPlaying()){
@@ -328,8 +333,20 @@ var UI = (function(){
 		}
 
         var startRenderTime = Audio.context ? Audio.context.currentTime : 0;
+		
+		if (doRender){
+			beginRenderTime = (performance || Date).now();
+			var renderFps = 1000/(beginRenderTime-lastRenderTime);
+			renderfpsList.push(renderFps);
+			if (renderfpsList.length>20) renderfpsList.shift();
+			if (renderFps>maxRenderFps){
+				doRender = false;
+			}
+		}
+		
 		if(doRender){
 			renderStep = 0;
+			lastRenderTime = beginRenderTime;
 			EventBus.trigger(EVENT.screenRefresh);
 			if (needsRendering){
 				children.forEach(function(element){
@@ -351,7 +368,6 @@ var UI = (function(){
         if (startRenderTime){
             beginTime = beginTime || startRenderTime;
             frames++;
-            //console.warn(beginTime);
             if (startRenderTime>beginTime+1){
                 fps = frames / (startRenderTime-beginTime);
                 minFps = Math.min(minFps,fps);
@@ -360,7 +376,12 @@ var UI = (function(){
 
                 fpsList.push(fps);
                 if (fpsList.length>20) fpsList.shift();
-
+                
+                if (!fpsCalculated && fpsList.length>5){
+					Logger.info("fps");
+					fpsCalculated = true;
+				}
+                
                 EventBus.trigger(EVENT.second);
             }
 
@@ -493,6 +514,7 @@ var UI = (function(){
 			fps : fps,
 			minFps : minFps,
 			averageFps: average(fpsList),
+			averageRenderFps: average(renderfpsList),
 			fpsList: fpsList,
 			skipRenderSteps: skipRenderSteps
 		}

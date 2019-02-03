@@ -17,7 +17,7 @@ var Logger = function(){
         var stats = UI.stats();
         var version = typeof versionNumber == "undefined" ? "dev" : versionNumber;
         message = createSlug(message);
-        FetchService.get(baseUrl + scope + "/" + message + "/" + stats.averageFps + "/" + stats.skipRenderSteps + "/" + version + "/" + canvas.width + "x" + canvas.height,function(result){
+        FetchService.get(baseUrl + scope + "/" + message + "/" + stats.averageFps + "/" + stats.skipRenderSteps + "/" + version + "/" + canvas.width + "x" + canvas.height + "/" + stats.averageRenderFps,function(result){
             //console.log(result);
         });
     };
