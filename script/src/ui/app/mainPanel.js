@@ -183,7 +183,7 @@ UI.app_mainPanel = function(){
         min:1,
         font: spinbBoxFont,
         onChange : function(value){
-
+			Tracker.setBPM(value);
         }
     });
     me.addChild(spinBoxBpm);
