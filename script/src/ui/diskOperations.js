@@ -65,9 +65,7 @@ UI.DiskOperations = function(){
         actionPanel.setSelectedIndex(0);
     };
     me.addChild(loadButton);
-
-
-
+    
 
 	var label = UI.label({
 		label: "Load module",
@@ -556,7 +554,7 @@ UI.DiskOperations = function(){
 				if (samples.length){
 					populate(samples,sampleSelectedIndex);
 				}else{
-					FetchService.json(Host.getBaseUrl() + "/data/samples.json",function(data){
+					FetchService.json(Host.getBaseUrl() + "data/samples.json",function(data){
 						if (data && data.samples){
 							samples = data.samples;
 							populate(samples,sampleSelectedIndex);
@@ -658,6 +656,7 @@ UI.DiskOperations = function(){
 
             if (loadButton.isActive) loadButton.setActive(false);
             if (!saveButton.isActive) saveButton.setActive(true);
+			dropzone.hide();
 
 			me.onResize();
 
