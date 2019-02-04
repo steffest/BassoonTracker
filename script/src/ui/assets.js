@@ -8,7 +8,15 @@ UI.Assets = (function(){
 	me.preLoad = function(next){
 		var spriteMap;
 		var spriteSheet;
-		var baseUrl = Settings.baseUrl || "";
+		var baseUrl = Host.getBaseUrl();
+		var useVersion = Host.useUrlParams;
+		
+		function assetUrl(url){
+			url = baseUrl + url;
+			if (useVersion) url += ("?v=" + App.buildNumber);
+			
+			return url;
+		}
 
 		var createSprites = function(){
 			if (spriteMap && spriteSheet){
@@ -20,12 +28,12 @@ UI.Assets = (function(){
 			}
 		};
 
-		FetchService.json(baseUrl + "skin/spritemap_v2.json?v=" + buildNumber,function(data){
+		FetchService.json(assetUrl("skin/spritemap_v2.json"),function(data){
 			spriteMap = data;
 			createSprites();
 		});
 
-		Y.loadImage(baseUrl + "skin/spritesheet_v2.png?v=" + buildNumber,function(img){
+		Y.loadImage(assetUrl("skin/spritesheet_v2.png"),function(img){
 			spriteSheet = img;
 			createSprites();
 		})

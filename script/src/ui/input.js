@@ -227,6 +227,8 @@ var Input = (function(){
 		}
 
 		function handleKeyDown(event){
+			
+			event.preventDefault();
 
 			var keyboardTable = KEYBOARDTABLE[SETTINGS.keyboardTable] || KEYBOARDTABLE.azerty;
 

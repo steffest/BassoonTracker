@@ -79,6 +79,19 @@ UI.DiskOperations = function(){
         App.doCommand(COMMAND.showTopMain);
 	};
 	me.addChild(closeButton);
+	
+	var browseButton = UI.Assets.generate("buttonKey");
+	browseButton.setLabel("browse");
+	browseButton.onClick = function(){
+		var input = document.createElement('input');
+		input.type = 'file';
+		input.onchange = function(e){
+			Tracker.handleUpload(e.target.files);
+		};
+		input.click();
+	};
+	me.addChild(browseButton);
+	browseButton.hide();
 
 	var listbox = UI.listbox();
 	me.addChild(listbox);
@@ -90,8 +103,8 @@ UI.DiskOperations = function(){
 		image: Y.getImage("dropzone"),
 		font: fontSmall,
 		textAlign: "center"
-
 	});
+	dropzone.onClick = browseButton.onClick;
 	me.addChild(dropzone);
 	dropzone.hide();
 
@@ -120,7 +133,14 @@ UI.DiskOperations = function(){
                 left: me.width - 30
             });
 
+			browseButton.setProperties({
+				top: closeButton.top+2,
+				width: 55,
+				height: 18,
+				left: closeButton.left - 60
+			});
 
+			
             if (me.width >= 730){
 
                 actionPanel.show();
@@ -170,11 +190,11 @@ UI.DiskOperations = function(){
                 saveButton.show();
 
                 loadButton.setProperties({
-					top: 4,
+					top: 5,
 					left: Layout.col3X
 				});
                 saveButton.setProperties({
-                    top: 4,
+                    top: 5,
                     left: Layout.col3X + 50
                 });
 
@@ -284,14 +304,17 @@ UI.DiskOperations = function(){
 		if (currentView == "local"){
 			listbox.hide();
 			dropzone.show();
+			browseButton.show();
 		}else{
 			listbox.show();
 			dropzone.hide();
+			browseButton.hide();
 
 			if (currentView == "bassoon"){
 				currentView = typePanel.getType();
 			}
 		}
+		
 
 		switch (currentView){
 			case "modules":
@@ -657,6 +680,7 @@ UI.DiskOperations = function(){
             if (loadButton.isActive) loadButton.setActive(false);
             if (!saveButton.isActive) saveButton.setActive(true);
 			dropzone.hide();
+			browseButton.hide();
 
 			me.onResize();
 
