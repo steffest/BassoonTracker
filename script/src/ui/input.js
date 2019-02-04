@@ -95,6 +95,11 @@ var Input = (function(){
 				y -= (rect.top + window.pageYOffset);
 
 				currentEventTarget = UI.getModalElement() ||  UI.getEventElement(x,y);
+				
+				
+				if (currentEventTarget && focusElement && focusElement.deActivate && focusElement.name !== currentEventTarget.name){
+					focusElement.deActivate();
+				}
 
 				var thisTouch = {
 					id: id,

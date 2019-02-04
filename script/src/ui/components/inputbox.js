@@ -94,7 +94,7 @@ UI.inputbox = function(initialProperties){
 
 	me.activate = function(){
 		cursorPos = -1;
-		console.error("activate " + me.name);
+		console.log("activate " + me.name);
 		if (!isActive && value){
 			cursorPos = value.length-1;
 		}
@@ -119,9 +119,11 @@ UI.inputbox = function(initialProperties){
 		switch(keyCode){
 			case 8:// backspace
 				if (value) {
-					value = value.substr(0,cursorPos) + value.substr(cursorPos+1);
-					cursorPos--;
-					if (me.onChange) me.onChange(value);
+					if (cursorPos>=0){
+						value = value.substr(0,cursorPos) + value.substr(cursorPos+1);
+						cursorPos--;
+						if (me.onChange) me.onChange(value);
+					}
 				}
 				handled = true;
 				break;
@@ -130,7 +132,7 @@ UI.inputbox = function(initialProperties){
 				handled = true;
 				break;
 			case 37:// left
-				if (cursorPos>0) cursorPos--;
+				if (cursorPos>=0) cursorPos--;
 				me.refresh();
 				handled = true;
 				break;
