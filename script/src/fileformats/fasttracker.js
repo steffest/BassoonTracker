@@ -6,6 +6,7 @@ var FastTracker = function(){
 
         console.log("loading FastTracker");
         Tracker.setTrackerMode(TRACKERMODE.FASTTRACKER);
+		Tracker.clearInstruments(1);
 
         var mod = {};
         var song = {

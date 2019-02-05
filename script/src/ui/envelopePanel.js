@@ -168,6 +168,7 @@ UI.EnvelopePanel = function(type){
 	me.addChild(panel);
 
 	me.setInstrument = function(instrument){
+		if (!instrument) return;
 		envelope = instrument[type + "Envelope"];
 		currentInstrument = instrument;
 

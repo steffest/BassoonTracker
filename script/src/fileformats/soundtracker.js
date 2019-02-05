@@ -5,6 +5,7 @@ var SoundTracker = function(){
 
 		Tracker.setTrackerMode(TRACKERMODE.PROTRACKER);
         Tracker.useLinearFrequency = false;
+		Tracker.clearInstruments(15);
 
 		var song = {
 			patterns:[],

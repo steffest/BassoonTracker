@@ -1,11 +1,11 @@
 var BassoonProvider = function(){
 	var me = {};
 
-    var baseUrl = "https://www.stef.be/bassoontracker/api/storage/";
+    var baseUrl = "https://www.stef.be/bassoontracker/api/";
     var processing = false;
 
 	me.putFile = function(){
-		var url = baseUrl + "put/";
+		var url = baseUrl + "storage/put/";
 
 		Editor.buildBinary(Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
 			//var b = new Blob([file.buffer], {type: "application/octet-stream"});
@@ -25,7 +25,7 @@ var BassoonProvider = function(){
 		}
 
 		processing = true;
-		var url =  baseUrl + "render/" + (Tracker.inFTMode() ? "xm" : "mod");
+		var url =  baseUrl + "storage/render/" + (Tracker.inFTMode() ? "xm" : "mod");
 		var fileName = fileName || Tracker.getFileName();
 		UI.setStatus("saving file ...",true);
 		Editor.buildBinary(Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
@@ -41,7 +41,7 @@ var BassoonProvider = function(){
 					var tempFile = result;
 					console.log(tempFile + ": converting file ...");
 					UI.setStatus("rendering file ...",true);
-					url =  baseUrl + "convert/" + tempFile;
+					url =  baseUrl + "storage/convert/" + tempFile;
 					FetchService.sendBinary(url,file.buffer,function(result){
 						if (result === "error"){
 							console.error("error converting file");
@@ -52,7 +52,7 @@ var BassoonProvider = function(){
 							if (toMp3){
 								console.log(tempFile + ": converting to mp3");
 								UI.setStatus("Converting file to mp3...",true);
-								url =  baseUrl + "wavtomp3/" + tempFile;
+								url =  baseUrl + "storage/wavtomp3/" + tempFile;
 								FetchService.sendBinary(url,file.buffer,function(result){
 									console.error(result);
 									if (result === "error"){
@@ -72,6 +72,10 @@ var BassoonProvider = function(){
 			})
 		});
 	};
+	
+	me.proxyUrl = function(url){
+		return baseUrl + "proxy?" + encodeURIComponent(url);
+	};
 
 	function downloadFile(url,filename,extention){
 		if (extention){
@@ -86,7 +90,7 @@ var BassoonProvider = function(){
 		setTimeout(function(){
 			UI.setStatus("");
 		},3000);
-        document.location.href = baseUrl + url + "?dl=1&name=" + filename;
+        document.location.href = baseUrl + "storage/" + url + "?dl=1&name=" + filename;
 	}
 
 	return me;
