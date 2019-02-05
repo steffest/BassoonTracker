@@ -152,7 +152,7 @@ var Audio = (function(){
         }
 
 		period = period || 428; // C-3
-		track = track || (hasUI ? Editor.getCurrentTrack() : 0);
+        if (typeof track === "undefined") track = (hasUI ? Editor.getCurrentTrack() : 0);
 		time = time || context.currentTime;
 
         if (noteIndex === NOTEOFF){
