@@ -290,6 +290,13 @@ var Tracker = (function(){
 		isPlaying = false;
 		EventBus.trigger(EVENT.playingChange,isPlaying);
 	};
+	
+	me.pause = function(){
+		// this is only called when speed is set to 0
+		if (clock) clock.stop();
+		isPlaying = false;
+		EventBus.trigger(EVENT.playingChange,isPlaying);
+	};
 
 	me.togglePlay = function(){
 		if (me.isPlaying()){
@@ -351,7 +358,24 @@ var Tracker = (function(){
 
 			while (time<maxTime){
 
-				me.setStateAtTime(time,{patternPos: p, songPos: playSongPosition});
+                if(stepResult.pause){
+                    // speed is set to 0
+					if (!stepResult.pasuseHandled){
+                        var delta = time - Audio.context.currentTime;
+                        if (delta>0){
+                        	setTimeout(function(){
+                        		me.pause();
+                        		// in Fasttracker this repeats the current step with the previous speed - including effects.
+								// (which seems totally weird)
+								me.setAmigaSpeed(6);
+							},Math.round(delta*1000)+100);
+						}
+                        stepResult.pasuseHandled=true;
+					}
+					return;
+                }
+
+                me.setStateAtTime(time,{patternPos: p, songPos: playSongPosition});
 
 				if (stepResult.patternDelay){
 					// the E14 effect is used: delay Pattern but keep processing effects
@@ -362,7 +386,7 @@ var Tracker = (function(){
 					}
 
 					time += ticksPerStep * tickTime;
-				}else{
+                }else{
 					stepResult = playPatternStep(p,time,playPatternData,playSongPosition);
 					time += ticksPerStep * tickTime;
 					p++;
@@ -458,10 +482,11 @@ var Tracker = (function(){
 
 		for (var i = 0; i<tracks; i++){
 			note = patternStep[i];
-			if (note && note.effect && note.effect == 15){
+			if (note && note.effect && note.effect === 15){
 				if (note.param <= 32){
-					if (note.param == 0) note.param = 1;
+					//if (note.param == 0) note.param = 1;
 					Tracker.setAmigaSpeed(note.param);
+					if (note.param === 0) result.pause = true;
 				}else{
 					Tracker.setBPM(note.param)
 				}
@@ -1246,10 +1271,11 @@ var Tracker = (function(){
 				//speed
 				// Note: shouldn't this be "set speed at time" instead of setting it directly?
 				// TODO: -> investigate
+				// TODO: Yes ... this is actually quite wrong FIXME !!!!
 
 				if (note.param <= 32){
-					if (note.param == 0) note.param = 1;
-					Tracker.setAmigaSpeed(note.param);
+					//if (note.param == 0) note.param = 1;
+					Tracker.setAmigaSpeed(note.param,time);
 				}else{
 					Tracker.setBPM(note.param)
 				}
@@ -1656,10 +1682,11 @@ var Tracker = (function(){
 		// 1 tick is 0.02 seconds on a PAL Amiga
 		// 4 steps is 1 beat
 		// the speeds sets the amount of ticks in 1 step
-		// defauilt is 6 -> 60/(6*0.02*4) = 125 bpm
+		// default is 6 -> 60/(6*0.02*4) = 125 bpm
 
 		//note: this changes the speed of the song, but not the speed of the main loop
-		ticksPerStep = speed;
+        ticksPerStep = speed;
+
 	};
 
 	me.getAmigaSpeed = function(){
@@ -1997,6 +2024,7 @@ var Tracker = (function(){
 	};
 
 	me.clearInstruments = function(count){
+		if (!song) return;
 		var instrumentContainer = [];
 		var max  = count || song.instruments.length-1;
         instruments = [];
@@ -2029,7 +2057,7 @@ var Tracker = (function(){
 			patterns:[],
 			instruments:[]
 		};
-        me.clearInstruments(32);
+        me.clearInstruments(31);
 
 		song.typeId = "M.K.";
 		song.title = "new song";
