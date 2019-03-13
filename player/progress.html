@@ -230,7 +230,8 @@
 
 			// setup progress bar to seek into the song
 			volumeBar.oninput = volumeBar.onchange = function(){
-				BassoonTracker.audio.masterVolume.gain.setValueAtTime(volumeBar.value/100,0)
+                BassoonTracker.audio.masterVolume.gain.cancelScheduledValues(0);
+				BassoonTracker.audio.masterVolume.gain.setValueAtTime(volumeBar.value/100,0);
 			};
 
 			BassoonTracker.audio.cutOffVolume.connect(analyser);
