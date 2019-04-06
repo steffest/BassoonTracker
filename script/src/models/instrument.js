@@ -91,7 +91,7 @@ var Instrument = function(){
 				noteInfo.volumeFadeOut.gain.linearRampToValueAtTime(0,time + 0.1)
 			}
 
-            if (me.panningEnvelope.enabled && Audio.usePanning){
+            if (me.panningEnvelope.enabled && Audio.usePanning && noteInfo.panningEnvelope){
                 timeOffset = 0;
                 startPoint = me.panningEnvelope.points[me.panningEnvelope.sustainPoint];
                 if (startPoint) timeOffset = startPoint[0]*tickTime;
