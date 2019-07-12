@@ -1,0 +1,18 @@
+<h2>F.A.Q.</h2>
+<div id="faq">
+    <h3>Dude, stereo is not working</h3>
+    <div class="faq padded">
+        You are using Safari, right?<br>
+        
+        <i>The technical story:</i><br>
+        Safari doesn't support <a href="https://developer.mozilla.org/en-US/docs/Web/API/StereoPannerNode">StereoPanner</a> so everything will be in mono.<br>
+        It does support a normal <a href="https://developer.mozilla.org/en-US/docs/Web/API/PannerNode">Panner</a>, but you can't set their position "over time" so they are somewhat useless.<br>
+        Yes, I know there's a <a href="https://github.com/mohayonao/stereo-panner-node">nice shim</a>. This works but it is too slow.
+        <br>
+        
+        <i>The solution:</i><br>
+        Use another browser like Chrome or Firefox. There you'll have full stereo.
+        
+    </div>
+    <br>
+</div>
