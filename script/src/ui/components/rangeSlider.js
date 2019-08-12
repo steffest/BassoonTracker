@@ -157,7 +157,7 @@ UI.rangeSlider = function(initialProperties){
 
 	me.onDrag=function(touchData){
 		if(vertical){
-            var delta =  touchData.dragY - touchData.startY;
+            var delta =  touchData.deltaY;
             knobTop = startKnobTop + delta;
             if (knobTop<0) knobTop=0;
 
@@ -172,7 +172,7 @@ UI.rangeSlider = function(initialProperties){
             }
 
 		}else{
-            delta =  touchData.dragX - touchData.startX;
+            delta =  touchData.deltaX;
             knobLeft = startKnobLeft + delta;
             if (knobLeft<0) knobLeft=0;
 

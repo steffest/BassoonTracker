@@ -63,7 +63,7 @@ var ProTracker = function(){
 			sampleDataOffset += instrument.sample.length;
 			instrument.setSampleIndex(0);
 			Tracker.setInstrument(i,instrument);
-
+			
 		}
 		song.instruments = Tracker.getInstruments();
 

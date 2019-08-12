@@ -33,8 +33,8 @@ UI.app_patternPanel = function(){
     };
 	me.addChild(scopesClickHandler);
 
-    var sidebar = UI.app_sidebar();
-    me.addChild(sidebar);
+    var patternSidebar = UI.pattern_sidebar();
+    me.addChild(patternSidebar);
 
     var patternView = UI.app_patternView();
     patternView.setProperties({
@@ -55,11 +55,11 @@ UI.app_patternPanel = function(){
 
 		if (Layout.showSideBar){
 			if (currentView === "main"){
-				sidebar.show();
+				patternSidebar.show();
 				editPanel.show();
 			}
 		}else{
-			sidebar.hide();
+			patternSidebar.hide();
 			editPanel.hide();
 		}
 
@@ -103,7 +103,7 @@ UI.app_patternPanel = function(){
 				height: patternHeight
 			});
 
-        sidebar.setDimensions({
+        patternSidebar.setDimensions({
             left: Layout.col1X,
             top : patternView.top - Layout.trackControlHeight,
             width: Layout.col1W,
@@ -112,14 +112,14 @@ UI.app_patternPanel = function(){
 
 
         visualiser.setProperties({
-            left: patternTrackLeft,
+            left: patternTrackLeft + Layout.mainLeft,
             top: me.top + Layout.infoPanelHeight + 3,
             width: patternWidth - Layout.firstTrackOffsetLeft,
             height: Layout.analyserHeight
         });
 
 		scopesClickHandler.setDimensions({
-			left: visualiser.left,
+			left: visualiser.left - Layout.mainLeft,
 			top: Layout.infoPanelHeight + 3,
 			width: visualiser.width,
 			height: visualiser.height
@@ -232,7 +232,7 @@ UI.app_patternPanel = function(){
             case "sample":
                 sampleView.show();
                 patternView.hide();
-                sidebar.hide();
+                patternSidebar.hide();
 
                 if (Layout.expandSampleViewHeight){
                     visualiser.hide();
@@ -249,7 +249,7 @@ UI.app_patternPanel = function(){
                 patternView.show();
 				visualiser.show();
                 if (Layout.showSideBar){
-					sidebar.show();
+					patternSidebar.show();
 					editPanel.show();
                 }
 				currentView = "main";
@@ -262,11 +262,11 @@ UI.app_patternPanel = function(){
 	EventBus.on(EVENT.visibleTracksCountChange,function(count){
 	    if (Layout.showSideBar){
             if (currentView === "main"){
-				sidebar.show();
+				patternSidebar.show();
 				editPanel.show();
             }
         }else{
-			sidebar.hide();
+			patternSidebar.hide();
 			editPanel.hide();
         }
 		me.onResize();

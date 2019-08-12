@@ -83,11 +83,9 @@ UI.app_pianoView = function(){
 
         var keyX = x%octaveWidth;
         var keyOctave = Math.floor(x/octaveWidth);
-
-
-        //console.log(x);
+        
         if (y>= 0){
-            if (y>bKeyHeight){
+            if (y>(bKeyHeight+keyTop)){
                 // white key
                 var keyIndex = Math.floor(keyX/keySizeX);
                 key = keyMapWhite[keyIndex] + (keyOctave*12);
@@ -118,9 +116,11 @@ UI.app_pianoView = function(){
     };
 
 	me.onDown = function(data){
+	    
 		var x = data.x;
-		var y = data.y - me.top - keyTop;
-
+		var y = data.y;
+		//var y = data.y - me.top - keyTop;
+        
 
 		var key = getKeyAtPoint(x,y);
 		if (key) {
@@ -132,11 +132,10 @@ UI.app_pianoView = function(){
 		}
 	};
 
-
-
+	
 	me.onTouchUp = function(data){
-        var x = data.dragX || me.eventX;
-        var y = me.eventY - keyTop;
+        var x = data.x;
+        var y = data.y;
 
         var key = getKeyAtPoint(x,y);
         if (!key) key=prevDown;
@@ -152,8 +151,8 @@ UI.app_pianoView = function(){
 
     me.onDrag = function(data){
         // todo: multitouch?
-        var x = data.dragX;
-        var y = data.dragY - me.top - keyTop;
+        var x = data.x;
+        var y = data.y;
 
 
         var key = getKeyAtPoint(x,y);

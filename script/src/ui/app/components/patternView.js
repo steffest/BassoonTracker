@@ -39,7 +39,7 @@ UI.app_patternView = function(x,y,w,h){
     scrollBar.onDrag=function(touchData){
         if (Tracker.isPlaying()) return;
 		if (visibleLines && scrollBarItemOffset){
-			var delta =  touchData.dragY - touchData.startY;
+			var delta =  touchData.deltaY;
 			var pos = Math.floor(scrollBar.startDragIndex + delta/scrollBarItemOffset);
 			pos = Math.min(pos,max-1);
 			pos = Math.max(pos,0);
@@ -65,7 +65,7 @@ UI.app_patternView = function(x,y,w,h){
 
     scrollBarHor.onDrag=function(touchData){
         var maxSteps = Tracker.getTrackCount()-visibleTracks;
-        var delta =  touchData.dragX - touchData.startX;
+        var delta =  touchData.deltaX;
         var rest = me.width - scrollBarHor.width;
         var step = Math.floor(delta / (rest/maxSteps));
         me.setHorizontalScroll(scrollBarHor.startDragIndex + step);
@@ -633,14 +633,14 @@ UI.app_patternView = function(x,y,w,h){
 
 		if (touchData.isMeta || Tracker.isRecording()){
 
-			var track = Math.floor((touchData.x - Layout.firstTrackOffsetLeft-me.left)/(Layout.trackWidth+Layout.trackMargin));
+			var track = Math.floor((touchData.x - Layout.firstTrackOffsetLeft)/(Layout.trackWidth+Layout.trackMargin));
 			var stepsPerTrack = Editor.getStepsPerTrack();
 			Editor.setCurrentCursorPosition((startTrack+track)*stepsPerTrack);
 
 
 			UI.clearSelection();
-			me.startDragTrackX = (track * (Layout.trackWidth+Layout.trackMargin)) + (Layout.firstTrackOffsetLeft + me.left);
-            var offsetY = Math.floor((touchData.y-me.top-me.parent.top-centerLineTop)/lineHeight);
+			me.startDragTrackX = (track * (Layout.trackWidth+Layout.trackMargin)) + (Layout.firstTrackOffsetLeft);
+            var offsetY = Math.floor((touchData.y-centerLineTop)/lineHeight);
 			range.start = [Tracker.getCurrentPatternPos()+offsetY,Editor.getCurrentTrack()];
 			range.end = range.start;
 			range.top = range.left = 100000;
@@ -652,7 +652,7 @@ UI.app_patternView = function(x,y,w,h){
 
 		if (visibleTracks<Tracker.getTrackCount() && !(touchData.isMeta || Tracker.isRecording())){
 			var maxSteps = Tracker.getTrackCount()-visibleTracks;
-			var delta =  touchData.dragX - touchData.startX;
+			var delta =  touchData.deltaX;
 			var rest = me.width - scrollBarHor.width;
 			var step = Math.floor(delta / (rest/maxSteps));
 			me.setHorizontalScroll(scrollBarHor.startDragIndex - step);
@@ -661,7 +661,7 @@ UI.app_patternView = function(x,y,w,h){
 		if (Tracker.isPlaying()) return;
 
 
-		delta =  Math.round((touchData.dragY - touchData.startY)/lineHeight);
+		delta =  Math.round((touchData.deltaY)/lineHeight);
 		var targetPos = me.startDragPos - delta;
 		targetPos = Math.max(targetPos,0);
 		targetPos = Math.min(targetPos,max-1);
@@ -669,8 +669,8 @@ UI.app_patternView = function(x,y,w,h){
 
 		if (touchData.isMeta || Tracker.isRecording()){
 			hasRange = true;
-			delta =  Math.floor((touchData.dragY - touchData.startY)/lineHeight);
-			var deltaX = Math.floor((touchData.dragX - me.startDragTrackX)/Layout.trackWidth);
+			delta =  Math.floor((touchData.deltaY)/lineHeight);
+			var deltaX = Math.floor((touchData.deltaX)/Layout.trackWidth);
 			range.end = [range.start[0] + delta,Editor.getCurrentTrack()+deltaX];
 			normalizeRange();
 			me.refresh();
@@ -688,7 +688,7 @@ UI.app_patternView = function(x,y,w,h){
     };
 
     me.onClick = function(touchData){
-		var track = Math.floor((touchData.x - Layout.firstTrackOffsetLeft-me.left)/(Layout.trackWidth+Layout.trackMargin));
+		var track = Math.floor((touchData.x - Layout.firstTrackOffsetLeft)/(Layout.trackWidth+Layout.trackMargin));
 		var stepsPerTrack = Editor.getStepsPerTrack();
 		Editor.setCurrentCursorPosition((startTrack+track)*stepsPerTrack);
 	};
@@ -806,7 +806,7 @@ UI.app_patternView = function(x,y,w,h){
 						me.processSelection(SELECTION.PASTE);
 					}}
 			],
-			x: range.left + me.left,
+			x: range.left + me.left + me.parent.left,
 			y: range.top + me.top + me.parent.top
 		});
     };

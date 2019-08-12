@@ -61,7 +61,7 @@ UI.WaveForm = function(){
 	};
 
 	scrollBar.onDrag=function(touchData){
-		var delta =  touchData.dragX - touchData.startX;
+		var delta =  touchData.deltaX;
 		var newPos = scrollBar.startLeft + delta;
 		var min = 1;
 		var max = me.width - scrollBar.width - 1;
@@ -95,7 +95,7 @@ UI.WaveForm = function(){
 
 	me.onDragStart = function(touchData){
 
-		var x = touchData.startX - me.left;
+		var x = touchData.startX;
 
 		if (currentInstrument.sample.loop.enabled){
 
@@ -134,7 +134,7 @@ UI.WaveForm = function(){
 		}
 
 		isDraggingRange = true;
-		dragRangeStart = dragRangeEnd = touchData.startX - me.left;
+		dragRangeStart = dragRangeEnd = touchData.startX;
 
 		var pixelValue = (currentInstrument.sample.length/me.width)/zoom;
 		rangeStart = rangeEnd = Math.round(zoomStart + (dragRangeStart * pixelValue));
@@ -149,7 +149,7 @@ UI.WaveForm = function(){
 
 		if (dragMarker && (dragMarker === MARKERTYPE.loopStart || dragMarker === MARKERTYPE.loopEnd)){
 			activeDragMarker = dragMarker;
-			var delta = touchData.dragX-touchData.startX;
+			var delta = touchData.deltaX;
 			var value = dragMarkerStart + Math.round(pixelValue*delta);
 			if (!Tracker.inFTMode()) value -= value%2;
 
@@ -177,7 +177,7 @@ UI.WaveForm = function(){
 
 		if (dragMarker && (dragMarker === MARKERTYPE.rangeStart || dragMarker === MARKERTYPE.rangeEnd)){
 			activeDragMarker = dragMarker;
-			delta = touchData.dragX-touchData.startX;
+			delta = touchData.deltaX;
 			value = dragMarkerStart + Math.round(pixelValue*delta);
 
 			if (dragMarker === MARKERTYPE.rangeStart){
@@ -202,7 +202,7 @@ UI.WaveForm = function(){
 		}
 
 
-		dragRangeEnd = touchData.dragX - me.left;
+		dragRangeEnd = touchData.x;
 		rangeEnd = Math.round(zoomStart + (dragRangeEnd * pixelValue));
 		rangeLength = rangeEnd - rangeStart;
 

@@ -1,4 +1,4 @@
-UI.app_sidebar = function(){
+UI.pattern_sidebar = function(){
     var me = UI.panel();
     me.setProperties({
         name: "sideButtonPanel"

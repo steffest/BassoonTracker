@@ -271,6 +271,15 @@ var Audio = (function(){
 				volumeFadeOut.connect(panning);
 				panning.connect(filterChains[track].input());
             }else{
+
+				/* 
+				Note: a pannernode would work too but this doesn't have a "setPositionInTime" method
+				Making it a bit useless
+				panning = Audio.context.createPanner();
+				panning.panningModel = 'equalpower';
+				panning.setPosition(pan, 0, 1 - Math.abs(pan));
+				*/
+				
 				volumeFadeOut.connect(filterChains[track].input());
             }
 

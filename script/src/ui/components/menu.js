@@ -25,6 +25,7 @@ UI.menu = function(x,y,w,h,submenuParent){
     };
 
     me.onClick = function(data){
+    	
         if (!(items && items.length)) return;
 
         var x = data.x;
@@ -37,14 +38,16 @@ UI.menu = function(x,y,w,h,submenuParent){
             selectedIndex = i;
         }
 
-        selectedItem = items[selectedIndex];
+        var selectedItem = items[selectedIndex];
         for (i = 0; i<max;i++){
             if (i !== selectedIndex && items[i].subMenu) items[i].subMenu.hide();
         }
 
         if (selectedItem){
             if (selectedItem.subMenu){
-                selectedItem.subMenu.setPosition(selectedItem.startX || 0,me.height);
+            	
+            	var xOffset = data.globalX - data.x;
+                selectedItem.subMenu.setPosition((selectedItem.startX || 0) + xOffset,me.height);
                 selectedItem.subMenu.toggle();
                 selectedItem.subMenu.parent.refresh();
             }

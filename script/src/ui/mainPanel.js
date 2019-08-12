@@ -46,26 +46,26 @@ UI.MainPanel = function(){
     me.onResize = function(){
         Layout.setLayout(me.width,me.height);
 
-        menu.setSize(me.width,menu.height);
+        menu.setSize(Layout.mainWidth,menu.height);
         var panelTop = menu.height;
 
-        appPanel.setSize(me.width,appPanel.height);
-        appPanel.setPosition(0,panelTop);
+        appPanel.setSize(Layout.mainWidth,appPanel.height);
+        appPanel.setPosition(Layout.mainLeft,panelTop);
         panelTop += appPanel.height;
 
-        controlPanel.setSize(me.width,Layout.controlPanelHeight);
-        controlPanel.setPosition(0,panelTop);
+        controlPanel.setSize(Layout.mainWidth,Layout.controlPanelHeight);
+        controlPanel.setPosition(Layout.mainLeft,panelTop);
         panelTop += controlPanel.height;
 
         var remaining = me.height-panelTop;
         if (pianoPanel.isVisible()){
-            pianoPanel.setSize(me.width,Layout.pianoHeight);
-            pianoPanel.setPosition(0,me.height-pianoPanel.height);
+            pianoPanel.setSize(Layout.mainWidth,Layout.pianoHeight);
+            pianoPanel.setPosition(Layout.mainLeft,me.height-pianoPanel.height);
             remaining = remaining- pianoPanel.height;
         }
 
-        patternPanel.setPosition(0,panelTop);
-        patternPanel.setSize(me.width,remaining);
+        patternPanel.setPosition(Layout.mainLeft,panelTop);
+        patternPanel.setSize(Layout.mainWidth,remaining);
 
 	};
 
@@ -77,18 +77,18 @@ UI.MainPanel = function(){
             pianoPanel.toggle();
             var remaining = me.height - patternPanel.top;
             if (pianoPanel.isVisible()){
-                pianoPanel.setSize(me.width,Layout.pianoHeight);
-                pianoPanel.setPosition(0,me.height-pianoPanel.height);
+                pianoPanel.setSize(Layout.mainWidth,Layout.pianoHeight);
+                pianoPanel.setPosition(Layout.mainLeft,me.height-pianoPanel.height);
                 remaining = remaining-pianoPanel.height;
             }
-            patternPanel.setSize(me.width,remaining);
+            patternPanel.setSize(Layout.mainWidth,remaining);
         }
     });
 
 	EventBus.on(EVENT.showContextMenu,function(properties){
 	    var contextMenu = me.createContextMenu(properties);
 		var x = properties.x;
-		if ((x+contextMenu.width)>me.width) x = me.width-contextMenu.width;
+		if ((x+contextMenu.width)>Layout.mainWidth) x = Layout.mainWidth-contextMenu.width;
 		contextMenu.setPosition(x,properties.y-contextMenu.height-2);
 		contextMenu.show();
 		me.refresh();

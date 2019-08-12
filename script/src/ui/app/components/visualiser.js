@@ -360,9 +360,8 @@ UI.visualiser = function(){
 			for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
 
 				var pos = analyserPos[trackIndex];
-				var x = touchData.x-me.left;
-				var y = touchData.y-me.top;
-
+				var x = touchData.x;
+				var y = touchData.y;
 				if (x>pos.left && x<pos.left+pos.width && y>pos.top && y<pos.top+pos.height){
 					EventBus.trigger(EVENT.trackScopeClick,trackIndex);
 					break;

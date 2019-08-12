@@ -77,6 +77,8 @@ UI.element = function(left,top,width,height){
             }
         }
 
+        // TODO: how does this work in multitouch? seems this should be part of the touchData object, no ?
+        // Update: assigned it to localX and localY -> update all components ?
         if (currentEventTarget){
             var child = currentEventTarget.getElementAtPoint(_x,_y);
             if (child){

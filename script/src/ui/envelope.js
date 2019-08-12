@@ -85,15 +85,17 @@ UI.Envelope = function(type){
 	};
 
 	me.onDrag = function(touchData){
+		
+		console.error(touchData.deltaX);
 		if (isDragging){
-			dragPoint.deltaX = (dragPoint.startX - touchData.dragX)/xScale;
-			dragPoint.deltaY = (dragPoint.startY - touchData.dragY)/yScale;
+			dragPoint.deltaX = (touchData.deltaX)/xScale;
+			dragPoint.deltaY = (touchData.deltaY)/yScale;
 
-			var newX = dragPoint.pX - dragPoint.deltaX;
+			var newX = dragPoint.pX + dragPoint.deltaX;
 			newX = Math.min(activePoint.maxX,newX);
 			newX = Math.max(activePoint.minX,newX);
 
-			var newY = dragPoint.pY + dragPoint.deltaY;
+			var newY = dragPoint.pY - dragPoint.deltaY;
 			newY = Math.min(activePoint.maxY,newY);
 			newY = Math.max(activePoint.minY,newY);
 

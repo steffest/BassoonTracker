@@ -137,7 +137,7 @@ UI.knob = function(initialProperties){
 
 		if (me.isDisabled) return;
 
-			var delta =  touchData.dragY - touchData.startY;
+			var delta =  touchData.deltaY;
 			value = startValue + delta;
 			value = Math.max(value,0);
 			value = Math.min(value,100);

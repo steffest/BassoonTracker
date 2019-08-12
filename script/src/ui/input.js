@@ -94,20 +94,33 @@ var Input = (function(){
 				x -= (rect.left + window.pageXOffset);
 				y -= (rect.top + window.pageYOffset);
 
-				currentEventTarget = UI.getModalElement() ||  UI.getEventElement(x,y);
-				
+				currentEventTarget = UI.getModalElement();
+				if (currentEventTarget){
+					currentEventTarget.eventX = x;
+					currentEventTarget.eventY = y;
+				}else{
+					currentEventTarget = UI.getEventElement(x,y);
+				}
 				
 				if (currentEventTarget && focusElement && focusElement.deActivate && focusElement.name !== currentEventTarget.name){
 					focusElement.deActivate();
 				}
+				
+				var touchX = currentEventTarget? currentEventTarget.eventX : x ;
+				var touchY = currentEventTarget? currentEventTarget.eventY : y ;
 
 				var thisTouch = {
 					id: id,
-					x: x,
-					y: y,
-					startX: x,
-					startY: y,
+					x: touchX,
+					y: touchY,
+					startX: touchX,
+					startY: touchY,
+					globalX: x,
+					globalY: y,
+					globalStartX: x,
+					globalStartY: y,
 					UIobject: currentEventTarget,
+					
 					isMeta: event.shiftKey || event.metaKey || event.ctrlKey || event.altKey
 				};
 
@@ -136,7 +149,7 @@ var Input = (function(){
 			}else{
 				var _x = event.pageX-rect.left;
 				var _y = event.pageY-rect.top;
-				updateTouch(getTouchIndex("notouch"),event.pageX-rect.left,event.pageY-rect.top);
+				updateTouch(getTouchIndex("notouch"),_x,_y);
 				touchData.currentMouseX = _x;
 				touchData.currentMouseY = _y;
 				touchData.mouseMoved = new Date().getTime();
@@ -157,9 +170,15 @@ var Input = (function(){
 				if (touchIndex>=0){
 					var thisTouch =touchData.touches[touchIndex];
 
-					thisTouch.x = x-window.pageXOffset;
-					thisTouch.y = y-window.pageYOffset;
+					thisTouch.globalX = x-window.pageXOffset;
+					thisTouch.globalY = y-window.pageYOffset;
 
+					thisTouch.deltaX = thisTouch.globalX - thisTouch.globalStartX;
+					thisTouch.deltaY = thisTouch.globalY - thisTouch.globalStartY;
+
+					thisTouch.x = thisTouch.startX + thisTouch.deltaX;
+					thisTouch.y = thisTouch.startY + thisTouch.deltaY;
+					
 					touchData.touches.splice(touchIndex, 1, thisTouch);
 
 					if (touchData.isTouchDown && thisTouch.UIobject){

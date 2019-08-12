@@ -56,7 +56,9 @@ UI.app_menu = function(container){
         var menuMin = 250;
         var menuWidth = Math.max(Layout.col2W,menuMin);
         var vuWidth = Layout.col5W - menuWidth;
-        var vuLeft = Layout.marginLeft + menuWidth + Layout.defaultMargin;
+        var vuLeft = Layout.marginLeft + menuWidth + Layout.defaultMargin + Layout.mainLeft;
+
+		me.left = Layout.mainLeft;
 
         menuBackground.setDimensions({
             left: Layout.marginLeft,
@@ -69,6 +71,7 @@ UI.app_menu = function(container){
             width: vuWidth,
             left: vuLeft
         });
+        
     };
 
     me.onPanelResize();
