@@ -358,7 +358,8 @@ var Tracker = (function(){
 
 			while (time<maxTime){
 
-                if(stepResult.pause){
+				// ignore spped==0 when autoplay is active (Playlists)
+                if(stepResult.pause && !Tracker.autoPlay){
                     // speed is set to 0
 					if (!stepResult.pasuseHandled){
                         var delta = time - Audio.context.currentTime;
