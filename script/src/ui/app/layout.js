@@ -2,6 +2,7 @@ var Layout = function(){
   var me = {};
 
   me.defaultMargin =  4;
+  me.showAppSideBar = true;
 
   me.setLayout = function(w,h){
   	
@@ -9,11 +10,11 @@ var Layout = function(){
   	  me.height = h || me.height;
   	  
   	  var mainWidth = me.width;
-  	  
-  	  var sidebarWidth = 200;
+
+	  me.sidebarWidth = me.showAppSideBar ? 200 : 24;
   	  
   	  // sidebar
-	  mainWidth = mainWidth-sidebarWidth;
+	  mainWidth = mainWidth-me.sidebarWidth;
 	  
   	  
       // 5 column layout
@@ -26,7 +27,7 @@ var Layout = function(){
       me.marginLeft = Math.floor((mainWidth-me.col5W)/2);
       me.marginRight = mainWidth-me.marginLeft-me.col5W;
       
-      me.mainLeft = sidebarWidth;
+      me.mainLeft = me.sidebarWidth;
       me.mainWidth = mainWidth;
       
       me.col1X = me.marginLeft;

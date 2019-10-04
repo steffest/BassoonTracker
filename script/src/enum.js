@@ -64,7 +64,8 @@ var EVENT = {
 	clockEventExpired: 46,
 	commandUndo: 50,
 	commandRedo: 51,
-	commandSelectAll: 52
+	commandSelectAll: 52,
+	songEnd: 53
 };
 
 var COMMAND = {
@@ -91,7 +92,8 @@ var COMMAND = {
 	cut: 21,
 	copy: 22,
 	paste: 23,
-	pattern2Sample: 24
+	pattern2Sample: 24,
+	toggleAppSideBar: 25
 };
 
 var PLAYTYPE = {

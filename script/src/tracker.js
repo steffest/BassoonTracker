@@ -401,6 +401,7 @@ var Tracker = (function(){
 							var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : ++playSongPosition;
 							if (nextPosition>=song.length) {
 								nextPosition = song.restartPosition ? song.restartPosition-1 : 0;
+								EventBus.trigger(EVENT.songEnd);
 							}
 							if (nextPosition>=song.length) nextPosition = 0;
 							playSongPosition = nextPosition;
@@ -1874,6 +1875,7 @@ var Tracker = (function(){
 
 	var checkAutoPlay = function(skipHistory){
 		var autoPlay = getUrlParameter("autoplay");
+		if (Tracker.autoPlay) autoPlay = "1";
 		if (!UI && skipHistory) autoPlay = "1";
 		if ((autoPlay == "true")  || (autoPlay == "1")){
 			Tracker.playSong();

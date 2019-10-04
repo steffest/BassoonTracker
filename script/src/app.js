@@ -49,6 +49,9 @@ var App = (function(){
                 case COMMAND.togglePiano:
                     EventBus.trigger(EVENT.toggleView,"piano");
                     break;
+				case COMMAND.toggleAppSideBar:
+					EventBus.trigger(EVENT.toggleView,"sidebar");
+					break;
                 case COMMAND.showAbout:
                     var dialog = UI.modalDialog();
                     dialog.setProperties({
