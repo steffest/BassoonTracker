@@ -31,6 +31,12 @@ UI.app_sidebar = function(){
     };
     
     
+    var skipButton = UI.Assets.generate("buttonKey");
+	skipButton.setLabel("Next");
+    skipButton.onClick = function(){
+    	next();	
+	};
+    
     var playlistControlPanel = UI.scale9Panel(0,0,me.width,me.height,{
         img: Y.getImage("background"),
         left:3,
@@ -40,6 +46,8 @@ UI.app_sidebar = function(){
     });
     playlistControlPanel.ignoreEvents = true;
     me.addChild(playlistControlPanel);
+
+	me.addChild(skipButton);
     
     var listbox = UI.listbox(2,50,100,100);
     me.addChild(listbox);
@@ -48,14 +56,12 @@ UI.app_sidebar = function(){
         {label: "Demomusic", url: "demomods/demomusic.mod"},
         {label: "Stardust Memories", url: "demomods/StardustMemories.mod"},
         {label: "Space Debry", url: "demomods/spacedeb.mod"}
-    ];
-    playlist.forEach(function(item,index){
-        item.index = index;
-    });
+	];
+    
     var playListIndex = 0;
     var playlistActive = false;
 
-    listbox.setItems(playlist);
+    
     listbox.onChange = function(v){
         //console.error(v);
     };
@@ -76,6 +82,12 @@ UI.app_sidebar = function(){
         playlistControlPanel.setPosition(2,32);
         playlistControlPanel.setSize(me.width-4,54);
 
+		skipButton.setPosition(8,36);
+		skipButton.setProperties({
+			width: me.width<50 ? 20 : 100
+		});
+		skipButton.setLabel(me.width<50 ? ">" : "Next");
+
         var listboxTop = 32 + 54 + 2;
         listbox.setProperties({
             left: 2,
@@ -88,6 +100,10 @@ UI.app_sidebar = function(){
             sideLabel.hide();
             playlistControlPanel.hide();
             listbox.hide();
+
+			skipButton.setPosition(2,36);
+			
+			
         }else{
             sideLabel.show();
             playlistControlPanel.show();
@@ -106,18 +122,39 @@ UI.app_sidebar = function(){
             Tracker.load(item.url);
         }
     }
+    
+    function next(){
+		if (playlistActive){
+			playListIndex++;
+			if (playListIndex>=playlist.length){
+				playListIndex = 0;
+			}
+			playListPlaySong(playListIndex);
+		}
+	}
 
     EventBus.on(EVENT.songEnd,function(){
-        if (playlistActive){
-            playListIndex++;
-            if (playListIndex>=playlist.length){
-                playListIndex = 0;
-            }
-            playListPlaySong(playListIndex);
-        }
+        next();
     });
+    
+    
 
     me.onResize();
-
+    
+    var playlistPath = "demomods/Playlist/";
+    FetchService.get(playlistPath + "list.txt",function(list){
+    	list = list.split("\n");
+    	list.forEach(function(item){
+    		if (item) playlist.push({label:item, url: playlistPath + item});
+		});
+    	
+		playlist.forEach(function(item,index){
+			item.index = index;
+		});
+		playListIndex = 0;
+		playlistActive = false;
+		listbox.setItems(playlist);
+	});
+    
     return me;
 };
