@@ -1,0 +1,23 @@
+### Protracker 1 and 2 playback quirks ###
+
+There are still some original Protracker 1 and 2 playback quirks that are not implemented and probably never will as they are just too batshit crazy.
+
+Those are:
+
+  * On-the-fly sample swapping behavior (when you have new sample numbers without notes)
+    Protracker 1 and 2 reset the loop to the new sample when the loop reaches its end.
+    Bassoontracker does not reset the loop, and only set the volume of the new sample.
+    Also the finetune value of the new sample is applied in Protracker. Bassoontracker does not.
+    This is consistent with ProTracker 3 and beyond.
+
+  * Slide-to-Note sample swapping
+    Similar to the above: When in a range of slide-to-note effects (effect 3xx) 
+    there is a new sample number used, and the old sample has a loop, 
+    the sample data of the new sample is played in the old loop.
+    Bassoontracker does not use the new sample, and just keeps the original sample data 
+    (thus sequential 3xx effects ignore the sample number).
+
+  * Arpeggio parameter wrapping
+    When an arpeggio parameter exceeds the frequency range, it wraps around in Protracker 1 and 2.
+    Bassoontracker does not, and simply limits the frequency.
+
