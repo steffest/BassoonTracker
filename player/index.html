@@ -79,19 +79,19 @@
 <body>
 
 <div id="loading">
-    Loading song ...
+    Loading song...
 </div>
 <div id="controls" onclick="togglePlay()">
     <div id="button">Play</div>
 </div>
 
 <div id="info">
-    Example of the standalone Bassoon playback routine, playing a mod file without the tracker interface.<br>
+    Example of the standalone Bassoontracker playback routine, playing a module file without the tracker interface.<br>
     Hit the "play" button above to start the playback.
     <br><br>
 
     Just include the "bassoonplayer-min.js" file and you're good to go.
-    The most simple example would be
+    The most simple example would be:
     <xmp>
         <script src="bassoonplayer-min.js"></script>
         <script>
@@ -101,7 +101,7 @@
     </xmp>
 
 
-    The second parameter in Tracker.load defines autoplay.<br>
+    The second parameter in BassoonTracker.load defines autoplay.<br>
     Please note that most modern browser disable audio playback until a user action, so you may need a "play" button to initiate playback.<br>
     You can use a third parameter as callback function when the loading of the file is done.<br>
     The complete playback library is 22 kb zipped or 65 kb uncompressed.
@@ -114,7 +114,7 @@
         </script>
     </xmp>
 
-    After BassoonTracker.init you might want to check "Audio.context" to see if the browser supports Webaudio.<br>
+    After BassoonTracker.init you might want to check "Audio.context" to see if the browser supports WebAudio.<br>
     <br>Some usefull methods:
     <ul>
         <li><code>BassoonTracker.togglePlay()</code></li>
