@@ -1,8 +1,8 @@
-# Bassoon Tracker
+# BassoonTracker
 
 Browser-based old-school Amiga Music Tracker in plain old JavaScript.
 
-![Bassoon Tracker](./skin/bassoontracker_main.png?raw=true)
+![BassoonTracker](./skin/bassoontracker_main.png?raw=true)
 
 Plays and edits Amiga Module files and FastTracker 2 XM files.  
 Live demo at [http://www.stef.be/bassoontracker/](http://www.stef.be/bassoontracker/)
@@ -14,7 +14,7 @@ This tracker requires a modern browser that supports [WebAudio](https://develope
 It's tested to work on Chrome, Firefox, Safari, Edge, Chrome on Android, mobile Safari and the Samsung Android Browser.
 It works best in Chrome.
 
-![Bassoon Tracker](./skin/bassoontracker_sampleeditor.png?raw=true)
+![BassoonTracker](./skin/bassoontracker_sampleeditor.png?raw=true)
 
 **Features**
 - Load, play, edit and save Protracker and FastTracker 2 compatible module files  
@@ -41,7 +41,7 @@ It works best in Chrome.
 - Edit pattern data and sample properties, use ranges and cut/copy/paste for quick editing
 - Up to 32 channels 
 - Import 8bit WAV, 8SVX and RAW samples (as well as any other format [AudioContext](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) can read, like .mp3 and .ogg)
-- Integrated sample editor: Edit and slice your samples right inside Bassoontracker
+- Integrated sample editor: Edit and slice your samples right inside BassoonTracker
 - Includes the historic ST-01 and ST-02 sample disks, released in 1987 (as well as a bunch of others)
 - The [modarchive API](https://modarchive.org/) is integrated to access several thousands of music files
 - The [modules.pl API](http://modules.pl/) is integrated to access even more music files
@@ -93,6 +93,6 @@ Note: if you use an AZERTY, QWERTZ or DVORAK keyboard, you can set that option i
   
 
 **Player**
-If you want to integrate the Bassoontracker playback routines in your own website, check out the "Standalone Player" examples in the "[player](https://github.com/steffest/BassoonTracker/tree/master/player)" directory
+If you want to integrate the BassoonTracker playback routines in your own website, check out the "Standalone Player" examples in the "[player](https://github.com/steffest/BassoonTracker/tree/master/player)" directory
 or visit the [live Player demo](http://www.stef.be/bassoontracker/player/).
 
