@@ -1,31 +1,25 @@
-<h2>Url parameters</h2>
+<h2>URL parameters</h2>
 <div id="info">
-    When linking to Bassoontracker you can use the following urls parameters
-
-    <br><br>
+    <p>When linking to Bassoontracker you can use the following URL parameters:</p>
+    
     <table border="0">
         <tr>
-            <td class="blue top">file&nbsp;&nbsp;</td>
-            <td>Url to a mod you want to open initially when Bassoontracker gets loaded.<br>
-                Ideally it should be a HTTPS links. <br>
-                Bassoontracker will proxy HTTP links through it's own server but this will inevitably slower.<br>
+            <td class="blue top">file=<i>URL</i></td>
+            <td>You must provide an absolute URL to a module that is available online. You can point to online archives such as <a href="http://modland.com/pub/modules/Soundtracker/">Modland</a>.<br>
+                Bassoontracker will open up with the module already loaded and ready to play/edit.<br>
+                You should ideally provide an HTTPS link. If your chosen module is only available through HTTP, Bassoontracker will proxy it through its own server -- but this will inevitably be slower.<br>
                 <br>
                 <a href="https://www.stef.be/bassoontracker/?file=http://modland.com/pub/modules/Fasttracker%202/Reed/in%20space%20no%20one%20can%20hear%20you%20boogie.xm" target="_blank">Example</a>
-                <br><br>
             </td>
         </tr>
         <tr>
-            <td class="blue top">autoplay&nbsp;&nbsp;</td>
+            <td class="blue top">autoplay=true</td>
             <td>This will (try to) autoplay the loaded file.<br>
-                Please note that most browsers will block this and only will play audio on user interaction.<br>
+                Please note that most browsers will block this, as they will only autoplay media files upon user interaction.<br>
                 You can change this behaviour through your browser settings to allow audio for a specific domain.
                 <br><br>
                 <a href="https://www.stef.be/bassoontracker/?file=http://modland.com/pub/modules/Fasttracker%202/Reed/in%20space%20no%20one%20can%20hear%20you%20boogie.xm&autoplay=true" target="_blank">Example</a>
-                <br><br>
-
             </td>
         </tr>
     </table>
-    
-    <br>
 </div>

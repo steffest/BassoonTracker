@@ -1,43 +1,47 @@
 <h2>Standalone Player</h2>
 <div id="info">
-    Bassoontracker provides a standalone player library without the interface that you can use in your own projects.
-    <br>Next to playing songs, you can also trigger samples individually.<br>
-    This is especially well suited for small (web) games:
+    Bassoontracker provides a standalone player library that you can use in your own projects, to play module files without the tracker interface.<br>
+    In addition to playing songs, you can also trigger samples individually.<br>
+    This is especially well-suited for small (web) games:
     <ul>
         <li>.mod and .xm files are usually much smaller than .mp3 files</li>
         <li>You can have several looping "subsongs" in 1 file, so for example you could have a different tune for each game section without loading additional data</li>
         <li>You can embed your sound-FX samples in the same file and still one-shot play them</li>
     </ul>
-    The complete playback library is only 20 kb (when gzipped, 66kb when uncompressed).<br>
+    The complete playback library is only 20 kb when gzipped (66kb when uncompressed).<br>
 
     You'll find a <a href="http://www.stef.be/bassoontracker/player/" target="_blank">simple example here</a>.<br>
-    Hit the "play" button above to start the playback.
-    <br><br>
+    Hit the "play" button above to start the playback.<br>
 
-    Just include the "bassoonplayer-min.js" file and you're good to go.
-    The most simple example would be
+    
+    <h3>Library and sample code</h3>
+    Download the <a href="https://github.com/steffest/BassoonTracker/tree/master/player">bassoonplayer-min.js file</a>, include it in your project's HTML page (for instance, with <code><script src="bassoonplayer-min.js"></script></code>), and you're good to go!<br>
+    <br>
+    The most simple example would be:
     <xmp>
         <script src="bassoonplayer-min.js"></script>
         <script>
             BassoonTracker.init(true);
-            BassoonTracker.load("url/to/file.mod",true);
+            BassoonTracker.load("url/to/file.mod", true);
         </script>
     </xmp>
 
-
-    The second parameter in Tracker.load defines autoplay. (please note that some browser need user interaction first before audio is enabled)<br>
-    You can use a third parameter as callback function when the loading of the file is done.<br>
+    The second parameter in <code>BassoonTracker.load</code> defines whether the song should autoplay once loaded or not. (please note that some browsers need user interaction first before media playback is enabled)<br>
+    <br>
+    You can use a third parameter as a <a href="https://developer.mozilla.org/en-US/docs/Glossary/Callback_function">callback function</a>, triggered when the loading of the file is complete:<br>
 
     <xmp>
         <script>
-            BassoonTracker.load("url/to/file.mod",false,function(){
+            BassoonTracker.load("url/to/file.mod", false, function(){
             	... do something
             });
         </script>
     </xmp>
 
-    After BassoonTracker.init you might want to check "Audio.context" to see if the browser supports Webaudio.<br>
-    <br>Some usefull methods:
+    After BassoonTracker.init is loaded, you might want to check "Audio.context" to see if the browser supports <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API">Webaudio</a>.<br>
+    
+    
+    <h3>Useful methods</h3>
     <ul>
         <li><code>BassoonTracker.togglePlay()</code></li>
         <li><code>BassoonTracker.isPlaying()</code></li>
@@ -53,17 +57,23 @@
         <li><code>BassoonTracker.setCurrentSongPosition(songPos)</code></li>
         <li><code>BassoonTracker.playSample(sampleIndex,sampleRate)</code></li>
     </ul>
-
-    The playback itself is scheduled in webAudio and completely detached from the main JS thread.<br>
-    Therefore there are no direct events to indicated playback progress.<br>
-    If you want to display some UI with a progress indicator you will have to keep track of the start time of the song (Audio.context.currentTime)
+    
+    
+    <h3>Indicating playback progress</h3>
+    
+    The playback itself is scheduled in WebAudio and completely detached from the main JavaSscript thread.<br>
+    Therefore there are no direct events to indicat playback progress.<br>
+    If you want to display some UI with a progress indicator you will have to keep track of the start time of the song (<code>Audio.context.currentTime<code>)
     and call
-    <code>Tracker.getStateAtTime(time)</code> periodically <br>(or <code>Tracker.getTimeStates()</code> to get the complete list).<br>
-    Note that the Tracker schedules audio ahead, so the last item in the Tracker.getTimeStates() list will be in the future.<br><br>
+    <code>BassoonTracker.getStateAtTime(time)</code> periodically <br>(or <code>BassoonTracker.getTimeStates()</code> to get the complete list).<br>
+    Note that the player schedules audio ahead, so the last item in the <code>BassoonTracker.getTimeStates()<code> list will be in the future.<br><br>
 
-    If you want to adjust to volume, you can use <code>BassoonTracker.audio.masterVolume</code> which is a WebAudio GainNode.
-    <br><br>
-    A more <a href="http://www.stef.be/bassoontracker/player/progress.html" target="_blank">more advanced example</a> of the player, with playlist, progress bar, volume and visualisation <a href="http://www.stef.be/bassoontracker/player/progress.html" target="_blank">is here</a>.
+    If you want to adjust to volume, you can use <code>BassoonTracker.audio.masterVolume</code> which is a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GainNode">WebAudio GainNode</a>.
+    
+    
+    <h3>Advanced player</h3>
+    
+    Here is a <a href="http://www.stef.be/bassoontracker/player/progress.html" target="_blank">more advanced example</a> of the player, with a playlist, a progress bar, a volume selector, and an audio visualization area.
     <a href="http://www.stef.be/bassoontracker/player/progress.html" target="_blank"><img src="_img/player.png" border="0"></a>
 
 </div>

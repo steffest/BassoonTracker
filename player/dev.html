@@ -36,7 +36,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             Tracker.init(true);
             if (!Audio.context){
-                alert("Sorry\nYour browser does not support WebAudio\nSupported browsers are\nChrome,Firefox,Safari and Edge");
+                alert("Sorry\nYour browser does not support WebAudio\nSupported browsers are\nChrome, Firefox, Safari, and Edge");
             }else{
                 Tracker.load("../demomods/StardustMemories.mod",false,function(){
                     setTimeout(Tracker.playSong,100);
