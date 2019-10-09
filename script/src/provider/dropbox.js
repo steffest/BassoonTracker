@@ -48,7 +48,7 @@ var Dropbox = function(){
             }
         };
 
-        dialog.setText("DROPBOX ://BassoonTracker is not yet connected to DropBox//Do you want to do that now?//(Bassoontracker will only have access/to its own Bassoontracker folder)");
+        dialog.setText("DROPBOX ://BassoonTracker is not yet connected to DropBox//Do you want to do that now?//(BassoonTracker will only have access//to its own BassoonTracker folder)");
 
         UI.setModalElement(dialog);
     };

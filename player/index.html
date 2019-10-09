@@ -2,7 +2,7 @@
 
 <html>
 <head>
-    <title>Bassoon Tracker - Standalone Player</title>
+    <title>BassoonTracker - Standalone Player</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
@@ -86,7 +86,7 @@
 </div>
 
 <div id="info">
-    Example of the standalone Bassoontracker playback routine, playing a module file without the tracker interface.<br>
+    Example of the standalone BassoonTracker playback routine, playing a module file without the tracker interface.<br>
     Hit the "play" button above to start the playback.
     <br><br>
 
@@ -130,7 +130,7 @@
         </li>
     </ul>
 
-        The playback itself is scheduled in webAudio and completely detached from the main JS thread.<br>
+        The playback itself is scheduled in WebAudio and completely detached from the main JS thread.<br>
         Therefore there are no direct events to indicated playback progress.<br>
         If you want to display some UI with a progress indicator you will have to keep track of the start time of the song (Audio.context.currentTime)
         and call
