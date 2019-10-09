@@ -65,7 +65,7 @@ var App = (function(){
 
                     var version = typeof versionNumber == "undefined" ? "dev" : versionNumber;
                     var build = typeof buildNumber == "undefined" ? new Date().getTime() : buildNumber;
-                    dialog.setText("BASSOON TRACKER//Old School Amiga MOD and XM tracker/in plain javascript//©2017-2019 by Steffest//version " + version + "//Fork me on Github!");
+                    dialog.setText("BassoonTracker//Old School Amiga MOD and XM tracker/in plain javascript//©2017-2019 by Steffest//version " + version + "//Fork me on Github!");
 
                     UI.setModalElement(dialog);
                     break;

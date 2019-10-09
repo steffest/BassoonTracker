@@ -1,4 +1,4 @@
-<h2>Standalone Player</h2>
+<h2>Standalone player</h2>
 <div id="info">
     BassoonTracker provides a standalone player library that you can use in your own projects, to play module files without the tracker interface.<br>
     In addition to playing songs, you can also trigger samples individually.<br>
@@ -62,11 +62,11 @@
     <h3>Indicating playback progress</h3>
     
     The playback itself is scheduled in WebAudio and completely detached from the main JavaSscript thread.<br>
-    Therefore there are no direct events to indicat playback progress.<br>
-    If you want to display some UI with a progress indicator you will have to keep track of the start time of the song (<code>Audio.context.currentTime<code>)
+    Therefore there are no direct events to indicate playback progress.<br>
+    If you want to display some UI with a progress indicator you will have to keep track of the start time of the song (<code>Audio.context.currentTime</code>)
     and call
     <code>BassoonTracker.getStateAtTime(time)</code> periodically <br>(or <code>BassoonTracker.getTimeStates()</code> to get the complete list).<br>
-    Note that the player schedules audio ahead, so the last item in the <code>BassoonTracker.getTimeStates()<code> list will be in the future.<br><br>
+    Note that the player schedules audio ahead, so the last item in the <code>BassoonTracker.getTimeStates()</code> list will be in the future.<br><br>
 
     If you want to adjust to volume, you can use <code>BassoonTracker.audio.masterVolume</code> which is a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GainNode">WebAudio GainNode</a>.
     

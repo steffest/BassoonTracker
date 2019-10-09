@@ -129,6 +129,7 @@ UI.app_sidebar = function(){
 			if (playListIndex>=playlist.length){
 				playListIndex = 0;
 			}
+			Tracker.stop();
 			playListPlaySong(playListIndex);
 		}
 	}

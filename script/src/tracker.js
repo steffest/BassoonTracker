@@ -356,6 +356,7 @@ var Tracker = (function(){
 			var maxTime = event.deadline + delay;
 			Audio.clearScheduledNotesCache();
 
+
 			while (time<maxTime){
 
 				// ignore spped==0 when autoplay is active (Playlists)
@@ -1111,11 +1112,15 @@ var Tracker = (function(){
 
 				break;
 			case 11:
-				// Position Jump
-				result.patternBreak = true;
-				result.positionBreak = true;
-				result.targetSongPosition = note.param;
-				result.targetPatternPosition = 0;
+				// Position Jump	
+				
+				// quickfix for autoplay ...
+				if (!Tracker.autoPlay){
+					result.patternBreak = true;
+					result.positionBreak = true;
+					result.targetSongPosition = note.param;
+					result.targetPatternPosition = 0;
+				}
 				break;
 			case 12:
 				//volume
