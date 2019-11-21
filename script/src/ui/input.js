@@ -311,7 +311,11 @@ var Input = (function(){
 				case 9:// tab
 					event.stopPropagation();
 					event.preventDefault();
-					Editor.moveCursorPosition(Editor.getStepsPerTrack());
+					if (isMetaKeyDown) {
+						Editor.moveCursorPosition(-Editor.getStepsPerTrack());
+					} else {
+						Editor.moveCursorPosition(Editor.getStepsPerTrack());
+					}
 					return;
                 case 13:// enter
 					if (Tracker.isRecording() && isMetaKeyDown){
