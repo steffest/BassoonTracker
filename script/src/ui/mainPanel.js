@@ -20,7 +20,9 @@ UI.MainPanel = function(){
     me.addChild(patternPanel);
 
 	var sidebar = UI.app_sidebar();
-	me.addChild(sidebar);
+	if (Layout.showAppSideBar){
+		me.addChild(sidebar);
+	}
 
     var pianoPanel = UI.app_pianoView();
     pianoPanel.hide();

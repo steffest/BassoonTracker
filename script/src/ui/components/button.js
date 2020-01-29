@@ -8,14 +8,17 @@ UI.button = function(x,y,w,h,text){
     var backgroundImage;
     var background;
     var activeBackground;
+    var hoverBackground;
     var activeImage;
+    var hoverImage;
     var font;
     var textAlign = "left";
     var paddingTop = 0;
     var paddingTopActive = 0;
     var paddingLeft = 10;
+    var hasHover = true;
 
-    var properties = ["left","top","width","height","name","type","image","backgroundImage","background","active","activeBackground","activeImage","font","label","textAlign","paddingTop","paddingTopActive","paddingLeft"];
+    var properties = ["left","top","width","height","name","type","image","backgroundImage","background","active","hoverBackground","hoverImage","activeBackground","activeImage","font","label","textAlign","paddingTop","paddingTopActive","paddingLeft"];
 
     me.setProperties = function(p){
 
@@ -32,6 +35,11 @@ UI.button = function(x,y,w,h,text){
                     case "image": image=p[key];break;
                     case "backgroundImage": backgroundImage=p[key];break;
                     case "activeImage": activeImage=p[key];break;
+                    case "hoverImage": 
+                        hoverImage=p[key];
+                        hasHover = true;
+                        console.error(hoverImage);
+                        break;
                     case "background":
                         if (p[key].img){ // scale9
                             backgroundImage = undefined;
@@ -41,10 +49,16 @@ UI.button = function(x,y,w,h,text){
                         break;
                     case "activeBackground":
                         if (p[key].img){ // scale9
-                            backgroundImage = undefined;
                             activeBackground = UI.scale9Panel(0,0,0,0,p[key]);
                             activeBackground.setParent(me);
                         }
+                        break;
+                    case "hoverBackground":
+                        if (p[key].img){ // scale9
+                            hoverBackground = UI.scale9Panel(0,0,0,0,p[key]);
+                            hoverBackground.setParent(me);
+                        }
+                        hasHover = true;
                         break;
                     default:
                         me[key] = p[key];
@@ -54,6 +68,7 @@ UI.button = function(x,y,w,h,text){
 
         if (background) background.setSize(me.width,me.height);
         if (activeBackground) activeBackground.setSize(me.width,me.height);
+        if (hoverBackground) hoverBackground.setSize(me.width,me.height);
         me.setSize(me.width,me.height);
         me.setPosition(me.left,me.top);
 
@@ -92,6 +107,23 @@ UI.button = function(x,y,w,h,text){
 		me.refresh();
 	};
 
+
+    me.onHover = function(data){
+        if (hasHover){
+            if (!me.isActive){
+                me.isHover = true;
+                me.refresh();
+            }
+        }
+    };
+
+    me.onHoverExit = function(){
+        if (hasHover && me.isHover){
+            me.isHover = false;
+            me.refresh();
+        }
+    };
+
     me.render = function(internal){
         if (!me.isVisible()) return;
         if (me.needsRendering){
@@ -111,11 +143,19 @@ UI.button = function(x,y,w,h,text){
                         //drawFonts = false;
                     }
                 }else{
-                    background.render();
-                    if (image){
-                        var imgY = Math.floor((me.height-image.height)/2);
-                        var imgX = Math.floor((me.width-image.width)/2);
-                        me.ctx.drawImage(image,imgX,imgY);
+                    var stateImage = image;
+                    if (me.isHover && hoverImage){
+                        stateImage =  hoverImage;
+                    }
+                    if (me.isHover && hoverBackground){
+                        hoverBackground.render();
+                    }else{
+                        background.render();
+                    }
+                    if (stateImage){
+                        var imgY = Math.floor((me.height-stateImage.height)/2);
+                        var imgX = Math.floor((me.width-stateImage.width)/2);
+                        me.ctx.drawImage(stateImage,imgX,imgY);
                         //drawFonts = false;
                     }
                 }

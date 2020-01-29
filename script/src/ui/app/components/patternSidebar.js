@@ -49,6 +49,7 @@ UI.pattern_sidebar = function(){
         label: "",
         textAlign:"center",
         background: UI.Assets.buttonLightScale9,
+        hoverBackground: UI.Assets.buttonLightHoverScale9,
         image: Y.getImage("piano"),
         font:window.fontMed
     });
@@ -83,6 +84,7 @@ UI.pattern_sidebar = function(){
                 label: button.info.label,
                 textAlign:"left",
                 background: UI.Assets.buttonLightScale9,
+                hoverBackground: UI.Assets.buttonLightHoverScale9,
                 font:window.fontFT
             });
         }

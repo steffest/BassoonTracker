@@ -16,19 +16,19 @@ var Host = function(){
 		
 	// FriendUP maps local urls to filesystem reads, urls paramater won't work
 	me.useUrlParams = !isFriendUp;
+	me.showInternalMenu = !isFriendUp;
 	
 	me.getBaseUrl = function(){
 		if (isFriendUp){
 			return Application.progDir;
 		}
 		
-		// Settings.baseUrl ... hmm ... can't remember where that is comming from
+		// Settings.baseUrl ... hmm ... can't remember where that is coming from
 		if (typeof Settings === "undefined"){
 			return "";
 		}else{
 			return Settings.baseUrl || "";
 		}
-		
 	};
 	
 	me.setMessageHandler = function(handler){

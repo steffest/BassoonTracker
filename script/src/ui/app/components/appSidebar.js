@@ -36,6 +36,12 @@ UI.app_sidebar = function(){
     skipButton.onClick = function(){
     	next();	
 	};
+
+	var toggleUIButton = UI.Assets.generate("buttonKey");
+	toggleUIButton.setLabel("Toggle UI");
+	toggleUIButton.onClick = function(){
+		
+	};
     
     var playlistControlPanel = UI.scale9Panel(0,0,me.width,me.height,{
         img: Y.getImage("background"),
@@ -48,6 +54,7 @@ UI.app_sidebar = function(){
     me.addChild(playlistControlPanel);
 
 	me.addChild(skipButton);
+	me.addChild(toggleUIButton);
     
     var listbox = UI.listbox(2,50,100,100);
     me.addChild(listbox);
@@ -87,6 +94,12 @@ UI.app_sidebar = function(){
 			width: me.width<50 ? 20 : 100
 		});
 		skipButton.setLabel(me.width<50 ? ">" : "Next");
+
+		toggleUIButton.setPosition(8,56);
+		toggleUIButton.setProperties({
+			width: me.width<50 ? 20 : 100
+		});
+		toggleUIButton.setLabel(me.width<50 ? "-" : "Toggle UI");
 
         var listboxTop = 32 + 54 + 2;
         listbox.setProperties({

@@ -30,6 +30,7 @@ UI.app_songControl = function(x,y,w,h,visible){
     buttons.play = UI.Assets.generate("buttonDarkGreen");
     buttons.play.setProperties({
         image: Y.getImage("play_green"),
+        hoverImage: Y.getImage("play_green_hover"),
         activeImage: Y.getImage("play_active_red"),
         activeBackground: UI.Assets.buttonDarkRedActiveScale9
     });
@@ -54,6 +55,7 @@ UI.app_songControl = function(x,y,w,h,visible){
     buttons.record = UI.Assets.generate("buttonDarkRed");
     buttons.record.setProperties({
         image: Y.getImage("record"),
+        hoverImage: Y.getImage("record_hover"),
         activeImage: Y.getImage("record_active")
     });
     buttons.record.onClick = function(){

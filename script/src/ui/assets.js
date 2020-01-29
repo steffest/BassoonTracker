@@ -46,6 +46,12 @@ UI.Assets = (function(){
 		right: 4,
 		bottom: 4
 	};
+	me.buttonLightHoverScale9 = {
+		left: 2,
+		top:2,
+		right: 4,
+		bottom: 4
+	};
 	me.buttonDarkScale9 = {
 		left: 5,
 		top:5,
@@ -64,6 +70,12 @@ UI.Assets = (function(){
 		right: 5,
 		bottom: 5
 	};
+	me.buttonDarkRedHoverScale9 = {
+		left: 5,
+		top:5,
+		right: 5,
+		bottom: 5
+	};
 	me.buttonDarkGreenScale9 = {
 		left: 5,
 		top:5,
@@ -77,6 +89,12 @@ UI.Assets = (function(){
 		bottom: 5
 	};
 	me.buttonDarkActiveBlueScale9 = {
+		left: 5,
+		top:5,
+		right: 5,
+		bottom: 5
+	};
+	me.buttonDarkGreenHoverScale9 = {
 		left: 5,
 		top:5,
 		right: 5,
@@ -118,6 +136,12 @@ UI.Assets = (function(){
 		right:3,
 		bottom: 2
 	};
+	me.panelDarkHoverScale9 = {
+		left:3,
+		top:3,
+		right:3,
+		bottom: 2
+	};
 	me.panelDarkGreyScale9 = {
 		left:3,
 		top:3,
@@ -154,6 +178,12 @@ UI.Assets = (function(){
 		right: 5,
 		bottom: 5
 	};
+	me.buttonKeyHoverScale9 = {
+		left: 5,
+		top:5,
+		right: 5,
+		bottom: 5
+	};
 	me.buttonKeyActiveScale9 = {
 		left: 5,
 		top:5,
@@ -171,6 +201,7 @@ UI.Assets = (function(){
 				result = UI.button(0,0,20,20);
 				result.setProperties({
 					background: scale,
+					hoverBackground: me.panelDarkHoverScale9,
 					textAlign: "center",
 					font: window.fontMed,
 					paddingTop: 2
@@ -201,6 +232,7 @@ UI.Assets = (function(){
 				result = UI.button();
 				result.setProperties({
 					background: scale,
+					hoverBackground: me.buttonLightHoverScale9,
 					textAlign: "center",
 					font: window.fontMed
 				});
@@ -218,6 +250,7 @@ UI.Assets = (function(){
 				result = UI.button(0,0,20,20);
 				result.setProperties({
 					background: scale,
+					hoverBackground:UI.Assets.buttonDarkBlueActiveScale9,
 					activeBackground:UI.Assets.buttonDarkActiveScale9,
 					isActive:false,
 					textAlign: "center",
@@ -254,6 +287,7 @@ UI.Assets = (function(){
 				result = UI.button(0,0,20,20);
 				result.setProperties({
 					background: me.buttonDarkRedScale9,
+					hoverBackground:UI.Assets.buttonDarkRedHoverScale9,
 					activeBackground:UI.Assets.buttonDarkRedActiveScale9,
 					isActive:false,
 					textAlign: "center",
@@ -272,6 +306,7 @@ UI.Assets = (function(){
 				result = UI.button(0,0,20,20);
 				result.setProperties({
 					background: me.buttonDarkGreenScale9,
+					hoverBackground:UI.Assets.buttonDarkGreenHoverScale9,
 					activeBackground:UI.Assets.buttonDarkGreenActiveScale9,
 					isActive:false,
 					textAlign: "center",
@@ -290,6 +325,7 @@ UI.Assets = (function(){
 				result = UI.button(0,0,20,20);
 				result.setProperties({
 					background: me.buttonKeyScale9,
+					hoverBackground:UI.Assets.buttonKeyHoverScale9,
 					activeBackground:UI.Assets.buttonKeyActiveScale9,
 					isActive:false,
 					textAlign: "center",
@@ -307,10 +343,13 @@ UI.Assets = (function(){
 	me.init = function(){
 		// should be executed when all image assets have been loaded:
 		me.buttonLightScale9.img = Y.getImage("button_light");
+		me.buttonLightHoverScale9.img = Y.getImage("button_light_hover");
 		me.buttonDarkScale9.img = Y.getImage("button_inlay");
 		me.buttonDarkBlueScale9.img = Y.getImage("button_inlay_blue");
 		me.buttonDarkRedScale9.img = Y.getImage("button_inlay_red");
+		me.buttonDarkRedHoverScale9.img = Y.getImage("button_inlay_red_hover");
 		me.buttonDarkGreenScale9.img = Y.getImage("button_inlay_green");
+		me.buttonDarkGreenHoverScale9.img = Y.getImage("button_hover_green");
 		me.buttonDarkActiveScale9.img = Y.getImage("button_inlay_active");
 		me.buttonDarkGreenActiveScale9.img = Y.getImage("button_inlay_green_active");
 		me.buttonDarkRedActiveScale9.img = Y.getImage("button_inlay_red_active");
@@ -318,12 +357,14 @@ UI.Assets = (function(){
 		me.buttonDarkYellowActiveScale9.img = Y.getImage("button_inlay_yellow_active");
 		me.panelMainScale9.img = Y.getImage("background");
 		me.panelDarkScale9.img = Y.getImage("bar");
+		me.panelDarkHoverScale9.img = Y.getImage("bar_hover");
 		me.panelDarkGreyScale9.img = Y.getImage("panel_dark_greyish");
 		me.panelDarkGreyBlueScale9.img = Y.getImage("panel_dark_blueish");
 		me.panelTransScale9.img = Y.getImage("panel_trans");
 		me.panelInsetScale9.img = Y.getImage("panel_inset");
 		me.panelDarkInsetScale9.img = Y.getImage("panel_dark");
 		me.buttonKeyScale9.img = Y.getImage("keybutton");
+		me.buttonKeyHoverScale9.img = Y.getImage("keybutton_hover");
 		me.buttonKeyActiveScale9.img = Y.getImage("keybutton_highlight3");
 
 		console.log("Assets init done");

@@ -22,7 +22,7 @@ var Input = (function(){
 
 	me.init = function(){
 
-		// mouse, touch and key handlers
+		// mouse, touch and key handlerswww.
 
 		canvas.addEventListener("mousedown",handleTouchDown,false);
 		canvas.addEventListener("mousemove",handleTouchMove,false);
@@ -138,6 +138,10 @@ var Input = (function(){
 		function handleTouchMove(event){
 			event.preventDefault();
 			var rect = canvas.getBoundingClientRect();
+			
+			
+			
+			
 
 			if (event.touches && event.touches.length>0){
 				var touches = event.changedTouches;
@@ -195,7 +199,7 @@ var Input = (function(){
 		function handleTouchUp(event){
 
 			if (!isTouched){
-				Audio.checkState();
+				if (Audio && Audio.checkState) Audio.checkState();
 			}
 			
 			touchData.isTouchDown = false;

@@ -32,6 +32,7 @@ UI.app_controlPanel = function(){
 
 	var buttonProperties = {
 		background: UI.Assets.buttonKeyScale9,
+		hoverBackground:UI.Assets.buttonKeyHoverScale9,
 		activeBackground:UI.Assets.buttonKeyActiveScale9,
 		isActive:false,
 		textAlign: "center",

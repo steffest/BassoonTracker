@@ -4,6 +4,7 @@ UI.checkboxbutton = function(properties){
 
 	me.setProperties({
 		background: UI.Assets.buttonDarkBlueScale9,
+		hoverBackground:UI.Assets.buttonDarkBlueActiveScale9,
 		activeBackground:UI.Assets.buttonDarkBlueActiveScale9,
 		isActive:false,
 		textAlign: "left",
