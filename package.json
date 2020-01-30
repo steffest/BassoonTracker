@@ -10,6 +10,7 @@
     "grunt": "*",
     "grunt-contrib-clean": "*",
     "grunt-contrib-concat": "*",
+    "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-uglify": "*",
     "grunt-spritesmith": "^6.4.0",
     "grunt-text-replace": "^0.4.0"

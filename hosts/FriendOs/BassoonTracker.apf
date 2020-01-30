@@ -1,0 +1,68 @@
+{
+  "ProjectName": "BassoonTracker",
+  "Path": "Box:BassoonTracker/hosts/FriendOs/build/BassoonTracker.apf",
+  "Files": [
+    {
+      "Filename": "icon.png",
+      "Type": "File",
+      "MetaType": "File",
+      "ID": "80280",
+      "Permissions": "",
+      "DateModified": "2019-01-29 02:20:05",
+      "DateCreated": "2019-01-29 02:20:05",
+      "Filesize": "5158",
+      "Path": "Resources/icon.png",
+      "Shared": "Private",
+      "SharedLink": "",
+      "ProjectID": "acdf18a1ce35d7bf03bd77ed33d2a06d8c4a83065a14afc1ab0169912d74c1da"
+    },
+    {
+      "Filename": "preview.png",
+      "Type": "File",
+      "MetaType": "File",
+      "ID": "80281",
+      "Permissions": "",
+      "DateModified": "2019-01-29 02:20:05",
+      "DateCreated": "2019-01-29 02:20:05",
+      "Filesize": "80875",
+      "Path": "Resources/preview.png",
+      "Shared": "Private",
+      "SharedLink": "",
+      "ProjectID": "acdf18a1ce35d7bf03bd77ed33d2a06d8c4a83065a14afc1ab0169912d74c1da"
+    },
+    {
+      "Filename": "BassoonTracker.jsx",
+      "Type": "File",
+      "MetaType": "File",
+      "ID": "80277",
+      "Permissions": "",
+      "DateModified": "2019-01-29 02:20:05",
+      "DateCreated": "2019-01-29 02:20:05",
+      "Filesize": "2404",
+      "Path": "BassoonTracker.jsx",
+      "Shared": "Private",
+      "SharedLink": "",
+      "ProjectID": "acdf18a1ce35d7bf03bd77ed33d2a06d8c4a83065a14afc1ab0169912d74c1da"
+    },
+    {
+      "Filename": "index.html",
+      "Type": "File",
+      "MetaType": "File",
+      "ID": "80278",
+      "Permissions": "",
+      "DateModified": "2019-01-29 02:20:05",
+      "DateCreated": "2019-01-29 02:20:05",
+      "Filesize": "227",
+      "Path": "index.html",
+      "Shared": "Private",
+      "SharedLink": "",
+      "ProjectID": "acdf18a1ce35d7bf03bd77ed33d2a06d8c4a83065a14afc1ab0169912d74c1da"
+    }
+  ],
+  "Permissions": [],
+  "Description": "Old-School Music Tracker, Plays and edits MOD and XM files",
+  "Version": "1.0",
+  "Author": "Steffest",
+  "Category": "Music",
+  "ProjectPath": "Box:BassoonTracker/hosts/FriendOs/build/"
+}

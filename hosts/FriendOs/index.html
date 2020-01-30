@@ -1,0 +1,99 @@
+<html>
+    <head>
+        
+    </head>
+    <body>
+        
+        
+        
+        <style>
+        html,body{
+            height: 100%;
+            overflow: hidden;
+        }
+        body{
+            background-color: black;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #blanket{
+        	position: absolute;
+        	left: 0;
+        	right: 0;
+        	top: 0;
+        	bottom: 0;
+        	background-color: black;
+        	z-index:0;
+        }
+        
+        html > body:not(.Inside):not(.Loading), 
+        html body .View:not([transparent]) .View > .Content {
+        	background-color: black;
+        }
+
+        canvas{
+            margin: auto;
+            display: block;
+            opacity: 0.7;
+            pointer-events: none;
+            position: relative;
+            z-index:1;
+        }
+        canvas:focus {
+            outline:none;
+        }
+        
+        body.activated canvas{
+            pointer-events: initial;
+        	opacity: 1;
+        	
+        }
+        
+        .message{
+            font-family: sans-serif;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            min-height: 30px;
+            padding: 20px;
+            background-color: rgba(243,33,70,0.5);
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+
+        .message a{
+            color: white;
+        }
+    </style>
+
+    
+
+<div id="blanket"></div>    
+<canvas id="canvas" tabindex='1' moz-opaque></canvas>
+
+<script>
+	var progDir = "Progdir:";
+    Application.progDir = progDir;
+</script>
+        
+    <script src="Progdir:bassoontracker-min.js"></script>
+        
+
+<script>
+    
+	Main.init();
+	
+	
+	//Notify({title:"BassoonTracker", text:"Loaded"});
+	
+    
+</script>
+
+
+
+
+        
+    </body>
+</html>

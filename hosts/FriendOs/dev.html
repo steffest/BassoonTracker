@@ -1,0 +1,206 @@
+<html>
+    <head>
+        
+    </head>
+    <body>
+        
+        
+        
+        <style>
+        html,body{
+            height: 100%;
+            overflow: hidden;
+        }
+        body{
+            background-color: black;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #blanket{
+        	position: absolute;
+        	left: 0;
+        	right: 0;
+        	top: 0;
+        	bottom: 0;
+        	background-color: black;
+        	z-index:0;
+        }
+        
+        html > body:not(.Inside):not(.Loading), 
+        html body .View:not([transparent]) .View > .Content {
+        	background-color: black;
+        }
+
+        canvas{
+            margin: auto;
+            display: block;
+            opacity: 0.7;
+            pointer-events: none;
+            position: relative;
+            z-index:1;
+        }
+        canvas:focus {
+            outline:none;
+        }
+        
+        body.activated canvas{
+            pointer-events: initial;
+        	opacity: 1;
+        	
+        }
+        
+        .message{
+            font-family: sans-serif;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            min-height: 30px;
+            padding: 20px;
+            background-color: rgba(243,33,70,0.5);
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+
+        .message a{
+            color: white;
+        }
+    </style>
+
+    
+
+<div id="blanket"></div>    
+<canvas id="canvas" tabindex='1' moz-opaque></canvas>
+
+<script>
+	var progDir = "Progdir:";
+    Application.progDir = progDir;
+</script>
+
+    <script src="Progdir:script/src/host.js"></script>
+    <script src="Progdir:hosts/FriendOS/bridge.js"></script>
+
+    <script src="Progdir:script/src/enum.js"></script>
+    <script src="Progdir:script/src/eventBus.js"></script>
+    <script src="Progdir:script/src/filesystem.js"></script>
+    <script src="Progdir:script/src/audio.js"></script>
+
+    <script src="Progdir:script/src/models/note.js"></script>
+    <script src="Progdir:script/src/models/instrument.js"></script>
+    <script src="Progdir:script/src/models/sample.js"></script>
+
+    <script src="Progdir:script/src/lib/util.js"></script>
+    <script src="Progdir:script/src/lib/waaclock.js"></script>
+    <script src="Progdir:script/src/lib/filesaver.js"></script>
+    <script src="Progdir:script/src/lib/audioBufferToWav.js"></script>
+    <script src="Progdir:script/src/lib/dropbox.js"></script>
+
+    <script src="Progdir:script/src/audio/raw.js"></script>
+    <script src="Progdir:script/src/audio/8svx.js"></script>
+    <script src="Progdir:script/src/audio/riffWave.js"></script>
+    <script src="Progdir:script/src/audio/detectSampleType.js"></script>
+    <script src="Progdir:script/src/audio/filterChain.js"></script>
+
+    <script src="Progdir:script/src/main.js"></script>
+    <script src="Progdir:script/src/app.js"></script>
+    <script src="Progdir:script/src/tracker.js"></script>
+    <script src="Progdir:script/src/editor.js"></script>
+    <script src="Progdir:script/src/preloader.js"></script>
+    <script src="Progdir:script/src/fetchService.js"></script>
+    <script src="Progdir:script/src/storage.js"></script>
+    <script src="Progdir:script/src/settings.js"></script>
+    <script src="Progdir:script/src/log.js"></script>
+
+    <script src="Progdir:script/src/ui/app/layout.js"></script>
+
+    <script src="Progdir:script/src/ui/yascal/yascal.js"></script>
+    <script src="Progdir:script/src/ui/yascal/sprite.js"></script>
+
+    <script src="Progdir:script/src/ui/main.js"></script>
+    <script src="Progdir:script/src/ui/assets.js"></script>
+    <script src="Progdir:script/src/ui/input.js"></script>
+    <script src="Progdir:script/src/ui/ticker.js"></script>
+
+    <script src="Progdir:script/src/ui/components/element.js"></script>
+    <script src="Progdir:script/src/ui/components/panel.js"></script>
+    <script src="Progdir:script/src/ui/components/button.js"></script>
+    <script src="Progdir:script/src/ui/components/checkboxbutton.js"></script>
+    <script src="Progdir:script/src/ui/components/label.js"></script>
+    <script src="Progdir:script/src/ui/components/inputbox.js"></script>
+    <script src="Progdir:script/src/ui/components/listbox.js"></script>
+    <script src="Progdir:script/src/ui/components/radiogroup.js"></script>
+    <script src="Progdir:script/src/ui/components/checkbox.js"></script>
+    <script src="Progdir:script/src/ui/components/numberdisplay.js"></script>
+    <script src="Progdir:script/src/ui/components/modalDialog.js"></script>
+    <script src="Progdir:script/src/ui/components/scale9.js"></script>
+    <script src="Progdir:script/src/ui/components/bitmapfont.js"></script>
+    <script src="Progdir:script/src/ui/components/knob.js"></script>
+    <script src="Progdir:script/src/ui/components/rangeSlider.js"></script>
+    <script src="Progdir:script/src/ui/components/menu.js"></script>
+    <script src="Progdir:script/src/ui/components/submenu.js"></script>
+    <script src="Progdir:script/src/ui/components/animsprite.js"></script>
+
+
+    <script src="Progdir:script/src/ui/app/components/songPatternList.js"></script>
+    <script src="Progdir:script/src/ui/app/components/patternSidebar.js"></script>
+    <script src="Progdir:script/src/ui/app/components/appSidebar.js"></script>
+
+    <script src="Progdir:script/src/ui/app/panelContainer.js"></script>
+    <script src="Progdir:script/src/ui/app/menu.js"></script>
+    <script src="Progdir:script/src/ui/app/mainPanel.js"></script>
+    <script src="Progdir:script/src/ui/app/controlPanel.js"></script>
+    <script src="Progdir:script/src/ui/app/patternPanel.js"></script>
+
+    <script src="Progdir:script/src/ui/mainPanel.js"></script>
+    <script src="Progdir:script/src/ui/app/components/patternView.js"></script>
+    <script src="Progdir:script/src/ui/fxpanel.js"></script>
+    <script src="Progdir:script/src/ui/sampleView.js"></script>
+    <script src="Progdir:script/src/ui/diskOperations.js"></script>
+    <script src="Progdir:script/src/ui/diskOp_Actions.js"></script>
+    <script src="Progdir:script/src/ui/diskOp_Type.js"></script>
+    <script src="Progdir:script/src/ui/diskOp_Targets.js"></script>
+    <script src="Progdir:script/src/ui/diskOp_Save.js"></script>
+    <script src="Progdir:script/src/ui/optionsPanel.js"></script>
+    <script src="Progdir:script/src/ui/app/pianoView.js"></script>
+    <script src="Progdir:script/src/ui/waveform.js"></script>
+    <script src="Progdir:script/src/ui/envelope.js"></script>
+    <script src="Progdir:script/src/ui/envelopePanel.js"></script>
+    <script src="Progdir:script/src/ui/app/components/visualiser.js"></script>
+    <script src="Progdir:script/src/ui/app/components/vumeter.js"></script>
+    <script src="Progdir:script/src/ui/spinBox.js"></script>
+    <script src="Progdir:script/src/ui/sliderBox.js"></script>
+    <script src="Progdir:script/src/ui/editPanel.js"></script>
+    <script src="Progdir:script/src/ui/app/components/songControl.js"></script>
+    <script src="Progdir:script/src/ui/app/components/trackControl.js"></script>
+    <script src="Progdir:script/src/ui/app/components/buttonGroup.js"></script>
+    <script src="Progdir:script/src/ui/infopanel.js"></script>
+
+    <script src="Progdir:script/src/provider/modarchive.js"></script>
+    <script src="Progdir:script/src/provider/modulespl.js"></script>
+    <script src="Progdir:script/src/provider/dropbox.js"></script>
+    <script src="Progdir:script/src/provider/bassoon.js"></script>
+
+    <script src="Progdir:script/src/fileformats/detect.js"></script>
+    <script src="Progdir:script/src/fileformats/protracker.js"></script>
+    <script src="Progdir:script/src/fileformats/soundtracker.js"></script>
+    <script src="Progdir:script/src/fileformats/fasttracker.js"></script>
+
+    <script src="Progdir:script/src/lib/zip.js"></script>
+
+<script>
+    
+	Main.init();
+	
+	
+	//Notify({title:"BassoonTracker", text:"Loaded"});
+	
+    
+</script>
+
+
+
+
+        
+    </body>
+</html>

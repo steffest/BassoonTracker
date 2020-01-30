@@ -22,7 +22,7 @@ var Input = (function(){
 
 	me.init = function(){
 
-		// mouse, touch and key handlerswww.
+		// mouse, touch and key handlers
 
 		canvas.addEventListener("mousedown",handleTouchDown,false);
 		canvas.addEventListener("mousemove",handleTouchMove,false);
@@ -41,8 +41,8 @@ var Input = (function(){
 		canvas.addEventListener("mousewheel", handleMouseWheel,false);
 		canvas.addEventListener("DOMMouseScroll", handleMouseWheel,false);
 
-		document.addEventListener("keydown",handleKeyDown,false);
-		document.addEventListener("keyup",handleKeyUp,false);
+		window.addEventListener("keydown",handleKeyDown,false);
+		window.addEventListener("keyup",handleKeyUp,false);
 
 		canvas.addEventListener("dragenter", handleDragenter, false);
 		canvas.addEventListener("dragover", handleDragover, false);
@@ -59,6 +59,7 @@ var Input = (function(){
 		function handleTouchDown(event){
 
 			event.preventDefault();
+			window.focus();
 
 			if (!isTouched){
 				// first touch - init media on IOS and Android
@@ -140,9 +141,6 @@ var Input = (function(){
 			var rect = canvas.getBoundingClientRect();
 			
 			
-			
-			
-
 			if (event.touches && event.touches.length>0){
 				var touches = event.changedTouches;
 
@@ -840,6 +838,3 @@ var Input = (function(){
 	return me;
 
 }());
-
-
-

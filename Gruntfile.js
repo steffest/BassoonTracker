@@ -23,6 +23,23 @@ module.exports = function(grunt) {
                 ],
                 dest: 'script/bassoontracker.js'
             },
+            friend:{
+                src: [
+                    'script/src/host.js',
+                    'hosts/FriendOs/bridge.js',
+                    'script/src/enum.js',
+                    'script/src/eventBus.js',
+                    'script/src/audio.js',
+                    'script/src/lib/*.js',
+                    'script/src/*.js',
+                    'script/src/ui/yascal/yascal.js',
+                    'script/src/ui/yascal*.js',
+                    'script/src/ui/main.js',
+                    'script/src/ui/**/*.js',
+                    'script/src/**/*.js',
+                ],
+                dest: 'hosts/FriendOs/build/bassoontracker.js'
+            },
             player:{
                 src: [
                     'script/wrapper/start.txt',
@@ -88,14 +105,42 @@ module.exports = function(grunt) {
                     'script/bassoontracker-min.js': ['script/bassoontracker.js']
                 }
             },
+            friend:{
+                files: {
+                    'hosts/FriendOs/build/bassoontracker-min.js': ['hosts/FriendOs/build/bassoontracker.js']
+                }
+            },
             player:{
                 files: {
                     'player/bassoonplayer-min.js': ['player/bassoonplayer.js']
                 }
             }
         },
+        copy: {
+            friend: {
+                files: [
+                    {src: [
+                        'hosts/FriendOs/BassoonTracker.apf',
+                        'hosts/FriendOs/BassoonTracker.jsx',
+                        'hosts/FriendOs/index.html'
+                        ], dest: 'hosts/FriendOs/build/', flatten: true, expand: true},
+                    {src: [
+                            'skin/spritemap_v2.json',
+                            'skin/spritesheet_v2.png'
+                        ], dest: 'hosts/FriendOs/build/skin/', flatten: true, expand: true},
+                    {src: [
+                            'data/*',
+                        ], dest: 'hosts/FriendOs/build/data/', flatten: true, expand: true},
+                    {src: [
+                            'demomods/Tinytune.mod',
+                        ], dest: 'hosts/FriendOs/build/demomods/', flatten: true, expand: true},
+                ],
+            },
+        },
         clean: {
-            js: ['script/bassoontracker.js','player/bassoonplayer.js']
+            js: ['script/bassoontracker.js','player/bassoonplayer.js'],
+            friend: ['hosts/FriendOs/build'],
+            friendjs: ['hosts/FriendOs/build/bassoontracker.js']
         },
         replace: {
             buildnumber: {
@@ -155,6 +200,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-spritesmith');
 
@@ -165,5 +211,6 @@ module.exports = function(grunt) {
     grunt.registerTask('player', ['concat:player','uglify:player','clean']);
     grunt.registerTask('default', ['bassoontracker']);
     grunt.registerTask('sprites', ['sprite']);
+    grunt.registerTask('friend', ['clean:friend','concat:friend','uglify:friend','copy:friend','clean:friendjs']);
 
 };

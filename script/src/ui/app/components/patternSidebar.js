@@ -10,7 +10,7 @@ UI.pattern_sidebar = function(){
         font: fontFT
     });
     me.addChild(sideLabel);
-
+    
 
     var buttonsSide = [];
     var buttonsSideInfo=[

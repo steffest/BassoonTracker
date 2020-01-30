@@ -38,7 +38,6 @@ UI.button = function(x,y,w,h,text){
                     case "hoverImage": 
                         hoverImage=p[key];
                         hasHover = true;
-                        console.error(hoverImage);
                         break;
                     case "background":
                         if (p[key].img){ // scale9

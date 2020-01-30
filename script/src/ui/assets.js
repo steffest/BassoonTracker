@@ -14,7 +14,6 @@ UI.Assets = (function(){
 		function assetUrl(url){
 			url = baseUrl + url;
 			if (useVersion) url += ("?v=" + App.buildNumber);
-			
 			return url;
 		}
 
@@ -27,7 +26,7 @@ UI.Assets = (function(){
 				if (next) next();
 			}
 		};
-
+		
 		FetchService.json(assetUrl("skin/spritemap_v2.json"),function(data){
 			spriteMap = data;
 			createSprites();

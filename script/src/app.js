@@ -3,9 +3,10 @@ var App = (function(){
     
     me.buildNumber = (typeof buildNumber === "undefined") ? "" : buildNumber; 
     
-
     me.init = function(){
         EventBus.on(EVENT.command,function(command){
+            window.focus();
+            
             switch (command){
                 case COMMAND.newFile:
                     Tracker.new();

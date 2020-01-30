@@ -36,6 +36,20 @@ UI.DiskOperationTargets = function(){
         {label: "Dropbox:" , target: "dropbox"}
 	];
 
+	
+	if (!Host.useDropbox){
+	    removeTarget(targetsModule,"dropbox");
+	    removeTarget(targetsSample,"dropbox");
+	    removeTarget(targetsSave,"dropbox");
+	}
+	
+	function removeTarget(list,target){
+	    var index = list.findIndex(function(item){return item.target === target;})
+        if (index>=0){
+            list.splice(index, 1)
+        }
+	}
+
 	var currentLoadTargets = targetsModule;
 	var currentAction = "load";
 
@@ -139,4 +153,3 @@ UI.DiskOperationTargets = function(){
 	return me;
 
 };
-

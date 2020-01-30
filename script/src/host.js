@@ -10,17 +10,27 @@ var Host = function(){
 	var me = {};
 	var hostBridge;
 	
-	var isFriendUp = ((typeof Application === "object") && Application.initFriendVR);
-	
-	if (isFriendUp) console.log("running on FriendUP");
-		
 	// FriendUP maps local urls to filesystem reads, urls paramater won't work
-	me.useUrlParams = !isFriendUp;
-	me.showInternalMenu = !isFriendUp;
+	me.useUrlParams = true;
+	me.useDropbox = true;
+	me.showInternalMenu = true;
+	
+	me.init = function(){
+	    if (typeof HostBridge === "object"){
+			hostBridge = HostBridge;
+			hostBridge.init();
+
+			if (typeof hostBridge.useUrlParams === "boolean") me.useUrlParams = hostBridge.useUrlParams;
+			if (typeof hostBridge.useDropbox === "boolean") me.useDropbox = hostBridge.useDropboxs;
+			if (typeof hostBridge.showInternalMenu === "boolean") me.showInternalMenu = hostBridge.showInternalMenu;
+	    }
+	};
 	
 	me.getBaseUrl = function(){
-		if (isFriendUp){
-			return Application.progDir;
+		console.warn(hostBridge);
+		console.warn(hostBridge.getBaseUrl);
+		if (hostBridge && hostBridge.getBaseUrl){
+			return hostBridge.getBaseUrl();
 		}
 		
 		// Settings.baseUrl ... hmm ... can't remember where that is coming from
