@@ -14,7 +14,7 @@ How to build
 Development
  - Copy `BassoonTracker_dev.jsx` to the root of the project and execute in Friend.
  - I would recommend setting up a local environment of Friend.   
-   An easy way is to use the [docker image] (https://friend-nexus.com/index.php?/topic/34-friendup-docker-joining-the-shipyard/). 
+   An easy way is to use the [docker image](https://friend-nexus.com/index.php?/topic/34-friendup-docker-joining-the-shipyard/). 
  - Then map your local dev folder to the docker container by editing the docker-compose.yml file
  
 Notes
