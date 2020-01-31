@@ -6,7 +6,7 @@ module.exports = function(grunt) {
             options: {
                 separator: ';\n'
             },
-            dist:{
+            tracker:{
                 src: [
                     'script/wrapper/start.txt',
                     'script/src/enum.js',
@@ -100,7 +100,7 @@ module.exports = function(grunt) {
                 },
                 beautify: false
             },
-            dist:{
+            tracker:{
                 files: {
                     'script/bassoontracker-min.js': ['script/bassoontracker.js']
                 }
@@ -141,7 +141,7 @@ module.exports = function(grunt) {
             },
         },
         clean: {
-            js: ['script/bassoontracker.js','player/bassoonplayer.js'],
+            tracker: ['script/bassoontracker.js','player/bassoonplayer.js'],
             friend: ['hosts/FriendOs/build'],
             friendjs: ['hosts/FriendOs/build/bassoontracker.js']
         },
@@ -237,10 +237,11 @@ module.exports = function(grunt) {
 
     // Default task(s).
     // note:  use concat before uglify to keep the order of the JS files
-    grunt.registerTask('bassoontracker', ['replace','concat','uglify','clean']);
-    grunt.registerTask('player', ['concat:player','uglify:player','clean']);
+    grunt.registerTask('bassoontracker', ['replace:buildnumber','replace:versioncheck','concat:tracker','uglify:tracker','clean:tracker']);
+    grunt.registerTask('player', ['concat:player','uglify:player']);
     grunt.registerTask('default', ['bassoontracker']);
     grunt.registerTask('sprites', ['sprite']);
     grunt.registerTask('friend', ['clean:friend','concat:friend','uglify:friend','copy:friend','replace:friend','replace:friendpackage','clean:friendjs']);
+    grunt.registerTask('all', ['bassoontracker','player','friend']);
 
 };
