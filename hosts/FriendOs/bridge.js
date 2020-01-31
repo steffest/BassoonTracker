@@ -13,10 +13,17 @@ var HostBridge = function(){
 
     //FriendOS has its own Menu system
     me.showInternalMenu = false;
+
+    //there some weird with "importscripts" in workers with the Friend paths ... still have to figure it out
+    me.useWebWorkers = false;
     
     me.getBaseUrl = function(){
         // use a function - progDir is not available yet at load time
         return Application.progDir
+    };
+    
+    me.getRemoteUrl = function(){
+        return "https://www.stef.be/bassoontracker/"
     };
     
     me.init = function(){
@@ -89,6 +96,14 @@ var HostBridge = function(){
         }else{
             console.warn("can't send message, friendCallBackId not setup");
         }
+    };
+    
+    me.getVersionNumber = function(){
+       return Application.bsn_versionNumber;  
+    };
+
+    me.getBuildNumber = function(){
+        return Application.bsn_buildNumber;
     };
     
     return me;

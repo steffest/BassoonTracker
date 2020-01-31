@@ -120,20 +120,23 @@ module.exports = function(grunt) {
             friend: {
                 files: [
                     {src: [
-                        'hosts/FriendOs/BassoonTracker.apf',
                         'hosts/FriendOs/BassoonTracker.jsx',
-                        'hosts/FriendOs/index.html'
                         ], dest: 'hosts/FriendOs/build/', flatten: true, expand: true},
                     {src: [
                             'skin/spritemap_v2.json',
                             'skin/spritesheet_v2.png'
                         ], dest: 'hosts/FriendOs/build/skin/', flatten: true, expand: true},
                     {src: [
-                            'data/*',
+                            'data/modarchive.json',
+                            'data/modules.json',
+                            'data/modulespl.json',
+                            'data/samples.json',
                         ], dest: 'hosts/FriendOs/build/data/', flatten: true, expand: true},
                     {src: [
                             'demomods/Tinytune.mod',
                         ], dest: 'hosts/FriendOs/build/demomods/', flatten: true, expand: true},
+                    {src: ['skin/icon_256.png'], dest: 'hosts/FriendOs/build/data/icon.png'},
+                    {src: ['skin/screenshot3.png'], dest: 'hosts/FriendOs/build/data/preview.png'}
                 ],
             },
         },
@@ -152,6 +155,33 @@ module.exports = function(grunt) {
                         return grunt.template.process('<%= pkg.version %>-build<%= grunt.template.today("yyyymmdd.hhMM") %>');
                     }
                 },
+                    {
+                        from: '{version}',
+                        to: function (matchedWord) {
+                            return grunt.template.process('<%= pkg.version %>');
+                        }
+                    }]
+            },
+            friend: {
+                src: ['hosts/FriendOs/index.html'],
+                dest: 'hosts/FriendOs/build/index.html',
+                replacements: [{
+                    from: '{build}',
+                    to: function (matchedWord) {
+                        return grunt.template.process('<%= pkg.version %>-build<%= grunt.template.today("yyyymmdd.hhMM") %>');
+                        }
+                    },
+                    {
+                        from: '{version}',
+                        to: function (matchedWord) {
+                            return grunt.template.process('<%= pkg.version %>');
+                        }
+                    }]
+            },
+            friendpackage: {
+                src: ['hosts/FriendOs/BassoonTracker.apf.json'],
+                dest: 'hosts/FriendOs/build/BassoonTracker.apf',
+                replacements: [
                     {
                         from: '{version}',
                         to: function (matchedWord) {
@@ -211,6 +241,6 @@ module.exports = function(grunt) {
     grunt.registerTask('player', ['concat:player','uglify:player','clean']);
     grunt.registerTask('default', ['bassoontracker']);
     grunt.registerTask('sprites', ['sprite']);
-    grunt.registerTask('friend', ['clean:friend','concat:friend','uglify:friend','copy:friend','clean:friendjs']);
+    grunt.registerTask('friend', ['clean:friend','concat:friend','uglify:friend','copy:friend','replace:friend','replace:friendpackage','clean:friendjs']);
 
 };

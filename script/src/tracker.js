@@ -1912,8 +1912,9 @@ var Tracker = (function(){
 		if (result && result.name == "ZIP"){
 			console.log("extracting zip file");
 
-			if (UI) UI.setStatus("Extracting Zip file");
+			if (UI) UI.setStatus("Extracting Zip file",true);
 			zip.workerScriptsPath = "script/src/lib/zip/";
+			zip.useWebWorkers = Host.useWebWorkers;
 
 			//ArrayBuffer Reader and Write additions: https://github.com/gildas-lormeau/zip.js/issues/21
 

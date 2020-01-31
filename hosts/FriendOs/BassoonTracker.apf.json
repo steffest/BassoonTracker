@@ -1,0 +1,119 @@
+{
+  "ProjectName": "BassoonTracker",
+  "Path": "Box:BassoonTracker/hosts/FriendOs/build/BassoonTracker.apf",
+  "Files": [
+    {
+      "Filename": "icon.png",
+      "Type": "File",
+      "MetaType": "File",
+      "ID": "80280",
+      "Permissions": "",
+      "DateModified": "2019-01-29 02:20:05",
+      "DateCreated": "2019-01-29 02:20:05",
+      "Filesize": "5158",
+      "Path": "data/icon.png",
+      "Shared": "Private",
+      "SharedLink": "",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Filename": "preview.png",
+      "Type": "File",
+      "MetaType": "File",
+      "ID": "80281",
+      "Permissions": "",
+      "DateModified": "2019-01-29 02:20:05",
+      "DateCreated": "2019-01-29 02:20:05",
+      "Filesize": "80875",
+      "Path": "data/preview.png",
+      "Shared": "Private",
+      "SharedLink": "",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Filename": "BassoonTracker.jsx",
+      "Type": "File",
+      "MetaType": "File",
+      "ID": "80277",
+      "Permissions": "",
+      "DateModified": "2019-01-29 02:20:05",
+      "DateCreated": "2019-01-29 02:20:05",
+      "Filesize": "2404",
+      "Path": "BassoonTracker.jsx",
+      "Shared": "Private",
+      "SharedLink": "",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Filename": "index.html",
+      "Type": "File",
+      "MetaType": "File",
+      "ID": "80278",
+      "Permissions": "",
+      "DateModified": "2019-01-29 02:20:05",
+      "DateCreated": "2019-01-29 02:20:05",
+      "Filesize": "227",
+      "Path": "index.html",
+      "Shared": "Private",
+      "SharedLink": "",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Path": "bassoontracker-min.js",
+      "Filename": "bassoontracker-min.js",
+      "MetaType": "File",
+      "Type": "File",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Path": "data/modules.json",
+      "Filename": "modules.json",
+      "MetaType": "File",
+      "Type": "File",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "samples.json",
+      "Path": "data/samples.json",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "modarchive.json",
+      "Path": "data/modarchive.json",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "samples.json",
+      "Path": "data/samples.json",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "spritemap_v2.json",
+      "Path": "skin/spritemap_v2.json",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "spritesheet_v2.png",
+      "Path": "skin/spritesheet_v2.png",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "Tinytune.mod",
+      "Path": "demomods/Tinytune.mod",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    }
+  ],
+  "Permissions": [],
+  "Description": "Old-School Music Tracker, Plays and edits MOD and XM files",
+  "Version": "{version}",
+  "Author": "Steffest",
+  "Category": "Music",
+  "ProjectPath": "Box:BassoonTracker/hosts/FriendOs/build/",
+  "ProjectType": "standard"
+}

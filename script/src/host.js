@@ -10,10 +10,10 @@ var Host = function(){
 	var me = {};
 	var hostBridge;
 	
-	// FriendUP maps local urls to filesystem reads, urls paramater won't work
 	me.useUrlParams = true;
 	me.useDropbox = true;
 	me.showInternalMenu = true;
+	me.useWebWorkers = true;
 	
 	me.init = function(){
 	    if (typeof HostBridge === "object"){
@@ -23,12 +23,11 @@ var Host = function(){
 			if (typeof hostBridge.useUrlParams === "boolean") me.useUrlParams = hostBridge.useUrlParams;
 			if (typeof hostBridge.useDropbox === "boolean") me.useDropbox = hostBridge.useDropboxs;
 			if (typeof hostBridge.showInternalMenu === "boolean") me.showInternalMenu = hostBridge.showInternalMenu;
+			if (typeof hostBridge.useWebWorkers === "boolean") me.useWebWorkers = hostBridge.useWebWorkers;
 	    }
 	};
 	
 	me.getBaseUrl = function(){
-		console.warn(hostBridge);
-		console.warn(hostBridge.getBaseUrl);
 		if (hostBridge && hostBridge.getBaseUrl){
 			return hostBridge.getBaseUrl();
 		}
@@ -41,27 +40,28 @@ var Host = function(){
 		}
 	};
 	
-	me.setMessageHandler = function(handler){
-		hostBridge = handler;
+	me.getRemoteUrl = function(){
+		if (hostBridge && hostBridge.getRemoteUrl){
+			return hostBridge.getRemoteUrl();
+		}
+		return "";
+	};
+	
+	me.getVersionNumber = function(){
+		if (typeof versionNumber !== "undefined") return versionNumber;
+		if (hostBridge && hostBridge.getVersionNumber) 	return hostBridge.getVersionNumber();
+		return "dev";
+	};
+	
+	me.getBuildNumber = function(){
+		if (typeof buildNumber !== "undefined") return buildNumber;
+		if (hostBridge && hostBridge.getBuildNumber) return hostBridge.getBuildNumber();
+		return new Date().getTime();
 	};
 	
 	me.putFile = function(filename,file){
-		if (isFriendUp){
-			//me.sendMessage({command:'putFile',file:file});
-		}
+		
 	};
-	
-	me.sendMessage = function(msg){
-		if (hostBridge){
-			if (typeof msg === "string") msg = {command: msg};
-			msg = msg || {};
-			msg.type = "callback";
-			hostBridge(msg);
-		}else{
-			console.warn("can't send message, hostBridge not setup");
-		}
-	};
-	
 	
 	return me;
 }();
