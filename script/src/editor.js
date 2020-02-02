@@ -58,7 +58,7 @@ var Editor = (function(){
 
 
 	me.putNote = function(instrument,period,noteIndex){
-		var note = Tracker.getSong().patterns[currentPattern][currentPatternPos][currentTrack];
+		var note = Tracker.getSong().patterns[currentPattern][currentPatternPos][currentTrack] || new Note();
 		if (note){
 			note.instrument = instrument;
 			if (noteIndex){
@@ -67,6 +67,7 @@ var Editor = (function(){
 				note.setPeriod(period);
 			}
 		}
+
 		Tracker.getSong().patterns[currentPattern][currentPatternPos][currentTrack] = note;
 		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
