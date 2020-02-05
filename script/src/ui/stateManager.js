@@ -6,9 +6,10 @@ var StateManager = function(){
 	
 	me.registerEdit = function(action){
 		let id = action.target + "_" + action.id;
-		let history = editHistory[id] || [];
-		history.push(action);
-		if (history.length>maxHistory) history.shift();
+		let history = editHistory[id] || {undo:[],redo:[]};
+		history.undo.push(action);
+		if (history.undo.length>maxHistory) history.undo.shift();
+		history.redo = [];
 		editHistory[id] = history;
 
 		console.error(editHistory);
@@ -19,8 +20,8 @@ var StateManager = function(){
 		var currentPattern = Tracker.getCurrentPattern();
 		var id = EDITACTION.PATTERN + "_" + currentPattern;
 		var actionList =  editHistory[id];
-		if(actionList && actionList.length){
-			var action = actionList.pop();
+		if(actionList && actionList.undo && actionList.undo.length){
+			var action = actionList.undo.pop();
 			var patternData = Tracker.getSong().patterns[currentPattern];
 			
 			console.warn(action);
@@ -37,15 +38,33 @@ var StateManager = function(){
 					EventBus.trigger(EVENT.patternChange,currentPattern);
 					break
 			}
-			
-			//Tracker.setCurrentPatternPos(action.patternPosition);
-			//Editor.setCurrentCursorPosition(action.cursorPosition);
-			//Editor.putNote(action.from.instrument,action.from.period,action.from.noteIndex,true);
+			actionList.redo.push(action);
 		}
 	};
 	
 	me.redo = function(){
-		
+		var currentPattern = Tracker.getCurrentPattern();
+		var id = EDITACTION.PATTERN + "_" + currentPattern;
+		var actionList =  editHistory[id];
+		if(actionList && actionList.redo && actionList.redo.length){
+			var action = actionList.redo.pop();
+			var patternData = Tracker.getSong().patterns[currentPattern];
+
+			console.warn(action);
+
+			switch (action.type) {
+				case EDITACTION.NOTE:
+					action.data.forEach(function(item){
+						if (patternData){
+							var note = patternData[item.position.row][item.position.track] || new Note();
+							note.populate(item.to);
+						}
+					});
+					EventBus.trigger(EVENT.patternChange,currentPattern);
+					break
+			}
+			actionList.undo.push(action);
+		}
 	};
 	
 	
