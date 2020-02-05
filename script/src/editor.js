@@ -59,6 +59,9 @@ var Editor = (function(){
 
 	me.putNote = function(instrument,period,noteIndex){
 		var note = Tracker.getSong().patterns[currentPattern][currentPatternPos][currentTrack] || new Note();
+
+		var editAction = StateManager.createNoteUndo(currentPattern,currentTrack,currentPatternPos,note);
+		
 		if (note){
 			note.instrument = instrument;
 			if (noteIndex){
@@ -67,7 +70,10 @@ var Editor = (function(){
 				note.setPeriod(period);
 			}
 		}
-
+		
+		editAction.data[0].to = note.duplicate();
+		StateManager.registerEdit(editAction);
+		
 		Tracker.getSong().patterns[currentPattern][currentPatternPos][currentTrack] = note;
 		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
@@ -75,6 +81,7 @@ var Editor = (function(){
 	me.putNoteParam = function(pos,value){
 		var x,y;
 		var note = Tracker.getSong().patterns[currentPattern][currentPatternPos][currentTrack];
+		var editAction = StateManager.createNoteUndo(currentPattern,currentTrack,currentPatternPos,note);
 		if (note){
 			if (pos == 1 || pos == 2){
 				var instrument = note.instrument;
@@ -110,6 +117,10 @@ var Editor = (function(){
 				note.param = (x << 4) + y;
 			}
 		}
+
+		editAction.data[0].to = note.duplicate();
+		StateManager.registerEdit(editAction);
+		
 		Tracker.getSong().patterns[currentPattern][currentPatternPos][currentTrack] = note;
 		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};

@@ -149,6 +149,12 @@ var SELECTION = {
 
 };
 
+var EDITACTION = {
+	PATTERN: 1,
+	TRACK: 2,
+	NOTE: 3
+};
+
 
 // Amiga Frequency
 //var PALFREQUENCY = 7093789.2;
