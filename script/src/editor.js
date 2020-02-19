@@ -128,20 +128,30 @@ var Editor = (function(){
 
 	me.clearTrack = function(){
 		var length = Tracker.getCurrentPatternData().length;
+		var editAction = StateManager.createTrackUndo(currentPattern);
 		for (var i = 0; i<length;i++){
 			var note = Tracker.getSong().patterns[currentPattern][i][currentTrack];
-			if (note) note.clear();
+			if (note) {
+				StateManager.addNote(editAction,currentTrack,i,note);
+				note.clear();
+			}
 		}
+		StateManager.registerEdit(editAction);
 		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
 	me.clearPattern = function(){
 		var length = Tracker.getCurrentPatternData().length;
+		var editAction = StateManager.createPatternUndo(currentPattern);
 		for (var i = 0; i<length;i++){
 			for (var j = 0; j<Tracker.getTrackCount(); j++){
 				var note = Tracker.getSong().patterns[currentPattern][i][j];
-				if (note) note.clear();
+				if (note) {
+					StateManager.addNote(editAction,j,i,note);
+					note.clear();
+				}
 			}
 		}
+		StateManager.registerEdit(editAction);
 		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
 	me.clearSong = function(){
@@ -212,14 +222,18 @@ var Editor = (function(){
 		console.log("paste",trackNumber,data[0]);
 
 		if (data){
+			var editAction = StateManager.createTrackUndo(currentPattern);
 			var length = Tracker.getCurrentPatternData().length;
 			for (var i = 0; i<length;i++){
 				var note = Tracker.getSong().patterns[currentPattern][i][trackNumber];
 				var source = data[i];
+				var noteInfo = StateManager.addNote(editAction,trackNumber,i,note);
+				noteInfo.to = source; // should we duplicate source?
 				note.populate(source);
 			}
+			
 			if (!hasTracknumber) EventBus.trigger(EVENT.patternChange,currentPattern);
-
+			StateManager.registerEdit(editAction);
 			return true;
 		}else{
 			return false;
@@ -337,9 +351,7 @@ var Editor = (function(){
 		}
 
 		Audio.stopRendering(function(renderedBuffer){
-
-
-
+			
 			// TODO cutoff the first 0.1 seconds -> start time
 
 			var saveToFile = false;
@@ -406,10 +418,37 @@ var Editor = (function(){
         instrument.sample.data = [];
         instrument.sample.name = name;
 
-        detectSampleType(file,instrument.sample);
+        detectSampleType(file,instrument.sample,function(){
+        	// some decoders are async: retrigger event on callback
+			EventBus.trigger(EVENT.instrumentChange,Tracker.getCurrentInstrumentIndex());
+			EventBus.trigger(EVENT.instrumentNameChange,Tracker.getCurrentInstrumentIndex());
+			checkSample();
+		});
 
         EventBus.trigger(EVENT.instrumentChange,Tracker.getCurrentInstrumentIndex());
         EventBus.trigger(EVENT.instrumentNameChange,Tracker.getCurrentInstrumentIndex());
+
+        function checkSample(){
+        	if (Tracker.getTrackerMode() === TRACKERMODE.PROTRACKER){
+        		// max sampleLength is 1FFFE
+        		if (instrument.sample.length > 131070){
+					var dialog = UI.modalDialog();
+					dialog.setProperties({
+						width: UI.mainPanel.width,
+						height: UI.mainPanel.height,
+						top: 0,
+						left: 0,
+						ok: true
+					});
+					dialog.onClick = dialog.close;
+
+					dialog.setText("Warning//The maximum sample lenght in .MOD format is 128kb//If you save in .MOD format/this sample will be truncated.//Please try downsampling or trimming the sample/to below 131072 bytes/or switch to .XM format");
+
+					UI.setModalElement(dialog);
+				}
+			}
+		}
+
 
     };
 

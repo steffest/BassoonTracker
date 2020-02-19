@@ -57,6 +57,9 @@ UI.app_sidebar = function(){
 	me.addChild(toggleUIButton);
     
     var listbox = UI.listbox(2,50,100,100);
+    listbox.setProperties({
+		font: window.fontFT
+	});
     me.addChild(listbox);
 
     var playlist = [

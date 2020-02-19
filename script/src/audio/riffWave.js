@@ -1,4 +1,4 @@
-function readRIFFsample(file,sample){
+function readRIFFsample(file,sample,next){
     //format description: http://soundfile.sapp.org/doc/WaveFormat/
     file.litteEndian = true;
     file.goto(4);
@@ -34,7 +34,7 @@ function readRIFFsample(file,sample){
         }
     }else{
         // let Audio Content do the decoding
-        decodeFileWithAudioContext(file,sample);
+        decodeFileWithAudioContext(file,sample,next);
     }
 
 }

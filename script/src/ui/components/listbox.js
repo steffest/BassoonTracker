@@ -21,6 +21,9 @@ UI.listbox = function(x,y,w,h){
         properties.forEach(function(key){
             if (typeof p[key] != "undefined") me[key] = p[key];
         });
+        
+        if (typeof p["font"] != "undefined") font = p["font"];
+        
 
         me.setSize(me.width,me.height);
         me.setPosition(me.left,me.top);

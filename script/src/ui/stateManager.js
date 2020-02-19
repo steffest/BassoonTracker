@@ -28,6 +28,8 @@ var StateManager = function(){
 			
 			switch (action.type) {
 				case EDITACTION.NOTE:
+				case EDITACTION.TRACK:
+				case EDITACTION.PATTERN:
 					action.data.forEach(function(item){
 						console.error(item);
 						if (patternData){
@@ -36,7 +38,7 @@ var StateManager = function(){
 						}
 					});
 					EventBus.trigger(EVENT.patternChange,currentPattern);
-					break
+					break;
 			}
 			actionList.redo.push(action);
 		}
@@ -54,14 +56,16 @@ var StateManager = function(){
 
 			switch (action.type) {
 				case EDITACTION.NOTE:
+				case EDITACTION.TRACK:
+				case EDITACTION.PATTERN:
 					action.data.forEach(function(item){
 						if (patternData){
 							var note = patternData[item.position.row][item.position.track] || new Note();
-							note.populate(item.to);
+							item.to ? note.populate(item.to) : note.clear();
 						}
 					});
 					EventBus.trigger(EVENT.patternChange,currentPattern);
-					break
+					break;
 			}
 			actionList.undo.push(action);
 		}
@@ -81,6 +85,36 @@ var StateManager = function(){
 				from: note.duplicate()
 			}]
 		};
+	};
+
+	me.createTrackUndo = function(pattern){
+		return {
+			target: EDITACTION.PATTERN,
+			type: EDITACTION.TRACK,
+			id: pattern,
+			data:[]
+		};
+	};
+
+	me.createPatternUndo = function(pattern){
+		return {
+			target: EDITACTION.PATTERN,
+			type: EDITACTION.PATTERN,
+			id: pattern,
+			data:[]
+		};
+	};
+	
+	me.addNote = function(actionList,track,row,note){
+		var noteInfo = {
+			position:{
+				track:track,
+				row: row
+			},
+			from:note.duplicate()
+		};
+		actionList.data.push(noteInfo);
+		return noteInfo;
 	};
 	
 	return me;

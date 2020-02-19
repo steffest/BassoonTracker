@@ -1,4 +1,4 @@
-function detectSampleType(file,sample){
+function detectSampleType(file,sample,next){
 
 	// detects the sample type of a binary stream
 	// if sample is given it also reads and decodes it into sample.data
@@ -31,13 +31,17 @@ function detectSampleType(file,sample){
 	}
 
 	if (sample && decoder){
-		decoder(file,sample);
+		decoder(file,sample,next);
 	}else{
-		return sampleType;
+		if (next){
+			next(sampleType)
+		}else{
+			return sampleType;
+		}
 	}
 }
 
-function decodeFileWithAudioContext(file,sample){
+function decodeFileWithAudioContext(file,sample,next){
 	Audio.context.decodeAudioData(
 			file.buffer,
 			function(buffer) {
@@ -48,9 +52,11 @@ function decodeFileWithAudioContext(file,sample){
 				// todo: show dialog for stereo samples ?
 				sample.data = buffer.getChannelData(0);
 				sample.length = buffer.length;
+				if (next) next();
 			},
 			function(error) {
 				console.error('decodeAudioData error', error);
+				if (next) next();
 			}
 	);
 }
