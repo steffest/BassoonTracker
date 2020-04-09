@@ -290,7 +290,7 @@ var Tracker = (function(){
 		isPlaying = false;
 		EventBus.trigger(EVENT.playingChange,isPlaying);
 	};
-	
+
 	me.pause = function(){
 		// this is only called when speed is set to 0
 		if (clock) clock.stop();
@@ -1112,8 +1112,8 @@ var Tracker = (function(){
 
 				break;
 			case 11:
-				// Position Jump	
-				
+				// Position Jump
+
 				// quickfix for autoplay ...
 				if (!Tracker.autoPlay){
 					result.patternBreak = true;
@@ -1807,7 +1807,7 @@ var Tracker = (function(){
 
 	me.load = function(url,skipHistory,next){
 		url = url || "demomods/StardustMemories.mod";
-		
+
 		if (url.indexOf("://")<0 && url.indexOf("/") !== 0) url = Host.getBaseUrl() + url;
 
 		if (UI){
@@ -1960,7 +1960,10 @@ var Tracker = (function(){
 		}
 
 		if (result.isSample){
-			Editor.importSample(file,name);
+			// check for player only lib
+			if (typeof Editor !== "undefined") {
+				Editor.importSample(file,name);
+			}
 		}
 
 		if (next) next(isMod);
