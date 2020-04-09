@@ -4,11 +4,14 @@ function loadFile(url,next) {
     req.responseType = "arraybuffer";
     req.onload = function (event) {
         var arrayBuffer = req.response;
-        if (arrayBuffer) {
+        if (arrayBuffer && req.status === 200) {
             if (next) next(arrayBuffer);
         } else {
             console.error("unable to load", url);
-            if (next) next(false);
+            // do not call if player only
+            if (typeof Editor !== "undefined") {
+              if (next) next(false);
+            }
         }
     };
     req.send(null);
@@ -178,10 +181,11 @@ function BinaryStream(arrayBuffer, bigEndian){
 		obj.index = value;
 	}
 
-	obj.buffer = arrayBuffer;
-	obj.dataView = new DataView(arrayBuffer);
-	obj.length = arrayBuffer.byteLength;
+  if (arrayBuffer) {
+    obj.buffer = arrayBuffer;
+    obj.dataView = new DataView(arrayBuffer);
+    obj.length = arrayBuffer.byteLength;
+  }
 
 	return obj;
 }
-
