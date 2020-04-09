@@ -237,11 +237,11 @@ module.exports = function(grunt) {
 
     // Default task(s).
     // note:  use concat before uglify to keep the order of the JS files
-    grunt.registerTask('bassoontracker', ['replace:buildnumber','replace:versioncheck','concat:tracker','uglify:tracker','clean:tracker']);
+    grunt.registerTask('tracker', ['replace:buildnumber','replace:versioncheck','concat:tracker','uglify:tracker','clean:tracker']);
     grunt.registerTask('player', ['concat:player','uglify:player']);
-    grunt.registerTask('default', ['bassoontracker']);
+    grunt.registerTask('default', ['tracker']);
     grunt.registerTask('sprites', ['sprite']);
     grunt.registerTask('friend', ['clean:friend','concat:friend','uglify:friend','copy:friend','replace:friend','replace:friendpackage','clean:friendjs']);
-    grunt.registerTask('all', ['bassoontracker','player','friend']);
+    grunt.registerTask('all', ['tracker','player','friend']);
 
 };

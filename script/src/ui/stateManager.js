@@ -5,8 +5,8 @@ var StateManager = function(){
 	
 	
 	me.registerEdit = function(action){
-		let id = action.target + "_" + action.id;
-		let history = editHistory[id] || {undo:[],redo:[]};
+		var id = action.target + "_" + action.id;
+		var history = editHistory[id] || {undo:[],redo:[]};
 		history.undo.push(action);
 		if (history.undo.length>maxHistory) history.undo.shift();
 		history.redo = [];
