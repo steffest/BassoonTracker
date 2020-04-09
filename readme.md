@@ -69,10 +69,13 @@ Note: if you use an AZERTY, QWERTZ or DVORAK keyboard, you can set that option i
   - The build step is **optional**, there are no runtime dependencies (*bliss!*)
   - Just open dev.html in a browser to load the plain uncompressed scripts 
   - To build the packaged version:
+    - If you don't have grunt installed - install it with "npm install -g grunt-cli" 
     - Run "npm i" to install the Grunt build tools.
     - Use "grunt" to build the compressed files -> index.html will be created.
     - Use "grunt sprites" to build the spritesheet.
 	  This will compact all files in the "skin/src" to a single .png file and will create a spritemap.
+	- Use "grunt player" to build the player-only version (you can find it the "player" directory).
+	- Use "grunt friend" to build the version for Friend OS (you can find it the "hosts/FriendOs/build" directory)
 
 **Future plans**  
   - MIDI support!

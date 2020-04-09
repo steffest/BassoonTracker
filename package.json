@@ -7,12 +7,12 @@
   "author": "Steffest",
   "license": "MIT",
   "devDependencies": {
-    "grunt": "*",
+    "grunt": "^1.1.0",
     "grunt-contrib-clean": "*",
     "grunt-contrib-concat": "*",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-uglify": "*",
-    "grunt-spritesmith": "^6.4.0",
+    "grunt-spritesmith": "^6.8.0",
     "grunt-text-replace": "^0.4.0"
   }
 }
