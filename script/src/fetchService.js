@@ -14,6 +14,7 @@ var FetchService = (function() {
 		});
 	};
 
+	//<!--
 	me.post = function(url,data,next){
 		var sData = data;
 		if (typeof data === "object"){
@@ -44,6 +45,7 @@ var FetchService = (function() {
 			error: function(xhr){next(undefined,xhr)}
 		})
 	};
+	//-->
 
 	me.json = function(url,next){
 		if (typeof next == "undefined") next=function(){};

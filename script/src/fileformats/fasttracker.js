@@ -298,6 +298,7 @@ var FastTracker = function(){
 
 
     // build internal
+	//<!--
     me.write = function(next){
 		var song = Tracker.getSong();
 		var instruments = Tracker.getInstruments(); // note: intruments start at index 1, not 0
@@ -540,6 +541,7 @@ var FastTracker = function(){
 		if (next) next(file);
 
 	};
+	//-->
 
     me.validate = function(song){
     	

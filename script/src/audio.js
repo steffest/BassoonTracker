@@ -345,7 +345,7 @@ var Audio = (function(){
 		}
 	};
 
-
+    //<!--
     me.isRecording = function(){
         return isRecording;
     };
@@ -412,6 +412,7 @@ var Audio = (function(){
         createAudioConnections(context);
         me.init(context);
     };
+    //-->
 
     me.setStereoSeparation = function(value){
 

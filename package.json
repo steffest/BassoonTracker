@@ -11,7 +11,8 @@
     "grunt-contrib-clean": "*",
     "grunt-contrib-concat": "*",
     "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-uglify": "*",
+    "grunt-contrib-uglify": "^4.0.1",
+    "grunt-run": "^0.8.1",
     "grunt-spritesmith": "^6.8.0",
     "grunt-text-replace": "^0.4.0"
   }

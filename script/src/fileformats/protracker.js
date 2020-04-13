@@ -181,6 +181,7 @@ var ProTracker = function(){
 		return song;
 	};
 
+	//<!--
 	me.write = function(next){
 
 		var song = Tracker.getSong();
@@ -296,6 +297,7 @@ var ProTracker = function(){
 
 		if (next) next(file);
 	};
+	//-->
 
 	return me;
 };

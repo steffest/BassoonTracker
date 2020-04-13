@@ -18,6 +18,7 @@ function loadFile(url,next) {
 }
 
 function saveFile(b,filename){
+	//<!--
     var a = document.createElement("a");
     document.body.appendChild(a);
     a.style = "display: none";
@@ -26,6 +27,7 @@ function saveFile(b,filename){
     a.download = filename;
     a.click();
     window.URL.revokeObjectURL(url);
+	//-->
 }
 
 function BinaryStream(arrayBuffer, bigEndian){
