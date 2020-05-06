@@ -486,7 +486,7 @@ var Tracker = (function(){
 		for (var i = 0; i<tracks; i++){
 			note = patternStep[i];
 			if (note && note.effect && note.effect === 15){
-				if (note.param <= 32){
+				if (note.param < 32){
 					//if (note.param == 0) note.param = 1;
 					Tracker.setAmigaSpeed(note.param);
 					if (note.param === 0) result.pause = true;
@@ -1280,7 +1280,7 @@ var Tracker = (function(){
 				// TODO: -> investigate
 				// TODO: Yes ... this is actually quite wrong FIXME !!!!
 
-				if (note.param <= 32){
+				if (note.param < 32){
 					//if (note.param == 0) note.param = 1;
 					Tracker.setAmigaSpeed(note.param,time);
 				}else{
