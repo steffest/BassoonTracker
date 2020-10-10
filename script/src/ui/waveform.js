@@ -25,7 +25,6 @@ UI.WaveForm = function(){
 	var hasHorizontalScrollBar;
 	var ignoreInstrumentChange;
 	var rangeCache = [];
-	var initPlayingOffset = 0;
 	var playingOffset = 0;
 
 	var MARKERTYPE = {
@@ -323,10 +322,11 @@ UI.WaveForm = function(){
 		me.refresh();
 	};
 
-	me.play = function(period){
+	me.play = function(period,offset){
 		if (zoom>1) return;
-
-		playingOffset = initPlayingOffset;
+		offset = offset || 0;
+		
+		playingOffset = offset;
 		isPlaying = true;
 		startPlayTime = new Date().getTime();
 		sampleRate = Audio.getSampleRateForPeriod(period);
@@ -335,14 +335,10 @@ UI.WaveForm = function(){
 
 	me.playSection = function(section){
 		if (section === "range"){
-			initPlayingOffset = rangeStart;
-			Input.handleNoteOn(Input.getPrevIndex(),undefined,initPlayingOffset);
-			initPlayingOffset = 0;
+			Input.handleNoteOn(Input.getPrevIndex(),undefined,rangeStart);
 		}
 		if (section === "loop"){
-			initPlayingOffset = currentInstrument.sample.loop.start;
-			Input.handleNoteOn(Input.getPrevIndex(),undefined,initPlayingOffset);
-			initPlayingOffset = 0;
+			Input.handleNoteOn(Input.getPrevIndex(),undefined,currentInstrument.sample.loop.start);
 		}
 
 	};

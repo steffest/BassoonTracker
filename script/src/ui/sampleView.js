@@ -815,7 +815,8 @@ UI.SampleView = function(){
 	EventBus.on(EVENT.samplePlay,function(context){
 		if (!me.visible) return;
 		if (context && context.instrumentIndex === currentInstrumentIndex){
-			waveForm.play(context.startPeriod);
+			var offset = context.effects && context.effects.offset ? context.effects.offset.value : 0;
+			waveForm.play(context.startPeriod,offset);
 		}
 	});
 
