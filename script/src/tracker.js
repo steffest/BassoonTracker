@@ -1805,7 +1805,7 @@ var Tracker = (function(){
         trackNote.source.playbackRate.setValueAtTime(rate,time + 0.005);
 	};
 
-	me.load = function(url,skipHistory,next){
+	me.load = function(url,skipHistory,next,initial){
 		url = url || "demomods/StardustMemories.mod";
 
 		if (url.indexOf("://")<0 && url.indexOf("/") !== 0) url = Host.getBaseUrl() + url;
@@ -1816,6 +1816,10 @@ var Tracker = (function(){
 		}
 
 		var process=function(result){
+
+			// initial file is overridden by a load command of the host;
+			if (initial && !Host.useInitialLoad) return;
+
 			me.processFile(result,name,function(isMod){
 				if (UI) UI.setStatus("Ready");
 

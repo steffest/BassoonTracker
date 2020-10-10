@@ -71,9 +71,9 @@ var UI = (function(){
 					initialFile = BassoonProvider.proxyUrl(initialFile);
 				}
 			}else{
-				initialFile = Host.getBaseUrl() + 'demomods/Tinytune.mod';
+				if (SETTINGS.loadInitialFile) initialFile = Host.getBaseUrl() + 'demomods/Tinytune.mod';
 			}
-			Tracker.load(initialFile,true);
+			if (initialFile) Tracker.load(initialFile,true,undefined,true);
 
 
 			// check version

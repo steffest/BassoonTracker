@@ -26,6 +26,7 @@ var Main = function(){
     
                 Settings.readSettings();
                 App.init();
+                Host.signalReady();
     
             }
         });

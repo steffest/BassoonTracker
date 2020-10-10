@@ -580,5 +580,6 @@ var SETTINGS = {
 	keyboardTable: "qwerty",
 	vubars: true,
 	stereoSeparation: STEREOSEPARATION.BALANCED,
-	emulateProtracker1OffsetBug: true
+	emulateProtracker1OffsetBug: true,
+	loadInitialFile:true
 };

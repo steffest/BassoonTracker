@@ -14,6 +14,7 @@ var Host = function(){
 	me.useDropbox = true;
 	me.showInternalMenu = true;
 	me.useWebWorkers = true;
+	me.useInitialLoad = true;
 	
 	me.init = function(){
 	    if (typeof HostBridge === "object"){
@@ -57,6 +58,10 @@ var Host = function(){
 		if (typeof buildNumber !== "undefined") return buildNumber;
 		if (hostBridge && hostBridge.getBuildNumber) return hostBridge.getBuildNumber();
 		return new Date().getTime();
+	};
+
+	me.signalReady = function(){
+		if (hostBridge && hostBridge.signalReady) hostBridge.signalReady();
 	};
 	
 	me.putFile = function(filename,file){
