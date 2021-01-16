@@ -468,7 +468,7 @@ var Audio = (function(){
 
         for (i = 0; i<numberOfTracks;i++){
             var filter = filterChains[i];
-            if (filter) filter.panningValue(i%2==0 ? -panAmount : panAmount);
+            if (filter) filter.panningValue((i%4===0)||(i%4===3) ? -panAmount : panAmount);
         }
     };
 
