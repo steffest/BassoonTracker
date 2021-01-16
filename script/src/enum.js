@@ -65,7 +65,10 @@ var EVENT = {
 	commandUndo: 50,
 	commandRedo: 51,
 	commandSelectAll: 52,
-	songEnd: 53
+	songEnd: 53,
+	patternEnd: 54,
+	songSpeedChangeIgnored:55,
+	songBPMChangeIgnored:56,
 };
 
 var COMMAND = {

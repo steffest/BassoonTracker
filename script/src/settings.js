@@ -2,33 +2,13 @@ var Settings = (function(){
 	var me = {};
 
 	me.readSettings = function(){
-
-		setDefaults();
-
 		var settings = Storage.get("bassoonTrackerSettings");
-
-		if (!settings) return;
-
 		try {
 			settings = JSON.parse(settings);
 		} catch (e) {
-			return false;
+			settings = undefined;
 		}
-
-		for (var key in settings){
-			if (SETTINGS.hasOwnProperty(key) && settings.hasOwnProperty(key)){
-				SETTINGS[key] = settings[key];
-				if (key  === "skipFrame"){
-					var value = parseInt(SETTINGS[key],10);
-					if (!isNaN(value)) UI.skipFrame(value);
-				}
-			}
-		}
-
-		if (SETTINGS.stereoSeparation){
-			Audio.setStereoSeparation(SETTINGS.stereoSeparation);
-		}
-
+		me.set(settings);
 	};
 
 	me.saveSettings = function(){
@@ -47,6 +27,26 @@ var Settings = (function(){
 		setDefaults();
 		me.saveSettings();
 	};
+	
+	me.set = function(settings){
+		console.error(settings);
+		setDefaults();
+		
+		if (!settings) return;
+		for (var key in settings){
+			if (SETTINGS.hasOwnProperty(key) && settings.hasOwnProperty(key)){
+				SETTINGS[key] = settings[key];
+				if (key  === "skipFrame"){
+					var value = parseInt(SETTINGS[key],10);
+					if (!isNaN(value)) UI.skipFrame(value);
+				}
+			}
+		}
+
+		if (SETTINGS.stereoSeparation){
+			Audio.setStereoSeparation(SETTINGS.stereoSeparation);
+		}
+	}
 
 	function setDefaults(){
 		SETTINGS.keyboardTable = "qwerty";
@@ -54,6 +54,7 @@ var Settings = (function(){
 		SETTINGS.stereoSeparation =  STEREOSEPARATION.BALANCED;
 		SETTINGS.dropboxMode = "rename";
         SETTINGS.skipFrame = 1;
+		SETTINGS.canvasId = "canvas";
 		UI.skipFrame(SETTINGS.skipFrame);
 	}
 

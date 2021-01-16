@@ -158,7 +158,7 @@ UI.app_sidebar = function(){
 
     me.onResize();
     
-    var playlistPath = "demomods/Playlist/";
+    var playlistPath = Host.getBaseUrl() + "demomods/Playlist/";
     FetchService.get(playlistPath + "list.txt",function(list){
     	list = list.split("\n");
     	list.forEach(function(item){

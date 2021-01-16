@@ -8,7 +8,7 @@ var Main = function(){
         Tracker.init();
         Audio.init();
         UI.init(function(){
-                window.focus();
+            window.focus();
             if (!Audio.context){
                 var dialog = UI.modalDialog();
                 dialog.setProperties({
@@ -35,4 +35,4 @@ var Main = function(){
     return me;
 }();
 
-document.addEventListener('DOMContentLoaded', Main.init);
+if (!Host.customConfig) document.addEventListener('DOMContentLoaded', Main.init);

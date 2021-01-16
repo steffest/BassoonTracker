@@ -109,6 +109,7 @@ var UI = (function(){
 	};
 
 	me.initPlugin = function(config){
+		console.log("init plugin");
 		if (config.canvas){
 			canvas = config.canvas;
 		}else{

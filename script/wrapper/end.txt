@@ -9,6 +9,20 @@ return {
         getSong: Tracker.getSong,
         getStateAtTime: Tracker.getStateAtTime,
         setCurrentSongPosition: Tracker.setCurrentSongPosition,
+        setBPM: Tracker.setBPM,
+        getBPM: Tracker.getBPM,
+        setAmigaSpeed: Tracker.setAmigaSpeed,
+        getAmigaSpeed: Tracker.getAmigaSpeed,
+        setMaster: Tracker.setMaster,
+        isMaster: Tracker.isMaster,
         audio: Audio
     };
-})();
+});
+
+
+if (typeof HostBridge === "undefined" || !HostBridge.customConfig){
+    BassoonTracker = BassoonTracker();
+}
+
+
+

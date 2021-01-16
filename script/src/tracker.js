@@ -9,6 +9,7 @@ var Tracker = (function(){
 
 	// TODO: strip UI stuff
 	var me = {};
+	me.isMaster = true;
 
 	var clock;
 
@@ -94,11 +95,46 @@ var Tracker = (function(){
 		}
 
 		if (config) {
-			Audio.init();
-			if (config.plugin) UI.initPlugin(config);
+			Host.init();
+			Audio.init(config.audioContext,config.audioDestination);
+			if (config.plugin){
+				me.isPlugin = true;
+				UI.initPlugin(config);
+				if (typeof config.isMaster === "boolean") me.isMaster = config.isMaster;
+				if (config.handler){
+					EventBus.on(EVENT.songBPMChange,function(bpm){
+						config.handler(EVENT.songBPMChange,bpm);
+					});
+					EventBus.on(EVENT.songBPMChangeIgnored,function(bpm){
+						config.handler(EVENT.songBPMChangeIgnored,bpm);
+					});
+
+
+
+					EventBus.on(EVENT.songSpeedChange,function(speed){
+						config.handler(EVENT.songSpeedChange,speed);
+					});
+					EventBus.on(EVENT.songSpeedChangeIgnored,function(speed){
+						config.handler(EVENT.songSpeedChangeIgnored,speed);
+					});
+
+
+					EventBus.on(EVENT.patternEnd,function(time){
+						config.handler(EVENT.patternEnd,time);
+					});
+				}
+			}
 		}
 
 	};
+	
+	me.setMaster = function(value){
+		me.isMaster = value;
+	}
+
+	me.isMaster = function(){
+		return !!me.isMaster;
+	}
 
 	me.setCurrentInstrumentIndex = function(index){
 		if (song.instruments[index]){
@@ -269,7 +305,7 @@ var Tracker = (function(){
 	me.stop = function(){
 		if (clock) clock.stop();
 		Audio.disable();
-		Audio.setMasterVolume(1);
+		if (!me.isPlugin) Audio.setMasterVolume(1);
 		if (UI) {
 			UI.setStatus("Ready");
 			Input.clearInputNotes();
@@ -427,6 +463,7 @@ var Tracker = (function(){
 								if (p>patternLength) p=0;
 							}
 						}
+						EventBus.trigger(EVENT.patternEnd,time - ticksPerStep * tickTime);
 					}
 				}
 
@@ -1291,7 +1328,7 @@ var Tracker = (function(){
             case 16:
                 //Fasttracker only - global volume
 				value = Math.min(value,64);
-				Audio.setMasterVolume(value/64,time);
+				if (!me.isPlugin) Audio.setMasterVolume(value/64,time);
                 break;
 			case 17:
 				//Fasttracker only - global volume slide
@@ -1673,27 +1710,40 @@ var Tracker = (function(){
 
 
 
-	me.setBPM = function(newBPM){
-		console.log("set BPM: " + bpm + " to " + newBPM);
-		if (clock) clock.timeStretch(Audio.context.currentTime, [mainTimer], bpm / newBPM);
-		bpm = newBPM;
-		tickTime = 2.5/bpm;
-		EventBus.trigger(EVENT.songBPMChange,bpm);
+	me.setBPM = function(newBPM,sender){
+		var fromMaster = (sender && sender.isMaster); 
+		if (me.isMaster || fromMaster){
+			console.log("set BPM: " + bpm + " to " + newBPM);
+			if (clock) clock.timeStretch(Audio.context.currentTime, [mainTimer], bpm / newBPM);
+			if (!fromMaster) EventBus.trigger(EVENT.songBPMChangeIgnored,bpm);
+			bpm = newBPM;
+			tickTime = 2.5/bpm;
+			EventBus.trigger(EVENT.songBPMChange,bpm);
+		}else{
+			EventBus.trigger(EVENT.songBPMChangeIgnored,newBPM);
+		}
 	};
-
+	
 	me.getBPM = function(){
 		return bpm;
 	};
 
-	me.setAmigaSpeed = function(speed){
+	me.setAmigaSpeed = function(speed,sender){
 		// 1 tick is 0.02 seconds on a PAL Amiga
 		// 4 steps is 1 beat
 		// the speeds sets the amount of ticks in 1 step
 		// default is 6 -> 60/(6*0.02*4) = 125 bpm
 
-		//note: this changes the speed of the song, but not the speed of the main loop
-        ticksPerStep = speed;
+		var fromMaster = (sender && sender.isMaster);
+		if (me.isMaster || fromMaster){
+			//note: this changes the speed of the song, but not the speed of the main loop
+			ticksPerStep = speed;
+			EventBus.trigger(EVENT.songSpeedChange,speed);
+		}else{
+			EventBus.trigger(EVENT.songSpeedChangeIgnored,speed);
+		}
 
+		
 	};
 
 	me.getAmigaSpeed = function(){
@@ -2013,6 +2063,8 @@ var Tracker = (function(){
 	}
 
 	function resetDefaultSettings(){
+		EventBus.trigger(EVENT.songBPMChangeIgnored,0);
+		EventBus.trigger(EVENT.songSpeedChangeIgnored,0);
 		me.setAmigaSpeed(6);
 		me.setBPM(125);
 
@@ -2027,7 +2079,7 @@ var Tracker = (function(){
 		}
 		me.useLinearFrequency = false;
 		me.setTrackerMode(TRACKERMODE.PROTRACKER);
-		Audio.setMasterVolume(1);
+		if (!me.isPlugin) Audio.setMasterVolume(1);
 		Audio.setAmigaLowPassFilter(false,0);
 	}
 
