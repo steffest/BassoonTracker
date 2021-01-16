@@ -218,8 +218,8 @@ module.exports = function(grunt) {
                     'skin/src/*.png',
                     'skin/src/icons_small/*.png'
                 ],
-                dest: 'skin/spritesheet_v2.png',
-                destCss: 'skin/spritemap_v2.json',
+                dest: 'skin/spritesheet_v3.png',
+                destCss: 'skin/spritemap_v3.json',
                 cssTemplate: function (data) {
 
                     var result = [];
@@ -250,6 +250,7 @@ module.exports = function(grunt) {
 
     // Default task(s).
     // note:  use concat before uglify to keep the order of the JS files
+    grunt.registerTask('wrap', ['replace:buildnumber','replace:versioncheck','concat:tracker']);
     grunt.registerTask('tracker', ['replace:buildnumber','replace:versioncheck','concat:tracker','uglify:tracker','clean:tracker']);
     grunt.registerTask('player', ['concat:player','uglify:player']);
     grunt.registerTask('miniplayer', ['concat:player','run','uglify:playerSqueezed']);

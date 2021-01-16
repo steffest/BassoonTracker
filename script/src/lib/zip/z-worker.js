@@ -3,7 +3,7 @@
 	"use strict";
 
 	if (global.zWorkerInitialized)
-		throw new Error('z-worker.js should be run only once');
+		//throw new Error('z-worker.js should be run only once');
 	global.zWorkerInitialized = true;
 
 	addEventListener("message", function(event) {
