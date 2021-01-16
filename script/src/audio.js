@@ -36,7 +36,7 @@ var Audio = (function(){
 
     var isRendering = false;
 
-    function createAudioConnections(audioContext){
+    function createAudioConnections(audioContext,destination){
 
         cutOffVolume = audioContext.createGain();
         cutOffVolume.gain.setValueAtTime(1,0);
@@ -51,10 +51,10 @@ var Audio = (function(){
             splitter.connect(haasDelay, 0);
             haasDelay.connect(merger, 0, 0);
             splitter.connect(merger, 1, 1);
-            merger.connect(audioContext.destination);
+            merger.connect(destination || audioContext.destination);
             window.haasDelay = haasDelay;
         }else{
-            cutOffVolume.connect(audioContext.destination);
+            cutOffVolume.connect(destination || audioContext.destination);
         }
 
 
@@ -82,9 +82,11 @@ var Audio = (function(){
         context = new AudioContext();
     }
 
-    me.init = function(audioContext){
+    me.init = function(audioContext,destination){
 
         audioContext = audioContext || context;
+        context = audioContext;
+        me.context = context;
         if (!audioContext) return;
 
         usePanning = !!Audio.context.createStereoPanner;
@@ -93,7 +95,7 @@ var Audio = (function(){
         }
         hasUI = typeof Editor !== "undefined";
 
-        createAudioConnections(audioContext);
+        createAudioConnections(audioContext,destination);
 
         var numberOfTracks = Tracker.getTrackCount();
         filterChains = [];
