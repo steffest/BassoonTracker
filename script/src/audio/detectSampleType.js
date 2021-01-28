@@ -51,6 +51,10 @@ function decodeFileWithAudioContext(file,sample,next){
 				}
 				// todo: show dialog for stereo samples ?
 				sample.data = buffer.getChannelData(0);
+				if (sample.data && !sample.data.concat){
+					// typed arrays don't have the concat method
+					sample.data = Array.from(sample.data);
+				}
 				sample.length = buffer.length;
 				if (next) next();
 			},
