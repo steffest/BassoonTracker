@@ -50,6 +50,7 @@ var ProTracker = function(){
 
 			instrument.sample.length = instrument.sample.realLen = sampleLength << 1;
 			var finetune = file.readUbyte();
+			if (finetune>16) finetune = finetune%16;
 			if (finetune>7) finetune -= 16;
 			instrument.setFineTune(finetune);
 			instrument.sample.volume   = file.readUbyte();
