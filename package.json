@@ -1,6 +1,6 @@
 {
   "name": "BassoonTracker",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "Old School Amiga mod and xm tracker in plain javascript",
   "main": "index.html",
   "repository": "https://github.com/steffest/BassoonTracker",

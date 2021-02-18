@@ -148,7 +148,8 @@ var SELECTION = {
 	CUT: 3,
 	COPY : 4,
 	PASTE : 5,
-	POSITION: 6
+	POSITION: 6,
+	DELETE: 7
 
 };
 

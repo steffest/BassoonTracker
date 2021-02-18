@@ -91,6 +91,25 @@ UI.WaveForm = function(){
 		if (!me.isVisible()) return;
 		me.refresh();
 	});
+	
+	
+	me.scroll = function(delta){
+		var newPos = scrollBar.left + delta;
+		var min = 1;
+		var max = me.width - scrollBar.width - 1;
+
+		newPos = Math.max(newPos,min);
+		newPos = Math.min(newPos,max);
+
+		scrollBar.setPosition(newPos,scrollBar.top);
+
+		var range = newPos/(max-min);
+		zoomLength = zoomEnd - zoomStart;
+		zoomStart = Math.floor((sampleLength-zoomLength) * range);
+		zoomEnd = zoomStart + zoomLength;
+		waveformDisplay.refresh();
+		
+	}
 
 	me.onDragStart = function(touchData){
 
@@ -789,7 +808,7 @@ UI.WaveForm = function(){
 		if (!me.isVisible()) return;
 		switch (state) {
 			case SELECTION.RESET:
-				// keep selection persistant
+				// keep selection persistent
 				return false;
 			case SELECTION.CLEAR:
 				me.adjustVolume(0);
@@ -808,8 +827,21 @@ UI.WaveForm = function(){
 						EventBus.trigger(EVENT.samplePropertyChange,{
 							rangeLength: rangeLength
 						});
-						me.refresh()
+						me.refresh();
 					}
+				}
+				break;
+			case SELECTION.DELETE:
+				if (rangeLength>0){
+					var data = splitRange();
+					data.range = [];
+					joinRange(data);
+					rangeLength = 0;
+					rangeEnd = rangeStart + rangeLength;
+					EventBus.trigger(EVENT.samplePropertyChange,{
+						rangeLength: rangeLength
+					});
+					me.refresh();
 				}
 				break;
 			case SELECTION.PASTE:

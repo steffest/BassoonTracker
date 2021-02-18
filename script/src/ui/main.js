@@ -452,6 +452,13 @@ var UI = (function(){
 		selection = undefined;
 	};
 
+	me.deleteSelection = function(){
+		if (selection){
+			selection(SELECTION.DELETE);
+		}
+		selection = undefined;
+	};
+
 	me.pasteSelection = function(andClear){
 		if (!selection && prevSelection){
 			selection = prevSelection;

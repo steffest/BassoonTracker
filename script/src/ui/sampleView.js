@@ -1,6 +1,7 @@
 UI.SampleView = function(){
 
 	var me = UI.panel();
+	me.name = "SampleView";
 	me.hide();
 
 	var currentInstrumentIndex;
@@ -59,6 +60,15 @@ UI.SampleView = function(){
 
 	var waveForm = UI.WaveForm();
 	me.addChild(waveForm);
+
+	waveForm.onMouseWheel = function(touchData){
+		if (touchData.mouseWheels[0] > 0){
+			waveForm.zoom(1.01)
+		}else{
+			waveForm.zoom(0.99)
+		}
+	};
+
 
 	var volumeEnvelope = UI.EnvelopePanel("volume");
 	me.addChild(volumeEnvelope);
@@ -490,8 +500,25 @@ UI.SampleView = function(){
 
 
     me.onShow = function(){
+    	Input.setFocusElement(me);
         me.onResize();
     };
+
+	me.onKeyDown = function(keyCode,event){
+		if (!me.visible) return;
+		console.error(keyCode);
+		switch (keyCode){
+			case 37: // left
+				waveForm.scroll(-1);
+				return true;
+			case 39: // right
+				waveForm.scroll(1);
+				return true;
+			case 46: // delete
+				UI.deleteSelection();
+				return true;
+		}
+	}
 
 	me.onResize = function(){
 

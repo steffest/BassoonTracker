@@ -137,7 +137,7 @@ UI.app_patternPanel = function(){
 
     };
     me.onPanelResize();
-
+    
 
     function setTrackControlsLayout(){
 

@@ -192,6 +192,7 @@ var Input = (function(){
 					}
 				}
 			}
+			
 		}
 
 		function handleTouchUp(event){
@@ -260,6 +261,8 @@ var Input = (function(){
 
 			var keyCode = event.keyCode;
 			var key = event.key;
+			//console.error(event.code);
+			//TODO use event.code as this is device independent.
 
 			var meta={
 				shift: event.shiftKey,
@@ -277,7 +280,7 @@ var Input = (function(){
 			}
 
 			//console.log(keyCode);
-
+			//ole.log(prevHoverTarget);
 			if (focusElement && focusElement.onKeyDown){
 				var handled = focusElement.onKeyDown(keyCode,event);
 				if (handled) return;
@@ -476,6 +479,7 @@ var Input = (function(){
 
 
 		function handleMouseWheel(event){
+			event.preventDefault();
 			if (touchData.currentMouseX){
 
 				var x = touchData.currentMouseX;
@@ -571,10 +575,23 @@ var Input = (function(){
 		var name = element.name || element.type;
 		if (name) console.log("setting focus to " + name);
 	};
-	me.clearFocusElement = function(){
-		if (focusElement && focusElement.deActivate) focusElement.deActivate();
-		focusElement = undefined;
+	me.clearFocusElement = function(element){
+		if (element){
+			if (!element.name) console.warn("Please specify a name for the target object when removing focus");
+			var name = element.name || element.type;
+			if (name) console.log("removing focus from " + name);
+			if (element.deActivate) element.deActivate();
+			if (focusElement && focusElement.name === element.name){
+				focusElement = undefined;
+			}
+		}else{
+			if (focusElement && focusElement.deActivate) focusElement.deActivate();
+			focusElement = undefined;
+		}
 	};
+	me.getFocusElement = function(){
+		return focusElement;
+	}
 
 
 	function clearInputNote(){
