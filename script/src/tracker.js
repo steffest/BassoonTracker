@@ -2078,7 +2078,7 @@ var Tracker = (function(){
 			trackEffectCache.push({});
 		}
 		me.useLinearFrequency = false;
-		me.setTrackerMode(TRACKERMODE.PROTRACKER);
+		me.setTrackerMode(TRACKERMODE.PROTRACKER,true);
 		if (!me.isPlugin) Audio.setMasterVolume(1);
 		Audio.setAmigaLowPassFilter(false,0);
 	}
@@ -2106,10 +2106,28 @@ var Tracker = (function(){
 		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
 	};
 
-	me.setTrackerMode = function(mode){
-		trackerMode = mode;
-        SETTINGS.emulateProtracker1OffsetBug = !me.inFTMode();
-		EventBus.trigger(EVENT.trackerModeChanged,mode);
+	me.setTrackerMode = function(mode,force){
+
+		var doChange = function(){
+			trackerMode = mode;
+			SETTINGS.emulateProtracker1OffsetBug = !me.inFTMode();
+			EventBus.trigger(EVENT.trackerModeChanged,mode);
+		}
+
+		//do some validation when changing from FT to MOD
+		if (mode === TRACKERMODE.PROTRACKER && !force){
+			if (Tracker.getInstruments().length>32){
+				UI.showDialog("WARNING !!!//This file has more than 31 instruments./If you save this file as .MOD, only the first 31 instruments will be included.//Are you sure you want to continue?",function(){
+					doChange();
+				},function(){
+
+				});
+			}else{
+				doChange();
+			}
+		}else{
+			doChange();
+		}
 	};
 	me.getTrackerMode = function(){
 		return trackerMode;

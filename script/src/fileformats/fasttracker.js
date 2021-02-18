@@ -5,7 +5,7 @@ var FastTracker = function(){
     me.load = function(file,name){
 
         console.log("loading FastTracker");
-        Tracker.setTrackerMode(TRACKERMODE.FASTTRACKER);
+        Tracker.setTrackerMode(TRACKERMODE.FASTTRACKER,true);
 		Tracker.clearInstruments(1);
 
         var mod = {};

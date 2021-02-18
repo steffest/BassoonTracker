@@ -274,7 +274,7 @@ var Instrument = function(){
 			me.sample.finetuneX = finetune;
 			me.sample.finetune = finetune >> 4;
 		}else{
-            if (finetune>7) finetune = finetune-15;
+            if (finetune>7) finetune = finetune-16;
 			me.sample.finetune = finetune;
 			me.sample.finetuneX = finetune << 4;
 		}

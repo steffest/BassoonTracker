@@ -3,7 +3,7 @@ var SoundTracker = function(){
 
 	me.load = function(file,name){
 
-		Tracker.setTrackerMode(TRACKERMODE.PROTRACKER);
+		Tracker.setTrackerMode(TRACKERMODE.PROTRACKER,true);
         Tracker.useLinearFrequency = false;
 		Tracker.clearInstruments(15);
 

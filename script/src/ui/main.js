@@ -479,6 +479,39 @@ var UI = (function(){
 		EventBus.trigger(EVENT.hideContextMenu);
 	};
 
+	me.showDialog = function(text,onOk,onCancel){
+		var dialog = UI.modalDialog();
+		dialog.setProperties({
+			width: UI.mainPanel.width,
+			height: UI.mainPanel.height,
+			top: 0,
+			left: 0,
+			ok: !!onOk,
+			cancel: !!onCancel
+		});
+
+		dialog.onClick = function(touchData){
+			if (onCancel){
+				var elm = dialog.getElementAtPoint(touchData.x,touchData.y);
+				if (elm && elm.name){
+					if (elm.name === "okbutton"){
+						if (typeof onOk === "function") onOk();
+					}else{
+						if (typeof onCancel === "function") onCancel();
+					}
+					dialog.close();
+				}
+			}else{
+				dialog.close();
+				if (onOk) onOk();
+			}
+		};
+
+		dialog.setText(text);
+
+		UI.setModalElement(dialog);
+	}
+
 	me.getChildren = function(){
 		return children;
 	};
@@ -521,6 +554,8 @@ var UI = (function(){
 	me.setInfo = function(info,source,url){
 		EventBus.trigger(EVENT.statusChange,{info:info,source: source, url:url});
 	};
+
+
 
 	me.stats = function(){
 		return {
