@@ -842,12 +842,14 @@ UI.app_patternView = function(x,y,w,h){
 
 
 	EventBus.on(EVENT.patternPosChange,function(positions){
-		if (Input.isMetaKeyDown() && !Tracker.isRecording() && !Tracker.isPlaying()){
+		//if (Input.isMetaKeyDown() && !Tracker.isRecording() && !Tracker.isPlaying()){
+		if (Input.isMetaKeyDown() && !Tracker.isPlaying()){
 			initRange(positions)
 		}
     });
 	EventBus.on(EVENT.cursorPositionChange,function(pos){
-		if (Input.isMetaKeyDown() && !Tracker.isRecording() && !Tracker.isPlaying()){
+		//if (Input.isMetaKeyDown() && !Tracker.isRecording() && !Tracker.isPlaying()){
+		if (Input.isMetaKeyDown() && !Tracker.isPlaying()){
 			initRange({current: Tracker.getCurrentPatternPos(),prev: Tracker.getCurrentPatternPos()})
 		}
 	});
