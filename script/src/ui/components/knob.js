@@ -65,6 +65,10 @@ UI.knob = function(initialProperties){
 		me.refresh();
 	};
 
+	me.getValue = function(){
+		return value;
+	}
+
 
 	me.render = function(internal){
 		if (me.needsRendering){

@@ -29,6 +29,7 @@ UI.fxPanel= function(track){
         };
 		knob.onToggle = function(value){
 			handleKnobState(this,value);
+            handleKnob(this,this.getValue());
 		};
         me.addChild(knob);
 		knobs.push(knob);
