@@ -65,7 +65,6 @@ var ProTracker = function(){
 			instrument.setSampleIndex(0);
 			Tracker.setInstrument(i,instrument);
 
-			console.error("loading instrument " + i + " " + instrument.name);
 			
 		}
 		song.instruments = Tracker.getInstruments();
@@ -121,8 +120,6 @@ var ProTracker = function(){
 		}
 
 		var instrumentContainer = [];
-
-		console.log("pattern data loaded");
 
 		for(i=1; i <= instrumentCount; i++) {
 			instrument = Tracker.getInstrument(i);
@@ -266,9 +263,6 @@ var ProTracker = function(){
 
 		for (i=0;i<=highestPattern;i++){
 
-			// TODO: patternData
-			//file.clear(1024);
-
 			var patternData = song.patterns[i];
 
 			// TODO - should be patternLength of pattern;
@@ -300,10 +294,10 @@ var ProTracker = function(){
 			var instrument = instruments[i];
 			if (instrument && instrument.sample.data && instrument.sample.length){
 				// should we put repeat info here?
-				file.clear(2);
+				//file.clear(2);
 				var d;
 				// instrument length is in word
-				for (var j = 0; j < instrument.sample.length-2; j++){
+				for (var j = 0; j < instrument.sample.length; j++){
 					d = instrument.sample.data[j] || 0;
 					file.writeByte(Math.round(d*127));
 				}
