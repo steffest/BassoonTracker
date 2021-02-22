@@ -117,6 +117,7 @@ UI.app_controlPanel = function(){
 		max: 32,
 		min:2,
 		size: "big",
+		padLength: 2,
 		onChange : function(value){Tracker.setTrackCount(value)}
 	});
 	me.addChild(trackCountSpinbox);

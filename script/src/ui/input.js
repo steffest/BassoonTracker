@@ -27,6 +27,7 @@ var Input = (function(){
 		canvas.addEventListener("mousedown",handleTouchDown,false);
 		canvas.addEventListener("mousemove",handleTouchMove,false);
 		canvas.addEventListener("mouseup",handleTouchUp,false);
+		canvas.addEventListener("mouseout",handleTouchOut,false);
 
 		canvas.addEventListener("touchstart", handleTouchDown,false);
 		canvas.addEventListener("touchmove", handleTouchMove,false);
@@ -253,6 +254,13 @@ var Input = (function(){
 
 		}
 
+
+		function handleTouchOut(event){
+			if (touchData.isTouchDown){
+				handleTouchUp(event);
+			}
+		}
+
 		function handleKeyDown(event){
 			
 			event.preventDefault();
@@ -408,7 +416,7 @@ var Input = (function(){
 
 				if (isMetaKeyDown && keyCode>=65 && keyCode<=90){
 					// A-Z with shift key
-					console.log("meta " + keyCode);
+					//console.log("meta " + keyCode);
 
 					event.stopPropagation();
 					event.preventDefault();
@@ -571,9 +579,9 @@ var Input = (function(){
 	me.setFocusElement = function(element){
 		if (focusElement && focusElement.deActivate) focusElement.deActivate();
 		focusElement = element;
-
 		var name = element.name || element.type;
 		if (name) console.log("setting focus to " + name);
+		if (element.Activate) element.Activate();
 	};
 	me.clearFocusElement = function(element){
 		if (element){

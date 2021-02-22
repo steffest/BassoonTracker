@@ -19,7 +19,9 @@ UI.buttonGroup = function(title,buttonsInfo){
 
 	buttonsInfo.forEach(function(buttonInfo){
 		if (buttonInfo.type === "number"){
-			var button = UI.numberDisplay();
+			var button = UI.numberDisplay({
+				autoPadding: true
+			});
 			button.setValue(buttonInfo.value);
 		}else{
 			button = UI.Assets.generate("buttonLight");

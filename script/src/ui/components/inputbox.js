@@ -115,7 +115,6 @@ UI.inputbox = function(initialProperties){
 
 	me.onKeyDown = function(keyCode,event){
 		var handled = false;
-
 		switch(keyCode){
 			case 8:// backspace
 				if (value) {
@@ -127,7 +126,9 @@ UI.inputbox = function(initialProperties){
 				}
 				handled = true;
 				break;
+			case 9:// tab
 			case 13:// enter
+			case 27:// esc
 				me.deActivate();
 				handled = true;
 				break;
@@ -145,6 +146,12 @@ UI.inputbox = function(initialProperties){
 				handled = true;
 				break;
 			case 46: // delete
+				if (value) {
+					if (cursorPos<value.length-1){
+						value = value.substr(0,cursorPos+1) + value.substr(cursorPos+2);
+						if (me.onChange) me.onChange(value);
+					}
+				}
 				handled = true;
 				break;
 		}
@@ -167,7 +174,7 @@ UI.inputbox = function(initialProperties){
 		if (!isActive) return;
 		isCursorVisible = !isCursorVisible;
 		me.refresh();
-		setTimeout(pingCursor,200);
+		setTimeout(pingCursor,300);
 	};
 
 	return me;

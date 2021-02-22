@@ -46,12 +46,26 @@ UI.sliderBox = function(initialProperties){
 		width: sliderwidth,
 		vertical: !!vertical,
 		onChange: function(v){
-				value = v;
-				if (onChange) onChange(v);
+				if (v!==value){
+					me.setValue(v);
+				}
 		}
 	});
-
 	me.addChild(slider);
+
+	var numberDisplay = UI.numberDisplay({
+		min: min,
+		max: max,
+		padLength: 4,
+		size: "small",
+		onChange:function(v){
+			if (v!==value){
+				me.setValue(v);
+			}
+		}
+	});
+	numberDisplay.paddingBottom = -1;
+	me.addChild(numberDisplay);
 
 
 	me.setProperties = function(newProperties){
@@ -87,6 +101,7 @@ UI.sliderBox = function(initialProperties){
 	me.setValue = function(newValue,internal){
 		value=newValue;
 		slider.setValue(value,internal);
+		numberDisplay.setValue(value,internal);
 		me.refresh();
 		if (!internal && onChange) onChange(value);
 	};
@@ -99,12 +114,14 @@ UI.sliderBox = function(initialProperties){
 		max = newMax;
 		if (!skipCheck && value>max) me.setValue(max);
 		slider.setMax(max,skipCheck);
+		numberDisplay.setMax(max,skipCheck);
 	};
 
 	me.setMin = function(newMin,skipCheck){
 		min = newMin;
 		if (!skipCheck && value<min) me.setValue(min);
         slider.setMin(min,skipCheck);
+		numberDisplay.setMin(min,skipCheck);
 	};
 
     me.setDisabled = function(value){
@@ -118,9 +135,10 @@ UI.sliderBox = function(initialProperties){
 		if (me.needsRendering){
 			me.clearCanvas();
 
-			me.ctx.drawImage(Y.getImage("panel_inset_dark"),digitX,digitY,digitW,digitH);
-			window.fontLed.write(me.ctx,padValue(),digitX+4,digitY+2,0);
+			//me.ctx.drawImage(Y.getImage("panel_inset_dark"),digitX,digitY,digitW,digitH);
+			//window.fontLed.write(me.ctx,padValue(),digitX+4,digitY+2,0);
 			slider.render();
+			numberDisplay.render();
 
 			if (font){
 				font.write(me.ctx,label,labelX,labelY,0);
@@ -166,7 +184,7 @@ UI.sliderBox = function(initialProperties){
 	me.onResize = function(){
 
 		digitW = 40;
-		digitH = 19;
+		digitH = 20;
 		if (padLength == 5){
 			digitW = 48;
 			digitX -= 8;
@@ -185,6 +203,9 @@ UI.sliderBox = function(initialProperties){
 			digitX = me.width - 40;
 			digitY = 2;
 		}
+
+		numberDisplay.setSize(digitW,digitH);
+		numberDisplay.setPosition(digitX,digitY);
 	};
 
 	return me;

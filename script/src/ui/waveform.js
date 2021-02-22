@@ -1,6 +1,7 @@
 UI.WaveForm = function(){
 
 	var me = UI.element();
+	me.name = "Waveform";
 	var currentSampleData;
 	var currentInstrument;
 	var isPlaying;
@@ -11,8 +12,8 @@ UI.WaveForm = function(){
 	var sampleLength;
 	var dragRangeStart;
 	var dragRangeEnd;
-	var rangeStart = 0;
-	var rangeEnd = 0;
+	var rangeStart = -1;
+	var rangeEnd = -1;
 	var rangeLength = 0;
 	var dragMarker = 0;
 	var activeDragMarker = 0;
@@ -142,7 +143,7 @@ UI.WaveForm = function(){
 			}
 		}
 
-		if (rangeStart){
+		if (rangeStart>=0){
 			markerX = getRangeMarkerPos(MARKERTYPE.rangeStart);
 			if (Math.abs(x-markerX)<5){
 				dragMarker = MARKERTYPE.rangeStart;
@@ -193,10 +194,13 @@ UI.WaveForm = function(){
 			return;
 		}
 
+
 		if (dragMarker && (dragMarker === MARKERTYPE.rangeStart || dragMarker === MARKERTYPE.rangeEnd)){
 			activeDragMarker = dragMarker;
 			delta = touchData.deltaX;
 			value = dragMarkerStart + Math.round(pixelValue*delta);
+
+
 
 			if (dragMarker === MARKERTYPE.rangeStart){
 				value = Math.min(value,sampleLength-2);
@@ -222,6 +226,7 @@ UI.WaveForm = function(){
 
 		dragRangeEnd = touchData.x;
 		rangeEnd = Math.round(zoomStart + (dragRangeEnd * pixelValue));
+		rangeEnd = Math.max(rangeEnd,0);
 		rangeLength = rangeEnd - rangeStart;
 
 		EventBus.trigger(EVENT.samplePropertyChange,{
@@ -261,7 +266,7 @@ UI.WaveForm = function(){
 			var x = me.eventX;
 			var y = me.eventY;
 
-			if (rangeStart){
+			if (rangeStart>=0){
 				markerX = getRangeMarkerPos(MARKERTYPE.rangeStart);
 				if (Math.abs(x-markerX)<5){
 					activeDragMarker = MARKERTYPE.rangeStart;
@@ -270,7 +275,7 @@ UI.WaveForm = function(){
 				}
 			}
 
-			if (rangeEnd){
+			if (rangeEnd>=0){
 				var markerX = getRangeMarkerPos(MARKERTYPE.rangeEnd);
 				if (Math.abs(x-markerX)<5){
 					activeDragMarker = MARKERTYPE.rangeEnd;
@@ -335,8 +340,8 @@ UI.WaveForm = function(){
 
 		isPlaying = false;
 		me.zoom(1);
-		rangeStart=0;
-		rangeEnd=0;
+		rangeStart=-1;
+		rangeEnd=-1;
 		rangeLength=0;
 		me.refresh();
 	};
@@ -443,8 +448,8 @@ UI.WaveForm = function(){
 		}
 
 		if (range === "none"){
-			rangeStart = 0;
-			rangeEnd = 0;
+			rangeStart = -1;
+			rangeEnd = -1;
 			rangeLength = 0;
 			me.refresh();
 		}
@@ -513,7 +518,7 @@ UI.WaveForm = function(){
 
 					for (var i = 0; i<me.width; i++){
 						var index = Math.floor(i*step);
-						var peak = currentSampleData[zoomStart + index] * maxHeight;
+						var peak = currentSampleData[zoomStart + index] * -maxHeight;
 
 						if(i === 0) {
 							waveformDisplay.ctx.moveTo(i, mid + peak);
@@ -571,7 +576,7 @@ UI.WaveForm = function(){
 			var rangeLineX1 = -1;
 			var rangeLineX2 = -1;
 
-			if (rangeEnd){
+			if (rangeEnd>=0){
 				color = "rgb(241, 131, 71)";
 				me.ctx.fillStyle = color;
 				if (activeDragMarker === MARKERTYPE.rangeEnd) me.ctx.fillStyle = "white";
@@ -580,7 +585,7 @@ UI.WaveForm = function(){
 				me.ctx.fillRect(rangeLineX2+1,11,4,10);
 			}
 
-			if (rangeStart){
+			if (rangeStart>=0){
 				if (rangeStart<zoomStart){
 					rangeLineX1=0;
 				}else{
