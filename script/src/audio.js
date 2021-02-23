@@ -15,6 +15,7 @@ var Audio = (function(){
     var mediaRecorder;
     var recordingChunks = [];
     var offlineContext;
+    var onlineContext;
     var currentStereoSeparation = STEREOSEPARATION.BALANCED;
     var lastMasterVolume = 0;
     var usePanning;
@@ -414,6 +415,7 @@ var Audio = (function(){
 
         console.log("startRendering " + length);
         offlineContext = new OfflineAudioContext(2,44100*length,44100);
+        onlineContext = context;
         me.context = offlineContext;
         me.init(offlineContext);
     };
@@ -429,10 +431,11 @@ var Audio = (function(){
             // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
         });
 
+
         // switch back to online Audio context;
-        me.context = context;
-        createAudioConnections(context);
-        me.init(context);
+        me.context = onlineContext;
+        createAudioConnections(onlineContext);
+        me.init(onlineContext);
     };
     //-->
 
