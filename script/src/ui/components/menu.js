@@ -6,9 +6,11 @@ UI.menu = function(x,y,w,h,submenuParent){
     var properties = ["left","top","width","height","name","type","background","layout"];
     var background;
     var buttons = [];
+    var activeIndex;
+    var hoverIndex,preHoverIndex;
+    var itemMargin = 24;
 
     me.setProperties = function(p){
-
         properties.forEach(function(key){
             if (typeof p[key] != "undefined") me[key] = p[key];
         });
@@ -25,38 +27,141 @@ UI.menu = function(x,y,w,h,submenuParent){
     };
 
     me.onClick = function(data){
-    	
-        if (!(items && items.length)) return;
+        var selectedIndex = getItemIndexAtPosition(data.x);
+        items.forEach(function(item,index){
+            if (index !== selectedIndex && item.subMenu) item.subMenu.hide();
+        })
 
-        var x = data.x;
-        var selectedIndex = 0;
-        var i;
-        var max = items.length;
-
-        for (i = 0; i<max;i++){
-            if (x<items[i].startX) break;
-            selectedIndex = i;
-        }
-
+        if (selectedIndex<0) return;
         var selectedItem = items[selectedIndex];
-        for (i = 0; i<max;i++){
-            if (i !== selectedIndex && items[i].subMenu) items[i].subMenu.hide();
-        }
+        activeIndex = undefined;
 
-        if (selectedItem){
-            if (selectedItem.subMenu){
-            	
-            	var xOffset = data.globalX - data.x;
-                selectedItem.subMenu.setPosition((selectedItem.startX || 0) + xOffset,me.height);
-                selectedItem.subMenu.toggle();
-                selectedItem.subMenu.parent.refresh();
+        Input.setFocusElement(me);
+
+        if (selectedItem.subMenu){
+            var xOffset = data.globalX - data.x;
+            selectedItem.subMenu.setPosition((selectedItem.startX || 0) + xOffset,me.height);
+            selectedItem.subMenu.toggle();
+            selectedItem.subMenu.parent.refresh();
+
+            if(selectedItem.subMenu.isVisible()){
+                activeIndex = selectedIndex;
             }
-            if (selectedItem.command){
-                EventBus.trigger(EVENT.command,selectedItem.command);
-            }
+        }
+        if (selectedItem.command){
+            EventBus.trigger(EVENT.command,selectedItem.command);
         }
 
     };
+
+    me.onHover = function(data){
+        var selectedIndex = getItemIndexAtPosition(me.eventX);
+        if (selectedIndex !== preHoverIndex){
+            hoverIndex = selectedIndex;
+            preHoverIndex = hoverIndex;
+            me.refresh();
+        }
+
+        if ( selectedIndex<0) return;
+        if (activeIndex>=0 && activeIndex!==selectedIndex){
+            me.activateSubmenu(selectedIndex);
+        }
+
+
+    };
+
+    me.onHoverExit = function(){
+        if (hoverIndex){
+            hoverIndex = undefined;
+            preHoverIndex = undefined;
+            me.refresh();
+        }
+    };
+
+    me.onKeyDown = function(keyCode){
+        var handled;
+        console.error(keyCode);
+        switch (keyCode){
+            case 13: // enter
+                if (activeIndex>=0){
+                    var activeItem = items[activeIndex];
+                    if (activeItem && activeItem.subMenu){
+                        var selectedIndex = activeItem.subMenu.getSelectedIndex();
+                        if (selectedIndex>=0){
+                            var subItem = activeItem.subMenu.getItems()[selectedIndex];
+                            if (subItem) activeItem.subMenu.executeItem(subItem);
+                        }
+                    }
+                }
+                handled = true;
+                break;
+            case 27: // esc
+                me.deActivate();
+                handled = true;
+                break;
+            case 37:
+                if (activeIndex>=0){
+                    me.activateSubmenu(Math.max(activeIndex-1,0));
+                }
+                handled = true;
+                break;
+            case 39:
+                if (activeIndex>=0){
+                    me.activateSubmenu(Math.min(activeIndex+1,items.length-1));
+                }
+                handled = true;
+                break;
+            case 38:
+                if (activeIndex>=0){
+                    var activeItem = items[activeIndex];
+                    if (activeItem && activeItem.subMenu){
+                        activeItem.subMenu.setSelectedIndex(activeItem.subMenu.getSelectedIndex()-1);
+                    }
+                }
+                handled = true;
+                break;
+            case 40:
+                if (activeIndex>=0){
+                    var activeItem = items[activeIndex];
+                    if (activeItem && activeItem.subMenu){
+                        activeItem.subMenu.setSelectedIndex(activeItem.subMenu.getSelectedIndex()+1);
+                    }
+                }
+                handled = true;
+                break;
+        }
+
+        return handled;
+    }
+
+    me.deActivate = function(){
+        if (activeIndex>=0){
+            var activeItem = items[activeIndex];
+            if (activeItem && activeItem.subMenu){
+                activeItem.subMenu.hide();
+                activeIndex=undefined;
+                me.refresh();
+                Input.clearFocusElement();
+            }
+        }
+    }
+
+    me.activateSubmenu = function(index){
+        if (index===activeIndex) return;
+        activeIndex = index;
+        items.forEach(function(item,index){
+            if (index !== activeIndex && item.subMenu) item.subMenu.hide();
+        })
+
+        var selectedItem = items[index];
+        if (selectedItem && selectedItem.subMenu){
+            activeIndex=index;
+            var xOffset = me.left;
+            selectedItem.subMenu.setPosition((selectedItem.startX || 0) + xOffset,me.height);
+            selectedItem.subMenu.toggle();
+            selectedItem.subMenu.parent.refresh();
+        }
+    }
 
 
     me.render = function(internal){
@@ -67,7 +172,6 @@ UI.menu = function(x,y,w,h,submenuParent){
             var textX = 10;
             var textY = 10;
             var fontWidth = 9;
-            var itemMargin = 24;
 
 			me.clearCanvas();
 			if (background)background.render();
@@ -77,10 +181,17 @@ UI.menu = function(x,y,w,h,submenuParent){
                     button.render();
                 })
             }else if (items){
-				items.forEach(function(item){
+				items.forEach(function(item,index){
+                    var w = item.label.length*fontWidth;
 					item.startX = textX;
+                    item.width = w;
+
+					if (index === hoverIndex){
+                        me.ctx.fillStyle = "rgba(179,195,243,0.1)";
+                        me.ctx.fillRect(textX-(itemMargin/2),textY-10,w+20,30);
+                    }
 					fontMed.write(me.ctx,item.label,textX,textY);
-					textX += (item.label.length*fontWidth) + itemMargin;
+					textX += w + itemMargin;
 				});
             }
 
@@ -140,6 +251,7 @@ UI.menu = function(x,y,w,h,submenuParent){
                 subMenu.setItems(item.subItems);
                 subMenu.zIndex = 200;
                 submenuParent.addChild(subMenu);
+                subMenu.mainMenu = me;
                 item.subMenu = subMenu;
             }
         });
@@ -153,16 +265,17 @@ UI.menu = function(x,y,w,h,submenuParent){
     };
 
 
-    me.getItemAtPosition = function(x,y){
-        y = y-startY;
-        var index = Math.floor(y/lineHeight) + visibleIndex;
-        if (index>=0 && index<items.length){
-            return(items[index]);
-        }else{
-            return undefined;
+    function getItemIndexAtPosition(x){
+        if (items && items.length){
+            for (var i = 0, max = items.length; i<max;i++){
+                var item = items[i];
+                if (x>=item.startX-(itemMargin/2) && x<=item.startX+item.width+(itemMargin/2)){
+                    return i;
+                }
+            }
         }
-    };
-
+        return -1;
+    }
 
     return me;
 };

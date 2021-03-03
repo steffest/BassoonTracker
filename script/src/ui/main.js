@@ -402,6 +402,7 @@ var UI = (function(){
 
 	me.setModalElement = function(elm){
 		modalElement = elm;
+		Input.setFocusElement(elm);
 	};
 
 	me.getModalElement = function(){
@@ -410,7 +411,7 @@ var UI = (function(){
 
 	me.removeModalElement = function(){
 		if (modalElement){
-
+			Input.clearFocusElement();
 		}
 		modalElement = undefined;
 		UI.mainPanel.refresh();
@@ -506,6 +507,19 @@ var UI = (function(){
 				if (onOk) onOk();
 			}
 		};
+
+		dialog.onKeyDown = function(keyCode){
+			switch (keyCode){
+				case 13:
+					dialog.close();
+					if (onOk) onOk();
+					return true;
+				case 27:
+					dialog.close();
+					if (onCancel) onCancel();
+					return true;
+			}
+		}
 
 		dialog.setText(text);
 

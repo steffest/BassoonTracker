@@ -32,10 +32,8 @@ UI.submenu = function(x,y,w,h){
 
     me.onHover = function(data){
         var index = Math.floor(me.eventY/itemHeight);
-        if (index != preHoverIndex){
-            hoverIndex = index;
-            preHoverIndex = hoverIndex;
-            me.refresh();
+        if (index !== preHoverIndex){
+            me.setSelectedIndex(index)
         }
     };
 
@@ -48,16 +46,34 @@ UI.submenu = function(x,y,w,h){
 
     };
 
+    me.setSelectedIndex = function(index){
+        hoverIndex = Math.min(index,items.length-1);
+        if (hoverIndex<0) hoverIndex=0;
+        preHoverIndex = hoverIndex;
+        me.refresh();
+    }
+
+    me.getSelectedIndex = function(){
+        if (typeof hoverIndex !== "undefined") return hoverIndex;
+        return -1;
+    }
+
     me.onClick = function(data){
         if (!(items && items.length)) return;
-
         var selectedItem = items[Math.floor(me.eventY/itemHeight)];
-        if (selectedItem && selectedItem.command){
+        me.executeItem(selectedItem);
+
+    };
+
+    me.executeItem = function(item){
+        if (item && item.command){
             me.hide();
             me.parent.refresh();
-            EventBus.trigger(EVENT.command,selectedItem.command);
+            if (me.mainMenu) me.mainMenu.deActivate();
+            EventBus.trigger(EVENT.command,item.command);
         }
-    };
+    }
+
 
     me.render = function(internal){
         if (!me.isVisible()) return;

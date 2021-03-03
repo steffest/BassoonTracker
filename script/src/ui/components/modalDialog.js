@@ -54,6 +54,15 @@ UI.modalDialog = function(initialProperties){
     me.addChild(cancelButton);
 
 
+    // will be overriden if other functionality needed
+    me.onKeyDown = function(keyCode){
+        switch (keyCode){
+            case 13:
+                me.close();
+                return true;
+        }
+    }
+
     me.render = function(internal){
         internal = !!internal;
 
@@ -110,8 +119,6 @@ UI.modalDialog = function(initialProperties){
         UI.removeModalElement();
         delete me;
     };
-
-
 
     return me;
 };
