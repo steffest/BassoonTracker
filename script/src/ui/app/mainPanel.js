@@ -47,6 +47,7 @@ UI.app_mainPanel = function(){
 
     var modNameInputBox = UI.inputbox({
         name: "modName",
+		trackUndo: true,
         onChange: function(value){
             Tracker.getSong().title = value;
             UI.setInfo(value);
@@ -126,6 +127,8 @@ UI.app_mainPanel = function(){
         max: 200,
         min:1,
         font: spinbBoxFont,
+		trackUndo: true,
+		undoLabel: "Change Song length",
         onChange : function(value){
             var currentLength = Tracker.getSong().length;
             if (currentLength>value){
@@ -169,6 +172,8 @@ UI.app_mainPanel = function(){
         max: 128,
         min:1,
         font: spinbBoxFont,
+		trackUndo: true,
+		undoLabel: "Change Pattern length",
         onChange : function(value){
             Tracker.setPatternLength(value);
         }
@@ -182,6 +187,8 @@ UI.app_mainPanel = function(){
         max: 400,
         min:1,
         font: spinbBoxFont,
+		trackUndo: true,
+		undoLabel: "Change Song Tempo",
         onChange : function(value){
 			Tracker.setBPM(value);
         }
@@ -511,13 +518,13 @@ UI.app_mainPanel = function(){
     EventBus.on(EVENT.songPropertyChange,function(song){
         modNameInputBox.setValue(song.title,true);
         spinBoxSongLength.setValue(song.length,true);
-        spinBoxInstrument.setMax(Tracker.getMaxInstruments());
-		spinBoxSongRepeat.setMax(song.length);
+        spinBoxInstrument.setMax(Tracker.getMaxInstruments(),true);
+		spinBoxSongRepeat.setMax(song.length,true);
 
 		if (song.restartPosition && song.restartPosition>song.length){
 			song.restartPosition = song.length;
 		}
-		spinBoxSongRepeat.setValue(song.restartPosition || 1);
+		spinBoxSongRepeat.setValue(song.restartPosition || 1,true);
     });
 
     EventBus.on(EVENT.songBPMChange,function(value){

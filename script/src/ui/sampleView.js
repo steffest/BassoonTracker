@@ -14,6 +14,8 @@ UI.SampleView = function(){
 	var instrumentName = UI.inputbox({
 		name: "instrumentName",
 		height: inputboxHeight,
+		trackUndo: true,
+		undoInstrument: true,
 		onChange: function(value){
 			if (currentInstrumentIndex){
 				var instrument = Tracker.getInstrument(currentInstrumentIndex);
@@ -95,6 +97,7 @@ UI.SampleView = function(){
 
 
 	var volumeSlider = UI.sliderBox({
+		name: "Volume",
 		label: "Volume",
 		font: font,
 		height: 200,
@@ -104,6 +107,8 @@ UI.SampleView = function(){
 		min: 0,
 		step:1,
 		vertical:true,
+		trackUndo: true,
+		undoInstrument: true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) {
@@ -122,6 +127,8 @@ UI.SampleView = function(){
 		min: -8,
 		step:1,
 		vertical:true,
+		trackUndo: true,
+		undoInstrument: true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) instrument.setFineTune(value);
@@ -137,6 +144,8 @@ UI.SampleView = function(){
 		max: 127,
 		min: -127,
 		vertical:true,
+		trackUndo: true,
+		undoInstrument: true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) {
@@ -155,6 +164,8 @@ UI.SampleView = function(){
 		min:0,
 		step:2,
 		font: font,
+		trackUndo: true,
+		undoInstrument: true,
 		onChange: function(value){
 			var instrument= Tracker.getCurrentInstrument();
             if (instrument){
@@ -177,6 +188,8 @@ UI.SampleView = function(){
 		min:0,
 		step:2,
 		font: font,
+		trackUndo: true,
+		undoInstrument: true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument){
@@ -201,6 +214,8 @@ UI.SampleView = function(){
 		step:1,
 		font: font,
 		vertical:true,
+		trackUndo: true,
+		undoInstrument: true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) instrument.fadeout = value;
@@ -216,6 +231,8 @@ UI.SampleView = function(){
 		min:-127,
 		step:1,
 		font: font,
+		trackUndo: true,
+		undoInstrument: true,
 		onChange: function(value){
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument) {
@@ -235,6 +252,8 @@ UI.SampleView = function(){
         min:0,
         step:1,
         font: font,
+		trackUndo: true,
+		undoInstrument: true,
         onChange: function(value){
             var instrument = Tracker.getCurrentInstrument();
             if (instrument) {
@@ -253,6 +272,8 @@ UI.SampleView = function(){
         min:0,
         step:1,
         font: font,
+		trackUndo: true,
+		undoInstrument: true,
         onChange: function(value){
             var instrument = Tracker.getCurrentInstrument();
             if (instrument) {
@@ -271,6 +292,8 @@ UI.SampleView = function(){
         min:0,
         step:1,
         font: font,
+		trackUndo: true,
+		undoInstrument: true,
         onChange: function(value){
             var instrument = Tracker.getCurrentInstrument();
             if (instrument) {
@@ -498,7 +521,6 @@ UI.SampleView = function(){
     };
     me.addChild(vibratoTitleBar);
 
-
     me.onShow = function(){
     	Input.setFocusElement(me);
         me.onResize();
@@ -721,6 +743,7 @@ UI.SampleView = function(){
 
 	};
 
+
 	function changeSampleBit(amount){
 		var instrument = Tracker.getCurrentInstrument();
 		if (instrument) {
@@ -791,24 +814,24 @@ UI.SampleView = function(){
 		if (instrument){
 
             instrumentName.setValue(instrument.name,true);
-			fineTuneSlider.setValue(instrument.getFineTune());
-			fadeOutSlider.setValue(instrument.fadeout || 0);
+			fineTuneSlider.setValue(instrument.getFineTune(),true);
+			fadeOutSlider.setValue(instrument.fadeout || 0,true);
 
-			spinBoxVibratoSpeed.setValue(instrument.vibrato.rate || 0);
-			spinBoxVibratoDepth.setValue(instrument.vibrato.depth || 0);
-			spinBoxVibratoSweep.setValue(instrument.vibrato.sweep || 0);
+			spinBoxVibratoSpeed.setValue(instrument.vibrato.rate || 0,true);
+			spinBoxVibratoDepth.setValue(instrument.vibrato.depth || 0,true);
+			spinBoxVibratoSweep.setValue(instrument.vibrato.sweep || 0,true);
             setVibratoWave(instrument.vibrato.type || 0);
 
 			if (instrument.sample){
                 repeatSpinbox.setMax(instrument.sample.length,true);
                 repeatLengthSpinbox.setMax(instrument.sample.length,true);
 
-                volumeSlider.setValue(instrument.sample.volume);
-                panningSlider.setValue(instrument.sample.panning || 0);
+                volumeSlider.setValue(instrument.sample.volume,true);
+                panningSlider.setValue(instrument.sample.panning || 0,true);
                 repeatSpinbox.setValue(instrument.sample.loop.start,true);
                 repeatLengthSpinbox.setValue(instrument.sample.loop.length,true);
-                spinBoxRelativeNote.setValue(instrument.sample.relativeNote);
-                loopEnabledCheckbox.setState(instrument.sample.loop.enabled);
+                spinBoxRelativeNote.setValue(instrument.sample.relativeNote,true);
+                loopEnabledCheckbox.setState(instrument.sample.loop.enabled,true);
 
                 if (instrument.sample.bits === 8){
                     bit8Button.setActive(true);
@@ -828,13 +851,13 @@ UI.SampleView = function(){
 			volumeEnvelope.setInstrument();
 			panningEnvelope.setInstrument();
 			instrumentName.setValue("",true);
-			volumeSlider.setValue(0);
-			panningSlider.setValue(0);
-			fineTuneSlider.setValue(0);
-			repeatSpinbox.setValue(0);
-			repeatLengthSpinbox.setValue(0);
-			spinBoxRelativeNote.setValue(0);
-			fadeOutSlider.setValue(0);
+			volumeSlider.setValue(0,true);
+			panningSlider.setValue(0,true);
+			fineTuneSlider.setValue(0,true);
+			repeatSpinbox.setValue(0,true);
+			repeatLengthSpinbox.setValue(0,true);
+			spinBoxRelativeNote.setValue(0,true);
+			fadeOutSlider.setValue(0,true);
 		}
 	});
 
@@ -891,8 +914,8 @@ UI.SampleView = function(){
 	EventBus.on(EVENT.samplePropertyChange,function(newProps){
 		var instrument = Tracker.getInstrument(currentInstrumentIndex);
 		if (instrument){
-			if (typeof newProps.loopStart !== "undefined") repeatSpinbox.setValue(newProps.loopStart);
-			if (typeof newProps.loopLength !== "undefined") repeatLengthSpinbox.setValue(newProps.loopLength);
+			if (typeof newProps.loopStart !== "undefined") repeatSpinbox.setValue(newProps.loopStart,newProps.internal);
+			if (typeof newProps.loopLength !== "undefined") repeatLengthSpinbox.setValue(newProps.loopLength,newProps.internal);
 		}
 	});
 

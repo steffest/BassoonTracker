@@ -4,6 +4,7 @@ UI.sliderBox = function(initialProperties){
 
 	var label = "";
 	var value = 0;
+	var prevValue = 0;
 	var min =  0;
 	var max = 100;
 	var step = 1;
@@ -27,6 +28,7 @@ UI.sliderBox = function(initialProperties){
 
 	var lineVer = Y.getImage("line_ver");
 
+	var properties = ["left","top","width","height","name","label","value","onChange","min","max","step","vertical","font","trackUndo","undoLabel","undoInstrument"];
 	if (initialProperties) setPropertiesValues(initialProperties);
 
 	if (max>9999) padLength = 5;
@@ -69,45 +71,70 @@ UI.sliderBox = function(initialProperties){
 
 
 	me.setProperties = function(newProperties){
-		if (!newProperties) return properties;
-
-		properties = newProperties || {};
-		setPropertiesValues(properties);
+		setPropertiesValues(newProperties);
 
 		me.setSize(me.width,me.height);
 		me.setPosition(me.left,me.top);
 
 	};
 
-	function setPropertiesValues(properties){
-		if (typeof properties.name != "undefined") me.name = properties.name;
-		if (typeof properties.left != "undefined") me.left = properties.left;
-		if (typeof properties.top != "undefined") me.top = properties.top;
-		if (typeof properties.width != "undefined") me.width = properties.width;
-		if (typeof properties.height != "undefined") me.height = properties.height;
-		if (typeof properties.label != "undefined") label = properties.label;
-		if (typeof properties.value != "undefined") value = properties.value;
-		if (typeof properties.font != "undefined") font = properties.font;
-		if (typeof properties.min != "undefined") min = properties.min;
-		if (typeof properties.max != "undefined") max = properties.max;
-		if (typeof properties.step != "undefined") step = properties.step;
-		if (typeof properties.onChange != "undefined") onChange = properties.onChange;
-		if (typeof properties.vertical != "undefined") {
-			vertical = !!properties.vertical;
-            if (slider) slider.setProperties({vertical: vertical})
-        }
+	function setPropertiesValues(p){
+
+		properties.forEach(function(key){
+			if (typeof p[key] != "undefined"){
+				switch(key){
+					case "label": label=p[key];break;
+					case "value" : 
+						value=p[key];
+						prevValue = value;
+						break;
+					case "min" : min=p[key];break;
+					case "max" : max=p[key];break;
+					case "step" : step=p[key];break;
+					case "onChange" : onChange=p[key];break;
+					case "font" : font=p[key];break;
+					case "vertical" : 
+						vertical=!!p[key];
+						if (slider) slider.setProperties({vertical: vertical})
+						break;
+					default:
+						me[key] = p[key];
+				}
+			}
+		});
 	}
 
 	me.setValue = function(newValue,internal){
+		if (newValue!==value) {
+			prevValue=value;
+		}
 		value=newValue;
 		slider.setValue(value,internal);
 		numberDisplay.setValue(value,internal);
 		me.refresh();
-		if (!internal && onChange) onChange(value);
+		if (!internal && onChange) {
+
+			if (me.trackUndo){
+				var editAction = StateManager.createValueUndo(me);
+				editAction.name= me.undoLabel || "Change " + me.name;
+				if (me.undoInstrument) {
+					editAction.instrument = Tracker.getCurrentInstrumentIndex();
+					editAction.id += editAction.instrument;
+				}
+				StateManager.registerEdit(editAction);
+			}
+			
+			
+			onChange(value);
+		}
 	};
 
 	me.getValue = function(){
 		return value;
+	};
+
+	me.getPrevValue = function(){
+		return prevValue;
 	};
 
 	me.setMax = function(newMax,skipCheck){

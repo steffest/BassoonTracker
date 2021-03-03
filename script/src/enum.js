@@ -69,6 +69,7 @@ var EVENT = {
 	patternEnd: 54,
 	songSpeedChangeIgnored:55,
 	songBPMChangeIgnored:56,
+	commandProcessSample: 57,
 };
 
 var COMMAND = {
@@ -149,14 +150,19 @@ var SELECTION = {
 	COPY : 4,
 	PASTE : 5,
 	POSITION: 6,
-	DELETE: 7
+	DELETE: 7,
+	REPLACE: 8
 
 };
 
 var EDITACTION = {
 	PATTERN: 1,
 	TRACK: 2,
-	NOTE: 3
+	NOTE: 3,
+	RANGE: 4,
+	VALUE: 5,
+	DATA: 6,
+	SAMPLE: 7
 };
 
 

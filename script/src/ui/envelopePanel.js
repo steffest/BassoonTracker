@@ -101,12 +101,15 @@ UI.EnvelopePanel = function(type){
 
 	sustainSpinbox.setProperties({
 		label: " ",
+		name: me.type + " envelope sustain",
 		value: 0,
 		max: 100,
 		min:0,
         padLength: 2,
 		disabled: true,
 		font: window.fontFT,
+		trackUndo: true,
+		undoInstrument: true,
 		onChange : function(value){
 			envelope.sustainPoint = value;
 			me.checkMax();
@@ -115,12 +118,15 @@ UI.EnvelopePanel = function(type){
 	});
     loopFromSpinbox.setProperties({
         label: "From",
+		name: me.type + " envelope loop from",
         value: 0,
         max: 100,
         min:0,
         padLength: 2,
         disabled: true,
         font: window.fontSmall,
+		trackUndo: true,
+		undoInstrument: true,
         onChange : function(value){
 			envelope.loopStartPoint = value;
 			me.checkMax();
@@ -129,12 +135,15 @@ UI.EnvelopePanel = function(type){
     });
     loopToSpinbox.setProperties({
         label: "To",
+		name: me.type + " envelope loop to",
         value: 0,
         max: 100,
         min:0,
         padLength: 2,
         disabled: true,
         font: window.fontSmall,
+		trackUndo: true,
+		undoInstrument: true,
         onChange : function(value){
 			envelope.loopEndPoint = value;
 			me.checkMax();
@@ -177,9 +186,9 @@ UI.EnvelopePanel = function(type){
 		sustainCheckBox.setState(envelope && envelope.sustain);
 		loopCheckBox.setState(envelope && envelope.loop);
 
-		sustainSpinbox.setValue(envelope.sustainPoint || 0);
-		loopFromSpinbox.setValue(envelope.loopStartPoint || 0);
-		loopToSpinbox.setValue(envelope.loopEndPoint || 0);
+		sustainSpinbox.setValue(envelope.sustainPoint || 0,true);
+		loopFromSpinbox.setValue(envelope.loopStartPoint || 0,true);
+		loopToSpinbox.setValue(envelope.loopEndPoint || 0,true);
 	};
 
 	me.setDisabled = function(value){

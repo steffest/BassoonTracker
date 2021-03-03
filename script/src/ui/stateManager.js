@@ -1,73 +1,137 @@
 var StateManager = function(){
 	var me = {};
-	var editHistory = {};
-	var maxHistory = 50;
-	
+	var maxHistory = 100;
+	var history = {undo:[],redo:[]};
+	var locked;
 	
 	me.registerEdit = function(action){
-		var id = action.target + "_" + action.id;
-		var history = editHistory[id] || {undo:[],redo:[]};
-		history.undo.push(action);
-		if (history.undo.length>maxHistory) history.undo.shift();
-		history.redo = [];
-		editHistory[id] = history;
-
-		console.error(editHistory);
+		var doRegister = true;
+		
+		if (locked){
+			// we're already in a UNDO/REDO action, or in a init state action
+			return;
+		}
+		
+		if (history.undo.length){
+			switch (action.type) {
+				case EDITACTION.VALUE:
+					var lastAction = history.undo[history.undo.length-1];
+					if (lastAction && lastAction.type === action.type && lastAction.id===action.id){
+						doRegister = false;
+						lastAction.to = action.to;
+						console.log("Ignoring sequential Undo, to: " + action.to);
+					}else{
+						console.log("Add Value Undo");
+					}
+					break;
+			}
+		}
+		
+		if (doRegister){
+			history.undo.push(action);
+			if (history.undo.length>maxHistory) history.undo.shift();
+			history.redo = [];
+		}
+		
 	};
 	
-	
 	me.undo = function(){
-		var currentPattern = Tracker.getCurrentPattern();
-		var id = EDITACTION.PATTERN + "_" + currentPattern;
-		var actionList =  editHistory[id];
-		if(actionList && actionList.undo && actionList.undo.length){
-			var action = actionList.undo.pop();
-			var patternData = Tracker.getSong().patterns[currentPattern];
-			
-			console.warn(action);
+		if(history.undo.length){
+			var action = history.undo.pop();
+			locked = true;
+
+			if (action.instrument && action.instrument !== Tracker.getCurrentInstrumentIndex()) Tracker.setCurrentInstrumentIndex(action.instrument);
 			
 			switch (action.type) {
 				case EDITACTION.NOTE:
+				case EDITACTION.RANGE:
 				case EDITACTION.TRACK:
 				case EDITACTION.PATTERN:
+					var patternData = Tracker.getSong().patterns[action.id];
+					if (action.id !== Tracker.getCurrentPattern()){
+						Tracker.setCurrentPattern(action.id);
+					}
 					action.data.forEach(function(item){
-						console.error(item);
+						//console.error(item);
 						if (patternData){
 							var note = patternData[item.position.row][item.position.track] || new Note();
 							note.populate(item.from);
 						}
 					});
-					EventBus.trigger(EVENT.patternChange,currentPattern);
+					EventBus.trigger(EVENT.patternChange,action.id);
 					break;
+				case EDITACTION.VALUE:
+					action.target.setValue(action.from);
+					break;
+				case EDITACTION.DATA:
+					if (action.target === EDITACTION.SAMPLE){
+						action.undo = true;
+						action.redo = false;
+						EventBus.trigger(EVENT.showView,"sample");
+						EventBus.trigger(EVENT.commandProcessSample,action);
+					}
+					break;
+				default:
+					console.warn("Unknown UNDO action")
+					console.warn(action);
 			}
-			actionList.redo.push(action);
+			
+			
+			history.redo.push(action);
+			locked = false;
+
+			if (action.name){
+				UI.setStatus("Undo " + action.name);
+			}
 		}
 	};
 	
 	me.redo = function(){
-		var currentPattern = Tracker.getCurrentPattern();
-		var id = EDITACTION.PATTERN + "_" + currentPattern;
-		var actionList =  editHistory[id];
-		if(actionList && actionList.redo && actionList.redo.length){
-			var action = actionList.redo.pop();
-			var patternData = Tracker.getSong().patterns[currentPattern];
+		if(history.redo.length){
+			var action = history.redo.pop();
+			locked = true;
 
-			console.warn(action);
+			if (action.instrument && action.instrument !== Tracker.getCurrentInstrumentIndex()) Tracker.setCurrentInstrumentIndex(action.instrument);
 
 			switch (action.type) {
 				case EDITACTION.NOTE:
+				case EDITACTION.RANGE:
 				case EDITACTION.TRACK:
 				case EDITACTION.PATTERN:
+					var patternData = Tracker.getSong().patterns[action.id];
+					if (action.id !== Tracker.getCurrentPattern()){
+						Tracker.setCurrentPattern(action.id);
+					}
 					action.data.forEach(function(item){
 						if (patternData){
 							var note = patternData[item.position.row][item.position.track] || new Note();
 							item.to ? note.populate(item.to) : note.clear();
 						}
 					});
-					EventBus.trigger(EVENT.patternChange,currentPattern);
+					EventBus.trigger(EVENT.patternChange,action.id);
 					break;
+				case EDITACTION.VALUE:
+					action.target.setValue(action.to);
+					break;
+				case EDITACTION.DATA:
+					if (action.target === EDITACTION.SAMPLE){
+						action.undo = false;
+						action.redo = true;
+						EventBus.trigger(EVENT.showView,"sample");
+						EventBus.trigger(EVENT.commandProcessSample,action);
+					}
+					break;
+				default:
+					console.warn("Unknown UNDO action")
+					console.warn(action);
 			}
-			actionList.undo.push(action);
+
+			history.undo.push(action);
+			locked = false;
+
+			if (action.name){
+				UI.setStatus("Redo " + action.name);
+			}
 		}
 	};
 	
@@ -104,6 +168,37 @@ var StateManager = function(){
 			data:[]
 		};
 	};
+
+	me.createRangeUndo = function(pattern){
+		return {
+			target: EDITACTION.PATTERN,
+			type: EDITACTION.RANGE,
+			id: pattern,
+			data:[]
+		};
+	};
+
+	me.createValueUndo = function(control){
+		return {
+			target: control,
+			type: EDITACTION.VALUE,
+			id: control.name,
+			from: control.getPrevValue(),
+			to: control.getValue()
+		};
+	};
+
+	me.createSampleUndo = function(action,rangeStart,rangeLength){
+		return {
+			target: EDITACTION.SAMPLE,
+			type: EDITACTION.DATA,
+			id: "sample" + Tracker.getCurrentInstrumentIndex(),
+			instrument: Tracker.getCurrentInstrumentIndex(),
+			from: rangeStart || 0,
+			to: rangeLength || 0,
+			action: action
+		};
+	};
 	
 	me.addNote = function(actionList,track,row,note){
 		var noteInfo = {
@@ -117,5 +212,23 @@ var StateManager = function(){
 		return noteInfo;
 	};
 	
+	me.getHistory = function(){
+		return history;
+	}
+	
+	me.clear = function(){
+		history = {undo:[],redo:[]};
+	}
+
+	me.lock = function(){
+		locked=true;
+	}
+	me.unLock = function(){
+		locked=false;
+	}
+
+	EventBus.on(EVENT.commandUndo,me.undo);
+	EventBus.on(EVENT.commandRedo,me.redo);
+
 	return me;
 }();

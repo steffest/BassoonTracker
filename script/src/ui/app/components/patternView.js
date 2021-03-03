@@ -708,14 +708,20 @@ UI.app_patternView = function(x,y,w,h){
 			case SELECTION.CLEAR:
 				var pattern = Tracker.getCurrentPatternData();
 				if (pattern && hasRange){
+                    var editAction = StateManager.createRangeUndo(Tracker.getCurrentPattern());
+                    editAction.name = "Clear Selection";
 					for (var i = rangeNormalized.start[0]; i<= rangeNormalized.end[0]; i++){
                         var step = pattern[i];
                         for (var j = rangeNormalized.start[1]; j<= rangeNormalized.end[1]; j++){
                             var note = step[j];
-                            if (note) note.clear();
+                            if (note){
+                                StateManager.addNote(editAction,j,i,note);
+                                note.clear();
+                            }
                         }
 					}
 				}
+                StateManager.registerEdit(editAction);
 				me.refresh();
 				break;
             case SELECTION.COPY:
@@ -748,16 +754,19 @@ UI.app_patternView = function(x,y,w,h){
 						}*/
 
                         // clear
+                        var editAction = StateManager.createRangeUndo(Tracker.getCurrentPattern());
+                        editAction.name = "Cut Selection";
 						for (var i = rangeNormalized.start[0]; i<= rangeNormalized.end[0]; i++){
 							var step = pattern[i];
 							if (step){
 								for (var j = rangeNormalized.start[1]; j<= rangeNormalized.end[1]; j++){
 									var note = step[j];
+                                    StateManager.addNote(editAction,j,i,note);
 									if (note) note.clear();
 								}
 							}
-
 						}
+                        StateManager.registerEdit(editAction);
 					}
                 }
 				me.refresh();
@@ -765,16 +774,22 @@ UI.app_patternView = function(x,y,w,h){
 			case SELECTION.PASTE:
 				var pattern = Tracker.getCurrentPatternData();
 				if (pattern && hasRange && rangeCopy.length){
+                    var editAction = StateManager.createRangeUndo(Tracker.getCurrentPattern());
+                    editAction.name = "Paste Selection";
 					for (var i = 0; i< rangeCopy.length; i++){
 						var step = pattern[rangeNormalized.start[0] + i];
 						var stepCopy = rangeCopy[i];
 						if (step){
 							for (var j = 0; j<stepCopy.length; j++){
 								var note = step[rangeNormalized.start[1] + j];
-								if (note) note.populate(stepCopy[j]);
+								if (note) {
+                                    StateManager.addNote(editAction,rangeNormalized.start[1] + j,rangeNormalized.start[0]+i,note);
+								    note.populate(stepCopy[j]);
+                                }
 							}
                         }
 					}
+                    StateManager.registerEdit(editAction);
 				}
 				me.refresh();
 				break;

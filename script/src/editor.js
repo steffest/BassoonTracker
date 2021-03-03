@@ -129,6 +129,7 @@ var Editor = (function(){
 	me.clearTrack = function(){
 		var length = Tracker.getCurrentPatternData().length;
 		var editAction = StateManager.createTrackUndo(currentPattern);
+		editAction.name = "Clear Track";
 		for (var i = 0; i<length;i++){
 			var note = Tracker.getSong().patterns[currentPattern][i][currentTrack];
 			if (note) {
@@ -142,6 +143,7 @@ var Editor = (function(){
 	me.clearPattern = function(){
 		var length = Tracker.getCurrentPatternData().length;
 		var editAction = StateManager.createPatternUndo(currentPattern);
+		editAction.name = "Clear Pattern";
 		for (var i = 0; i<length;i++){
 			for (var j = 0; j<Tracker.getTrackCount(); j++){
 				var note = Tracker.getSong().patterns[currentPattern][i][j];
@@ -212,7 +214,7 @@ var Editor = (function(){
 		return pasteBuffer;
 	};
 
-	me.pasteTrack = function(trackNumber,trackData){
+	me.pasteTrack = function(trackNumber,trackData,parentEditAction){
 		var hasTracknumber = typeof trackNumber != "undefined";
 		var data = trackData;
 		if (!hasTracknumber) {
@@ -220,9 +222,14 @@ var Editor = (function(){
 			data = pasteBuffer.track;
 		}
 		console.log("paste",trackNumber,data[0]);
-
 		if (data){
-			var editAction = StateManager.createTrackUndo(currentPattern);
+			var editAction;
+			if (parentEditAction){
+				editAction = parentEditAction;
+			}else{
+				var editAction = StateManager.createTrackUndo(currentPattern);
+				editAction.name = "Paste Track";
+			}
 			var length = Tracker.getCurrentPatternData().length;
 			for (var i = 0; i<length;i++){
 				var note = Tracker.getSong().patterns[currentPattern][i][trackNumber];
@@ -233,7 +240,9 @@ var Editor = (function(){
 			}
 			
 			if (!hasTracknumber) EventBus.trigger(EVENT.patternChange,currentPattern);
-			StateManager.registerEdit(editAction);
+			if (!parentEditAction){
+				StateManager.registerEdit(editAction);
+			}
 			return true;
 		}else{
 			return false;
@@ -242,17 +251,39 @@ var Editor = (function(){
 	};
 
 	me.pastePattern = function(){
-
 		var data = pasteBuffer.pattern;
 		if (data){
+			var editAction = StateManager.createPatternUndo(currentPattern);
+			editAction.name = "Paste Pattern";
 			for (var j = 0; j<Tracker.getTrackCount(); j++) {
-				me.pasteTrack(j,data[j]);
+				me.pasteTrack(j,data[j],editAction);
 			}
+			StateManager.registerEdit(editAction);
 			EventBus.trigger(EVENT.patternChange,currentPattern);
 			return true;
 		}else{
 			return false;
 		}
+
+
+
+
+		var length = Tracker.getCurrentPatternData().length;
+
+		editAction.name = "Clear Pattern";
+		for (var i = 0; i<length;i++){
+			for (var j = 0; j<Tracker.getTrackCount(); j++){
+				var note = Tracker.getSong().patterns[currentPattern][i][j];
+				if (note) {
+					StateManager.addNote(editAction,j,i,note);
+					note.clear();
+				}
+			}
+		}
+		StateManager.registerEdit(editAction);
+		EventBus.trigger(EVENT.patternChange,currentPattern);
+
+
 
 	};
 

@@ -2081,6 +2081,7 @@ var Tracker = (function(){
 		me.setTrackerMode(TRACKERMODE.PROTRACKER,true);
 		if (!me.isPlugin) Audio.setMasterVolume(1);
 		Audio.setAmigaLowPassFilter(false,0);
+		StateManager.clear();
 	}
 
 	me.clearEffectCache = function(){

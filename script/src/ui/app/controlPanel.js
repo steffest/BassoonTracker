@@ -118,6 +118,8 @@ UI.app_controlPanel = function(){
 		min:2,
 		size: "big",
 		padLength: 2,
+		trackUndo: true,
+		undoLabel: "Change Track count",
 		onChange : function(value){Tracker.setTrackCount(value)}
 	});
 	me.addChild(trackCountSpinbox);

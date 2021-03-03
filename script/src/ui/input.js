@@ -52,6 +52,7 @@ var Input = (function(){
 		window.addEventListener("paste", handlePaste,false);
 		window.addEventListener("copy", handleCopy,false);
 		window.addEventListener("cut", handleCut,false);
+		window.addEventListener("undo", handleUndo,false);
 		window.addEventListener("delete", handleDelete,false);
 
 		if (!App.isPlugin) window.addEventListener("resize",handleResize,false);
@@ -411,7 +412,6 @@ var Input = (function(){
                     return;
             }
 
-
 			if (key && (keyCode>40) && (keyCode<230)){
 
 				if (isMetaKeyDown && keyCode>=65 && keyCode<=90){
@@ -434,7 +434,7 @@ var Input = (function(){
 						case 88: //x - cut
 							UI.cutSelection(true);
 							return;
-						case 89: //z - redo
+						case 89: //y - redo
 							EventBus.trigger(EVENT.commandRedo);
 							return;
 						case 90: //z - undo
@@ -550,8 +550,13 @@ var Input = (function(){
 		}
 
 		function handleCut(e) {
+			console.error("cut");
 			UI.cutSelection(true);
 		}
+		function handleUndo(e) {
+			console.error("undo");
+		}
+
 
 		function handleDelete(e) {
 			console.error("delete");

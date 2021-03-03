@@ -5,7 +5,8 @@ UI.numberDisplay = function(initialProperties){
     me.isDisabled = false;
     me.padLength = 4;
 
-    var value = value || 0;
+    var value = 0;
+    var prevValue = 0;
     var min =  0;
     var max = 100;
     var step = 1;
@@ -26,7 +27,7 @@ UI.numberDisplay = function(initialProperties){
     }
     var fontOffset = fontOffsets.medium;
 
-    var properties = ["left","top","width","height","name","value","onChange","min","max","step","padLength","size","autoPadding"];
+    var properties = ["left","top","width","height","name","value","onChange","min","max","step","padLength","size","autoPadding","trackUndo","undoLabel","undoInstrument"];
     if (initialProperties) setPropertiesValues(initialProperties);
 
     me.setProperties = function(p){
@@ -58,20 +59,37 @@ UI.numberDisplay = function(initialProperties){
     }
 
     me.setValue = function(val,internal){
+        if (val!==value) {
+            prevValue=value;
+        }
         value = val;
         me.refresh();
-        if (!internal && onChange) onChange(value);
+        if (!internal && onChange) {
+            if (me.trackUndo){
+                var editAction = StateManager.createValueUndo(me);
+                editAction.name= me.undoLabel || "Change " + me.name;
+                if (me.undoInstrument) {
+                    editAction.instrument = Tracker.getCurrentInstrumentIndex();
+                    editAction.id += editAction.instrument;
+                }
+                StateManager.registerEdit(editAction);
+            }
+            onChange(value);
+        }
     };
 
     me.updateValue = function(newValue){
-        value = newValue;
-        if (value>max) value=max;
-        if (value<min) value=min;
-        me.setValue(value);
+        if (newValue>max) newValue=max;
+        if (newValue<min) newValue=min;
+        me.setValue(newValue);
     }
     
     me.getValue = function(){
         return value;
+    }
+
+    me.getPrevValue = function(){
+        return prevValue;
     }
 
 
@@ -174,7 +192,7 @@ UI.numberDisplay = function(initialProperties){
 
 
 
-        console.error(keyCode,key);
+        //console.error(keyCode,key);
         return true;
     }
 
