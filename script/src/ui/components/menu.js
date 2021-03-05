@@ -80,17 +80,17 @@ UI.menu = function(x,y,w,h,submenuParent){
 
     me.onKeyDown = function(keyCode){
         var handled;
-        console.error(keyCode);
+        //console.error(keyCode);
         switch (keyCode){
             case 13: // enter
-                if (activeIndex>=0){
-                    var activeItem = items[activeIndex];
-                    if (activeItem && activeItem.subMenu){
-                        var selectedIndex = activeItem.subMenu.getSelectedIndex();
-                        if (selectedIndex>=0){
-                            var subItem = activeItem.subMenu.getItems()[selectedIndex];
-                            if (subItem) activeItem.subMenu.executeItem(subItem);
-                        }
+                var subItem = me.getActiveSubItem();
+                if (subItem){
+                    if (subItem.item.subMenu && subItem.item.subMenu.isVisible() && subItem.item.subMenu.getSelectedIndex()>=0){
+                        var index = subItem.item.subMenu.getSelectedIndex();
+                        var item = subItem.item.subMenu.getItems()[index];
+                        if (item) subItem.item.subMenu.executeItem(item);
+                    }else{
+                        subItem.menu.executeItem(subItem.item);
                     }
                 }
                 handled = true;
@@ -101,30 +101,50 @@ UI.menu = function(x,y,w,h,submenuParent){
                 break;
             case 37:
                 if (activeIndex>=0){
-                    me.activateSubmenu(Math.max(activeIndex-1,0));
+                    var subItem = me.getActiveSubItem();
+                    if (subItem && subItem.item.subMenu && subItem.item.subMenu.isVisible()){
+                        subItem.menu.deActivateSubmenu();
+                    }else{
+                        me.activateSubmenu(Math.max(activeIndex-1,0));
+                    }
                 }
                 handled = true;
                 break;
             case 39:
                 if (activeIndex>=0){
-                    me.activateSubmenu(Math.min(activeIndex+1,items.length-1));
+                    var subItem = me.getActiveSubItem();
+                    if (subItem && subItem.item.subMenu && !subItem.item.subMenu.isVisible()){
+                        subItem.menu.activateSubmenu(subItem.item);
+                    }else{
+                        me.activateSubmenu(Math.min(activeIndex+1,items.length-1));
+                    }
                 }
                 handled = true;
                 break;
             case 38:
                 if (activeIndex>=0){
-                    var activeItem = items[activeIndex];
-                    if (activeItem && activeItem.subMenu){
-                        activeItem.subMenu.setSelectedIndex(activeItem.subMenu.getSelectedIndex()-1);
+                    var subItem = me.getActiveSubItem();
+                    if (subItem && subItem.item.subMenu && subItem.item.subMenu.isVisible()){
+                        subItem.item.subMenu.setSelectedIndex(subItem.item.subMenu.getSelectedIndex()-1);
+                    }else{
+                        var activeItem = items[activeIndex];
+                        if (activeItem && activeItem.subMenu){
+                            activeItem.subMenu.setSelectedIndex(activeItem.subMenu.getSelectedIndex()-1);
+                        }
                     }
                 }
                 handled = true;
                 break;
             case 40:
                 if (activeIndex>=0){
-                    var activeItem = items[activeIndex];
-                    if (activeItem && activeItem.subMenu){
-                        activeItem.subMenu.setSelectedIndex(activeItem.subMenu.getSelectedIndex()+1);
+                    var subItem = me.getActiveSubItem();
+                    if (subItem && subItem.item.subMenu && subItem.item.subMenu.isVisible()){
+                        subItem.item.subMenu.setSelectedIndex(subItem.item.subMenu.getSelectedIndex()+1);
+                    }else{
+                        var activeItem = items[activeIndex];
+                        if (activeItem && activeItem.subMenu){
+                            activeItem.subMenu.setSelectedIndex(activeItem.subMenu.getSelectedIndex()+1);
+                        }
                     }
                 }
                 handled = true;
@@ -160,6 +180,21 @@ UI.menu = function(x,y,w,h,submenuParent){
             selectedItem.subMenu.setPosition((selectedItem.startX || 0) + xOffset,me.height);
             selectedItem.subMenu.toggle();
             selectedItem.subMenu.parent.refresh();
+        }
+    }
+
+    me.getActiveSubItem = function(){
+        if (activeIndex>=0){
+            var activeItem = items[activeIndex];
+            if (activeItem && activeItem.subMenu){
+                var selectedIndex = activeItem.subMenu.getSelectedIndex();
+                if (selectedIndex>=0){
+                    return {
+                        menu: activeItem.subMenu,
+                        item: activeItem.subMenu.getItems()[selectedIndex]
+                    }
+                }
+            }
         }
     }
 

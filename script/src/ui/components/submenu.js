@@ -13,6 +13,8 @@ UI.submenu = function(x,y,w,h){
     var hoverIndex;
     var preHoverIndex;
 
+    var activeSubmenu;
+
     me.setProperties = function(p){
 
         properties.forEach(function(key){
@@ -43,13 +45,35 @@ UI.submenu = function(x,y,w,h){
             preHoverIndex = undefined;
             me.refresh();
         }
-
     };
+
+    me.onShow = function(){
+        hoverIndex=0;
+        preHoverIndex=0;
+    }
+
+    me.onHide = function(){
+        if (activeSubmenu){
+            activeSubmenu.subMenu.hide();
+            activeSubmenu = undefined;
+        }
+    }
 
     me.setSelectedIndex = function(index){
         hoverIndex = Math.min(index,items.length-1);
         if (hoverIndex<0) hoverIndex=0;
         preHoverIndex = hoverIndex;
+
+        var item = items[hoverIndex];
+        if (item.subItems){
+            me.activateSubmenu(item);
+        }else{
+            if (activeSubmenu){
+                activeSubmenu.subMenu.hide();
+                activeSubmenu = undefined;
+            }
+        }
+
         me.refresh();
     }
 
@@ -66,14 +90,43 @@ UI.submenu = function(x,y,w,h){
     };
 
     me.executeItem = function(item){
-        if (item && item.command){
-            me.hide();
-            me.parent.refresh();
-            if (me.mainMenu) me.mainMenu.deActivate();
-            EventBus.trigger(EVENT.command,item.command);
+        if (isDisabled(item)) return;
+        if (item){
+            if (item.command){
+                me.hide();
+                me.parent.refresh();
+                if (me.mainMenu) me.mainMenu.deActivate();
+                EventBus.trigger(EVENT.command,item.command);
+            }
         }
     }
 
+    me.activateSubmenu = function(item){
+        if (!item.subMenu){
+            var subMenu = UI.submenu();
+            subMenu.setProperties({
+                background: UI.Assets.buttonLightScale9
+            });
+            subMenu.hide();
+            subMenu.setItems(item.subItems);
+            subMenu.zIndex = 300;
+            me.parent.addChild(subMenu);
+            subMenu.mainMenu = me.mainMenu;
+            item.subMenu = subMenu;
+        }
+        item.subMenu.setPosition(me.left + me.width - 20,me.top + item.index*itemHeight);
+        item.subMenu.show();
+        activeSubmenu = item;
+        me.refresh();
+    }
+
+    me.deActivateSubmenu = function(){
+        if (activeSubmenu){
+            activeSubmenu.subMenu.hide();
+            activeSubmenu = undefined;
+            me.refresh();
+        }
+    }
 
     me.render = function(internal){
         if (!me.isVisible()) return;
@@ -94,13 +147,24 @@ UI.submenu = function(x,y,w,h){
             for (var i = 0; i<=max;i++){
                 var item = items[i];
 
-                if (i == hoverIndex){
+                var disabled = isDisabled(item);
+
+                if (i === hoverIndex && !disabled){
                     me.ctx.fillStyle = "rgba(255,255,255,0.2)";
                     me.ctx.fillRect(textX,textY,textWidth,itemHeight);
                 }
 
                 if (item.label){
-                    fontFT.write(me.ctx,item.label,textX + paddingLeft,textY + paddingTop);
+                    fontFT.write(me.ctx,getLabel(item),textX + paddingLeft,textY + paddingTop);
+                }
+
+                if (item.subItems){
+                    fontMed.write(me.ctx,">",me.width-16,textY + paddingTop + 2);
+                }
+
+                if (disabled){
+                    me.ctx.fillStyle = "rgba(88,105,129,0.6)";
+                    me.ctx.fillRect(textX,textY,textWidth,itemHeight);
                 }
                 textY += itemHeight;
                 if (i<max) me.ctx.drawImage(line,textX,textY,textWidth,2);
@@ -119,21 +183,44 @@ UI.submenu = function(x,y,w,h){
     me.setItems = function(newItems){
         items = newItems;
         var width = 50;
-        items.forEach(function(item){
-            var labelWidth = item.label ? item.label.length * charWidth : 0;
+        items.forEach(function(item,index){
+            var labelWidth = item.label ? getLabel(item).length * charWidth : 0;
             labelWidth += paddingLeft*2 + 6;
             width = Math.max(width,labelWidth);
+            item.index = index;
         });
 
         var height = items.length*itemHeight + 4;
         me.setSize(width,height);
         if (background) background.setSize(me.width,me.height);
+
+        hoverIndex = undefined;
+        preHoverIndex = undefined;
+        activeSubmenu = undefined;
+        
+        
         me.refresh();
     };
 
     me.getItems = function(){
         return items;
     };
+
+
+
+    function isDisabled(item){
+        if (typeof item.disabled === "function"){
+            return item.disabled();
+        }
+        return !!item.disabled;
+    }
+
+    function getLabel(item){
+        if (typeof item.label === "function"){
+            return item.label();
+        }
+        return item.label;
+    }
 
 
     return me;
