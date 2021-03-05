@@ -21,13 +21,18 @@ UI.app_menu = function(container){
                 {label: "Open Random XM Song" , "command" : COMMAND.randomSongXM}
             ]},
         {label: "Edit", subItems: [
+                {label: function(){return StateManager.getUndoLabel()} , "command" : COMMAND.undo, disabled: function(){return !StateManager.canUndo()}},
+                {label: function(){return StateManager.getRedoLabel()} , "command" : COMMAND.redo, disabled: function(){return !StateManager.canRedo()}},
 				{label: "Cut" , "command" : COMMAND.cut},
 				{label: "Copy" , "command" : COMMAND.copy},
+				{label: "Clear" , subItems: [
+                        {label: "Clear Track" , "command" : COMMAND.clearTrack},
+                        {label: "Clear Pattern" , "command" : COMMAND.clearPattern},
+                        {label: "Clear Song" , "command" : COMMAND.clearSong},
+                        {label: "Clear Instruments" , "command" : COMMAND.clearInstruments},
+                    ]},
 				{label: "Paste" , "command" : COMMAND.paste},
-                {label: "Clear Track" , "command" : COMMAND.clearTrack},
-                {label: "Clear Pattern" , "command" : COMMAND.clearPattern},
-                {label: "Clear Song" , "command" : COMMAND.clearSong},
-                {label: "Clear Instruments" , "command" : COMMAND.clearInstruments},
+
                 {label: "Render Pattern 2 Sample" , "command" : COMMAND.pattern2Sample}
             ]},
         {label: "View", subItems: [

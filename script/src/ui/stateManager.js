@@ -227,6 +227,30 @@ var StateManager = function(){
 		locked=false;
 	}
 
+	me.canUndo = function(){
+		return history.undo.length>0;
+	}
+
+	me.canRedo = function(){
+		return history.redo.length>0;
+	}
+
+	me.getUndoLabel = function(){
+		var name = "";
+		if (history.undo.length){
+			name= history.undo[history.undo.length-1].name || "";
+		}
+		return "Undo " + name;
+	}
+
+	me.getRedoLabel = function(){
+		var name = "";
+		if (history.redo.length){
+			name= history.redo[history.redo.length-1].name || "";
+		}
+		return "Redo " + name;
+	}
+
 	EventBus.on(EVENT.commandUndo,me.undo);
 	EventBus.on(EVENT.commandRedo,me.redo);
 

@@ -78,8 +78,7 @@ var Layout = function(){
 		  me.setVisibleTracks(me.maxVisibleTracks);
 		  return;
 	  }
-
-
+      
       if (mainWidth<820){
 		  //me.controlPanelHeight = 80;
 		  me.controlPanelButtonLayout = "condensed";
@@ -131,7 +130,6 @@ var Layout = function(){
 	  	  me.trackFont = fontSuperCondensed;
 		  me.useCondensedTrackFont = true;
 	  }
-
   };
 
   me.setVisibleTracks = function(count){
@@ -139,7 +137,6 @@ var Layout = function(){
 	  me.setLayout();
 	  EventBus.trigger(EVENT.visibleTracksCountChange,count);
   };
-
-
+  
   return me;
 }();

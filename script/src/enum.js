@@ -97,7 +97,9 @@ var COMMAND = {
 	copy: 22,
 	paste: 23,
 	pattern2Sample: 24,
-	toggleAppSideBar: 25
+	toggleAppSideBar: 25,
+	undo: 26,
+	redo: 27
 };
 
 var PLAYTYPE = {

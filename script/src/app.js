@@ -111,6 +111,12 @@ var App = (function(){
 				case COMMAND.pattern2Sample:
 					Editor.renderTrackToBuffer();
 					break;
+                case COMMAND.undo:
+                    EventBus.trigger(EVENT.commandUndo);
+                    break;
+                case COMMAND.redo:
+                    EventBus.trigger(EVENT.commandRedo);
+                    break;
             }
         });
     };
