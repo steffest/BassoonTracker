@@ -67,8 +67,10 @@ var UI = (function(){
 				initialFile = decodeURIComponent(initialFile);
 				
 				if (initialFile.substr(0,7).toLowerCase() === "http://" && document.location.protocol === "https:"){
-					// proxy plain HTTP reuests as this won't work over HTTPS
+					// proxy plain HTTP requests as this won't work over HTTPS
 					initialFile = BassoonProvider.proxyUrl(initialFile);
+				}else if (initialFile.substr(0,6).toLowerCase() === "proxy/"){
+					initialFile = BassoonProvider.proxyUrl(initialFile.substr(6));
 				}
 			}else{
 				if (SETTINGS.loadInitialFile) initialFile = Host.getBaseUrl() + 'demomods/Tinytune.mod';
