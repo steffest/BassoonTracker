@@ -21,6 +21,8 @@ var Input = (function(){
 	var prevIndex = 13;
 
 	me.init = function(){
+		
+		if (typeof Midi === "object") Midi.init();
 
 		// mouse, touch and key handlers
 
