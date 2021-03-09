@@ -349,7 +349,11 @@ var Audio = (function(){
         if (context){
             var source = context.createBufferSource();
             source.connect(masterVolume);
-            source.start();
+            try{
+            	source.start();
+			}catch (e){
+            	console.error(e);
+			}
         }
     };
 

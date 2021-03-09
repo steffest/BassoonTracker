@@ -533,6 +533,27 @@ var Editor = (function(){
         if (writer) writer.write(next);
 
     };
+    
+    me.loadInitialFile = function(){
+		// load demo mod at startup
+		//Tracker.load('demomods/spacedeb.mod');
+
+		var initialFile = getUrlParameter("file");
+		if (initialFile){
+			initialFile = decodeURIComponent(initialFile);
+
+			if (initialFile.substr(0,7).toLowerCase() === "http://" && document.location.protocol === "https:"){
+				// proxy plain HTTP requests as this won't work over HTTPS
+				initialFile = BassoonProvider.proxyUrl(initialFile);
+			}else if (initialFile.substr(0,6).toLowerCase() === "proxy/"){
+				initialFile = BassoonProvider.proxyUrl(initialFile.substr(6));
+			}
+		}else{
+			if (SETTINGS.loadInitialFile) initialFile = Host.getBaseUrl() + 'demomods/Tinytune.mod';
+		}
+		if (initialFile) Tracker.load(initialFile,true,undefined,true);
+
+	}
 
 
 	EventBus.on(EVENT.trackerModeChanged,function(mode){

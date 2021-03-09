@@ -29,7 +29,6 @@ var Settings = (function(){
 	};
 	
 	me.set = function(settings){
-		console.error(settings);
 		setDefaults();
 		
 		if (!settings) return;

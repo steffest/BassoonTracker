@@ -6,13 +6,20 @@ var Midi = function(){
 	
 	me.init = function(){
 		if (navigator.requestMIDIAccess) {
+			// TODO: does a browser that supports requestMIDIAccess also always support promises?
 			navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
 			function onMIDISuccess(midiAccess) {
 				console.log("Midi enabled");
 				var inputs = midiAccess.inputs;
 				var outputs = midiAccess.outputs;
-
-				for (var input of inputs.values()) input.onmidimessage = getMIDIMessage;
+				
+				//for (var input of inputs.values()) input.onmidimessage = getMIDIMessage;
+				// this barfs on non ES6 browsers -> use Arrays
+				
+				var _inputs = Array.from(inputs.values());
+				_inputs.forEach(function(input){
+					input.onmidimessage = getMIDIMessage;
+				})
 				
 			}
 			function onMIDIFailure() {

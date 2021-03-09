@@ -9,7 +9,9 @@ var Main = function(){
         Audio.init();
         UI.init(function(){
             window.focus();
-            if (!Audio.context){
+            me.isBrowserSupported = Audio.context && window.requestAnimationFrame;
+            if (!me.isBrowserSupported){
+                console.error("Browser not supported");
                 var dialog = UI.modalDialog();
                 dialog.setProperties({
                     width: UI.mainPanel.width,
@@ -23,10 +25,10 @@ var Main = function(){
     
                 UI.setModalElement(dialog);
             }else{
-    
                 Settings.readSettings();
                 App.init();
                 Host.signalReady();
+                Editor.loadInitialFile();
     
             }
         });
@@ -35,4 +37,4 @@ var Main = function(){
     return me;
 }();
 
-if (!Host.customConfig) document.addEventListener('DOMContentLoaded', Main.init);
+if (!Host.customConfig && document.addEventListener) document.addEventListener('DOMContentLoaded', Main.init);

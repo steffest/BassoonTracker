@@ -39,6 +39,26 @@ var UI = (function(){
 	if (tracks == 8) maxWidth = 1200;
 	if (tracks == 16) maxWidth = 1600;
 	if (tracks >= 32) maxWidth = 3200;
+	
+	
+	// some light polyfills - mainly to ensure the App can still show the "browser not supported" message
+	var nowFunction;
+	if (window.performance && performance.now){
+		nowFunction = function(){ return performance.now()};
+	}else{
+		nowFunction = Date.now;
+	}
+
+	if (!window.requestAnimationFrame)
+		var lastTime = 0;
+		window.requestAnimationFrame = function(callback, element) {
+			var currTime = new Date().getTime();
+			var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+			var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+				timeToCall);
+			lastTime = currTime + timeToCall;
+			return id;
+		};
 
 	me.init = function(next){
 		canvas = document.getElementById("canvas");
@@ -58,25 +78,6 @@ var UI = (function(){
 			initAssets();
 
 			render();
-
-			// load demo mod at startup
-			//Tracker.load('demomods/spacedeb.mod');
-
-			var initialFile = getUrlParameter("file");
-			if (initialFile){
-				initialFile = decodeURIComponent(initialFile);
-				
-				if (initialFile.substr(0,7).toLowerCase() === "http://" && document.location.protocol === "https:"){
-					// proxy plain HTTP requests as this won't work over HTTPS
-					initialFile = BassoonProvider.proxyUrl(initialFile);
-				}else if (initialFile.substr(0,6).toLowerCase() === "proxy/"){
-					initialFile = BassoonProvider.proxyUrl(initialFile.substr(6));
-				}
-			}else{
-				if (SETTINGS.loadInitialFile) initialFile = Host.getBaseUrl() + 'demomods/Tinytune.mod';
-			}
-			if (initialFile) Tracker.load(initialFile,true,undefined,true);
-
 
 			// check version
 			if (typeof versionNumber !== "undefined"){
@@ -343,7 +344,7 @@ var UI = (function(){
         var startRenderTime = Audio.context ? Audio.context.currentTime : 0;
 		
 		if (doRender){
-			beginRenderTime = (performance || Date).now();
+			beginRenderTime = nowFunction();
 			var renderFps = 1000/(beginRenderTime-lastRenderTime);
 			renderfpsList.push(renderFps);
 			if (renderfpsList.length>20) renderfpsList.shift();
@@ -607,7 +608,7 @@ var UI = (function(){
 	};
 
 	EventBus.on(EVENT.clockEventExpired,function(){
-		var now = new Date().getTime();
+		var now = nowFunction();
 		if (now-prevEventExpired>2000){
 			Logger.warn("throttling back");
 			if (skipRenderSteps<4){
