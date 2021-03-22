@@ -8,6 +8,7 @@ return {
         getTrackCount: Tracker.getTrackCount,
         getSong: Tracker.getSong,
         getStateAtTime: Tracker.getStateAtTime,
+        getTimeStates: Tracker.getTimeStates,
         setCurrentSongPosition: Tracker.setCurrentSongPosition,
         setBPM: Tracker.setBPM,
         getBPM: Tracker.getBPM,

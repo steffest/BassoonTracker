@@ -395,7 +395,7 @@ var Tracker = (function(){
 
 			while (time<maxTime){
 
-				// ignore spped==0 when autoplay is active (Playlists)
+				// ignore speed==0 when autoplay is active (Playlists)
                 if(stepResult.pause && !Tracker.autoPlay){
                     // speed is set to 0
 					if (!stepResult.pasuseHandled){
@@ -412,15 +412,16 @@ var Tracker = (function(){
 					}
 					return;
                 }
-
+                
                 me.setStateAtTime(time,{patternPos: p, songPos: playSongPosition});
+                if (!UI) me.setCurrentSongPosition(playSongPosition);
 
 				if (stepResult.patternDelay){
 					// the E14 effect is used: delay Pattern but keep processing effects
 					stepResult.patternDelay--;
 
 					for (i = 0; i<trackCount; i++){
-						applyEffects(i,time)
+						applyEffects(i,time);
 					}
 
 					time += ticksPerStep * tickTime;
@@ -2081,7 +2082,7 @@ var Tracker = (function(){
 		me.setTrackerMode(TRACKERMODE.PROTRACKER,true);
 		if (!me.isPlugin) Audio.setMasterVolume(1);
 		Audio.setAmigaLowPassFilter(false,0);
-		StateManager.clear();
+		if (typeof StateManager !== "undefined") StateManager.clear();
 	}
 
 	me.clearEffectCache = function(){

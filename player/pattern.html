@@ -99,10 +99,11 @@
 
         #pattern #patternview{
             font-family: monospace;
-            font-size: 12px;
+            font-size: 11px;
             overflow: hidden;
             white-space: nowrap;
             line-height: 12px;
+            text-align: center;
         }
 
         #pattern #patternhighlight{
@@ -169,7 +170,7 @@
 </head>
 <body>
 
-<h1>BassoonTracker Playlist Demo</h1>
+<h1>BassoonTracker Pattern View Demo</h1>
 <div id="player">
     <div id="songname">Loading song ...</div>
     <div id="play">Play</div>
@@ -206,7 +207,7 @@
 </div>
 
 
-<script src="bassoonplayer-min.js"></script>
+<script src="bassoonplayer.js?v20210322"></script>
 <script src="../script/src/enum.js"></script>
 <script>
     var playItem;
@@ -348,7 +349,6 @@
 					if (BassoonTracker.isPlaying()){
 						var state = BassoonTracker.getStateAtTime(BassoonTracker.audio.context.currentTime);
 						if (state){
-
 							var currentPos = state.songPos*patternLength + state.patternPos;
 							var percentage = currentPos*100/songLength;
 							progressBar.value = percentage;
