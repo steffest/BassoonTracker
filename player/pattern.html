@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>BassoonTracker - Standalone Player</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body{
+            font-family: "Trebuchet MS" , Arial, Helvetica, sans-serif;
+            padding: 30px;
+        }
+
+        h1{
+            font-weight: 100;
+            text-align: center;
+            font-size: 22px;
+        }
+
+        #player{
+            width: 320px;
+            background-color: #eaeaea;
+            border: 1px solid #b7b7b7;
+            padding: 6px;
+            border-radius: 5px;
+            margin: auto;
+        }
+
+        #play{
+            border-radius: 5px;
+            display: inline-block;
+            padding: 8px;
+            border: 1px solid #b7b7b7;
+            background-color: #f2f2f2;
+            width: 80px;
+            height: 36px;
+            text-align: center;
+            box-shadow: 1px 2px 2px rgba(0, 0, 0, 0.3);
+            font-size: 16px;
+        }
+
+        #play:hover{
+            background-color: white;
+            cursor: pointer;
+        }
+
+        #songname{
+            padding: 4px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #b7b7b7;
+            text-transform: capitalize;
+            font-size: 16px;
+        }
+
+        .range{
+            font-size: 11px;
+            padding: 16px 6px 6px 6px;
+            display: inline-block;
+            width: 80px;
+        }
+
+        .range.wide{
+            width: 215px;
+            float: right;
+        }
+
+        .range input{
+            display: block;
+            width: 100%;
+        }
+
+        #scope{
+            border: 1px solid #b7b7b7;
+            height: 36px;
+            display: inline-block;
+            width: 215px;
+            float: right;
+            border-radius: 5px;
+        }
+
+        #pattern{
+            width: 320px;
+            background-color: #f1f1f1;
+            border: 1px solid #b7b7b7;
+            padding: 6px;
+            border-radius: 5px;
+            margin: 4px auto;
+            position: relative;
+        }
+
+        #pattern #patternview{
+            font-family: monospace;
+            font-size: 12px;
+            overflow: hidden;
+            white-space: nowrap;
+            line-height: 12px;
+        }
+
+        #pattern #patternhighlight{
+            position: absolute;
+            margin-top: 70px;
+            height: 16px;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 117, 255, 0.28);
+            border: 1px solid #696b97;
+            border-left: none;
+            border-right: none;
+            z-index: 10;
+            display: none;
+
+        }
+
+        #pattern.loaded #patternview{
+            min-height: 150px;
+        }
+
+        #pattern.loaded #patternhighlight{
+            display: block;
+        }
+
+        #playlist{
+            width: 320px;
+            background-color: #f1f1f1;
+            border: 1px solid #b7b7b7;
+            padding: 6px;
+            border-radius: 5px;
+            margin: 4px auto;
+        }
+
+
+
+        #pattern h2,
+        #playlist h2{
+            padding: 4px;
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        #playlist ul{
+            margin: 0;
+            padding: 0;
+        }
+
+        #playlist ul li{
+            list-style: none;
+            padding: 6px;
+            font-size: 12px;
+            border-top: 1px solid #b7b7b7;
+            color: #6b6b6b;
+        }
+
+        #playlist ul li:hover{
+            background-color: white;
+            cursor: pointer;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<h1>BassoonTracker Playlist Demo</h1>
+<div id="player">
+    <div id="songname">Loading song ...</div>
+    <div id="play">Play</div>
+    <div id="scope"></div>
+    <div class="range">
+        Volume:
+        <input id="volume" type="range" min="0" max="100" value="70">
+    </div>
+    <div class="range wide">
+        Progress:
+        <input id="progress" type="range" min="0" max="100" value="0">
+    </div>
+</div>
+
+<div id="pattern">
+    <h2>Pattern</h2>
+    <div id="patternhighlight"></div>
+    <div id="patternview">
+
+    </div>
+</div>
+
+
+<div id="playlist">
+    <h2>Playlist</h2>
+   <ul>
+       <li onclick="play('../demomods/StardustMemories.mod')">Stardust Memories</li>
+       <li onclick="play('../demomods/GSLINGER.MOD')">Guitar Slinger</li>
+       <li onclick="play('../demomods/Ambrozia.xm')">Ambrozia</li>
+       <li onclick="play('../demomods/Deadlock.xm')">Deadlock</li>
+       <li onclick="play('../demomods/Tinytune.mod')">TinyTune</li>
+       <li onclick="play('../demomods/external.xm')">External</li>
+   </ul>
+</div>
+
+
+<script src="bassoonplayer-min.js"></script>
+<script src="../script/src/enum.js"></script>
+<script>
+    var playItem;
+	var autoPlay = false;
+	var scopeActive = true;
+
+	document.addEventListener('DOMContentLoaded', function() {
+		var playButton = document.getElementById("play");
+		var progressBar = document.getElementById("progress");
+		var volumeBar = document.getElementById("volume");
+		var songName = document.getElementById("songname");
+		var patternView = document.getElementById("patternview");
+
+        var periodNoteTable = {};
+        var periodFinetuneTable = {};
+        var nameNoteTable = {};
+        var noteNames = [];
+        var FTNotes = [];
+        var FTPeriods = [];
+
+		// builds a lookup table to get the displayed note for each period
+
+        for (var i = -8; i<8;i++){
+            periodFinetuneTable[i] = {};
+        }
+
+
+        for (var key in NOTEPERIOD){
+            if (NOTEPERIOD.hasOwnProperty(key)){
+                var note = NOTEPERIOD[key];
+                periodNoteTable[note.period] = note;
+                nameNoteTable[note.name] = note;
+                noteNames.push(note.name);
+
+                // build fineTune table
+                if (note.tune){
+                    for (i = -8; i<8;i++){
+                        var table =  periodFinetuneTable[i];
+                        var index = i+8;
+                        table[note.tune[index]] = note.period;
+                    }
+                }
+            }
+        }
+
+        var ftCounter = 0;
+        for (key in FTNOTEPERIOD){
+            if (FTNOTEPERIOD.hasOwnProperty(key)){
+                var ftNote = FTNOTEPERIOD[key];
+                if (!ftNote.period) ftNote.period = 1;
+                FTNotes.push(ftNote);
+                FTPeriods[ftNote.period] = ftCounter;
+                if (ftNote.modPeriod) FTPeriods[ftNote.modPeriod] = ftCounter;
+                ftCounter++;
+            }
+        }
+
+		// create canvas to display scope
+		var scopeCanvas = document.createElement("canvas");
+		var scopeWidth = scopeCanvas.width = 215;
+		var scopeHeight = scopeCanvas.height = 34;
+		var scope = scopeCanvas.getContext("2d");
+		scopeCanvas.onclick = function(){
+			scopeActive = !scopeActive;
+			clearScope();
+        };
+		document.getElementById("scope").appendChild(scopeCanvas);
+
+		var analyser = BassoonTracker.audio.context.createAnalyser();
+		analyser.smoothingTimeConstant = 0.85;
+
+		BassoonTracker.init(true);
+		if (!BassoonTracker.audio.context){
+			songName.innerHTML = "Sorry<br>Your browser does not support WebAudio.<br>Supported browsers are Chrome, Firefox, Safari, and Edge";
+		}else{
+
+			var demoMod = "../demomods/StardustMemories.mod";
+
+			var startTime;
+			var wasPlaying;
+			var patternLength;
+			var songLength;
+			var currentSong;
+
+			playItem = function(url){
+				stopPlay();
+				songName.innerHTML = "Loading ...";
+				BassoonTracker.load(url,false,function(){
+                    currentSong = BassoonTracker.getSong();
+					songName.innerHTML = currentSong.title;
+
+					// We could loop over all the patterns to get the real length, but a rough estimate is good enough.
+					patternLength = currentSong.patterns[currentSong.patternTable[0]].length;
+					songLength = currentSong.length*patternLength;
+
+					// show initial pattern
+                    document.getElementById("pattern").classList.add("loaded");
+                    renderPattern({patternPos:0, songPos: 0})
+
+					// only autostart
+					if (autoPlay) togglePlay();
+				});
+			};
+
+			// setup UI
+
+			playButton.onclick = function(){
+				autoPlay = true;
+				togglePlay();
+			};
+
+			// setup progress bar to seek into the song
+			progressBar.oninput = function(){
+				wasPlaying = wasPlaying || BassoonTracker.isPlaying();
+				stopPlay();
+			};
+			progressBar.onchange = function(){
+				// align to start of pattern
+				var songPos = Math.floor((songLength*progressBar.value/100)/patternLength);
+				BassoonTracker.setCurrentSongPosition(songPos);
+				if (wasPlaying) togglePlay();
+				wasPlaying = false;
+			};
+
+			// setup progress bar to seek into the song
+			volumeBar.oninput = volumeBar.onchange = function(){
+                BassoonTracker.audio.masterVolume.gain.cancelScheduledValues(0);
+				BassoonTracker.audio.masterVolume.gain.setValueAtTime(volumeBar.value/100,0);
+			};
+
+			BassoonTracker.audio.cutOffVolume.connect(analyser);
+
+
+			// setup simple timer
+			// this has nothing to do with audio playback, it's only used to update the UI once in a while;
+			requestAnimationFrame(function loop(){
+				if (startTime){
+
+					if (BassoonTracker.isPlaying()){
+						var state = BassoonTracker.getStateAtTime(BassoonTracker.audio.context.currentTime);
+						if (state){
+
+							var currentPos = state.songPos*patternLength + state.patternPos;
+							var percentage = currentPos*100/songLength;
+							progressBar.value = percentage;
+
+							renderPattern(state);
+						}
+
+					}
+					if (scopeActive) renderScope();
+				}
+				requestAnimationFrame(loop)
+			});
+
+            // load first song
+			playItem(demoMod);
+		}
+
+
+
+		function togglePlay(){
+			BassoonTracker.togglePlay();
+			if (BassoonTracker.isPlaying()){
+				startTime = new Date().getTime();
+				playButton.innerHTML = "Pause";
+			}else{
+				playButton.innerHTML = "Play";
+			}
+		}
+
+		function stopPlay(){
+			BassoonTracker.stop();
+			playButton.innerHTML = "Play";
+		}
+
+		// render a frequency scope
+		function renderScope(){
+			scope.clearRect(0,0,scopeWidth,scopeHeight);
+			scope.fillStyle = '#000000';
+
+			analyser.fftSize = 128;
+			var bufferLength = analyser.frequencyBinCount;
+			var dataArray = new Uint8Array(bufferLength);
+
+			var lowTreshold = 8;
+			var highTreshold = 8;
+			var max = bufferLength-highTreshold;
+
+			var visualBufferLength = bufferLength - lowTreshold - highTreshold;
+
+			analyser.getByteFrequencyData(dataArray);
+
+			var barWidth = (scopeWidth - visualBufferLength) / visualBufferLength;
+			var barHeight;
+			var wx = 0;
+
+			// only display range
+
+			for(var i = lowTreshold; i < max; i++) {
+				barHeight = dataArray[i] * (scopeHeight + (i * 2.5)) / 750;
+				scope.fillRect(wx,scopeHeight-barHeight,barWidth,barHeight);
+
+				wx += barWidth + 1;
+			}
+		}
+
+		// render the pattern
+        function renderPattern(position){
+		    var patternIndex = currentSong.patternTable[position.songPos];
+		    var pattern = currentSong.patterns[patternIndex];
+		    if (pattern){
+		        var startRow = position.patternPos-6;
+		        var endRow = startRow + 11;
+
+		        var patternRows = [];
+		        for (var i = startRow; i<=endRow; i++){
+		            if (i<0 || i>=pattern.length){
+                        patternRows.push(" ");
+                    }else{
+                        var rowData = pattern[i];
+                        var rowNumber = i<10 ? "0" + i : i;
+                        var row = [rowNumber];
+                        for (var col=0; col<4; col++){
+                            row.push(getNoteDisplay(rowData[col]));
+                        }
+                        patternRows.push(row.join("  "));
+                    }
+
+                }
+		        patternView.innerHTML = patternRows.join("<br>");
+
+            }
+            //console.error(pattern);
+        }
+
+		function getNoteDisplay(note){
+            var noteString = "";
+            if (currentSong.typeId){
+                // MOD
+                var baseNote = periodNoteTable[note.period];
+                noteString = baseNote ? baseNote.name : "---";
+            }else{
+                // XM
+                if (note.index){
+                    var ftNote = FTNotes[note.index];
+                    if (note.index === 97) ftNote = FTNotes[NOTEOFF];
+                    noteString = ftNote ? ftNote.name : "???"
+                }else{
+                    noteString = "---";
+                    baseNote = FTPeriods[note.period];
+                    if (baseNote){
+                        ftNote = FTNotes[baseNote];
+                        if (ftNote) noteString = ftNote.name;
+                    }
+                }
+            }
+
+            noteString += " " + formatHex(note.instrument,2,"0");
+
+            var effectString;
+            if (note.effect>15){
+                effectString = formatHexExtended(note.effect);
+            }else{
+                effectString = formatHex(note.effect);
+            }
+
+            effectString += formatHex(note.param,2,"0");
+            if (effectString === "000")effectString = "...";
+
+            noteString += " " + effectString;
+            return noteString;
+
+		    //console.error(item);
+        }
+
+        function formatHex(i,length,padString){
+            h = i.toString(16).toUpperCase();
+            if (length && h.length<length){
+                padString = padString || "0";
+                while (h.length<length){
+                    h = padString + h;
+                }
+            }
+            return h;
+        }
+
+        function formatHexExtended(i,length,padString){
+            h = i.toString(36).toUpperCase();
+            if (length && h.length<length){
+                padString = padString || "0";
+                while (h.length<length){
+                    h = padString + h;
+                }
+            }
+            return h;
+        }
+
+		function clearScope(){
+			scope.clearRect(0,0,scopeWidth,scopeHeight);
+			scope.fillStyle = '#CCCCCC';
+			scope.font = "18px sans-serif";
+			if (!scopeActive){
+				scope.fillText("inactive",10,scopeHeight/2 + 6);
+            }
+		}
+
+
+	});
+
+	function play(url){
+		autoPlay = true;
+		if (playItem) playItem(url);
+    }
+
+
+
+
+
+</script>
+
+
+
+
+</body>
+</html>
