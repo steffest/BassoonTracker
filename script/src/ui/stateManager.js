@@ -206,7 +206,7 @@ var StateManager = function(){
 				track:track,
 				row: row
 			},
-			from:note.duplicate()
+			from:note?note.duplicate():{}
 		};
 		actionList.data.push(noteInfo);
 		return noteInfo;

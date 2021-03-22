@@ -185,10 +185,9 @@ var Editor = (function(){
 		if (!hasTracknumber) trackNumber = currentTrack;
 		var length = Tracker.getCurrentPatternData().length;
 		var data = [];
-
-		console.error(trackNumber);
+		
 		for (var i = 0; i<length;i++){
-			var note = Tracker.getSong().patterns[currentPattern][i][trackNumber];
+			var note = Tracker.getSong().patterns[currentPattern][i][trackNumber] || new Note();
 			data.push(note.duplicate());
 		}
 		if (hasTracknumber){
@@ -221,7 +220,6 @@ var Editor = (function(){
 			trackNumber = currentTrack;
 			data = pasteBuffer.track;
 		}
-		console.log("paste",trackNumber,data[0]);
 		if (data){
 			var editAction;
 			if (parentEditAction){
@@ -231,8 +229,13 @@ var Editor = (function(){
 				editAction.name = "Paste Track";
 			}
 			var length = Tracker.getCurrentPatternData().length;
+			var patternData = Tracker.getSong().patterns[currentPattern];
 			for (var i = 0; i<length;i++){
-				var note = Tracker.getSong().patterns[currentPattern][i][trackNumber];
+				var note = patternData[i][trackNumber];
+				if (!note){
+					note = new Note();
+					patternData[i][trackNumber] = note;
+				}
 				var source = data[i];
 				var noteInfo = StateManager.addNote(editAction,trackNumber,i,note);
 				noteInfo.to = source; // should we duplicate source?

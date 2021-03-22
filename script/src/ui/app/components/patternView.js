@@ -734,7 +734,7 @@ UI.app_patternView = function(x,y,w,h){
 						if (step){
 							var stepCopy = [];
 							for (var j = rangeNormalized.start[1]; j<=rangeNormalized.end[1]; j++){
-								var note = step[j];
+								var note = step[j] || new Note();
 								if (note) stepCopy.push(note.duplicate());
 							}
 							rangeCopy.push(stepCopy);
@@ -781,9 +781,15 @@ UI.app_patternView = function(x,y,w,h){
 						var stepCopy = rangeCopy[i];
 						if (step){
 							for (var j = 0; j<stepCopy.length; j++){
-								var note = step[rangeNormalized.start[1] + j];
+							    var trackIndex = rangeNormalized.start[1] + j;
+								var note = step[trackIndex];
+								if (!note && trackIndex<Tracker.getTrackCount()){
+                                   note = new Note();
+                                    step[trackIndex] = note;
+                                }
+								
 								if (note) {
-                                    StateManager.addNote(editAction,rangeNormalized.start[1] + j,rangeNormalized.start[0]+i,note);
+                                    StateManager.addNote(editAction,trackIndex,rangeNormalized.start[0]+i,note);
 								    note.populate(stepCopy[j]);
                                 }
 							}
