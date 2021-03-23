@@ -57,9 +57,8 @@ var Editor = (function(){
 	};
 
 
-	me.putNote = function(instrument,period,noteIndex){
+	me.putNote = function(instrument,period,noteIndex,volume){
 		var note = Tracker.getSong().patterns[currentPattern][currentPatternPos][currentTrack] || new Note();
-
 		var editAction = StateManager.createNoteUndo(currentPattern,currentTrack,currentPatternPos,note);
 		
 		if (note){
@@ -68,6 +67,15 @@ var Editor = (function(){
 				note.setIndex(noteIndex);
 			}else{
 				note.setPeriod(period);
+			}
+			if (typeof volume === "number"){
+				if (Tracker.inFTMode()){
+					note.volumeEffect = volume + 16;
+				}else{
+					note.effect = 12;
+					note.param = volume;
+				}
+				
 			}
 		}
 		

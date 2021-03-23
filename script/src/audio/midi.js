@@ -26,6 +26,7 @@ var Midi = function(){
 				console.log('Could not access your MIDI devices.');
 			}
 		} else {
+			console.warn("Midi not supported");
 			return false;
 		}
 	}
@@ -82,7 +83,11 @@ var Midi = function(){
 		// middle C is 60 - in Bassoon this is 13
 		var key = note - 47; 
 		var octave = Input.getCurrentOctave();
-		Input.handleNoteOn(key + (octave*12));
+		var volume;
+		if (SETTINGS.midi === "enabled"){
+			volume = (value+1)>>1;
+		}
+		Input.handleNoteOn(key + (octave*12),undefined,undefined,volume);
 	}
 
 	function noteOff(note,value){
@@ -90,7 +95,8 @@ var Midi = function(){
 
 		var key = note - 47;
 		var octave = Input.getCurrentOctave();
-		Input.handleNoteOff(key + (octave*12));
+		var register = SETTINGS.midi === "enabled";
+		Input.handleNoteOff(key + (octave*12),register);
 	}
 	
 	return me;

@@ -22,8 +22,6 @@ var Input = (function(){
 
 	me.init = function(){
 		
-		//if (typeof Midi === "object") Midi.init();
-
 		// mouse, touch and key handlers
 
 		canvas.addEventListener("mousedown",handleTouchDown,false);
@@ -651,7 +649,7 @@ var Input = (function(){
 	};
 
 	// handles the input for an indexed note
-	me.handleNoteOn = function(index,key,offset){
+	me.handleNoteOn = function(index,key,offset,volume){
 
         var note;
         var doPlay = true;
@@ -708,7 +706,7 @@ var Input = (function(){
                     if (Tracker.inFTMode() && Editor.getCurrentTrackPosition() === 5){
                         // Special Fasttracker commands // should we allow all keys ?
                         re = /[0-9A-Za-z]/g;
-                        if (re.test(key)) value = parseInt(key,36)
+                        if (re.test(key)) value = parseInt(key,36);
                     }
                 }
 
@@ -743,7 +741,8 @@ var Input = (function(){
             }else{
                 if (keyDown[index]) return;
                 if (note){
-                    Editor.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.index);
+                    Editor.putNote(Tracker.getCurrentInstrumentIndex(),note.period,note.index,volume);
+                    
                     if (Tracker.isPlaying()){
                         //doPlay = false;
                     }else{
@@ -778,8 +777,10 @@ var Input = (function(){
 						}
 					}
 				}
-
-                keyDown[index] = instrument.play(note.index,note.period,undefined,undefined,effects);
+                
+				// volume is 100 based here ... TODO: align volume to or 64 or 100 everywhere;
+                if (typeof volume === "number") volume = 100 * volume/64;
+                keyDown[index] = instrument.play(note.index,note.period,volume,undefined,effects);
                 keyDown[index].instrument = instrument;
                 keyDown[index].isKey = true;
                 inputNotes.push(keyDown[index]);
@@ -801,7 +802,7 @@ var Input = (function(){
 
 	};
 
-	me.handleNoteOff = function(index){
+	me.handleNoteOff = function(index,register){
 		if (!SETTINGS.sustainKeyboardNotes && keyDown[index] && keyDown[index].source && Audio.context){
             EventBus.trigger(EVENT.pianoNoteOff,index);
             try{
@@ -815,6 +816,12 @@ var Input = (function(){
             }
         }
         keyDown[index] = false;
+		
+		if (register && Tracker.inFTMode() && Tracker.isRecording() && Tracker.isPlaying()){
+			// register Note-Off commands coming from midi
+			Editor.putNoteParam(5,20);
+			Editor.putNoteParam(7,1);
+		}
 	};
 
 	me.isMetaKeyDown = function(){

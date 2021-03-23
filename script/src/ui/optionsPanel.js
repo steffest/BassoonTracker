@@ -146,6 +146,30 @@ UI.OptionsPanel = function(){
 				if (SETTINGS.dropboxMode === "overwrite") result = 1;
 				return result;
 			}
+		},
+		{
+			label: "Midi-in",
+			labels : [
+				{width: 20, label: "Midi"},
+				{width: 80, label: "Midi-in"}
+			],
+			values: ["Disabled", "Enabled Note", "Enabled Note-Volume"],
+			setValue: function (index) {
+				if (index === 0){
+					SETTINGS.midi = "disabled";
+				}else if (index === 1){
+					SETTINGS.midi = "enabled-note";
+				}else{
+					SETTINGS.midi = "enabled";
+				}
+				Settings.saveSettings();
+			},
+			getValue: function () {
+				var result = 0;
+				if (SETTINGS.midi === "enabled-note") result = 1;
+				if (SETTINGS.midi === "enabled") result = 2;
+				return result;
+			}
 		}
 	];
 

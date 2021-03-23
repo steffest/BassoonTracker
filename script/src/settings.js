@@ -17,7 +17,8 @@ var Settings = (function(){
 			keyboardTable: SETTINGS.keyboardTable,
 			stereoSeparation: SETTINGS.stereoSeparation,
 			dropboxMode: SETTINGS.dropboxMode,
-			skipFrame: UI.getSkipFrame()
+			skipFrame: UI.getSkipFrame(),
+			midi: SETTINGS.midi
 		};
 		Storage.set("bassoonTrackerSettings",JSON.stringify(settings));
 	};
@@ -54,6 +55,7 @@ var Settings = (function(){
 		SETTINGS.dropboxMode = "rename";
         SETTINGS.skipFrame = 1;
 		SETTINGS.canvasId = "canvas";
+		SETTINGS.midi = "disabled";
 		UI.skipFrame(SETTINGS.skipFrame);
 	}
 

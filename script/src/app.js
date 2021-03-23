@@ -4,6 +4,9 @@ var App = (function(){
     me.buildNumber = (typeof buildNumber === "undefined") ? "" : buildNumber; 
     
     me.init = function(){
+    	
+		if (typeof Midi === "object" && SETTINGS && SETTINGS.midi && SETTINGS.midi!=="disabled") Midi.init();
+    	
         EventBus.on(EVENT.command,function(command){
             window.focus();
             
@@ -129,12 +132,6 @@ var App = (function(){
     me.doCommand = function(command){
         EventBus.trigger(EVENT.command,command);
     };
-
-	me.nibbles = function(){
-		Plugin.load("Nibbles",function(){
-			Nibbles.init();
-		});
-	}
 
     return me;
 })();
