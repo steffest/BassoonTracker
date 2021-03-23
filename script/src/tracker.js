@@ -235,43 +235,6 @@ var Tracker = (function(){
 		}
 	};
 
-	me.addToPatternTable = function(index,patternIndex){
-		if (typeof index == "undefined") index = song.length;
-		patternIndex = patternIndex||0;
-
-		if (index == song.length){
-			song.patternTable[index] = patternIndex;
-			song.length++;
-		}else{
-			// TODO: insert pattern;
-		}
-
-		EventBus.trigger(EVENT.songPropertyChange,song);
-		EventBus.trigger(EVENT.patternTableChange);
-
-
-	};
-
-	me.removeFromPatternTable = function(index){
-		if (song.length<2) return;
-		if (typeof index == "undefined") index = song.length-1;
-
-		if (index == song.length-1){
-			song.patternTable[index] = 0;
-			song.length--;
-		}else{
-			// TODO: remove pattern and shift other patterns up;
-		}
-
-		if (currentSongPosition == song.length){
-			me.setCurrentSongPosition(currentSongPosition-1);
-		}
-
-		EventBus.trigger(EVENT.songPropertyChange,song);
-		EventBus.trigger(EVENT.patternTableChange);
-
-	};
-
 	me.setPlayType = function(playType){
 		currentPlayType = playType;
 		EventBus.trigger(EVENT.playTypeChange,currentPlayType);
@@ -520,6 +483,8 @@ var Tracker = (function(){
 		// example: see the ED2 command pattern 0, track 3, step 32 in AceMan - Dirty Tricks.mod
 		// not sure this is 100% correct, but in any case it's more correct then setting it at the track it self.
 		// Thinking ... ... yes ... should be fine as no speed related effects are processed on tick 0?
+		//
+		
 
 		for (var i = 0; i<tracks; i++){
 			note = patternStep[i];
@@ -1317,13 +1282,17 @@ var Tracker = (function(){
 				// Note: shouldn't this be "set speed at time" instead of setting it directly?
 				// TODO: -> investigate
 				// TODO: Yes ... this is actually quite wrong FIXME !!!!
+				
+				// Note 2: this hase moved to the beginning of the "row" sequence:
+				// we scan all tracks for tempo changes and set them before processing any other command.
+				// this is consistant with PT and FT
 
-				if (note.param < 32){
-					//if (note.param == 0) note.param = 1;
-					Tracker.setAmigaSpeed(note.param,time);
-				}else{
-					Tracker.setBPM(note.param)
-				}
+				//if (note.param < 32){
+				//	//if (note.param == 0) note.param = 1;
+				//	Tracker.setAmigaSpeed(note.param,time);
+				//}else{
+				//	Tracker.setBPM(note.param)
+				//}
 				break;
 
             case 16:
@@ -1360,14 +1329,25 @@ var Tracker = (function(){
 				//Fasttracker only - Key off
 				if (me.inFTMode()){
 					offInstrument = instrument || me.getInstrument(trackNotes[track].currentInstrument);
-					if (offInstrument){
-						volume = offInstrument.noteOff(time,trackNotes[track]);
+					if (note.param && note.param>=ticksPerStep){
+						// ignore: delay is too large
 					}else{
-						console.log("no instrument on track " + track);
-						volume = 0;
+						doPlayNote = false;
+						if (offInstrument){
+							if (note.param){
+								trackEffects.noteOff = {
+									value: note.param
+								}
+								doPlayNote = true;
+							}else{
+								volume = offInstrument.noteOff(time,trackNotes[track]);
+								defaultVolume = volume;
+							}
+						}else{
+							console.log("no instrument on track " + track);
+							defaultVolume = 0;
+						}
 					}
-					defaultVolume = volume;
-					doPlayNote = false;
 				}
 				break;
             case 21:
@@ -1688,6 +1668,13 @@ var Tracker = (function(){
 				trackNote.volume.gain.setValueAtTime(0,time + (effects.cutNote.value*tickTime));
 			}
 			trackNote.currentVolume = 0;
+		}
+
+		if (effects.noteOff){
+			var instrument = me.getInstrument(trackNote.instrumentIndex);
+			if (instrument){
+				trackNote.currentVolume = instrument.noteOff(time + (effects.noteOff.value*tickTime),trackNote);
+			}
 		}
 
 		if (effects.reTrigger){
