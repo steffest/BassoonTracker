@@ -528,7 +528,6 @@ UI.SampleView = function(){
 
 	me.onKeyDown = function(keyCode,event){
 		if (!me.visible) return;
-		console.error(keyCode);
 		switch (keyCode){
 			case 37: // left
 				waveForm.scroll(-1);

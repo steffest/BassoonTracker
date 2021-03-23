@@ -395,7 +395,6 @@ UI.WaveForm = function(){
 		}
 
 		if (amount === "loop"){
-			console.error(currentInstrument.sample.loop);
 			if (currentInstrument.sample.loop.enabled){
 				zoomStart = currentInstrument.sample.loop.start;
 				zoomLength = currentInstrument.sample.loop.length;

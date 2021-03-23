@@ -49,8 +49,6 @@ UI.app_patternPanel = function(){
     });
     me.addChild(sampleView);
 
-
-
     me.onPanelResize = function(){
 
 		if (Layout.showSideBar){

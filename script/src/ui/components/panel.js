@@ -18,31 +18,33 @@ UI.panel = function(x,y,w,h){
 	me.render = function(internal){
 
 		if (!me.isVisible()) return;
-
 		internal = !!internal;
 
 		if (this.needsRendering){
-			me.clearCanvas();
+			
+			if (me.renderOverride){
+				me.renderOverride();
+			}else{
+				me.clearCanvas();
 
-			if (me.backgroundColor){
-				me.ctx.fillStyle = me.backgroundColor;
-				me.ctx.fillRect(0,0,me.width,me.height);
+				if (me.backgroundColor){
+					me.ctx.fillStyle = me.backgroundColor;
+					me.ctx.fillRect(0,0,me.width,me.height);
+				}
+				if (me.borderColor){
+					me.ctx.fillStyle = me.borderColor;
+					me.ctx.rect(0,0,me.width,me.height);
+					me.ctx.stroke();
+				}
+
+				this.children.forEach(function(elm){
+					elm.render();
+				});
+
+				if (me.renderInternal) me.renderInternal();
 			}
-			if (me.borderColor){
-				me.ctx.fillStyle = me.borderColor;
-				me.ctx.rect(0,0,me.width,me.height);
-				me.ctx.stroke();
-			}
-
-			this.children.forEach(function(elm){
-				elm.render();
-			});
-
-			if (me.renderInternal) me.renderInternal();
 		}
-
-
-
+		
 		this.needsRendering = false;
 		if (internal){
 			return me.canvas;

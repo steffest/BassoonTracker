@@ -90,6 +90,7 @@ UI.app_controlPanel = function(){
 		height: 20,
 		textAlign: "right"
 	});
+	labelTrackerMode.ignoreEvents = true;
 	me.addChild(labelTrackerMode);
 
 	var labelTrackView = UI.label();
@@ -107,6 +108,7 @@ UI.app_controlPanel = function(){
 		height: 20,
 		textAlign: "right"
 	});
+	labelTrackView.ignoreEvents = true;
 	me.addChild(labelTrackView);
 
 

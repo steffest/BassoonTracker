@@ -44,7 +44,6 @@ function encodeWAV (samples, format, sampleRate, numChannels, bitDepth) {
 	var blockAlign = numChannels * bytesPerSample;
 
 	var bufferLength = 44 + samples.length * bytesPerSample;
-	console.error("buffer " + bufferLength);
 
 	var buffer = new ArrayBuffer(bufferLength);
 	var view = new DataView(buffer);

@@ -78,6 +78,7 @@
     <script src="script/src/audio/riffWave.js?v6"></script>
     <script src="script/src/audio/detectSampleType.js?v6"></script>
     <script src="script/src/audio/filterChain.js?v6"></script>
+    <script src="script/src/audio/midi.js?v6"></script>
 
     <script src="script/src/main.js?v6"></script>
     <script src="script/src/app.js?v6"></script>
@@ -102,6 +103,7 @@
 
     <script src="script/src/ui/components/element.js?v6"></script>
     <script src="script/src/ui/components/panel.js?v6"></script>
+    <script src="script/src/ui/components/image.js?v6"></script>
     <script src="script/src/ui/components/button.js?v6"></script>
     <script src="script/src/ui/components/checkboxbutton.js?v6"></script>
     <script src="script/src/ui/components/label.js?v6"></script>
@@ -166,10 +168,295 @@
 
     <script src="script/src/lib/zip.js?v6"></script>
 
+    <script src="script/plugins/loader.js"></script>
+
 </head>
 <body>
 
 <canvas id="canvas" tabindex='1' moz-opaque></canvas>
+
+
+<!-- TODO: https://www.shadertoy.com/view/Ms23DR -->
+
+
+<!-- 8< -- ## GL SHADER STUFF STARTS HERE ## -- -->
+
+<!-- vertex shader -->
+<script id="some-vertex-shader" type="x-shader/x-vertex">
+	attribute vec2 a_position;
+	attribute vec2 a_texCoord;
+	varying   vec2 v_texCoord;
+	void main()
+	{
+		gl_Position = vec4(a_position.x, a_position.y, 0, 1);
+		v_texCoord = a_texCoord;
+	}
+</script>
+
+<!-- fragment shader -->
+<script id="some-fragment-shader" type="x-shader/x-fragment">
+
+	precision mediump float;
+
+	varying vec2		v_texCoord;
+	uniform vec2		u_canvasSize;
+	uniform sampler2D	u_texture;
+
+	// PUBLIC DOMAIN CRT STYLED SCAN-LINE SHADER
+	//   by Timothy Lottes
+	// https://www.shadertoy.com/view/XsjSzR
+	//   modified (borked) by ultrabrite
+
+	// Emulated input resolution.
+	const vec2 texSize=vec2(1200.0,600.0);
+
+	// Hardness of scanline.
+	//  -8.0 = soft
+	// -16.0 = medium
+	float hardScan=-8.0;
+
+	// Hardness of pixels in scanline.
+	// -2.0 = soft
+	// -4.0 = hard
+	const float hardPix=-2.0;
+
+	// Hardness of shadow mask in scanline.
+	// 0.5 = hard
+	// 3.0 = soft
+	const float hardMask=2.0;
+
+	const vec3 compos = vec3(1.0/6.0,1.0/2.0,5.0/6.0);
+
+	// Display warp.
+	// 0.0 = none
+	// 1.0/8.0 = extreme
+	const vec2 warp=vec2(1.0/24.0,1.0/24.0);
+
+	//------------------------------------------------------------------------
+
+	// Nearest emulated sample given floating point position and texel offset.
+	// Also zero's off screen.
+	vec3 Fetch(vec2 pos,vec2 off)
+	{
+		pos=floor(pos * texSize + off) / texSize;
+		if (pos.x<0.0 || pos.x>=1.0 || pos.y<0.0 || pos.y>=1.0)
+			return vec3(0.0,0.0,0.0);
+		return texture2D(u_texture,pos.xy).rgb;
+	}
+
+	// Distance in emulated pixels to nearest texel.
+	vec2 Dist(vec2 pos)
+	{
+		pos=pos * texSize;
+		return -((pos-floor(pos))-vec2(0.5));
+	}
+
+	// 1D Gaussian.
+	float Gaus(float pos,float scale)
+	{
+		return exp2(scale*pos*pos);
+	}
+
+	// 3-tap Gaussian filter along horz line.
+	vec3 Horz3(vec2 pos,float off)
+	{
+		mat3 m=mat3(Fetch(pos,vec2(-1.0,off)),
+					Fetch(pos,vec2( 0.0,off)),
+					Fetch(pos,vec2( 1.0,off)));
+		float dst=Dist(pos).x;
+		// Convert distance to weight.
+		vec3 v=vec3(Gaus(dst-1.0,hardPix),
+					Gaus(dst+0.0,hardPix),
+					Gaus(dst+1.0,hardPix));
+			// Return filtered sample.
+			return (m*v)/(v.x+v.y+v.z);
+	}
+
+	// 5-tap Gaussian filter along horz line.
+	vec3 Horz5(vec2 pos,float off)
+	{
+		vec3 a=Fetch(pos,vec2(-2.0,off));
+		vec3 b=Fetch(pos,vec2(-1.0,off));
+		vec3 c=Fetch(pos,vec2( 0.0,off));
+		vec3 d=Fetch(pos,vec2( 1.0,off));
+		vec3 e=Fetch(pos,vec2( 2.0,off));
+		float dstx=Dist(pos).x;
+		// Convert distance to weight.
+		float wa=Gaus(dstx-2.0,hardPix);
+		float wb=Gaus(dstx-1.0,hardPix);
+		float wc=Gaus(dstx+0.0,hardPix);
+		float wd=Gaus(dstx+1.0,hardPix);
+		float we=Gaus(dstx+2.0,hardPix);
+		// Return filtered sample.
+		return (a*wa+b*wb+c*wc+d*wd+e*we)/(wa+wb+wc+wd+we);
+	}
+
+	// Allow nearest three lines to effect pixel.
+	vec3 Tri(vec2 pos)
+	{
+		mat3 m=mat3(Horz3(pos,-1.0),
+					Horz5(pos, 0.0),
+					Horz3(pos, 1.0));
+		float dsty=Dist(pos).y;
+		vec3 v=vec3(Gaus(dsty-1.0,hardScan),
+					Gaus(dsty+0.0,hardScan),
+					Gaus(dsty+1.0,hardScan));
+		return m*v;
+	}
+
+	// Distortion of scanlines, and end of screen alpha.
+	vec2 Warp(vec2 pos)
+	{
+		pos=pos*2.0-1.0;
+		pos*=1.0+vec2(pos.y*pos.y,pos.x*pos.x)*warp;
+		return pos*0.5+0.5;
+	}
+
+	vec3 Mask(float x)
+	{
+		vec3 v  = clamp((fract(x)-compos)*hardMask,-1.0/3.0,1.0/3.0);
+		return 2.0/3.0+abs(v);
+	}
+
+	void main()
+	{
+		gl_FragColor.rgb = Tri(Warp(v_texCoord.xy))*Mask(v_texCoord.x*texSize.x);
+		gl_FragColor.a = 1.0;
+	}
+</script>
+
+<script type="text/javascript">
+
+    function crt(){
+        p8Canvas = document.getElementById("canvas");
+        canvas = p8Canvas.cloneNode(true);
+
+        p8Canvas.name = "p8Canvas";
+        canvas.name = "canvas";
+        canvas.class = "";
+        canvas.width = p8Canvas.clientWidth;
+        canvas.height = p8Canvas.clientHeight;
+        gl = canvas.getContext('webgl');
+
+        function switchEffect()
+        {
+            if (p8Canvas.parentNode != null)
+            {
+                p8Canvas.parentNode.insertBefore(canvas,p8Canvas);
+                //canvas.parentNode.removeChild(p8Canvas);
+            } else {
+                canvas.parentNode.insertBefore(p8Canvas,canvas);
+                //p8Canvas.parentNode.removeChild(canvas);
+            }
+        }
+
+        function onKeyDown_switch(event) {
+            console.error("rr");
+            event = event || window.event;
+            var o = document.activeElement;
+            if (!o || o == document.body || o.tagName == "canvas")
+            {
+                if ([16].indexOf(event.keyCode) > -1) { switchEffect(); }
+            }
+        }
+        window.addEventListener('keydown', onKeyDown_switch, false);
+
+        if (gl)
+        {
+            switchEffect();
+
+            function glresize()
+            {
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+
+                gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+                gl.uniform2f(gl.getUniformLocation(program, "u_canvasSize"), gl.canvas.width, gl.canvas.height);
+            }
+
+
+            window.addEventListener('load', glresize, false);
+            window.addEventListener('resize', glresize, false);
+            window.addEventListener('orientationchange', glresize, false);
+            window.addEventListener('fullscreenchange', glresize, false);
+            window.addEventListener('webkitfullscreenchange', glresize, false);//for itch.app
+
+            function compileShader(gl, source, type)
+            {
+                var shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
+                {
+                    var info = gl.getShaderInfoLog(shader);
+                    throw ("could not compile shader:" + info);
+                }
+                return shader;
+            };
+
+            var vs_script = document.getElementById("some-vertex-shader");
+            var vs = compileShader(gl, vs_script.text, gl.VERTEX_SHADER);
+            var fs_script = document.getElementById("some-fragment-shader");
+            var fs = compileShader(gl, fs_script.text, gl.FRAGMENT_SHADER);
+
+            program = gl.createProgram();
+            gl.attachShader(program, vs);
+            gl.attachShader(program, fs);
+            gl.linkProgram(program);
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+            {
+                var info = gl.getProgramInfoLog(program);
+                throw ("shader program failed to link:" + info);
+            }
+            gl.useProgram(program)
+
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.uniform3f(gl.getUniformLocation(program, "u_canvasSize"), gl.canvas.width, gl.canvas.height, 0.0 );
+
+            var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
+            gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1,0, 0,0, 0,1, 0,1, 1,1, 1,0]), gl.STATIC_DRAW);
+            gl.enableVertexAttribArray(texCoordLocation);
+            gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+            var positionLocation = gl.getAttribLocation(program, "a_position");
+            gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1,1, -1,1, -1,-1, -1,-1, 1,-1, 1,1]), gl.STATIC_DRAW);
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+            function gldraw()
+            {
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, p8Canvas);
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+                requestAnimationFrame(gldraw);
+            }
+
+            function draw()
+            {
+                gltex = gl.createTexture();
+                gl.bindTexture(gl.TEXTURE_2D, gltex);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT );
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT );
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                gl.activeTexture(gl.TEXTURE0);
+                gl.uniform1i(gl.getUniformLocation(program, "u_texture0"), 0);
+                gldraw();
+            }
+            window.addEventListener("load", draw, false);
+            draw();
+
+            window.d = draw;
+        }
+    }
+
+
+</script>
+<!-- 8< -- ## GL SHADER STUFF ENDS HERE ## -- -->
+
+
+
 
 </body>
 </html>

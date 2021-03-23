@@ -70,6 +70,7 @@ var EVENT = {
 	songSpeedChangeIgnored:55,
 	songBPMChangeIgnored:56,
 	commandProcessSample: 57,
+	pluginRenderHook: 58,
 };
 
 var COMMAND = {
@@ -99,7 +100,8 @@ var COMMAND = {
 	pattern2Sample: 24,
 	toggleAppSideBar: 25,
 	undo: 26,
-	redo: 27
+	redo: 27,
+	nibbles: 28
 };
 
 var PLAYTYPE = {

@@ -100,8 +100,8 @@ UI.radioGroup = function(x,y,w,h){
 				}
 
 				if (font){
+					var label = item.label;
 					if (align === "right"){
-						var label = item.label;
 						textX = buttonX - font.getTextWidth(item.label,0) - 4;
 						if (textX<0 && item.labels){
 							var rest = buttonX - 4;

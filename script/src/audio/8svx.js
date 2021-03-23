@@ -28,7 +28,6 @@ function read8SVXsample(file,sample){
 		}
 		chunk = readChuck();
 	}
-	console.error(chunk);
 
 	if (chunk.name == "BODY"){
 		for (var j = 0; j<chunk.size; j++){

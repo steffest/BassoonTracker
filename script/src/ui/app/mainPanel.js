@@ -3,6 +3,7 @@ UI.app_mainPanel = function(){
     var currentView = "";
     var currentSubView = "";
 	var radioGroup;
+	var customPanel;
 
 	var steffestVersion = function(){
 		var img = Y.getImage("steffest");
@@ -132,9 +133,9 @@ UI.app_mainPanel = function(){
         onChange : function(value){
             var currentLength = Tracker.getSong().length;
             if (currentLength>value){
-                Tracker.removeFromPatternTable();
+                Editor.removeFromPatternTable();
             }else if(currentLength<value){
-                Tracker.addToPatternTable();
+				Editor.addToPatternTable();
             }
         }
     });
@@ -232,7 +233,11 @@ UI.app_mainPanel = function(){
 			panelTop = margin;
 			spinButtonWidth = Layout.col32W - 2;
 			spinButtonHeight = 28;
-			radioGroup.show();
+			if (currentView){
+				radioGroup.hide();
+			}else{
+				radioGroup.show();
+			} 
 
 			radioGroup.setDimensions({
 				left: Layout.col31X,
@@ -324,18 +329,20 @@ UI.app_mainPanel = function(){
 				height: spinButtonHeight
 			});
 
-			logo.toggle(currentSubView === "about");
-			tracker.toggle(currentSubView === "about");
-			modNameInputBox.toggle(currentSubView === "instruments");
-			listbox.toggle(currentSubView === "instruments");
-			songlistbox.toggle(currentSubView === "songdata");
-			patternPanel.toggle(currentSubView === "patterndata");
-			spinBoxBpm.toggle(currentSubView === "patterndata");
-			spinBoxSongLength.toggle(currentSubView === "patterndata");
-			spinBoxPattern.toggle(currentSubView === "patterndata");
-			spinBoxPatternLength.toggle(currentSubView === "patterndata");
-			spinBoxInstrument.toggle(currentSubView === "patterndata");
-
+			if (!currentView){
+				logo.toggle(currentSubView === "about");
+				tracker.toggle(currentSubView === "about");
+				modNameInputBox.toggle(currentSubView === "instruments");
+				listbox.toggle(currentSubView === "instruments");
+				songlistbox.toggle(currentSubView === "songdata");
+				patternPanel.toggle(currentSubView === "patterndata");
+				spinBoxBpm.toggle(currentSubView === "patterndata");
+				spinBoxSongLength.toggle(currentSubView === "patterndata");
+				spinBoxPattern.toggle(currentSubView === "patterndata");
+				spinBoxPatternLength.toggle(currentSubView === "patterndata");
+				spinBoxInstrument.toggle(currentSubView === "patterndata");
+			}
+			
 			patternPanel2.hide();
 
 
@@ -344,19 +351,7 @@ UI.app_mainPanel = function(){
 
 			if (radioGroup) radioGroup.hide();
 
-			logo.show();
-            tracker.show();
-			modNameInputBox.show();
-			listbox.show();
-			songlistbox.show();
-			patternPanel.show();
-			patternPanel2.show();
-			spinBoxBpm.show();
-			spinBoxSongLength.show();
-			spinBoxPattern.show();
-			spinBoxPatternLength.show();
-			spinBoxInstrument.show();
-            spinBoxSongRepeat.show();
+			if (!currentView) showMain();
 
 			logo.setDimensions({
 				left: Layout.col1X,
@@ -451,9 +446,9 @@ UI.app_mainPanel = function(){
 
         }
 
-
         diskOperations.setSize(me.width,me.height);
         optionsPanel.setSize(me.width,me.height);
+        if (customPanel) customPanel.setSize(me.width,me.height);
     };
     me.onPanelResize();
 
@@ -509,6 +504,45 @@ UI.app_mainPanel = function(){
 		me.addChild(radioGroup);
 		me.sortZIndex();
     }
+    
+    function hideMain(){
+		logo.hide();
+		tracker.hide();
+		modNameInputBox.hide();
+		spinBoxBpm.hide();
+		spinBoxInstrument.hide();
+		spinBoxSongRepeat.hide();
+		listbox.hide();
+		songlistbox.hide();
+		spinBoxSongLength.hide();
+		spinBoxPattern.hide();
+		spinBoxPatternLength.hide();
+		patternPanel.hide();
+		patternPanel2.hide();
+		if (radioGroup) radioGroup.hide();
+	}
+
+	function showMain(){
+		logo.show();
+		tracker.show();
+		modNameInputBox.show();
+		spinBoxBpm.show();
+		spinBoxInstrument.show();
+		spinBoxSongRepeat.show();
+		listbox.show();
+		songlistbox.show();
+		spinBoxSongLength.show();
+		spinBoxPattern.show();
+		spinBoxPatternLength.show();
+		patternPanel.show();
+		patternPanel2.show();
+
+		if (Layout.prefered === "col3") {
+			if (radioGroup) radioGroup.show();
+		}else{
+			if (radioGroup) radioGroup.hide();
+		}
+	}
 
 
     EventBus.on(EVENT.songLoading,function(){
@@ -564,6 +598,30 @@ UI.app_mainPanel = function(){
 		spinBoxInstrument.setMax(Tracker.getMaxInstruments());
 	});
 
+	EventBus.on(EVENT.pluginRenderHook,function(hook){
+		if (hook.target && hook.target === "main"){
+			
+			if (!customPanel){
+				customPanel = UI.panel(0,0,me.width,me.height);
+				me.addChild(customPanel);
+			}else{
+				// TODO destroy customPanel?
+				customPanel.children = [];
+			}
+
+			customPanel.renderOverride = hook.render;
+			customPanel.renderInternal = hook.renderInternal;
+			if (hook.setRenderTarget) hook.setRenderTarget(customPanel);
+			
+			diskOperations.hide();
+			optionsPanel.hide();
+			hideMain();
+			currentView = "custom";
+			customPanel.show();
+			me.refresh();
+		}
+	});
+
     EventBus.on(EVENT.showView,function(view){
         switch (view){
             case "diskop_load":
@@ -572,6 +630,7 @@ UI.app_mainPanel = function(){
 			case "diskop_modules_load":
 			case "diskop_samples_save":
 			case "diskop_modules_save":
+				if (customPanel) customPanel.hide();
                 diskOperations.setView(view);
                 diskOperations.show();
                 optionsPanel.hide();
@@ -579,6 +638,7 @@ UI.app_mainPanel = function(){
                 me.refresh();
                 break;
             case "options":
+				if (customPanel) customPanel.hide();
                 diskOperations.hide();
                 optionsPanel.show(true);
                 currentView = view;
@@ -586,13 +646,17 @@ UI.app_mainPanel = function(){
                 break;
             case "topmain":
             case "main":
+				if (customPanel) customPanel.hide();
                 diskOperations.hide();
                 optionsPanel.hide();
                 currentView = "";
+                showMain();
                 me.refresh();
                 break;
         }
     });
+    
+    
 
 
     return me;

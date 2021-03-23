@@ -117,6 +117,11 @@ var App = (function(){
                 case COMMAND.redo:
                     EventBus.trigger(EVENT.commandRedo);
                     break;
+				case COMMAND.nibbles:
+					Plugin.load("Nibbles",function(){
+						Nibbles.init();
+					});
+					break;
             }
         });
     };
@@ -124,6 +129,12 @@ var App = (function(){
     me.doCommand = function(command){
         EventBus.trigger(EVENT.command,command);
     };
+
+	me.nibbles = function(){
+		Plugin.load("Nibbles",function(){
+			Nibbles.init();
+		});
+	}
 
     return me;
 })();

@@ -1,8 +1,8 @@
 UI.modalDialog = function(initialProperties){
     var me = UI.element();
     var text = "";
-
-    var properties = ["left","top","width","height","name","ok","cancel"];
+    var inputBox;
+    var properties = ["left","top","width","height","name","ok","cancel","input"];
 
     me.setProperties = function(p){
 
@@ -26,6 +26,35 @@ UI.modalDialog = function(initialProperties){
             cancelButton.setPosition(background.left + Math.floor(background.width/2) + 10,background.top + background.height - 40);
         }else{
             okButton.setPosition(background.left + Math.floor(background.width/2) - 50,background.top + background.height - 40);
+        }
+
+        if (me.input){
+            if (!inputBox){
+                inputBox = UI.inputbox({
+                    name: "dialoginput",
+                    width: 200,
+                    height: 28,
+                    value: "",
+                    onChange:function(){
+                        me.inputValue = inputBox.getValue();
+                    },
+                    onSubmit:function(value){
+                        me.inputValue = value;
+                        me.onKeyDown(13);
+                    }
+                });
+                me.addChild(inputBox);
+                setTimeout(function(){
+                    inputBox.activate();
+                },0);
+            }
+            inputBox.setProperties({
+                left: background.left + 50,
+                top: background.top + background.height - 80,
+                width: background.width-100,
+                height: 28
+            })
+
         }
 
     };
@@ -65,9 +94,9 @@ UI.modalDialog = function(initialProperties){
 
     me.render = function(internal){
         internal = !!internal;
-
         if (this.needsRendering){
 
+            me.clearCanvas();
             me.ctx.fillStyle = "rgba(0,0,0,0.6)";
             me.ctx.fillRect(0,0,me.width,me.height);
 
@@ -93,6 +122,10 @@ UI.modalDialog = function(initialProperties){
 
             if (me.ok) okButton.render();
             if (me.cancel) cancelButton.render();
+
+            if (inputBox){
+                inputBox.render();
+            }
 
         }
         this.needsRendering = false;

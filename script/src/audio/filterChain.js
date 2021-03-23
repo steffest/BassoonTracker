@@ -268,8 +268,6 @@ FilterChain = (function(filters) {
 	};
 
 	me.setState = function(name,value){
-		console.error(name,value);
-
 		disConnectFilter();
 
         if (name==="high") useHigh=!!value;

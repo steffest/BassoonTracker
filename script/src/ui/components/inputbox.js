@@ -1,6 +1,6 @@
 UI.inputbox = function(initialProperties){
 	var me = UI.element();
-	var properties = ["left","top","width","height","name","type","onChange","backgroundImage","trackUndo","undoLabel","undoInstrument"];
+	var properties = ["left","top","width","height","name","type","onChange","onSubmit","backgroundImage","trackUndo","undoLabel","undoInstrument"];
 	var value = "";
 	var prevValue = "";
 	var isActive;
@@ -111,24 +111,23 @@ UI.inputbox = function(initialProperties){
 	};
 
 	me.activate = function(){
-		cursorPos = -1;
-		console.log("activate " + me.name);
-		if (!isActive && value){
-			cursorPos = value.length-1;
-		}
+		if (isActive) return;
+		cursorPos = value ? value.length-1 : -1;
 		isActive = true;
 		Input.setFocusElement(me);
 		pingCursor();
 	};
 
-	me.deActivate = function(){
+	me.deActivate = function(andSubmit){
 		if (isActive){
 			isCursorVisible = false;
 			isActive = false;
 			me.refresh();
-			Input.clearFocusElement()
+			Input.clearFocusElement();
+			if (andSubmit && me.onSubmit){
+				me.onSubmit(value);
+			}
 		}
-
 	};
 
 	me.onKeyDown = function(keyCode,event){
@@ -146,7 +145,7 @@ UI.inputbox = function(initialProperties){
 			case 9:// tab
 			case 13:// enter
 			case 27:// esc
-				me.deActivate();
+				me.deActivate(keyCode===13);
 				handled = true;
 				break;
 			case 37:// left
@@ -181,7 +180,7 @@ UI.inputbox = function(initialProperties){
 
 		if (!handled && keyCode>31){
 			var key = event.key;
-			if (key.length == 1 && key.match(/[a-z0-9\._:\-\ #]/i)){
+			if (key.length === 1 && key.match(/[a-z0-9\._:\-\ #]/i)){
 				me.setValue(value.substr(0,cursorPos+1) + key + value.substr(cursorPos+1));
 				cursorPos++;
 			}

@@ -11,6 +11,7 @@ UI.app_menu = function(container){
     me.addChild(menuBackground);
 
     var menu = UI.menu(5,0,me.width,26,container);
+    menu.name = "MainMenu";
     me.addChild(menu);
     menu.setItems([
         {label: "File" , subItems: [
@@ -41,6 +42,7 @@ UI.app_menu = function(container){
                 {label: "File Operations" , "command" : COMMAND.showFileOperations},
                 {label: "Sample Editor" , "command" : COMMAND.showSampleEditor},
                 {label: "Piano" , "command" : COMMAND.togglePiano},
+                {label: "Nibbles" , "command" : COMMAND.nibbles},
                 {label: "Performance stats" , "command" : COMMAND.showStats}
             ]},
         {label: "Help", subItems: [

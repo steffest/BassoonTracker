@@ -107,7 +107,6 @@ function encodeRIFFsample(sampleData,bits){
         }
     }else{
         for (var i = 0; i<sampleData.length; i++){
-            //console.error(sampleData[i]);
             file.writeUByte(Math.round(sampleData[i]*127) + 127);
         }
 	}

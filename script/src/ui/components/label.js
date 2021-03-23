@@ -45,6 +45,10 @@ UI.label = function(initialProperties){
 		me.refresh();
 	};
 
+	me.getFont = function(){
+		return font;
+	};
+
 	me.setLabel = function(text){
 		label = text;
 		me.refresh();

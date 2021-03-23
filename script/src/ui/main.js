@@ -14,7 +14,8 @@ var UI = (function(){
 	var fontDark;
 
 	var maxWidth = 1200;
-	var minHeight = 800;
+	var maxHeight = 2000;
+	var minHeight = 200;
 	var modalElement;
 	var needsRendering =  true;
 	var skipRenderSteps = 0;
@@ -65,9 +66,13 @@ var UI = (function(){
 		ctx = canvas.getContext("2d");
 
 		var w = window.innerWidth;
+		var h = window.innerHeight;
+
 		if (w>maxWidth) w=maxWidth;
-		canvas.width = w;
-		canvas.height = window.innerHeight;
+		if (h>maxHeight) h=maxHeight;
+
+		canvas.width =w;
+		canvas.height=h;
 
 		ctx.fillStyle = "black";
 		ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -118,9 +123,11 @@ var UI = (function(){
 		}else{
 			canvas = document.getElementById("canvas");
 			var w = window.innerWidth;
+
 			if (w>maxWidth) w=maxWidth;
+			if (w>maxHeight) w=maxHeight;
 			canvas.width = w;
-			canvas.height = window.innerHeight;
+			//canvas.height = window.innerHeight;
 		}
 
 		ctx = canvas.getContext("2d");
@@ -148,7 +155,8 @@ var UI = (function(){
 
 	me.setSize = function(newWidth,newHeight){
 		if (newWidth>maxWidth) newWidth = maxWidth;
-		//if (newHeight<minHeight) newHeight = minHeight;
+		if (newHeight>maxHeight) newHeight = maxHeight;
+		if (newHeight<minHeight) newHeight = minHeight;
 
 		if ((newWidth != canvas.width) || (newHeight != canvas.height)){
 			ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -210,6 +218,8 @@ var UI = (function(){
 			spaceWidth: 11,
 			margin: 1,
 			charsPerLine:20,
+			lineSpacing: 3,
+			chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_",
 			onlyUpperCase:true
 		});
 		window.fontBig = fontBig;
@@ -357,6 +367,12 @@ var UI = (function(){
 			renderStep = 0;
 			lastRenderTime = beginRenderTime;
 			EventBus.trigger(EVENT.screenRefresh);
+
+			if (modalElement && modalElement.needsRendering){
+				UI.mainPanel.refresh();
+				needsRendering = true;
+			}
+
 			if (needsRendering){
 				children.forEach(function(element){
 					if (element.needsRendering) {
@@ -419,11 +435,10 @@ var UI = (function(){
 		modalElement = undefined;
 		UI.mainPanel.refresh();
 		needsRendering = true;
-		window.requestAnimationFrame(render);
 	};
 
+
 	me.setSelection = function(_selection){
-		console.log("setting selection");
 		selection = _selection;
 		prevSelection = selection;
 	};
@@ -483,7 +498,7 @@ var UI = (function(){
 		EventBus.trigger(EVENT.hideContextMenu);
 	};
 
-	me.showDialog = function(text,onOk,onCancel){
+	me.showDialog = function(text,onOk,onCancel,useInput){
 		var dialog = UI.modalDialog();
 		dialog.setProperties({
 			width: UI.mainPanel.width,
@@ -491,15 +506,23 @@ var UI = (function(){
 			top: 0,
 			left: 0,
 			ok: !!onOk,
-			cancel: !!onCancel
+			cancel: !!onCancel,
+			input: !!useInput
 		});
 
 		dialog.onClick = function(touchData){
+			if (useInput){
+				var elm = dialog.getElementAtPoint(touchData.x,touchData.y);
+				if (elm.name === "dialoginput"){
+					elm.activate();
+					return;
+				}
+			}
 			if (onCancel){
 				var elm = dialog.getElementAtPoint(touchData.x,touchData.y);
 				if (elm && elm.name){
 					if (elm.name === "okbutton"){
-						if (typeof onOk === "function") onOk();
+						if (typeof onOk === "function") onOk(dialog.inputValue);
 					}else{
 						if (typeof onCancel === "function") onCancel();
 					}
@@ -507,15 +530,16 @@ var UI = (function(){
 				}
 			}else{
 				dialog.close();
-				if (onOk) onOk();
+				if (onOk) onOk(dialog.inputValue);
 			}
 		};
 
 		dialog.onKeyDown = function(keyCode){
 			switch (keyCode){
 				case 13:
+					var value = dialog.inputValue;
 					dialog.close();
-					if (onOk) onOk();
+					if (onOk) onOk(value);
 					return true;
 				case 27:
 					dialog.close();
@@ -525,9 +549,9 @@ var UI = (function(){
 		}
 
 		dialog.setText(text);
-
 		UI.setModalElement(dialog);
 	}
+
 
 	me.getChildren = function(){
 		return children;

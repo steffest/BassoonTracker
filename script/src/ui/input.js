@@ -22,7 +22,7 @@ var Input = (function(){
 
 	me.init = function(){
 		
-		if (typeof Midi === "object") Midi.init();
+		//if (typeof Midi === "object") Midi.init();
 
 		// mouse, touch and key handlers
 
@@ -584,11 +584,23 @@ var Input = (function(){
 
 
 	me.setFocusElement = function(element){
-		if (focusElement && focusElement.deActivate) focusElement.deActivate();
-		focusElement = element;
 		var name = element.name || element.type;
-		if (name) console.log("setting focus to " + name);
-		if (element.Activate) element.Activate();
+		if (focusElement){
+			var fName = focusElement.name || focusElement.type;
+			if (fName === name){
+				console.log(name + " already has focus");
+				return;
+			}else{
+				if (focusElement.deActivate) focusElement.deActivate()
+			}
+		}
+		focusElement = element;
+		if (name){
+			console.log("setting focus to " + name);
+		}else{
+			console.warn("Warning: setting focus to an unnamed element can cause unexpected results")
+		}
+		//if (element.activate) element.activate();
 	};
 	me.clearFocusElement = function(element){
 		if (element){
