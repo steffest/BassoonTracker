@@ -62,6 +62,31 @@ UI.app_songPatternList = function(height){
 	};
     me.addChild(spMin);
 
+
+
+    var spInsert = UI.Assets.generate("button20_20");
+    spInsert.setLabel("Ins");
+    spInsert.onDown = function(){
+        var index = songlistbox.getSelectedIndex();
+        Editor.addToPatternTable(index);
+
+    };
+    spInsert.setProperties({width: 40, height: 20});
+    me.addChild(spInsert);
+
+
+    var spDelete = UI.Assets.generate("button20_20");
+    spDelete.setLabel("Del");
+    spDelete.onDown = function(){
+        var index = songlistbox.getSelectedIndex();
+        Editor.removeFromPatternTable(index);
+
+    };
+    spDelete.setProperties({width: 40, height: 20});
+    me.addChild(spDelete);
+    
+    
+
     me.onResize = function(){
         songPanel.setSize(me.width,me.height);
 
@@ -78,6 +103,9 @@ UI.app_songPatternList = function(height){
 
         spMin.setPosition(me.width - 22,Math.floor(me.height/2)-10);
         spPlus.setPosition(me.width - 42,spMin.top);
+
+        spInsert.setPosition(spPlus.left,spPlus.top - 22);
+        spDelete.setPosition(spPlus.left,spPlus.top + 22);
     };
 
     EventBus.on(EVENT.patternTableChange,function(value){

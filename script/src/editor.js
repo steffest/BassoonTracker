@@ -339,6 +339,54 @@ var Editor = (function(){
 		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
 
+
+	me.addToPatternTable = function(index,patternIndex){
+		var song = Tracker.getSong();
+		if (typeof index == "undefined") index = song.length;
+		patternIndex = patternIndex||0;
+
+		if (index === song.length){
+			song.patternTable[index] = patternIndex;
+			song.length++;
+		}else{
+			for (var i = song.length; i>index; i--){
+				song.patternTable[i] = song.patternTable[i-1];
+			}
+			song.patternTable[index] = patternIndex;
+			song.length++;
+		}
+
+		EventBus.trigger(EVENT.songPropertyChange,song);
+		EventBus.trigger(EVENT.patternTableChange);
+
+
+	};
+
+	me.removeFromPatternTable = function(index){
+		var song = Tracker.getSong();
+		if (song.length<2) return;
+		if (typeof index == "undefined") index = song.length-1;
+
+		if (index === song.length-1){
+			song.patternTable[index] = 0;
+			song.length--;
+		}else{
+			for (var i=index; i<song.length; i++){
+				song.patternTable[i] = song.patternTable[i+1];
+			}
+			song.length--;
+		}
+
+		var currentSongPosition = Tracker.getCurrentSongPosition(); 
+		if (currentSongPosition === song.length){
+			Tracker.setCurrentSongPosition(currentSongPosition-1);
+		}
+
+		EventBus.trigger(EVENT.songPropertyChange,song);
+		EventBus.trigger(EVENT.patternTableChange);
+
+	};
+
 	me.renderTrackToBuffer = function(fileName,target){
 
 		// TODO: timing is off when not played first?
