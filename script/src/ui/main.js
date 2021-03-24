@@ -50,7 +50,7 @@ var UI = (function(){
 		nowFunction = Date.now;
 	}
 
-	if (!window.requestAnimationFrame)
+	if (!window.requestAnimationFrame){
 		var lastTime = 0;
 		window.requestAnimationFrame = function(callback, element) {
 			var currTime = new Date().getTime();
@@ -60,11 +60,14 @@ var UI = (function(){
 			lastTime = currTime + timeToCall;
 			return id;
 		};
+	}
+	
 
 	me.init = function(next){
 		canvas = document.getElementById("canvas");
 		ctx = canvas.getContext("2d");
-
+		ctx.imageSmoothingEnabled=false;
+		
 		var w = window.innerWidth;
 		var h = window.innerHeight;
 
@@ -171,6 +174,23 @@ var UI = (function(){
 			needsRendering = true;
 		}
 	};
+	
+	me.setCanvasPixelRatio = function(){
+		let rect = canvas.getBoundingClientRect();
+		
+		if (devicePixelRatio>1 && rect.width === canvas.width){
+			canvas.width = rect.width * devicePixelRatio;
+			canvas.height = rect.height * devicePixelRatio;
+			
+			ctx.scale(devicePixelRatio, devicePixelRatio);
+			ctx.imageSmoothingEnabled = false;
+
+			canvas.style.width = rect.width + 'px';
+			canvas.style.height = rect.height + 'px';
+			
+			UI.mainPanel.refresh(true)
+		}
+	}
 
 	var initAssets = function(){
 		var fontImage =  Y.getImage("font");
@@ -330,16 +350,18 @@ var UI = (function(){
 
 	var render = function(time){
 		
+		
+		
 		var doRender = true;
 
 		if (Tracker.isPlaying()){
 			var state = Tracker.getStateAtTime(Audio.context.currentTime+0.01);
 			if (state){
-				if (state.patternPos != UICache.patternPos){
+				if (state.patternPos !== UICache.patternPos){
 					Tracker.setCurrentPatternPos(state.patternPos);
 					UICache.patternPos = state.patternPos;
 				}
-				if (state.songPos != UICache.songPos){
+				if (state.songPos !== UICache.songPos){
 					Tracker.setCurrentSongPosition(state.songPos);
 					UICache.songPos = state.songPos;
 				}
@@ -412,13 +434,10 @@ var UI = (function(){
 
 
         }
-
-
-
-
+        
 		window.requestAnimationFrame(render);
 	};
-
+	
 	me.setModalElement = function(elm){
 		modalElement = elm;
 		Input.setFocusElement(elm);
