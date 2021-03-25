@@ -4,9 +4,12 @@ var Main = function(){
     var me = {};
 
     me.init = function(){
+        console.log("initialising");
         Host.init();
         Tracker.init();
         Audio.init();
+        
+        UI.startMeasure();
         UI.init(function(){
             window.focus();
             me.isBrowserSupported = Audio.context && window.requestAnimationFrame;
@@ -26,10 +29,11 @@ var Main = function(){
                 UI.setModalElement(dialog);
             }else{
                 Settings.readSettings();
+                if (debug) UI.measure("Read & Apply Settings");
                 App.init();
                 Host.signalReady();
                 Editor.loadInitialFile();
-    
+                if (debug) UI.endMeasure();
             }
         });
     };

@@ -4,6 +4,10 @@ var ctx;
 var UI = (function(){
 
 	var me={};
+	
+	var screenWidth;
+	var screenHeight;
+	var useDevicePixelRatio = false;
 
 	var children = [];
 	var fontSmall;
@@ -23,6 +27,9 @@ var UI = (function(){
 	var beginTime = 0;
 	var beginRenderTime = 0;
 	var lastRenderTime = 0;
+	var beginMeasure = 0;
+	var currentMeasure = 0;
+	var endMeasure = 0;
 	var frames = 0;
 	var fps;
 	var minFps = 100;
@@ -74,18 +81,31 @@ var UI = (function(){
 		if (w>maxWidth) w=maxWidth;
 		if (h>maxHeight) h=maxHeight;
 
-		canvas.width =w;
-		canvas.height=h;
+		screenWidth = w;
+		screenHeight = h;
+		canvas.width =screenWidth;
+		canvas.height=screenHeight;
 
 		ctx.fillStyle = "black";
 		ctx.fillRect(0,0,canvas.width,canvas.height);
+		
+		ctx.fillStyle = "#78828F"
+		ctx.font = "20px sans-serif";
+		ctx.textAlign = "center";
+		ctx.fillText("Loading ...", canvas.width/2, canvas.height/2);
 
+		if (debug) UI.measure("Create Main Canvas");
+		
+		
 		UI.Assets.preLoad(function(){
 
+			if (debug) UI.measure("UI sprites");
 			console.log("UI assets loaded");
 			initAssets();
-
+			Input.init();
+			if (debug) UI.measure("Input Init");
 			render();
+			if (debug) UI.measure("First render");
 
 			// check version
 			if (typeof versionNumber !== "undefined"){
@@ -163,8 +183,10 @@ var UI = (function(){
 
 		if ((newWidth != canvas.width) || (newHeight != canvas.height)){
 			ctx.clearRect(0,0,canvas.width,canvas.height);
-			canvas.width = newWidth;
-			canvas.height = newHeight;
+			screenWidth = newWidth;
+			screenHeight = newHeight;
+
+			me.scaleToDevicePixelRatio(useDevicePixelRatio);
             me.mainPanel.setSize(newWidth,newHeight);
 			//me.mainPanel.setLayout(0,0,newWidth,newHeight);
 
@@ -175,21 +197,25 @@ var UI = (function(){
 		}
 	};
 	
-	me.setCanvasPixelRatio = function(){
-		let rect = canvas.getBoundingClientRect();
-		
-		if (devicePixelRatio>1 && rect.width === canvas.width){
-			canvas.width = rect.width * devicePixelRatio;
-			canvas.height = rect.height * devicePixelRatio;
-			
-			ctx.scale(devicePixelRatio, devicePixelRatio);
-			ctx.imageSmoothingEnabled = false;
-
-			canvas.style.width = rect.width + 'px';
-			canvas.style.height = rect.height + 'px';
-			
-			UI.mainPanel.refresh(true)
+	me.scaleToDevicePixelRatio = function(active){
+		useDevicePixelRatio = !!active;
+		if (active){
+			if (devicePixelRatio>1){
+				canvas.width = screenWidth * devicePixelRatio;
+				canvas.height = screenHeight * devicePixelRatio;
+				
+				ctx.scale(devicePixelRatio, devicePixelRatio);
+				ctx.imageSmoothingEnabled = false;
+			}
+		}else{
+			canvas.width = screenWidth;
+			canvas.height = screenHeight;
 		}
+		canvas.style.width = screenWidth + 'px';
+		canvas.style.height = screenHeight + 'px';
+
+		UI.mainPanel.refresh();
+		
 	}
 
 	var initAssets = function(){
@@ -257,7 +283,7 @@ var UI = (function(){
 			chars: 	   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890#©_-&\"'()!.,?+=*$/\\;:[]{}",
 			charWidth: "888888883888998888888899987777757735739777757578987777777777778868864553348767888435555",
 			onlyUpperCase:false,
-			debug: true
+			debug: false
 		});
 		window.fontFT = fontFT;
 
@@ -340,17 +366,15 @@ var UI = (function(){
 		});
 		window.fontDark = fontDark;
 
-
+		if (debug) UI.measure("Generate font");
+		
 		UI.Assets.init();
 		UI.mainPanel = UI.MainPanel();
 		children.push(UI.mainPanel);
-
-		Input.init();
+		if (debug) UI.measure("Generate Main Panel");
 	};
 
 	var render = function(time){
-		
-		
 		
 		var doRender = true;
 
@@ -367,7 +391,6 @@ var UI = (function(){
 				}
 			}
 		}
-
 		if (skipRenderSteps){
 			renderStep++;
 			doRender = (renderStep>skipRenderSteps);
@@ -394,7 +417,7 @@ var UI = (function(){
 				UI.mainPanel.refresh();
 				needsRendering = true;
 			}
-
+			
 			if (needsRendering){
 				children.forEach(function(element){
 					if (element.needsRendering) {
@@ -425,7 +448,7 @@ var UI = (function(){
                 if (fpsList.length>20) fpsList.shift();
                 
                 if (!fpsCalculated && fpsList.length>5){
-					Logger.info("fps");
+					Logger.info("init " + Math.round(endMeasure));
 					fpsCalculated = true;
 				}
                 
@@ -627,6 +650,20 @@ var UI = (function(){
 			skipRenderSteps: skipRenderSteps
 		}
 	};
+	
+	me.startMeasure = function(){
+		beginMeasure = Audio.context.currentTime;
+		currentMeasure = beginMeasure;
+	}
+	me.measure = function(message){
+		var time = (Audio.context.currentTime - currentMeasure) * 1000;
+		currentMeasure = Audio.context.currentTime;
+		console.warn(message + ": " + time);
+	}
+	me.endMeasure = function(){
+		endMeasure = (Audio.context.currentTime - beginMeasure) * 1000;
+		if (debug) console.warn( "Total time: " + endMeasure);
+	}
 
 	me.children = children;
 
