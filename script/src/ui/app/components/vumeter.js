@@ -3,7 +3,7 @@ UI.vumeter = function(){
 
 
 	me.left = 400;
-	me.top = 7;
+	me.top = 9;
 
 	var analyserLeft;
 	var analyserRight;

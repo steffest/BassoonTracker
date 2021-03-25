@@ -2,6 +2,7 @@ var Midi = function(){
 	var me = {};
 	var inputs;
 	var outputs;
+	var enabled;
 	
 	
 	me.init = function(){
@@ -10,6 +11,7 @@ var Midi = function(){
 			navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
 			function onMIDISuccess(midiAccess) {
 				console.log("Midi enabled");
+				enabled = true;
 				var inputs = midiAccess.inputs;
 				var outputs = midiAccess.outputs;
 				
@@ -21,6 +23,10 @@ var Midi = function(){
 					input.onmidimessage = getMIDIMessage;
 				})
 				
+				if (_inputs.length){
+					EventBus.trigger(EVENT.midiIn);
+				}
+				
 			}
 			function onMIDIFailure() {
 				console.log('Could not access your MIDI devices.');
@@ -31,7 +37,21 @@ var Midi = function(){
 		}
 	}
 
+	me.enable = function(){
+		Midi.init();
+	}
+
+	me.disable = function(){
+		enabled = false;
+		EventBus.trigger(EVENT.midiIn);
+	}
+	
+	me.isEnabled = function(){
+		return !!enabled;
+	}
+
 	function getMIDIMessage(midiMessage) {
+		if (!enabled) return;
 		var data = midiMessage.data;
 		
 		switch (data[0]){
@@ -75,6 +95,8 @@ var Midi = function(){
 			default:
 				console.log("Midi In:",data);
 		}
+		
+		EventBus.trigger(EVENT.midiIn);
 	}
 	
 	function noteOn(note,value){

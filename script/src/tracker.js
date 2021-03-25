@@ -51,15 +51,16 @@ var Tracker = (function(){
 	var trackerStates = [];
 	var patternLoopStart = [];
 	var patternLoopCount = [];
-
-	for (var i=0;i<trackCount;i++){
-		trackNotes.push({});
-		trackEffectCache.push({});
-	}
-
-	console.log("ticktime: " + tickTime);
+	
+	//console.log("ticktime: " + tickTime);
 
 	me.init = function(config){
+
+		for (var i=0;i<trackCount;i++){
+			trackNotes.push({});
+			trackEffectCache.push({});
+		}
+		
 		for (var i = -8; i<8;i++){
 			periodFinetuneTable[i] = {};
 		}

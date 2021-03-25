@@ -16,7 +16,7 @@ UI.panel = function(x,y,w,h){
 	};
 
 	me.render = function(internal){
-
+		
 		if (!me.isVisible()) return;
 		internal = !!internal;
 

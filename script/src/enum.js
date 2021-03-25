@@ -71,6 +71,8 @@ var EVENT = {
 	songBPMChangeIgnored:56,
 	commandProcessSample: 57,
 	pluginRenderHook: 58,
+	menuLayoutChanged: 59,
+	midiIn: 60
 };
 
 var COMMAND = {

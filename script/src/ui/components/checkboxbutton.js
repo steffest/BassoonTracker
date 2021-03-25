@@ -3,21 +3,28 @@ UI.checkboxbutton = function(properties){
 	properties = properties || {};
 
 	me.setProperties({
-		background: UI.Assets.buttonDarkBlueScale9,
-		hoverBackground:UI.Assets.buttonDarkBlueActiveScale9,
-		activeBackground:UI.Assets.buttonDarkBlueActiveScale9,
+		background: properties.background || UI.Assets.buttonDarkBlueScale9,
+		hoverBackground:properties.hoverBackground || UI.Assets.buttonDarkBlueActiveScale9,
+		activeBackground:properties.activeBackground || UI.Assets.buttonDarkBlueActiveScale9,
 		isActive:false,
 		textAlign: "left",
 		paddingLeft: 30,
-		font: window.fontFT,
-		label: properties.label || ""
+		font: properties.font || window.fontFT,
+		label: properties.label || "",
+		checkbox:  properties.checkbox || false
 	});
 
 
 	me.renderInternal = function(){
-		//var stateImage = me.isActive ? Y.getImage("checkbox_on") : Y.getImage("checkbox_off");
-		var stateImage = me.isActive ? Y.getImage("radio_active") : Y.getImage("radio_inactive");
-		me.ctx.drawImage(stateImage,8,Math.floor(me.height/2)-5);
+		if (me.checkbox){
+			var stateImage = me.isActive ? Y.getImage("checkbox_on") : Y.getImage("checkbox_off");
+			var margin = 7;
+		}else{
+			stateImage = me.isActive ? Y.getImage("radio_active") : Y.getImage("radio_inactive");
+			margin = 5;
+		}
+		
+		me.ctx.drawImage(stateImage,8,Math.floor(me.height/2)-margin);
 	};
 
 	me.onDown = function(){

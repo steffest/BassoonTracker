@@ -106,7 +106,7 @@ var Input = (function(){
 				}
 				
 				if (currentEventTarget && focusElement && focusElement.deActivate && focusElement.name !== currentEventTarget.name){
-					focusElement.deActivate();
+					focusElement.deActivate(currentEventTarget);
 				}
 				
 				var touchX = currentEventTarget? currentEventTarget.eventX : x ;
@@ -785,10 +785,10 @@ var Input = (function(){
                 keyDown[index].isKey = true;
                 inputNotes.push(keyDown[index]);
 
-				var note = keyDown[index];
-                if (note.scheduled && note.scheduled.vibrato){
-					var scheduledtime = instrument.scheduleAutoVibrato(note,2);
-					note.scheduled.vibrato += scheduledtime;
+				var playedNote = keyDown[index];
+                if (playedNote.scheduled && playedNote.scheduled.vibrato){
+					var scheduledtime = instrument.scheduleAutoVibrato(playedNote,2);
+					playedNote.scheduled.vibrato += scheduledtime;
 				}
 
                 if (inputNotes.length>64){
@@ -797,9 +797,7 @@ var Input = (function(){
                 EventBus.trigger(EVENT.pianoNoteOn,index);
             }
         }
-
-
-
+        
 	};
 
 	me.handleNoteOff = function(index,register){

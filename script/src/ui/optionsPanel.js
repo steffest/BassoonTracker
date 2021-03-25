@@ -94,7 +94,16 @@ UI.OptionsPanel = function(){
 				if (SETTINGS.keyboardTable === "qwertz") result = 2;
 				if (SETTINGS.keyboardTable === "dvorak") result = 3;
 				return result;
-			}
+			},
+			checkBoxes:[{
+				label : "Show Key Input",
+				getValue: function(){return SETTINGS.showKey},
+				handler: function(active){
+					SETTINGS.showKey = active;
+					Settings.saveSettings();
+					EventBus.trigger(EVENT.menuLayoutChanged);
+				}
+			}]
 		},
         {
             label: "Screen refresh",
@@ -109,7 +118,16 @@ UI.OptionsPanel = function(){
             },
             getValue: function () {
                 return UI.getSkipFrame();
-            }
+            },
+			checkBoxes:[{
+            	label : "Optimize High DPI",
+				getValue: function(){return SETTINGS.highDPI}, 
+				handler: function(active){
+					SETTINGS.highDPI = active;
+					Settings.saveSettings();
+            		UI.scaleToDevicePixelRatio(active);
+				}
+			}]
         },
 		{
 			label: "Frequency table",
@@ -157,10 +175,13 @@ UI.OptionsPanel = function(){
 			setValue: function (index) {
 				if (index === 0){
 					SETTINGS.midi = "disabled";
+					Midi.disable();
 				}else if (index === 1){
 					SETTINGS.midi = "enabled-note";
+					Midi.enable();
 				}else{
 					SETTINGS.midi = "enabled";
+					Midi.enable();
 				}
 				Settings.saveSettings();
 			},
@@ -169,7 +190,16 @@ UI.OptionsPanel = function(){
 				if (SETTINGS.midi === "enabled-note") result = 1;
 				if (SETTINGS.midi === "enabled") result = 2;
 				return result;
-			}
+			},
+			checkBoxes:[{
+				label : "Show Midi Input",
+				getValue: function(){return SETTINGS.showMidi},
+				handler: function(active){
+					SETTINGS.showMidi = active;
+					Settings.saveSettings();
+					EventBus.trigger(EVENT.menuLayoutChanged);
+				}
+			}]
 		}
 	];
 
@@ -204,7 +234,6 @@ UI.OptionsPanel = function(){
 				button.setProperties({
 					label: value
 				});
-				button.setActive(i===selectedIndex);
 				button.index = i;
 				button.option = option;
 				button.onClick = function(){
@@ -217,6 +246,26 @@ UI.OptionsPanel = function(){
 			buttons.push(button);
 		}
 		option.buttons = buttons;
+		
+		if (option.checkBoxes){
+			//for (i = 0; i<option.checkBoxes.length; i++){
+				var b = option.checkBoxes[0];
+				var cb = UI.checkboxbutton({
+					background: UI.Assets.panelDarkInsetScale9,
+					hoverBackground: UI.Assets.panelInsetScale9,
+					activeBackground: UI.Assets.panelDarkInsetScale9,
+					label: b.label,
+					checkbox: true
+				});
+				cb.getValue = b.getValue;
+				me.addChild(cb);
+				cb.onClick = function(){
+					b.handler(cb.isActive);
+				}
+			//}
+			option.checkBox = cb;
+				
+		}
 	});
 
 	activateOption = function(button){
@@ -263,7 +312,7 @@ UI.OptionsPanel = function(){
 		});*/
 
 		var optionTops = [27,103];
-		var optionHeight = 26;
+		var optionHeight = 20;
 		var buttonHeight = 20;
 		var col=0;
 		var row=0;
@@ -316,6 +365,16 @@ UI.OptionsPanel = function(){
 				});
 
 				button.setActive(b === selectedIndex);
+			}
+			
+			if (option.checkBox){
+				option.checkBox.setProperties({
+					top: me.height - buttonHeight - 7,
+					height: buttonHeight + 4,
+					width: bWidth,
+					left: thisLeft
+				})
+				option.checkBox.setActive(option.checkBox.getValue());
 			}
 
             col++;

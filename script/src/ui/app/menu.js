@@ -57,8 +57,22 @@ UI.app_menu = function(container){
     vumeter.connect(Audio.cutOffVolume);
     //vumeter.connect(Audio.masterVolume);
     window.vumeter = vumeter;
-    // note: don't attach as child to main panel, this gets attached to main UI
-
+    // note: don't attach as child to menu panel, this gets attached to main UI
+    
+    var keyLabel = UI.label({font: fontSmall, label: "Key"});
+    keyLabel.ignoreEvents = true;
+    var keyBox = UI.checkbox(0,0,13,13);
+    keyBox.ignoreEvents = true;
+    var midiLabel = UI.label({font: fontSmall, label: "Midi"});
+    midiLabel.ignoreEvents = true;
+    var midiBox = UI.checkbox(0,0,13,13);
+    midiBox.ignoreEvents = true;
+    
+    me.addChild(keyLabel);
+    me.addChild(keyBox);
+    me.addChild(midiLabel);
+    me.addChild(midiBox);
+    
     me.onPanelResize = function(){
         var menuMin = 250;
         var menuWidth = Math.max(Layout.col2W,menuMin);
@@ -69,6 +83,9 @@ UI.app_menu = function(container){
         }
 
         var vuWidth = Layout.col5W - menuWidth;
+        if (SETTINGS.showKey || SETTINGS.showMidi){
+            vuWidth -= 50;
+        }
         var vuLeft = Layout.marginLeft + menuWidth + Layout.defaultMargin + Layout.mainLeft;
 
 		me.left = Layout.mainLeft;
@@ -84,11 +101,80 @@ UI.app_menu = function(container){
             width: vuWidth,
             left: vuLeft
         });
+
+        keyLabel.setProperties({
+            top: 4,
+            left: me.width - 56,
+            width: 40,
+            height: 20
+        });
+        keyBox.setProperties({
+            top: 4,
+            left: me.width - 20
+        });
+        
+        if (SETTINGS.showKey){
+            keyLabel.show();
+            keyBox.show();
+        }else{
+            keyLabel.hide();
+            keyBox.hide();
+        }
+
+        if (SETTINGS.showMidi){
+            midiLabel.setProperties({
+                top: 14,
+                left: keyLabel.left,
+                width: keyLabel.width,
+                height: keyLabel.height
+            });
+            midiBox.setProperties({
+                top: 16,
+                left: keyBox.left,
+            });
+            midiLabel.show();
+            midiBox.show();
+        }else{
+            midiLabel.hide();
+            midiBox.hide();
+        }
         
     };
 
-    me.onPanelResize();
 
+    me.renderInternal = function(){
+        if (SETTINGS.showMidi && !Midi.isEnabled()){
+            me.ctx.fillStyle = "rgba(34, 49, 85, 0.5)";
+            me.ctx.fillRect(midiLabel.left,midiBox.top,50,midiBox.height);
+        }
+    }
+    
+    
+    
+    me.onPanelResize();
+    
+    
+    function flash(elm){
+        elm.setState(true);
+        clearTimeout(elm.timeout);
+        elm.timeout = setTimeout(function(){
+            elm.setState(false);
+        },100);
+    }
+    
+    EventBus.on(EVENT.menuLayoutChanged,function(){
+        me.onPanelResize();
+    });
+
+    EventBus.on(EVENT.pianoNoteOn,function(){
+        if (SETTINGS.showKey) flash(keyBox);
+    });
+    EventBus.on(EVENT.midiIn,function(){
+        if (SETTINGS.showMidi) flash(midiBox);
+    });
+    
+
+   
 
 
     return me;

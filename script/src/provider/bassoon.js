@@ -28,6 +28,7 @@ var BassoonProvider = function(){
 		var url =  baseUrl + "storage/render/" + (Tracker.inFTMode() ? "xm" : "mod");
 		var fileName = fileName || Tracker.getFileName();
 		UI.setStatus("saving file ...",true);
+		Logger.info("Rendering " + fileName);
 		Editor.buildBinary(Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
 
 			//var b = new Blob([file.buffer], {type: "application/octet-stream"});

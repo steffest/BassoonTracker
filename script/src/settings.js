@@ -18,7 +18,10 @@ var Settings = (function(){
 			stereoSeparation: SETTINGS.stereoSeparation,
 			dropboxMode: SETTINGS.dropboxMode,
 			skipFrame: UI.getSkipFrame(),
-			midi: SETTINGS.midi
+			midi: SETTINGS.midi,
+			highDPI: SETTINGS.highDPI,
+			showKey: SETTINGS.showKey,
+			showMidi: SETTINGS.showMidi
 		};
 		Storage.set("bassoonTrackerSettings",JSON.stringify(settings));
 	};
@@ -46,6 +49,9 @@ var Settings = (function(){
 		if (SETTINGS.stereoSeparation){
 			Audio.setStereoSeparation(SETTINGS.stereoSeparation);
 		}
+		if (SETTINGS.highDPI){
+			UI.scaleToDevicePixelRatio(SETTINGS.highDPI);
+		}
 	}
 
 	function setDefaults(){
@@ -57,6 +63,9 @@ var Settings = (function(){
 		SETTINGS.canvasId = "canvas";
 		SETTINGS.midi = "disabled";
 		UI.skipFrame(SETTINGS.skipFrame);
+		SETTINGS.highDPI = false;
+		SETTINGS.showKey = false;
+		SETTINGS.showMidi = false;
 	}
 
 	return me;
