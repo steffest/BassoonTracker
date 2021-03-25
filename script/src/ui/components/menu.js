@@ -154,14 +154,18 @@ UI.menu = function(x,y,w,h,submenuParent){
         return handled;
     }
 
-    me.deActivate = function(){
+    me.deActivate = function(clickedItem){
         if (activeIndex>=0){
             var activeItem = items[activeIndex];
             if (activeItem && activeItem.subMenu){
-                activeItem.subMenu.hide();
-                activeIndex=undefined;
-                me.refresh();
-                Input.clearFocusElement();
+                if (clickedItem && clickedItem.type === "submenu" && clickedItem.mainMenu && clickedItem.mainMenu.name === me.name){
+
+                }else{
+                    activeItem.subMenu.hide();
+                    activeIndex=undefined;
+                    me.refresh();
+                    Input.clearFocusElement();
+                }
             }
         }
     }

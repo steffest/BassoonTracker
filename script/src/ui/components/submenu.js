@@ -1,5 +1,6 @@
 UI.submenu = function(x,y,w,h){
     var me = UI.element(x,y,w,h);
+    me.type = "submenu";
     var items;
 
     var itemHeight = 26;
@@ -86,7 +87,6 @@ UI.submenu = function(x,y,w,h){
         if (!(items && items.length)) return;
         var selectedItem = items[Math.floor(me.eventY/itemHeight)];
         me.executeItem(selectedItem);
-
     };
 
     me.executeItem = function(item){
@@ -97,6 +97,8 @@ UI.submenu = function(x,y,w,h){
                 me.parent.refresh();
                 if (me.mainMenu) me.mainMenu.deActivate();
                 EventBus.trigger(EVENT.command,item.command);
+            }else if (item.subItems){
+                me.toggleSubmenu(item);
             }
         }
     }
@@ -114,7 +116,11 @@ UI.submenu = function(x,y,w,h){
             subMenu.mainMenu = me.mainMenu;
             item.subMenu = subMenu;
         }
-        item.subMenu.setPosition(me.left + me.width - 20,me.top + item.index*itemHeight);
+        var left = me.left + me.width - 20;
+        if ((left+item.subMenu.width)>UI.mainPanel.width){
+            left = UI.mainPanel.width-item.subMenu.width;
+        }
+        item.subMenu.setPosition(left,me.top + item.index*itemHeight);
         item.subMenu.show();
         activeSubmenu = item;
         me.refresh();
@@ -126,6 +132,15 @@ UI.submenu = function(x,y,w,h){
             activeSubmenu = undefined;
             me.refresh();
         }
+    }
+
+    me.toggleSubmenu = function(item){
+        if (item.subMenu && item.subMenu.isVisible()){
+            me.deActivateSubmenu();
+        }else{
+            me.activateSubmenu(item);
+        }
+
     }
 
     me.render = function(internal){
