@@ -71,6 +71,16 @@ UI.button = function(x,y,w,h,text){
         me.setSize(me.width,me.height);
         me.setPosition(me.left,me.top);
 
+        if (p.labels){
+            me.onResize = function(){
+                var currentLabel = label;
+                p.labels.forEach(function(item){
+                    if (me.width>=item.width) label=item.label;
+                });
+                if (currentLabel !== label) me.refresh();
+            };
+        }
+
     };
 
     me.setBackgroundImage = function(img){
@@ -96,7 +106,6 @@ UI.button = function(x,y,w,h,text){
     me.setActive = function(state){
         if (typeof state == "undefined") state=true;
         me.isActive = !!state;
-        if (me.checkbox) console.error(state);
         me.refresh();
     };
 

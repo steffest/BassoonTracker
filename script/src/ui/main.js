@@ -181,7 +181,7 @@ var UI = (function(){
 		if (newHeight>maxHeight) newHeight = maxHeight;
 		if (newHeight<minHeight) newHeight = minHeight;
 
-		if ((newWidth != canvas.width) || (newHeight != canvas.height)){
+		if ((newWidth !== canvas.width) || (newHeight !== canvas.height)){
 			ctx.clearRect(0,0,canvas.width,canvas.height);
 			screenWidth = newWidth;
 			screenHeight = newHeight;
@@ -199,14 +199,12 @@ var UI = (function(){
 	
 	me.scaleToDevicePixelRatio = function(active){
 		useDevicePixelRatio = !!active;
-		if (active){
-			if (devicePixelRatio>1){
-				canvas.width = screenWidth * devicePixelRatio;
-				canvas.height = screenHeight * devicePixelRatio;
-				
-				ctx.scale(devicePixelRatio, devicePixelRatio);
-				ctx.imageSmoothingEnabled = false;
-			}
+		if (active && devicePixelRatio>1){
+			canvas.width = screenWidth * devicePixelRatio;
+			canvas.height = screenHeight * devicePixelRatio;
+
+			ctx.scale(devicePixelRatio, devicePixelRatio);
+			ctx.imageSmoothingEnabled = false;
 		}else{
 			canvas.width = screenWidth;
 			canvas.height = screenHeight;
@@ -652,17 +650,23 @@ var UI = (function(){
 	};
 	
 	me.startMeasure = function(){
-		beginMeasure = Audio.context.currentTime;
-		currentMeasure = beginMeasure;
+		if (Audio.context){
+			beginMeasure = Audio.context.currentTime;
+			currentMeasure = beginMeasure;
+		}
 	}
 	me.measure = function(message){
-		var time = (Audio.context.currentTime - currentMeasure) * 1000;
-		currentMeasure = Audio.context.currentTime;
-		console.warn(message + ": " + time);
+		if (Audio.context){
+			var time = (Audio.context.currentTime - currentMeasure) * 1000;
+			currentMeasure = Audio.context.currentTime;
+			console.warn(message + ": " + time);
+		}
 	}
 	me.endMeasure = function(){
-		endMeasure = (Audio.context.currentTime - beginMeasure) * 1000;
-		if (debug) console.warn( "Total time: " + endMeasure);
+		if (Audio.context){
+			endMeasure = (Audio.context.currentTime - beginMeasure) * 1000;
+			if (debug) console.warn( "Total time: " + endMeasure);
+		}
 	}
 
 	me.children = children;

@@ -11,6 +11,7 @@ UI.checkboxbutton = function(properties){
 		paddingLeft: 30,
 		font: properties.font || window.fontFT,
 		label: properties.label || "",
+		labels: properties.labels || undefined,
 		checkbox:  properties.checkbox || false
 	});
 

@@ -19,6 +19,7 @@ module.exports = function(grunt) {
                     'script/src/ui/main.js',
                     'script/src/ui/**/*.js',
                     'script/src/**/*.js',
+                    'script/plugins/loader.js',
                     'script/wrapper/end.txt'
                 ],
                 dest: 'script/bassoontracker.js'

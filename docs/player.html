@@ -9,13 +9,14 @@
         <li>You can embed your sound-FX samples in the same file and still one-shot play them</li>
     </ul>
     The complete playback library is only 20 kb when gzipped (56 kb when uncompressed, 38 kb when <a href="https://github.com/Siorki/RegPack" target="_blank">regpacked</a>).<br>
-
+n
     You'll find a <a href="http://www.stef.be/bassoontracker/player/" target="_blank">simple example here</a>.<br>
     Hit the "play" button above to start the playback.<br>
 
     
     <h3>Library and sample code</h3>
     Download the <a href="https://github.com/steffest/BassoonTracker/tree/master/player">bassoonplayer-min.js file</a>, include it in your project's HTML page, and you're good to go!<br>
+    If size matters and you don't need any advanced stuff, use the <a href="https://github.com/steffest/BassoonTracker/blob/master/player/b-min.js">b-min.js file</a> which is 14kb smaller.<br>
     <br>
     The most simple example would be:
     <xmp>
@@ -52,10 +53,15 @@
             <ul>
                 <li><code>BassoonTracker.getSong().title</code></li>
                 <li><code>BassoonTracker.getSong().length</code> <span>(in patterns)</span></li>
+                <li>BassoonTracker.getSong().patterns <span>(array of patterns)</span></li>
+                <li>BassoonTracker.getSong().patternTable <span>(array of pattern positions in the song)</span></li>
             </ul>
         </li>
         <li><code>BassoonTracker.setCurrentSongPosition(songPos)</code></li>
         <li><code>BassoonTracker.playSample(sampleIndex,sampleRate)</code></li>
+        <li><code>BassoonTracker.getBPM</code></li>
+        <li><code>BassoonTracker.getAmigaSpeed</code></li>
+        <li><code>BassoonTracker.audio</code> (pointer to the main audio object)</li>
     </ul>
     
     
@@ -68,12 +74,24 @@
     <code>BassoonTracker.getStateAtTime(time)</code> periodically <br>(or <code>BassoonTracker.getTimeStates()</code> to get the complete list).<br>
     Note that the player schedules audio ahead, so the last item in the <code>BassoonTracker.getTimeStates()</code> list will be in the future.<br><br>
 
-    If you want to adjust to volume, you can use <code>BassoonTracker.audio.masterVolume</code> which is a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GainNode">WebAudio GainNode</a>.
+    <h3>Displaying pattern data</h3>
+    When a song is playing you can get the current pattern and row that is being played with <code>BassoonTracker.getStateAtTime(BassoonTracker.audio.context.currentTime)</code><br>
+    This returns an object with 2 properties: songPos and patternPos.<br>
+    You can then get the current pattern using BassoonTracker.getSong().patterns[BassoonTracker.getSong().patternTable[songPos]]<br>
+    For a full example, please refer to the <a href="http://www.stef.be/bassoontracker/player/pattern.html" target="_blank">Pattern View demo</a>
+    <br>
+    
+
+    <h3>Adjusting volume</h3>
+    If you want to adjust to volume, you can use <code>BassoonTracker.audio.masterVolume</code> which is a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GainNode">WebAudio GainNode</a>.<br>
+    if you to adjust the volume for a specific track (e.g. to mute it), you can access each tracks audio output using <code>BassoonTracker.audio.filterChains[i].output()</code> which is a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GainNode">WebAudio GainNode</a>. (where i is 0-based index of the track)<br>
     
     
-    <h3>Advanced player</h3>
+    <h3>More advanced player examples</h3>
     
     Here is a <a href="http://www.stef.be/bassoontracker/player/progress.html" target="_blank">more advanced example</a> of the player, with a playlist, a progress bar, a volume selector, and an audio visualization area.
-    <a href="http://www.stef.be/bassoontracker/player/progress.html" target="_blank"><img src="_img/player.png" border="0"></a>
+    <a href="http://www.stef.be/bassoontracker/player/progress.html" target="_blank"><img src="_img/player.png" border="0"></a><br><br>
+
+    And finally an <a href="http://www.stef.be/bassoontracker/player/pattern.html" target="_blank">expanded example</a> with an additional pattern view.
 
 </div>

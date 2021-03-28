@@ -80,6 +80,7 @@
 
 
 <br>
+<div style="opacity: 0.8">
 Extended Commands
 <table border="0">
     <tr>
@@ -131,6 +132,118 @@ Extended Commands
         <td>Invert loop</td>
     </tr>
 </table>
+</div>
+<br>
+<div style="opacity: 0.6">
+XM Extended Commands
+<table border="0">
+    <tr>
+        <td class="blue">G</td>
+        <td>Set Global Volume</td>
+        <td>Gxx</td>
+    </tr>
+    <tr>
+        <td class="blue">H</td>
+        <td>Global Volume Slide</td>
+        <td>Hxx</td>
+    </tr>
+    <tr>
+        <td class="blue">K</td>
+        <td>Key-Off</td>
+        <td>Kxx: xx is the delay in ticks</td>
+    </tr>
+    <tr>
+        <td class="blue">L</td>
+        <td>Set Envelope Position</td>
+        <td>* Not implemented</td>
+    </tr>
+    <tr>
+        <td class="blue">P</td>
+        <td>Panning Slide</td>
+        <td>Pxy</td>
+    </tr>
+    <tr>
+        <td class="blue">R</td>
+        <td>Re-trigger note with volume slide</td>
+        <td>* Not implemented</td>
+    </tr>
+    <tr>
+        <td class="blue">T</td>
+        <td>Tremor</td>
+        <td>* Not implemented</td>
+    </tr>
+    <tr>
+        <td class="blue">X</td>
+        <td>Extra fine portamentos</td>
+        <td>Xxy: x=1: y speed up, x=2: y speed down</td>
+    </tr>
+
+</table>
+</div>
 
 <br>
-For a more detailed explanation, please refer to the <a href="ProtrackerCommandReference.pdf" target="_blank">Protracker Command Reference</a>
+<div style="opacity: 0.5">
+XM Volume Commands
+<table border="0">
+    <tr>
+        <td class="blue">xx</td>
+        <td>Set Note Volume</td>
+        <td>From 00 to 40 (hex)</td>
+    </tr>
+    <tr>
+        <td class="blue">+x</td>
+        <td>Volume Slide Up</td>
+        <td>+ + speed</td>
+    </tr>
+    <tr>
+        <td class="blue">-x</td>
+        <td>Volume Slide Down</td>
+        <td>- + speed</td>
+    </tr>
+    <tr>
+        <td class="blue">Dx</td>
+        <td>Fine Volume Slide Down</td>
+        <td>D + speed</td>
+    </tr>
+    <tr>
+        <td class="blue">Lx</td>
+        <td>Panning Slide Left</td>
+        <td>L + speed</td>
+    </tr>
+    <tr>
+        <td class="blue">Mx</td>
+        <td>Portamento to note</td>
+        <td>M + speed</td>
+    </tr>
+    <tr>
+        <td class="blue">Px</td>
+        <td>Set Note panning position</td>
+        <td>P + position</td>
+    </tr>
+    <tr>
+        <td class="blue">Rx</td>
+        <td>Panning Slide Right</td>
+        <td>R + speed</td>
+    </tr>
+    <tr>
+        <td class="blue">Sx</td>
+        <td>Set Vibrato Speed</td>
+        <td>S + speed</td>
+    </tr>
+    <tr>
+        <td class="blue">Ux</td>
+        <td>Fine Volume slide up</td>
+        <td>U + speed</td>
+    </tr>
+    <tr>
+        <td class="blue">Vx</td>
+        <td>Vibrato</td>
+        <td>V + speed</td>
+    </tr>
+
+</table>
+</div>
+
+<br>
+For a more detailed explanation, please refer to the <a href="ProtrackerCommandReference.pdf" target="_blank">Protracker Command Reference</a><br>
+and the <a href="FT2.pdf" target="_blank">FastTracker Manual</a><br>

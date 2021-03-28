@@ -61,7 +61,7 @@ UI.EnvelopePanel = function(type){
 	var buttonRemove = UI.Assets.generate("button20_20");
 	buttonRemove.onDown = function(){
 		if (!envelope.enabled) return;
-		if (envelope.points.length > 2){
+		if (envelope.count > 2){
 			envelope.count--;
 			me.checkMax();
 		}

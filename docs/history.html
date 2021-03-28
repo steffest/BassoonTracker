@@ -1,3 +1,72 @@
+<h2>Version 0.4</h2>
+
+The focus of this release was polishing the experience for creating music with lots of usability improvements in the editing part.
+
+Most notable new features:
+<h3>Midi support</h3>
+<div class="padded">
+    You can enable/disable it in the Options.<br>
+    It's still fairly basic as only midi-in is supported and there's no midi-mapping yet, but still a big step forward.<br>
+    If you enable it, you can choose to only record the notes, or the key-velocity as well.<br>
+    <img src="_img/midi.png"><br>
+    Optionally, you also choose to have little midi-in and key-in signal indicators on screen.<br>
+    <img src="_img/midiin.png"><br>
+    Please note that for your note-off commands to be registered as well you have to
+    <ul>
+        <li>Be in XM-mode</li>
+        <li>Record and playback at the same time</li>
+        <li>Have the midi-settings to "Enabled Note-Volume"</li>
+    </ul>
+</div>
+<h3>Undo/redo support</h3>
+<div class="padded">
+    Available both in the pattern editor and in the sample editor.<br>
+    The usual Ctrl-Z and Ctrl-Y shortcuts can be used.
+    <img src="_img/undo.png">
+</div>
+<h3>Nibbles</h3>
+<div class="padded">
+    Ladies and Gentleman: It has arrived.<br>
+    We finally tackled the last major hurdle for full FastTracker compatibility.<br><br>
+    <b>WE HAVE <a href="https://www.youtube.com/watch?v=bo2rr1X4dOg" target="_blank">NIBBLES</a> !!!</b>
+
+    <img src="_img/nibbles.png">
+    
+    The full works as tribute to the legendary Triton, including 30 levels, highscores and some familiar hidden features.
+</div>
+<h3>Usability</h3>
+<div class="padded">
+    Lots of small and large usability improvements on the "edit" front:
+    <ul>
+        <li>Number boxes can now be edited with the keyboard and mousewheel/trackpad</li>
+        <li>Menu can now be navigated with keyboard</li>
+        <li>Sample editor zoom/navigation with mousewheel and keyboard</li>
+        <li>Better range-selection in sample editor</li>
+        <li>Insert/delete in patternlist</li>
+    </ul>
+    <img src="_img/editbox.png">
+</div>
+<h3>Crisp UI in High DPI screens.</h3>
+<div class="padded">
+    High-DPI screens (retina screens) sometimes loose the crispiness of the pixel graphics.<br>
+    For those appreciating pixel-precission, there's a setting to fix that.<br>
+    Basically it's the difference between the left end right part:
+    <img src="_img/highDPI.png">
+    Because it may have a performance impact it's not enable by default but you can find it in the Options:
+    <img src="_img/highDPI_setting.png">
+</div>
+<h3>And More</h3>
+<div class="padded">
+    <ul>
+        <li>Lots of (subtle) XM playback compatibility fixes.</li>
+        <li>Lots of small UI fixes.</li>
+        <li>New "plugin" system. Additional features get side-loaded, keeping the core lean and mean (with Nibbles as a first example)</li>
+    </ul>
+</div>
+
+<br><br>
+
+
 <h2>Version 0.3.5</h2>
 <ul>
     <li>Lots of bugfixes</li>

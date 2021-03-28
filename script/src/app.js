@@ -122,7 +122,15 @@ var App = (function(){
                     break;
 				case COMMAND.nibbles:
 					Plugin.load("Nibbles",function(){
-						Nibbles.init();
+						Nibbles.init({
+                            UI:UI,
+                            Input: Input,
+                            Y: Y,
+                            EventBus: EventBus,
+                            EVENT: EVENT,
+                            COMMAND: COMMAND,
+                            Layout: Layout
+                        });
 					});
 					break;
             }

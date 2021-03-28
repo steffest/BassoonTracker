@@ -31,6 +31,12 @@ UI.OptionsPanel = function(){
         {
             label: "VU bars",
             values: ["NONE", "COLOURS: AMIGA","TRANSPARENT"],
+			valueLabels: {
+				"COLOURS: AMIGA": [
+					{width: 56, label: "AMIGA"},
+					{width: 110, label: "COLOURS: AMIGA"}
+				]
+			},
             setValue: function (index) {
                 if (index === 0){
                     SETTINGS.vubars = "none";
@@ -97,6 +103,11 @@ UI.OptionsPanel = function(){
 			},
 			checkBoxes:[{
 				label : "Show Key Input",
+				labels: [
+					{width: 60, label: "Show"},
+					{width: 100, label: "Show Key"},
+					{width: 150, label: "Show Key Input"}
+				],
 				getValue: function(){return SETTINGS.showKey},
 				handler: function(active){
 					SETTINGS.showKey = active;
@@ -121,6 +132,11 @@ UI.OptionsPanel = function(){
             },
 			checkBoxes:[{
             	label : "Optimize High DPI",
+				labels: [
+					{width: 60, label: "H-DPI"},
+					{width: 100, label: "High DPI"},
+					{width: 155, label: "Optimize High DPI"}
+				],
 				getValue: function(){return SETTINGS.highDPI}, 
 				handler: function(active){
 					SETTINGS.highDPI = active;
@@ -136,6 +152,12 @@ UI.OptionsPanel = function(){
                 {width: 110, label: "Frequency table"}
             ],
 			values: ["Linear", "Amiga periods"],
+			valueLabels: {
+				"Amiga periods": [
+					{width: 56, label: "AMIGA"},
+					{width: 110, label: "Amiga periods"}
+				]
+			},
 			setValue: function (index) {
                 Tracker.useLinearFrequency = index === 0;
 			},
@@ -172,6 +194,16 @@ UI.OptionsPanel = function(){
 				{width: 80, label: "Midi-in"}
 			],
 			values: ["Disabled", "Enabled Note", "Enabled Note-Volume"],
+			valueLabels: {
+				"Enabled Note": [
+					{width: 80, label: "Note"},
+					{width: 150, label: "Enabled Note"}
+				],
+				"Enabled Note-Volume": [
+					{width: 80, label: "Note-Volume"},
+					{width: 150, label: "Enabled Note-Volume"}
+				]
+			},
 			setValue: function (index) {
 				if (index === 0){
 					SETTINGS.midi = "disabled";
@@ -193,6 +225,11 @@ UI.OptionsPanel = function(){
 			},
 			checkBoxes:[{
 				label : "Show Midi Input",
+				labels: [
+					{width: 60, label: "Show"},
+					{width: 100, label: "Show Midi"},
+					{width: 150, label: "Show Midi Input"}
+				],
 				getValue: function(){return SETTINGS.showMidi},
 				handler: function(active){
 					SETTINGS.showMidi = active;
@@ -231,9 +268,18 @@ UI.OptionsPanel = function(){
 			var button;
 			if (value){
 				button = UI.Assets.generate("buttonKey");
-				button.setProperties({
-					label: value
-				});
+				var labels;
+				if (option.valueLabels && option.valueLabels[value]){
+					button.setProperties({
+						label: value,
+						labels: option.valueLabels[value]
+					});
+				}else{
+					button.setProperties({
+						label: value
+					});
+				}
+
 				button.index = i;
 				button.option = option;
 				button.onClick = function(){
@@ -255,6 +301,7 @@ UI.OptionsPanel = function(){
 					hoverBackground: UI.Assets.panelInsetScale9,
 					activeBackground: UI.Assets.panelDarkInsetScale9,
 					label: b.label,
+					labels: b.labels,
 					checkbox: true
 				});
 				cb.getValue = b.getValue;

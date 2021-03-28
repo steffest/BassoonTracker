@@ -53,9 +53,9 @@ var Midi = function(){
 	function getMIDIMessage(midiMessage) {
 		if (!enabled) return;
 		var data = midiMessage.data;
-		
 		switch (data[0]){
 			case 128:
+			case 129:
 				noteOff(data[1],data[2]);
 				break;
 			case 144:
@@ -93,7 +93,7 @@ var Midi = function(){
 				console.log("Modulator",data[1],data[2]);
 				break;
 			default:
-				console.log("Midi In:",data);
+				//console.log("Midi In:",data);
 		}
 		
 		EventBus.trigger(EVENT.midiIn);

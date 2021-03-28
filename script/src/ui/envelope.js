@@ -85,8 +85,6 @@ UI.Envelope = function(type){
 	};
 
 	me.onDrag = function(touchData){
-		
-		console.error(touchData.deltaX);
 		if (isDragging){
 			dragPoint.deltaX = (touchData.deltaX)/xScale;
 			dragPoint.deltaY = (touchData.deltaY)/yScale;
@@ -182,34 +180,38 @@ UI.Envelope = function(type){
 				me.ctx.stroke();
 
 				if (currentEnvelope.enabled){
-					var loopStartPoint = currentEnvelope.points[currentEnvelope.loopStartPoint];
-					if (loopStartPoint){
-						if (currentEnvelope.sustain){
+					function drawLine(x){
+						me.ctx.beginPath();
+						me.ctx.moveTo(x, 0);
+						me.ctx.lineTo(x, me.height);
+						me.ctx.stroke();
+					}
+
+					if (currentEnvelope.sustain){
+						var sustainPoint = currentEnvelope.points[currentEnvelope.sustainPoint || 0];
+						if (sustainPoint){
 							me.ctx.strokeStyle = "#67b6d2";
 							me.ctx.setLineDash([1, 2]);
-							x = loopStartPoint[0] * xScale;
-							me.ctx.beginPath();
-							me.ctx.moveTo(x, 0);
-							me.ctx.lineTo(x, me.height);
-							me.ctx.stroke();
-						}
-
-						if (currentEnvelope.loop){
-							me.ctx.strokeStyle = "#d2b637";
-							me.ctx.setLineDash([1, 2]);
-							x = loopStartPoint[0] * xScale;
-							me.ctx.beginPath();
-							me.ctx.moveTo(x, 0);
-							me.ctx.lineTo(x, me.height);
-
-							x = loopStartPoint[0] * xScale;
-							me.ctx.moveTo(x, 0);
-							me.ctx.lineTo(x, me.height);
-
-
-							me.ctx.stroke();
+							drawLine(sustainPoint[0] * xScale);
 						}
 					}
+
+					if (currentEnvelope.loop){
+						me.ctx.strokeStyle = "#d2b637";
+						me.ctx.setLineDash([1, 2]);
+
+						var loopStartPoint = currentEnvelope.points[currentEnvelope.loopStartPoint || 0];
+						var loopEndPoint = currentEnvelope.points[currentEnvelope.loopEndPoint || 0];
+						if (loopStartPoint) drawLine(loopStartPoint[0] * xScale);
+						if (loopEndPoint) drawLine(loopEndPoint[0] * xScale);
+
+
+					}
+
+
+
+
+
 				}
 
 

@@ -24,6 +24,7 @@ var Nibbles = function(){
 	var lastStepTime = 0;
 	var frameTime = 100;
 	var registeredRenderEvent;
+	var host;
 
 	var highScoreTable = [
 		{name: "Vogue", score: 2000000, level: 26},
@@ -37,7 +38,7 @@ var Nibbles = function(){
 		{name: "HoffMan", score: 5000, level: 2},
 		{name: "Aceman", score: 4000, level: 1}
 	];
-	var storedHighScoreTable = Storage.get("nibblesHighscore");
+	var storedHighScoreTable = localStorage.getItem("nibblesHighscore");
 	if (storedHighScoreTable){
 		try {
 			storedHighScoreTable = JSON.parse(storedHighScoreTable);
@@ -65,7 +66,7 @@ var Nibbles = function(){
 		var gridDrawn = false;
 		var fullrefresh;
 
-		var game = UI.element(0,0,10,10);
+		var game = host.UI.element(0,0,10,10);
 		game.zIndex = 1;
 		var ctx = game.ctx;
 		var currentNumber;
@@ -110,7 +111,7 @@ var Nibbles = function(){
 			gameControls.setLives(lives);
 
 			game.refresh();
-			if (Layout.prefered === "col3"){
+			if (host.Layout.prefered === "col3"){
 				gameControls.hideConfig();
 			}
 			isRunning = true;
@@ -161,18 +162,18 @@ var Nibbles = function(){
 		game.checkHighScore = function(score){
 			var index = highScoreTable.findIndex(function(item){return item.score<score});
 			if (index>0){
-				UI.showDialog("GAME OVER//But don't be sad/because you made the enternal/HIGHSCORE HALL OF FAME//Enter your name",function(value){
+				host.UI.showDialog("GAME OVER//But don't be sad/because you made the enternal/HIGHSCORE HALL OF FAME//Enter your name",function(value){
 					setTimeout(function(){
 						value = value || "John Doe";
 						highScoreTable.splice(index,0,{name: value, score: score, level: level});
 						highScoreTable.pop();
-						Input.setFocusElement(me);
-						Storage.set("nibblesHighscore",JSON.stringify(highScoreTable));
+						host.Input.setFocusElement(me);
+						localStorage.setItem("nibblesHighscore",JSON.stringify(highScoreTable));
 						game.showHighScore();
 					},0)
 				},function(){
 					setTimeout(function(){
-						Input.setFocusElement(me);
+						host.Input.setFocusElement(me);
 					},0)
 				},true);
 			}
@@ -331,11 +332,11 @@ var Nibbles = function(){
 			gridsize = 10;
 			mapHeight = Math.floor((renderTarget.height-4)/gridsize);
 
-			var w=Layout.col3W;
-			var x = Layout.col2X;
-			if (Layout.prefered === "col3"){
-				w=Layout.col32W;
-				x = Layout.col31X;
+			var w=host.Layout.col3W;
+			var x = host.Layout.col2X;
+			if (host.Layout.prefered === "col3"){
+				w=host.Layout.col32W;
+				x = host.Layout.col31X;
 			}
 			mapWidth = Math.floor(w/gridsize);
 			game.setSize(mapWidth*gridsize+1,mapHeight*gridsize+1);
@@ -353,7 +354,7 @@ var Nibbles = function(){
 		}
 		
 		game.onClick = function(){
-			Input.setFocusElement(me);
+			host.Input.setFocusElement(me);
 			if (highScore && highScore.isVisible())return;
 			switch (state){
 				case GAMSESTATE.LOST:
@@ -430,7 +431,7 @@ var Nibbles = function(){
 			}
 			game.hide();
 			if (!highScore){
-				highScore = UI.panel();
+				highScore = host.UI.panel();
 				highScore.render = function(){
 					if (!highScore.isVisible()) return;
 					if (highScore.needsRendering){
@@ -458,8 +459,8 @@ var Nibbles = function(){
 						}
 						
 
-						var line = Y.getImage("line_hor");
-						ctx.drawImage(Y.getImage("line_ver"),colW,lineH,3,h);
+						var line = host.Y.getImage("line_hor");
+						ctx.drawImage(host.Y.getImage("line_ver"),colW,lineH,3,h);
 
 						var marginTop = 6;
 						titleFont.write(highScore.ctx,"Nibbles Highscore List of Fame",marginLeft,marginTop+3,1);
@@ -539,7 +540,7 @@ var Nibbles = function(){
 			_canvas.width = levelWidth;
 			_canvas.height = levelHeight;
 			var _ctx = _canvas.getContext("2d");
-			var base = Y.getImage("Nibbles.levels");
+			var base = host.Y.getImage("Nibbles.levels");
 			_ctx.drawImage(base,x,y,levelWidth,levelHeight,0,0,levelWidth,levelHeight);
 			levelSprites[_level] = _canvas;
 			return _canvas;
@@ -656,21 +657,21 @@ var Nibbles = function(){
 		var highScore;
 		
 		// setup UI
-		var line1 = UI.image(0,0,2,160,"line_ver");
-		var lineOptions = UI.image(0,0,2,160,"line_ver");
+		var line1 = host.UI.image(0,0,2,160,"line_ver");
+		var lineOptions = host.UI.image(0,0,2,160,"line_ver");
 		line1.scale= lineOptions.scale="stretch";
 
-		var infoPanel = UI.scale9Panel(0,0,20,20,UI.Assets.panelMainScale9);
+		var infoPanel = host.UI.scale9Panel(0,0,20,20,host.UI.Assets.panelMainScale9);
 		infoPanel.ignoreEvents = true;
 
-		var infoLabel = UI.label( {textAlign:"center",label: "Ready Player 1?",font:fontFT});
+		var infoLabel = host.UI.label( {textAlign:"center",label: "Ready Player 1?",font:fontFT});
 
-		var mainButton = UI.button(0,0,100,20);
+		var mainButton = host.UI.button(0,0,100,20);
 		mainButton.setProperties({
 			label: "Start",
 			textAlign:"center",
-			background: UI.Assets.buttonLightScale9,
-			hoverBackground: UI.Assets.buttonLightHoverScale9,
+			background: host.UI.Assets.buttonLightScale9,
+			hoverBackground: host.UI.Assets.buttonLightHoverScale9,
 			font:window.fontMed,
 			zIndex: 10
 		});
@@ -678,24 +679,24 @@ var Nibbles = function(){
 			game.onClick();
 		}
 
-		var exitButton = UI.button(0,0,100,20);
+		var exitButton = host.UI.button(0,0,100,20);
 		exitButton.setProperties({
 			label: "Exit",
 			textAlign:"center",
-			background: UI.Assets.buttonLightScale9,
-			hoverBackground: UI.Assets.buttonLightHoverScale9,
+			background: host.UI.Assets.buttonLightScale9,
+			hoverBackground: host.UI.Assets.buttonLightHoverScale9,
 			font:window.fontMed,
 			zIndex: 10
 		});
 		exitButton.onClick = function(){
-			EventBus.trigger(EVENT.command,COMMAND.showMain);
+			host.EventBus.trigger(host.EVENT.command,host.COMMAND.showMain);
 		}
-		var highScoreButton = UI.button(0,0,100,20);
+		var highScoreButton = host.UI.button(0,0,100,20);
 		highScoreButton.setProperties({
 			label: "HighScore",
 			textAlign:"center",
-			background: UI.Assets.buttonLightScale9,
-			hoverBackground: UI.Assets.buttonLightHoverScale9,
+			background: host.UI.Assets.buttonLightScale9,
+			hoverBackground: host.UI.Assets.buttonLightHoverScale9,
 			font:window.fontMed,
 			zIndex: 10
 		});
@@ -703,23 +704,23 @@ var Nibbles = function(){
 			game.toggleHighScore();
 		}
 
-		var labelBoxOptions = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
+		var labelBoxOptions = host.UI.scale9Panel(0,0,20,20,host.UI.Assets.panelDarkGreyScale9);
 		labelBoxOptions.ignoreEvents = true;
-		var labelOptions = UI.label();
+		var labelOptions = host.UI.label();
 		labelOptions.setProperties({
 			label: "Options",
 			font: fontSmall
 		});
 
-		var labelBoxDifficulty = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
+		var labelBoxDifficulty = host.UI.scale9Panel(0,0,20,20,host.UI.Assets.panelDarkGreyScale9);
 		labelBoxDifficulty.ignoreEvents = true;
-		var labelDifficulty = UI.label();
+		var labelDifficulty = host.UI.label();
 		labelDifficulty.setProperties({
 			label: "Difficulty",
 			font: fontSmall
 		});
 
-		var radioGroup = UI.radioGroup();
+		var radioGroup = host.UI.radioGroup();
 		radioGroup.setProperties({
 			align: "left",
 			size:"med",
@@ -741,11 +742,11 @@ var Nibbles = function(){
 			game.setSpeed(delay);
 		};
 
-		var wrapCheckbox = UI.checkbox();
+		var wrapCheckbox = host.UI.checkbox();
 		wrapCheckbox.onToggle = function(v){
 			game.setWrap(v);
 		}
-		var wrapLabel = UI.label({
+		var wrapLabel = host.UI.label({
 			label:"Wrap",
 			font: fontMed,
 			width:60
@@ -754,12 +755,12 @@ var Nibbles = function(){
 			wrapCheckbox.toggle();
 		}
 
-		var gridCheckbox = UI.checkbox();
+		var gridCheckbox = host.UI.checkbox();
 		gridCheckbox.checked = true;
 		gridCheckbox.onToggle = function(v){
 			game.setGrid(v);
 		}
-		var gridLabel = UI.label({
+		var gridLabel = host.UI.label({
 			label:"Grid",
 			font: fontMed,
 			width:60
@@ -768,20 +769,20 @@ var Nibbles = function(){
 			gridCheckbox.toggle();
 		}
 
-		var logo = UI.image(0,0,10,10,"Nibbles.logo");
+		var logo = host.UI.image(0,0,10,10,"Nibbles.logo");
 		logo.scale = "none";
 		logo.ignoreEvents = true;
 
 
-		var backgroundPanel = UI.scale9Panel(0,0,20,20,{
-			img: Y.getImage("panel_dark"),
+		var backgroundPanel = host.UI.scale9Panel(0,0,20,20,{
+			img: host.Y.getImage("panel_dark"),
 			left:3,
 			top:3,
 			right:2,
 			bottom: 2
 		});
 
-		var scoreBoard = UI.panel();
+		var scoreBoard = host.UI.panel();
 		scoreBoard.ignoreEvents = true;
 		scoreBoard.hide();
 
@@ -870,35 +871,35 @@ var Nibbles = function(){
 
 		}
 
-		var player1 = UI.image(0,0,10,10,"Nibbles.player1");
+		var player1 = host.UI.image(0,0,10,10,"Nibbles.player1");
 		player1.scale = "none";
 
-		var insetScale9 = {top:5,left:5,right:5,bottom:5,img:Y.getImage("panel_inset_dark_inactive")};
-		var scoreBackground = UI.scale9Panel(0,0,50,20,insetScale9);
-		var livesBackground = UI.scale9Panel(0,0,50,20,insetScale9);
+		var insetScale9 = {top:5,left:5,right:5,bottom:5,img:host.Y.getImage("panel_inset_dark_inactive")};
+		var scoreBackground = host.UI.scale9Panel(0,0,50,20,insetScale9);
+		var livesBackground = host.UI.scale9Panel(0,0,50,20,insetScale9);
 
-		var scoreNumber = UI.label({
+		var scoreNumber = host.UI.label({
 			textAlign:"right",
 			label: "",
 			font:fontLedBig
 		});
-		var livesNumber = UI.label({
+		var livesNumber = host.UI.label({
 			textAlign:"right",
 			label: "",
 			font:fontLedBig
 		});
-		var scoreLabel = UI.label({
+		var scoreLabel = host.UI.label({
 			textAlign:"left",
 			label: "Score",
 			font:fontBig
 		});
-		var livesLabel = UI.label({
+		var livesLabel = host.UI.label({
 			textAlign:"left",
 			label: "Lives",
 			font:fontBig
 		});
-		var s_line1 = UI.image(0,0,2,160,"line_hor");
-		var s_line2 = UI.image(0,0,2,160,"line_hor");
+		var s_line1 = host.UI.image(0,0,2,160,"line_hor");
+		var s_line2 = host.UI.image(0,0,2,160,"line_hor");
 
 
 		scoreBoard.addChild(s_line1);
@@ -929,7 +930,7 @@ var Nibbles = function(){
 		
 		gameControls.resize = function(){
 
-			if (Layout.prefered === "col3"){
+			if (host.Layout.prefered === "col3"){
 				if (scoreBoard.isVisible()){
 					gameControls.hideConfig();
 				}
@@ -937,70 +938,70 @@ var Nibbles = function(){
 				line1.hide();
 
 				backgroundPanel.setPosition(2,0);
-				backgroundPanel.setSize(Layout.col32W+4,renderTarget.height+4);
+				backgroundPanel.setSize(host.Layout.col32W+4,renderTarget.height+4);
 
 				logo.setPosition(-2000,0);
 
 				scoreBoard.setProperties({
-					width: Layout.col31W,
+					width: host.Layout.col31W,
 					height:renderTarget.height,
-					left:Layout.col33X,
+					left:host.Layout.col33X,
 					top: 0
 				})
 
-				var panelWidth = Math.min(250,Layout.col32W);
+				var panelWidth = Math.min(250,host.Layout.col32W);
 				var buttonWidth = Math.min(200,panelWidth-4);
 
-				var panelMargin = Math.max(0,(Layout.col32W-panelWidth)>>1);
-				var buttonMargin = Math.max(0,(Layout.col32W-buttonWidth)>>1);
+				var panelMargin = Math.max(0,(host.Layout.col32W-panelWidth)>>1);
+				var buttonMargin = Math.max(0,(host.Layout.col32W-buttonWidth)>>1);
 
 				infoPanel.setSize(panelWidth,80);
-				infoPanel.setPosition(Layout.col31X + panelMargin,renderTarget.height - 100);
+				infoPanel.setPosition(host.Layout.col31X + panelMargin,renderTarget.height - 100);
 				infoLabel.setSize(panelWidth,40);
-				infoLabel.setPosition(Layout.col31X + panelMargin,renderTarget.height - 90);
+				infoLabel.setPosition(host.Layout.col31X + panelMargin,renderTarget.height - 90);
 
 				mainButton.setProperties({
-					left: Layout.col31X + buttonMargin,
+					left: host.Layout.col31X + buttonMargin,
 					top: renderTarget.height - 50,
 					width: buttonWidth,
 					height: 24
 				})
 
 				// options
-				var halfColW = (Layout.col31W>>1) - 1;
-				lineOptions.setPosition(Layout.col33X+halfColW,2);
+				var halfColW = (host.Layout.col31W>>1) - 1;
+				lineOptions.setPosition(host.Layout.col33X+halfColW,2);
 
 				labelBoxOptions.setSize(halfColW,20);
 				labelOptions.setSize(halfColW,20);
-				labelBoxOptions.setPosition(Layout.col33X+2,2);
-				labelOptions.setPosition(Layout.col33X+2,5);
+				labelBoxOptions.setPosition(host.Layout.col33X+2,2);
+				labelOptions.setPosition(host.Layout.col33X+2,5);
 
 				labelBoxDifficulty.setSize(halfColW,20);
 				labelDifficulty.setSize(halfColW,20);
-				labelBoxDifficulty.setPosition(Layout.col33X + halfColW+1,2);
-				labelDifficulty.setPosition(Layout.col33X + halfColW +2,5);
+				labelBoxDifficulty.setPosition(host.Layout.col33X + halfColW+1,2);
+				labelDifficulty.setPosition(host.Layout.col33X + halfColW +2,5);
 
-				wrapCheckbox.setPosition(Layout.col33X + 10,30 + 2);
-				wrapLabel.setPosition(Layout.col33X + 20,30+ 2);
-				gridCheckbox.setPosition(Layout.col33X + 10,30 + 20+ 2);
-				gridLabel.setPosition(Layout.col33X + 20,30 + 20+ 2);
+				wrapCheckbox.setPosition(host.Layout.col33X + 10,30 + 2);
+				wrapLabel.setPosition(host.Layout.col33X + 20,30+ 2);
+				gridCheckbox.setPosition(host.Layout.col33X + 10,30 + 20+ 2);
+				gridLabel.setPosition(host.Layout.col33X + 20,30 + 20+ 2);
 				wrapLabel.setProperties({font:fontSmall});
 				gridLabel.setProperties({font:fontSmall});
 
 				radioGroup.setSize(halfColW,80);
-				radioGroup.setPosition(Layout.col33X + halfColW+2,30);
+				radioGroup.setPosition(host.Layout.col33X + halfColW+2,30);
 				radioGroup.setProperties(
 					{size: "small"}
 				)
 
 				highScoreButton.setProperties({
-					left: Layout.col33X +1,
+					left: host.Layout.col33X +1,
 					top: renderTarget.height - 24,
 					width: halfColW,
 					height: 24
 				});
 				exitButton.setProperties({
-					left: Layout.col33X + halfColW + 3,
+					left: host.Layout.col33X + halfColW + 3,
 					top: renderTarget.height - 24,
 					width: halfColW,
 					height: 24
@@ -1010,73 +1011,73 @@ var Nibbles = function(){
 				gameControls.showConfig();
 
 				line1.show();
-				line1.setPosition(Layout.col2X-2,0);
+				line1.setPosition(host.Layout.col2X-2,0);
 
-				backgroundPanel.setPosition(Layout.col2X,0);
-				backgroundPanel.setSize(Layout.col3W+4,renderTarget.height+4);
+				backgroundPanel.setPosition(host.Layout.col2X,0);
+				backgroundPanel.setSize(host.Layout.col3W+4,renderTarget.height+4);
 
 				// logo
 				logo.setProperties({
-					width: Layout.col1W - 4,
+					width: host.Layout.col1W - 4,
 					height: renderTarget.height - 4,
-					left:Layout.col1X+2,
+					left:host.Layout.col1X+2,
 					top: 2
 				});
 				scoreBoard.setProperties({
-					width: Layout.col1W,
+					width: host.Layout.col1W,
 					height:renderTarget.height,
-					left:Layout.col1X,
+					left:host.Layout.col1X,
 					top: 0
 				})
 
-				var panelWidth = Math.min(250,Layout.col3W);
+				var panelWidth = Math.min(250,host.Layout.col3W);
 				var buttonWidth = Math.min(200,panelWidth-4);
 
-				var panelMargin = Math.max(0,(Layout.col3W-panelWidth)>>1);
-				var buttonMargin = Math.max(0,(Layout.col3W-buttonWidth)>>1);
+				var panelMargin = Math.max(0,(host.Layout.col3W-panelWidth)>>1);
+				var buttonMargin = Math.max(0,(host.Layout.col3W-buttonWidth)>>1);
 
 				infoPanel.setSize(panelWidth,80);
-				infoPanel.setPosition(Layout.col2X + panelMargin,renderTarget.height - 100);
+				infoPanel.setPosition(host.Layout.col2X + panelMargin,renderTarget.height - 100);
 				infoLabel.setSize(panelWidth,40);
-				infoLabel.setPosition(Layout.col2X + panelMargin,renderTarget.height - 90);
+				infoLabel.setPosition(host.Layout.col2X + panelMargin,renderTarget.height - 90);
 
 				mainButton.setProperties({
-					left: Layout.col2X + buttonMargin,
+					left: host.Layout.col2X + buttonMargin,
 					top: renderTarget.height - 50,
 					width: buttonWidth,
 					height: 24
 				})
 
 				// options
-				var halfColW = (Layout.col1W>>1) - 1;
-				lineOptions.setPosition(Layout.col5X+halfColW,2);
+				var halfColW = (host.Layout.col1W>>1) - 1;
+				lineOptions.setPosition(host.Layout.col5X+halfColW,2);
 
 				labelBoxOptions.setSize(halfColW,20);
 				labelOptions.setSize(halfColW,20);
-				labelBoxOptions.setPosition(Layout.col5X+2,2);
-				labelOptions.setPosition(Layout.col5X+2,5);
+				labelBoxOptions.setPosition(host.Layout.col5X+2,2);
+				labelOptions.setPosition(host.Layout.col5X+2,5);
 
 				labelBoxDifficulty.setSize(halfColW,20);
 				labelDifficulty.setSize(halfColW,20);
-				labelBoxDifficulty.setPosition(Layout.col5X + halfColW+1,2);
-				labelDifficulty.setPosition(Layout.col5X + halfColW +2,5);
+				labelBoxDifficulty.setPosition(host.Layout.col5X + halfColW+1,2);
+				labelDifficulty.setPosition(host.Layout.col5X + halfColW +2,5);
 
-				wrapCheckbox.setPosition(Layout.col5X + 10,30 + 2);
-				wrapLabel.setPosition(Layout.col5X + 20,30+ 2);
-				gridCheckbox.setPosition(Layout.col5X + 10,30 + 20+ 2);
-				gridLabel.setPosition(Layout.col5X + 20,30 + 20+ 2);
+				wrapCheckbox.setPosition(host.Layout.col5X + 10,30 + 2);
+				wrapLabel.setPosition(host.Layout.col5X + 20,30+ 2);
+				gridCheckbox.setPosition(host.Layout.col5X + 10,30 + 20+ 2);
+				gridLabel.setPosition(host.Layout.col5X + 20,30 + 20+ 2);
 
 				radioGroup.setSize(halfColW,80);
-				radioGroup.setPosition(Layout.col5X + halfColW+2,30);
+				radioGroup.setPosition(host.Layout.col5X + halfColW+2,30);
 
 				highScoreButton.setProperties({
-					left: Layout.col5X +1,
+					left: host.Layout.col5X +1,
 					top: renderTarget.height - 24,
 					width: halfColW,
 					height: 24
 				});
 				exitButton.setProperties({
-					left: Layout.col5X + halfColW + 3,
+					left: host.Layout.col5X + halfColW + 3,
 					top: renderTarget.height - 24,
 					width: halfColW,
 					height: 24
@@ -1170,9 +1171,10 @@ var Nibbles = function(){
 		return gameControls;
 	}
 	
-	me.init = function(){
+	me.init = function(mapping){
 		console.log("Init Nibbles");
-		Input.setFocusElement(me);
+		host = mapping;
+		host.Input.setFocusElement(me);
 
 		if (renderTarget){
 			// already running
@@ -1207,7 +1209,7 @@ var Nibbles = function(){
 					game.move(keycode)
 					break;
 				default:
-					if (Input.isMetaKeyDown() && keycode>=65 && keycode<=90){
+					if (host.Input.isMetaKeyDown() && keycode>=65 && keycode<=90){
 						//delta = String.fromCharCode()
 						keyWord += String.fromCharCode(keycode);
 						if (keyWord === "SKIP"){
@@ -1230,7 +1232,7 @@ var Nibbles = function(){
 		}
 		
 
-		EventBus.trigger(EVENT.pluginRenderHook,{
+		host.EventBus.trigger(host.EVENT.pluginRenderHook,{
 			target: "main",
 			setRenderTarget:function(element){
 				console.log("Set Nibbles render target to ",element);
@@ -1239,7 +1241,7 @@ var Nibbles = function(){
 				gameControls.attach(game);
 				
 				me.resize();
-				Input.setFocusElement(me);
+				host.Input.setFocusElement(me);
 
 				renderTarget.onResize = function(){
 					me.resize();
@@ -1248,9 +1250,9 @@ var Nibbles = function(){
 				renderTarget.onHide = function(){
 					console.log("Removing Nibbles");
 					// destroy the instance and hooks on the renderTarget
-					if (registeredRenderEvent) EventBus.off(EVENT.screenRender,registeredRenderEvent);
+					if (registeredRenderEvent) host.EventBus.off(host.EVENT.screenRender,registeredRenderEvent);
 					registeredRenderEvent = null;
-					Input.clearFocusElement();
+					host.Input.clearFocusElement();
 					game = null;
 					gameControls = null;
 					renderTarget.onResize = null;
@@ -1258,7 +1260,7 @@ var Nibbles = function(){
 					renderTarget = null;
 				}
 
-				registeredRenderEvent = EventBus.on(EVENT.screenRender,function(){
+				registeredRenderEvent = host.EventBus.on(host.EVENT.screenRender,function(){
 					if (!renderTarget.isVisible()) return;
 					beginStepTime = (performance || Date).now();
 					var delta = (beginStepTime-lastStepTime);
