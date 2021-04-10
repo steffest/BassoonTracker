@@ -20,7 +20,7 @@ var map = {
     'instrumentIndex' : "_q",
     'waveFormFunction': '_r',
     'useLinearFrequency': '_s',
-    'getInstrument' : "_t",
+    //'getInstrument' : "_t",
     'instrument':'_u',
     //'patternTable' : "_u",
     'readString': "_v",
