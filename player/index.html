@@ -47,9 +47,28 @@
             font-weight: normal;
             font-family: monospace, serif;
         }
+        
+        table{
+            width: 100%;
+            border: 1px solid #9BC;
+            border-collapse: collapse;
+        }
+        th,
+        td{
+            border: 1px solid #9BC;
+            vertical-align: top;
+            text-align: center;
+        }
+        .green{
+            color: #080;
+        }
     </style>
 
-    <script src="bmin.js"></script>
+    <!-- <script src="bassoonplayer-min.js"></script> -->
+    <!-- <script src="b-min.js"></script> -->
+    <!-- <script src="b-pack.js"></script> -->
+    <script src="b-zip.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var loading = document.getElementById("loading");
@@ -59,8 +78,7 @@
                 loading.innerHTML = "Sorry<br>Your browser does not support WebAudio.<br>Supported browsers are Chrome,Firefox,Safari and Edge";
             }else{
 
-            var demoMod = "StardustMemories.mod";
-            demoMod = "deadlock.xm";
+            var demoMod = "StardustMemories.zip";
 
 				BassoonTracker.load("../demomods/" + demoMod,false,function(){
                     loading.style.display = "none";
@@ -91,7 +109,46 @@
     Hit the "play" button above to start the playback.
     <br><br>
 
-    Just include the "bassoonplayer-min.js" file and you're good to go.
+    Just include a single JS file and you're good to go.<br>
+    
+    Size comparisons <small>(v0.4.0)</small> of provided libraries<br>
+    <br>
+    <table>
+      <thead>
+        <th>Library</th>
+        <th>GZip</th>
+        <th>Uncompressed</th>
+        <th>Comment</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td>bassoonplayer-min.js</td>
+          <td>22.6 kB</td>
+          <td>70.3 kB</td>
+          <td>Untouched</td>
+        </tr>
+        <tr>
+          <td>b-min.js</td>
+          <td>20.4 kB</td>
+          <td>56.8 kB</td>
+          <td>Squeezed</td>
+        </tr>
+        <tr>
+          <td>b-pack.js</td>
+          <td class="green">19.8 kB</td>
+          <td>42.4 kB</td>
+          <td>RegPacked</td>
+        </tr>
+        <tr>
+          <td>b-zip.js</td>
+          <td>23.4 kB</td>
+          <td class="green">29.9 kB</td>
+          <td class="green">supports zipped mods</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+
     The most simple example would be:
     <xmp>
         <script src="bassoonplayer-min.js"></script>
@@ -105,7 +162,6 @@
     The second parameter in BassoonTracker.load defines autoplay.<br>
     Please note that most modern browser disable audio playback until a user action, so you may need a "play" button to initiate playback.<br>
     You can use a third parameter as callback function when the loading of the file is done.<br>
-    The complete playback library is 22 kb zipped or 68 kb uncompressed.
 
     <xmp>
         <script>
@@ -137,7 +193,7 @@
         and call
         <code>BassoonTracker.getStateAtTime(time)</code> periodically <br>(or <code>BassoonTracker.getTimeStates()</code> to get the complete list).<br>
         Note that the Tracker schedules audio ahead, so the last item in the BassoonTracker.getTimeStates() list will be in the future.<br>
-    Refer <a href="https://www.stef.be/bassoontracker/player/progress.html">to this example with progress tracking</a> for a demo.
+    Refer <a href="progress.html">to this example with progress tracking</a> for a demo.
     <br><br>
 
 

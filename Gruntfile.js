@@ -66,7 +66,19 @@ module.exports = function(grunt) {
 
                 ],
                 dest: 'player/bassoonplayer.js'
-            }
+            },
+            bundle: {
+                options: {
+                    separator: ''
+                },
+                src: [
+                    'script/src/lib/UZIP.depacker_pack_20200308.js',
+                    'script/wrapper/bundle0.js',
+                    'script/b.b64',
+                    'script/wrapper/bundle1.js',
+                ],
+                dest: 'player/b-zip.js'
+              },
         },
         run: {
             options: {
@@ -152,6 +164,11 @@ module.exports = function(grunt) {
                     {src: ['skin/screenshot3.png'], dest: 'hosts/FriendOs/build/data/preview.png'}
                 ],
             },
+            regpack: {
+                files: [
+                    {src: ['script/b'], dest: 'player/b-pack.js'}
+                ]
+            }
         },
         clean: {
             tracker: ['script/bassoontracker.js','player/bassoonplayer.js'],
@@ -237,6 +254,36 @@ module.exports = function(grunt) {
                     return JSON.stringify(result,undefined,2);
                 }
             }
+        },
+        regpack: {
+            pack: {
+                options: {
+                    globalVariables: '',
+                    separator: ''
+                },
+                files: [
+                    { src: ['player/b-min.js'], dest: 'script/b'}
+                ]
+            }
+        },
+        compress: {
+            main: {
+                options: {
+                    mode: 'zip',
+                    level: 9,
+                    archive: 'script/b.zip'
+                },
+                files: [
+                    {expand: true, src: ['b'], cwd: 'script/', dest: '/'}
+                ]
+            }
+        },
+        base64: {
+            target: {
+                files: {
+                    'script/b.b64': ['script/b.zip']
+                },
+            }
         }
     });
 
@@ -247,6 +294,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-text-replace');
     grunt.loadNpmTasks('grunt-spritesmith');
     grunt.loadNpmTasks('grunt-run');
+    grunt.loadNpmTasks('grunt-regpack');
+    grunt.loadNpmTasks('grunt-contrib-compress');
+    grunt.loadNpmTasks('grunt-base64');
 
 
     // Default task(s).
@@ -259,5 +309,6 @@ module.exports = function(grunt) {
     grunt.registerTask('sprites', ['sprite']);
     grunt.registerTask('friend', ['clean:friend','concat:friend','uglify:friend','copy:friend','replace:friend','replace:friendpackage','clean:friendjs']);
     grunt.registerTask('all', ['tracker','player','friend']);
-
+    grunt.registerTask('bundle', ['miniplayer', 'regpack:pack','copy:regpack','compress','base64','concat:bundle']);
+    
 };
