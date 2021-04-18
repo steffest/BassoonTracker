@@ -1956,38 +1956,49 @@ var Tracker = (function(){
 			console.log("extracting zip file");
 
 			if (UI) UI.setStatus("Extracting Zip file",true);
-			zip.workerScriptsPath = "script/src/lib/zip/";
-			zip.useWebWorkers = Host.useWebWorkers;
-
-			//ArrayBuffer Reader and Write additions: https://github.com/gildas-lormeau/zip.js/issues/21
-
-			zip.createReader(new zip.ArrayBufferReader(arrayBuffer), function(reader) {
-				var zipEntry;
-				var size = 0;
-				reader.getEntries(function(entries) {
-					if (entries && entries.length){
-						entries.forEach(function(entry){
-							if (entry.uncompressedSize>size){
-								size = entry.uncompressedSize;
-								zipEntry = entry;
-							}
-						});
-					}
-					if (zipEntry){
-						zipEntry.getData(new zip.ArrayBufferWriter,function(data){
-							if (data && data.byteLength) {
-								me.processFile(data,name,next);
-							}
-						})
-					}else{
-						console.error("Zip file could not be read ...");
-						if (next) next(false);
-					}
+			if (typeof UZIP !== "undefined") {
+				// using UZIP: https://github.com/photopea/UZIP.js
+				var myArchive = UZIP.parse(arrayBuffer);
+				console.log(myArchive);
+				for (var name in myArchive) {
+					me.processFile(myArchive[name].buffer, name, next);
+					break; // just use first entry
+				}
+			} else {
+				// if UZIP wasn't loaded use zip.js
+				zip.workerScriptsPath = "script/src/lib/zip/";
+				zip.useWebWorkers = Host.useWebWorkers;
+	
+				//ArrayBuffer Reader and Write additions: https://github.com/gildas-lormeau/zip.js/issues/21
+	
+				zip.createReader(new zip.ArrayBufferReader(arrayBuffer), function(reader) {
+					var zipEntry;
+					var size = 0;
+					reader.getEntries(function(entries) {
+						if (entries && entries.length){
+							entries.forEach(function(entry){
+								if (entry.uncompressedSize>size){
+									size = entry.uncompressedSize;
+									zipEntry = entry;
+								}
+							});
+						}
+						if (zipEntry){
+							zipEntry.getData(new zip.ArrayBufferWriter,function(data){
+								if (data && data.byteLength) {
+									me.processFile(data,name,next);
+								}
+							})
+						}else{
+							console.error("Zip file could not be read ...");
+							if (next) next(false);
+						}
+					});
+				}, function(error) {
+					console.error("Zip file could not be read ...");
+					if (next) next(false);
 				});
-			}, function(error) {
-				console.error("Zip file could not be read ...");
-				if (next) next(false);
-			});
+			}
 		}
 
 		if (result.isMod && result.loader){
