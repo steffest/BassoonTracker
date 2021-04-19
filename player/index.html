@@ -122,28 +122,34 @@
       </thead>
       <tbody>
         <tr>
-          <td>bassoonplayer-min.js</td>
+          <td><a href="bassoonplayer.js" target="_blank">bassoonplayer.js</a></td>
+          <td>44.9 kB</td>
+          <td>187 kB</td>
+          <td>Untouched - useful for debugging</td>
+        </tr>
+        <tr>
+          <td><a href="bassoonplayer-min.js" target="_blank">bassoonplayer-min.js</a></td>
           <td>22.6 kB</td>
-          <td>70.3 kB</td>
+          <td>68.6 kB</td>
           <td>Untouched</td>
         </tr>
         <tr>
-          <td>b-min.js</td>
+          <td><a href="b-min.js" target="_blank">b-min.js</a></td>
           <td>20.4 kB</td>
-          <td>56.8 kB</td>
+          <td>55.5 kB</td>
           <td>Squeezed</td>
         </tr>
         <tr>
-          <td>b-pack.js</td>
+          <td><a href="b-pack.js" target="_blank">b-pack.js</a></td>
           <td class="green">19.8 kB</td>
-          <td>42.4 kB</td>
-          <td>RegPacked</td>
+          <td>41.5 kB</td>
+          <td><a href="https://github.com/Siorki/RegPack" target="_blank">RegPacked</a></td>
         </tr>
         <tr>
-          <td>b-zip.js</td>
+          <td><a href="b-zip.js" target="_blank">b-zip.js</a></td>
           <td>23.4 kB</td>
-          <td class="green">29.9 kB</td>
-          <td class="green">supports zipped mods</td>
+          <td class="green">29.2 kB</td>
+          <td class="green"><a href="https://github.com/photopea/UZIP.js" target="_blank">zipped</a> - supports zipped mods</td>
         </tr>
       </tbody>
     </table>
@@ -172,7 +178,7 @@
     </xmp>
 
     After BassoonTracker.init you might want to check "Audio.context" to see if the browser supports WebAudio.<br>
-    <br>Some usefull methods:
+    <br>Some useful methods:
     <ul>
         <li><code>BassoonTracker.togglePlay()</code></li>
         <li><code>BassoonTracker.isPlaying()</code></li>
@@ -183,8 +189,15 @@
             <ul>
                 <li><code>BassoonTracker.getSong().title</code></li>
                 <li><code>BassoonTracker.getSong().length</code> <span>(in patterns)</span></li>
+                <li><code>BassoonTracker.getSong().patterns</code> <span>(array of patterns)</span></li>
+                <li><code>BassoonTracker.getSong().patternTable</code> <span>(array of pattern positions in the song)</span></li>
             </ul>
         </li>
+        <li><code>BassoonTracker.setCurrentSongPosition(songPos)</code></li>
+        <li><code>BassoonTracker.playSample(sampleIndex,sampleRate)</code></li>
+        <li><code>BassoonTracker.getBPM</code></li>
+        <li><code>BassoonTracker.getAmigaSpeed</code></li>
+        <li><code>BassoonTracker.audio</code> (pointer to the main audio object)</li>
     </ul>
 
         The playback itself is scheduled in WebAudio and completely detached from the main JS thread.<br>
