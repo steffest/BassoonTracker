@@ -85,6 +85,7 @@ Note: if you use an AZERTY, QWERTZ or DVORAK keyboard, you can set that option i
 **Future plans**  
   - ~~MIDI support~~ -> Done!
   - ~~Undo/redo on pattern edits and sample edits~~ -> Done!
+  - Implement [local file system access](https://web.dev/file-system-access/)  
   - Export and import of .xi instruments.
   - 3SM/Screamtracker file support, maybe OctaMED too.
   - Allow synth/FM instruments next to sample instruments.
