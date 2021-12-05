@@ -31,11 +31,18 @@ var FileDetector = function(){
 		if (id == "M&K!") return fileType.mod_ProTracker; // what's different? example https://modarchive.org/index.php?request=view_by_moduleid&query=76607
 		if (id == "FLT4") return fileType.mod_ProTracker;
 		if (id == "2CHN") return fileType.mod_ProTracker;
+		if (id == "3CHN") return fileType.mod_ProTracker;
+		if (id == "5CHN") return fileType.mod_ProTracker;
 		if (id == "6CHN") return fileType.mod_ProTracker;
+		if (id == "7CHN") return fileType.mod_ProTracker;
 		if (id == "8CHN") return fileType.mod_ProTracker;
+		if (id == "9CHN") return fileType.mod_ProTracker;
 		if (id == "10CH") return fileType.mod_ProTracker;
+		if (id == "11CH") return fileType.mod_ProTracker;
 		if (id == "12CH") return fileType.mod_ProTracker;
+		if (id == "13CH") return fileType.mod_ProTracker;
 		if (id == "14CH") return fileType.mod_ProTracker;
+		if (id == "15CH") return fileType.mod_ProTracker;
 		if (id == "16CH") return fileType.mod_ProTracker;
 		if (id == "18CH") return fileType.mod_ProTracker;
 		if (id == "20CH") return fileType.mod_ProTracker;
@@ -57,8 +64,7 @@ var FileDetector = function(){
 
 		var zipId = file.readString(2,0);
 		if (zipId == "PK") return fileType.zip;
-
-
+		
 
 		// might be an 15 instrument mod?
 		// filename should at least contain a "." this avoids checking all ST-XX samples

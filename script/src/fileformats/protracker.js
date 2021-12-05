@@ -23,11 +23,18 @@ var ProTracker = function(){
 		song.title = file.readString(20,0);
 
 		if (song.typeId === "2CHN") channelCount = 2;
+		if (song.typeId === "3CHN") channelCount = 3;
+		if (song.typeId === "5CHN") channelCount = 5;
 		if (song.typeId === "6CHN") channelCount = 6;
+		if (song.typeId === "7CHN") channelCount = 7;
 		if (song.typeId === "8CHN") channelCount = 8;
+		if (song.typeId === "9CHN") channelCount = 9;
 		if (song.typeId === "10CH") channelCount = 10;
+		if (song.typeId === "11CH") channelCount = 11;
 		if (song.typeId === "12CH") channelCount = 12;
+		if (song.typeId === "13CH") channelCount = 13;
 		if (song.typeId === "14CH") channelCount = 14;
+		if (song.typeId === "15CH") channelCount = 15;
 		if (song.typeId === "16CH") channelCount = 16;
 		if (song.typeId === "18CH") channelCount = 18;
 		if (song.typeId === "20CH") channelCount = 20;
