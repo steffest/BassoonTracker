@@ -24,7 +24,8 @@ UI.pattern_sidebar = function(){
         //{label:"Monday", onClick:function(){Tracker.load('demomods/Monday.mod')}},
         //{label:"Lunatic", onClick:function(){Tracker.load('demomods/sound-of-da-lunatic.mod')}},
         {label:"XM: Ambrozia", onClick:function(){Tracker.load(Host.getRemoteUrl() + 'demomods/Ambrozia.xm')}},
-        {label:"8CHN: AceMan", onClick:function(){Tracker.load(Host.getRemoteUrl() + 'demomods/AceMan.mod')}},
+        {label:"XM: Aquarium", onClick:function(){Tracker.load(Host.getRemoteUrl() + 'demomods/aws_aqua.xm')}},
+        {label:"8CHN: Block Shockin'", onClick:function(){Tracker.load(Host.getRemoteUrl() + 'demomods/AceMan.mod')}},
         //{label:"28CHN: Dope", onClick:function(){Tracker.load('demomods/dope.mod')}},
         //{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
         //{label:"Drum", onClick:function(){Tracker.load('demomods/drum.mod')}},
@@ -40,7 +41,6 @@ UI.pattern_sidebar = function(){
         buttonElm.info = buttonSideInfo;
         buttonElm.onClick =  buttonSideInfo.onClick;
         buttonsSide[i] = buttonElm;
-        //me.addChild(buttonElm);
         me.addChild(buttonElm);
     }
 
@@ -87,13 +87,23 @@ UI.pattern_sidebar = function(){
             height:buttonHeight
         });
 
-        for (i = 0;i<buttonsSideInfo.length;i++){
+        var max = buttonsSideInfo.length;
+        for (i = 0;i<max;i++){
             var button = buttonsSide[i];
             var buttonTop = (i*buttonHeight) + sideLabel.height;
             var buttonLeft = 0;
             if (buttonTop > nibblesButton.top-buttonHeight){
                 buttonLeft = -500;
             }
+
+            var background = UI.Assets.buttonLightScale9;
+            var backgroundHover = UI.Assets.buttonLightHoverScale9;
+            if (i>max-3){
+                background= UI.Assets.panelDarkScale9;
+                backgroundHover= UI.Assets.panelDarkHoverScale9;
+            }
+
+            //me.addChild(buttonElm);
             button.setProperties({
                 left:buttonLeft,
                 top: buttonTop,
@@ -101,8 +111,8 @@ UI.pattern_sidebar = function(){
                 height:buttonHeight,
                 label: button.info.label,
                 textAlign:"left",
-                background: UI.Assets.buttonLightScale9,
-                hoverBackground: UI.Assets.buttonLightHoverScale9,
+                background: background,
+                hoverBackground: backgroundHover,
                 font:window.fontFT
             });
         }

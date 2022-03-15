@@ -893,6 +893,7 @@ var Tracker = (function(){
 					// check if the instrument is finetuned
 					instrument = me.getInstrument(instrumentIndex);
 					if (instrument && instrument.getFineTune()){
+						// TODO - in FT mode - should we use getFineTuneForBote even when linearFrequency is used ?
                         target = me.inFTMode() ?  Audio.getFineTuneForNote(noteIndex,instrument.getFineTune()) : Audio.getFineTuneForPeriod(target,instrument.getFineTune());
 					}
 				}
@@ -1520,6 +1521,7 @@ var Tracker = (function(){
 		}
 
 		if (effects.slide){
+
 			if (trackNote.source){
 				var currentPeriod = trackNote.currentPeriod || trackNote.startPeriod;
 				var targetPeriod = currentPeriod;
@@ -1531,10 +1533,11 @@ var Tracker = (function(){
 					steps = 2;
 				}
 
-
 				var slideValue = effects.slide.value;
 				if (me.inFTMode() && me.useLinearFrequency) slideValue = effects.slide.value*4;
 				value = Math.abs(slideValue);
+
+				//console.error(currentPeriod,slideValue);
 
 				if (me.inFTMode() && effects.slide.resetVolume && (trackNote.volumeFadeOut || trackNote.volumeEnvelope)){
 					// crap ... this should reset the volume envelope to the beginning ... annoying ...
@@ -1568,11 +1571,14 @@ var Tracker = (function(){
 						newPeriod = Audio.getNearestSemiTone(targetPeriod,trackNote.instrumentIndex);
 					}
 
-					if (newPeriod !== trackNote.currentPeriod){
+					//console.error("***");
+					//console.error(targetPeriod);
+
+					if (targetPeriod !== trackNote.currentPeriod){
 						trackNote.currentPeriod = targetPeriod;
 
                         if (trackNote.hasAutoVibrato && me.inFTMode()){
-                            targetPeriod = applyAutoVibrato(trackNote,targetPeriod);
+                            targetPeriod = applyAutoVibrato(trackNote,newPeriod);
                             autoVibratoHandled = true;
                         }
 						me.setPeriodAtTime(trackNote,newPeriod,time + (tick*tickTime));
@@ -1951,6 +1957,7 @@ var Tracker = (function(){
 		var isMod = false;
 		var file = new BinaryStream(arrayBuffer,true);
 		var result = FileDetector.detect(file,name);
+		
 
 		if (result && result.name == "ZIP"){
 			console.log("extracting zip file");

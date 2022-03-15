@@ -24,11 +24,19 @@ function detectSampleType(file,sample,next){
 		}
 	}
 
-	// if the file ends with, .mp3 , let's just assume it is ...
-	if (sample && sample.name && sample.name.toLowerCase().slice(-4) == ".mp3"){
-		sampleType = SAMPLETYPE.MP3;
-		decoder = decodeFileWithAudioContext;
+	// if the file ends with .mp3 of .flac , let's just assume it is ...
+	if (sample && sample.name){
+		var ext = sample.name.split(".").pop().toLowerCase();
+		if (ext === "mp3"){
+			sampleType = SAMPLETYPE.MP3;
+			decoder = decodeFileWithAudioContext;
+		}
+		if (ext === "flac"){
+			sampleType = SAMPLETYPE.FLAC;
+			decoder = decodeFileWithAudioContext;
+		}
 	}
+
 
 	if (sample && decoder){
 		decoder(file,sample,next);

@@ -596,25 +596,50 @@ var Audio = (function(){
     };
 
     me.getNearestSemiTone = function(period,instrumentIndex){
-        var tuning = 8;
-        if (instrumentIndex){
-            var instrument = Tracker.getInstrument(instrumentIndex);
-            if (instrument && instrument.sample.finetune) tuning = tuning + instrument.sample.finetune;
-        }
-
-        var minDelta = 100000;
-        var result = period;
-        for (var note in NOTEPERIOD){
-            if (NOTEPERIOD.hasOwnProperty(note)){
-                var p = NOTEPERIOD[note].tune[tuning];
-                var delta = Math.abs(p - period);
-                if (delta<minDelta) {
-                    minDelta = delta;
-                    result = p;
+		var result = period;
+		var minDelta = 100000;
+		var instrument = Tracker.getInstrument(instrumentIndex);
+		
+		var note,p,delta;
+		
+        if (Tracker.inFTMode()){
+            var targetIndex = 0;
+            FTNotes.forEach(function(note,index){
+                p = note.period;
+                if (p){
+                    delta = Math.abs(p - period);
+                    if (delta<minDelta) {
+                        minDelta = delta;
+                        result = p;
+                        targetIndex = index;
+                    }
+                }
+            });
+            if (targetIndex && instrument && instrument.getFineTune()){
+                if (Tracker.useLinearFrequency){
+                    result -= instrument.getFineTune()/2;
+                }else{
+                    result = me.getFineTuneForNote(targetIndex,instrument.getFineTune());
                 }
             }
-        }
 
+		}else{
+			var tuning = 8;
+			if (instrumentIndex){
+				if (instrument && instrument.sample.finetune) tuning = tuning + instrument.sample.finetune;
+			}
+			
+			for (note in NOTEPERIOD){
+				if (NOTEPERIOD.hasOwnProperty(note)){
+					p = NOTEPERIOD[note].tune[tuning];
+					delta = Math.abs(p - period);
+					if (delta<minDelta) {
+						minDelta = delta;
+						result = p;
+					}
+				}
+			}
+		}
         return result;
     };
 

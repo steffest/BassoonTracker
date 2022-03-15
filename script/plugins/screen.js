@@ -26,9 +26,11 @@ var UI = function(){
 		me.visible = true;
 
 		var w = window.innerWidth;
+		var h = window.innerHeight;
 		if (w>maxWidth) w=maxWidth;
+
 		canvas.width = w;
-		canvas.height = window.innerHeight;
+		canvas.height = h;
 
 		ctx.fillStyle = "black";
 		ctx.fillRect(0,0,canvas.width,canvas.height);

@@ -103,7 +103,8 @@ var COMMAND = {
 	toggleAppSideBar: 25,
 	undo: 26,
 	redo: 27,
-	nibbles: 28
+	nibbles: 28,
+	generator: 29
 };
 
 var PLAYTYPE = {
@@ -129,7 +130,8 @@ var SAMPLETYPE = {
     IFF_8SVX:3,
     MP3:4,
 	RIFF_8BIT: 5,
-	RIFF_16BIT: 6
+	RIFF_16BIT: 6,
+	FLAC: 5
 };
 
 var STEREOSEPARATION = {
