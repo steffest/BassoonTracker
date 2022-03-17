@@ -7,6 +7,8 @@
     <meta name="author" content="Steffest">
 
     <link rel="manifest" href="manifest.json">
+	<link rel="apple-touch-icon" href="/icon192.png">
+	<meta name="theme-color" content="#253352">
     <meta name="mobile-web-app-capable" content="yes">
 
     <style>
@@ -80,6 +82,11 @@
                 req.send();
             }
         }
+
+		// Service worker
+		navigator.serviceWorker.register('./sw.js', {
+			scope: '/BassoonTracker/'
+		});
 
     </script>
 </head>
