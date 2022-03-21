@@ -1,3 +1,4 @@
+/*
 function readRIFFsample(file,sample,next){
     //format description: http://soundfile.sapp.org/doc/WaveFormat/
     file.litteEndian = true;
@@ -38,7 +39,7 @@ function readRIFFsample(file,sample,next){
     }
 
 }
-
+*/
 
 function encodeRIFFsample(sampleData,bits){
 

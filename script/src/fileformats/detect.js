@@ -61,6 +61,8 @@ var FileDetector = function(){
 		if (ext == ".mp3") return fileType.sample;
 		if (ext == ".iff") return fileType.sample;
 		if (ext == "flac") return fileType.sample;
+		if (ext == ".ogg") return fileType.sample;
+		if (ext == "opus") return fileType.sample;
 		if (ext == ".zip") return fileType.zip;
 
 		var zipId = file.readString(2,0);

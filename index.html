@@ -7,8 +7,6 @@
     <meta name="author" content="Steffest">
 
     <link rel="manifest" href="manifest.json">
-	<link rel="apple-touch-icon" href="/icon192.png">
-	<meta name="theme-color" content="#253352">
     <meta name="mobile-web-app-capable" content="yes">
 
     <style>
@@ -48,8 +46,8 @@
         }
     </style>
 
-    <script>var buildNumber = "0.4.1-build20211205.1149"; var versionNumber = "0.4.1";</script>
-    <script src="script/bassoontracker-min.js?v0.4.1-build20211205.1149"></script>
+    <script>var buildNumber = "0.4.2-build20220321.1234"; var versionNumber = "0.4.2";</script>
+    <script src="script/bassoontracker-min.js?v0.4.2-build20220321.1234"></script>
 
     <script>
 		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -82,11 +80,6 @@
                 req.send();
             }
         }
-
-		// Service worker
-		navigator.serviceWorker.register('./sw.js', {
-			scope: '/BassoonTracker/'
-		});
 
     </script>
 </head>
