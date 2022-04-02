@@ -6,35 +6,36 @@ function detectSampleType(file,sample,next){
 	// let's assume it's a 8-bit raw audio file like found on the amiga ST disks by default
 	var sampleType = SAMPLETYPE.RAW_8BIT;
 	var decoder = readRAWsample;
-
-	file.goto(0);
-	var id = file.readString(4);
-
-	if (id == "RIFF"){
-		sampleType = SAMPLETYPE.WAVE_PCM;
-		decoder = readRIFFsample;
+	
+	// if we have original samplerate we can use WebAudio to decode most formats
+	var ext = "";
+	if (sample && sample.name) {
+		ext = sample.name.split(".").pop().toLowerCase();
 	}
 
-	if (id == "FORM"){
-		file.goto(8);
-		var subId = file.readString(4);
-		if (subId == "8SVX"){
-			sampleType = SAMPLETYPE.IFF_8SVX;
-			decoder = read8SVXsample;
-		}
-	}
+	sample.info = getSamplerate(file, ext);
 
-	// if the file ends with .mp3 of .flac , let's just assume it is ...
-	if (sample && sample.name){
-		var ext = sample.name.split(".").pop().toLowerCase();
-		if (ext === "mp3"){
-			sampleType = SAMPLETYPE.MP3;
-			decoder = decodeFileWithAudioContext;
-		}
-		if (ext === "flac"){
-			sampleType = SAMPLETYPE.FLAC;
-			decoder = decodeFileWithAudioContext;
-		}
+	switch (sample.info.type) {
+		case "WAVE_PCM":
+		case "RIFF":
+		case "MP3":
+		case "FLAC":
+		case "OGG":
+		case "OPUS":
+			sampleType = SAMPLETYPE[sample.info.type];
+			decoder = decodeFileWithAudioContext; //readRIFFsample;
+			break;
+		case "FORM":
+			file.goto(8);
+			var subId = file.readString(4);
+			if (subId == "8SVX"){
+				sampleType = SAMPLETYPE.IFF_8SVX;
+				decoder = read8SVXsample;
+			}
+			break;
+		default:
+			console.log('Unknown sample format, expect RAW_8BIT:', sample.info)
+			break;
 	}
 
 
@@ -50,7 +51,12 @@ function detectSampleType(file,sample,next){
 }
 
 function decodeFileWithAudioContext(file,sample,next){
-	Audio.context.decodeAudioData(
+	// need to use original samplerate, not the one defined in users OS/Browser
+	Audio.converter = new AudioContext( {sampleRate: sample.info.sampleRate} );
+	if (Audio.converter.sampleRate !== sample.info.sampleRate) {
+		console.log('Could not initiate desired sampleRate of '+ sample.info.sampleRate +' instead got '+ Audio.converter.sampleRate);
+	}
+	Audio.converter.decodeAudioData(
 			file.buffer,
 			function(buffer) {
 				if (!buffer) {
