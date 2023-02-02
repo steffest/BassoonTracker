@@ -131,7 +131,9 @@ var SAMPLETYPE = {
     MP3:4,
 	RIFF_8BIT: 5,
 	RIFF_16BIT: 6,
-	FLAC: 5
+	FLAC: 5,
+	OGG: 9,
+	OPUS: 10
 };
 
 var STEREOSEPARATION = {

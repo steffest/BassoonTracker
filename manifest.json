@@ -6,10 +6,24 @@
       "sizes": "48x48",
       "type": "image/png",
       "density": 1.0
+    },
+    {
+      "src": "icon192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "density": 1.0
+    },
+    {
+        "src": "icon512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "density": 1.0,
+        "purpose": "any maskable"
     }
   ],
   "start_url": "index.html",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#253352"
+  "orientation": "any",
+  "background_color": "#253352",
+  "theme_color": "#253352"
 }
