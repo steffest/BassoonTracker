@@ -19,7 +19,7 @@ UI.app_menu = function(container){
                 {label: "Load Module" , "command" : COMMAND.openFile},
                 {label: "Save Module" , "command" : COMMAND.saveFile},
                 {label: "Open Random MOD Song" , "command" : COMMAND.randomSong},
-                {label: "Open Random XM Song" , "command" : COMMAND.randomSongXM}
+                {label: "Open Random XM Song" , "command" : COMMAND.randomSongXM},
             ]},
         {label: "Edit", subItems: [
                 {label: function(){return StateManager.getUndoLabel()} , "command" : COMMAND.undo, disabled: function(){return !StateManager.canUndo()}},
@@ -43,6 +43,7 @@ UI.app_menu = function(container){
                 {label: "Sample Editor" , "command" : COMMAND.showSampleEditor},
                 {label: "Piano" , "command" : COMMAND.togglePiano},
                 {label: "Nibbles" , "command" : COMMAND.nibbles},
+                //{label: "Generator" , "command" : COMMAND.generator},
                 {label: "Performance stats" , "command" : COMMAND.showStats}
             ]},
         {label: "Help", subItems: [
@@ -51,7 +52,6 @@ UI.app_menu = function(container){
                 {label: "Sourcecode on Github" , "command" : COMMAND.showGithub}
             ]}
     ]);
-
 
     var vumeter = UI.vumeter();
     vumeter.connect(Audio.cutOffVolume);
@@ -172,9 +172,6 @@ UI.app_menu = function(container){
     EventBus.on(EVENT.midiIn,function(){
         if (SETTINGS.showMidi) flash(midiBox);
     });
-    
-
-   
 
 
     return me;

@@ -5,6 +5,7 @@ var modArchiveCached  = require('./modArchiveCached');
 var modulesPL  = require('./modulesPL');
 var httpProxy = require('http-proxy');
 var storage = require('./storage');
+var logger = require('./logger');
 
 var port = process.env.PORT || 3000;
 
@@ -38,8 +39,9 @@ var server = http.createServer(function (req, res) {
 	var baseDomain = "http://" + hostName;
 	var isLocal = (hostName.substr(0,5) == "local");
 
+	var queryParam = pathName.split("?")[1];
 	pathName = pathName.split("?")[0];
-
+	
 	var urlParts = pathName.split("/");
 	var section = urlParts[0];
 	var action = urlParts[1];
@@ -95,8 +97,8 @@ var server = http.createServer(function (req, res) {
 			break;
 		case "modules.pl":
 			id = urlParts[1];
-			var getUrl = "http://www.modules.pl/dl.php?mid=" + id;
-			var gethttp = require('http');
+			var getUrl = "https://www.modules.pl/dl.php?mid=" + id;
+			var gethttp = require('https');
 			gethttp.get(getUrl,function(response){
 				if (response.statusCode == 302){
 					req.url =  response.headers.location;
@@ -104,7 +106,7 @@ var server = http.createServer(function (req, res) {
 				}
 
 				proxy.web(req, res, {
-					target: "http://www.modules.pl",
+					target: "https://www.modules.pl",
 					changeOrigin: true
 				});
 			});
@@ -114,8 +116,33 @@ var server = http.createServer(function (req, res) {
 			break;
 		case "proxy":
 			id = urlParts[1];
-			res.writeHead(200, {'Content-Type': 'text/html'});
-			res.end(pathName + " ... " + id);
+			queryParam = decodeURIComponent(queryParam);
+			
+			req.url = queryParam;
+			let domain = "";
+			let protocol = "";
+			
+			
+			
+			if (queryParam){
+				protocol = queryParam.split("://")[0];
+				let _url = queryParam.split("://")[1];
+				console.error(typeof _url);
+				if (_url){
+					domain = _url.split("/")[0];
+				}
+			}
+
+			if (protocol && domain){
+				proxy.web(req, res, {
+					target: protocol + "://" + domain,
+					changeOrigin: true
+				});
+			}else{
+				res.writeHead(200, {'Content-Type': 'text/html'});
+				res.end("No url to proxy - " + queryParam);
+			}
+			
 			break;
 		case "mpl":
 			modulesPL.handleRequest(action,urlParts,res);
@@ -132,6 +159,9 @@ var server = http.createServer(function (req, res) {
 			setTimeout(function(){
 				throw "quit";
 			},2000);
+			break;
+		case "log":
+			logger.log(action,urlParts,req,res);
 			break;
 		default:
 			res.writeHead(200, {'Content-Type': 'text/html'});

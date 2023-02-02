@@ -30,7 +30,8 @@ UI.pattern_sidebar = function(){
         //{label:"Exodus baum", onClick:function(){Tracker.load('demomods/exodus-baum_load.mod')}},
         //{label:"Drum", onClick:function(){Tracker.load('demomods/drum.mod')}},
         {label:"Random MOD", onClick:function(){App.doCommand(COMMAND.randomSong)}},
-        {label:"Random XM", onClick:function(){App.doCommand(COMMAND.randomSongXM)}}
+        {label:"Random XM", onClick:function(){App.doCommand(COMMAND.randomSongXM)}},
+        //{label:"Generator", onClick:function(){App.doCommand(COMMAND.generator)}}
     ];
 
 

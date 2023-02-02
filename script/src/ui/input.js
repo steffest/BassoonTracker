@@ -271,6 +271,7 @@ var Input = (function(){
 			var keyCode = event.keyCode;
 			var key = event.key;
 			//console.error(event.code);
+			//console.error(key);
 			//TODO use event.code as this is device independent.
 
 			var meta={
@@ -289,7 +290,6 @@ var Input = (function(){
 			}
 
 			//console.log(keyCode);
-			//ole.log(prevHoverTarget);
 			if (focusElement && focusElement.onKeyDown){
 				var handled = focusElement.onKeyDown(keyCode,event);
 				if (handled) return;
@@ -393,6 +393,32 @@ var Input = (function(){
                         Tracker.moveCurrentPatternPos(1);
                     }
                     return;
+				case 96: // Numeric keypad
+				case 97:
+				case 98:
+				case 99:
+				case 100:
+				case 101:
+				case 102:
+				case 103:
+				case 104:
+				case 105:
+					if (!Tracker.isRecording()){
+						var index = keyCode-96;
+						if (index<1) index+=10;
+						Tracker.setCurrentInstrumentIndex(index);
+						return;
+					}
+					break;
+				case 107: // Numeric pad +
+					Tracker.setCurrentInstrumentIndex(Tracker.getCurrentInstrumentIndex()+1);
+					return;
+				case 109: // Numeric pad -
+					var index = Tracker.getCurrentInstrumentIndex();
+					if (index>1){
+						Tracker.setCurrentInstrumentIndex(index-1);
+					}
+					return;
                 case 112: //F1
                 case 113: //F2
                 case 114: //F3
@@ -408,9 +434,19 @@ var Input = (function(){
                 case 122: //F11
                 case 123: //F12
                     return;
+				case 187: // =/+
+					Tracker.setCurrentInstrumentIndex(Tracker.getCurrentInstrumentIndex()+1);
+					return;
+				case 189: // _/-
+					index = Tracker.getCurrentInstrumentIndex();
+					if (index>1){
+						Tracker.setCurrentInstrumentIndex(index-1);
+					}
+					return;
                 case 221: // ¨^
                     return;
             }
+
 
 			if (key && (keyCode>40) && (keyCode<230)){
 

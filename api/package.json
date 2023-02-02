@@ -13,9 +13,11 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@supercharge/request-ip": "^1.1.2",
     "express": "*",
     "he": "^1.1.1",
-    "http-proxy" : "1.18.1",
+    "http-proxy": "^1.18.1",
+    "lokijs": "^1.5.11",
     "xml2js": "^0.4.17"
   }
 }

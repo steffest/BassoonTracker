@@ -80,6 +80,7 @@ var ModArchiveCached = (function(){
             });
         }*/
 
+
         // get genres totals
         var genreCount = {};
         var artistCount = {};
@@ -94,7 +95,7 @@ var ModArchiveCached = (function(){
                 count = artistCount[mod.author] || 0;
 
                 // only add >4 artist
-                if (count>4 && !artistMap[mod.author]){
+                if (count>4 && mod.artist && !artistMap[mod.author]){
                     artistMap[mod.author] = true;
                     artists.push({id: mod.author, handle: mod.artist});
                 }
@@ -110,6 +111,7 @@ var ModArchiveCached = (function(){
         }
 
         genres.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+        artists.sort((a, b) => (a.handle > b.handle) ? 1 : -1)
     }
 
     return me;
