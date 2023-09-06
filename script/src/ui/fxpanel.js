@@ -11,7 +11,8 @@ UI.fxPanel= function(track){
 
     var knobSpaceX = 70;
     var knobSpaceY = 70;
-    var effects = ["volume","panning","high","mid","low","lowPass","reverb"];
+    var effects = ["volume","panning","high","mid","low", "lowPass",  "distortion", "compression",
+        "delay", "reverb",];
 
     var KnobTop = 0;
     var knobLeft = 10;
@@ -79,6 +80,19 @@ UI.fxPanel= function(track){
             }
             case "reverb":{
                 filterChain.reverbValue(value);
+                break;
+            }
+            case "distortion":{
+                filterChain.distortionValue(value);
+                break;
+
+            }
+            case "delay":{
+                filterChain.delayValue(value)
+                break;
+            }
+            case "compression":{
+                filterChain.compressionValue(value);
                 break;
             }
         }

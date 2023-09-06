@@ -4,7 +4,15 @@ FilterChain = (function(filters) {
 
 	filters = filters || {
 		volume: true,
-		panning: true
+		panning: true,
+		high:false,
+		mid:false,
+		low:false,
+		lowPass:false,
+		reverb:false,
+		distortion:false,
+		delay:false,
+		compression:false,
 	};
 
     // disable for now: sounds muffled;
@@ -13,7 +21,15 @@ FilterChain = (function(filters) {
 	if (disableFilters){
         filters = {
             volume: true,
-            panning: true
+            panning: true,
+			high:false,
+			mid:false,
+			low:false,
+			lowPass:false,
+			reverb:false,
+			distortion:false,
+			delay:false,
+			compression:false,
         };
 	}
 
@@ -25,21 +41,27 @@ FilterChain = (function(filters) {
 	var useLowPass = filters.lowPass;
 	var useReverb = filters.reverb;
 	var useDistortion = filters.distortion;
+	var useDelay = filters.delay;
+	var useCompression = filters.compression;
 
-	var input,output,output2;
+	var input,output,output_reverb,output_delay;
 
 	var lowValue = 0.0;
 	var midValue = 0.0;
 	var highValue = 0.0;
 	var volumeValue = 70;
 	var panningValue = 0;
+	var reverbGain = 0;
+	var distortionGain=0;
+	var delayGain=0;
 
 	var FREQ_MUL = 7000;
 	var QUAL_MUL = 30;
 
 	var context = Audio.context;
 
-	var volumeGain,highGain,midGain,lowGain,lowPassfilter,reverb,reverbGain,panner;
+	var volumeGain,highGain,midGain,lowGain,lowPassfilter,reverb,reverbGain,delay,delayGain,distortion,distortionGain,
+		compressor,  panner;
 
 	// use a simple Gain as input so that we can leave this connected while changing filters
 	input = context.createGain();
@@ -75,21 +97,49 @@ FilterChain = (function(filters) {
             output = lowPassfilter;
         }
 
-        if (useReverb){
-            reverb = reverb || context.createConvolver();
-            reverbGain = reverbGain || context.createGain();
-            reverbGain.gain.value = 0;
-
-            output.connect(reverbGain);
-            reverbGain.connect(reverb);
-            output2 = reverb;
-        }
 
         if (useDistortion){
-            var distortion = context.createWaveShaper();
-            distortion.curve = distortionCurve(400);
+            distortion = distortion || context.createWaveShaper();
+			distortionGain = distortionGain || context.createGain();
+            distortion.curve = distortionCurve(distortionGain);
             distortion.oversample = '4x';
+
+			output.connect(distortionGain);
+			distortionGain.connect(distortion)
+			output = distortion
         }
+
+		if (useCompression){
+			compressor = compressor || context.createDynamicsCompressor();
+			compressor.threshold.setValueAtTime(-25, context.currentTime);
+			// compressor.ratio.setValueAtTime(12, context.currentTime);
+			// compressor.attack.setValueAtTime(0, context.currentTime);
+			// compressor.release.setValueAtTime(0.25, context.currentTime);
+			compressor.attack.setValueAtTime(0, context.currentTime);
+			compressor.release.setValueAtTime(12, context.currentTime);
+			output.connect(compressor);
+			output = compressor;
+		}
+
+		if (useDelay){
+			delay = delay || createPingPongDelay(.12, .4);
+			delayGain = delayGain || context.createGain();
+			delayGain.gain.value = 0;
+
+			output.connect(delayGain);
+			delayGain.connect(delay.splitter);
+			output_delay = delay.merger;
+		}
+
+		if (useReverb){
+			reverb = reverb || context.createConvolver();
+			reverbGain = reverbGain || context.createGain();
+			reverbGain.gain.value = 0;
+
+			output.connect(reverbGain);
+			reverbGain.connect(reverb);
+			output_reverb = reverb;
+		}
 
         if (usePanning){
             panner =  panner || Audio.context.createStereoPanner();
@@ -101,7 +151,8 @@ FilterChain = (function(filters) {
 
 		volumeGain = volumeGain ||context.createGain();
         output.connect(volumeGain);
-        if (output2) output2.connect(volumeGain);
+        if (output_reverb) output_reverb.connect(volumeGain);
+		if (output_delay) output_delay.connect(volumeGain);
         output = volumeGain;
 
 	}
@@ -114,7 +165,11 @@ FilterChain = (function(filters) {
         if (lowPassfilter) lowPassfilter.disconnect();
         if (reverbGain) reverbGain.disconnect();
 		if (panner) panner.disconnect();
-        output2 = undefined;
+		if (distortion) distortion.disconnect();
+		if (delayGain) delayGain.disconnect();
+		if (compressor) compressor.disconnect();
+        output_reverb = undefined;
+		output_delay = undefined;
 	}
 
 
@@ -163,10 +218,51 @@ FilterChain = (function(filters) {
 				i = 0,
 				x;
 		for ( ; i < n_samples; ++i ) {
-			x = i * 2 / n_samples - 1;
+			x = (i * 2) / n_samples - 1;
 			curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
 		}
 		return curve;
+	}
+
+	function createPingPongDelay(delayTime, feedback){
+
+		// example of delay effect.
+		//Taken from http://stackoverflow.com/questions/20644328/using-channelsplitter-and-mergesplitter-nodes-in-web-audio-api
+
+		var merger = context.createChannelMerger(2);
+		var leftDelay = context.createDelay();
+		var rightDelay = context.createDelay();
+		var leftFeedback = context.createGain();
+		var rightFeedback = context.createGain();
+		var splitter = context.createChannelSplitter(2);
+
+
+		splitter.connect( leftDelay, 0 );
+		splitter.connect( rightDelay, 1 );
+
+		leftDelay.delayTime.value = delayTime;
+		rightDelay.delayTime.value = delayTime;
+
+		leftFeedback.gain.value = feedback;
+		rightFeedback.gain.value = feedback;
+
+		// Connect the routing - left bounces to right, right bounces to left.
+		leftDelay.connect(leftFeedback);
+		leftFeedback.connect(rightDelay);
+
+		rightDelay.connect(rightFeedback);
+		rightFeedback.connect(leftDelay);
+
+		// Re-merge the two delay channels into stereo L/R
+		leftFeedback.connect(merger, 0, 0);
+		rightFeedback.connect(merger, 0, 1);
+
+		// Now connect your input to "splitter", and connect "merger" to your output destination.
+
+		return{
+			splitter: splitter,
+			merger: merger
+		}
 	}
 
 	me.lowValue = function(value) {
@@ -218,6 +314,11 @@ FilterChain = (function(filters) {
 		if (!useLowPass) return;
 		lowPassfilter.Q.value = value * QUAL_MUL;
 	};
+	me.compressionValue = function(value) {
+		// compressor.threshold.setValueAtTime(50 * (1-value/100)-50, context.currentTime );
+		compressor.ratio.setValueAtTime(4 * value/100+1, context.currentTime);
+		console.log(value, compressor.threshold, compressor.ratio, compressor.attack, compressor.release)
+	};
 
 	me.reverbValue = function(value) {
 		if (!useReverb) return;
@@ -239,6 +340,27 @@ FilterChain = (function(filters) {
 		reverbGain.gain.value = fraction * fraction;
 
 	};
+
+	me.distortionValue = function(value){
+		if (!useDistortion) return;
+		var max = 10
+		var fraction = parseInt(value)/100;
+		var set_value = max * fraction;
+		distortionGain.gain.value = set_value
+	}
+	me.delayValue = function(value){
+		if (!useDelay) return;
+		var max = 100;
+		var fraction = parseInt(value) / max;
+		delayGain.gain.value = fraction*fraction
+	}
+	me.delayValue = function(value){
+		if (!useDelay) return;
+		var max = 100;
+		var fraction = parseInt(value) / max;
+		delayGain.gain.value = fraction*fraction
+	}
+
 
 	me.volumeValue = function(value) {
 		if (!useVolume) return;
@@ -276,6 +398,9 @@ FilterChain = (function(filters) {
         if (name==="lowPass") useLowPass=!!value;
         if (name==="reverb") useReverb=!!value;
         if (name==="panning") usePanning=(!!value) && Audio.context.createStereoPanner;
+		if (name==="distortion") useDistortion=!!value;
+		if (name==="delay") useDelay=!!value;
+		if (name==="compression") useCompression=!!value;
 
         connectFilters();
 
