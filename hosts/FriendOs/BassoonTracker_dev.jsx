@@ -12,7 +12,7 @@ Application.run = function (msg) {
 
 	// Load the html into the view
 	var self = this;
-	var f = new File('Progdir:hosts/FriendOs/dev.html');
+	var f = new File('Progdir:dev.html');
 	f.onLoad = function (data) {
 		self.mainView.setContent(data);
 		if (typeof addPermanentCallback === "function") {
@@ -44,8 +44,9 @@ Application.drawMenu = function(){
 				name: 'File',
 				items: [
 					{
-						name: i18n('New'),
-						command: 'bsn_newFile'
+						name: 'News',
+						command: 'bsn_newFile',
+						shortcut: 'Ctrl+N'
 					},
 					{
 						name: i18n('Load Module'),
@@ -102,7 +103,7 @@ Application.drawMenu = function(){
 						]
 					},
 					{
-						name: i18n('Render Pattner 2 sample'),
+						name: i18n('Pattern-2-sample'),
 						command: 'bsn_pattern2Sample'
 					},
 
@@ -157,6 +158,7 @@ Application.drawMenu = function(){
 Application.receiveMessage = function (msg) {
 	// menu commands
 	var propagate = false;
+	console.error(msg);
 
 	if (msg.command && msg.command.indexOf("bsn_") === 0) {
 		sendMessageToBassoonApp(msg.command.split("bsn_")[1]);

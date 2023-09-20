@@ -25,6 +25,17 @@ Application.run = function (msg) {
 		}else{
 			console.error("ERROR: addPermanentCallback is not defined!")
 		}
+
+		console.log("Startup message",msg);
+		if( msg.args ){
+			console.log("load file",msg.args);
+			sendMessageToBassoonApp({
+				command: 'loadFile',
+				files: [{Path:msg.args}]
+			});
+		}
+
+
 	};
 	f.load();
 
@@ -130,6 +141,10 @@ Application.drawMenu = function(){
 					{
 						name: i18n('Piano'),
 						command: 'bsn_togglePiano'
+					},
+					{
+						name: i18n('Nibbles'),
+						command: 'bsn_nibbles'
 					}
 				]
 			},

@@ -38,6 +38,7 @@ module.exports = function(grunt) {
                     'script/src/ui/main.js',
                     'script/src/ui/**/*.js',
                     'script/src/**/*.js',
+                    'script/plugins/loader.js',
                 ],
                 dest: 'hosts/FriendOs/build/bassoontracker.js'
             },
@@ -144,12 +145,10 @@ module.exports = function(grunt) {
         copy: {
             friend: {
                 files: [
+                    {src: ['hosts/FriendOs/BassoonTracker.jsx'], dest: 'hosts/FriendOs/build/', flatten: true, expand: true},
                     {src: [
-                        'hosts/FriendOs/BassoonTracker.jsx',
-                        ], dest: 'hosts/FriendOs/build/', flatten: true, expand: true},
-                    {src: [
-                            'skin/spritemap_v2.json',
-                            'skin/spritesheet_v2.png'
+                            'skin/spritemap_v4.json',
+                            'skin/spritesheet_v4.png'
                         ], dest: 'hosts/FriendOs/build/skin/', flatten: true, expand: true},
                     {src: [
                             'data/modarchive.json',
@@ -160,8 +159,8 @@ module.exports = function(grunt) {
                     {src: [
                             'demomods/Tinytune.mod',
                         ], dest: 'hosts/FriendOs/build/demomods/', flatten: true, expand: true},
-                    {src: ['skin/icon_256.png'], dest: 'hosts/FriendOs/build/data/icon.png'},
-                    {src: ['skin/screenshot3.png'], dest: 'hosts/FriendOs/build/data/preview.png'}
+                    {src: ['skin/icon_256.png'], dest: 'hosts/FriendOs/build/icon.png'},
+                    {src: ['skin/screenshot3.png'], dest: 'hosts/FriendOs/build/preview.png'}
                 ],
             },
             regpack: {
@@ -209,8 +208,8 @@ module.exports = function(grunt) {
                     }]
             },
             friendpackage: {
-                src: ['hosts/FriendOs/BassoonTracker.apf.json'],
-                dest: 'hosts/FriendOs/build/BassoonTracker.apf',
+                src: ['hosts/FriendOs/Config.json'],
+                dest: 'hosts/FriendOs/build/Config.conf',
                 replacements: [
                     {
                         from: '{version}',
@@ -276,6 +275,16 @@ module.exports = function(grunt) {
                 files: [
                     {expand: true, src: ['b'], cwd: 'script/', dest: '/'}
                 ]
+            },
+            friend: {
+                options: {
+                    mode: 'zip',
+                    level: 9,
+                    archive: 'hosts/FriendOs/build/BassoonTracker<%= pkg.version %>.fpkg'
+                },
+                files: [
+                    {expand: true, src: ['**'], cwd: 'hosts/FriendOs/build/', dest: '/'}
+                ]
             }
         },
         base64: {
@@ -307,7 +316,9 @@ module.exports = function(grunt) {
     grunt.registerTask('miniplayer', ['concat:player','run','uglify:playerSqueezed']);
     grunt.registerTask('default', ['tracker']);
     grunt.registerTask('sprites', ['sprite']);
-    grunt.registerTask('friend', ['clean:friend','concat:friend','uglify:friend','copy:friend','replace:friend','replace:friendpackage','clean:friendjs']);
+    grunt.registerTask('friend', ['clean:friend','concat:friend','uglify:friend','copy:friend','replace:friend','replace:friendpackage','clean:friendjs','compress:friend']);
+    grunt.registerTask('frienddev', ['concat:friend']);
+    //grunt.registerTask('friend', ['clean:friend','concat:friend','uglify:friend','copy:friend','replace:friend','replace:friendpackage']);
     grunt.registerTask('all', ['tracker','player','friend']);
     grunt.registerTask('bundle', ['miniplayer', 'regpack:pack','copy:regpack','compress','base64','concat:bundle']);
     

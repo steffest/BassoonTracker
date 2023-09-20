@@ -1,13 +1,9 @@
 {
   "samples":[
-    {"title":"ST-O1","url":"data/st-01.json","children":[]},
-    {"title":"ST-O2","url":"data/st-02.json","children":[]},
-    {"title":"ST-O3","url":"data/st-03.json","children":[]},
-    {"title":"ST-O4","url":"data/st-04.json","children":[]},
-    {"title":"ST-O5","url":"data/st-05.json","children":[]},
-    {"title":"Custom","children":[
-      {"title":"Child 1","url":"http://box.stef.be/audio/samples/st-01/AnalogString"},
-      {"title":"Child 2","url":"http://box.stef.be/audio/samples/st-01/AnalogString"}
-    ],"isExpanded": false}
+    {"title":"ST-O1","url":"https://www.stef.be/bassoontracker/data/st-01.json","children":[]},
+    {"title":"ST-O2","url":"https://www.stef.be/bassoontracker/data/st-02.json","children":[]},
+    {"title":"ST-O3","url":"https://www.stef.be/bassoontracker/data/st-03.json","children":[]},
+    {"title":"ST-O4","url":"https://www.stef.be/bassoontracker/data/st-04.json","children":[]},
+    {"title":"ST-O5","url":"https://www.stef.be/bassoontracker/data/st-05.json","children":[]}
   ]
 }

@@ -57,7 +57,6 @@ var Input = (function(){
 
 		if (!App.isPlugin) window.addEventListener("resize",handleResize,false);
 
-
 		function handleTouchDown(event){
 
 			event.preventDefault();

@@ -67,7 +67,7 @@ var Plugin = function(){
 				var loadScript = function (src) {
 					var s = document.createElement('script');
 					s.type = 'application/javascript';
-					s.src = src;
+					s.src = Host.getRemoteUrl() + src;
 					s.addEventListener('error', loadCallback, false);
 					s.addEventListener('load', loadCallback, false);
 					document.getElementsByTagName('head')[0].appendChild(s);
@@ -75,7 +75,7 @@ var Plugin = function(){
 				};
 
 				var loadGraphics = function (src) {
-					Y.loadImage(src,function(img){
+					Y.loadImage(Host.getRemoteUrl() + src,function(img){
 						var name = src.split("/").pop().split(".")[0];
 						Y.sprites[plugin.name + "." + name] = Y.sprite({
 							img:img,

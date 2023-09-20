@@ -14,7 +14,7 @@ var HostBridge = function(){
     //FriendOS has its own Menu system
     me.showInternalMenu = false;
 
-    //there some weird with "importscripts" in workers with the Friend paths ... still have to figure it out
+    //there something weird with "importscripts" in workers with the Friend paths ... still have to figure it out
     me.useWebWorkers = false;
     
     me.getBaseUrl = function(){
@@ -30,8 +30,6 @@ var HostBridge = function(){
         if (!isFriendUp) return;
         Application.receiveMessage = function(msg){
             if (msg.type === 'bassoontracker'){
-                console.log("got message",msg);
-
                 // bloody annoying, right, that Friend keeps stealing focus?
                 window.focus();
                 switch(msg.command){
@@ -41,10 +39,12 @@ var HostBridge = function(){
                     case 'loadFile':
                         var file = msg.files[0];
                         if (file && file.Path){
-                            var url = "/system.library/file/read?sessionid=" + Application.sessionId + "&path=" + file.Path + "&mode=rs";
-                            Tracker.load(url,false,function(){
-
-                            });
+                            var url = getFriendFileUrl(file);
+                            me.initialFile = url;
+                            if (typeof SETTINGS === "object") SETTINGS.loadInitialFile = false;
+                            if (typeof HOST === "object") HOST.initialFile = url;
+                            console.log("loading file from FriendOS",url);
+                            Tracker.load(url,false,function(){});
                         }
                         break;
                     case 'getFileName':
@@ -63,7 +63,7 @@ var HostBridge = function(){
                         Editor.save(filename,function(blob){
                             UI.setStatus("Saving File to FriendOS",true);
                             console.log("Saving File to FriendOS",msg.files);
-                            var url = "/system.library/file/upload/?sessionid=" + Application.sessionId + "&path=" + msg.files;
+                            var url = "/system.library/file/upload/?authid=" + Application.authId  + "&path=" + msg.files;
 
                             var formData = new FormData();
                             formData.append("file",blob,"");
@@ -81,6 +81,17 @@ var HostBridge = function(){
                             console.warn("Unhandled message: " + msg);
                         }
                 }
+            }else{
+                // message from the OS
+                //console.log("got message",msg);
+                switch (msg.command){
+                    case "drop":
+                        var data = msg.data || [];
+                        var file = data[0];
+                        var url = getFriendFileUrl(file);
+                        Tracker.load(url,false,function(){});
+                }
+
             }
         };
 	    
@@ -105,6 +116,10 @@ var HostBridge = function(){
     me.getBuildNumber = function(){
         return Application.bsn_buildNumber;
     };
+
+    function getFriendFileUrl(file){
+        return  "/system.library/file/read?authid=" + Application.authId  + "&path=" + file.Path + "&mode=rs";
+    }
     
     return me;
 }();

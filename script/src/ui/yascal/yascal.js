@@ -8,6 +8,7 @@ var Yascal = (function(){
 
 	me.loadImage = function(url,next){
 		var img = new Image();
+		img.crossOrigin = "Anonymous";
 		img.onload = function(){
 			if (next) next(img);
 		};

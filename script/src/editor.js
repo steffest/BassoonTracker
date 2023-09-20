@@ -470,7 +470,7 @@ var Editor = (function(){
         me.buildBinary(Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
             var b = new Blob([file.buffer], {type: "application/octet-stream"});
 
-            var fileName = filename || me.getFileName();
+            var fileName = filename || Tracker.getFileName();
             
             if (typeof target === "function"){
             	target(b);
@@ -608,7 +608,7 @@ var Editor = (function(){
 				initialFile = BassoonProvider.proxyUrl(initialFile.substr(6));
 			}
 		}else{
-			if (SETTINGS.loadInitialFile) initialFile = Host.getBaseUrl() + 'demomods/Tinytune.mod';
+			if (SETTINGS.loadInitialFile) initialFile = Host.initialFile || Host.getBaseUrl() + 'demomods/Tinytune.mod';
 		}
 		if (initialFile) Tracker.load(initialFile,true,undefined,true);
 

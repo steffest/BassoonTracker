@@ -55,8 +55,8 @@
     <script>var buildNumber = new Date().getTime();</script>
 
     <script src="script/src/host.js?v6"></script>
-    <!--<script src="hosts/AmiBase/amibase.js?v6"></script>
-    <script src="hosts/AmiBase/bridge.js?v6"></script>-->
+    <script src="hosts/AmiBase/amibase.js?v7"></script>
+    <script src="hosts/AmiBase/bridge.js?v7"></script>
 
     <script src="script/src/enum.js?v6"></script>
     <script src="script/src/eventBus.js?v6"></script>
@@ -178,6 +178,8 @@
 
 
 <!-- TODO: https://www.shadertoy.com/view/Ms23DR -->
+
+<!-- https://greggman.github.io/pico-8-post-processing/nano-villager_html/?filter=Old+TV+effect -->
 
 
 <!-- 8< -- ## GL SHADER STUFF STARTS HERE ## -- -->
@@ -334,6 +336,7 @@
 
         p8Canvas.name = "p8Canvas";
         canvas.name = "canvas";
+        canvas.id = "canvas_clone";
         canvas.class = "";
         canvas.width = p8Canvas.clientWidth;
         canvas.height = p8Canvas.clientHeight;
@@ -341,22 +344,22 @@
 
         function switchEffect()
         {
+            console.error("switchEffect");
             if (p8Canvas.parentNode != null)
             {
                 p8Canvas.parentNode.insertBefore(canvas,p8Canvas);
-                //canvas.parentNode.removeChild(p8Canvas);
+                canvas.parentNode.removeChild(p8Canvas);
             } else {
                 canvas.parentNode.insertBefore(p8Canvas,canvas);
-                //p8Canvas.parentNode.removeChild(canvas);
+                p8Canvas.parentNode.removeChild(canvas);
             }
         }
 
         function onKeyDown_switch(event) {
-            console.error("rr");
             event = event || window.event;
             var o = document.activeElement;
-            if (!o || o == document.body || o.tagName == "canvas")
-            {
+            if (!o || o == document.body || o.tagName.toLowerCase() == "canvas"){
+                console.error("rr");
                 if ([16].indexOf(event.keyCode) > -1) { switchEffect(); }
             }
         }

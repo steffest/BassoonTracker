@@ -89,11 +89,14 @@
         
 
 <script>
-    
-	Main.init();
-	
-	
-	//Notify({title:"BassoonTracker", text:"Loaded"});
+
+    if (typeof Main !== "undefined") {
+        Main.init();
+    }
+
+
+
+    //Notify({title:"BassoonTracker", text:"Loaded"});
 	
     
 </script>

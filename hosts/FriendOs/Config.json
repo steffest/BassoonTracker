@@ -1,0 +1,102 @@
+{
+  "ProjectName": "BassoonTracker",
+  "Path": "Home:Dev/Bassoon/BasoonTracker.apf",
+  "Files": [
+    {
+      "Type": "File",
+      "Path": "skin/spritemap_v4.json",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143",
+      "Filename": "spritemap_v4.json"
+    },
+    {
+      "Type": "File",
+      "Path": "skin/spritesheet_v4.png",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143",
+      "Filename": "spritesheet_v4.png"
+    },
+    {
+      "Type": "File",
+      "Filename": "icon.png",
+      "Path": "icon.png",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "preview.png",
+      "Path": "preview.png",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "modarchive.json",
+      "Path": "data/modarchive.json",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "modules.json",
+      "Path": "data/modules.json",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "modulespl.json",
+      "Path": "data/modulespl.json",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "samples.json",
+      "Path": "data/samples.json",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "Tinytune.mod",
+      "Path": "demomods/Tinytune.mod",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "bassoontracker-min.js",
+      "Path": "bassoontracker-min.js",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "BassoonTracker.jsx",
+      "Path": "BassoonTracker.jsx",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    },
+    {
+      "Type": "File",
+      "Filename": "index.html",
+      "Path": "index.html",
+      "ProjectID": "26d54ee5a91c452f11be4a4976128c15f3d1964c7db8298b1607983add9d5143"
+    }
+  ],
+  "Permissions": [
+    {
+      "Permission": "Door",
+      "Name": "Local",
+      "Options": ""
+    },
+    {
+      "Permission": "Module",
+      "Name": "system",
+      "Options": ""
+    },
+    {
+      "Permission": "Module",
+      "Name": "files",
+      "Options": ""
+    }
+  ],
+  "Description": "Old-School Music Tracker, Plays and edits MOD and XM files",
+  "Version": "{version}",
+  "Author": "Steffest",
+  "Category": "Music",
+  "MimeTypes": ["mod","xm"],
+  "ProjectPath": "Home:Dev/Bassoon/",
+  "ProjectType": "standard"
+}

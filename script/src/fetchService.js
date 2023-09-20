@@ -99,7 +99,14 @@ var FetchService = (function() {
 					config.error(xhr);
 				}else{
 					var result = xhr.responseText;
-					if (config.datatype === "json") result = JSON.parse(result);
+					if (config.datatype === "json"){
+						try{
+							result = JSON.parse(xhr.responseText);
+						}catch(e){
+							console.error("Error parsing json from " + url);
+							result = {};
+						}
+					}
 					if (config.datatype === "html"){
 						result = document.createElement("div");
 						result.innerHTML = xhr.responseText;

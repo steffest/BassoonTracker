@@ -1894,6 +1894,15 @@ var Tracker = (function(){
 							infoUrl = "http://www.modules.pl/?id=module&mod=" + id;
 							EventBus.trigger(EVENT.songPropertyChange,song);
 						}
+
+						if (url.indexOf("&path=")>0){
+							id = url.split('&path=')[1];
+							id = id.split(":")[1] || id;
+							id = id.split("#")[0];
+							id = id.split("&")[0];
+							song.filename = id;
+							EventBus.trigger(EVENT.songPropertyChange,song);
+						}
 					}
 
 					if (UI) UI.setInfo(song.title,source,infoUrl);

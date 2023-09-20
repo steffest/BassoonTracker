@@ -71,6 +71,8 @@ var UI = (function(){
 	
 
 	me.init = function(next){
+		var useVersion = Host.useUrlParams;
+
 		canvas = document.getElementById("canvas");
 		ctx = canvas.getContext("2d");
 		ctx.imageSmoothingEnabled=false;
@@ -108,7 +110,7 @@ var UI = (function(){
 			if (debug) UI.measure("First render");
 
 			// check version
-			if (typeof versionNumber !== "undefined"){
+			if (useVersion && typeof versionNumber !== "undefined"){
 				FetchService.json("package.json?ts=" + new Date().getTime(),function(result){
 					if (result && result.version && result.version !== versionNumber){
 						console.error("app needs updating");

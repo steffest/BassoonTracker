@@ -27,6 +27,7 @@ UI.menu = function(x,y,w,h,submenuParent){
     };
 
     me.onClick = function(data){
+        if (!Host.showInternalMenu) return;
         var selectedIndex = getItemIndexAtPosition(data.x);
         items.forEach(function(item,index){
             if (index !== selectedIndex && item.subMenu) item.subMenu.hide();
@@ -55,6 +56,7 @@ UI.menu = function(x,y,w,h,submenuParent){
     };
 
     me.onHover = function(data){
+        if (!Host.showInternalMenu) return;
         var selectedIndex = getItemIndexAtPosition(me.eventX);
         if (selectedIndex !== preHoverIndex){
             hoverIndex = selectedIndex;
