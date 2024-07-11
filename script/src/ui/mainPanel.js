@@ -22,6 +22,7 @@ UI.MainPanel = function(){
 	var sidebar = UI.app_sidebar();
 	if (Layout.showAppSideBar){
 		me.addChild(sidebar);
+        sidebar.init();
 	}
 
     var pianoPanel = UI.app_pianoView();
