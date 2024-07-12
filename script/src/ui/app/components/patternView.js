@@ -107,6 +107,7 @@ UI.app_patternView = function(x,y,w,h){
 		var visibleHeight = me.height;
 		var hasHorizontalScrollBar =  visibleTracks<Tracker.getTrackCount();
 		if (hasHorizontalScrollBar) visibleHeight -= 24;
+        cachedAssets.darkPanel = null;
 
 
 		for (var i = 0; i<visibleTracks;i++){
@@ -202,6 +203,8 @@ UI.app_patternView = function(x,y,w,h){
             var isTrackVisible = [];
             hasVU = false;
 
+            trackVULevelMax = 70;
+            trackVULevelDecay = 5;
             if (trackVULevelMax > panelHeight){
                 trackVULevelMax = panelHeight;
                 trackVULevelDecay = trackVULevelMax/10;
@@ -212,8 +215,7 @@ UI.app_patternView = function(x,y,w,h){
 
                 var trackIndex = startTrack + i;
                 isTrackVisible[trackIndex] = !(fxPanels[trackIndex] && fxPanels[trackIndex].visible);
-
-                if (isTrackVisible[trackIndex]){
+                if (isTrackVisible[trackIndex] && darkPanel.height && darkPanel.width){
                     var trackX = trackLeft + i*(Layout.trackWidth+margin);
                     me.ctx.drawImage(darkPanel,trackX,0,Layout.trackWidth,panelHeight);
                     me.ctx.drawImage(darkPanel,trackX,panelTop2,Layout.trackWidth,panelHeight);
