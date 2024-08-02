@@ -175,6 +175,10 @@ function BinaryStream(arrayBuffer, bigEndian){
 		return this.index >= (this.length-margin);
 	};
 
+	obj.toString = function(){
+		return new TextDecoder().decode(arrayBuffer);
+	};
+
 	function setIndex(value){
 		value = value === 0 ? value : value || obj.index;
 		if (value<0) value = 0;

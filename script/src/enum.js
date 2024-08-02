@@ -72,7 +72,8 @@ var EVENT = {
 	commandProcessSample: 57,
 	pluginRenderHook: 58,
 	menuLayoutChanged: 59,
-	midiIn: 60
+	midiIn: 60,
+	playListLoaded: 61,
 };
 
 var COMMAND = {
@@ -113,10 +114,14 @@ var PLAYTYPE = {
 };
 
 var FILETYPE = {
+	unknown:0,
 	module:1,
 	sample:2,
 	pattern:3,
-	track: 4
+	track: 4,
+	instrument: 5,
+	plugin: 6,
+	playlist: 7
 };
 
 var MODULETYPE = {

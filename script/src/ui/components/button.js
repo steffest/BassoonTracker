@@ -18,7 +18,7 @@ UI.button = function(x,y,w,h,text){
     var paddingLeft = 10;
     var hasHover = true;
 
-    var properties = ["left","top","width","height","name","type","image","backgroundImage","background","active","hoverBackground","hoverImage","activeBackground","activeImage","font","label","textAlign","paddingTop","paddingTopActive","paddingLeft","checkbox","radio"];
+    var properties = ["left","top","width","height","name","type","image","backgroundImage","background","active","hoverBackground","hoverImage","activeBackground","activeImage","font","label","textAlign","paddingTop","paddingTopActive","paddingLeft","checkbox","radio","opacity"];
 
     me.setProperties = function(p){
 
@@ -159,7 +159,9 @@ UI.button = function(x,y,w,h,text){
                     if (me.isHover && hoverBackground){
                         hoverBackground.render();
                     }else{
+                        if (me.opacity && me.opacity-1) me.ctx.globalAlpha = me.opacity;
                         background.render();
+                        me.ctx.globalAlpha = 1;
                     }
                     if (stateImage){
                         var imgY = Math.floor((me.height-stateImage.height)/2);

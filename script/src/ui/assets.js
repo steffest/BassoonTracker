@@ -27,12 +27,12 @@ UI.Assets = (function(){
 			}
 		};
 		
-		FetchService.json(assetUrl("skin/spritemap_v4.json"),function(data){
+		FetchService.json(assetUrl("skin/spritemap_v5.json"),function(data){
 			spriteMap = data;
 			createSprites();
 		});
 
-		Y.loadImage(assetUrl("skin/spritesheet_v4.png"),function(img){
+		Y.loadImage(assetUrl("skin/spritesheet_v5.png"),function(img){
 			spriteSheet = img;
 			createSprites();
 		})

@@ -2,18 +2,29 @@ var FileDetector = function(){
 	var me = {};
 
 	var fileType = {
-		unknown: {name: "UNKNOWN"},
-		unsupported: {name: "UNSUPPORTED"},
-		mod_ProTracker: {name: "PROTRACKER", isMod: true, loader: function(){return ProTracker()}},
-		mod_SoundTracker: {name: "SOUNDTRACKER", isMod: true, loader: function(){return SoundTracker()}},
-		mod_FastTracker: {name: "FASTTRACKER", isMod: true, loader: function(){return FastTracker()}},
-		sample: {name: "SAMPLE",isSample:true},
-		zip: {name: "ZIP"}
+		unknown: {name: "UNKNOWN",type: FILETYPE.unknown},
+		unsupported: {name: "UNSUPPORTED",type: FILETYPE.unknown},
+		mod_ProTracker: {name: "PROTRACKER", isMod: true, type: FILETYPE.module, loader: function(){return ProTracker()}},
+		mod_SoundTracker: {name: "SOUNDTRACKER", isMod: true, type: FILETYPE.module, loader: function(){return SoundTracker()}},
+		mod_FastTracker: {name: "FASTTRACKER", isMod: true, type: FILETYPE.module, loader: function(){return FastTracker()}},
+		sample: {name: "SAMPLE",isSample:true, type: FILETYPE.sample},
+		zip: {name: "ZIP"},
+		playlist: {name: "PLAYLIST", type: FILETYPE.playlist}
 	};
 
 	me.detect = function(file,name){
 		var length = file.length;
 		var id = "";
+
+		if (name.indexOf(".json")>=0){
+			try {
+				let json = JSON.parse(file.toString());
+				if (json.modules) return fileType.playlist;
+			}catch (e){
+				// not a json file
+			}
+			return fileType.unknown;
+		}
 
 		id = file.readString(17,0);
 		if (id == "Extended Module: "){
@@ -78,14 +89,14 @@ var FileDetector = function(){
 
 		if (name && name.indexOf(".")>=0 && length>1624){
 			// check for ascii
-			function isAcii(byte){
+			function isAscii(byte){
 				return byte<128;
 			}
 
 			function isST(){
 				console.log("Checking for old 15 instrument soundtracker format");
 				file.goto(0);
-				for (var i = 0; i<20;i++) if (!isAcii(file.readByte())) return false;
+				for (var i = 0; i<20;i++) if (!isAscii(file.readByte())) return false;
 
 				console.log("First 20 chars are ascii, checking Samples");
 
@@ -93,7 +104,7 @@ var FileDetector = function(){
 				var totalSampleLength = 0;
 				var probability =0;
 				for (var s = 0; s<15;s++) {
-					for (i = 0; i<22;i++) if (!isAcii(file.readByte())) return false;
+					for (i = 0; i<22;i++) if (!isAscii(file.readByte())) return false;
 					file.jump(-22);
 					var name = file.readString(22);
 					if (name.toLowerCase().substr(0,3) == "st-") probability += 10;

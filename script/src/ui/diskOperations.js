@@ -483,7 +483,7 @@ UI.DiskOperations = function(){
 							Dropbox.getFile(item,function(blob){
 								var reader = new FileReader();
 								reader.onload = function(){
-									Tracker.processFile(reader.result,item.title,function(isMod){
+									Tracker.processFile(reader.result,item.title,function(){
 										UI.setStatus("Ready");
 									});
 								};

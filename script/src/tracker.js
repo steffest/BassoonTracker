@@ -384,7 +384,7 @@ var Tracker = (function(){
 					// the E14 effect is used: delay Pattern but keep processing effects
 					stepResult.patternDelay--;
 
-					for (i = 0; i<trackCount; i++){
+					for (var i = 0; i<trackCount; i++){
 						applyEffects(i,time);
 					}
 
@@ -404,7 +404,7 @@ var Tracker = (function(){
 							var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : ++playSongPosition;
 							if (nextPosition>=song.length) {
 								nextPosition = song.restartPosition ? song.restartPosition-1 : 0;
-								EventBus.trigger(EVENT.songEnd);
+								EventBus.trigger(EVENT.songEnd,time-Audio.context.currentTime);
 							}
 							if (nextPosition>=song.length) nextPosition = 0;
 							playSongPosition = nextPosition;
@@ -1850,12 +1850,12 @@ var Tracker = (function(){
         trackNote.source.playbackRate.setValueAtTime(rate,time + 0.005);
 	};
 
-	me.load = function(url,skipHistory,next,initial){
+	me.load = function(url,skipHistory,next,initial,silent){
 		url = url || "demomods/StardustMemories.mod";
 
 		if (url.indexOf("://")<0 && url.indexOf("/") !== 0) url = Host.getBaseUrl() + url;
 
-		if (UI){
+		if (UI && !silent){
 			UI.setInfo("");
 			UI.setLoading();
 		}
@@ -1865,8 +1865,10 @@ var Tracker = (function(){
 			// initial file is overridden by a load command of the host;
 			if (initial && !Host.useInitialLoad) return;
 
-			me.processFile(result,name,function(isMod){
-				if (UI) UI.setStatus("Ready");
+			me.processFile(result,name,function(fileType){
+				if (UI && !silent) UI.setStatus("Ready");
+				var isMod = (fileType === FILETYPE.module);
+				console.error(fileType);
 
 				if (isMod){
 					var infoUrl = "";
@@ -1918,8 +1920,8 @@ var Tracker = (function(){
 					}
 				}
 
-				if (isMod)checkAutoPlay(skipHistory);
-				if (next) next();
+				if (isMod) checkAutoPlay(skipHistory);
+				if (next) next(fileType);
 			});
 		};
 
@@ -1968,7 +1970,7 @@ var Tracker = (function(){
 		var result = FileDetector.detect(file,name);
 		
 
-		if (result && result.name == "ZIP"){
+		if (result && result.name === "ZIP"){
 			console.log("extracting zip file");
 
 			if (UI) UI.setStatus("Extracting Zip file",true);
@@ -2007,12 +2009,12 @@ var Tracker = (function(){
 							})
 						}else{
 							console.error("Zip file could not be read ...");
-							if (next) next(false);
+							if (next) next(FILETYPE.unknown);
 						}
 					});
 				}, function(error) {
 					console.error("Zip file could not be read ...");
-					if (next) next(false);
+					if (next) next(FILETYPE.unknown);
 				});
 			}
 		}
@@ -2036,7 +2038,11 @@ var Tracker = (function(){
 			}
 		}
 
-		if (next) next(isMod);
+		if (result.type === FILETYPE.playlist){
+			Playlist.set(JSON.parse(file.toString()),name);
+		}
+
+		if (next) next(result.type);
 
 	};
 

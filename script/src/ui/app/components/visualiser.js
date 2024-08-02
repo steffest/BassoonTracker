@@ -13,7 +13,8 @@ UI.visualiser = function(){
     var trackAnalyser = [];
     var trackMuteState = [];
     var analyserPos = [];
-    var analyserSize = 256;
+    var analyserSize = 512;
+    var analyserAmp = 1.5;
 
     me.ctx.fillStyle = 'black';
     me.ctx.lineWidth = 2;
@@ -193,7 +194,12 @@ UI.visualiser = function(){
 
                     for(var i = 0; i < bufferLength; i++) {
                         var v = dataArray[i] / 128.0;
-                        wy = v * pos.height/2 + pos.top;
+                        let offsetY = 0;
+                        if (analyserAmp>1){
+                            v = v * analyserAmp;
+                            offsetY = pos.height/2 - pos.height/2 * analyserAmp;
+                        }
+                        wy = v * pos.height/2 + pos.top + offsetY;
 
                         if(i === 0) {
                             me.ctx.moveTo(wx, wy);

@@ -1,5 +1,5 @@
 UI.listbox = function(x,y,w,h){
-    var me = UI.element(x,y,w,h,true);
+    var me = UI.element(x,y,w,h);
     me.selectedIndex = 0;
     var previousSelectedIndex = 0;
 
@@ -14,7 +14,7 @@ UI.listbox = function(x,y,w,h){
     var scrollBarItemOffset = 0;
     var hoverIndex;
     var prevHoverIndex;
-    var properties = ["left","top","width","height","name","type","onChange","selectedIndex","centerSelection"];
+    var properties = ["left","top","width","height","name","type","onChange","selectedIndex","centerSelection","background"];
 
     me.setProperties = function(p){
 
@@ -23,6 +23,9 @@ UI.listbox = function(x,y,w,h){
         });
         
         if (typeof p["font"] != "undefined") font = p["font"];
+        if (p.background === false){
+            background.hide();
+        }
         
 
         me.setSize(me.width,me.height);
@@ -57,7 +60,7 @@ UI.listbox = function(x,y,w,h){
         if (me.centerSelection) visibleIndex = me.selectedIndex;
 		setScrollBarPosition();
         me.refresh();
-        if (!internal && me.onChange && previousSelectedIndex!=me.selectedIndex) me.onChange();
+        if (!internal && me.onChange && previousSelectedIndex!==me.selectedIndex) me.onChange();
         previousSelectedIndex = me.selectedIndex;
     };
     me.getSelectedIndex = function(){
@@ -146,7 +149,11 @@ UI.listbox = function(x,y,w,h){
         if (!me.isVisible()) return;
 
         if (this.needsRendering){
-            background.render();
+            if (background.isVisible()){
+                background.render();
+            }else{
+                me.clearCanvas();
+            }
             var line = Y.getImage("line_hor");
             for (var i = 0, len = items.length;i<len;i++){
                 var item = items[i];
@@ -224,8 +231,11 @@ UI.listbox = function(x,y,w,h){
             }
 
             scrollBar.render();
-            buttonUp.render();
-            buttonDown.render();
+            if (scrollBar.isVisible()){
+                buttonUp.render();
+                buttonDown.render();
+            }
+
         }
         this.needsRendering = false;
 
@@ -279,7 +289,10 @@ UI.listbox = function(x,y,w,h){
             if (height<12) height = 12;
 
             scrollBarItemOffset = (startHeight - height) / (max-visibleIitems);
+            scrollBar.show();
 
+        }else{
+            scrollBar.hide();
         }
 
         if (visibleIndex && scrollBarItemOffset){

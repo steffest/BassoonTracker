@@ -87,6 +87,7 @@ var UI = (function(){
 		screenHeight = h;
 		canvas.width =screenWidth;
 		canvas.height=screenHeight;
+		canvas.style.imageRendering = "pixelated";
 
 		ctx.fillStyle = "black";
 		ctx.fillRect(0,0,canvas.width,canvas.height);

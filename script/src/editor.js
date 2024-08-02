@@ -610,7 +610,13 @@ var Editor = (function(){
 		}else{
 			if (SETTINGS.loadInitialFile) initialFile = Host.initialFile || Host.getBaseUrl() + 'demomods/Tinytune.mod';
 		}
-		if (initialFile) Tracker.load(initialFile,true,undefined,true);
+		if (initialFile) Tracker.load(initialFile,true,function(fileType){
+			console.error("initial file loaded",fileType);
+			if (fileType === FILETYPE.module){
+				// load default playlist;
+				Tracker.load(Host.getRemoteUrl() + 'data/playlists/demosongs.json',true,null,false,true);
+			}
+		},true);
 
 	}
 
