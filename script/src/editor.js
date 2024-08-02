@@ -614,7 +614,16 @@ var Editor = (function(){
 			console.error("initial file loaded",fileType);
 			if (fileType === FILETYPE.module){
 				// load default playlist;
-				Tracker.load(Host.getRemoteUrl() + 'data/playlists/demosongs.json',true,null,false,true);
+				Tracker.load(Host.getRemoteUrl() + 'playlists/demosongs.json',true,null,false,true);
+			}
+			if (fileType === FILETYPE.playlist){
+				let index = 0;
+				if ('URLSearchParams' in window) {
+					const url = new URL(window.location);
+					index = parseInt(url.searchParams.get("index"));
+					if (isNaN(index)) index = 0;
+				}
+				Playlist.loadTrack(index);
 			}
 		},true);
 

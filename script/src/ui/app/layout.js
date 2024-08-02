@@ -1,8 +1,10 @@
 var Layout = function(){
   var me = {};
 
+  me.maxWidth = 1200;
+  me.maxHeight = 2000;
+  me.minheight = 200;
   me.defaultMargin =  4;
-  me.showAppSideBar = false;
 
   me.setLayout = function(w,h){
   	
@@ -10,11 +12,6 @@ var Layout = function(){
   	  me.height = h || me.height;
   	  
   	  var mainWidth = me.width;
-
-	  me.sidebarWidth = me.showAppSideBar ? 200 : 0;
-  	  
-  	  // sidebar
-	  mainWidth = mainWidth-me.sidebarWidth;
 	  
       // 5 column layout
       me.col1W = Math.floor((mainWidth - (6*me.defaultMargin)- 3)/5);
@@ -26,7 +23,7 @@ var Layout = function(){
       me.marginLeft = Math.floor((mainWidth-me.col5W)/2);
       me.marginRight = mainWidth-me.marginLeft-me.col5W;
       
-      me.mainLeft = me.sidebarWidth;
+      me.mainLeft = 0;
       me.mainWidth = mainWidth;
       
       me.col1X = me.marginLeft;
@@ -78,6 +75,15 @@ var Layout = function(){
 		  me.setVisibleTracks(me.maxVisibleTracks);
 		  return;
 	  }
+
+	  let maxWidth = 1200;
+	  if (me.visibleTracks>4) maxWidth = 1400;
+	  if (me.visibleTracks>8) maxWidth = 1600;
+	  if (maxWidth !== Layout.maxWidth){
+		  Layout.maxWidth = maxWidth;
+		  UI.setSize(maxWidth,me.height);
+		  return;
+	  }
       
       if (mainWidth<820){
 		  //me.controlPanelHeight = 80;
@@ -115,7 +121,7 @@ var Layout = function(){
       }
 
 	  var margins = me.defaultMargin*(me.visibleTracks-1);
-	  me.showSideBar = me.visibleTracks<5 && mainWidth>620;
+	  me.showSideBar = me.visibleTracks<17 && mainWidth>620;
 
 	  var totalWidth = me.showSideBar ? me.col4W:me.col5W;
 	  me.trackWidth =  Math.floor((totalWidth - margins)/me.visibleTracks);

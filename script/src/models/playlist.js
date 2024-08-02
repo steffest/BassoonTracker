@@ -14,15 +14,25 @@ var Playlist = function(){
     }
 
     me.play = function(index){
-        console.error("Play song " + index);
+        me.loadTrack(index,true);
+    }
+
+    me.loadTrack = function(index,andPlay){
         let item = currentPlaylist.modules[index];
         if (item && item.url){
-            EventBus.trigger(EVENT.playListPlaySong,index);
-            Tracker.autoPlay = true;
-            Tracker.load(item.url);
+            if (andPlay){
+                Tracker.autoPlay = true;
+                playListActive = true;
+            }
+            Tracker.load(item.url,true);
+            currentIndex = index;
+
+            if ('URLSearchParams' in window) {
+                const url = new URL(window.location);
+                url.searchParams.set("index", currentIndex);
+                history.pushState(null, '', url);
+            }
         }
-        playListActive = true;
-        currentIndex = index;
     }
 
     me.next = function(){
@@ -32,6 +42,15 @@ var Playlist = function(){
         }
         Tracker.stop();
         me.play(currentIndex);
+    }
+
+    me.getSongInfoUrl = function(url){
+        if (url && currentPlaylist && currentPlaylist.modules){
+            let item = currentPlaylist.modules.find(function(item){
+                return item.url === url;
+            });
+            if (item && item.external) return item.external;
+        }
     }
 
     EventBus.on(EVENT.songEnd,function(delay){

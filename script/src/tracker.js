@@ -1905,7 +1905,13 @@ var Tracker = (function(){
 							song.filename = id;
 							EventBus.trigger(EVENT.songPropertyChange,song);
 						}
+
+						if (!infoUrl){
+							// check if there's more info in the playlist
+							infoUrl = Playlist.getSongInfoUrl(url);
+						}
 					}
+
 
 					if (UI) UI.setInfo(song.title,source,infoUrl);
 				}
