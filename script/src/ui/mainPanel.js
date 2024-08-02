@@ -19,12 +19,6 @@ UI.MainPanel = function(){
     var patternPanel = UI.app_patternPanel();
     me.addChild(patternPanel);
 
-	var sidebar = UI.app_sidebar();
-	if (Layout.showAppSideBar){
-		me.addChild(sidebar);
-        sidebar.init();
-	}
-
     var pianoPanel = UI.app_pianoView();
     pianoPanel.hide();
     me.addChild(pianoPanel);
@@ -73,9 +67,6 @@ UI.MainPanel = function(){
         patternPanel.setPosition(Layout.mainLeft,panelTop);
         patternPanel.setSize(Layout.mainWidth,remaining);
 
-		sidebar.setPosition(0,0);
-		sidebar.setSize(Layout.sidebarWidth,me.height);
-
 	};
 
     me.sortZIndex();
@@ -93,11 +84,6 @@ UI.MainPanel = function(){
             patternPanel.setSize(Layout.mainWidth,remaining);
         }
 
-		if (view === "sidebar"){
-			Layout.showAppSideBar = !Layout.showAppSideBar;
-			Layout.setLayout();
-			me.onResize();
-		}
     });
 
 	EventBus.on(EVENT.showContextMenu,function(properties){

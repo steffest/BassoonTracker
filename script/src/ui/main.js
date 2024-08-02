@@ -17,9 +17,9 @@ var UI = (function(){
 	var fontCondensed;
 	var fontDark;
 
-	var maxWidth = 1200;
-	var maxHeight = 2000;
-	var minHeight = 200;
+	var maxWidth = Layout.maxWidth;
+	var maxHeight =  Layout.maxHeight;
+	var minHeight = Layout.minheight;
 	var modalElement;
 	var needsRendering =  true;
 	var skipRenderSteps = 0;
@@ -43,12 +43,6 @@ var UI = (function(){
 
 	var UICache = {};
 
-	var tracks = getUrlParameter("tracks");
-	if (tracks == 8) maxWidth = 1200;
-	if (tracks == 16) maxWidth = 1600;
-	if (tracks >= 32) maxWidth = 3200;
-	
-	
 	// some light polyfills - mainly to ensure the App can still show the "browser not supported" message
 	var nowFunction;
 	if (window.performance && performance.now){
@@ -180,9 +174,11 @@ var UI = (function(){
 
 
 	me.setSize = function(newWidth,newHeight){
-		if (newWidth>maxWidth) newWidth = maxWidth;
-		if (newHeight>maxHeight) newHeight = maxHeight;
-		if (newHeight<minHeight) newHeight = minHeight;
+		if (newWidth>Layout.maxWidth) newWidth = Layout.maxWidth;
+		if (newWidth>window.innerWidth) newWidth = window.innerWidth;
+		if (newHeight>Layout.maxHeight) newHeight = Layout.maxHeight;
+		if (newHeight>window.innerHeight) newHeight = window.innerHeight;
+		if (newHeight<Layout.minHeight) newHeight = Layout.minHeight;
 
 		if ((newWidth !== canvas.width) || (newHeight !== canvas.height)){
 			ctx.clearRect(0,0,canvas.width,canvas.height);
