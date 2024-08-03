@@ -18,6 +18,7 @@ var Playlist = function(){
     }
 
     me.loadTrack = function(index,andPlay){
+        if (!currentPlaylist || !currentPlaylist.modules) return;
         let item = currentPlaylist.modules[index];
         if (item && item.url){
             if (andPlay){
@@ -53,6 +54,57 @@ var Playlist = function(){
             });
             if (item && item.external) return item.external;
         }
+    }
+
+    me.parse = function(data,name){
+        let result = {
+            title: name,
+            modules:[]
+        };
+        let lines = data.split("\n");
+        let ext = name.split(".").pop().toLowerCase();
+        switch (ext){
+            case "pls":
+                lines.forEach(function(line){
+                    var url;
+                    var title;
+                    if (line.startsWith("File")){
+                        url = line.split("=")[1].trim();
+                        var index = line.substring(4).split("=")[0].trim();
+                        let titleLine = lines.find(function(line){
+                            return line.startsWith("Title" + index);
+                        })
+                        if (titleLine){
+                            title = titleLine.split("=")[1].trim();
+                        }
+                    }
+                    if (line.startsWith("http")){
+                        url = line.trim();
+                    }
+                    if (url && isFormatSupported(url)){
+                        if (!title){
+                            title = url.split("/").pop();
+                        }
+                        result.modules.push({
+                            title: title,
+                            url: url
+                        });
+                    }
+                });
+                break;
+        }
+        return result;
+    }
+
+    function isFormatSupported(url){
+        let ext = url.split(".").pop().toLowerCase();
+        switch (ext){
+            case "mod":
+            case "xm":
+            case ".pls":
+                return true;
+        }
+        return false;
     }
 
     EventBus.on(EVENT.songEnd,function(delay){

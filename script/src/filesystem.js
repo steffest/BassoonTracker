@@ -1,5 +1,5 @@
 function loadFile(url,next) {
-    var req = new XMLHttpRequest();
+	var req = new XMLHttpRequest();
     req.open("GET", url, true);
     req.responseType = "arraybuffer";
     req.onload = function (event) {
@@ -8,13 +8,22 @@ function loadFile(url,next) {
             if (next) next(arrayBuffer);
         } else {
             console.error("unable to load", url);
-            // do not call if player only
             if (typeof Editor !== "undefined") {
               if (next) next(false);
             }
         }
     };
-    req.send(null);
+	req.onerror = function(e){
+		// probably a CORS issue - try to proxy the request
+		if (!BassoonProvider.isProxyUrl(url)){
+			loadFile(BassoonProvider.proxyUrl(url),next);
+		}else{
+			if (typeof Editor !== "undefined") {
+				if (next) next(false);
+			}
+		}
+	}
+	req.send(null);
 }
 
 function saveFile(b,filename){

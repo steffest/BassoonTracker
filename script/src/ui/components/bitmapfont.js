@@ -123,6 +123,7 @@ var BitmapFont = function(){
 	};
 
 	me.getTextWidth = function(text,spacing){
+		if (!text) return 0;
 		if (onlyUpperCase) text = text.toUpperCase();
 		spacing = spacing || charSpacing;
 		var w = 0;
@@ -137,6 +138,7 @@ var BitmapFont = function(){
 	};
 
 	me.write = function(canvasCtx,text,x,y,spacing,color){
+		if (!text) return;
 		if (onlyUpperCase) text = text.toUpperCase();
 
 		var colorArray = me.colors[color] || me.fontArray;

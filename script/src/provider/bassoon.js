@@ -78,6 +78,10 @@ var BassoonProvider = function(){
 		return baseUrl + "proxy?" + encodeURIComponent(url);
 	};
 
+	me.isProxyUrl = function(url){
+		return url.indexOf(baseUrl + "proxy?") === 0;
+	};
+
 	function downloadFile(url,filename,extention){
 		if (extention){
 			var hasExtention = false;
