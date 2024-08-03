@@ -32,6 +32,8 @@ var Playlist = function(){
                 url.searchParams.set("index", currentIndex);
                 history.pushState(null, '', url);
             }
+
+            EventBus.trigger(EVENT.playListIndexChanged,currentIndex);
         }
     }
 

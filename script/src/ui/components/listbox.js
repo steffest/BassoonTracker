@@ -14,7 +14,7 @@ UI.listbox = function(x,y,w,h){
     var scrollBarItemOffset = 0;
     var hoverIndex;
     var prevHoverIndex;
-    var properties = ["left","top","width","height","name","type","onChange","selectedIndex","centerSelection","background"];
+    var properties = ["left","top","width","height","name","type","onChange","selectedIndex","selectedIcon","centerSelection","background"];
 
     me.setProperties = function(p){
 
@@ -192,9 +192,11 @@ UI.listbox = function(x,y,w,h){
                         if (me.selectedIndex === i){
                             targetCtx.fillStyle = 'rgba(110,130,220,0.15)';
                             targetCtx.fillRect(0,_y-highlightY,me.width-2,lineHeight);
+
+                            if (me.selectedIcon){
+                                targetCtx.drawImage(me.selectedIcon,2,_y-2);
+                            }
                         }
-
-
 
                         if (item.level) textX += item.level*indent;
 

@@ -74,6 +74,7 @@ var EVENT = {
 	menuLayoutChanged: 59,
 	midiIn: 60,
 	playListLoaded: 61,
+	playListIndexChanged: 62,
 };
 
 var COMMAND = {

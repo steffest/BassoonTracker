@@ -4,45 +4,8 @@ UI.pattern_sidebar = function(){
         name: "sideButtonPanel"
     });
 
-    var listBox = UI.listbox();
-    listBox.setProperties({
-        background: false
-    })
-    listBox.setItems([
-        {label: "Loading ...", index: 0, icon: Y.getImage("disk")}
-    ]);
-    listBox.onClick = function(){
-        var item = listBox.getItemAtPosition(listBox.eventX,listBox.eventY);
-        console.log("click",item);
-        if (item){
-            var index = item.listIndex;
-            if (item !== listBox.getSelectedIndex()){
-                listBox.setSelectedIndex(index);
-            }
-            if (typeof item.index === "number"){
-                Playlist.play(item.index);
-            }
-        }
-    };
-    listBox.onChange = function(item){
-        console.log("change",item);
-    }
-    var songPanel = UI.panel();
-    songPanel.setProperties({
-        name: "songPanel",
-        zIndex: 100,
-    })
-    songPanel.onResize = function(){
-        listBox.setProperties({
-            left: 0,
-            top: 0,
-            width: songPanel.width,
-            height: songPanel.height-8
-        });
-    }
-    me.addChild(songPanel);
-    songPanel.addChild(listBox);
-
+    var songListBox = UI.listbox();
+    var playlistListBox = UI.listbox();
 
 
     var tabPanel = UI.tabPanel(0,0,me.width,me.height,{
@@ -51,11 +14,12 @@ UI.pattern_sidebar = function(){
                 label: "Songs",
                 width: 70,
                 isSelected: true,
-                panel: songPanel
+                panel: generateTabPanel("songs")
             },
             {
                 label: "PlayLists",
-                width: 90
+                width: 90,
+                panel: generateTabPanel("playlists")
             }
         ]
     });
@@ -64,22 +28,10 @@ UI.pattern_sidebar = function(){
 
     me.sortZIndex();
 
-    var buttonsSide = [];
     var buttonsSideInfo=[
         {label:"Random MOD", onClick:function(){App.doCommand(COMMAND.randomSong)}},
         {label:"Random XM", onClick:function(){App.doCommand(COMMAND.randomSongXM)}}
     ];
-
-
-
-    for (var i = 0;i< buttonsSideInfo.length;i++){
-        var buttonSideInfo = buttonsSideInfo[i];
-        var buttonElm = UI.button();
-        buttonElm.info = buttonSideInfo;
-        buttonElm.onClick =  buttonSideInfo.onClick;
-        buttonsSide[i] = buttonElm;
-        //me.addChild(buttonElm);
-    }
 
     var pianoButton = UI.button();
     pianoButton.setProperties({
@@ -129,40 +81,67 @@ UI.pattern_sidebar = function(){
             height: me.height - buttonHeight*2 - 10
         });
 
-        var max = buttonsSideInfo.length;
-        for (i = 0;i<max;i++){
-            var button = buttonsSide[i];
-            var buttonTop = (i*buttonHeight) +10;
-            var buttonLeft = 0;
-            if (buttonTop > nibblesButton.top-buttonHeight){
-                buttonLeft = -500;
-            }
-
-            var background = UI.Assets.buttonLightScale9;
-            var backgroundHover = UI.Assets.buttonLightHoverScale9;
-            if (i>max-3){
-                background= UI.Assets.panelDarkScale9;
-                backgroundHover= UI.Assets.panelDarkHoverScale9;
-            }
-
-            //me.addChild(buttonElm);
-            button.setProperties({
-                left:buttonLeft,
-                top: buttonTop,
-                width: me.width,
-                height:buttonHeight,
-                label: button.info.label,
-                textAlign:"left",
-                background: background,
-                hoverBackground: backgroundHover,
-                font:window.fontFT
-            });
-        }
     };
-
     me.onResize();
 
-    EventBus.on(EVENT.playListLoaded,function(data){
+    function generateTabPanel(type){
+        var listbox = type === "songs" ? songListBox : playlistListBox;
+
+        listbox.setProperties({
+            background: false,
+            selectedIcon: Y.getImage("radio_active"),
+        })
+        listbox.setItems([{label: "Loading ...", index: 0, icon: Y.getImage("disk")}]);
+        listbox.onClick = function(){
+            var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
+            if (item){
+                var index = item.listIndex;
+                if (item !== listbox.getSelectedIndex()){
+                    listbox.setSelectedIndex(index);
+                }
+                if (item.url){
+                    if (typeof item.index === "number" && type === "songs"){
+                        Playlist.play(item.index);
+                    }else{
+                        Tracker.load(item.url,false,function(){
+                            Tracker.autoPlay = false;
+                            tabPanel.setTab(0);
+                        })
+                    }
+                }
+            }
+        };
+        var panel = UI.panel();
+        panel.setProperties({
+            name: "songPanel",
+            zIndex: 100,
+        })
+        panel.onResize = function(){
+            listbox.setProperties({
+                left: 0,
+                top: 0,
+                width: panel.width,
+                height: panel.height-8
+            });
+        }
+        me.addChild(panel);
+        panel.addChild(listbox);
+
+        if (type === "playlists"){
+            panel.onShow = function(){
+                let items = listbox.getItems();
+                if (items.length === 1){
+                    FetchService.json("playlists/main.json",function(data){
+                        listbox.setItems(generateListBoxItems(data));
+                    });
+                }
+            }
+        }
+
+        return panel;
+    }
+
+    function generateListBoxItems(data){
         let items = [];
         let level = 0;
         if (data.title){
@@ -174,7 +153,15 @@ UI.pattern_sidebar = function(){
             if (item.url.endsWith(".xm")) icon = Y.getImage("xm");
             items.push({label: item.title, url: item.url, icon: icon, level: level, index: index, listIndex: index+level});
         });
-        listBox.setItems(items);
+        return items;
+    }
+
+    EventBus.on(EVENT.playListLoaded,function(data){
+        songListBox.setItems(generateListBoxItems(data));
+    });
+
+    EventBus.on(EVENT.playListIndexChanged, function(index){
+        songListBox.setSelectedIndex(index+1);
     });
 
     return me;

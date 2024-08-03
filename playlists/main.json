@@ -1,0 +1,20 @@
+{
+  "title": "Playlists",
+  "modules": [
+    {
+      "title": "Demo Songs",
+      "url": "playlists/demosongs.json",
+      "info": "A curated list of demo songs used in development of bassoontracker"
+    },
+    {
+      "title": "Revision 2023",
+      "url": "playlists/revision2023.json",
+      "info": "Tracked Compo Entries"
+    },
+    {
+      "title": "Revision 2024",
+      "url": "playlists/revision2024.json",
+      "info": "Tracked Compo Entries"
+    }
+  ]
+}

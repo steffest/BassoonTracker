@@ -162,6 +162,8 @@ UI.DiskOperationSave = function(){
 	};
 
 	EventBus.on(EVENT.songPropertyChange,function(song){
+		song = song || Tracker.getSong();
+		if (!song) return;
 		fileName = song.filename || "";
 		setFileName();
 	});
