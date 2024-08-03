@@ -550,7 +550,9 @@ UI.app_mainPanel = function(){
     });
 
     EventBus.on(EVENT.songPropertyChange,function(song){
-        modNameInputBox.setValue(song.title,true);
+		song = song || Tracker.getSong();
+		if (!song) return;
+		modNameInputBox.setValue(song.title,true);
         spinBoxSongLength.setValue(song.length,true);
         spinBoxInstrument.setMax(Tracker.getMaxInstruments(),true);
 		spinBoxSongRepeat.setMax(song.length,true);

@@ -1868,7 +1868,6 @@ var Tracker = (function(){
 			me.processFile(result,name,function(fileType){
 				if (UI && !silent) UI.setStatus("Ready");
 				var isMod = (fileType === FILETYPE.module);
-				console.error(fileType);
 
 				if (isMod){
 					var infoUrl = "";
@@ -1914,15 +1913,20 @@ var Tracker = (function(){
 
 
 					if (UI) UI.setInfo(song.title,source,infoUrl);
+				}else{
+					if (UI && !silent){
+						EventBus.trigger(EVENT.songPropertyChange);
+					}
 				}
 
-				if (UI && isMod && !skipHistory){
+				if (UI && !skipHistory){
+					if (isMod || fileType === FILETYPE.playlist){
+						var path = window.location.pathname;
+						var filename = path.substring(path.lastIndexOf('/')+1);
 
-					var path = window.location.pathname;
-					var filename = path.substring(path.lastIndexOf('/')+1);
-
-					if (window.history.pushState){
-						window.history.pushState({},name, filename + "?file=" + encodeURIComponent(url));
+						if (window.history.pushState){
+							window.history.pushState({},name, filename + "?file=" + encodeURIComponent(url));
+						}
 					}
 				}
 

@@ -126,9 +126,17 @@ UI.tabPanel = function(x,y,w,h,config){
             }
         }
         tabButton.panel = config.panel;
+        if (!config.isSelected) config.panel.hide();
         me.addChild(tabButton);
         tabButtons.push(tabButton);
         tabX += config.width-12;
+    }
+
+    me.setTab = function(index){
+        var button = tabButtons[index];
+        if (button){
+            button.onClick();
+        }
     }
 
     return me;

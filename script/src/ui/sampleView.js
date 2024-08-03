@@ -871,6 +871,8 @@ UI.SampleView = function(){
 
 
 	EventBus.on(EVENT.songPropertyChange,function(song){
+		song = song || Tracker.getSong();
+		if (!song) return;
 		spinBoxInstrument.setMax(song.instruments.length-1);
 	});
 
