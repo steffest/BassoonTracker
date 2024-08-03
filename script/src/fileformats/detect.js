@@ -16,7 +16,11 @@ var FileDetector = function(){
 		var length = file.length;
 		var id = "";
 
-		if (name.indexOf(".json")>=0){
+		if (name.endsWith(".pls")){
+			return fileType.playlist;
+		}
+
+		if (name.endsWith(".json")){
 			try {
 				let json = JSON.parse(file.toString());
 				if (json.modules) return fileType.playlist;

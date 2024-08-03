@@ -127,7 +127,6 @@ var server = http.createServer(function (req, res) {
 			if (queryParam){
 				protocol = queryParam.split("://")[0];
 				let _url = queryParam.split("://")[1];
-				console.error(typeof _url);
 				if (_url){
 					domain = _url.split("/")[0];
 				}
@@ -136,7 +135,8 @@ var server = http.createServer(function (req, res) {
 			if (protocol && domain){
 				proxy.web(req, res, {
 					target: protocol + "://" + domain,
-					changeOrigin: true
+					changeOrigin: true,
+					followRedirects: true
 				});
 			}else{
 				res.writeHead(200, {'Content-Type': 'text/html'});

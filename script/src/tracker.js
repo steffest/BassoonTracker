@@ -1537,8 +1537,6 @@ var Tracker = (function(){
 				if (me.inFTMode() && me.useLinearFrequency) slideValue = effects.slide.value*4;
 				value = Math.abs(slideValue);
 
-				//console.error(currentPeriod,slideValue);
-
 				if (me.inFTMode() && effects.slide.resetVolume && (trackNote.volumeFadeOut || trackNote.volumeEnvelope)){
 					// crap ... this should reset the volume envelope to the beginning ... annoying ...
 					var instrument = me.getInstrument(trackNote.instrumentIndex);
@@ -1570,9 +1568,6 @@ var Tracker = (function(){
 					if (effects.slide.canUseGlissando && trackEffectCache[track].glissando){
 						newPeriod = Audio.getNearestSemiTone(targetPeriod,trackNote.instrumentIndex);
 					}
-
-					//console.error("***");
-					//console.error(targetPeriod);
 
 					if (targetPeriod !== trackNote.currentPeriod){
 						trackNote.currentPeriod = targetPeriod;
@@ -1852,6 +1847,7 @@ var Tracker = (function(){
 
 	me.load = function(url,skipHistory,next,initial,silent){
 		url = url || "demomods/StardustMemories.mod";
+		console.log("loading " + url);
 
 		if (url.indexOf("://")<0 && url.indexOf("/") !== 0) url = Host.getBaseUrl() + url;
 		var showFeedback = UI && !silent;
@@ -1988,7 +1984,6 @@ var Tracker = (function(){
 		var isMod = false;
 		var file = new BinaryStream(arrayBuffer,true);
 		var result = FileDetector.detect(file,name);
-		
 
 		if (result && result.name === "ZIP"){
 			console.log("extracting zip file");
@@ -2040,7 +2035,6 @@ var Tracker = (function(){
 		}
 
 		if (result.isMod && result.loader){
-			isMod = true;
 			if (me.isPlaying()) me.stop();
 			resetDefaultSettings();
 
@@ -2059,7 +2053,13 @@ var Tracker = (function(){
 		}
 
 		if (result.type === FILETYPE.playlist){
-			Playlist.set(JSON.parse(file.toString()),name);
+			var data = file.toString();
+			if (name.endsWith(".json")){
+				data = JSON.parse(data)
+			}else{
+				data = Playlist.parse(data,name);
+			}
+			Playlist.set(data,name);
 		}
 
 		if (next) next(result.type);
