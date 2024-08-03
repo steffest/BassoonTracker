@@ -1,5 +1,12 @@
 [
   {
+    "name": "alert",
+    "x": 816,
+    "y": 446,
+    "width": 17,
+    "height": 15
+  },
+  {
     "name": "background",
     "x": 783,
     "y": 446,

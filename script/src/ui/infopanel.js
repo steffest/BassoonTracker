@@ -82,6 +82,11 @@ UI.InfoPanel = function(){
             if (spinner.isVisible()){
                 spinner.render();
                 textX += 20;
+            }else{
+                if (fText.startsWith("Error")){
+                    me.ctx.drawImage(Y.getImage("alert"),4,8);
+                    textX += 20;
+                }
             }
 
             window.fontFT.write(me.ctx,fText,textX,11,0);

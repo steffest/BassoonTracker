@@ -1854,8 +1854,9 @@ var Tracker = (function(){
 		url = url || "demomods/StardustMemories.mod";
 
 		if (url.indexOf("://")<0 && url.indexOf("/") !== 0) url = Host.getBaseUrl() + url;
+		var showFeedback = UI && !silent;
 
-		if (UI && !silent){
+		if (showFeedback){
 			UI.setInfo("");
 			UI.setLoading();
 		}
@@ -1865,8 +1866,17 @@ var Tracker = (function(){
 			// initial file is overridden by a load command of the host;
 			if (initial && !Host.useInitialLoad) return;
 
+			if (!result){
+				if (showFeedback){
+					UI.setStatus("Error loading file");
+					EventBus.trigger(EVENT.songPropertyChange);
+				}
+				if (next) next(FILETYPE.unknown);
+				return;
+			}
+
 			me.processFile(result,name,function(fileType){
-				if (UI && !silent) UI.setStatus("Ready");
+				if (showFeedback) UI.setStatus("Ready");
 				var isMod = (fileType === FILETYPE.module);
 
 				if (isMod){
@@ -1912,9 +1922,9 @@ var Tracker = (function(){
 					}
 
 
-					if (UI) UI.setInfo(song.title,source,infoUrl);
+					if (showFeedback) UI.setInfo(song.title,source,infoUrl);
 				}else{
-					if (UI && !silent){
+					if (showFeedback){
 						EventBus.trigger(EVENT.songPropertyChange);
 					}
 				}
