@@ -228,7 +228,7 @@ var UI = (function(){
 			spaceWidth: 6,
 			margin: 0,
 			charsPerLine:42,
-			chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.+-_#>",
+			chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_#/&@$+^!",
 			onlyUpperCase:true
 		});
 		window.fontSmall = fontSmall;
@@ -258,7 +258,7 @@ var UI = (function(){
 		fontBig.generate({
 			image: fontImage,
 			startX: 1,
-			startY: 10,
+			startY: 14,
 			charWidth: 11,
 			charHeight: 11,
 			spaceWidth: 11,
