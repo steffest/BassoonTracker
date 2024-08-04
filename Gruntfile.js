@@ -233,7 +233,8 @@ module.exports = function(grunt) {
             all: {
                 src: [
                     'skin/src/*.png',
-                    'skin/src/icons_small/*.png'
+                    'skin/src/icons_small/*.png',
+                    'skin/src/icons_big/*.png'
                 ],
                 dest: 'skin/spritesheet_v5.png',
                 destCss: 'skin/spritemap_v5.json',

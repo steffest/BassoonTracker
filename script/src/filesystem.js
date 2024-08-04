@@ -14,8 +14,9 @@ function loadFile(url,next) {
         }
     };
 	req.onerror = function(e){
-		// probably a CORS issue - try to proxy the request
+		// probably a CORS issue or maybe a "Mixed content" error -> try to proxy the request
 		if (!BassoonProvider.isProxyUrl(url)){
+			console.log("proxying url",url);
 			loadFile(BassoonProvider.proxyUrl(url),next);
 		}else{
 			if (typeof Editor !== "undefined") {

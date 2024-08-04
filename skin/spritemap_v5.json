@@ -1,15 +1,15 @@
 [
   {
     "name": "alert",
-    "x": 816,
+    "x": 718,
     "y": 446,
     "width": 17,
     "height": 15
   },
   {
     "name": "background",
-    "x": 783,
-    "y": 446,
+    "x": 740,
+    "y": 473,
     "width": 17,
     "height": 17
   },
@@ -36,77 +36,77 @@
   },
   {
     "name": "button_hover_green",
-    "x": 776,
-    "y": 203,
+    "x": 793,
+    "y": 165,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay",
-    "x": 530,
+    "x": 601,
     "y": 416,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_active",
-    "x": 706,
-    "y": 263,
+    "x": 776,
+    "y": 203,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_blue",
+    "x": 594,
+    "y": 347,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_blue_active",
     "x": 756,
     "y": 293,
     "width": 71,
     "height": 30
   },
   {
-    "name": "button_inlay_blue_active",
-    "x": 777,
-    "y": 263,
-    "width": 71,
-    "height": 30
-  },
-  {
     "name": "button_inlay_green",
-    "x": 665,
+    "x": 736,
     "y": 347,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_green_active",
-    "x": 594,
+    "x": 665,
     "y": 347,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_plain",
-    "x": 736,
-    "y": 347,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_red",
-    "x": 736,
-    "y": 377,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_red_active",
     "x": 594,
     "y": 377,
     "width": 71,
     "height": 30
   },
   {
-    "name": "button_inlay_red_hover",
+    "name": "button_inlay_red",
+    "x": 530,
+    "y": 416,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_red_active",
     "x": 665,
+    "y": 377,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_red_hover",
+    "x": 736,
     "y": 377,
     "width": 71,
     "height": 30
@@ -161,65 +161,100 @@
     "height": 256
   },
   {
+    "name": "modbig",
+    "x": 827,
+    "y": 293,
+    "width": 30,
+    "height": 30
+  },
+  {
+    "name": "xmbig",
+    "x": 220,
+    "y": 363,
+    "width": 30,
+    "height": 30
+  },
+  {
+    "name": "bronze",
+    "x": 625,
+    "y": 159,
+    "width": 7,
+    "height": 6
+  },
+  {
     "name": "disk",
-    "x": 662,
-    "y": 191,
+    "x": 857,
+    "y": 293,
     "width": 12,
     "height": 11
   },
   {
+    "name": "gold",
+    "x": 632,
+    "y": 159,
+    "width": 7,
+    "height": 6
+  },
+  {
     "name": "mod",
-    "x": 674,
-    "y": 191,
+    "x": 857,
+    "y": 304,
     "width": 12,
     "height": 11
   },
   {
     "name": "module",
-    "x": 686,
-    "y": 191,
+    "x": 857,
+    "y": 323,
     "width": 12,
     "height": 11
   },
   {
     "name": "sample",
-    "x": 698,
-    "y": 191,
+    "x": 850,
+    "y": 393,
     "width": 12,
     "height": 11
   },
   {
+    "name": "silver",
+    "x": 639,
+    "y": 159,
+    "width": 7,
+    "height": 6
+  },
+  {
     "name": "xm",
-    "x": 710,
-    "y": 191,
+    "x": 749,
+    "y": 446,
     "width": 12,
     "height": 11
   },
   {
     "name": "keybutton",
-    "x": 745,
-    "y": 446,
+    "x": 702,
+    "y": 473,
     "width": 38,
     "height": 18
   },
   {
     "name": "keybutton_highlight2",
-    "x": 631,
-    "y": 446,
+    "x": 588,
+    "y": 473,
     "width": 38,
     "height": 18
   },
   {
     "name": "keybutton_highlight3",
-    "x": 669,
-    "y": 446,
+    "x": 626,
+    "y": 473,
     "width": 38,
     "height": 18
   },
   {
     "name": "keybutton_hover",
-    "x": 707,
-    "y": 446,
+    "x": 664,
+    "y": 473,
     "width": 38,
     "height": 18
   },
@@ -281,22 +316,22 @@
   },
   {
     "name": "menu",
-    "x": 662,
-    "y": 165,
+    "x": 706,
+    "y": 243,
     "width": 116,
     "height": 26
   },
   {
     "name": "mute",
-    "x": 300,
+    "x": 343,
     "y": 219,
     "width": 44,
     "height": 20
   },
   {
     "name": "nibbles",
-    "x": 778,
-    "y": 165,
+    "x": 756,
+    "y": 323,
     "width": 82,
     "height": 24
   },
@@ -324,35 +359,35 @@
   {
     "name": "panel_dark_blueish",
     "x": 844,
-    "y": 243,
+    "y": 269,
     "width": 19,
     "height": 16
   },
   {
     "name": "panel_dark_greyish",
-    "x": 848,
-    "y": 263,
-    "width": 19,
-    "height": 16
-  },
-  {
-    "name": "panel_dark_insert",
     "x": 838,
     "y": 323,
     "width": 19,
     "height": 16
   },
   {
+    "name": "panel_dark_insert",
+    "x": 850,
+    "y": 377,
+    "width": 19,
+    "height": 16
+  },
+  {
     "name": "panel_inset",
-    "x": 800,
-    "y": 446,
+    "x": 844,
+    "y": 416,
     "width": 16,
     "height": 16
   },
   {
     "name": "panel_inset_dark",
-    "x": 827,
-    "y": 293,
+    "x": 822,
+    "y": 243,
     "width": 39,
     "height": 24
   },
@@ -365,8 +400,8 @@
   },
   {
     "name": "panel_inset_dark_inactive",
-    "x": 530,
-    "y": 446,
+    "x": 256,
+    "y": 219,
     "width": 43,
     "height": 28
   },
@@ -386,15 +421,15 @@
   },
   {
     "name": "panel_trans",
-    "x": 850,
-    "y": 377,
+    "x": 825,
+    "y": 416,
     "width": 19,
     "height": 16
   },
   {
     "name": "piano",
-    "x": 756,
-    "y": 323,
+    "x": 672,
+    "y": 416,
     "width": 82,
     "height": 24
   },
@@ -428,8 +463,8 @@
   },
   {
     "name": "play",
-    "x": 814,
-    "y": 416,
+    "x": 672,
+    "y": 446,
     "width": 46,
     "height": 15
   },
@@ -455,6 +490,20 @@
     "height": 50
   },
   {
+    "name": "play_icon",
+    "x": 735,
+    "y": 446,
+    "width": 14,
+    "height": 14
+  },
+  {
+    "name": "playing_overlay",
+    "x": 662,
+    "y": 165,
+    "width": 131,
+    "height": 31
+  },
+  {
     "name": "radio_active",
     "x": 859,
     "y": 89,
@@ -463,15 +512,15 @@
   },
   {
     "name": "radio_big_active",
-    "x": 722,
-    "y": 191,
+    "x": 761,
+    "y": 446,
     "width": 11,
     "height": 11
   },
   {
     "name": "radio_big_inactive",
-    "x": 733,
-    "y": 191,
+    "x": 772,
+    "y": 446,
     "width": 11,
     "height": 11
   },
@@ -484,21 +533,21 @@
   },
   {
     "name": "record",
-    "x": 743,
-    "y": 416,
+    "x": 601,
+    "y": 446,
     "width": 71,
     "height": 17
   },
   {
     "name": "record_active",
-    "x": 601,
-    "y": 416,
+    "x": 530,
+    "y": 446,
     "width": 71,
     "height": 27
   },
   {
     "name": "record_hover",
-    "x": 672,
+    "x": 754,
     "y": 416,
     "width": 71,
     "height": 17
@@ -506,7 +555,7 @@
   {
     "name": "slider_back",
     "x": 706,
-    "y": 243,
+    "y": 269,
     "width": 138,
     "height": 20
   },
@@ -519,21 +568,21 @@
   },
   {
     "name": "slider_knob",
-    "x": 243,
+    "x": 250,
     "y": 363,
     "width": 34,
     "height": 23
   },
   {
     "name": "slider_knob_vert",
-    "x": 220,
-    "y": 363,
+    "x": 339,
+    "y": 422,
     "width": 23,
     "height": 34
   },
   {
     "name": "solo",
-    "x": 256,
+    "x": 299,
     "y": 219,
     "width": 44,
     "height": 21
@@ -547,8 +596,8 @@
   },
   {
     "name": "tab",
-    "x": 573,
-    "y": 446,
+    "x": 530,
+    "y": 473,
     "width": 58,
     "height": 18
   },
@@ -610,7 +659,7 @@
   },
   {
     "name": "vu_red_active",
-    "x": 344,
+    "x": 387,
     "y": 219,
     "width": 14,
     "height": 19
@@ -624,7 +673,7 @@
   },
   {
     "name": "vu_yellow_active",
-    "x": 358,
+    "x": 401,
     "y": 219,
     "width": 14,
     "height": 19

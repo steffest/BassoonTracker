@@ -86,10 +86,60 @@ UI.pattern_sidebar = function(){
 
     function generateTabPanel(type){
         var listbox = type === "songs" ? songListBox : playlistListBox;
+        var line = Y.getImage("line_hor");
 
         listbox.setProperties({
             background: false,
-            selectedIcon: Y.getImage("radio_active"),
+            lineHeight: 32,
+            itemRenderFunction: function(ctx,item,isHover,isSelected){
+                var text = item.label;
+
+                if (item.level){
+                    var iconX = 13;
+                    var mainAlpha = 0.8;
+                    var _x;
+                    ctx.globalAlpha = 0.6;
+
+                    if (isHover || isSelected){
+                        mainAlpha = 1;
+                        iconX = 12;
+                        if (isSelected){
+                            ctx.globalAlpha = 0.5;
+                            ctx.drawImage(Y.getImage("playing_overlay"),0,0,listbox.width-2,31);
+                        }
+                        ctx.globalAlpha = 1;
+                    }
+
+                    ctx.drawImage(UI.Icon.get(item),iconX,0);
+                    ctx.globalAlpha = mainAlpha;
+                    window.fontMed.write(ctx,text,43,4,0);
+                    if (isSelected){
+                        window.fontMed.write(ctx,text,43,4,0);
+                    }
+                    if (item.info) window.fontSmall.write(ctx,item.info,43,14,0,"blue");
+                    if (item.infoExtra) {
+                        _x = window.fontSmall.getTextWidth(item.info);
+                        window.fontSmall.write(ctx,item.infoExtra,48+_x,14,0,"green");
+                    }
+                    _x = 0;
+                    if (item.icon2){
+                        ctx.drawImage(item.icon2,43,21);
+                        _x = 9;
+                    }
+                    if (item.info2){
+                        window.fontSmall.write(ctx,item.info2,43+_x,21,0,"orange");
+                    }
+                    ctx.globalAlpha = 1;
+
+                    if (type === "songs" && isSelected){
+                        ctx.drawImage(Y.getImage("play_icon"),1,8);
+                    }
+                }else{
+                    window.fontBig.write(ctx,text,12,8,0);
+                }
+
+                ctx.drawImage(line,0,30,listbox.width-2,2);
+            }
         })
         listbox.setItems([{label: "Loading ...", index: 0, icon: Y.getImage("disk")}]);
         listbox.onClick = function(){
@@ -151,7 +201,25 @@ UI.pattern_sidebar = function(){
         data.modules.forEach(function(item,index){
             let icon = Y.getImage("mod");
             if (item.url.endsWith(".xm")) icon = Y.getImage("xm");
-            items.push({label: item.title, url: item.url, icon: icon, level: level, index: index, listIndex: index+level});
+            console.error(item);
+            var info = item.info;
+            var info2;
+            var icon2
+            var infoExtra;
+            if (item.author){
+                info = item.author;
+                info2 = item.info;
+            }
+            if (item.group){
+                infoExtra = item.group;
+            }
+            if (info2){
+                if (info2.startsWith("1st")) icon2 = Y.getImage("gold");
+                if (info2.startsWith("2nd")) icon2 = Y.getImage("silver");
+                if (info2.startsWith("3rd")) icon2 = Y.getImage("bronze");
+            }
+
+            items.push({label: item.title, info: info, info2: info2, icon2: icon2, infoExtra: infoExtra, url: item.url, icon: icon, level: level, index: index, listIndex: index+level});
         });
         return items;
     }
