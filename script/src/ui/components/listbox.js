@@ -10,11 +10,13 @@ UI.listbox = function(x,y,w,h){
     var visibleIndex = 0;
     var visibleIitems = 0;
     var lineHeight = 18;
-    var startY = 10;
+    var itemRenderFunction;
+    var startY = 1;
     var scrollBarItemOffset = 0;
     var hoverIndex;
     var prevHoverIndex;
     var properties = ["left","top","width","height","name","type","onChange","selectedIndex","selectedIcon","centerSelection","background"];
+    var itemCache = [];
 
     me.setProperties = function(p){
 
@@ -23,6 +25,8 @@ UI.listbox = function(x,y,w,h){
         });
         
         if (typeof p["font"] != "undefined") font = p["font"];
+        if (typeof p["lineHeight"] != "undefined") lineHeight = p["lineHeight"];
+        if (typeof p["itemRenderFunction"] != "undefined") itemRenderFunction = p["itemRenderFunction"];
         if (p.background === false){
             background.hide();
         }
@@ -53,6 +57,7 @@ UI.listbox = function(x,y,w,h){
         if (me.centerSelection){
             startY = Math.ceil((me.height - lineHeight)/2);
         }
+        itemCache = [];
     };
 
     me.setSelectedIndex = function(index,internal){
@@ -154,78 +159,42 @@ UI.listbox = function(x,y,w,h){
             }else{
                 me.clearCanvas();
             }
-            var line = Y.getImage("line_hor");
+
             for (var i = 0, len = items.length;i<len;i++){
                 var item = items[i];
-                var textX = 10;
-                var indent = 10;
-                var highlightY = 6;
-                var textY = startY + ((i-visibleIndex)*lineHeight);
+                var itemY = startY + ((i-visibleIndex)*lineHeight);
+                var isHover = hoverIndex+visibleIndex === i;
+                var isSelected = me.selectedIndex === i;
 
-                if ((textY>0) && (textY<me.height)){
+                if ((itemY>=0) && (itemY<me.height)){
 
                     var targetCtx = me.ctx;
-                    var _y  = textY;
-                    var clip = textY>=me.height-lineHeight;
-                    var itemCanvas;
+                    var _y  = itemY;
+                    var clip = itemY>=me.height-lineHeight;
+                    var lastItemHeight
 
-                    if(clip){
-                        var lastItemHeight = me.height-textY+1;
-                        if (lastItemHeight>1){
-                            itemCanvas = document.createElement("canvas");
-                            itemCanvas.width = me.width-2;
-                            itemCanvas.height = lastItemHeight;
-                            targetCtx = itemCanvas.getContext("2d");
-                            _y = 4;
-                            highlightY = 6;
-                        }else {
-                            targetCtx = undefined;
-                        }
-                    }
+                    var itemCanvas = renderItem(item,i,isHover,isSelected);
+
+                    if (clip) lastItemHeight = me.height-itemY+1;
 
                     if (targetCtx){
-                        if (hoverIndex+visibleIndex === i){
+
+                        if (isHover){
                             targetCtx.fillStyle = 'rgba(110,130,220,0.07)';
-                            targetCtx.fillRect(0,_y-highlightY,me.width-2,lineHeight);
+                            targetCtx.fillRect(0,_y,me.width-2,lineHeight);
                         }
 
-                        if (me.selectedIndex === i){
+                        if (isSelected){
                             targetCtx.fillStyle = 'rgba(110,130,220,0.15)';
-                            targetCtx.fillRect(0,_y-highlightY,me.width-2,lineHeight);
-
-                            if (me.selectedIcon){
-                                targetCtx.drawImage(me.selectedIcon,2,_y-2);
-                            }
+                            targetCtx.fillRect(0,_y,me.width-2,lineHeight);
                         }
 
-                        if (item.level) textX += item.level*indent;
-
-                        if (item.icon){
-                            targetCtx.drawImage(item.icon,textX,_y-2);
-                            textX += item.icon.width + 4;
+                        if (clip){
+                            me.ctx.drawImage(itemCanvas,0,_y,me.width-2,lastItemHeight);
+                        }else{
+                            me.ctx.drawImage(itemCanvas,0,_y);
                         }
 
-                        var text = item.label;
-
-                        if (font){
-
-                            if (item.info){
-                                var infoLength = (item.info.length*6)+20;
-                                fontSmall.write(targetCtx,item.info,me.width-infoLength,_y,0);
-                                text = text.substr(0,Math.floor((me.width-infoLength-textX-26)/font.charWidth));
-                            }
-
-                            font.write(targetCtx,text,textX,_y,0);
-                        }
-
-                        textY += 11;
-                        _y += 11;
-
-                        if (line) targetCtx.drawImage(line,0,_y,me.width-2,2);
-
-                        if(clip){
-                            me.ctx.drawImage(itemCanvas,0,textY-11-4);
-                        }
                     }
 
 
@@ -250,6 +219,7 @@ UI.listbox = function(x,y,w,h){
     };
 
     me.setItems = function(newItems){
+        itemCache = [];
         items = newItems;
         visibleIndex = Math.min(visibleIndex,getMaxIndex());
         setScrollBarPosition();
@@ -274,6 +244,54 @@ UI.listbox = function(x,y,w,h){
     me.insertItemAfterIndex = function(newItem,index,indent){
 
     };
+
+    function renderItem(item,index,isHover,isSelected){
+        var key = index;
+        if (itemRenderFunction) key += "_"+isHover+"_"+isSelected;
+
+        var itemCanvas = itemCache[key];
+        if (itemCanvas) return itemCanvas;
+
+        itemCanvas = document.createElement("canvas");
+        itemCanvas.width = me.width-2;
+        itemCanvas.height = lineHeight;
+        var targetCtx = itemCanvas.getContext("2d");
+
+        if (itemRenderFunction){
+            itemRenderFunction(targetCtx,item,isHover,isSelected);
+        }else{
+            var textX = 10;
+            var indent = 10;
+            var line = Y.getImage("line_hor");
+
+            if (item.level) textX += item.level*indent;
+
+            if (item.icon){
+                targetCtx.drawImage(item.icon,textX,3);
+                textX += item.icon.width + 4;
+            }
+
+            var text = item.label;
+
+            if (font){
+                if (item.info){
+                    var infoLength = (item.info.length*6)+20;
+                    fontSmall.write(targetCtx,item.info,me.width-infoLength,6,0);
+                    text = text.substr(0,Math.floor((me.width-infoLength-textX-26)/font.charWidth));
+                }
+
+                font.write(targetCtx,text,textX,5,0);
+            }
+
+            //textY += 11;
+            //_y += 11;
+
+            if (line) targetCtx.drawImage(line,0,lineHeight-2,me.width-2,2);
+        }
+
+        itemCache[key] = itemCanvas;
+        return itemCanvas;
+    }
 
     function setScrollBarPosition(){
         var max = items.length;
