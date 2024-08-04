@@ -53,8 +53,8 @@ UI.tabPanel = function(x,y,w,h,config){
         background.setSize(me.width,me.height-Layout.trackControlHeight);
         tabButtons.forEach(function(elm){
             if (elm.panel){
-                elm.panel.setSize(background.width-8,background.height);
-                elm.panel.setPosition(6,Layout.trackControlHeight+4);
+                elm.panel.setSize(background.width-2,background.height);
+                elm.panel.setPosition(2,Layout.trackControlHeight+4);
             }
         });
     }

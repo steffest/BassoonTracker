@@ -4,7 +4,12 @@
     {
       "title": "Demo Songs",
       "url": "playlists/demosongs.json",
-      "info": "A curated list of demo songs used in development of bassoontracker"
+      "info": "A curated list as showcase"
+    },
+    {
+      "title": "Revision 2024",
+      "url": "playlists/revision2024.json",
+      "info": "Tracked Compo Entries"
     },
     {
       "title": "Revision 2023",
@@ -12,9 +17,9 @@
       "info": "Tracked Compo Entries"
     },
     {
-      "title": "Revision 2024",
-      "url": "playlists/revision2024.json",
-      "info": "Tracked Compo Entries"
+      "title": "DSR 2024",
+      "url": "playlists/DSR2024.json",
+      "info": "Desire releases in 2024"
     }
   ]
 }

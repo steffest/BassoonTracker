@@ -52,7 +52,7 @@ var Playlist = function(){
             let item = currentPlaylist.modules.find(function(item){
                 return item.url === url;
             });
-            if (item && item.external) return item.external;
+            if (item && item.link) return item.link;
         }
     }
 

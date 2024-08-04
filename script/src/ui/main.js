@@ -232,6 +232,9 @@ var UI = (function(){
 			onlyUpperCase:true
 		});
 		window.fontSmall = fontSmall;
+		fontSmall.generateColor("blue","rgba(15,118,122,0.7)");
+		fontSmall.generateColor("orange","rgba(161, 82, 0,0.9)");
+		fontSmall.generateColor("green","rgba(80, 140, 0,0.9)");
 
 		fontMed =  BitmapFont();
 		fontMed.generate({
