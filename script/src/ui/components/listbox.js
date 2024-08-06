@@ -226,6 +226,10 @@ UI.listbox = function(x,y,w,h){
         me.refresh();
     };
 
+    me.clearCache = function(){
+        itemCache = [];
+    }
+
     me.getItems = function(){
         return items;
     };
