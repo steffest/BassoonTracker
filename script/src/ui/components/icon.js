@@ -2,11 +2,13 @@ UI.Icon = function(){
     var me = {};
 
     me.get = function(item,size){
+        if (!item) return;
         if (item.generatedIcon) return item.generatedIcon;
         size = size || 30;
 
         var overlay = Y.getImage("modbig");
-        if (item.url.endsWith(".xm")) overlay = Y.getImage("xmbig");
+        var ext = item.url?item.url.split(".").pop().toLowerCase():"";
+        if (ext === "xm") overlay = Y.getImage("xmbig");
 
         item.generatedIcon = document.createElement("canvas");
         item.generatedIcon.width = size;

@@ -11,6 +11,8 @@ UI.app_controlPanel = function(){
 			EventBus.trigger(EVENT.showView,view);
         }
     });
+	buttonFileOperations.tooltip = "show Load/Save Operations";
+
     var buttonOptions = UI.checkboxbutton({
 		label: "Options",
 		onDown: function(){
@@ -18,6 +20,9 @@ UI.app_controlPanel = function(){
 			EventBus.trigger(EVENT.showView,view);
 		}
 	});
+	buttonOptions.tooltip = "show App Settings";
+
+
 	var buttonSampleEdit = UI.checkboxbutton({
 		label: "Sample Edit",
 		onDown: function(){
@@ -25,6 +30,7 @@ UI.app_controlPanel = function(){
 			EventBus.trigger(EVENT.showView,view);
 		}
 	});
+	buttonSampleEdit.tooltip = "Show Sample Editor";
 
 	me.addChild(buttonFileOperations);
 	me.addChild(buttonOptions);

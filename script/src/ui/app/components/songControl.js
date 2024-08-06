@@ -34,6 +34,7 @@ UI.app_songControl = function(x,y,w,h,visible){
         activeImage: Y.getImage("play_active_red"),
         activeBackground: UI.Assets.buttonDarkRedActiveScale9
     });
+    buttons.play.tooltip = "Toggle Play [ENTER]";
     buttons.play.onClick = function(){
         buttons.play.toggleActive();
         if (Tracker.isPlaying()){
@@ -58,6 +59,7 @@ UI.app_songControl = function(x,y,w,h,visible){
         hoverImage: Y.getImage("record_hover"),
         activeImage: Y.getImage("record_active")
     });
+    buttons.record.tooltip = "Toggle Edit Mode [SPACE]";
     buttons.record.onClick = function(){
         Tracker.toggleRecord();
     };

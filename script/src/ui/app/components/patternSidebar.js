@@ -43,6 +43,7 @@ UI.pattern_sidebar = function(){
         font:window.fontMed
     });
     pianoButton.onClick = function(){App.doCommand(COMMAND.togglePiano)};
+    pianoButton.tooltip = "Toggle Piano Keys";
     me.addChild(pianoButton);
 
     var nibblesButton = UI.button();
@@ -53,7 +54,8 @@ UI.pattern_sidebar = function(){
         hoverBackground: UI.Assets.buttonLightHoverScale9,
         image: Y.getImage("nibbles")
     });
-    nibblesButton.onClick = function(){App.doCommand(COMMAND.nibbles)};
+    nibblesButton.onClick = function(){App.doCommand(COMMAND.nibbles)}
+    nibblesButton.tooltip = "Play Nibbles Game!";
     me.addChild(nibblesButton);
 
 
@@ -135,13 +137,32 @@ UI.pattern_sidebar = function(){
                         ctx.drawImage(Y.getImage("play_icon"),1,8);
                     }
                 }else{
-                    window.fontBig.write(ctx,text,12,8,0);
+                    var textY = 11;
+                    var textX = 12;
+                    if (item.icon){
+                        if (typeof item.icon === "string"){
+                            Y.loadImage(item.icon,function(img){
+                                item.icon = img;
+                                listbox.clearCache();
+                                listbox.refresh();
+                            });
+                        }else{
+                            ctx.drawImage(item.icon,3,2);
+                        }
+
+                        textX = 32;
+                    }
+                    if (item.info){
+                        textY = 6;
+                        window.fontSmall.write(ctx,item.info,textX,20,0);
+                    }
+                    window.fontBig.write(ctx,text,textX,textY,0);
                 }
 
                 ctx.drawImage(line,0,30,listbox.width-2,2);
             }
         })
-        listbox.setItems([{label: "Loading ...", index: 0, icon: Y.getImage("disk")}]);
+        listbox.setItems([{label: "Loading ...", index: 0}]);
         listbox.onClick = function(){
             var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
             if (item){
@@ -195,13 +216,18 @@ UI.pattern_sidebar = function(){
         let items = [];
         let level = 0;
         if (data.title){
-            items.push({label: data.title, icon: Y.getImage("disk"), listIndex:0});
+            items.push(
+                {
+                    label: data.title,
+                    listIndex:0,
+                    info: data.info,
+                    icon: data.icon,
+                });
             level++;
         }
         data.modules.forEach(function(item,index){
             let icon = Y.getImage("mod");
             if (item.url.endsWith(".xm")) icon = Y.getImage("xm");
-            console.error(item);
             var info = item.info;
             var info2;
             var icon2

@@ -159,13 +159,25 @@ var Input = (function(){
 
 				if (SETTINGS.useHover){
 					var hoverEventTarget = UI.getEventElement(_x,_y);
+
+					if (SETTINGS.useTooltip && hoverEventTarget){
+						if (hoverEventTarget.tooltip){
+							UI.showTooltip(hoverEventTarget.tooltip,_x,_y);
+						}else{
+							UI.hideTooltip();
+						}
+					}
+
+
 					if (hoverEventTarget && hoverEventTarget.onHover) hoverEventTarget.onHover(touchData);
 
 					if (prevHoverTarget && prevHoverTarget != hoverEventTarget){
 						if (prevHoverTarget.onHoverExit) prevHoverTarget.onHoverExit(touchData,hoverEventTarget);
 					}
 					prevHoverTarget = hoverEventTarget;
+
 				}
+
 
 			}
 

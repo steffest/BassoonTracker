@@ -21,6 +21,7 @@ var UI = (function(){
 	var maxHeight =  Layout.maxHeight;
 	var minHeight = Layout.minheight;
 	var modalElement;
+	var toolTipElement;
 	var needsRendering =  true;
 	var skipRenderSteps = 0;
 	var renderStep = 0;
@@ -218,8 +219,7 @@ var UI = (function(){
 	var initAssets = function(){
 		var fontImage =  Y.getImage("font");
 
-		fontSmall =  BitmapFont();
-		fontSmall.generate({
+		var fontSmallProperties = {
 			image: fontImage,
 			startX: 1,
 			startY: 1,
@@ -230,11 +230,18 @@ var UI = (function(){
 			charsPerLine:42,
 			chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_#/&@$+^!",
 			onlyUpperCase:true
-		});
+		}
+		fontSmall =  BitmapFont();
+		fontSmall.generate(fontSmallProperties);
 		window.fontSmall = fontSmall;
 		fontSmall.generateColor("blue","rgba(15,118,122,0.7)");
 		fontSmall.generateColor("orange","rgba(161, 82, 0,0.9)");
 		fontSmall.generateColor("green","rgba(80, 140, 0,0.9)");
+
+		fontSmallDark = BitmapFont();
+		fontSmallProperties.startY = 13;
+		fontSmallDark.generate(fontSmallProperties);
+		window.fontSmallDark = fontSmallDark;
 
 		fontMed =  BitmapFont();
 		fontMed.generate({
@@ -258,7 +265,7 @@ var UI = (function(){
 		fontBig.generate({
 			image: fontImage,
 			startX: 1,
-			startY: 14,
+			startY: 27,
 			charWidth: 11,
 			charHeight: 11,
 			spaceWidth: 11,
@@ -432,6 +439,14 @@ var UI = (function(){
 					needsRendering = false;
 				}
 
+				if (toolTipElement){
+					// render on top of everything;
+					//var tooltip = toolTipElement.render(true);
+					//if (tooltip ) ctx.drawImage(tooltip,toolTipElement.left,toolTipElement.top);
+
+					toolTipElement.render();
+				}
+
 			}
 		}
 
@@ -478,6 +493,21 @@ var UI = (function(){
 		UI.mainPanel.refresh();
 		needsRendering = true;
 	};
+
+	me.showTooltip = function(text,x,y){
+		if (!toolTipElement){
+			toolTipElement = UI.ToolTip();
+			UI.mainPanel.addChild(toolTipElement);
+			needsRendering = true;
+		}else{
+			toolTipElement.show();
+		}
+		toolTipElement.setProperties({left:Math.floor(x), top: Math.floor(y)-24, text: text});
+	}
+
+	me.hideTooltip = function(){
+		if (toolTipElement && toolTipElement.isVisible()) toolTipElement.hide();
+	}
 
 
 	me.setSelection = function(_selection){

@@ -603,6 +603,7 @@ var SETTINGS = {
 	unrollShortLoops: false, // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
 	sustainKeyboardNotes: false,
 	useHover:true,
+	useTooltip:true,
 	keyboardTable: "qwerty",
 	vubars: true,
 	stereoSeparation: STEREOSEPARATION.BALANCED,
