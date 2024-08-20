@@ -358,9 +358,7 @@ var Tracker = (function(){
 
 
 			while (time<maxTime){
-
-				// ignore speed==0 when autoplay is active (Playlists)
-                if(stepResult.pause && !Tracker.autoPlay){
+                if(stepResult.pause){
                     // speed is set to 0
 					if (!stepResult.pasuseHandled){
                         var delta = time - Audio.context.currentTime;
@@ -374,6 +372,11 @@ var Tracker = (function(){
 						}
                         stepResult.pasuseHandled=true;
 					}
+
+					if (me.autoPlay){
+						EventBus.trigger(EVENT.songEnd,time-Audio.context.currentTime);
+					}
+
 					return;
                 }
                 
@@ -1119,13 +1122,11 @@ var Tracker = (function(){
 			case 11:
 				// Position Jump
 
-				// quickfix for autoplay ...
-				if (!Tracker.autoPlay){
-					result.patternBreak = true;
-					result.positionBreak = true;
-					result.targetSongPosition = note.param;
-					result.targetPatternPosition = 0;
-				}
+				// TODO: check if this doesn't cause autoplay issues
+				result.patternBreak = true;
+				result.positionBreak = true;
+				result.targetSongPosition = note.param;
+				result.targetPatternPosition = 0;
 				break;
 			case 12:
 				//volume
