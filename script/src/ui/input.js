@@ -277,13 +277,10 @@ var Input = (function(){
 			
 			event.preventDefault();
 
-			var keyboardTable = KEYBOARDTABLE[SETTINGS.keyboardTable] || KEYBOARDTABLE.azerty;
+			var keyboardTable = KEYBOARDTABLE.main;
 
 			var keyCode = event.keyCode;
-			var key = event.key;
-			//console.error(event.code);
-			//console.error(key);
-			//TODO use event.code as this is device independent.
+			var key = event.code || event.key;
 
 			var meta={
 				shift: event.shiftKey,
@@ -293,21 +290,14 @@ var Input = (function(){
 			};
 			isMetaKeyDown = (meta.command || meta.control || meta.alt || meta.shift);
 
-			if (!key && event.keyIdentifier){
-				// safari on osX ...
-				var id = event.keyIdentifier;
-				id = id.replace("U+","");
-				key = String.fromCharCode(parseInt(id,16)).toLowerCase();
-			}
-
-			//console.log(keyCode);
+			console.log(key);
 			if (focusElement && focusElement.onKeyDown){
 				var handled = focusElement.onKeyDown(keyCode,event);
 				if (handled) return;
 			}
 
-            switch(keyCode){
-                case 8:// backspace
+            switch(key){
+				case "Backspace":
                     if (Tracker.isRecording()){
                         if (isMetaKeyDown) {
 							Editor.removeNote();
@@ -333,7 +323,7 @@ var Input = (function(){
                     }
 
                     return;
-				case 9:// tab
+				case "Tab":
 					event.stopPropagation();
 					event.preventDefault();
 					if (isMetaKeyDown) {
@@ -342,7 +332,8 @@ var Input = (function(){
 						Editor.moveCursorPosition(Editor.getStepsPerTrack());
 					}
 					return;
-                case 13:// enter
+                case "MediaPlayPause":
+                case "Enter":
 					if (Tracker.isRecording() && isMetaKeyDown){
 						Editor.insertNote();
 						Tracker.moveCurrentPatternPos(1);
@@ -353,10 +344,10 @@ var Input = (function(){
                 case 16:// shift
                     //Tracker.playPattern();
                     break;
-				case 27:// esc
+				case "Escape":
 					UI.clearSelection();
 					break;
-                case 32:// space
+                case "Space":
                     Tracker.toggleRecord();
                     return;
                 case 33:// pageup
@@ -381,19 +372,19 @@ var Input = (function(){
                 case 36:// home
                     Tracker.setCurrentPatternPos(0);
                     return;
-                case 37:// left
+                case "ArrowLeft":
                     Editor.moveCursorPosition(-1);
                     return;
-                case 38:// up
+                case "ArrowUp":
                     Tracker.moveCurrentPatternPos(-1);
                     return;
-                case 39:// right
+                case "ArrowRight":
                     Editor.moveCursorPosition(1);
                     return;
-                case 40: // down
+                case "ArrowDown":
                     Tracker.moveCurrentPatternPos(1);
                     return;
-                case 46: // delete
+				case "Delete": // delete
                     if (Tracker.isRecording()){
                     	pos = Editor.getCurrentTrackPosition();
                     	if (pos===0){
@@ -430,25 +421,25 @@ var Input = (function(){
 						Tracker.setCurrentInstrumentIndex(index-1);
 					}
 					return;
-                case 112: //F1
-                case 113: //F2
-                case 114: //F3
-                case 115: //F4
-                case 116: //F5
-                case 117: //F6
-                case 118: //F7
+				case "F1":
+				case "F2":
+				case "F3":
+				case "F4":
+				case "F5":
+				case "F6":
+				case "F7":
                     me.setCurrentOctave(keyCode-111);
                     return;
-                case 119: //F8
-                case 120: //F9
-                case 121: //F10
-                case 122: //F11
-                case 123: //F12
+				case "F8":
+				case "F9":
+				case "F10":
+				case "F11":
+				case "F12":
                     return;
-				case 187: // =/+
+				case "Equal":
 					Tracker.setCurrentInstrumentIndex(Tracker.getCurrentInstrumentIndex()+1);
 					return;
-				case 189: // _/-
+				case "Minus":
 					index = Tracker.getCurrentInstrumentIndex();
 					if (index>1){
 						Tracker.setCurrentInstrumentIndex(index-1);
@@ -456,6 +447,15 @@ var Input = (function(){
 					return;
                 case 221: // ¨^
                     return;
+				case "MediaTrackNext":
+					Playlist.next();
+					return;
+				case "MediaTrackPrevious":
+					Playlist.prev();
+					return;
+				case "MediaStop":
+					Tracker.stop();
+					return;
             }
 
 
@@ -495,6 +495,7 @@ var Input = (function(){
 
                 var index = -1;
 				var keyboardNote = keyboardTable[key];
+				console.log(keyboardNote,key,keyboardTable);
 
 				if (typeof keyboardNote === "number"){
 					index = (currentOctave*12) + keyboardNote;
@@ -507,21 +508,13 @@ var Input = (function(){
 		}
 
 		function handleKeyUp(event){
-			var key = event.key;
-
-			if (!key && event.keyIdentifier){
-				// safari on osX ...
-				var id = event.keyIdentifier;
-				id = id.replace("U+","");
-				key = String.fromCharCode(parseInt(id,16)).toLowerCase();
-			}
-
+			var key = event.code;
             var keyCode = event.keyCode;
 
 			if (isMetaKeyCode(keyCode)) isMetaKeyDown = false;
 
             if (key && (keyCode>40) && (keyCode<200)){
-                var keyboardTable = KEYBOARDTABLE[SETTINGS.keyboardTable] || KEYBOARDTABLE.azerty;
+                var keyboardTable = KEYBOARDTABLE.main;
                 var keyboardNote = keyboardTable[key];
 
                 if (typeof keyboardNote === "number"){
