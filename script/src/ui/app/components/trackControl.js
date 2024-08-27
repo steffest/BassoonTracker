@@ -23,6 +23,7 @@ UI.trackControl = function(x,y,w,h,visible){
         name:"buttonSolo",
         label:"S"
     });
+    buttons.solo.tooltip = "Solo Track";
     me.addChild(buttons.solo);
 
     buttons.mute = UI.Assets.generate("buttonDark");
@@ -30,6 +31,7 @@ UI.trackControl = function(x,y,w,h,visible){
         activeImage: Y.getImage("mute"),
         activeBackground:UI.Assets.buttonDarkRedActiveScale9
     });
+    buttons.mute.tooltip = "Mute Track";
     buttons.mute.onClick = function(){
         buttons.mute.toggleActive();
         if (buttons.solo.isActive) buttons.solo.toggleActive();
@@ -50,6 +52,7 @@ UI.trackControl = function(x,y,w,h,visible){
         name:"buttonFX",
         label:"FX"
     });
+    buttons.fx.tooltip = "Show FX Panel";
     me.addChild(buttons.fx);
 
     var properties = ["left","top","width","height","name","type","track","solo","mute","visible"];

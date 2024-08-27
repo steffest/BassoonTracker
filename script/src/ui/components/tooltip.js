@@ -63,6 +63,8 @@ UI.ToolTip = function(x,y,text){
             var w = window.fontSmallDark.getTextWidth(text)+30;
             var h = 29;
             var label = text;
+            var line1 = "";
+            var line2 = "";
 
             if (text.indexOf("[")>0){
                 key = text.split("[")[1].split("]")[0];
@@ -73,13 +75,31 @@ UI.ToolTip = function(x,y,text){
                 h += 10;
             }
 
+            if (w>150){
+                // split text over two lines
+                var parts = label.split(" ");
+                var i = 0;
+                var half = label.length/2;
+                // assume font is fixed width, cheaper to calculate;
+                while (line1.length<half && i<parts.length){
+                    line1 += parts[i]+" ";
+                    i++;
+                }
+                while (i<parts.length){
+                    line2 += parts[i]+" ";
+                    i++;
+                }
+                label = line1.trim();
+                if (line2){
+                    h += 10;
+                    w = Math.max(window.fontSmallDark.getTextWidth(line1),window.fontSmallDark.getTextWidth(line2))+30;
+                }
+            }
+
             me.width = me.canvas.width = w;
             me.height = me.canvas.height = h;
 
             background.setSize(w,h);
-
-            //me.ctx.fillStyle = "#ead599";
-            //me.ctx.fillRect(0,0,me.width,me.height);
             background.render();
 
             if (key){
@@ -92,6 +112,9 @@ UI.ToolTip = function(x,y,text){
             }
 
             window.fontSmallDark.write(me.ctx,label,13,9,0);
+            if (line2) {
+                window.fontSmallDark.write(me.ctx, line2, 13, 19, 0);
+            }
         }
 
         me.needsRendering = false;
@@ -102,7 +125,13 @@ UI.ToolTip = function(x,y,text){
             if (opacity<1) me.parentCtx.globalAlpha = opacity;
             if (opacity>1) opacity = 1;
             var left = me.left + Math.floor((opacity*10));
-            me.parentCtx.drawImage(me.canvas,left,me.top);
+            var top = me.top;
+            var borderRight = left + me.width;
+            if (borderRight > me.parent.width){
+                left = me.parent.width - me.width;
+                top -= 10;
+            }
+            me.parentCtx.drawImage(me.canvas,left,top);
             me.parentCtx.globalAlpha = 1;
         }
     }

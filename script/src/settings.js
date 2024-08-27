@@ -14,14 +14,14 @@ var Settings = (function(){
 	me.saveSettings = function(){
 		var settings = {
 			vubars: SETTINGS.vubars,
-			keyboardTable: SETTINGS.keyboardTable,
 			stereoSeparation: SETTINGS.stereoSeparation,
 			dropboxMode: SETTINGS.dropboxMode,
 			skipFrame: UI.getSkipFrame(),
 			midi: SETTINGS.midi,
 			highDPI: SETTINGS.highDPI,
 			showKey: SETTINGS.showKey,
-			showMidi: SETTINGS.showMidi
+			showMidi: SETTINGS.showMidi,
+			useTooltip: SETTINGS.useTooltip,
 		};
 		Storage.set("bassoonTrackerSettings",JSON.stringify(settings));
 	};
@@ -55,7 +55,6 @@ var Settings = (function(){
 	}
 
 	function setDefaults(){
-		SETTINGS.keyboardTable = "qwerty";
 		SETTINGS.vubars = "colour";
 		SETTINGS.stereoSeparation =  STEREOSEPARATION.BALANCED;
 		SETTINGS.dropboxMode = "rename";
