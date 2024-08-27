@@ -611,7 +611,6 @@ var Editor = (function(){
 			if (SETTINGS.loadInitialFile) initialFile = Host.initialFile || Host.getBaseUrl() + 'demomods/Tinytune.mod';
 		}
 		if (initialFile) Tracker.load(initialFile,true,function(fileType){
-			console.error("initial file loaded",fileType);
 			if (fileType === FILETYPE.module){
 				// load default playlist;
 				Tracker.load(Host.getRemoteUrl() + 'playlists/demosongs.json',true,null,false,true);

@@ -7,6 +7,15 @@ UI.editPanel = function(x,y,w,h,visible){
 	me.addChild(panel);
 
 	var labels = ["clear","copy","paste"];
+	var toolTips = [
+		"Clear the current track",
+		"Copy the current track",
+		"Paste the current track",
+		"Clear the current pattern",
+		"Copy the current pattern",
+		"Paste the current pattern"
+	];
+
 
 	var handleButton = function(button){
 		switch(button.index){
@@ -49,6 +58,7 @@ UI.editPanel = function(x,y,w,h,visible){
 			textAlign: "center",
 			paddingTop: 3
 		});
+		button.tooltip = toolTips[i];
 		me.addChild(button);
 		buttonsPattern.push(button);
 	}

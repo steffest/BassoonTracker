@@ -118,6 +118,10 @@ UI.scale9Panel = function(x,y,w,h,base){
 
 		if (me.needsRendering){
 			createCanvas();
+
+			this.children.forEach(function(elm){
+				elm.render();
+			});
 		}
 		me.needsRendering = false;
 

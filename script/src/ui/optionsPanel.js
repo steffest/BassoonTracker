@@ -25,6 +25,7 @@ UI.OptionsPanel = function(){
 	closeButton.onClick = function(){
         App.doCommand(COMMAND.showTopMain);
 	};
+	closeButton.tooltip = "Close";
 	me.addChild(closeButton);
 
 	var options = [
@@ -52,7 +53,21 @@ UI.OptionsPanel = function(){
                 if (SETTINGS.vubars === "none") result = 0;
                 if (SETTINGS.vubars === "trans") result = 2;
                 return result;
-            }
+            },
+			checkBoxes:[{
+				label : "Show Help Bubbles",
+				labels: [
+					{width: 60, label: "Help"},
+					{width: 100, label: "Show Help"},
+					{width: 150, label: "Show Help Bubbles"}
+				],
+				getValue: function(){return SETTINGS.useTooltip},
+				handler: function(active){
+					SETTINGS.useTooltip = active;
+					Settings.saveSettings();
+					EventBus.trigger(EVENT.menuLayoutChanged);
+				}
+			}]
         },
         {
             label: "Stereo",
@@ -73,34 +88,7 @@ UI.OptionsPanel = function(){
                 if (SETTINGS.stereoSeparation === STEREOSEPARATION.NONE) result = 2;
                 if (SETTINGS.stereoSeparation === STEREOSEPARATION.FULL) result = 0;
                 return result;
-            }
-        },
-		{
-			label: "Keyboard Layout",
-            labels : [
-                {width: 56, label: "Keyboard"},
-                {width: 110, label: "Keyboard Layout"}
-            ],
-			values: ["QWERTY","AZERTY","QWERTZ","Dvorak"],
-			setValue:function(index){
-				if (index === 0){
-					SETTINGS.keyboardTable = "qwerty";
-				}else if (index === 1){
-					SETTINGS.keyboardTable = "azerty";
-				}else if (index === 2) {
-					SETTINGS.keyboardTable = "qwertz";
-				}else{
-					SETTINGS.keyboardTable = "dvorak";
-				}
-				Settings.saveSettings();
-			},
-			getValue:function(){
-				var result = 0;
-				if (SETTINGS.keyboardTable === "azerty") result = 1;
-				if (SETTINGS.keyboardTable === "qwertz") result = 2;
-				if (SETTINGS.keyboardTable === "dvorak") result = 3;
-				return result;
-			},
+            },
 			checkBoxes:[{
 				label : "Show Key Input",
 				labels: [
@@ -115,7 +103,7 @@ UI.OptionsPanel = function(){
 					EventBus.trigger(EVENT.menuLayoutChanged);
 				}
 			}]
-		},
+        },
         {
             label: "Screen refresh",
             labels : [
@@ -242,8 +230,6 @@ UI.OptionsPanel = function(){
 
 
 	options.forEach(function(option){
-
-
         var labelBox = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
         labelBox.ignoreEvents = true;
         me.addChild(labelBox);

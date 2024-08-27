@@ -1,11 +1,11 @@
 UI.pattern_sidebar = function(){
     var me = UI.panel();
-    me.setProperties({
-        name: "sideButtonPanel"
-    });
+    me.name =  "patternSidebar";
 
     var songListBox = UI.listbox();
+    songListBox.name = "songListBox";
     var playlistListBox = UI.listbox();
+    playlistListBox.name = "playlistListBox";
 
 
     var tabPanel = UI.tabPanel(0,0,me.width,me.height,{
@@ -14,7 +14,8 @@ UI.pattern_sidebar = function(){
                 label: "Songs",
                 width: 70,
                 isSelected: true,
-                panel: generateTabPanel("songs")
+                panel: generateTabPanel("songs"),
+                footer: generateSongControls()
             },
             {
                 label: "PlayLists",
@@ -23,6 +24,7 @@ UI.pattern_sidebar = function(){
             }
         ]
     });
+    tabPanel.name = "tabPanel";
     tabPanel.zIndex=1;
     me.addChild(tabPanel);
 
@@ -210,6 +212,97 @@ UI.pattern_sidebar = function(){
         }
 
         return panel;
+    }
+
+    function generateSongControls(){
+        let controls = UI.panel();
+
+        let buttons = [
+            ["iprev",COMMAND.playPrevious,"Play Previous song in playlist"],
+            ["iplay",COMMAND.play, "Toggle Play [Enter]"],
+            ["inext",COMMAND.playNext, "Play Next song in playlist"],
+            ["ishuffle",COMMAND.playNext, "Play Next song in playlist"],
+        ]
+
+        let x = 10;
+        buttons.forEach(function(item){
+            let button = UI.button(x,0,18,18);
+            button.setProperties({
+                image: Y.getImage(item[0]),
+                hoverImage: Y.getImage(item[0]+"_active"),
+                opacity: 0.7,
+                hoverOpacity: 1
+            });
+            button.onClick = function(){
+                App.doCommand(item[1]);
+            }
+            button.tooltip = item[2] || "Play";
+            controls.addChild(button);
+            x+=20;
+        });
+
+        EventBus.on(EVENT.playingChange,function(isPlaying){
+            let button = controls.children[1];
+            if (isPlaying){
+                button.setProperties({
+                    image: Y.getImage("istop"),
+                    hoverImage: Y.getImage("istop_active"),
+                });
+            }else{
+                button.setProperties({
+                    image: Y.getImage("iplay"),
+                    hoverImage: Y.getImage("iplay_active"),
+                });
+            }
+        });
+
+
+        let buttonMod = UI.Assets.generate("buttonDarkBlue");
+        buttonMod.setProperties({
+            label: "Random Mod",
+            font: fontSmall,
+            width: 90,
+            textAlign: "center",
+            paddingTop: 1
+        });
+        buttonMod.onClick = function(){
+            App.doCommand(COMMAND.randomSong);
+        };
+        buttonMod.tooltip = "Play a random MOD song";
+
+        let buttonXM = UI.Assets.generate("buttonDarkBlue");
+        buttonXM.setProperties({
+            label: "Random XM",
+            font: fontSmall,
+            width: 90,
+            left: 100,
+            textAlign: "center",
+            paddingTop: 2
+        });
+        buttonXM.onClick = function(){
+            App.doCommand(COMMAND.randomSongXM);
+        };
+        buttonXM.tooltip = "Play a random XM song";
+
+
+        controls.addChild(buttonMod);
+        controls.addChild(buttonXM);
+
+        controls.onResize = function(){
+            let w = Math.floor(controls.width/2 - 15);
+            buttonMod.setProperties({
+                left: 10,
+                top: 20,
+                width: w
+            });
+            buttonXM.setProperties({
+                left: w+10,
+                top:20,
+                width: w
+            });
+        };
+
+        return controls;
     }
 
     function generateListBoxItems(data){

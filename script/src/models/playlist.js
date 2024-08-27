@@ -47,6 +47,15 @@ var Playlist = function(){
         me.play(currentIndex);
     }
 
+    me.prev = function(){
+        currentIndex--;
+        if (currentIndex<0){
+            currentIndex = currentPlaylist.modules.length-1;
+        }
+        Tracker.stop();
+        me.play(currentIndex);
+    }
+
     me.getSongInfoUrl = function(url){
         if (url && currentPlaylist && currentPlaylist.modules){
             let item = currentPlaylist.modules.find(function(item){

@@ -18,7 +18,7 @@ UI.button = function(x,y,w,h,text){
     var paddingLeft = 10;
     var hasHover = true;
 
-    var properties = ["left","top","width","height","name","type","image","backgroundImage","background","active","hoverBackground","hoverImage","activeBackground","activeImage","font","label","textAlign","paddingTop","paddingTopActive","paddingLeft","checkbox","radio","opacity"];
+    var properties = ["left","top","width","height","name","type","image","backgroundImage","background","active","hoverBackground","hoverImage","activeBackground","activeImage","font","label","textAlign","paddingTop","paddingTopActive","paddingLeft","checkbox","radio","opacity","hoverOpacity"];
 
     me.setProperties = function(p){
 
@@ -138,11 +138,12 @@ UI.button = function(x,y,w,h,text){
         if (me.needsRendering){
             internal = !!internal;
             var drawFonts = true;
-            //me.ctx.clearRect(0,0,me.width,me.height,backgroundImage);
 
             if (backgroundImage){
                 me.ctx.drawImage(backgroundImage,0,0,me.width,me.height);
-            }else if (background) {
+            }else if (background || image) {
+                if (!background) me.ctx.clearRect(0,0,me.width,me.height);
+
                 if (me.isActive && activeBackground){
                     activeBackground.render();
                     if (activeImage){
@@ -153,15 +154,16 @@ UI.button = function(x,y,w,h,text){
                     }
                 }else{
                     var stateImage = image;
+                    var opacity = me.opacity;
+                    if (me.isHover && me.hoverOpacity) opacity = me.hoverOpacity;
+                    if (opacity && opacity-1) me.ctx.globalAlpha = opacity;
                     if (me.isHover && hoverImage){
                         stateImage =  hoverImage;
                     }
                     if (me.isHover && hoverBackground){
                         hoverBackground.render();
                     }else{
-                        if (me.opacity && me.opacity-1) me.ctx.globalAlpha = me.opacity;
-                        background.render();
-                        me.ctx.globalAlpha = 1;
+                        if (background) background.render();
                     }
                     if (stateImage){
                         var imgY = Math.floor((me.height-stateImage.height)/2);
@@ -169,6 +171,7 @@ UI.button = function(x,y,w,h,text){
                         me.ctx.drawImage(stateImage,imgX,imgY);
                         //drawFonts = false;
                     }
+                    me.ctx.globalAlpha = 1;
                 }
 
             }else{

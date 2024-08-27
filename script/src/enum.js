@@ -106,7 +106,10 @@ var COMMAND = {
 	undo: 26,
 	redo: 27,
 	nibbles: 28,
-	generator: 29
+	generator: 29,
+	play: 30,
+	playNext: 31,
+	playPrevious: 32,
 };
 
 var PLAYTYPE = {
@@ -446,150 +449,41 @@ var OCTAVENOTES = {
 
 
 var KEYBOARDTABLE = {
-	azerty:{
-		a: KEYBOARDKEYS.COctaveUp,
-		z: KEYBOARDKEYS.DOctaveUp,
-		e: KEYBOARDKEYS.EOctaveUp,
-		r: KEYBOARDKEYS.FOctaveUp,
-		t: KEYBOARDKEYS.GOctaveUp,
-		y: KEYBOARDKEYS.AOctaveUp,
-		u: KEYBOARDKEYS.BOctaveUp,
-		i: KEYBOARDKEYS.COctaveUp2,
-		o: KEYBOARDKEYS.DOctaveUp2,
+	main:{
+		"KeyQ": KEYBOARDKEYS.COctaveUp,
+		"KeyW": KEYBOARDKEYS.DOctaveUp,
+		"KeyE": KEYBOARDKEYS.EOctaveUp,
+		"KeyR": KEYBOARDKEYS.FOctaveUp,
+		"KeyT": KEYBOARDKEYS.GOctaveUp,
+		"KeyY": KEYBOARDKEYS.AOctaveUp,
+		"KeyU": KEYBOARDKEYS.BOctaveUp,
+		"KeyI": KEYBOARDKEYS.COctaveUp2,
+		"KeyO": KEYBOARDKEYS.DOctaveUp2,
 
-		"é": KEYBOARDKEYS.CsharpOctaveUp,
-		'"': KEYBOARDKEYS.DsharpOctaveUp,
-		"(": KEYBOARDKEYS.FsharpOctaveUp,
-		"§": KEYBOARDKEYS.GsharpOctaveUp,
-		"è": KEYBOARDKEYS.AsharpOctaveUp,
-		"ç": KEYBOARDKEYS.CsharpOctaveUp2,
+		"Digit2": KEYBOARDKEYS.CsharpOctaveUp,
+		"Digit3": KEYBOARDKEYS.DsharpOctaveUp,
+		"Digit5": KEYBOARDKEYS.FsharpOctaveUp,
+		"Digit6": KEYBOARDKEYS.GsharpOctaveUp,
+		"Digit7": KEYBOARDKEYS.AsharpOctaveUp,
+		"Digit9": KEYBOARDKEYS.CsharpOctaveUp2,
 
-		w: KEYBOARDKEYS.C,
-		x: KEYBOARDKEYS.D,
-		c: KEYBOARDKEYS.E,
-		v: KEYBOARDKEYS.F,
-		b: KEYBOARDKEYS.G,
-		n: KEYBOARDKEYS.A,
-		",": KEYBOARDKEYS.B,
-		";": KEYBOARDKEYS.COctaveUp,
-		":": KEYBOARDKEYS.DOctaveUp,
+		"KeyZ": KEYBOARDKEYS.C,
+		"KeyX": KEYBOARDKEYS.D,
+		"KeyC": KEYBOARDKEYS.E,
+		"KeyV": KEYBOARDKEYS.F,
+		"KeyB": KEYBOARDKEYS.G,
+		"KeyN": KEYBOARDKEYS.A,
+		"KeyM": KEYBOARDKEYS.B,
+		"Comma": KEYBOARDKEYS.COctaveUp,
+		"Period": KEYBOARDKEYS.DOctaveUp,
 
-		s: KEYBOARDKEYS.Csharp,
-		d: KEYBOARDKEYS.Dsharp,
-		g: KEYBOARDKEYS.Fsharp,
-		h: KEYBOARDKEYS.Gsharp,
-		j: KEYBOARDKEYS.Asharp,
+		"KeyS": KEYBOARDKEYS.Csharp,
+		"KeyD": KEYBOARDKEYS.Dsharp,
+		"KeyG": KEYBOARDKEYS.Fsharp,
+		"KeyH": KEYBOARDKEYS.Gsharp,
+		"KeyJ": KEYBOARDKEYS.Asharp,
 
-		"<": KEYBOARDKEYS.OFF
-	},
-	dvorak:{
-		"\'": KEYBOARDKEYS.COctaveUp,
-		',': KEYBOARDKEYS.DOctaveUp,
-		'.': KEYBOARDKEYS.EOctaveUp,
-		p: KEYBOARDKEYS.FOctaveUp,
-		y: KEYBOARDKEYS.GOctaveUp,
-		f: KEYBOARDKEYS.AOctaveUp,
-		g: KEYBOARDKEYS.BOctaveUp,
-		c: KEYBOARDKEYS.COctaveUp2,
-		r: KEYBOARDKEYS.DOctaveUp2,
-
-		"2": KEYBOARDKEYS.CsharpOctaveUp,
-		'3': KEYBOARDKEYS.DsharpOctaveUp,
-		"5": KEYBOARDKEYS.FsharpOctaveUp,
-		"6": KEYBOARDKEYS.GsharpOctaveUp,
-		"7": KEYBOARDKEYS.AsharpOctaveUp,
-		"9": KEYBOARDKEYS.CsharpOctaveUp2,
-
-		';': KEYBOARDKEYS.C,
-		q: KEYBOARDKEYS.D,
-		j: KEYBOARDKEYS.E,
-		k: KEYBOARDKEYS.F,
-		x: KEYBOARDKEYS.G,
-		b: KEYBOARDKEYS.A,
-		m: KEYBOARDKEYS.B,
-		w: KEYBOARDKEYS.COctaveUp,
-		v: KEYBOARDKEYS.DOctaveUp,
-
-		o: KEYBOARDKEYS.Csharp,
-		e: KEYBOARDKEYS.Dsharp,
-		i: KEYBOARDKEYS.Fsharp,
-		d: KEYBOARDKEYS.Gsharp,
-		h: KEYBOARDKEYS.Asharp,
-		n: KEYBOARDKEYS.CsharpOctaveUp,
-
-        "\\": KEYBOARDKEYS.OFF
-	},
-	qwerty:{
-		q: KEYBOARDKEYS.COctaveUp,
-		w: KEYBOARDKEYS.DOctaveUp,
-		e: KEYBOARDKEYS.EOctaveUp,
-		r: KEYBOARDKEYS.FOctaveUp,
-		t: KEYBOARDKEYS.GOctaveUp,
-		y: KEYBOARDKEYS.AOctaveUp,
-		u: KEYBOARDKEYS.BOctaveUp,
-		i: KEYBOARDKEYS.COctaveUp2,
-		o: KEYBOARDKEYS.DOctaveUp2,
-
-		"2": KEYBOARDKEYS.CsharpOctaveUp,
-		'3': KEYBOARDKEYS.DsharpOctaveUp,
-		"5": KEYBOARDKEYS.FsharpOctaveUp,
-		"6": KEYBOARDKEYS.GsharpOctaveUp,
-		"7": KEYBOARDKEYS.AsharpOctaveUp,
-		"9": KEYBOARDKEYS.CsharpOctaveUp2,
-
-		z: KEYBOARDKEYS.C,
-		x: KEYBOARDKEYS.D,
-		c: KEYBOARDKEYS.E,
-		v: KEYBOARDKEYS.F,
-		b: KEYBOARDKEYS.G,
-		n: KEYBOARDKEYS.A,
-		m: KEYBOARDKEYS.B,
-		",": KEYBOARDKEYS.COctaveUp,
-		".": KEYBOARDKEYS.DOctaveUp,
-
-		s: KEYBOARDKEYS.Csharp,
-		d: KEYBOARDKEYS.Dsharp,
-		g: KEYBOARDKEYS.Fsharp,
-		h: KEYBOARDKEYS.Gsharp,
-		j: KEYBOARDKEYS.Asharp,
-
-        "\\": KEYBOARDKEYS.OFF
-	},
-	qwertz:{
-		q: KEYBOARDKEYS.COctaveUp,
-		w: KEYBOARDKEYS.DOctaveUp,
-		e: KEYBOARDKEYS.EOctaveUp,
-		r: KEYBOARDKEYS.FOctaveUp,
-		t: KEYBOARDKEYS.GOctaveUp,
-		z: KEYBOARDKEYS.AOctaveUp,
-		u: KEYBOARDKEYS.BOctaveUp,
-		i: KEYBOARDKEYS.COctaveUp2,
-		o: KEYBOARDKEYS.DOctaveUp2,
-
-		"2": KEYBOARDKEYS.CsharpOctaveUp,
-		'3': KEYBOARDKEYS.DsharpOctaveUp,
-		"5": KEYBOARDKEYS.FsharpOctaveUp,
-		"6": KEYBOARDKEYS.GsharpOctaveUp,
-		"7": KEYBOARDKEYS.AsharpOctaveUp,
-		"9": KEYBOARDKEYS.CsharpOctaveUp2,
-
-		y: KEYBOARDKEYS.C,
-		x: KEYBOARDKEYS.D,
-		c: KEYBOARDKEYS.E,
-		v: KEYBOARDKEYS.F,
-		b: KEYBOARDKEYS.G,
-		n: KEYBOARDKEYS.A,
-		m: KEYBOARDKEYS.B,
-		",": KEYBOARDKEYS.COctaveUp,
-		".": KEYBOARDKEYS.DOctaveUp,
-
-		s: KEYBOARDKEYS.Csharp,
-		d: KEYBOARDKEYS.Dsharp,
-		g: KEYBOARDKEYS.Fsharp,
-		h: KEYBOARDKEYS.Gsharp,
-		j: KEYBOARDKEYS.Asharp,
-
-        "\\": KEYBOARDKEYS.OFF
+		"Backquote": KEYBOARDKEYS.OFF
 	}
 };
 

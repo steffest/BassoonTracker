@@ -4,11 +4,21 @@
     {
       "title": "Demo Songs",
       "url": "playlists/demosongs.json",
-      "info": "A curated list as showcase"
+      "info": "A curated list"
     },
     {
       "title": "Revision 2024",
       "url": "playlists/revision2024.json",
+      "info": "Tracked Compo Entries"
+    },
+    {
+      "title": "Assembly 2024",
+      "url": "playlists/assembly2024.json",
+      "info": "Tracked Compo Entries"
+    },
+    {
+      "title": "Evoke 2024",
+      "url": "playlists/evoke_2024.json",
       "info": "Tracked Compo Entries"
     },
     {
@@ -19,7 +29,7 @@
     {
       "title": "DSR 2024",
       "url": "playlists/DSR2024.json",
-      "info": "Desire releases in 2024"
+      "info": "Tracked Music releases"
     }
   ]
 }

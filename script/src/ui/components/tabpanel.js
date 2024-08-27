@@ -3,13 +3,22 @@ UI.tabPanel = function(x,y,w,h,config){
     me.type = "tabpanel";
 
     // background
-    var background = UI.scale9Panel(0,0,me.width,me.height,{
+    let background = UI.scale9Panel(0,0,me.width,me.height,{
         img: Y.getImage("tab_panel"),
         left:8,
         top:9,
         right:8,
         bottom: 9
     });
+
+    let footer = UI.scale9Panel(0,0,0,0,{
+        img: Y.getImage("tab_panel_bottom"),
+        left:10,
+        top:2,
+        right:10,
+        bottom: 6,
+    });
+    me.addChild(footer);
 
     // tabs
     let tabButtons = [];
@@ -53,10 +62,20 @@ UI.tabPanel = function(x,y,w,h,config){
         background.setSize(me.width,me.height-Layout.trackControlHeight);
         tabButtons.forEach(function(elm){
             if (elm.panel){
-                elm.panel.setSize(background.width-2,background.height);
+                let h = background.height;
+                if (elm.footer) h -= 42;
+                elm.panel.setSize(background.width-2,h);
                 elm.panel.setPosition(2,Layout.trackControlHeight+4);
             }
         });
+        footer.setSize(me.width,40);
+        footer.setPosition(0,me.height-42);
+        if (footer.children){
+            footer.children.forEach(function(elm){
+                elm.setPosition(2,2);
+                elm.setSize(footer.width-4,footer.height-4);
+            });
+        }
     }
 
     me.render = function(internal){
@@ -80,6 +99,9 @@ UI.tabPanel = function(x,y,w,h,config){
                     me.ctx.drawImage(Y.getImage("tab_border"),activeButton.left-22,activeButton.top+activeButton.height);
                 }
             }
+
+            footer.render();
+
         }
         me.needsRendering = false;
 
@@ -116,20 +138,23 @@ UI.tabPanel = function(x,y,w,h,config){
         tabButton.onClick = function(){
             tabButtons.forEach(function(elm){
                 elm.setProperties({opacity:0.5});
-                if (elm.panel) {
-                    elm.panel.hide();
-                }
+                if (elm.panel) elm.panel.hide();
+
             });
             tabButton.setProperties({opacity:1});
-            if (config.panel){
-                config.panel.show();
-            }
+            if (config.panel) config.panel.show();
+            footer.toggle(!!config.footer);
         }
         tabButton.panel = config.panel;
+        tabButton.footer = config.footer;
         if (!config.isSelected) config.panel.hide();
         me.addChild(tabButton);
         tabButtons.push(tabButton);
         tabX += config.width-12;
+
+        if (config.footer){
+            footer.addChild(config.footer);
+        }
     }
 
     me.setTab = function(index){

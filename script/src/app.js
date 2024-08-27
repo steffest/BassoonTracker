@@ -143,6 +143,15 @@ var App = (function(){
                         });
                     });
                     break;
+                case COMMAND.play:
+                    Tracker.togglePlay();
+                    break;
+                case COMMAND.playNext:
+                    Playlist.next();
+                    break;
+                case COMMAND.playPrevious:
+                    Playlist.prev();
+                    break;
             }
         });
     };

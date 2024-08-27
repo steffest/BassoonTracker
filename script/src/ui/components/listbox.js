@@ -175,7 +175,7 @@ UI.listbox = function(x,y,w,h){
 
                     var itemCanvas = renderItem(item,i,isHover,isSelected);
 
-                    if (clip) lastItemHeight = me.height-itemY+1;
+                    if (clip) lastItemHeight = me.height-itemY;
 
                     if (targetCtx){
 

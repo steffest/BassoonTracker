@@ -10,8 +10,7 @@ UI.spinBox = function(initialProperties){
 	var step = 1;
 
 	if (initialProperties) setPropertiesValues(initialProperties);
-	
-	
+
 	var buttonDown = UI.Assets.generate("button20_20");
 	buttonDown.onDown = function(){
 		if (me.isDisabled) return;
@@ -28,6 +27,7 @@ UI.spinBox = function(initialProperties){
 		name:"buttonDown",
 		label:"↓"
 	});
+	buttonDown.tooltip = me.tooltip;
 	me.addChild(buttonDown);
 
 	var buttonUp = UI.Assets.generate("button20_20");
@@ -45,6 +45,7 @@ UI.spinBox = function(initialProperties){
 		name:"buttonUp",
 		label:"↑"
 	});
+	buttonUp.tooltip = me.tooltip;
 	me.addChild(buttonUp);
 
 	var setPropertiesIntern = me.setProperties;
@@ -53,18 +54,6 @@ UI.spinBox = function(initialProperties){
 		setPropertiesValues(newProperties);
 		if (setPropertiesIntern) setPropertiesIntern(newProperties);
 	}
-	
-	/*me.setProperties = function(newProperties){
-		if (!newProperties) return properties;
-
-		properties = newProperties || {};
-		setPropertiesValues(properties);
-
-		me.setSize(me.width,me.height);
-		me.setPosition(me.left,me.top);
-
-
-	};*/
 
 	function setPropertiesValues(properties){
 		if (typeof properties.size != "undefined") size = properties.size;
@@ -72,14 +61,11 @@ UI.spinBox = function(initialProperties){
 		if (typeof properties.labels != "undefined") labels = properties.labels;
 		if (typeof properties.font != "undefined") font = properties.font;
 		if (typeof properties.step != "undefined") step = properties.step;
+		if (typeof properties.tooltip != "undefined") me.tooltip = properties.tooltip;
 		//if (typeof properties.disabled != "undefined") disabled = !!properties.disabled;
 	}
-	
-	
-	
-	me.renderInternal = function(){
-		
 
+	me.renderInternal = function(){
 		if (label){
 			if (font){
 				font.write(me.ctx,label,6,11,0);
@@ -91,75 +77,7 @@ UI.spinBox = function(initialProperties){
 
 		buttonUp.render();
 		buttonDown.render();
-		
-		
-		//if (me.needsRendering){
-			//me.clearCanvas();
-			
-			
-			
-			//if (size === "big"){
-				//me.ctx.drawImage(Y.getImage(backGroundImage),buttonUp.left - 36,-1,34+2,me.height+1);
 
-				//window.fontLedBig.write(me.ctx,padValue(),buttonUp.left - 36,2,0);
-				//window.fontLedBig.write(me.ctx,padValue(),buttonUp.left - 31,4,0);
-
-			//}else{
-				
-				/*
-				var padding = 2;
-				 
-				
-				var valueX = buttonUp.left - 32 - 10 - 4;
-				var valueY = 2;
-				var valueW = 40;
-				var valueH = 24 + padding*2;
-
-
-				if (padLength === 2){
-					valueW = 24;
-					valueX += 16;
-				}
-
-				if (padLength === 3){
-					valueW = 32;
-					valueX += 8;
-				}
-
-				if (padLength === 5){
-					valueW = 48;
-					valueX -= 8;
-				}
-				
-				valueW += padding*2;
-				valueX -= padding;
-				valueY -= padding;
-				
-				
-
-				me.ctx.drawImage(Y.getImage(backGroundImage),valueX,valueY,valueW,valueH);
-
-				valueX +=4;
-				valueY = 7;
-				window.fontLed.write(me.ctx,padValue(),valueX,valueY,0);
-
-				if (isCursorVisible){
-					me.ctx.fillStyle = "rgba(255,201,65,0.7)";
-					var charWidth = 8;
-					var cursorX = valueX + cursorPos*charWidth;
-					me.ctx.fillRect(cursorX,4,2,me.height-8);
-				}
-				*/
-			//}
-
-			//body.style.backgroundColor  ="rgba(255,201,65,0.7)";
-
-			
-
-			//var b = buttonUp.render(true);
-			//me.ctx.drawImage(b,10,10,50,30);
-		//}
-		
 
 	};
 	
@@ -203,9 +121,6 @@ UI.spinBox = function(initialProperties){
 			me.paddingRight = buttonUp.width + buttonDown.width + 1;
 			me.paddingBottom = me.height - buttonUp.height - 8;
 		}
-
-
-		
 
 	};
 	

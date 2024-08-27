@@ -11,7 +11,7 @@ UI.app_controlPanel = function(){
 			EventBus.trigger(EVENT.showView,view);
         }
     });
-	buttonFileOperations.tooltip = "show Load/Save Operations";
+	buttonFileOperations.tooltip = "Load/Save Files";
 
     var buttonOptions = UI.checkboxbutton({
 		label: "Options",
@@ -54,6 +54,7 @@ UI.app_controlPanel = function(){
 	modButton.onDown = function(){
 		Tracker.setTrackerMode(TRACKERMODE.PROTRACKER);
 	};
+	modButton.tooltip = "Protracker Mode";
 	me.addChild(modButton);
 
 	xmButton.setProperties(buttonProperties);
@@ -61,6 +62,7 @@ UI.app_controlPanel = function(){
 	xmButton.onDown = function(){
 		Tracker.setTrackerMode(TRACKERMODE.FASTTRACKER);
 	};
+	xmButton.tooltip = "Fasttracker 2 Mode";
 	me.addChild(xmButton);
 
 	var trackView = [4,8,12,16];
@@ -69,6 +71,7 @@ UI.app_controlPanel = function(){
 	trackButtons.forEach(function(button,index){
 		button.setProperties(buttonProperties);
 		button.setLabel("" + trackView[index]);
+		button.tooltip = "Show " + trackView[index] + " tracks";
 		button.index = index;
 		button.onDown = function(){
 			if (this.isDisabled) return;

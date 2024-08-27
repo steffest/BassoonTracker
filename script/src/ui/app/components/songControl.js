@@ -24,6 +24,7 @@ UI.app_songControl = function(x,y,w,h,visible){
             Tracker.setPlayType(PLAYTYPE.pattern);
         }
     };
+    radioGroup.tooltip = "Toggle between playing the song or the pattern";
     me.addChild(radioGroup);
 
     var buttons = {};

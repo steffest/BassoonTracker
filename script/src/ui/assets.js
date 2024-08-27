@@ -268,6 +268,7 @@ UI.Assets = (function(){
 				result = UI.button(0,0,20,20);
 				result.setProperties({
 					background: me.buttonDarkBlueScale9,
+					hoverBackground:UI.Assets.buttonDarkBlueActiveScale9,
 					activeBackground:UI.Assets.buttonDarkBlueActiveScale9,
 					isActive:false,
 					textAlign: "center",

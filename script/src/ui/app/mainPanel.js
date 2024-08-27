@@ -192,7 +192,8 @@ UI.app_mainPanel = function(){
 		undoLabel: "Change Song Tempo",
         onChange : function(value){
 			Tracker.setBPM(value);
-        }
+        },
+		tooltip: "Change Song Tempo"
     });
     me.addChild(spinBoxBpm);
 
