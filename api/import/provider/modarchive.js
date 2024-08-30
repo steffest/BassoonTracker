@@ -5,12 +5,12 @@ var ModArchiveCached = (function(){
     var config   = require('../../config');
     var xml2js = require('xml2js');
     var loki= require('lokijs');
-    var he = require('he');
+    //var he = require('he');
 
     var me = {};
 
     var baseUrl = "https://api.modarchive.org/xml-tools.php?key=" + config.modArchiveApiKey + "&request=";
-    var DBFileName = "../data/modarchive.json";
+    var DBFileName = "../data/modarchive.2024.json";
 
 
     me.loadModules = function(format,next){

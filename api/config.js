@@ -6,7 +6,7 @@ var Config = (function(){
     // see https://modarchive.org/?xml-api for more info
 
 
-    me.modArchiveApiKey = "***REMOVED***";
+    me.modArchiveApiKey = "";
 
     return me;
 }());

@@ -1,7 +1,7 @@
 var ModulesPL = (function(){
 
     var fs = require('fs');
-    var http = require('http');
+    var https = require('https');
     var xml2js = require('xml2js');
     var loki= require('lokijs');
 
@@ -35,13 +35,13 @@ var ModulesPL = (function(){
 
 
 
-        var url = "http://www.modules.pl/xml.php?mode=modules&format=" + format;
+        var url = "https://www.modules.pl/xml.php?mode=modules&format=" + format;
         // for formats see http://www.modules.pl/xml.php?mode=formats
 
         console.log("connecting to API ) loafing " + (format === 1? "mod":"xm"));
 
         var file = fs.createWriteStream(format + "_" + xmlFileName);
-        var request = http.get(url, function(response) {
+        var request = https.get(url, function(response) {
             response.pipe(file);
             file.on('finish', function() {
                 console.log("Done, saved as " + format + "_" + xmlFileName);
@@ -177,11 +177,11 @@ var ModulesPL = (function(){
         var code = String.fromCharCode(97 + index);
         if (index == 26) code = "rest";
 		//var url = "http://www.modules.pl/xml.php?mode=author&id=" + id;
-        var url = "http://www.modules.pl/xml.php?mode=authors&letter=" + code;
+        var url = "https://www.modules.pl/xml.php?mode=authors&letter=" + code;
 
 		console.log("connecting to API - artist list " + code);
 
-		var request = http.get(url, function(response) {
+		var request = https.get(url, function(response) {
             var body = "";
             response.on('data', function (chunk) {
                 body += chunk;
