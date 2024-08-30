@@ -2,18 +2,23 @@ UI.checkboxbutton = function(properties){
 	var me = UI.button(0,0,20,20);
 	properties = properties || {};
 
-	me.setProperties({
-		background: properties.background || UI.Assets.buttonDarkBlueScale9,
-		hoverBackground:properties.hoverBackground || UI.Assets.buttonDarkBlueActiveScale9,
-		activeBackground:properties.activeBackground || UI.Assets.buttonDarkBlueActiveScale9,
+	let props = {
 		isActive:false,
 		textAlign: "left",
-		paddingLeft: 30,
+		paddingLeft: typeof properties.paddingLeft === "number" ?  properties.paddingLeft : 30,
 		font: properties.font || window.fontFT,
 		label: properties.label || "",
 		labels: properties.labels || undefined,
 		checkbox:  properties.checkbox || false
-	});
+	}
+
+	if (!properties.transparent){
+		props.background =  properties.background || UI.Assets.buttonDarkBlueScale9;
+		props.hoverBackground = properties.hoverBackground || UI.Assets.buttonDarkBlueActiveScale9;
+		props.activeBackground = properties.activeBackground || UI.Assets.buttonDarkBlueActiveScale9;
+	}
+
+	me.setProperties(props);
 
 
 	me.renderInternal = function(){

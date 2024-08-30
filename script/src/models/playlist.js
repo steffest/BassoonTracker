@@ -3,9 +3,11 @@ var Playlist = function(){
     var currentPlaylist;
     var playListActive = false;
     var currentIndex;
+    var playOrder = [];
 
     me.set = function(data){
         currentPlaylist = data;
+        setPlayOrder();
         EventBus.trigger(EVENT.playListLoaded,currentPlaylist);
     }
 
@@ -39,22 +41,34 @@ var Playlist = function(){
     }
 
     me.next = function(){
-        currentIndex++;
-        if (currentIndex>=currentPlaylist.modules.length){
-            currentIndex = 0;
+        if (me.isShuffle){
+            let playIndex = playOrder.indexOf(currentIndex) || 0;
+            playIndex++;
+            if (playIndex>=playOrder.length) playIndex = 0;
+            currentIndex = playOrder[playIndex];
+        }else{
+            currentIndex++;
+            if (currentIndex>=currentPlaylist.modules.length) currentIndex = 0;
         }
         Tracker.stop();
         me.play(currentIndex);
     }
 
     me.prev = function(){
-        currentIndex--;
-        if (currentIndex<0){
-            currentIndex = currentPlaylist.modules.length-1;
+        if (me.isShuffle){
+            let playIndex = playOrder.indexOf(currentIndex) || 0;
+            playIndex--;
+            if (playIndex<0) playIndex = playOrder.length-1;
+            currentIndex = playOrder[playIndex];
+        }else{
+            currentIndex--;
+            if (currentIndex<0) currentIndex = currentPlaylist.modules.length-1;
         }
+
         Tracker.stop();
         me.play(currentIndex);
     }
+
 
     me.getSongInfoUrl = function(url){
         if (url && currentPlaylist && currentPlaylist.modules){
@@ -105,6 +119,11 @@ var Playlist = function(){
         return result;
     }
 
+    me.toggleShuffle = function(){
+        me.isShuffle = !me.isShuffle;
+        setPlayOrder();
+    }
+
     function isFormatSupported(url){
         let ext = url.split(".").pop().toLowerCase();
         switch (ext){
@@ -116,6 +135,20 @@ var Playlist = function(){
         return false;
     }
 
+    function setPlayOrder(){
+       console.error("setPlayOrder")
+        playOrder = [];
+        if (!currentPlaylist || !currentPlaylist.modules) return;
+        for (let i=0;i<currentPlaylist.modules.length;i++){
+            playOrder.push(i);
+        }
+        if (me.isShuffle){
+            playOrder = playOrder.sort(function() {
+                return .5 - Math.random();
+            });
+        }
+    }
+
     EventBus.on(EVENT.songEnd,function(delay){
         delay = (delay || 0) * 1000;
         if (playListActive){
@@ -124,6 +157,7 @@ var Playlist = function(){
             },delay);
         }
     });
+
 
     return me;
 }();

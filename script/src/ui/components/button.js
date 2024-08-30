@@ -15,7 +15,7 @@ UI.button = function(x,y,w,h,text){
     var textAlign = "left";
     var paddingTop = 0;
     var paddingTopActive = 0;
-    var paddingLeft = 10;
+    var paddingLeft = 0;
     var hasHover = true;
 
     var properties = ["left","top","width","height","name","type","image","backgroundImage","background","active","hoverBackground","hoverImage","activeBackground","activeImage","font","label","textAlign","paddingTop","paddingTopActive","paddingLeft","checkbox","radio","opacity","hoverOpacity"];
@@ -167,7 +167,7 @@ UI.button = function(x,y,w,h,text){
                     }
                     if (stateImage){
                         var imgY = Math.floor((me.height-stateImage.height)/2);
-                        var imgX = Math.floor((me.width-stateImage.width)/2);
+                        var imgX = Math.floor((me.width-stateImage.width)/2) + paddingLeft;
                         me.ctx.drawImage(stateImage,imgX,imgY);
                         //drawFonts = false;
                     }

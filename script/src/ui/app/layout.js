@@ -65,7 +65,6 @@ var Layout = function(){
       me.trackFont = fontMed;
       me.useCondensedTrackFont = false;
 
-
 	  me.maxVisibleTracks = 16;
 	  if (mainWidth<945) me.maxVisibleTracks=12;
 	  if (mainWidth<725) me.maxVisibleTracks=8;
@@ -121,7 +120,9 @@ var Layout = function(){
       }
 
 	  var margins = me.defaultMargin*(me.visibleTracks-1);
+
 	  me.showSideBar = me.visibleTracks<17 && mainWidth>620;
+
 
 	  var totalWidth = me.showSideBar ? me.col4W:me.col5W;
 	  me.trackWidth =  Math.floor((totalWidth - margins)/me.visibleTracks);

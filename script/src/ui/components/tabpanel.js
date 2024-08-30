@@ -2,6 +2,10 @@ UI.tabPanel = function(x,y,w,h,config){
     var me = UI.element(x,y,w,h);
     me.type = "tabpanel";
 
+    let footerHeight = 10;
+    let activeTabIndex = 0;
+    let showFooter = true;
+
     // background
     let background = UI.scale9Panel(0,0,me.width,me.height,{
         img: Y.getImage("tab_panel"),
@@ -60,22 +64,25 @@ UI.tabPanel = function(x,y,w,h,config){
 
     me.onResize = function(){
         background.setSize(me.width,me.height-Layout.trackControlHeight);
+        showFooter = me.height>160;
         tabButtons.forEach(function(elm){
             if (elm.panel){
                 let h = background.height;
-                if (elm.footer) h -= 42;
+                if (elm.footer && showFooter) h -= (footerHeight+2);
                 elm.panel.setSize(background.width-2,h);
                 elm.panel.setPosition(2,Layout.trackControlHeight+4);
             }
         });
-        footer.setSize(me.width,40);
-        footer.setPosition(0,me.height-42);
+        footer.setSize(me.width,footerHeight);
+        footer.setPosition(0,me.height-(footerHeight+2));
         if (footer.children){
             footer.children.forEach(function(elm){
                 elm.setPosition(2,2);
                 elm.setSize(footer.width-4,footer.height-4);
             });
         }
+        let activeButton = tabButtons[activeTabIndex];
+        footer.toggle(!!(activeButton.footer && showFooter));
     }
 
     me.render = function(internal){
@@ -139,20 +146,22 @@ UI.tabPanel = function(x,y,w,h,config){
             tabButtons.forEach(function(elm){
                 elm.setProperties({opacity:0.5});
                 if (elm.panel) elm.panel.hide();
-
             });
             tabButton.setProperties({opacity:1});
             if (config.panel) config.panel.show();
-            footer.toggle(!!config.footer);
+            activeTabIndex = tabButton.index;
+            footer.toggle(!!(config.footer && showFooter));
         }
         tabButton.panel = config.panel;
         tabButton.footer = config.footer;
+        tabButton.index = tabButtons.length;
         if (!config.isSelected) config.panel.hide();
         me.addChild(tabButton);
         tabButtons.push(tabButton);
         tabX += config.width-12;
 
         if (config.footer){
+            footerHeight = config.footer.height;
             footer.addChild(config.footer);
         }
     }

@@ -33,9 +33,6 @@ UI.app_patternPanel = function(){
     };
 	me.addChild(scopesClickHandler);
 
-    var patternSidebar = UI.pattern_sidebar();
-    me.addChild(patternSidebar);
-
     var patternView = UI.app_patternView();
     patternView.setProperties({
         name: "patternViewPanel"
@@ -53,11 +50,11 @@ UI.app_patternPanel = function(){
 
 		if (Layout.showSideBar){
 			if (currentView === "main"){
-				patternSidebar.show();
+				//patternSidebar.show();
 				editPanel.show();
 			}
 		}else{
-			patternSidebar.hide();
+			//patternSidebar.hide();
 			editPanel.hide();
 		}
 
@@ -100,14 +97,6 @@ UI.app_patternPanel = function(){
 				width: patternWidth,
 				height: patternHeight
 			});
-
-        patternSidebar.setDimensions({
-            left: Layout.col1X,
-            top : patternView.top - Layout.trackControlHeight,
-            width: Layout.col1W,
-            height: patternHeight + Layout.trackControlHeight
-        });
-
 
         visualiser.setProperties({
             left: patternTrackLeft + Layout.mainLeft,
@@ -230,7 +219,7 @@ UI.app_patternPanel = function(){
             case "sample":
                 sampleView.show();
                 patternView.hide();
-                patternSidebar.hide();
+                //patternSidebar.hide();
 
                 if (Layout.expandSampleViewHeight){
                     visualiser.hide();
@@ -247,7 +236,7 @@ UI.app_patternPanel = function(){
                 patternView.show();
 				visualiser.show();
                 if (Layout.showSideBar){
-					patternSidebar.show();
+					//patternSidebar.show();
 					editPanel.show();
                 }
 				currentView = "main";
@@ -260,11 +249,11 @@ UI.app_patternPanel = function(){
 	EventBus.on(EVENT.visibleTracksCountChange,function(count){
 	    if (Layout.showSideBar){
             if (currentView === "main"){
-				patternSidebar.show();
+				//patternSidebar.show();
 				editPanel.show();
             }
         }else{
-			patternSidebar.hide();
+			//patternSidebar.hide();
 			editPanel.hide();
         }
 		me.onResize();

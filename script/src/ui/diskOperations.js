@@ -599,6 +599,7 @@ UI.DiskOperations = function(){
 		//Or move this to the local database?
 		
 		var useModArchiveAPI = true;
+		Tracker.autoPlay = true;
 		
 		if (useModArchiveAPI){
 			UI.setStatus("Fetching random song",true);

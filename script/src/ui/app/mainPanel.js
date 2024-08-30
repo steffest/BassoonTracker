@@ -342,6 +342,7 @@ UI.app_mainPanel = function(){
 				spinBoxPattern.toggle(currentSubView === "patterndata");
 				spinBoxPatternLength.toggle(currentSubView === "patterndata");
 				spinBoxInstrument.toggle(currentSubView === "patterndata");
+				UI.patternsidebar.toggle(currentSubView === "playlist" && !(customPanel && customPanel.isVisible()));
 			}
 			
 			patternPanel2.hide();
@@ -457,6 +458,11 @@ UI.app_mainPanel = function(){
         return currentView;
     };
 
+	me.getCurrentSubView = function(){
+		if (customPanel && customPanel.isVisible()) return "custom";
+		return currentSubView;
+	}
+
     function initSmallScreenUI(){
 		currentSubView = "patterndata";
 		radioGroup = UI.radioGroup();
@@ -492,6 +498,13 @@ UI.app_mainPanel = function(){
 					{width: 30, label: "Instr"}
 				],
 				active:false
+			},
+			{
+				label:"Playlists",
+				labels : [
+					{width: 30, label: "List"}
+				],
+				active:false
 			}
 		]);
 		radioGroup.onChange = function(selectedIndex){
@@ -499,6 +512,7 @@ UI.app_mainPanel = function(){
 			if (selectedIndex === 1) currentSubView = "songdata";
 			if (selectedIndex === 2) currentSubView = "patterndata";
 			if (selectedIndex === 3) currentSubView = "instruments";
+			if (selectedIndex === 4) currentSubView = "playlist";
 			me.onPanelResize();
 
 		};
@@ -540,6 +554,7 @@ UI.app_mainPanel = function(){
 
 		if (Layout.prefered === "col3") {
 			if (radioGroup) radioGroup.show();
+			me.onPanelResize();
 		}else{
 			if (radioGroup) radioGroup.hide();
 		}
@@ -620,6 +635,7 @@ UI.app_mainPanel = function(){
 			optionsPanel.hide();
 			hideMain();
 			currentView = "custom";
+			if (!Layout.showSideBar) UI.patternsidebar.hide();
 			customPanel.show();
 			me.refresh();
 		}

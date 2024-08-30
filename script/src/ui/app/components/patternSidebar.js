@@ -30,11 +30,6 @@ UI.pattern_sidebar = function(){
 
     me.sortZIndex();
 
-    var buttonsSideInfo=[
-        {label:"Random MOD", onClick:function(){App.doCommand(COMMAND.randomSong)}},
-        {label:"Random XM", onClick:function(){App.doCommand(COMMAND.randomSongXM)}}
-    ];
-
     var pianoButton = UI.button();
     pianoButton.setProperties({
         label: "",
@@ -63,6 +58,16 @@ UI.pattern_sidebar = function(){
 
     me.onResize = function(){
         var buttonHeight = 30;
+        var listHeight =  me.height - buttonHeight*2 - 10;
+
+        if (listHeight<100){
+            pianoButton.hide();
+            nibblesButton.hide();
+            listHeight = me.height-4;
+        }else{
+            pianoButton.show();
+            nibblesButton.show();
+        }
 
         pianoButton.setProperties({
             left:0,
@@ -82,7 +87,7 @@ UI.pattern_sidebar = function(){
             left:0,
             top: 0 ,
             width: me.width,
-            height: me.height - buttonHeight*2 - 10
+            height: listHeight
         });
 
     };
@@ -215,30 +220,74 @@ UI.pattern_sidebar = function(){
     }
 
     function generateSongControls(){
-        let controls = UI.panel();
+        let controls = UI.panel(0,0,20,68);
 
         let buttons = [
             ["iprev",COMMAND.playPrevious,"Play Previous song in playlist"],
             ["iplay",COMMAND.play, "Toggle Play [Enter]"],
             ["inext",COMMAND.playNext, "Play Next song in playlist"],
-            ["ishuffle",COMMAND.playNext, "Play Next song in playlist"],
+            ["ishuffle",COMMAND.toggleShuffle, "Toggle Shuffle",true],
+        ]
+
+        let buttons2 = [
+            ["Mod",COMMAND.randomSong,"Play a random MOD song"],
+            ["XM",COMMAND.randomSongXM,"Play a random XM song"],
+            ["PlayList",COMMAND.randomPlayList,"Generate a random playlist"],
         ]
 
         let x = 10;
         buttons.forEach(function(item){
-            let button = UI.button(x,0,18,18);
+            let isCheckbox = item[3];
+            let width = 18;
+            let button;
+            if (isCheckbox){
+                button = UI.checkboxbutton({
+                    checkbox: true,
+                    transparent: true,
+                    paddingLeft: 10,
+                })
+                width = 50;
+            }else{
+                button = UI.button(x,0,18,18);
+            }
             button.setProperties({
                 image: Y.getImage(item[0]),
                 hoverImage: Y.getImage(item[0]+"_active"),
                 opacity: 0.7,
-                hoverOpacity: 1
+                hoverOpacity: 1,
+                left: x,
+                top: 2,
+                width: width
             });
             button.onClick = function(){
                 App.doCommand(item[1]);
             }
             button.tooltip = item[2] || "Play";
             controls.addChild(button);
+            item.push(button);
             x+=20;
+        });
+
+        let line = UI.image(0,22,10,2,"line_hor");
+        controls.addChild(line);
+
+
+        buttons2.forEach(function(item){
+            let button = UI.Assets.generate("buttonDarkBlue");
+            button.setProperties({
+                label: item[0],
+                font: fontSmall,
+                width: 90,
+                textAlign: "center",
+                paddingTop: 1
+            });
+            button.onClick = function(){
+                App.doCommand(item[1]);
+            }
+            button.tooltip = item[2];
+            controls.addChild(button);
+            x+=60;
+            item.push(button);
         });
 
         EventBus.on(EVENT.playingChange,function(isPlaying){
@@ -257,49 +306,24 @@ UI.pattern_sidebar = function(){
         });
 
 
-        let buttonMod = UI.Assets.generate("buttonDarkBlue");
-        buttonMod.setProperties({
-            label: "Random Mod",
-            font: fontSmall,
-            width: 90,
-            textAlign: "center",
-            paddingTop: 1
-        });
-        buttonMod.onClick = function(){
-            App.doCommand(COMMAND.randomSong);
-        };
-        buttonMod.tooltip = "Play a random MOD song";
-
-        let buttonXM = UI.Assets.generate("buttonDarkBlue");
-        buttonXM.setProperties({
-            label: "Random XM",
-            font: fontSmall,
-            width: 90,
-            left: 100,
-            textAlign: "center",
-            paddingTop: 2
-        });
-        buttonXM.onClick = function(){
-            App.doCommand(COMMAND.randomSongXM);
-        };
-        buttonXM.tooltip = "Play a random XM song";
-
-
-        controls.addChild(buttonMod);
-        controls.addChild(buttonXM);
-
         controls.onResize = function(){
-            let w = Math.floor(controls.width/2 - 15);
-            buttonMod.setProperties({
-                left: 10,
-                top: 20,
-                width: w
+            let w = Math.floor((controls.width-10)/3);
+            buttons.forEach(function(item,index){
+                let button = item[item.length-1];
+                let margin = Math.floor((controls.width - (18*3 + 50))/5);
+                button.setProperties({
+                    left: margin*(index+1) + 18*index
+                });
             });
-            buttonXM.setProperties({
-                left: w+10,
-                top:20,
-                width: w
+
+            buttons2.forEach(function(item,index){
+                item[3].setProperties({
+                    left: w*index + 5,
+                    top: 30,
+                    width: w
+                });
             });
+            line.setSize(controls.width,2);
         };
 
         return controls;

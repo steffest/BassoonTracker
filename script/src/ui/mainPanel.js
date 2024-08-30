@@ -19,6 +19,10 @@ UI.MainPanel = function(){
     var patternPanel = UI.app_patternPanel();
     me.addChild(patternPanel);
 
+    var patternSidebar = UI.pattern_sidebar();
+    me.addChild(patternSidebar);
+    UI.patternsidebar = patternSidebar;
+
     var pianoPanel = UI.app_pianoView();
     pianoPanel.hide();
     me.addChild(pianoPanel);
@@ -67,10 +71,37 @@ UI.MainPanel = function(){
         patternPanel.setPosition(Layout.mainLeft,panelTop);
         patternPanel.setSize(Layout.mainWidth,remaining);
 
+        if (Layout.showSideBar){
+            patternSidebar.show();
+            patternSidebar.setDimensions({
+                left: Layout.col1X,
+                top : panelTop + Layout.infoPanelHeight + Layout.analyserHeight,
+                width: Layout.col1W,
+                height: remaining - Layout.infoPanelHeight - Layout.analyserHeight - Layout.defaultMargin
+            });
+        }else{
+            patternSidebar.setDimensions({
+                left: Layout.col32X,
+                top : appPanel.top,
+                width: Layout.col32W,
+                height: appPanel.height
+            });
+            setMobileSideBar();
+        }
+
+
 	};
 
     me.sortZIndex();
     me.onResize();
+
+    function setMobileSideBar(){
+        if (appPanel.getCurrentView() === "" && appPanel.getCurrentSubView() === "playlist"){
+            patternSidebar.show();
+        }else{
+            patternSidebar.hide();
+        }
+    }
 
     EventBus.on(EVENT.toggleView,function(view){
         if (view === "piano"){
@@ -82,8 +113,24 @@ UI.MainPanel = function(){
                 remaining = remaining-pianoPanel.height;
             }
             patternPanel.setSize(Layout.mainWidth,remaining);
+            if (Layout.showSideBar) patternSidebar.setSize(Layout.col1W,remaining - Layout.infoPanelHeight - Layout.analyserHeight - Layout.defaultMargin);
         }
+    });
 
+    EventBus.on(EVENT.showView,function(view){
+        if (Layout.showSideBar){
+            switch (view){
+                case "sample":
+                    patternSidebar.hide();
+                    break;
+                case "bottommain":
+                case "main":
+                    patternSidebar.show();
+                    break;
+            }
+        }else{
+            setMobileSideBar();
+        }
     });
 
 	EventBus.on(EVENT.showContextMenu,function(properties){

@@ -152,6 +152,9 @@ var App = (function(){
                 case COMMAND.playPrevious:
                     Playlist.prev();
                     break;
+                case COMMAND.toggleShuffle:
+                    Playlist.toggleShuffle();
+                    break;
             }
         });
     };
