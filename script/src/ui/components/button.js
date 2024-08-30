@@ -184,7 +184,11 @@ UI.button = function(x,y,w,h,text){
 
             if (label && drawFonts){
                 var fontSize = 10;
-                var fontWidth = 8; // TODO: get from font
+                var fontWidth = 8;
+                if (font){
+                    fontSize = font.charHeight;
+                    fontWidth = font.charWidth;
+                }
                 var textY = Math.floor((me.height-fontSize)/2) + (me.isActive?paddingTopActive:paddingTop);
                 var textX = paddingLeft;
                 if (font){

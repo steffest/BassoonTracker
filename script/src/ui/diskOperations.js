@@ -623,6 +623,20 @@ UI.DiskOperations = function(){
 		}
 	};
 
+	me.generatePlayList = function(){
+		UI.setStatus("Generating playlist",true);
+		UI.setInfo("");
+		FetchService.json("https://www.stef.be/bassoontracker/api/generatelist",function(data){
+			if (data && data.modules){
+				Playlist.set(data);
+				Tracker.autoPlay = true;
+				Playlist.play(0);
+
+			}else{
+				UI.setStatus("Error: could not contact the API",false);
+			}
+		})
+	}
 
 	function toggleDirectory(item,index){
 		listbox.setSelectedIndex(index);

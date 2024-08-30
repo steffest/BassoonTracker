@@ -272,14 +272,25 @@ UI.pattern_sidebar = function(){
         controls.addChild(line);
 
 
+        let label = UI.label();
+        label.setProperties({
+            label: "Play Random",
+            font: fontSmall,
+            color: "white",
+            left: 0,
+            textAlign: "center",
+            top: 30
+        });
+        controls.addChild(label);
+
+
         buttons2.forEach(function(item){
             let button = UI.Assets.generate("buttonDarkBlue");
             button.setProperties({
                 label: item[0],
                 font: fontSmall,
-                width: 90,
-                textAlign: "center",
-                paddingTop: 1
+                paddingTop: 1,
+                textAlign: "center"
             });
             button.onClick = function(){
                 App.doCommand(item[1]);
@@ -319,11 +330,12 @@ UI.pattern_sidebar = function(){
             buttons2.forEach(function(item,index){
                 item[3].setProperties({
                     left: w*index + 5,
-                    top: 30,
+                    top: 40,
                     width: w
                 });
             });
             line.setSize(controls.width,2);
+            label.setSize(controls.width,10);
         };
 
         return controls;

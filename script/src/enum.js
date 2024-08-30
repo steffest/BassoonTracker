@@ -111,6 +111,7 @@ var COMMAND = {
 	playNext: 1031,
 	playPrevious: 1032,
 	toggleShuffle: 1033,
+	randomPlayList: 1034,
 };
 
 var PLAYTYPE = {

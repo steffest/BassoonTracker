@@ -47,6 +47,29 @@ var ModArchiveCached = (function(){
                 returnJSON(res);
                 res.end(JSON.stringify(modules.chain().find({score:  {'$gt':4} }).simplesort('score',true).limit(100).data()));
                 break;
+            case "random10":
+                returnJSON(res);
+                let result = {error: "no modules"};
+                if (typeof modules !== "undefined"){
+                    var list = modules.find().sort(function() {
+                        return .5 - Math.random();
+                    });
+                    list = list.slice(0,20);
+                    result={
+                        title: "Feeling Lucky",
+                        info: "20 random songs from the ModArchive",
+                        modules: []
+                    }
+                    list.forEach(function(item){
+                        result.modules.push({
+                            title: item.title,
+                            author: item.artist || "",
+                            url: "https://api.modarchive.org/downloads.php?moduleid=" + item.id + "#." + item.format,
+                        });
+                    });
+                }
+                res.end(JSON.stringify(result));
+                break;
             default:
                 returnHTML(res);
                 res.end("Modules.pl " + action + " ... Nope, don't know what to do with that.");

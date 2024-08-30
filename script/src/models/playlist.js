@@ -136,7 +136,6 @@ var Playlist = function(){
     }
 
     function setPlayOrder(){
-       console.error("setPlayOrder")
         playOrder = [];
         if (!currentPlaylist || !currentPlaylist.modules) return;
         for (let i=0;i<currentPlaylist.modules.length;i++){

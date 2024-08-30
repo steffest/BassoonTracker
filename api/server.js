@@ -72,6 +72,9 @@ var server = http.createServer(function (req, res) {
         case "randomxm":
             modArchive.getResult("xm.random",page,res);
             break;
+		case "generatelist":
+			modArchiveCached.handleRequest('random10',urlParts,res);
+			break;
 		case "genres":
 			modArchive.getResult("view_genres",page,res);
 			break;
