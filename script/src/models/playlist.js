@@ -41,30 +41,19 @@ var Playlist = function(){
     }
 
     me.next = function(){
-        if (me.isShuffle){
-            let playIndex = playOrder.indexOf(currentIndex) || 0;
-            playIndex++;
-            if (playIndex>=playOrder.length) playIndex = 0;
-            currentIndex = playOrder[playIndex];
-        }else{
-            currentIndex++;
-            if (currentIndex>=currentPlaylist.modules.length) currentIndex = 0;
-        }
+        if (!currentPlaylist || !currentPlaylist.modules) return;
+        moveIndex(1);
+        let item = currentPlaylist.modules[currentIndex];
+        if (!item.url) moveIndex(1);
         Tracker.stop();
         me.play(currentIndex);
     }
 
     me.prev = function(){
-        if (me.isShuffle){
-            let playIndex = playOrder.indexOf(currentIndex) || 0;
-            playIndex--;
-            if (playIndex<0) playIndex = playOrder.length-1;
-            currentIndex = playOrder[playIndex];
-        }else{
-            currentIndex--;
-            if (currentIndex<0) currentIndex = currentPlaylist.modules.length-1;
-        }
-
+        if (!currentPlaylist || !currentPlaylist.modules) return;
+        moveIndex(-1);
+        let item = currentPlaylist.modules[currentIndex];
+        if (!item.url) moveIndex(-1);
         Tracker.stop();
         me.play(currentIndex);
     }
@@ -122,6 +111,20 @@ var Playlist = function(){
     me.toggleShuffle = function(){
         me.isShuffle = !me.isShuffle;
         setPlayOrder();
+    }
+
+    function moveIndex(offset){
+        if (me.isShuffle){
+            let playIndex = playOrder.indexOf(currentIndex) || 0;
+            playIndex += offset;
+            if (playIndex>=playOrder.length) playIndex = 0;
+            if (playIndex<0) playIndex = playOrder.length-1;
+            currentIndex = playOrder[playIndex];
+        }else{
+            currentIndex += offset;
+            if (currentIndex>=currentPlaylist.modules.length) currentIndex = 0;
+            if (currentIndex<0) currentIndex = currentPlaylist.modules.length-1;
+        }
     }
 
     function isFormatSupported(url){

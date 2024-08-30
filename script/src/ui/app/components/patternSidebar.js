@@ -186,6 +186,8 @@ UI.pattern_sidebar = function(){
                             tabPanel.setTab(0);
                         })
                     }
+                }else{
+                    // TODO: collapse/expand ?
                 }
             }
         };
@@ -355,26 +357,30 @@ UI.pattern_sidebar = function(){
             level++;
         }
         data.modules.forEach(function(item,index){
-            let icon = Y.getImage("mod");
-            if (item.url.endsWith(".xm")) icon = Y.getImage("xm");
-            var info = item.info;
-            var info2;
-            var icon2
-            var infoExtra;
-            if (item.author){
-                info = item.author;
-                info2 = item.info;
-            }
-            if (item.group){
-                infoExtra = item.group;
-            }
-            if (info2){
-                if (info2.startsWith("1st")) icon2 = Y.getImage("gold");
-                if (info2.startsWith("2nd")) icon2 = Y.getImage("silver");
-                if (info2.startsWith("3rd")) icon2 = Y.getImage("bronze");
-            }
+            if (item.url){
+                let icon = Y.getImage("mod");
+                if (item.url.endsWith(".xm")) icon = Y.getImage("xm");
+                var info = item.info;
+                var info2;
+                var icon2
+                var infoExtra;
+                if (item.author){
+                    info = item.author;
+                    info2 = item.info;
+                }
+                if (item.group){
+                    infoExtra = item.group;
+                }
+                if (info2){
+                    if (info2.startsWith("1st")) icon2 = Y.getImage("gold");
+                    if (info2.startsWith("2nd")) icon2 = Y.getImage("silver");
+                    if (info2.startsWith("3rd")) icon2 = Y.getImage("bronze");
+                }
 
-            items.push({label: item.title, info: info, info2: info2, icon2: icon2, infoExtra: infoExtra, url: item.url, icon: icon, level: level, index: index, listIndex: index+level});
+                items.push({label: item.title, info: info, info2: info2, icon2: icon2, infoExtra: infoExtra, url: item.url, icon: icon, level: level, index: index, listIndex: index+level});
+            }else{
+                items.push({label: item.title, icon: item.icon});
+            }
         });
         return items;
     }
