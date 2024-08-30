@@ -405,6 +405,20 @@ var Tracker = (function(){
 						p=0;
 						if (Tracker.getPlayType() == PLAYTYPE.song){
 							var nextPosition = stepResult.positionBreak ? stepResult.targetSongPosition : ++playSongPosition;
+
+							if (me.autoPlay && stepResult.positionBreak){
+								if (nextPosition<playSongPosition){
+									// check if we are not in an endless playing loop when autoplay is enabled
+									console.log("Backwards Position Jump in autoPlay, checking for endless loop");
+
+									if (playSongPosition>=song.length-1){
+										// we are at the last pattern, let's assume the song is done
+										console.warn("Ending song at Position Jump in last pattern");
+										nextPosition = song.length;
+									}
+								}
+							}
+
 							if (nextPosition>=song.length) {
 								nextPosition = song.restartPosition ? song.restartPosition-1 : 0;
 								EventBus.trigger(EVENT.songEnd,time-Audio.context.currentTime);
@@ -1121,8 +1135,6 @@ var Tracker = (function(){
 				break;
 			case 11:
 				// Position Jump
-
-				// TODO: check if this doesn't cause autoplay issues
 				result.patternBreak = true;
 				result.positionBreak = true;
 				result.targetSongPosition = note.param;

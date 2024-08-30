@@ -26,4 +26,6 @@ grunt-uglify-cache.json
 /api/node_modules/
 /api/iisnode/
 /api/config.js
+api/config.js
+config.js
 /hosts/FriendOs/build/
