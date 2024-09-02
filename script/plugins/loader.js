@@ -1,3 +1,8 @@
+import Y from "../src/ui/yascal/yascal.js";
+import sprite from "../src/ui/yascal/sprite.js";
+import Host from "../src/host.js";
+
+
 var Plugin = function(){
 	var me = {};
 	
@@ -77,7 +82,7 @@ var Plugin = function(){
 				var loadGraphics = function (src) {
 					Y.loadImage(Host.getRemoteUrl() + src,function(img){
 						var name = src.split("/").pop().split(".")[0];
-						Y.sprites[plugin.name + "." + name] = Y.sprite({
+						Y.sprites[plugin.name + "." + name] = sprite({
 							img:img,
 							width:img.width,
 							height: img.height
@@ -117,3 +122,5 @@ var Plugin = function(){
 
 	return me;
 }();
+
+export default Plugin;

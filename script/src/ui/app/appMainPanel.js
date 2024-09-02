@@ -17,6 +17,7 @@ import Tracker from "../../tracker.js";
 import Input from "../input.js";
 import Editor from "../../editor.js";
 import RadioGroup from "../components/radiogroup.js";
+import Panel from "../components/panel.js";
 
 let app_mainPanel = function(){
     var me = App_panelContainer(160);

@@ -8,6 +8,18 @@ import Playlist from "./models/playlist.js";
 import ModalDialog from "./ui/components/modalDialog.js";
 import Midi from "./audio/midi.js";
 import Y from "./ui/yascal/yascal.js";
+import Plugin from "../plugins/loader.js";
+import Input from "./ui/input.js";
+import Layout from "./ui/app/layout.js";
+import UIElement from "./ui/components/element.js";
+import UIImage from "./ui/components/image.js";
+import Scale9Panel from "./ui/components/scale9.js";
+import Assets from "./ui/assets.js";
+import Label from "./ui/components/label.js";
+import Button from "./ui/components/button.js";
+import RadioGroup from "./ui/components/radioGroup.js";
+import Checkbox from "./ui/components/checkbox.js";
+import Panel from "./ui/components/panel.js";
 
 var App = (function(){
     var me = {};
@@ -125,7 +137,17 @@ var App = (function(){
 				case COMMAND.nibbles:
 					Plugin.load("Nibbles",function(){
 						Nibbles.init({
-                            UI:UI,
+                            UI:{
+                                element: UIElement,
+                                image: UIImage,
+                                Assets: Assets,
+                                scale9Panel: Scale9Panel,
+                                label: Label,
+                                button: Button,
+                                radioGroup: RadioGroup,
+                                checkbox: Checkbox,
+                                panel: Panel
+                            },
                             Input: Input,
                             Y: Y,
                             EventBus: EventBus,
