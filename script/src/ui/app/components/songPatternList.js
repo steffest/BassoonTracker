@@ -1,11 +1,22 @@
-UI.app_songPatternList = function(height){
+import Panel from "../../components/panel.js";
+import Scale9Panel from "../../components/scale9.js";
+import Assets from "../../assets.js";
+import Listbox from "../../components/listbox.js";
+import EventBus from "../../../eventBus.js";
+import {EVENT} from "../../../enum.js";
+import Tracker from "../../../tracker.js";
+import Editor from "../../../editor.js";
+import Ticker from "../../ticker.js";
 
-    var me = UI.panel();
 
-    var songPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
+let app_songPatternList = function(height){
+
+    var me = Panel();
+
+    var songPanel = Scale9Panel(0,0,0,0,Assets.panelInsetScale9);
     me.addChild(songPanel);
 
-    var songlistbox = UI.listbox();
+    var songlistbox = Listbox();
     songlistbox.setItems([
         {label: "01:00", data: 1}
     ]);
@@ -22,14 +33,14 @@ UI.app_songPatternList = function(height){
     };
     me.addChild(songlistbox);
 
-    var spPlus = UI.Assets.generate("button20_20");
+    var spPlus = Assets.generate("button20_20");
     spPlus.setLabel("↑");
     spPlus.onDown = function(){
         var index = songlistbox.getSelectedIndex();
         var pattern = Tracker.getSong().patternTable[index];
         pattern++;
         Tracker.updatePatternTable(index,pattern);
-		UI.ticker.onEachTick4(function(){
+		Ticker.onEachTick4(function(){
 			var index = songlistbox.getSelectedIndex();
 			var pattern = Tracker.getSong().patternTable[index];
 			pattern++;
@@ -38,19 +49,19 @@ UI.app_songPatternList = function(height){
 
     };
 	spPlus.onTouchUp = function(){
-		UI.ticker.onEachTick4();
+		Ticker.onEachTick4();
 	};
     me.addChild(spPlus);
 
 
-    var spMin = UI.Assets.generate("button20_20");
+    var spMin = Assets.generate("button20_20");
     spMin.setLabel("↓");
     spMin.onDown = function(){
         var index = songlistbox.getSelectedIndex();
         var pattern = Tracker.getSong().patternTable[index];
         if (pattern>0) pattern--;
         Tracker.updatePatternTable(index,pattern);
-		UI.ticker.onEachTick4(function(){
+		Ticker.onEachTick4(function(){
 			var index = songlistbox.getSelectedIndex();
 			var pattern = Tracker.getSong().patternTable[index];
 			if (pattern>0) pattern--;
@@ -58,13 +69,13 @@ UI.app_songPatternList = function(height){
 		},5);
     };
 	spMin.onTouchUp = function(){
-		UI.ticker.onEachTick4();
+		Ticker.onEachTick4();
 	};
     me.addChild(spMin);
 
 
 
-    var spInsert = UI.Assets.generate("button20_20");
+    var spInsert = Assets.generate("button20_20");
     spInsert.setLabel("Ins");
     spInsert.onDown = function(){
         var index = songlistbox.getSelectedIndex();
@@ -75,7 +86,7 @@ UI.app_songPatternList = function(height){
     me.addChild(spInsert);
 
 
-    var spDelete = UI.Assets.generate("button20_20");
+    var spDelete = Assets.generate("button20_20");
     spDelete.setLabel("Del");
     spDelete.onDown = function(){
         var index = songlistbox.getSelectedIndex();
@@ -138,3 +149,5 @@ UI.app_songPatternList = function(height){
 
     return me;
 };
+
+export default app_songPatternList;

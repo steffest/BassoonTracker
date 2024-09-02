@@ -1,4 +1,6 @@
-UI.element = function(left,top,width,height){
+import UI from "../ui.js";
+
+let UIElement = function(left,top,width,height){
     var me = {};
 
     me.left = left || 0;
@@ -8,7 +10,7 @@ UI.element = function(left,top,width,height){
 
     me.visible = true;
     me.needsRendering = true;
-    me.parentCtx = ctx;
+    me.parentCtx = UI.getContext();
 
     me.canvas = document.createElement("canvas");
     me.canvas.width = width;
@@ -137,7 +139,7 @@ UI.element = function(left,top,width,height){
     };
 
     me.setSize = function(_w,_h){
-		me.width = Math.max(_w,1);
+        me.width = Math.max(_w,1);
 		me.height = Math.max(_h,1);
         me.canvas.width = me.width;
         me.canvas.height = me.height;
@@ -170,3 +172,5 @@ UI.element = function(left,top,width,height){
 
     return me;
 };
+
+export default UIElement;

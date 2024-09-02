@@ -1,4 +1,11 @@
-var debug = false;
+import Tracker from "./tracker.js";
+import Audio from "./audio.js";
+import UI from "./ui/ui.js"
+import Host from "./host.js";
+import Settings from "./settings.js";
+import App from "./app.js";
+import Editor from "./editor.js";
+import ModalDialog from "./ui/components/modalDialog.js";
 
 var Main = function(){
     var me = {};
@@ -8,14 +15,15 @@ var Main = function(){
         Host.init();
         Tracker.init();
         Audio.init();
-        
-        UI.startMeasure();
+
+        //UI.startMeasure();
         UI.init(function(){
+            console.error("UI init done");
             window.focus();
             me.isBrowserSupported = Audio.context && window.requestAnimationFrame;
             if (!me.isBrowserSupported){
                 console.error("Browser not supported");
-                var dialog = UI.modalDialog();
+                var dialog = ModalDialog();
                 dialog.setProperties({
                     width: UI.mainPanel.width,
                     height: UI.mainPanel.height,
@@ -29,16 +37,18 @@ var Main = function(){
                 UI.setModalElement(dialog);
             }else{
                 Settings.readSettings();
-                if (debug) UI.measure("Read & Apply Settings");
+                //if (debug) UI.measure("Read & Apply Settings");
                 App.init();
                 Host.signalReady();
                 Editor.loadInitialFile();
-                if (debug) UI.endMeasure();
+                //if (debug) UI.endMeasure();
             }
         });
+
+
     };
 
     return me;
 }();
 
-if (!Host.customConfig && document.addEventListener) document.addEventListener('DOMContentLoaded', Main.init);
+Main.init();

@@ -1,7 +1,13 @@
-UI.app_panelContainer = function(height){
-    var me = UI.panel(0,0,canvas.width,height,true);
+import Panel from '../components/panel.js';
+import Scale9Panel from '../components/scale9.js';
+import Assets from "../assets.js";
+import UI from "../ui.js";
 
-    var background = UI.scale9Panel(0,0,me.width,me.height,UI.Assets.panelMainScale9);
+let app_panelContainer = function(height){
+    let canvas = UI.getCanvas();
+    var me = Panel(0,0,canvas.width,height,true);
+
+    var background = Scale9Panel(0,0,me.width,me.height,Assets.panelMainScale9);
     background.ignoreEvents = true;
     me.addChild(background);
 
@@ -12,3 +18,5 @@ UI.app_panelContainer = function(height){
 
     return me;
 };
+
+export default app_panelContainer;

@@ -1,17 +1,25 @@
-UI.EnvelopePanel = function(type){
+import Panel from "./components/panel.js";
+import Scale9Panel from "./components/scale9.js";
+import Assets from "./assets.js";
+import Envelope from "./envelope.js";
+import Checkbox from "./components/checkbox.js";
+import SpinBox from "./spinBox.js";
+import Label from "./components/label.js";
 
-	var me = UI.panel();
+let EnvelopePanel = function(type){
+
+	var me = Panel();
 	me.type = type;
 
 	var currentInstrument;
 	var envelope;
 	var disabled = false;
 
-	var titleBar = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
+	var titleBar = Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
 	titleBar.ignoreEvents = true;
 	me.addChild(titleBar);
 
-	var titleLabel = UI.label({
+	var titleLabel = Label({
 		label: type + " Envelope",
 		font: fontSmall
 	});
@@ -20,7 +28,7 @@ UI.EnvelopePanel = function(type){
     };
 	me.addChild(titleLabel);
 
-	var enabledCheckbox = UI.checkbox();
+	var enabledCheckbox = Checkbox();
 	enabledCheckbox.onToggle = function(checked){
 		if (envelope){
 			envelope.enabled = checked;
@@ -29,7 +37,7 @@ UI.EnvelopePanel = function(type){
 	};
 	me.addChild(enabledCheckbox);
 
-	var buttonAdd = UI.Assets.generate("button20_20");
+	var buttonAdd = Assets.generate("button20_20");
 	buttonAdd.onDown = function(){
 		if (!envelope.enabled) return;
 		if (envelope.points.length > envelope.count){
@@ -58,7 +66,7 @@ UI.EnvelopePanel = function(type){
 	});
 	me.addChild(buttonAdd);
 
-	var buttonRemove = UI.Assets.generate("button20_20");
+	var buttonRemove = Assets.generate("button20_20");
 	buttonRemove.onDown = function(){
 		if (!envelope.enabled) return;
 		if (envelope.count > 2){
@@ -75,17 +83,17 @@ UI.EnvelopePanel = function(type){
 	me.addChild(buttonRemove);
 
 
-	var envelopeGraph = UI.Envelope(type);
+	var envelopeGraph = Envelope(type);
 	me.addChild(envelopeGraph);
 
 
-	var panel = UI.panel(0,0,20,20);
+	var panel = Panel(0,0,20,20);
 
-	var sustainCheckBox = UI.checkbox();
-	var loopCheckBox = UI.checkbox();
-	var sustainSpinbox = UI.spinBox();
-    var loopFromSpinbox = UI.spinBox();
-    var loopToSpinbox = UI.spinBox();
+	var sustainCheckBox = Checkbox();
+	var loopCheckBox = Checkbox();
+	var sustainSpinbox = SpinBox();
+    var loopFromSpinbox = SpinBox();
+    var loopToSpinbox = SpinBox();
 
     sustainCheckBox.onToggle = function(checked){
         sustainSpinbox.setDisabled(!checked);
@@ -151,7 +159,7 @@ UI.EnvelopePanel = function(type){
         }
     });
 
-    var background = UI.scale9Panel(0,0,panel.width,panel.height,UI.Assets.panelMainScale9);
+    var background = Scale9Panel(0,0,panel.width,panel.height,Assets.panelMainScale9);
     background.ignoreEvents = true;
     panel.addChild(background);
 
@@ -159,13 +167,13 @@ UI.EnvelopePanel = function(type){
 	panel.addChild(loopFromSpinbox);
 	panel.addChild(loopToSpinbox);
 
-    var sustainLabel = UI.label({
+    var sustainLabel = Label({
         label:"Sustain",
         font: fontSmall,
 		width:60
     });
     panel.addChild(sustainLabel);
-    var loopLabel = UI.label({
+    var loopLabel = Label({
         label:"Loop",
         font: fontSmall,
         width:60
@@ -265,4 +273,6 @@ UI.EnvelopePanel = function(type){
 	return me;
 
 };
+
+export default EnvelopePanel;
 

@@ -1,5 +1,7 @@
-UI.scale9Panel = function(x,y,w,h,base){
-	var me = UI.element(x,y,w,h,true);
+import UIElement from "./element.js";
+
+let scale9Panel = function(x,y,w,h,base){
+	var me = UIElement(x,y,w,h,true);
 	me.type = "scale9";
 
 	base.scale = base.scale || "stretch";
@@ -136,3 +138,5 @@ UI.scale9Panel = function(x,y,w,h,base){
 
 	return me;
 };
+
+export default scale9Panel;

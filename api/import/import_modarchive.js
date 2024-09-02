@@ -10,9 +10,19 @@ var ModArchive = require("./provider/modarchive");
 // as we don't want to hammer their API, a generous delay is inserted before each request
 // So grab a coffee or go for a walk and return in a few hours
 
-ModArchive.loadModules("mod",function(){
+//ModArchive.loadGenres(function(){
+    //ModArchive.loadArtists(function(){
+        //ModArchive.loadModules("mod",function(){
+            //ModArchive.loadModules("xm",function(){
+                ModArchive.rebuildDataBase();
+            //});
+        //});
+    //});
+//});
+/*ModArchive.loadModules("mod",function(){
     ModArchive.loadModules("xm",function(){
         ModArchive.rebuildDataBase();
     });
 });
+ */
 

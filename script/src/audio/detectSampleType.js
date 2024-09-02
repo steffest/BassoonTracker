@@ -1,4 +1,9 @@
-function detectSampleType(file,sample,next){
+import {SAMPLETYPE} from "../enum.js";
+import {readRAWsample} from "./raw.js";
+import {getSamplerate} from "./getSamplerate.js";
+import {read8SVXsample} from "./8svx.js";
+
+export function detectSampleType(file,sample,next){
 
 	// detects the sample type of a binary stream
 	// if sample is given it also reads and decodes it into sample.data
@@ -50,7 +55,7 @@ function detectSampleType(file,sample,next){
 	}
 }
 
-function decodeFileWithAudioContext(file,sample,next){
+export function decodeFileWithAudioContext(file,sample,next){
 	// need to use original samplerate, not the one defined in users OS/Browser
 	Audio.converter = new AudioContext( {sampleRate: sample.info.sampleRate} );
 	if (Audio.converter.sampleRate !== sample.info.sampleRate) {

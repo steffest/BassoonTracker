@@ -1,11 +1,19 @@
-UI.fxPanel= function(track){
+import Panel from "./components/panel.js";
+import Scale9Panel from "./components/scale9.js";
+import Assets from "./assets.js";
+import Knob from "./components/knob.js";
+import Audio from "../audio.js";
+import UI from "./ui.js";
 
-    var me = UI.panel();
+
+let fxPanel= function(track){
+
+    var me = Panel();
     me.hide();
 
     track = track || 0;
 
-    var background = UI.scale9Panel(0,0,20,20,UI.Assets.buttonDarkScale9);
+    var background = Scale9Panel(0,0,20,20,Assets.buttonDarkScale9);
     background.ignoreEvents = true;
     me.addChild(background);
 
@@ -18,7 +26,7 @@ UI.fxPanel= function(track){
     var knobLeft = 10;
     var knobs = [];
     for (var i = 0, len = effects.length; i<len;i++){
-        var knob = UI.knob();
+        var knob = Knob();
         knob.setProperties({
             top: KnobTop,
             left: knobLeft,
@@ -134,4 +142,6 @@ UI.fxPanel= function(track){
     return me;
 
 };
+
+export default fxPanel;
 

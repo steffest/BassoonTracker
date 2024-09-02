@@ -1,5 +1,7 @@
-UI.label = function(initialProperties){
-	var me = UI.element();
+import UIElement from "./element.js";
+
+let label = function(initialProperties){
+	var me = UIElement();
 	me.type = "label";
 
 	var label = "";
@@ -96,3 +98,5 @@ UI.label = function(initialProperties){
 
 	return me;
 };
+
+export default label;

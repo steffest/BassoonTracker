@@ -1,3 +1,10 @@
+import Editor from "../editor.js";
+import Tracker from "../tracker.js";
+import {MODULETYPE} from "../enum.js";
+import Logger from "../log.js";
+import UI from "../ui/ui.js";
+import FetchService from "../fetchService.js";
+
 var BassoonProvider = function(){
 	var me = {};
 
@@ -100,3 +107,5 @@ var BassoonProvider = function(){
 
 	return me;
 }();
+
+export default BassoonProvider;

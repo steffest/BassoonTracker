@@ -1,6 +1,19 @@
-UI.app_patternView = function(x,y,w,h){
+import Panel from "../../components/panel.js";
+import Scale9Panel from "../../components/scale9.js";
+import FxPanel from "../../fxpanel.js";
+import Layout from "../layout.js";
+import EventBus from "../../../eventBus.js";
+import {cachedAssets, EVENT, NOTEOFF, SELECTION, SETTINGS} from "../../../enum.js";
+import Note from "../../../models/note.js";
+import Tracker, {FTNotes, FTPeriods, periodNoteTable} from "../../../tracker.js";
+import Y from "../../yascal/yascal.js";
+import Editor from "../../../editor.js";
+import Input from "../../input.js";
+import StateManager from "../../stateManager.js";
+import UI from "../../ui.js";
 
-    var me = UI.panel(x,y,w,h);
+let app_patternView = function(x,y,w,h){
+    var me = Panel(x,y,w,h);
     var visibleLines = 0;
     var visibleTracks = 8;
     var lineHeight = 13;
@@ -23,7 +36,7 @@ UI.app_patternView = function(x,y,w,h){
 	var trackLeft;
 	var margin;
 
-    var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
+    var scrollBar = Scale9Panel(w-28,18,16,h-3,{
         img: Y.getImage("bar"),
         left:2,
         top:2,
@@ -51,7 +64,7 @@ UI.app_patternView = function(x,y,w,h){
     me.addChild(scrollBar);
     setScrollBarPosition();
 
-    var scrollBarHor = UI.scale9Panel(w-28,18,16,16,{
+    var scrollBarHor = Scale9Panel(w-28,18,16,16,{
         img: Y.getImage("bar"),
         left:2,
         top:2,
@@ -76,7 +89,7 @@ UI.app_patternView = function(x,y,w,h){
 
     var fxPanels = [];
     for (var i = 0, len = Tracker.getTrackCount(); i<len;i++){
-        var fxPanel = UI.fxPanel(i);
+        var fxPanel = FxPanel(i);
         fxPanels.push(fxPanel);
         me.addChild(fxPanel);
     }
@@ -189,7 +202,7 @@ UI.app_patternView = function(x,y,w,h){
 
             var darkPanel = cachedAssets.darkPanel;
             if (!darkPanel && Y.getImage("panel_dark")){
-                var p = UI.scale9Panel(0,0,Layout.trackWidth,panelHeight,{
+                var p = Scale9Panel(0,0,Layout.trackWidth,panelHeight,{
                     img: Y.getImage("panel_dark"),
                     left:3,
                     top:3,
@@ -883,7 +896,7 @@ UI.app_patternView = function(x,y,w,h){
 		startTrack = Math.min(startTrack,trackCount-visibleTracks);
 		startTrack = Math.max(startTrack,0);
 		for (var i = fxPanels.length, len = trackCount; i<len;i++){
-			var fxPanel = UI.fxPanel(i);
+			var fxPanel = FxPanel(i);
 			fxPanels.push(fxPanel);
 			me.addChild(fxPanel);
 		}
@@ -945,4 +958,6 @@ UI.app_patternView = function(x,y,w,h){
 	return me;
 
 };
+
+export default app_patternView;
 

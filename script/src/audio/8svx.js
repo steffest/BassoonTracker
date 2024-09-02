@@ -1,4 +1,4 @@
-function read8SVXsample(file,sample){
+export function read8SVXsample(file,sample){
 	// format description on http://wiki.amigaos.net/wiki/8SVX_IFF_8-Bit_Sampled_Voice
 
 	console.error("reading 8SVX sample");

@@ -1,22 +1,32 @@
-UI.DiskOperationActions = function(){
+import Panel from "./components/panel.js";
+import Scale9Panel from "./components/scale9.js";
+import Assets from "./assets.js";
+import Label from "./components/label.js";
+import RadioGroup from "./components/radiogroup.js";
+import EventBus from "../eventBus.js";
+import {EVENT} from "../enum.js";
+import UI from "./ui.js";
 
-	var me = UI.panel();
 
-	var background = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkInsetScale9);
+let DiskOperationActions = function(){
+
+	var me = Panel();
+
+	var background = Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
-	var label1 = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
+	var label1 = Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
 	label1.ignoreEvents = true;
 	me.addChild(label1);
 
-	var labelLoad = UI.label({
+	var labelLoad = Label({
 		label: "Action",
 		font: fontSmall
 	});
 	me.addChild(labelLoad);
 
-	var selectionType = UI.radioGroup();
+	var selectionType = RadioGroup();
 	selectionType.setProperties({
 		align: "right",
 		size:"med",
@@ -92,4 +102,6 @@ UI.DiskOperationActions = function(){
 	return me;
 
 };
+
+export default DiskOperationActions;
 

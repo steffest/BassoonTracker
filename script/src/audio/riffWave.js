@@ -41,7 +41,9 @@ function readRIFFsample(file,sample,next){
 }
 */
 
-function encodeRIFFsample(sampleData,bits){
+import {BinaryStream} from "../filesystem.js";
+
+export function encodeRIFFsample(sampleData, bits){
 
 	var length = sampleData.length;
 

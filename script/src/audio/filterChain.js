@@ -1,4 +1,8 @@
-FilterChain = (function(filters) {
+import Audio from "../audio.js";
+import {cachedAssets, PRELOADTYPE} from "../enum.js";
+import PreLoader from "../preloader.js";
+
+let FilterChain = (function(filters) {
 
     var me = {};
 
@@ -416,6 +420,8 @@ FilterChain = (function(filters) {
     return me;
 
 });
+
+export default FilterChain;
 
 
 

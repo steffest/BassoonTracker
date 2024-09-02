@@ -1,4 +1,8 @@
-UI.ticker = (function(){
+import EventBus from '../eventBus.js';
+import {EVENT} from '../enum.js';
+
+
+let ticker = (function(){
 	// groups UI related timers
 
 	var me = {};
@@ -46,3 +50,5 @@ UI.ticker = (function(){
 
 	return me;
 }());
+
+export default ticker;

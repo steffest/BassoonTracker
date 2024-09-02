@@ -1,6 +1,6 @@
 // based on https://github.com/Jam3/audiobuffer-to-wav/
 
-function audioBufferToWav (buffer, opt) {
+export function audioBufferToWav (buffer, opt) {
 	opt = opt || {};
 
 	var numChannels = buffer.numberOfChannels;
@@ -98,5 +98,7 @@ function encodeWAV (samples, format, sampleRate, numChannels, bitDepth) {
 
 	return buffer
 }
+
+
 
 

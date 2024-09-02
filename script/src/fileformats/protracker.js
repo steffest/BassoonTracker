@@ -1,3 +1,11 @@
+import Tracker from "../tracker.js";
+import {EVENT, LOOPTYPE, SETTINGS, TRACKERMODE} from "../enum.js";
+import Instrument from "../models/instrument.js";
+import Note from "../models/note.js";
+import EventBus from "../eventBus.js";
+import UI from "../ui/ui.js";
+import {BinaryStream} from "../filesystem.js";
+
 var ProTracker = function(){
 	var me = {};
 
@@ -143,7 +151,7 @@ var ProTracker = function(){
 					instrument.sample.length = sampleEnd;
 				}
 
-				for (j = 0; j<sampleEnd; j++){
+				for (let j = 0; j<sampleEnd; j++){
 					var b = file.readByte();
 					// ignore first 2 bytes
 					if (j<2)b=0;
@@ -171,7 +179,7 @@ var ProTracker = function(){
 					for (var l=0;l<loopCount;l++){
 						var start = instrument.sample.loop.start;
 						var end = start + instrument.sample.loop.length;
-						for (j=start; j<end; j++){
+						for (let j=start; j<end; j++){
 							instrument.sample.data.push(instrument.sample.data[j]);
 						}
 						loopLength += instrument.sample.loop.length;
@@ -321,3 +329,5 @@ var ProTracker = function(){
 
 	return me;
 };
+
+export default ProTracker;

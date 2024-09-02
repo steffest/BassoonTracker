@@ -1,5 +1,14 @@
-UI.visualiser = function(){
-    var me = UI.panel();
+import Panel from "../../components/panel.js";
+import Y from "../../yascal/yascal.js";
+import EventBus from "../../../eventBus.js";
+import {EVENT} from "../../../enum.js";
+import Audio from "../../../audio.js";
+import Tracker from "../../../tracker.js";
+import UI from "../../ui.js";
+
+
+let visualiser = function(){
+    var me = Panel();
 
     var modes = [
         "wave",
@@ -28,13 +37,6 @@ UI.visualiser = function(){
             analyser.minDecibels = -90;
             analyser.maxDecibels = -10;
             analyser.smoothingTimeConstant = 0.85;
-
-            function addAnalyser(){
-                var a = Audio.context.createAnalyser();
-                a.smoothingTimeConstant = 0;
-                a.fftSize = analyserSize;
-                trackAnalyser.push(a);
-            }
 
             for (var i = 0; i<Tracker.getTrackCount(); i++){
                 addAnalyser();
@@ -79,6 +81,13 @@ UI.visualiser = function(){
         mode = modes[modeIndex];
         console.log("setting visualiser to mode " + mode);
     };
+
+    function addAnalyser(){
+        var a = Audio.context.createAnalyser();
+        a.smoothingTimeConstant = 0;
+        a.fftSize = analyserSize;
+        trackAnalyser.push(a);
+    }
 
     var modeWaveRender = function(){
         var bufferLength;
@@ -153,7 +162,7 @@ UI.visualiser = function(){
             wx += barWidth + 1;
         }
 
-        ctx.drawImage(me.canvas,me.left, me.top);
+        UI.getContext().drawImage(me.canvas,me.left, me.top);
 
 
     };
@@ -226,7 +235,7 @@ UI.visualiser = function(){
         }
 
         //me.parentCtx.drawImage(me.canvas,me.left, me.top);
-        ctx.drawImage(me.canvas,me.left, me.top);
+        UI.getContext().drawImage(me.canvas,me.left, me.top);
     };
 
     var modeDotsRender = function(){
@@ -294,7 +303,7 @@ UI.visualiser = function(){
         }
 
         //me.parentCtx.drawImage(me.canvas,me.left, me.top);
-        ctx.drawImage(me.canvas,me.left, me.top);
+        UI.getContext().drawImage(me.canvas,me.left, me.top);
     };
 
 
@@ -380,3 +389,5 @@ UI.visualiser = function(){
 
 
 };
+
+export default visualiser;

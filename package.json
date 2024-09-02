@@ -2,21 +2,12 @@
   "name": "BassoonTracker",
   "version": "0.4.3",
   "description": "Old School Amiga mod and xm tracker in plain javascript",
-  "main": "index.html",
   "repository": "https://github.com/steffest/BassoonTracker",
   "author": "Steffest",
   "license": "MIT",
   "devDependencies": {
-    "grunt": "^1.1.0",
-    "grunt-base64": "^0.1.0",
-    "grunt-contrib-clean": "*",
-    "grunt-contrib-compress": "^2.0.0",
-    "grunt-contrib-concat": "*",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-uglify": "^4.0.1",
-    "grunt-regpack": "^0.1.0",
-    "grunt-run": "^0.8.1",
-    "grunt-spritesmith": "^6.8.0",
-    "grunt-text-replace": "^0.4.0"
+    "@parcel/packager-raw-url": "^2.12.0",
+    "@parcel/transformer-webmanifest": "^2.12.0",
+    "terser": "^5.31.6"
   }
 }

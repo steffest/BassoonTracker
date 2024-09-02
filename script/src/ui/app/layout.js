@@ -1,4 +1,9 @@
-var Layout = function(){
+import Tracker from "../../tracker.js";
+import UI from "../ui.js";
+import EventBus from "../../eventBus.js";
+import {EVENT} from "../../enum.js";
+
+let Layout = function(){
   var me = {};
 
   me.maxWidth = 1200;
@@ -147,3 +152,5 @@ var Layout = function(){
   
   return me;
 }();
+
+export default Layout;

@@ -1,5 +1,8 @@
-UI.button = function(x,y,w,h,text){
-    var me = UI.element(x,y,w,h);
+import UIElement from "./element.js";
+import Scale9Panel from "./scale9.js";
+
+let Button = function(x,y,w,h,text){
+    var me = UIElement(x,y,w,h);
     me.type = "button";
     me.isActive = false;
 
@@ -42,19 +45,19 @@ UI.button = function(x,y,w,h,text){
                     case "background":
                         if (p[key].img){ // scale9
                             backgroundImage = undefined;
-                            background = UI.scale9Panel(0,0,0,0,p[key]);
+                            background = Scale9Panel(0,0,0,0,p[key]);
                             background.setParent(me);
                         }
                         break;
                     case "activeBackground":
                         if (p[key].img){ // scale9
-                            activeBackground = UI.scale9Panel(0,0,0,0,p[key]);
+                            activeBackground = Scale9Panel(0,0,0,0,p[key]);
                             activeBackground.setParent(me);
                         }
                         break;
                     case "hoverBackground":
                         if (p[key].img){ // scale9
-                            hoverBackground = UI.scale9Panel(0,0,0,0,p[key]);
+                            hoverBackground = Scale9Panel(0,0,0,0,p[key]);
                             hoverBackground.setParent(me);
                         }
                         hasHover = true;
@@ -228,3 +231,5 @@ UI.button = function(x,y,w,h,text){
 
     return me;
 };
+
+export default Button;

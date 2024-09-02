@@ -1,19 +1,16 @@
-var EventBus = (function() {
+const allEventHandlers = {};
 
-    var allEventHandlers = {};
-
+const EventBus = (()=>{
     var me = {};
 
     me.on = function(event, listener) {
-        var eventHandlers = allEventHandlers[event];
-        if (!eventHandlers) {
-            eventHandlers = [];
-            allEventHandlers[event] = eventHandlers;
+        allEventHandlers[event] = allEventHandlers[event] || [];
+        allEventHandlers[event].push(listener);
+        if (event === 30){
+            console.error("Adding listener for event 30 event has ",allEventHandlers[event].length," listeners");
         }
-        eventHandlers.push(listener);
-        return eventHandlers.length;
     };
-    
+
     me.off = function(event,index){
         var eventHandlers = allEventHandlers[event];
         if (eventHandlers) eventHandlers[index-1]=undefined;
@@ -30,4 +27,6 @@ var EventBus = (function() {
     };
 
     return me;
-}());
+})();
+
+export default EventBus;

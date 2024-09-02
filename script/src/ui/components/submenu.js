@@ -1,5 +1,13 @@
-UI.submenu = function(x,y,w,h){
-    var me = UI.element(x,y,w,h);
+import UIElement from "../components/element.js";
+import Scale9Panel from "./scale9.js";
+import Y from "../yascal/yascal.js";
+import Assets from "../assets.js";
+import UI from "../ui.js"
+import EventBus from "../../eventBus.js";
+import {EVENT} from "../../enum.js";
+
+let Submenu = function(x,y,w,h){
+    var me = UIElement(x,y,w,h);
     me.type = "submenu";
     var items;
 
@@ -23,7 +31,7 @@ UI.submenu = function(x,y,w,h){
         });
 
         if (p["background"]){
-            background = UI.scale9Panel(0,0,me.width,me.height,p["background"]);
+            background = Scale9Panel(0,0,me.width,me.height,p["background"]);
             background.ignoreEvents = true;
             me.addChild(background);
         }
@@ -105,9 +113,9 @@ UI.submenu = function(x,y,w,h){
 
     me.activateSubmenu = function(item){
         if (!item.subMenu){
-            var subMenu = UI.submenu();
+            var subMenu = Submenu();
             subMenu.setProperties({
-                background: UI.Assets.buttonLightScale9
+                background: Assets.buttonLightScale9
             });
             subMenu.hide();
             subMenu.setItems(item.subItems);
@@ -240,3 +248,5 @@ UI.submenu = function(x,y,w,h){
 
     return me;
 };
+
+export default Submenu;

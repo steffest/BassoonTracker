@@ -1,9 +1,14 @@
-UI.Envelope = function(type){
+import UIElement from "./components/element.js";
+import Scale9Panel from "./components/scale9.js";
+import Y from "./yascal/yascal.js";
 
-	var me = UI.element();
+
+let Envelope = function(type){
+
+	var me = UIElement();
 	me.type = type;
 
-	var background = UI.scale9Panel(0,0,me.width,me.height,{
+	var background = Scale9Panel(0,0,me.width,me.height,{
 		img: Y.getImage("panel_dark"),
 		left:3,
 		top:3,
@@ -229,4 +234,6 @@ UI.Envelope = function(type){
 	return me;
 
 };
+
+export default Envelope;
 

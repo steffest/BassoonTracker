@@ -1,3 +1,6 @@
+import Audio from "./audio.js";
+import {cachedAssets, PRELOADTYPE} from "./enum.js";
+
 var PreLoader = function(){
 	var me = {};
 
@@ -66,3 +69,5 @@ var PreLoader = function(){
 
 	return me;
 };
+
+export default PreLoader;

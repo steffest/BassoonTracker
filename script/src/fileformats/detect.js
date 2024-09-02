@@ -1,3 +1,8 @@
+import {FILETYPE} from "../enum.js";
+import ProTracker from "./protracker.js";
+import SoundTracker from "./soundtracker.js";
+import FastTracker from "./fasttracker.js";
+
 var FileDetector = function(){
 	var me = {};
 
@@ -136,3 +141,5 @@ var FileDetector = function(){
 
 	return me;
 }();
+
+export default FileDetector;

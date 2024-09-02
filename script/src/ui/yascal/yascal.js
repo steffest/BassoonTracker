@@ -22,3 +22,5 @@ var Yascal = (function(){
 })();
 
 var Y = Yascal;
+
+export default Yascal;

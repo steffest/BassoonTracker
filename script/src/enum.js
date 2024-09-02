@@ -1,4 +1,4 @@
-var cachedAssets = {
+export var cachedAssets = {
 	images:{},
 	audio:{},
 	json:{},
@@ -8,14 +8,14 @@ var cachedAssets = {
 var sprites = {};
 var UI = undefined;
 
-var PRELOADTYPE = {
+export var PRELOADTYPE = {
 	"image": 1,
 	"audio":2,
 	"json":3,
 	"binary":4
 };
 
-var EVENT = {
+export var EVENT = {
 	instrumentChange:1,
 	patternChange:2,
 	patternPosChange:3,
@@ -77,7 +77,7 @@ var EVENT = {
 	playListIndexChanged: 62,
 };
 
-var COMMAND = {
+export var COMMAND = {
 	newFile: 1001,
 	openFile: 1002,
 	saveFile: 1003,
@@ -114,12 +114,12 @@ var COMMAND = {
 	randomPlayList: 1034,
 };
 
-var PLAYTYPE = {
+export var PLAYTYPE = {
 	song:1,
 	pattern:2
 };
 
-var FILETYPE = {
+export var FILETYPE = {
 	unknown:0,
 	module:1,
 	sample:2,
@@ -130,12 +130,12 @@ var FILETYPE = {
 	playlist: 7
 };
 
-var MODULETYPE = {
+export var MODULETYPE = {
 	mod: 1,
 	xm: 2
 };
 
-var SAMPLETYPE = {
+export var SAMPLETYPE = {
     RAW_8BIT:1,
     WAVE_PCM:2,
     IFF_8SVX:3,
@@ -147,24 +147,24 @@ var SAMPLETYPE = {
 	OPUS: 10
 };
 
-var STEREOSEPARATION = {
+export var STEREOSEPARATION = {
 	FULL: 1,
 	BALANCED: 2,
 	NONE: 3
 };
 
-var FREQUENCYTABLE =  {
+export var FREQUENCYTABLE =  {
 	AMIGA: 1,
 	LINEAR : 2
 };
 
-var LOOPTYPE =  {
+export var LOOPTYPE =  {
 	NONE: 0,
 	FORWARD : 1,
 	PINGPONG : 2
 };
 
-var SELECTION = {
+export var SELECTION = {
 	RESET : 1,
 	CLEAR: 2,
 	CUT: 3,
@@ -176,7 +176,7 @@ var SELECTION = {
 
 };
 
-var EDITACTION = {
+export var EDITACTION = {
 	PATTERN: 1,
 	TRACK: 2,
 	NOTE: 3,
@@ -189,15 +189,15 @@ var EDITACTION = {
 
 // Amiga Frequency
 //var PALFREQUENCY = 7093789.2;
-var AMIGA_PALFREQUENCY = 7093790; // not that my ears can hear the difference but this seems to be the correct value  ftp://ftp.modland.com/pub/documents/format_documentation/Protracker%20effects%20(MODFIL12.TXT)%20(.mod).txt
+export var AMIGA_PALFREQUENCY = 7093790; // not that my ears can hear the difference but this seems to be the correct value  ftp://ftp.modland.com/pub/documents/format_documentation/Protracker%20effects%20(MODFIL12.TXT)%20(.mod).txt
 
 // Frequency used by Fast Tracker in Amiga mode
-var PC_FREQUENCY = 7158728;
+export var PC_FREQUENCY = 7158728;
 
-var AMIGA_PALFREQUENCY_HALF = AMIGA_PALFREQUENCY/2;
-var PC_FREQUENCY_HALF = PC_FREQUENCY/2;
+export var AMIGA_PALFREQUENCY_HALF = AMIGA_PALFREQUENCY/2;
+export var PC_FREQUENCY_HALF = PC_FREQUENCY/2;
 
-var LAYOUTS = {
+export var LAYOUTS = {
 	column4:4,
 	column5:5,
 	column5Full:6,
@@ -207,7 +207,7 @@ var LAYOUTS = {
 
 
 // used in Protracker mode
-var NOTEPERIOD = {
+export var NOTEPERIOD = {
 	C1  : {period: 856, name: "C-1", tune: [907,900,894,887,881,875,868,862,856,850,844,838,832,826,820,814]},
 	Cs1 : {period: 808, name: "C#1", tune: [856,850,844,838,832,826,820,814,808,802,796,791,785,779,774,768]},
 	D1  : {period: 762, name: "D-1", tune: [808,802,796,791,785,779,774,768,762,757,752,746,741,736,730,725]},
@@ -247,7 +247,7 @@ var NOTEPERIOD = {
 };
 
 // used in Fasttracker - Amiga frequency mode
-var FTNOTEPERIOD = {
+export var FTNOTEPERIOD = {
 	None  : {name: "---"},
 	C0: {name: "C-0",period: 6848},
 	Cs0: {name: "C#0",period: 6464},
@@ -400,9 +400,9 @@ var FTNOTEPERIOD = {
 	OFF : {name: "OFF",period:0}
 };
 
-var NOTEOFF = 145;
+export var NOTEOFF = 145;
 
-var KEYBOARDKEYS = {
+export var KEYBOARDKEYS = {
     OFF: 0,
 	C: 1,
 	Csharp: 2,
@@ -433,7 +433,7 @@ var KEYBOARDKEYS = {
 	DOctaveUp2: 27
 };
 
-var OCTAVENOTES = {
+export var OCTAVENOTES = {
     0: {name: "OFF"},
 	1: {name: "C"},
 	2: {name: "Cs"},
@@ -450,7 +450,7 @@ var OCTAVENOTES = {
 };
 
 
-var KEYBOARDTABLE = {
+export var KEYBOARDTABLE = {
 	main:{
 		"KeyQ": KEYBOARDKEYS.COctaveUp,
 		"KeyW": KEYBOARDKEYS.DOctaveUp,
@@ -489,12 +489,12 @@ var KEYBOARDTABLE = {
 	}
 };
 
-var TRACKERMODE = {
+export var TRACKERMODE = {
 	PROTRACKER: 1,
 	FASTTRACKER: 2
 };
 
-var SETTINGS = {
+export var SETTINGS = {
 	unrollLoops: false,
 	unrollShortLoops: false, // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
 	sustainKeyboardNotes: false,

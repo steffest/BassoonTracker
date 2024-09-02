@@ -1,5 +1,12 @@
-UI.sliderBox = function(initialProperties){
-	var me = UI.element();
+import UIElement from "./components/element.js";
+import RangeSlider from "./components/rangeSlider.js";
+import NumberDisplay from "./components/numberdisplay.js";
+import StateManager from "./stateManager.js";
+import Tracker from "../tracker.js";
+import Y from "./yascal/yascal.js";
+
+let sliderBox = function(initialProperties){
+	var me = UIElement();
 	me.type = "sliderBox";
 
 	var label = "";
@@ -41,7 +48,7 @@ UI.sliderBox = function(initialProperties){
 		return result;
 	}
 
-	var slider = UI.rangeSlider({
+	var slider = RangeSlider({
 		min: min,
 		max: max,
 		height: sliderHeight,
@@ -55,7 +62,7 @@ UI.sliderBox = function(initialProperties){
 	});
 	me.addChild(slider);
 
-	var numberDisplay = UI.numberDisplay({
+	var numberDisplay = NumberDisplay({
 		min: min,
 		max: max,
 		padLength: 4,
@@ -239,4 +246,6 @@ UI.sliderBox = function(initialProperties){
 
 
 };
+
+export default sliderBox;
 

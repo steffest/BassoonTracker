@@ -1,3 +1,7 @@
+import UI from "./ui/ui.js"
+import FetchService from "./fetchService.js";
+import {createSlug} from "./lib/util.js";
+
 var Logger = function(){
     var me = {};
 
@@ -15,6 +19,7 @@ var Logger = function(){
 
     var log =  function(scope,message){
         var stats = UI.stats();
+        let canvas = UI.getCanvas();
         var version = typeof versionNumber == "undefined" ? "dev" : versionNumber;
         message = createSlug(message);
         FetchService.get(baseUrl + scope + "/" + message + "/" + stats.averageFps + "/" + stats.skipRenderSteps + "/" + version + "/" + canvas.width + "x" + canvas.height + "/" + stats.averageRenderFps + "/" + devicePixelRatio,function(result){
@@ -24,3 +29,5 @@ var Logger = function(){
 
     return me;
 }();
+
+export default Logger;

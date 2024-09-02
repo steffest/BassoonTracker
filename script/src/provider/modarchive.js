@@ -1,3 +1,6 @@
+import FetchService from "../fetchService.js";
+import {formatFileSize} from "../lib/util.js";
+
 var ModArchive = function(){
 	var me = {};
 
@@ -173,3 +176,5 @@ var ModArchive = function(){
 
 	return me;
 }();
+
+export default ModArchive;

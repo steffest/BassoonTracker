@@ -1,3 +1,6 @@
+import FetchService from "../fetchService.js";
+import {formatFileSize} from "../lib/util.js";
+
 var ModulesPl = function(){
 	var me = {};
 
@@ -115,3 +118,5 @@ var ModulesPl = function(){
 
 	return me;
 }();
+
+export default ModulesPl;

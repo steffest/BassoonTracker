@@ -10,7 +10,7 @@ var ModArchiveCached = (function(){
     var me = {};
 
     var baseUrl = "https://api.modarchive.org/xml-tools.php?key=" + config.modArchiveApiKey + "&request=";
-    var DBFileName = "../data/modarchive.2024.json";
+    var DBFileName = "../data/modarchive.json";
 
 
     me.loadModules = function(format,next){
@@ -18,16 +18,16 @@ var ModArchiveCached = (function(){
         format = format || "mod";
 
         if (format === "mod"){
-            var page = 1;
-            var maxPage = 1911; // 1911
+            var page = 2054;
+            var maxPage = 2054; // 1911
         }else{
             format = "xm";
-            page = 1;
-            maxPage = 1146; // 1911
+            page = 1327;
+            maxPage = 1327; // 1911
         }
 
-        var baseDelay = 10000;
-        var randomDelay = 10000;
+        var baseDelay = 0;
+        var randomDelay = 1000;
 
         var loadNext = function(){
             console.log("loading page " + page);
@@ -48,11 +48,11 @@ var ModArchiveCached = (function(){
     };
 
     me.loadArtists = function(){
-        var page = 1;
-        var maxPage = 52; // 52
+        var page = 38;
+        var maxPage = 72; // 52
 
-        var baseDelay = 5000;
-        var randomDelay = 10000;
+        var baseDelay = 0;
+        var randomDelay = 1000;
 
         var loadNext = function(){
             console.log("loading artist page " + page);
@@ -113,8 +113,8 @@ var ModArchiveCached = (function(){
             });
         });
 
-        importXMLs("mod",1,360,function(){
-            importXMLs("xm",303,392,function(){
+        importXMLs("mod",1,2054,function(){
+            importXMLs("xm",1,1327,function(){
                 console.log("all done rebuilding database");
 
                 db.saveDatabase(function(){
@@ -129,73 +129,74 @@ var ModArchiveCached = (function(){
             var page = startPage;
             var maxPage = endPage;
 
-            var loadNext = function(){
-                processModXml(format,page,function(){
-                    page++;
-                    if (page<=maxPage) {
-                        loadNext();
-                    }else{
-                        next();
-                    }
-                })
+            var loadNext = async function(){
+                await processModXml(format,page);
+                page++;
+                if (page<=maxPage) {
+                    loadNext();
+                }else{
+                    next();
+                }
             };
 
             loadNext();
         }
 
-        function processModXml(format,page,next){
+        function processModXml(format,page){
+            return new Promise(next => {
+                var xmlFileName =  format + "_" + page + ".xml";
+                console.log("Processing " + xmlFileName);
 
-            var xmlFileName =  format + "_" + page + ".xml";
-            console.log("Processing " + xmlFileName);
+                var fileData = fs.readFileSync("cache/" + xmlFileName, 'utf8');
+                //fileData = fileData.replace(new RegExp('&', 'g'),'');
+                var parser = new xml2js.Parser({explicitArray: false});
 
-            var fileData = fs.readFileSync("cache/" + xmlFileName, 'utf8');
-            //fileData = fileData.replace(new RegExp('&', 'g'),'');
-            var parser = new xml2js.Parser({explicitArray: false});
+                parser.parseString(fileData, function (err, result) {
+                    if (result && result.modarchive){
+                        var list = result.modarchive.module;
 
-            parser.parseString(fileData, function (err, result) {
-                if (result && result.modarchive){
-                    var list = result.modarchive.module;
+                        var count = 0;
 
-                    var count = 0;
+                        list.forEach(function(item,index){
 
-                    list.forEach(function(item,index){
+                            var genre = parseInt(item.genreid,10);
+                            var artist = item.artist_info.artist || {};
+                            var artistId = artist.id || 0;
+                            var artistName = artist.alias || "";
+                            artistId = parseInt(artistId,10);
+                            var rating = parseFloat(item.overall_ratings.comment_rating);
+                            var score = parseFloat(item.overall_ratings.review_rating);
 
-                        var genre = parseInt(item.genreid,10);
-                        var artist = item.artist_info.artist || {};
-                        var artistId = artist.id || 0;
-                        var artistName = artist.alias || "";
-                        artistId = parseInt(artistId,10);
-                        var rating = parseFloat(item.overall_ratings.comment_rating);
-                        var score = parseFloat(item.overall_ratings.review_rating);
+                            if(genre || artistId || score || rating){
+                                count++;
+                                modules.insert({
+                                    id: item.id,
+                                    title: item.songtitle,
+                                    author: artistId,
+                                    artist: artistName,
+                                    genre: genre,
+                                    rate: rating,
+                                    score: score,
+                                    format: item.format.toLowerCase(),
+                                    size: parseInt(item.bytes,10)
+                                });
+                            }
 
-                        if(genre || artistId || score || rating){
-                            count++;
-                            modules.insert({
-                                id: item.id,
-                                title: item.songtitle,
-                                author: artistId,
-                                artist: artistName,
-                                genre: genre,
-                                rate: rating,
-                                score: score,
-                                format: item.format.toLowerCase(),
-                                size: parseInt(item.bytes,10)
-                            });
-                        }
+                        });
 
-                    });
+                        console.log("accepted " + count + " mods");
 
-                    console.log("accepted " + count + " mods");
-
-                    next();
-                }else{
-                    console.log("Error: " + xmlFileName + " does not seem to ba a valid modArchive XML");
-                    console.log(result);
-                }
+                        next();
+                    }else{
+                        console.log("Error: " + xmlFileName + " does not seem to ba a valid modArchive XML");
+                        console.log(result);
+                    }
 
 
 
+                });
             });
+
         }
 
 

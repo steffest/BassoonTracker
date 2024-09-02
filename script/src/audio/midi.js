@@ -1,3 +1,8 @@
+import EventBus from "../eventBus.js";
+import {EVENT, SETTINGS} from "../enum.js";
+import Input from "../ui/input.js";
+import Tracker from "../tracker.js";
+
 var Midi = function(){
 	var me = {};
 	var inputs;
@@ -123,3 +128,5 @@ var Midi = function(){
 	
 	return me;
 }();
+
+export default Midi;

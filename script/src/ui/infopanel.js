@@ -1,19 +1,27 @@
-UI.InfoPanel = function(){
+import UIElement from "./components/element.js";
+import Assets from "./assets.js";
+import Layout from "./app/layout.js";
+import EventBus from "../eventBus.js";
+import {EVENT} from "../enum.js";
+import Animsprite from "./components/animsprite.js";
+import Y from "./yascal/yascal.js";
 
-    var me = UI.element();
+let InfoPanel = function(){
+
+    var me = UIElement();
     var text = "";
     var source = "";
     var status = "";
     var moreInfoUrl;
 
-    var infoButton = UI.Assets.generate("buttonDark");
+    var infoButton = Assets.generate("buttonDark");
     infoButton.setLabel("More info ");
     infoButton.onClick = function(){
         if (moreInfoUrl) window.open(moreInfoUrl);
     };
     me.addChild(infoButton);
 
-    var spinner = UI.animsprite(5,7,20,18,"boing",11);
+    var spinner = Animsprite(5,7,20,18,"boing",11);
     me.addChild(spinner);
     spinner.hide();
 
@@ -107,4 +115,6 @@ UI.InfoPanel = function(){
     return me;
 
 };
+
+export default InfoPanel;
 

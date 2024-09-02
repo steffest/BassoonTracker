@@ -1,5 +1,13 @@
-UI.vumeter = function(){
-	var me = UI.panel();
+import Audio from "../../../audio.js";
+import EventBus from "../../../eventBus.js";
+import {EVENT} from "../../../enum.js";
+import Panel from "../../components/panel.js";
+import Y from "../../yascal/yascal.js";
+import UI from "../../ui.js";
+
+
+let vumeter = function(){
+	var me = Panel();
 
 
 	me.left = 400;
@@ -126,7 +134,7 @@ UI.vumeter = function(){
 		//ctx.fillRect(400,4,400 * rangeLeft,8);
 		//ctx.fillRect(400,16,400 * rangeRight,8);
 
-		ctx.drawImage(me.canvas,me.left,me.top);
+		UI.getContext().drawImage(me.canvas,me.left,me.top);
 
 		//console.error(range);
 
@@ -157,3 +165,5 @@ UI.vumeter = function(){
 	return me;
 
 };
+
+export default vumeter;

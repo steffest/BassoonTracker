@@ -1,5 +1,19 @@
-UI.app_patternPanel = function(){
-    var me = UI.app_panelContainer(80);
+import Audio from "../../audio.js";
+import App_panelContainer from "./panelContainer.js";
+import EditPanel from "../editPanel.js";
+import InfoPanel from "../infopanel.js";
+import Tracker from "../../tracker.js";
+import TrackControl from "./components/trackControl.js";
+import Visualiser from "./components/visualiser.js";
+import Layout from "../app/layout.js";
+import EventBus from "../../eventBus.js";
+import {EVENT} from "../../enum.js";
+import App_patternView from "../app/components/patternView.js";
+import SampleView from "../sampleView.js";
+import UIElement from "../components/element.js";
+
+let app_patternPanel = function(){
+    var me = App_panelContainer(80);
 
     var i;
     var trackControls = [];
@@ -8,39 +22,39 @@ UI.app_patternPanel = function(){
 	var patternTrackLeft;
 	var currentView = "main";
 
-    var editPanel = UI.editPanel();
+    var editPanel = EditPanel();
     me.addChild(editPanel);
 
-    var infoPanel = UI.InfoPanel();
+    var infoPanel = InfoPanel();
     me.addChild(infoPanel);
 
     for (i=0;i<Tracker.getTrackCount();i++){
-        trackControls[i] = UI.trackControl();
+        trackControls[i] = TrackControl();
         me.addChild(trackControls[i]);
     }
 
-    var visualiser = UI.visualiser();
+    var visualiser = Visualiser();
     visualiser.connect(Audio.cutOffVolume);
     visualiser.name = "mainAnalyser";
 
     //window.visualiser = visualiser;
     // note: don't attach as child to main panel, this gets attached to main UI
 
-    var scopesClickHandler = UI.element();
+    var scopesClickHandler = UIElement();
 	scopesClickHandler.render = function(){};
 	scopesClickHandler.onClick = function(touchData){
 	    visualiser.onClick(touchData);
     };
 	me.addChild(scopesClickHandler);
 
-    var patternView = UI.app_patternView();
+    var patternView = App_patternView();
     patternView.setProperties({
         name: "patternViewPanel"
     });
     me.addChild(patternView);
 
 
-    var sampleView = UI.SampleView();
+    var sampleView = SampleView();
     sampleView.setProperties({
         name: "sampleViewPanel"
     });
@@ -197,7 +211,7 @@ UI.app_patternPanel = function(){
 
 
         for (i=trackControls.length;i<trackCount;i++){
-            trackControls[i] = UI.trackControl();
+            trackControls[i] = TrackControl();
             trackControls[i].setProperties({
                 track: i,
                 top: -200
@@ -264,3 +278,5 @@ UI.app_patternPanel = function(){
 
     return me;
 };
+
+export default app_patternPanel;

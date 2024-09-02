@@ -1,5 +1,9 @@
-UI.checkboxbutton = function(properties){
-	var me = UI.button(0,0,20,20);
+import Button from "./button.js";
+import Assets from "../assets.js";
+import Y from "../yascal/yascal.js";
+
+let checkboxbutton = function(properties){
+	var me = Button(0,0,20,20);
 	properties = properties || {};
 
 	let props = {
@@ -13,9 +17,9 @@ UI.checkboxbutton = function(properties){
 	}
 
 	if (!properties.transparent){
-		props.background =  properties.background || UI.Assets.buttonDarkBlueScale9;
-		props.hoverBackground = properties.hoverBackground || UI.Assets.buttonDarkBlueActiveScale9;
-		props.activeBackground = properties.activeBackground || UI.Assets.buttonDarkBlueActiveScale9;
+		props.background =  properties.background || Assets.buttonDarkBlueScale9;
+		props.hoverBackground = properties.hoverBackground || Assets.buttonDarkBlueActiveScale9;
+		props.activeBackground = properties.activeBackground || Assets.buttonDarkBlueActiveScale9;
 	}
 
 	me.setProperties(props);
@@ -40,3 +44,5 @@ UI.checkboxbutton = function(properties){
 
 	return me;
 };
+
+export default checkboxbutton;

@@ -1,5 +1,8 @@
-UI.radioGroup = function(x,y,w,h){
-	var me = UI.element(x,y,w,h,true);
+import UIElement from "./element.js";
+import Y from "../yascal/yascal.js";
+
+let radioGroup = function(x,y,w,h){
+	var me = UIElement(x,y,w,h,true);
 
 	var items = [];
 
@@ -162,3 +165,5 @@ UI.radioGroup = function(x,y,w,h){
 
 	return me;
 };
+
+export default radioGroup;

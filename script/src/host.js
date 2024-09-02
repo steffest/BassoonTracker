@@ -6,6 +6,8 @@
  	FriendUp
 */
 
+import Settings from "./settings.js";
+
 var Host = function(){
 	var me = {};
 	var hostBridge;
@@ -70,3 +72,5 @@ var Host = function(){
 	
 	return me;
 }();
+
+export default Host;

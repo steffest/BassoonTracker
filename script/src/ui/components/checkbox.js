@@ -1,9 +1,12 @@
-UI.checkbox = function(x,y,w,h){
+import UIElement from "./element.js";
+import Y from "../yascal/yascal.js";
+
+let checkbox = function(x,y,w,h){
 
 	w = w || 14;
 	h = h || 14;
 
-	var me = UI.element(x,y,w,h,true);
+	var me = UIElement(x,y,w,h,true);
 
 	var properties = ["left","top","width","height","name","type","checked"];
 
@@ -61,3 +64,5 @@ UI.checkbox = function(x,y,w,h){
 
 	return me;
 };
+
+export default checkbox;

@@ -1,5 +1,7 @@
-UI.panel = function(x,y,w,h){
-	var me = UI.element(x,y,w,h);
+import UIElement from "./element.js";
+
+let Panel = function(x,y,w,h){
+	var me = UIElement(x,y,w,h);
 	me.type = "panel";
 	var properties = ["left","top","width","height","name","type","zIndex","backgroundColor","borderColor"];
 
@@ -67,3 +69,5 @@ UI.panel = function(x,y,w,h){
 
 	return me;
 };
+
+export default Panel;

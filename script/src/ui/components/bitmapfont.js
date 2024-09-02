@@ -1,4 +1,4 @@
-var BitmapFont = function(){
+let BitmapFont = function(){
 	var me = {};
 
 	var charWidth;
@@ -167,3 +167,5 @@ var BitmapFont = function(){
 
 	return me;
 };
+
+export default BitmapFont;

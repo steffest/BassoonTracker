@@ -1,8 +1,16 @@
+import Tracker from "../tracker.js";
+import EventBus from "../eventBus.js";
+import {EVENT, LOOPTYPE, TRACKERMODE} from "../enum.js";
+import {BinaryStream} from "../filesystem.js"
+import Note from "../models/note.js";
+import Instrument from "../models/instrument.js";
+import Sample from "../models/sample.js";
+
 var FastTracker = function(){
     var me = {};
 
     // see ftp://ftp.modland.com/pub/documents/format_documentation/FastTracker%202%20v2.04%20(.xm).html
-    me.load = function(file,name){
+    me.load = function(file){
 
         console.log("loading FastTracker");
         Tracker.setTrackerMode(TRACKERMODE.FASTTRACKER,true);
@@ -591,4 +599,6 @@ var FastTracker = function(){
 
     return me;
 };
+
+export default FastTracker;
 

@@ -1,5 +1,15 @@
-UI.menu = function(x,y,w,h,submenuParent){
-    var me = UI.element(x,y,w,h);
+import UIElement from "./element.js";
+import Assets from "../assets.js";
+import Submenu from "../components/submenu.js";
+import Host from "../../host.js";
+import Input from "../input.js";
+import Scale9Panel from "./scale9.js";
+import EventBus from "../../eventBus.js";
+import {EVENT} from "../../enum.js";
+import Button from "./button.js";
+
+let menu = function(x,y,w,h,submenuParent){
+    var me = UIElement(x,y,w,h);
 	me.keepSelection = true;
     var items;
 
@@ -16,7 +26,7 @@ UI.menu = function(x,y,w,h,submenuParent){
         });
 
 		if (p["background"]){
-			background = UI.scale9Panel(0,0,me.width,me.height,p["background"]);
+			background = Scale9Panel(0,0,me.width,me.height,p["background"]);
 			background.ignoreEvents = true;
 			me.addChild(background);
 		}
@@ -252,8 +262,8 @@ UI.menu = function(x,y,w,h,submenuParent){
         submenuParent = submenuParent || me.parent;
         buttons = [];
 		var buttonProperties = {
-			background: UI.Assets.buttonKeyScale9,
-			activeBackground:UI.Assets.buttonKeyActiveScale9,
+			background: Assets.buttonKeyScale9,
+			activeBackground:Assets.buttonKeyActiveScale9,
 			isActive:false,
 			textAlign: "center",
 			font: window.fontDark,
@@ -265,7 +275,7 @@ UI.menu = function(x,y,w,h,submenuParent){
         items.forEach(function(item,index){
 
             if (me.layout === "buttons"){
-				var button = UI.button(buttonX,buttonY,60,18);
+				var button = Button(buttonX,buttonY,60,18);
 				buttonX += 60;
 				if (index === 1){
                     buttonX = 3;
@@ -283,10 +293,9 @@ UI.menu = function(x,y,w,h,submenuParent){
             }
 
             if (item.subItems){
-
-                var subMenu = UI.submenu();
+                var subMenu = Submenu();
                 subMenu.setProperties({
-                    background: UI.Assets.buttonLightScale9
+                    background: Assets.buttonLightScale9
                 });
                 subMenu.hide();
                 subMenu.setItems(item.subItems);
@@ -320,3 +329,5 @@ UI.menu = function(x,y,w,h,submenuParent){
 
     return me;
 };
+
+export default menu;

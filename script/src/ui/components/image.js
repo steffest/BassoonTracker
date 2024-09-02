@@ -1,9 +1,12 @@
-UI.image = function(x,y,w,h,src){
+import UIElement from "./element.js";
+import Y from "../yascal/yascal.js";
+
+let image = function(x,y,w,h,src){
 
     w = w || 14;
     h = h || 14;
 
-    var me = UI.element(x,y,w,h,true);
+    var me = UIElement(x,y,w,h,true);
 
     var properties = ["left","top","width","height","name"];
 
@@ -49,3 +52,5 @@ UI.image = function(x,y,w,h,src){
 
     return me;
 };
+
+export default image;

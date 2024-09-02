@@ -1,8 +1,17 @@
-UI.app_songControl = function(x,y,w,h,visible){
-    var me = UI.element(x,y,w,h,visible);
+import UIElement from "../../components/element.js";
+import RadioGroup from "../../components/radiogroup.js";
+import Assets from "../../assets.js";
+import EventBus from "../../../eventBus.js";
+import {EVENT, PLAYTYPE} from "../../../enum.js";
+import Tracker from "../../../tracker.js";
+import Y from "../../yascal/yascal.js";
+
+
+let app_songControl = function(x,y,w,h,visible){
+    var me = UIElement(x,y,w,h,visible);
     me.type = "songControl";
 
-    var radioGroup = UI.radioGroup();
+    var radioGroup = RadioGroup();
     radioGroup.setItems([
         {
             label:"song",
@@ -28,12 +37,12 @@ UI.app_songControl = function(x,y,w,h,visible){
     me.addChild(radioGroup);
 
     var buttons = {};
-    buttons.play = UI.Assets.generate("buttonDarkGreen");
+    buttons.play = Assets.generate("buttonDarkGreen");
     buttons.play.setProperties({
         image: Y.getImage("play_green"),
         hoverImage: Y.getImage("play_green_hover"),
         activeImage: Y.getImage("play_active_red"),
-        activeBackground: UI.Assets.buttonDarkRedActiveScale9
+        activeBackground: Assets.buttonDarkRedActiveScale9
     });
     buttons.play.tooltip = "Toggle Play [ENTER]";
     buttons.play.onClick = function(){
@@ -54,7 +63,7 @@ UI.app_songControl = function(x,y,w,h,visible){
     me.addChild(buttons.play);
 
 
-    buttons.record = UI.Assets.generate("buttonDarkRed");
+    buttons.record = Assets.generate("buttonDarkRed");
     buttons.record.setProperties({
         image: Y.getImage("record"),
         hoverImage: Y.getImage("record_hover"),
@@ -71,7 +80,7 @@ UI.app_songControl = function(x,y,w,h,visible){
 
 
 
-    buttons.song = UI.Assets.generate("buttonDark");
+    buttons.song = Assets.generate("buttonDark");
     buttons.song.onClick = function(){
         Tracker.playSong();
     };
@@ -80,7 +89,7 @@ UI.app_songControl = function(x,y,w,h,visible){
     });
     me.addChild(buttons.song);
 
-    buttons.pattern = UI.Assets.generate("buttonDark");
+    buttons.pattern = Assets.generate("buttonDark");
     buttons.pattern.onClick = function(){
         Tracker.playPattern();
     };
@@ -211,4 +220,6 @@ UI.app_songControl = function(x,y,w,h,visible){
 
 
 };
+
+export default app_songControl;
 

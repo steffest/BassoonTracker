@@ -1,5 +1,11 @@
-UI.numberDisplay = function(initialProperties){
-    var me = UI.element();
+import UIElement from "./element.js";
+import Y from "../yascal/yascal.js";
+import StateManager from "../stateManager.js";
+import Tracker from "../../tracker.js";
+import Input from "../input.js";
+
+let numberDisplay = function(initialProperties){
+    var me = UIElement();
     me.type = "numberDisplay";
     me.isActive = false;
     me.isDisabled = false;
@@ -259,7 +265,7 @@ UI.numberDisplay = function(initialProperties){
         if (internal){
             return me.canvas;
         }else{
-            me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
+            if (me.canvas.width) me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
         }
     };
 
@@ -308,3 +314,5 @@ UI.numberDisplay = function(initialProperties){
 
     return me;
 };
+
+export default numberDisplay;

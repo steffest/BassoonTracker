@@ -1,3 +1,6 @@
+import {FTNotes, FTPeriods} from "../tracker.js"
+
+
 var Note = function(){
 	var me = {};
 
@@ -58,3 +61,5 @@ var Note = function(){
 
 	return me;
 };
+
+export default Note;

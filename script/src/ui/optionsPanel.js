@@ -1,13 +1,28 @@
-UI.OptionsPanel = function(){
+import Panel from "./components/panel.js";
+import Scale9Panel from "./components/scale9.js";
+import Label from "./components/label.js";
+import Assets from "./assets.js";
+import {COMMAND, EVENT, SETTINGS, STEREOSEPARATION} from "../enum.js";
+import EventBus from "../eventBus.js";
+import Settings from "../settings.js";
+import Audio from "../audio.js";
+import Tracker from "../tracker.js";
+import Checkboxbutton from "./components/checkboxbutton.js";
+import UI from "./ui.js"
+import Layout from "./app/layout.js";
+import App from "../app.js";
+import Midi from "../audio/midi.js";
 
-	var me = UI.panel();
+let OptionsPanel = function(){
+
+	var me = Panel();
 	me.hide();
 
-	var background = UI.scale9Panel(0,0,20,20,UI.Assets.panelMainScale9);
+	var background = Scale9Panel(0,0,20,20,Assets.panelMainScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
-	var mainLabel = UI.label({
+	var mainLabel = Label({
 		label: "Options:",
 		font: fontMed,
 		left: 5,
@@ -20,7 +35,7 @@ UI.OptionsPanel = function(){
 	//var insetPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
 	//me.addChild(insetPanel);
 
-	var closeButton = UI.Assets.generate("button20_20");
+	var closeButton = Assets.generate("button20_20");
 	closeButton.setLabel("x");
 	closeButton.onClick = function(){
         App.doCommand(COMMAND.showTopMain);
@@ -230,12 +245,12 @@ UI.OptionsPanel = function(){
 
 
 	options.forEach(function(option){
-        var labelBox = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
+        var labelBox = Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
         labelBox.ignoreEvents = true;
         me.addChild(labelBox);
 
 
-		var label = UI.label();
+		var label = Label();
 		label.setProperties({
 			label: option.label,
 			labels: option.labels,
@@ -253,7 +268,7 @@ UI.OptionsPanel = function(){
 			var value = option.values[i];
 			var button;
 			if (value){
-				button = UI.Assets.generate("buttonKey");
+				button = Assets.generate("buttonKey");
 				var labels;
 				if (option.valueLabels && option.valueLabels[value]){
 					button.setProperties({
@@ -282,10 +297,10 @@ UI.OptionsPanel = function(){
 		if (option.checkBoxes){
 			//for (i = 0; i<option.checkBoxes.length; i++){
 				var b = option.checkBoxes[0];
-				var cb = UI.checkboxbutton({
-					background: UI.Assets.panelDarkInsetScale9,
-					hoverBackground: UI.Assets.panelInsetScale9,
-					activeBackground: UI.Assets.panelDarkInsetScale9,
+				var cb = Checkboxbutton({
+					background: Assets.panelDarkInsetScale9,
+					hoverBackground: Assets.panelInsetScale9,
+					activeBackground: Assets.panelDarkInsetScale9,
 					label: b.label,
 					labels: b.labels,
 					checkbox: true
@@ -301,7 +316,7 @@ UI.OptionsPanel = function(){
 		}
 	});
 
-	activateOption = function(button){
+	let activateOption = function(button){
 		var option = button.option;
 
 		option.buttons.forEach(function(child){
@@ -450,4 +465,6 @@ UI.OptionsPanel = function(){
 	return me;
 
 };
+
+export default OptionsPanel;
 

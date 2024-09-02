@@ -1,6 +1,17 @@
-UI.app_pianoView = function(){
+import App_panelContainer from "./panelContainer.js";
+import Y from "../yascal/yascal.js";
+import SpinBox from "../spinBox.js";
+import Assets from "../assets.js";
+import Layout from "./layout.js";
+import Input from "../input.js";
+import EventBus from "../../eventBus.js";
+import {COMMAND, EVENT} from "../../enum.js";
+import App from "../../app.js";
+import Tracker from "../../tracker.js";
 
-    var me = UI.app_panelContainer(200);
+let app_pianoView = function(){
+
+    var me = App_panelContainer(200);
     me.name = "pianoViewPanel";
 
     var keyWidth = 64;
@@ -25,14 +36,14 @@ UI.app_pianoView = function(){
     var minOctave = 1;
 
 
-    var closeButton = UI.Assets.generate("button20_20");
+    var closeButton = Assets.generate("button20_20");
     closeButton.setLabel("x");
     closeButton.onClick = function(){
         App.doCommand(COMMAND.togglePiano);
     };
     me.addChild(closeButton);
 
-    var octaveBox = UI.spinBox();
+    var octaveBox = SpinBox();
     octaveBox.setProperties({
         name: "Octave",
         label: "Octave",
@@ -240,4 +251,6 @@ UI.app_pianoView = function(){
     return me;
 
 };
+
+export default app_pianoView;
 

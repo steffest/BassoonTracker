@@ -1,6 +1,10 @@
-UI.spinBox = function(initialProperties){
+import Ticker from "./ticker.js";
+import NumberDisplay from "./components/numberdisplay.js";
+import Assets from "./assets.js";
 
-	var me = UI.numberDisplay(initialProperties);
+let spinBox = function(initialProperties){
+
+	var me = NumberDisplay(initialProperties);
 	me.type = "spinBox";
 	
 	var size="medium";
@@ -11,16 +15,16 @@ UI.spinBox = function(initialProperties){
 
 	if (initialProperties) setPropertiesValues(initialProperties);
 
-	var buttonDown = UI.Assets.generate("button20_20");
+	var buttonDown = Assets.generate("button20_20");
 	buttonDown.onDown = function(){
 		if (me.isDisabled) return;
 		me.updateValue(me.getValue()-step);
-		UI.ticker.onEachTick4(function(){
+		Ticker.onEachTick4(function(){
 			me.updateValue(me.getValue()-step);
 		},10);
 	};
 	buttonDown.onTouchUp = function(){
-		UI.ticker.onEachTick4();
+		Ticker.onEachTick4();
 	};
 
 	buttonDown.setProperties({
@@ -30,16 +34,16 @@ UI.spinBox = function(initialProperties){
 	buttonDown.tooltip = me.tooltip;
 	me.addChild(buttonDown);
 
-	var buttonUp = UI.Assets.generate("button20_20");
+	var buttonUp = Assets.generate("button20_20");
 	buttonUp.onDown = function(){
 		if (me.isDisabled) return;
 		me.updateValue(me.getValue()+step);
-		UI.ticker.onEachTick4(function(){
+		Ticker.onEachTick4(function(){
 			me.updateValue(me.getValue()+step);
 		},10);
 	};
 	buttonUp.onTouchUp = function(){
-		UI.ticker.onEachTick4();
+		Ticker.onEachTick4();
 	};
 	buttonUp.setProperties({
 		name:"buttonUp",
@@ -129,4 +133,6 @@ UI.spinBox = function(initialProperties){
 
 
 };
+
+export default spinBox;
 

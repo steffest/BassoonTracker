@@ -1,4 +1,6 @@
-UI.Icon = function(){
+import Y from "../yascal/yascal.js";
+
+let Icon = function(){
     var me = {};
 
     me.get = function(item,size){
@@ -47,4 +49,6 @@ UI.Icon = function(){
 
     return me;
 }();
+
+export default Icon;
 

@@ -1,13 +1,21 @@
-UI.buttonGroup = function(title,buttonsInfo){
+import Panel from "../../components/panel.js";
+import Scale9Panel from "../../components/scale9.js";
+import Assets from "../../assets.js";
+import Label from "../../components/label.js";
+import NumberDisplay from "../../components/numberdisplay.js";
+import EventBus from "../../../eventBus.js";
+import {EVENT} from "../../../enum.js";
 
-	var me = UI.panel();
+let ButtonGroup = function(title,buttonsInfo){
+
+	var me = Panel();
 	me.hide();
 
-	var titleBar = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
+	var titleBar = Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
 	titleBar.ignoreEvents = true;
 	me.addChild(titleBar);
 
-	var titleLabel = UI.label({
+	var titleLabel = Label({
 		label: title,
 		font: fontSmall,
 		width: 60,
@@ -19,12 +27,12 @@ UI.buttonGroup = function(title,buttonsInfo){
 
 	buttonsInfo.forEach(function(buttonInfo){
 		if (buttonInfo.type === "number"){
-			var button = UI.numberDisplay({
+			var button = NumberDisplay({
 				autoPadding: true
 			});
 			button.setValue(buttonInfo.value);
 		}else{
-			button = UI.Assets.generate("buttonLight");
+			button = Assets.generate("buttonLight");
 			button.setLabel(buttonInfo.label);
 			button.onClick = buttonInfo.onClick;
 		}
@@ -69,4 +77,6 @@ UI.buttonGroup = function(title,buttonsInfo){
 	return me;
 
 };
+
+export default ButtonGroup;
 

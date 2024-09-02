@@ -1,4 +1,4 @@
-Yascal.sprite = function(initialProperties){
+let sprite = function(initialProperties){
 	var me = {};
 
 	me.canvas = document.createElement("canvas");
@@ -21,3 +21,5 @@ Yascal.sprite = function(initialProperties){
 
 	return me;
 };
+
+export default sprite;

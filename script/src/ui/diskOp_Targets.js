@@ -1,17 +1,28 @@
-UI.DiskOperationTargets = function(){
+import Panel from "./components/panel.js";
+import Scale9Panel from "./components/scale9.js";
+import Label from "./components/label.js";
+import RadioGroup from "./components/radiogroup.js";
+import Assets from "./assets.js";
+import {EVENT, FILETYPE} from "../enum.js";
+import Host from "../host.js";
+import EventBus from "../eventBus.js";
+import UI from "./ui.js";
 
-	var me = UI.panel();
+
+let DiskOperationTargets = function(){
+
+	var me = Panel();
 	var currentTarget = "bassoon";
 
-	var background = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkInsetScale9);
+	var background = Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
-	var label1 = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkGreyScale9);
+	var label1 = Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
 	label1.ignoreEvents = true;
 	me.addChild(label1);
 
-	var label = UI.label({
+	var label = Label({
 		label: "From",
 		font: fontSmall
 	});
@@ -53,7 +64,7 @@ UI.DiskOperationTargets = function(){
 	var currentLoadTargets = targetsModule;
 	var currentAction = "load";
 
-	var selectionTarget = UI.radioGroup();
+	var selectionTarget = RadioGroup();
 	selectionTarget.setProperties({
 		align: "right",
 		size:"med",
@@ -153,3 +164,5 @@ UI.DiskOperationTargets = function(){
 	return me;
 
 };
+
+export default DiskOperationTargets;

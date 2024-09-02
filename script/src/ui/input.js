@@ -1,4 +1,13 @@
-var Input = (function(){
+import EventBus from "../eventBus.js";
+import {EVENT, KEYBOARDTABLE, NOTEPERIOD, OCTAVENOTES, SETTINGS} from "../enum.js"
+import UI from "./ui.js"
+import App from "../app.js";
+import Tracker, {FTNotes} from "../tracker.js";
+import Audio from "../audio.js";
+import Editor from "../editor.js";
+import Playlist from "../models/playlist.js";
+
+let Input = (function(){
 
 	var me={};
 
@@ -23,6 +32,7 @@ var Input = (function(){
 	me.init = function(){
 		
 		// mouse, touch and key handlers
+		let canvas = UI.getCanvas();
 
 		canvas.addEventListener("mousedown",handleTouchDown,false);
 		canvas.addEventListener("mousemove",handleTouchMove,false);
@@ -927,3 +937,5 @@ var Input = (function(){
 	return me;
 
 }());
+
+export default Input;

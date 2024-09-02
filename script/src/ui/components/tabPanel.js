@@ -1,5 +1,12 @@
-UI.tabPanel = function(x,y,w,h,config){
-    var me = UI.element(x,y,w,h);
+import UIElement from "./element.js";
+import Scale9Panel from "./scale9.js";
+import Y from "../yascal/yascal.js";
+import Button from "./button.js";
+import Layout from "../app/layout.js";
+
+
+let tabPanel = function(x,y,w,h,config){
+    var me = UIElement(x,y,w,h);
     me.type = "tabpanel";
 
     let footerHeight = 10;
@@ -7,7 +14,7 @@ UI.tabPanel = function(x,y,w,h,config){
     let showFooter = true;
 
     // background
-    let background = UI.scale9Panel(0,0,me.width,me.height,{
+    let background = Scale9Panel(0,0,me.width,me.height,{
         img: Y.getImage("tab_panel"),
         left:8,
         top:9,
@@ -15,7 +22,7 @@ UI.tabPanel = function(x,y,w,h,config){
         bottom: 9
     });
 
-    let footer = UI.scale9Panel(0,0,0,0,{
+    let footer = Scale9Panel(0,0,0,0,{
         img: Y.getImage("tab_panel_bottom"),
         left:10,
         top:2,
@@ -120,7 +127,7 @@ UI.tabPanel = function(x,y,w,h,config){
     }
 
     function addTab(config){
-        var tabButton = UI.button(tabX,12,config.width,18);
+        var tabButton = Button(tabX,12,config.width,18);
         tabButton.setProperties({
             label: config.label,
             textAlign:"left",
@@ -175,3 +182,5 @@ UI.tabPanel = function(x,y,w,h,config){
 
     return me;
 }
+
+export default tabPanel;

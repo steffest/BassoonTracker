@@ -1,3 +1,5 @@
+import Host from "./host.js";
+
 var FetchService = (function() {
 
 	// somewhat Jquery syntax compatible for easy portability
@@ -77,7 +79,7 @@ var FetchService = (function() {
 		config.error = config.error || function(){config.success(false)};
 
 		if (config.datatype === "jsonp"){
-			console.error(log.error() +  " ERROR: JSONP is not supported!");
+			console.error(" ERROR: JSONP is not supported!");
 			config.error(xhr);
 		}
 
@@ -117,7 +119,7 @@ var FetchService = (function() {
 		};
 
 		xhr.ontimeout = function (e) {
-			console.error(log.error() + "timeout while getting " + url);
+			console.error("timeout while getting " + url);
 		};
 
 		xhr.open(method, url, true);
@@ -139,4 +141,6 @@ var FetchService = (function() {
 
 	return me;
 }());
+
+export default FetchService;
 

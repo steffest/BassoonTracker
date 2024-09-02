@@ -1,5 +1,9 @@
-UI.rangeSlider = function(initialProperties){
-	var me = UI.element();
+import Y from "../yascal/yascal.js";
+import UIElement from "./element.js";
+import Scale9Panel from "./scale9.js";
+
+let rangeSlider = function(initialProperties){
+	var me = UIElement();
 
 	me.type = "rangeslider";
 	var properties = ["left","top","width","height","name","onChange"];
@@ -11,7 +15,7 @@ UI.rangeSlider = function(initialProperties){
     var vertical = false;
     var maxHeight = 0;
 
-	var back = UI.scale9Panel(0,0,0,0,{
+	var back = Scale9Panel(0,0,0,0,{
 		img: backImage,
 		left: 4,
 		right: 4,
@@ -196,5 +200,7 @@ UI.rangeSlider = function(initialProperties){
 
 	return me;
 };
+
+export default rangeSlider;
 
 

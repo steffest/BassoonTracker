@@ -1,4 +1,13 @@
-UI.Assets = (function(){
+import Host from "../host.js";
+import FetchService from "../fetchService.js";
+import App from "../app.js"
+import Y from "./yascal/yascal.js";
+import sprite from "./yascal/sprite.js";
+import Button from "./components/button.js";
+import Scale9Panel from "./components/scale9.js"
+
+
+let Assets = (function(){
 	// generates and caches frequently used UI assets
 
 	var me = {};
@@ -21,18 +30,18 @@ UI.Assets = (function(){
 			if (spriteMap && spriteSheet){
 				spriteMap.forEach(function(spriteData){
 					spriteData.img = spriteSheet;
-					Y.sprites[spriteData.name] = Y.sprite(spriteData);
+					Y.sprites[spriteData.name] = sprite(spriteData);
 				});
 				if (next) next();
 			}
 		};
 		
-		FetchService.json(assetUrl("skin/spritemap_v5.json"),function(data){
+		FetchService.json(assetUrl("./skin/spritemap_v5.json"),function(data){
 			spriteMap = data;
 			createSprites();
 		});
 
-		Y.loadImage(assetUrl("skin/spritesheet_v5.png"),function(img){
+		Y.loadImage(assetUrl("./skin/spritesheet_v5.png"),function(img){
 			spriteSheet = img;
 			createSprites();
 		})
@@ -196,8 +205,8 @@ UI.Assets = (function(){
 			generate:function(andCache){
 				var result;
 				var scale = me.panelDarkScale9;
-				//result = UI.scale9Panel(0,0,20,20,scale);
-				result = UI.button(0,0,20,20);
+				//result = Scale9Panel(0,0,20,20,scale);
+				result = Button(0,0,20,20);
 				result.setProperties({
 					background: scale,
 					hoverBackground: me.panelDarkHoverScale9,
@@ -216,7 +225,7 @@ UI.Assets = (function(){
 			generate:function(andCache){
 				var result;
 				var scale = me.buttonLightScale9;
-				result = UI.scale9Panel(0,0,30,30,scale);
+				result = Scale9Panel(0,0,30,30,scale);
 				if (andCache){
 					assets["buttonUp30_30"] = result;
 				}else{
@@ -228,7 +237,7 @@ UI.Assets = (function(){
 			generate:function(andCache){
 				var result;
 				var scale = me.buttonLightScale9;
-				result = UI.button();
+				result = Button();
 				result.setProperties({
 					background: scale,
 					hoverBackground: me.buttonLightHoverScale9,
@@ -246,11 +255,11 @@ UI.Assets = (function(){
 			generate:function(andCache){
 				var result;
 				var scale = me.buttonDarkScale9;
-				result = UI.button(0,0,20,20);
+				result = Button(0,0,20,20);
 				result.setProperties({
 					background: scale,
-					hoverBackground:UI.Assets.buttonDarkBlueActiveScale9,
-					activeBackground:UI.Assets.buttonDarkActiveScale9,
+					hoverBackground:Assets.buttonDarkBlueActiveScale9,
+					activeBackground:Assets.buttonDarkActiveScale9,
 					isActive:false,
 					textAlign: "center",
 					font: window.fontMed
@@ -265,11 +274,11 @@ UI.Assets = (function(){
 		buttonDarkBlue:{
 			generate:function(andCache){
 				var result;
-				result = UI.button(0,0,20,20);
+				result = Button(0,0,20,20);
 				result.setProperties({
 					background: me.buttonDarkBlueScale9,
-					hoverBackground:UI.Assets.buttonDarkBlueActiveScale9,
-					activeBackground:UI.Assets.buttonDarkBlueActiveScale9,
+					hoverBackground:Assets.buttonDarkBlueActiveScale9,
+					activeBackground:Assets.buttonDarkBlueActiveScale9,
 					isActive:false,
 					textAlign: "center",
 					font: window.fontMed
@@ -284,11 +293,11 @@ UI.Assets = (function(){
 		buttonDarkRed:{
 			generate:function(andCache){
 				var result;
-				result = UI.button(0,0,20,20);
+				result = Button(0,0,20,20);
 				result.setProperties({
 					background: me.buttonDarkRedScale9,
-					hoverBackground:UI.Assets.buttonDarkRedHoverScale9,
-					activeBackground:UI.Assets.buttonDarkRedActiveScale9,
+					hoverBackground:Assets.buttonDarkRedHoverScale9,
+					activeBackground:Assets.buttonDarkRedActiveScale9,
 					isActive:false,
 					textAlign: "center",
 					font: window.fontMed
@@ -303,11 +312,11 @@ UI.Assets = (function(){
 		buttonDarkGreen:{
 			generate:function(andCache){
 				var result;
-				result = UI.button(0,0,20,20);
+				result = Button(0,0,20,20);
 				result.setProperties({
 					background: me.buttonDarkGreenScale9,
-					hoverBackground:UI.Assets.buttonDarkGreenHoverScale9,
-					activeBackground:UI.Assets.buttonDarkGreenActiveScale9,
+					hoverBackground:Assets.buttonDarkGreenHoverScale9,
+					activeBackground:Assets.buttonDarkGreenActiveScale9,
 					isActive:false,
 					textAlign: "center",
 					font: window.fontMed
@@ -322,11 +331,11 @@ UI.Assets = (function(){
 		buttonKey:{
 			generate:function(andCache){
 				var result;
-				result = UI.button(0,0,20,20);
+				result = Button(0,0,20,20);
 				result.setProperties({
 					background: me.buttonKeyScale9,
-					hoverBackground:UI.Assets.buttonKeyHoverScale9,
-					activeBackground:UI.Assets.buttonKeyActiveScale9,
+					hoverBackground:Assets.buttonKeyHoverScale9,
+					activeBackground:Assets.buttonKeyActiveScale9,
 					isActive:false,
 					textAlign: "center",
 					font: window.fontDark
@@ -410,3 +419,5 @@ UI.Assets = (function(){
 
 	return me;
 }());
+
+export default Assets;

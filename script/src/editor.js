@@ -1,8 +1,28 @@
+import EventBus from './eventBus.js';
+import {EVENT, FILETYPE, MODULETYPE, SETTINGS, TRACKERMODE} from "./enum.js";
+import Tracker from './tracker.js';
+import {getUrlParameter} from "./lib/util.js";
+import Host from "./host.js";
+import Audio from "./audio.js";
+import StateManager from "./ui/stateManager.js";
+import Note from "./models/note.js";
+import {audioBufferToWav} from "./lib/audioBufferToWav.js";
+import UI from "./ui/ui.js";
+import Dropbox from "./lib/dropbox.js";
+import Logger from "./log.js";
+import Instrument from "./models/instrument.js";
+import ModalDialog from "./ui/components/modalDialog.js";
+import FastTracker from "./fileformats/fasttracker.js";
+import ProTracker from "./fileformats/protracker.js";
+import BassoonProvider from "./provider/bassoon.js";
+import Playlist from "./models/playlist.js";
+import {detectSampleType} from "./audio/detectSampleType.js";
+
+
 var Editor = (function(){
 
 	var me = {};
-
-
+	
 	var currentTrack = 0;
 	var currentTrackPosition = 0;
 	var currentCursorPosition = 0;
@@ -522,7 +542,7 @@ var Editor = (function(){
         	if (Tracker.getTrackerMode() === TRACKERMODE.PROTRACKER){
         		// max sampleLength is 1FFFE
         		if (instrument.sample.length > 131070){
-					var dialog = UI.modalDialog();
+					var dialog = ModalDialog();
 					dialog.setProperties({
 						width: UI.mainPanel.width,
 						height: UI.mainPanel.height,
@@ -563,7 +583,7 @@ var Editor = (function(){
 		var leadingTimeCount = Math.floor(Audio.context.sampleRate/10);
 
 		// TODO - is creating a fixed length Float32Array faster ?
-		for (i = leadingTimeCount, len = data.length; i<len; i+=4){
+		for (let i = leadingTimeCount, len = data.length; i<len; i+=4){
 			instrument.sample.data.push(data[i]);
 		}
 		instrument.sample.length = instrument.sample.data.length;
@@ -601,6 +621,8 @@ var Editor = (function(){
 		if (initialFile){
 			initialFile = decodeURIComponent(initialFile);
 
+			initialFile = unpackUrl(initialFile);
+
 			if (initialFile.substr(0,7).toLowerCase() === "http://" && document.location.protocol === "https:"){
 				// proxy plain HTTP requests as this won't work over HTTPS
 				initialFile = BassoonProvider.proxyUrl(initialFile);
@@ -608,12 +630,12 @@ var Editor = (function(){
 				initialFile = BassoonProvider.proxyUrl(initialFile.substr(6));
 			}
 		}else{
-			if (SETTINGS.loadInitialFile) initialFile = Host.initialFile || Host.getBaseUrl() + 'demomods/Tinytune.mod';
+			if (SETTINGS.loadInitialFile) initialFile = Host.initialFile || Host.getBaseUrl() + '../demomods/Tinytune.mod';
 		}
 		if (initialFile) Tracker.load(initialFile,true,function(fileType){
 			if (fileType === FILETYPE.module){
 				// load default playlist;
-				Tracker.load(Host.getRemoteUrl() + 'playlists/demosongs.json',true,null,false,true);
+				Tracker.load(Host.getRemoteUrl() + '../playlists/demosongs.json',true,null,false,true);
 			}
 			if (fileType === FILETYPE.playlist){
 				let index = 0;
@@ -627,6 +649,40 @@ var Editor = (function(){
 		},true);
 
 	}
+
+	function unpackUrl(url){
+		console.log("unpacking url " + url);
+		var id;
+		if (typeof url === "string") {
+			if (url.indexOf("ma-") === 0) {
+				id = url.substr(3);
+				return "https://api.modarchive.org/downloads.php?moduleid=" + id;
+			}
+			if (url.indexOf("playlist-") === 0) {
+				id = url.substr(9);
+				return "playlists/" + id + ".json";
+			}
+		}
+		return url;
+	}
+
+	function packUrl(url){
+		console.log("packing url " + url);
+		if (typeof url === "string"){
+			if (url.indexOf("api.modarchive.org")>=0){
+				var moduleid = url.match(/moduleid=([0-9]+)/);
+				if (moduleid && moduleid[1]) return ("ma-" + moduleid[1]);
+			}
+			if (url.indexOf("playlists/")>=0){
+				var playlist = url.match(/playlists\/([a-z0-9]+)\.json/);
+				if (playlist && playlist[1]) return ("playlist-" + playlist[1]);
+			}
+		}
+		return url;
+	}
+
+	me.unpackUrl = unpackUrl;
+	me.packUrl = packUrl;
 
 
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
@@ -650,3 +706,5 @@ var Editor = (function(){
 
 	return me;
 }());
+
+export default Editor;

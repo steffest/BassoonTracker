@@ -1,5 +1,8 @@
-UI.knob = function(initialProperties){
-	var me = UI.element();
+import UIElement from "./element.js";
+import Y from "../yascal/yascal.js";
+
+let knob = function(initialProperties){
+	var me = UIElement();
 	me.type = "knob";
 
 	var label = "";
@@ -34,7 +37,7 @@ UI.knob = function(initialProperties){
 					case "font": font=p[key];break;
 					case "textAlign": textAlign=p[key];break;
 					case "paddingTop": paddingTop=parseInt(p[key]);break;
-					case "disabled": me.isDisabled = !!p[key];
+					case "disabled": me.isDisabled = !!p[key]; break;
 					default:
 						me[key] = p[key];
 				}
@@ -165,4 +168,5 @@ UI.knob = function(initialProperties){
 	return me;
 };
 
+export default knob;
 

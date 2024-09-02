@@ -1,6 +1,17 @@
-UI.WaveForm = function(){
+import UIElement from "./components/element.js";
+import Scale9Panel from "./components/scale9.js";
+import EventBus from "../eventBus.js";
+import {EVENT, SELECTION} from "../enum.js";
+import Audio from "../audio.js";
+import UI from "./ui.js";
+import StateManager from "./stateManager.js";
+import Tracker from "../tracker.js";
+import Input from "./input.js";
+import Y from "./yascal/yascal.js";
 
-	var me = UI.element();
+let WaveForm = function(){
+
+	var me = UIElement();
 	me.name = "Waveform";
 	var currentSampleData;
 	var currentInstrument;
@@ -35,9 +46,9 @@ UI.WaveForm = function(){
 		rangeEnd: 4
 	};
 
-	var waveformDisplay = UI.element();
+	var waveformDisplay = UIElement();
 
-	var background = UI.scale9Panel(0,0,me.width,me.height,{
+	var background = Scale9Panel(0,0,me.width,me.height,{
 		img: Y.getImage("panel_dark"),
 		left:3,
 		top:3,
@@ -46,7 +57,7 @@ UI.WaveForm = function(){
 	});
 	background.ignoreEvents = true;
 
-	var scrollBar = UI.scale9Panel(1,0,100,18,{
+	var scrollBar = Scale9Panel(1,0,100,18,{
 		img: Y.getImage("bar"),
 		left:2,
 		top:2,
@@ -1058,4 +1069,6 @@ UI.WaveForm = function(){
 	return me;
 
 };
+
+export default WaveForm;
 

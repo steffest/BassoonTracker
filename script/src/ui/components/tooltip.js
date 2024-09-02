@@ -1,5 +1,11 @@
-UI.ToolTip = function(x,y,text){
-    var me = UI.element(x,y,100,50);
+import UIElement from "./element.js";
+import Scale9Panel from "./scale9.js";
+import EventBus from "../../eventBus.js";
+import {EVENT} from "../../enum.js";
+import Y from "../yascal/yascal.js";
+
+let ToolTip = function(x,y,text){
+    var me = UIElement(x,y,100,50);
     me.type = "tooltip";
     me.ignoreEvents = true;
     var text = "";
@@ -10,7 +16,7 @@ UI.ToolTip = function(x,y,text){
     var prevLeft;
     var prevTop;
 
-    var background = UI.scale9Panel(0,0,me.width,me.height,{
+    var background = Scale9Panel(0,0,me.width,me.height,{
         img: Y.getImage("tooltip"),
         left:8,
         top:8,
@@ -19,7 +25,7 @@ UI.ToolTip = function(x,y,text){
     });
     me.addChild(background);
 
-    var overlay = UI.scale9Panel(0,0,me.width,me.height,{
+    var overlay = Scale9Panel(0,0,me.width,me.height,{
         img: Y.getImage("tooltip_extra"),
         left:8,
         top:2,
@@ -163,3 +169,5 @@ UI.ToolTip = function(x,y,text){
 
     return me;
 }
+
+export default ToolTip;

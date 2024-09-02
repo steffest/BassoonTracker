@@ -1,14 +1,33 @@
-UI.pattern_sidebar = function(){
-    var me = UI.panel();
+import Panel from "../../components/panel.js";
+import Listbox from "../../components/listbox.js";
+import TabPanel from "../../components/tabPanel.js";
+import Button from "../../components/button.js";
+import Checkboxbutton from "../../components/checkboxbutton.js";
+import Label from "../../components/label.js";
+import UIImage from "../../components/image.js";
+import Assets from "../../assets.js";
+import Icon from "../../components/icon.js";
+import FetchService from "../../../fetchService.js";
+import Playlist from "../../../models/playlist.js";
+import Tracker from "../../../tracker.js";
+import {COMMAND, EVENT} from "../../../enum.js";
+import EventBus from "../../../eventBus.js";
+import App from "../../../app.js";
+import Y from "../../yascal/yascal.js";
+import Editor from "../../../editor.js";
+
+
+let pattern_sidebar = function(){
+    var me = Panel();
     me.name =  "patternSidebar";
 
-    var songListBox = UI.listbox();
+    var songListBox = Listbox();
     songListBox.name = "songListBox";
-    var playlistListBox = UI.listbox();
+    var playlistListBox = Listbox();
     playlistListBox.name = "playlistListBox";
 
 
-    var tabPanel = UI.tabPanel(0,0,me.width,me.height,{
+    var tabPanel = TabPanel(0,0,me.width,me.height,{
         tabs:[
             {
                 label: "Songs",
@@ -30,12 +49,12 @@ UI.pattern_sidebar = function(){
 
     me.sortZIndex();
 
-    var pianoButton = UI.button();
+    var pianoButton = Button();
     pianoButton.setProperties({
         label: "",
         textAlign:"center",
-        background: UI.Assets.buttonLightScale9,
-        hoverBackground: UI.Assets.buttonLightHoverScale9,
+        background: Assets.buttonLightScale9,
+        hoverBackground: Assets.buttonLightHoverScale9,
         image: Y.getImage("piano"),
         font:window.fontMed
     });
@@ -43,12 +62,12 @@ UI.pattern_sidebar = function(){
     pianoButton.tooltip = "Toggle Piano Keys";
     me.addChild(pianoButton);
 
-    var nibblesButton = UI.button();
+    var nibblesButton = Button();
     nibblesButton.setProperties({
         label: "",
         textAlign:"center",
-        background: UI.Assets.buttonLightScale9,
-        hoverBackground: UI.Assets.buttonLightHoverScale9,
+        background: Assets.buttonLightScale9,
+        hoverBackground: Assets.buttonLightHoverScale9,
         image: Y.getImage("nibbles")
     });
     nibblesButton.onClick = function(){App.doCommand(COMMAND.nibbles)}
@@ -119,7 +138,7 @@ UI.pattern_sidebar = function(){
                         ctx.globalAlpha = 1;
                     }
 
-                    ctx.drawImage(UI.Icon.get(item),iconX,0);
+                    ctx.drawImage(Icon.get(item),iconX,0);
                     ctx.globalAlpha = mainAlpha;
                     window.fontMed.write(ctx,text,43,4,0);
                     if (isSelected){
@@ -163,7 +182,8 @@ UI.pattern_sidebar = function(){
                         textY = 6;
                         window.fontSmall.write(ctx,item.info,textX,20,0);
                     }
-                    window.fontBig.write(ctx,text,textX,textY,0);
+                    let font = item.sub?fontMed:fontBig;
+                    font.write(ctx,text,textX,textY,0);
                 }
 
                 ctx.drawImage(line,0,30,listbox.width-2,2);
@@ -181,7 +201,7 @@ UI.pattern_sidebar = function(){
                     if (typeof item.index === "number" && type === "songs"){
                         Playlist.play(item.index);
                     }else{
-                        Tracker.load(item.url,false,function(){
+                        Tracker.load(Editor.unpackUrl(item.url),false,function(){
                             Tracker.autoPlay = false;
                             tabPanel.setTab(0);
                         })
@@ -191,7 +211,7 @@ UI.pattern_sidebar = function(){
                 }
             }
         };
-        var panel = UI.panel();
+        var panel = Panel();
         panel.setProperties({
             name: "songPanel",
             zIndex: 100,
@@ -222,7 +242,7 @@ UI.pattern_sidebar = function(){
     }
 
     function generateSongControls(){
-        let controls = UI.panel(0,0,20,68);
+        let controls = Panel(0,0,20,68);
 
         let buttons = [
             ["iprev",COMMAND.playPrevious,"Play Previous song in playlist"],
@@ -243,14 +263,14 @@ UI.pattern_sidebar = function(){
             let width = 18;
             let button;
             if (isCheckbox){
-                button = UI.checkboxbutton({
+                button = Checkboxbutton({
                     checkbox: true,
                     transparent: true,
                     paddingLeft: 10,
                 })
                 width = 50;
             }else{
-                button = UI.button(x,0,18,18);
+                button = Button(x,0,18,18);
             }
             button.setProperties({
                 image: Y.getImage(item[0]),
@@ -270,11 +290,11 @@ UI.pattern_sidebar = function(){
             x+=20;
         });
 
-        let line = UI.image(0,22,10,2,"line_hor");
+        let line = UIImage(0,22,10,2,"line_hor");
         controls.addChild(line);
 
 
-        let label = UI.label();
+        let label = Label();
         label.setProperties({
             label: "Play Random",
             font: fontSmall,
@@ -287,7 +307,7 @@ UI.pattern_sidebar = function(){
 
 
         buttons2.forEach(function(item){
-            let button = UI.Assets.generate("buttonDarkBlue");
+            let button = Assets.generate("buttonDarkBlue");
             button.setProperties({
                 label: item[0],
                 font: fontSmall,
@@ -379,7 +399,7 @@ UI.pattern_sidebar = function(){
 
                 items.push({label: item.title, info: info, info2: info2, icon2: icon2, infoExtra: infoExtra, url: item.url, icon: icon, level: level, index: index, listIndex: index+level});
             }else{
-                items.push({label: item.title, icon: item.icon});
+                items.push({label: item.title, icon: item.icon, sub:true});
             }
         });
         return items;
@@ -395,3 +415,5 @@ UI.pattern_sidebar = function(){
 
     return me;
 };
+
+export default pattern_sidebar;

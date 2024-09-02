@@ -1,3 +1,8 @@
+import UI from "./ui/ui.js"
+import Storage from "./storage.js"
+import {SETTINGS, STEREOSEPARATION} from "./enum.js";
+import Audio from "./audio.js";
+
 var Settings = (function(){
 	var me = {};
 
@@ -69,3 +74,5 @@ var Settings = (function(){
 
 	return me;
 })();
+
+export default Settings;

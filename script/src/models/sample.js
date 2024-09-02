@@ -32,3 +32,5 @@ var Sample = function(){
 
 	return me;
 };
+
+export default Sample;

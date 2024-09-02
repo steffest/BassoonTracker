@@ -1,6 +1,25 @@
-UI.SampleView = function(){
+import Panel from "./components/panel.js";
+import Assets from "./assets.js";
+import Y from "./yascal/yascal.js";
+import EventBus from "../eventBus.js";
+import {COMMAND, EVENT, TRACKERMODE} from "../enum.js";
+import Button from "./components/button.js";
+import ButtonGroup from "./app/components/buttonGroup.js";
+import Inputbox from "./components/inputbox.js";
+import SliderBox from "./sliderBox.js";
+import SpinBox from "./spinBox.js";
+import WaveForm from "./waveform.js";
+import EnvelopePanel from "./envelopePanel.js";
+import Checkbox from "./components/checkbox.js";
+import Tracker from "../tracker.js";
+import App from "../app.js";
+import Layout from "./app/layout.js";
+import Input from "./input.js";
+import UI from "./ui.js";
 
-	var me = UI.panel();
+let SampleView = function(){
+
+	var me = Panel();
 	me.name = "SampleView";
 	me.hide();
 
@@ -11,7 +30,7 @@ UI.SampleView = function(){
 	var font = window.fontMed;
 	font = window.fontCondensed;
 
-	var instrumentName = UI.inputbox({
+	var instrumentName = Inputbox({
 		name: "instrumentName",
 		height: inputboxHeight,
 		trackUndo: true,
@@ -26,7 +45,7 @@ UI.SampleView = function(){
 	});
 	me.addChild(instrumentName);
 
-	var closeButton = UI.Assets.generate("button20_20");
+	var closeButton = Assets.generate("button20_20");
 	closeButton.setLabel("x");
 	closeButton.onClick = function(){
 		App.doCommand(COMMAND.showBottomMain);
@@ -34,16 +53,16 @@ UI.SampleView = function(){
 	me.addChild(closeButton);
 
 	var buttonProperties = {
-		background: UI.Assets.buttonKeyScale9,
-		activeBackground:UI.Assets.buttonKeyActiveScale9,
+		background: Assets.buttonKeyScale9,
+		activeBackground:Assets.buttonKeyActiveScale9,
 		isActive:false,
 		textAlign: "center",
 		font: window.fontDark,
 		paddingTopActive: 1
 	};
 
-	var bit8Button = UI.button();
-	var bit16Button = UI.button();
+	var bit8Button = Button();
+	var bit16Button = Button();
 
 	bit8Button.setProperties(buttonProperties);
 	bit8Button.setLabel("8");
@@ -60,7 +79,7 @@ UI.SampleView = function(){
 	me.addChild(bit16Button);
 
 
-	var waveForm = UI.WaveForm();
+	var waveForm = WaveForm();
 	me.addChild(waveForm);
 
 	waveForm.onMouseWheel = function(touchData){
@@ -72,18 +91,18 @@ UI.SampleView = function(){
 	};
 
 
-	var volumeEnvelope = UI.EnvelopePanel("volume");
+	var volumeEnvelope = EnvelopePanel("volume");
 	me.addChild(volumeEnvelope);
 
-	var panningEnvelope = UI.EnvelopePanel("panning");
+	var panningEnvelope = EnvelopePanel("panning");
 	me.addChild(panningEnvelope);
 
-	var sideButtonPanel = new UI.panel();
+	var sideButtonPanel = new Panel();
 	sideButtonPanel.setProperties({
 		name: "instrumentSideButtonPanel"
 	});
 
-	var spinBoxInstrument = UI.spinBox({
+	var spinBoxInstrument = SpinBox({
 		name: "Instrument",
 		label: "",
 		value: 1,
@@ -96,7 +115,7 @@ UI.SampleView = function(){
 	me.addChild(spinBoxInstrument);
 
 
-	var volumeSlider = UI.sliderBox({
+	var volumeSlider = SliderBox({
 		name: "Volume",
 		label: "Volume",
 		font: font,
@@ -118,7 +137,7 @@ UI.SampleView = function(){
 	});
 	sideButtonPanel.addChild(volumeSlider);
 
-	var fineTuneSlider = UI.sliderBox({
+	var fineTuneSlider = SliderBox({
 		name: "Finetune",
 		label: "Finetune",
 		font: font,
@@ -136,7 +155,7 @@ UI.SampleView = function(){
 	});
 	sideButtonPanel.addChild(fineTuneSlider);
 
-	var panningSlider = UI.sliderBox({
+	var panningSlider = SliderBox({
 		name: "Panning",
 		label: "Panning",
 		font: font,
@@ -156,7 +175,7 @@ UI.SampleView = function(){
 	});
 	sideButtonPanel.addChild(panningSlider);
 
-	var repeatSpinbox = UI.spinBox({
+	var repeatSpinbox = SpinBox({
 		name: "Repeat",
 		label: "Start",
 		value: 0,
@@ -180,7 +199,7 @@ UI.SampleView = function(){
 	});
 	sideButtonPanel.addChild(repeatSpinbox);
 
-	var repeatLengthSpinbox = UI.spinBox({
+	var repeatLengthSpinbox = SpinBox({
 		name: "Repeat Length",
 		label: "Length",
 		value: 0,
@@ -205,7 +224,7 @@ UI.SampleView = function(){
 	});
 	sideButtonPanel.addChild(repeatLengthSpinbox);
 
-	var fadeOutSlider = UI.sliderBox({
+	var fadeOutSlider = SliderBox({
 		name: "Fadeout",
 		label: "Fadeout",
 		value: 0,
@@ -223,7 +242,7 @@ UI.SampleView = function(){
 	});
 	sideButtonPanel.addChild(fadeOutSlider);
 
-	var spinBoxRelativeNote = UI.spinBox({
+	var spinBoxRelativeNote = SpinBox({
 		name: "relativeNote",
 		label: "RelativeNote",
 		value: 0,
@@ -244,7 +263,7 @@ UI.SampleView = function(){
 
 
 
-    var spinBoxVibratoSpeed = UI.spinBox({
+    var spinBoxVibratoSpeed = SpinBox({
         name: "vibratoSpeed",
         label: "Vib Speed",
         value: 0,
@@ -264,7 +283,7 @@ UI.SampleView = function(){
     sideButtonPanel.addChild(spinBoxVibratoSpeed);
     spinBoxVibratoSpeed.hide();
 
-    var spinBoxVibratoDepth = UI.spinBox({
+    var spinBoxVibratoDepth = SpinBox({
         name: "vibratoDepth",
         label: "Vib Depth",
         value: 0,
@@ -284,7 +303,7 @@ UI.SampleView = function(){
     sideButtonPanel.addChild(spinBoxVibratoDepth);
     spinBoxVibratoDepth.hide();
 
-    var spinBoxVibratoSweep = UI.spinBox({
+    var spinBoxVibratoSweep = SpinBox({
         name: "vibratoSweep",
         label: "Vib Sweep",
         value: 0,
@@ -307,10 +326,10 @@ UI.SampleView = function(){
     var waveLabels = ["sin","square","saw","saw_inverse"];
     var waveButtons = [];
     waveLabels.forEach(function(label,index){
-        var button = UI.button();
+        var button = Button();
         button.setProperties({
-            background: UI.Assets.buttonKeyScale9,
-            activeBackground:UI.Assets.buttonKeyActiveScale9,
+            background: Assets.buttonKeyScale9,
+            activeBackground:Assets.buttonKeyActiveScale9,
             image: Y.getImage("wave_" + label),
             activeImage: Y.getImage("wave_" + label),
             isActive:false
@@ -458,7 +477,7 @@ UI.SampleView = function(){
 	];
 
 	buttonsInfo.forEach(function(buttonInfo){
-		var button = UI.Assets.generate("buttonLight");
+		var button = Assets.generate("buttonLight");
 		button.setLabel(buttonInfo.label);
 		button.onClick = buttonInfo.onClick;
 		button.onDown = buttonInfo.onDown;
@@ -467,10 +486,10 @@ UI.SampleView = function(){
 		buttons.push(button);
 	});
 
-	var sampleDisplayPanel = UI.buttonGroup("Display",buttonsDisplay);
-	var sampleSelectPanel = UI.buttonGroup("Select",buttonsSelect);
-	var sampleEditPanel = UI.buttonGroup("Edit",buttonsEdit);
-	var sampleVolumePanel = UI.buttonGroup("Volume",buttonsVolume);
+	var sampleDisplayPanel = ButtonGroup("Display",buttonsDisplay);
+	var sampleSelectPanel = ButtonGroup("Select",buttonsSelect);
+	var sampleEditPanel = ButtonGroup("Edit",buttonsEdit);
+	var sampleVolumePanel = ButtonGroup("Volume",buttonsVolume);
 	me.addChild(sampleDisplayPanel);
 	me.addChild(sampleSelectPanel);
 	me.addChild(sampleEditPanel);
@@ -478,10 +497,10 @@ UI.SampleView = function(){
 
 
 
-    var loopTitleBar = UI.button();
+    var loopTitleBar = Button();
     loopTitleBar.setProperties({
-        background: UI.Assets.panelDarkGreyScale9,
-        activeBackground: UI.Assets.panelDarkGreyBlueScale9,
+        background: Assets.panelDarkGreyScale9,
+        activeBackground: Assets.panelDarkGreyBlueScale9,
         isActive:false,
         label: "Loop",
         font: fontSmall,
@@ -495,7 +514,7 @@ UI.SampleView = function(){
     me.addChild(loopTitleBar);
 
 
-	var loopEnabledCheckbox = UI.checkbox();
+	var loopEnabledCheckbox = Checkbox();
 	loopEnabledCheckbox.onToggle = function(checked){
 		var instrument = Tracker.getInstrument(currentInstrumentIndex);
 		if (instrument) instrument.sample.loop.enabled = checked;
@@ -506,10 +525,10 @@ UI.SampleView = function(){
 	};
 	me.addChild(loopEnabledCheckbox);
 
-    var vibratoTitleBar = UI.button();
+    var vibratoTitleBar = Button();
     vibratoTitleBar.setProperties({
-        background: UI.Assets.panelDarkGreyScale9,
-        activeBackground: UI.Assets.panelDarkGreyBlueScale9,
+        background: Assets.panelDarkGreyScale9,
+        activeBackground: Assets.panelDarkGreyBlueScale9,
         isActive:false,
         label: "Vibrato",
         font: fontSmall,
@@ -933,4 +952,6 @@ UI.SampleView = function(){
 	return me;
 
 };
+
+export default SampleView;
 

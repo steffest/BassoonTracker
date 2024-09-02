@@ -1,3 +1,18 @@
+import {
+    AMIGA_PALFREQUENCY_HALF,
+    EVENT,
+    NOTEOFF,
+    NOTEPERIOD,
+    PC_FREQUENCY_HALF,
+    SETTINGS,
+    STEREOSEPARATION
+} from "./enum.js";
+import Tracker, {FTNotes, nameNoteTable, noteNames, periodFinetuneTable, periodNoteTable} from "./tracker.js";
+import FilterChain from "./audio/filterChain.js";
+import EventBus from "./eventBus.js";
+import Editor from "./editor.js";
+
+
 var Audio = (function(){
     var me = {};
 
@@ -718,4 +733,6 @@ var Audio = (function(){
     return me;
 
 }());
+
+export default Audio;
 

@@ -1,9 +1,25 @@
-var periodNoteTable = {};
-var periodFinetuneTable = {};
-var nameNoteTable = {};
-var noteNames = [];
-var FTNotes = [];
-var FTPeriods = [];
+import {EVENT, FILETYPE, FTNOTEPERIOD, NOTEOFF, NOTEPERIOD, PLAYTYPE, SETTINGS, TRACKERMODE} from "./enum.js";
+import Host from "./host.js";
+import UI from "./ui/ui.js"
+import {BinaryStream, loadFile} from "./filesystem.js"
+import FileDetector from "./fileformats/detect.js";
+import EventBus from "./eventBus.js";
+import Audio from "./audio.js";
+import Playlist from "./models/playlist.js";
+import {getUrlParameter} from "./lib/util.js";
+import Input from "./ui/input.js";
+import WAAClock from "./lib/waaclock.js";
+import Instrument from "./models/instrument.js";
+import Editor from "./editor.js";
+import Note from "./models/note.js";
+import StateManager from "./ui/stateManager.js";
+
+export var periodNoteTable = {};
+export var periodFinetuneTable = {};
+export var nameNoteTable = {};
+export var noteNames = [];
+export var FTNotes = [];
+export var FTPeriods = [];
 
 var Tracker = (function(){
 
@@ -1911,7 +1927,7 @@ var Tracker = (function(){
 							id = id.split("&")[0];
 
 							source = "modules.pl";
-							infoUrl = "http://www.modules.pl/?id=module&mod=" + id;
+							infoUrl = "https://www.modules.pl/?id=module&mod=" + id;
 							EventBus.trigger(EVENT.songPropertyChange,song);
 						}
 
@@ -1944,7 +1960,7 @@ var Tracker = (function(){
 						var filename = path.substring(path.lastIndexOf('/')+1);
 
 						if (window.history.pushState){
-							window.history.pushState({},name, filename + "?file=" + encodeURIComponent(url));
+							window.history.pushState({},name, filename + "?file=" + encodeURIComponent(Editor.packUrl(url)));
 						}
 					}
 				}
@@ -2152,7 +2168,7 @@ var Tracker = (function(){
 		var instrumentContainer = [];
 		var max  = count || song.instruments.length-1;
         instruments = [];
-		for (i = 1; i <= max; i++) {
+		for (let i = 1; i <= max; i++) {
             me.setInstrument(i,Instrument());
 			instrumentContainer.push({label: i + " ", data: i});
 		}
@@ -2247,3 +2263,5 @@ var Tracker = (function(){
 
 	return me;
 }());
+
+export default Tracker;

@@ -11,3 +11,5 @@ var Storage = (function(){
 
 	return me;
 })();
+
+export default Storage;

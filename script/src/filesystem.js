@@ -1,4 +1,7 @@
-function loadFile(url,next) {
+import Editor from "./editor.js";
+import BassoonProvider from "./provider/bassoon.js";
+
+export function loadFile(url,next) {
 	var req = new XMLHttpRequest();
     req.open("GET", url, true);
     req.responseType = "arraybuffer";
@@ -27,12 +30,12 @@ function loadFile(url,next) {
 	req.send(null);
 }
 
-function saveFile(b,filename){
+export function saveFile(b,filename){
 	//<!--
     var a = document.createElement("a");
     document.body.appendChild(a);
     a.style = "display: none";
-    url = window.URL.createObjectURL(b);
+    let url = window.URL.createObjectURL(b);
     a.href = url;
     a.download = filename;
     a.click();
@@ -40,7 +43,7 @@ function saveFile(b,filename){
 	//-->
 }
 
-function BinaryStream(arrayBuffer, bigEndian){
+export function BinaryStream(arrayBuffer, bigEndian){
 	var obj = {
 		index: 0,
 		litteEndian : !bigEndian

@@ -3,32 +3,22 @@
   "modules": [
     {
       "title": "Demo Songs",
-      "url": "playlists/demosongs.json",
+      "url": "playlist-demosongs",
       "info": "A curated list"
     },
     {
-      "title": "Revision 2024",
-      "url": "playlists/revision2024.json",
-      "info": "Tracked Compo Entries"
-    },
-    {
-      "title": "Assembly 2024",
-      "url": "playlists/assembly2024.json",
-      "info": "Tracked Compo Entries"
-    },
-    {
-      "title": "Evoke 2024",
-      "url": "playlists/evoke_2024.json",
+      "title": "DemoScene 2024",
+      "url": "playlist-demoscene2024",
       "info": "Tracked Compo Entries"
     },
     {
       "title": "Revision 2023",
-      "url": "playlists/revision2023.json",
+      "url": "playlist-revision2023",
       "info": "Tracked Compo Entries"
     },
     {
       "title": "DSR 2024",
-      "url": "playlists/DSR2024.json",
+      "url": "playlist-DSR2024",
       "info": "Tracked Music releases"
     }
   ]

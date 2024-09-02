@@ -1,5 +1,25 @@
-UI.app_mainPanel = function(){
-    var me = UI.app_panelContainer(160);
+import UI from "../ui.js"
+import App_panelContainer from "./panelContainer.js";
+import App_songPatternList from "../app/components/songPatternList.js";
+import Button from "../components/button.js";
+import Assets from "../assets.js";
+import Y from "../yascal/yascal.js";
+import Inputbox from "../components/inputbox.js";
+import Listbox from "../components/listbox.js";
+import Scale9Panel from "../components/scale9.js";
+import SpinBox from "../spinBox.js";
+import DiskOperations from "../diskOperations.js";
+import OptionsPanel from "../optionsPanel.js";
+import Layout from "./layout.js";
+import EventBus from "../../eventBus.js";
+import {EVENT, TRACKERMODE} from "../../enum.js";
+import Tracker from "../../tracker.js";
+import Input from "../input.js";
+import Editor from "../../editor.js";
+import RadioGroup from "../components/radiogroup.js";
+
+let app_mainPanel = function(){
+    var me = App_panelContainer(160);
     var currentView = "";
     var currentSubView = "";
 	var radioGroup;
@@ -21,10 +41,10 @@ UI.app_mainPanel = function(){
 		return img;
 	};
 
-    var logo = UI.button();
+    var logo = Button();
     logo.setProperties({
-        background: UI.Assets.panelInsetScale9,
-        activeBackground: UI.Assets.buttonDarkScale9,
+        background: Assets.panelInsetScale9,
+        activeBackground: Assets.buttonDarkScale9,
         image: Y.getImage("logo_grey_70"),
         activeImage: Y.getImage("logo_colour_70")
     });
@@ -33,10 +53,10 @@ UI.app_mainPanel = function(){
 	};
     me.addChild(logo);
 
-    var tracker = UI.button();
+    var tracker = Button();
     tracker.setProperties({
-        background: UI.Assets.panelInsetScale9,
-        activeBackground: UI.Assets.panelInsetScale9,
+        background: Assets.panelInsetScale9,
+        activeBackground: Assets.panelInsetScale9,
         image: Y.getImage("tracker"),
         activeImage: steffestVersion()
     });
@@ -46,7 +66,7 @@ UI.app_mainPanel = function(){
     me.addChild(tracker);
 
 
-    var modNameInputBox = UI.inputbox({
+    var modNameInputBox = Inputbox({
         name: "modName",
 		trackUndo: true,
         onChange: function(value){
@@ -56,8 +76,9 @@ UI.app_mainPanel = function(){
     });
     me.addChild(modNameInputBox);
 
+
     // instrument listbox
-    var listbox = UI.listbox();
+    var listbox = Listbox();
     listbox.setItems([
         {label: "loading ...", data: 1}
     ]);
@@ -70,7 +91,7 @@ UI.app_mainPanel = function(){
         }
     };
 
-    var songlistbox = UI.app_songPatternList();
+    var songlistbox = App_songPatternList();
     me.addChild(songlistbox);
 
 
@@ -78,12 +99,12 @@ UI.app_mainPanel = function(){
 
     var spinbBoxFont = window.fontFT;
 
-    var patternPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
+    var patternPanel = Scale9Panel(0,0,0,0,Assets.panelInsetScale9);
     me.addChild(patternPanel);
-    var patternPanel2 = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
+    var patternPanel2 = Scale9Panel(0,0,0,0,Assets.panelInsetScale9);
     me.addChild(patternPanel2);
 
-    var spinBoxPattern = UI.spinBox();
+    var spinBoxPattern = SpinBox();
     spinBoxPattern.setProperties({
         name: "Pattern",
         label: "Pattern",
@@ -99,7 +120,7 @@ UI.app_mainPanel = function(){
     });
     me.addChild(spinBoxPattern);
 
-    var spinBoxInstrument = UI.spinBox({
+    var spinBoxInstrument = SpinBox({
         name: "Instrument",
         label: "Instrument",
 		labels:[
@@ -115,7 +136,7 @@ UI.app_mainPanel = function(){
     });
     me.addChild(spinBoxInstrument);
 
-    var spinBoxSongLength = UI.spinBox({
+    var spinBoxSongLength = SpinBox({
         name: "SongLength",
         label: "Song length",
 		labels:[
@@ -141,7 +162,7 @@ UI.app_mainPanel = function(){
     });
     me.addChild(spinBoxSongLength);
 
-	var spinBoxSongRepeat = UI.spinBox({
+	var spinBoxSongRepeat = SpinBox({
 		name: "SongRepeat",
 		label: "Song repeat",
 		labels:[
@@ -160,7 +181,7 @@ UI.app_mainPanel = function(){
 	});
 	me.addChild(spinBoxSongRepeat);
 
-    var spinBoxPatternLength = UI.spinBox({
+    var spinBoxPatternLength = SpinBox({
         name: "PatternLength",
         label: "Pattern length",
         labels:[
@@ -181,7 +202,7 @@ UI.app_mainPanel = function(){
     });
     me.addChild(spinBoxPatternLength);
 
-    var spinBoxBpm = UI.spinBox({
+    var spinBoxBpm = SpinBox({
         name: "BPMLength",
         label: "BPM",
         value: 1,
@@ -198,7 +219,7 @@ UI.app_mainPanel = function(){
     me.addChild(spinBoxBpm);
 
 
-    var diskOperations = UI.DiskOperations();
+    var diskOperations = DiskOperations();
     diskOperations.setProperties({
         name: "diskoperations",
         zIndex: 100
@@ -206,7 +227,7 @@ UI.app_mainPanel = function(){
     me.addChild(diskOperations);
     UI.diskOperations = diskOperations;
 
-    var optionsPanel = UI.OptionsPanel();
+    var optionsPanel = OptionsPanel();
     optionsPanel.setProperties({
         name: "options",
         zIndex: 100
@@ -465,7 +486,7 @@ UI.app_mainPanel = function(){
 
     function initSmallScreenUI(){
 		currentSubView = "patterndata";
-		radioGroup = UI.radioGroup();
+		radioGroup = RadioGroup();
 		radioGroup.setProperties({
 			align: "right",
 			size:"med",
@@ -620,7 +641,7 @@ UI.app_mainPanel = function(){
 		if (hook.target && hook.target === "main"){
 			
 			if (!customPanel){
-				customPanel = UI.panel(0,0,me.width,me.height);
+				customPanel = Panel(0,0,me.width,me.height);
 				me.addChild(customPanel);
 			}else{
 				// TODO destroy customPanel?
@@ -642,7 +663,7 @@ UI.app_mainPanel = function(){
 	});
 
     EventBus.on(EVENT.showView,function(view){
-        switch (view){
+		switch (view){
             case "diskop_load":
             case "diskop_save":
             case "diskop_samples_load":
@@ -674,9 +695,8 @@ UI.app_mainPanel = function(){
                 break;
         }
     });
-    
-    
-
 
     return me;
 };
+
+export default app_mainPanel;

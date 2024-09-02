@@ -1,3 +1,7 @@
+import Tracker from "../../script/src/tracker.js";
+import Host from "../../script/src/host.js";
+import {COMMAND} from "../../script/src/enum.js";
+
 var HostBridge = function(){
     var me = {};
 

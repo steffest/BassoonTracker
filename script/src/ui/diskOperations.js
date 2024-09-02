@@ -1,6 +1,30 @@
-UI.DiskOperations = function(){
+import Panel from "./components/panel.js";
+import DiskOperationActions from "./diskOp_Actions.js";
+import DiskOperationType from "./diskOp_Type.js";
+import DiskOperationTargets from "./diskOp_Targets.js";
+import DiskOperationSave from "./diskOp_Save.js";
+import Listbox from "./components/listbox.js";
+import Scale9Panel from "./components/scale9.js";
+import Assets from "./assets.js";
+import Button from "./components/button.js";
+import Label from "./components/label.js";
+import Y from "./yascal/yascal.js";
+import EventBus from "../eventBus.js";
+import {COMMAND, EVENT, FILETYPE} from "../enum.js";
+import Tracker from "../tracker.js";
+import UI from "./ui.js";
+import FetchService from "../fetchService.js";
+import Host from "../host.js";
+import Layout from "./app/layout.js";
+import Dropbox from "../lib/dropbox.js";
+import Playlist from "../models/playlist.js";
+import App from "../app.js";
+import ModArchive from "../provider/modarchive.js";
+import ModulesPl from "../provider/modulespl.js";
 
-	var me = UI.panel();
+let DiskOperations = function(){
+
+	var me = Panel();
 	me.hide();
 
 	var currentAction = "load";
@@ -18,28 +42,28 @@ UI.DiskOperations = function(){
 	var onLoadChildren = function(){};
 	var itemHandler;
 
-	var background = UI.scale9Panel(0,0,20,20,UI.Assets.panelMainScale9);
+	var background = Scale9Panel(0,0,20,20,Assets.panelMainScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
-	var actionPanel = UI.DiskOperationActions();
+	var actionPanel = DiskOperationActions();
 	me.addChild(actionPanel);
 
-	var typePanel = UI.DiskOperationType();
+	var typePanel = DiskOperationType();
 	me.addChild(typePanel);
 
-	var targetPanel = UI.DiskOperationTargets();
+	var targetPanel = DiskOperationTargets();
 	me.addChild(targetPanel);
 
-	var savePanel = UI.DiskOperationSave();
+	var savePanel = DiskOperationSave();
 	me.addChild(savePanel);
 
 
 
 	// buttons for small screen UI
     var buttonProperties = {
-        background: UI.Assets.buttonKeyScale9,
-        activeBackground:UI.Assets.buttonKeyActiveScale9,
+        background: Assets.buttonKeyScale9,
+        activeBackground:Assets.buttonKeyActiveScale9,
         isActive:false,
         textAlign: "center",
         font: window.fontDark,
@@ -48,8 +72,8 @@ UI.DiskOperations = function(){
 		width: 50
     };
 
-    var saveButton = UI.button();
-    var loadButton = UI.button();
+    var saveButton = Button();
+    var loadButton = Button();
     loadButton.setActive(true);
 
     saveButton.setProperties(buttonProperties);
@@ -67,20 +91,20 @@ UI.DiskOperations = function(){
     me.addChild(loadButton);
     
 
-	var label = UI.label({
+	var label = Label({
 		label: "Load module",
 		font: fontMed
 	});
 	me.addChild(label);
 
-	var closeButton = UI.Assets.generate("button20_20");
+	var closeButton = Assets.generate("button20_20");
 	closeButton.setLabel("x");
 	closeButton.onClick = function(){
         App.doCommand(COMMAND.showTopMain);
 	};
 	me.addChild(closeButton);
 	
-	var browseButton = UI.Assets.generate("buttonKey");
+	var browseButton = Assets.generate("buttonKey");
 	browseButton.setLabel("browse");
 	browseButton.onClick = function(){
 		var input = document.createElement('input');
@@ -93,13 +117,13 @@ UI.DiskOperations = function(){
 	me.addChild(browseButton);
 	browseButton.hide();
 
-	var listbox = UI.listbox();
+	var listbox = Listbox();
 	me.addChild(listbox);
 
 
-	var dropzone = UI.button();
+	var dropzone = Button();
 	dropzone.setProperties({
-		background: UI.Assets.buttonDarkActiveScale9,
+		background: Assets.buttonDarkActiveScale9,
 		image: Y.getImage("dropzone"),
 		font: fontSmall,
 		textAlign: "center"
@@ -722,7 +746,21 @@ UI.DiskOperations = function(){
 		if (me.isVisible() && currentView == "samples") label.setLabel("Load Sample to slot " + Tracker.getCurrentInstrumentIndex());
 	});
 
+	EventBus.on(COMMAND.randomSong,function(){
+		me.playRandomSong();
+	});
+
+	EventBus.on(COMMAND.randomSongXM,function(){
+		me.playRandomSong("xm");
+	});
+
+	EventBus.on(COMMAND.randomPlayList,function(){
+		me.generatePlayList();
+	});
+
 	return me;
 
 };
+
+export default DiskOperations;
 

@@ -1,3 +1,8 @@
+import Tracker from "../tracker.js";
+import {EVENT, TRACKERMODE} from "../enum.js";
+import Instrument from "../models/instrument.js";
+import EventBus from "../eventBus.js";
+
 var SoundTracker = function(){
 	var me = {};
 
@@ -109,7 +114,7 @@ var SoundTracker = function(){
 
 				var sampleEnd = instrument.sample.length;
 
-				for (j = 0; j<sampleEnd; j++){
+				for (let j = 0; j<sampleEnd; j++){
 					var b = file.readByte();
 					// ignore first 2 bytes
 					if (j<2)b=0;
@@ -126,3 +131,5 @@ var SoundTracker = function(){
 
 	return me;
 };
+
+export default SoundTracker;

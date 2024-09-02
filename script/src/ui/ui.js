@@ -1,9 +1,26 @@
-var canvas;
-var ctx;
+import Layout from "./app/layout.js";
+import EventBus from "../eventBus.js";
+import {EVENT, SELECTION, SETTINGS} from "../enum.js";
+import Input from "./input.js";
+import Settings from "../settings.js";
+import App from "../app.js";
+import Host from "../host.js";
+import Assets from "./assets.js";
+import Y from "./yascal/yascal.js";
+import BitmapFont from "./components/bitmapfont.js";
+import MainPanel from "./mainPanel.js";
+import Tracker from "../tracker.js";
+import Audio from "../audio.js";
+import Logger from "../log.js";
+import ToolTip from "./components/tooltip.js";
+import FetchService from "../fetchService.js";
 
 var UI = (function(){
 
 	var me={};
+
+	var canvas;
+	var ctx;
 	
 	var screenWidth;
 	var screenHeight;
@@ -16,6 +33,8 @@ var UI = (function(){
 	var fontFT;
 	var fontCondensed;
 	var fontDark;
+
+	var mainPanel;
 
 	var maxWidth = Layout.maxWidth;
 	var maxHeight =  Layout.maxHeight;
@@ -92,18 +111,15 @@ var UI = (function(){
 		ctx.textAlign = "center";
 		ctx.fillText("Loading ...", canvas.width/2, canvas.height/2);
 
-		if (debug) UI.measure("Create Main Canvas");
-		
-		
-		UI.Assets.preLoad(function(){
-
-			if (debug) UI.measure("UI sprites");
+		Assets.preLoad(function(){
+			//if (debug) UI.measure("UI sprites");
 			console.log("UI assets loaded");
 			initAssets();
 			Input.init();
-			if (debug) UI.measure("Input Init");
+
+			//if (debug) UI.measure("Input Init");
 			render();
-			if (debug) UI.measure("First render");
+			//if (debug) UI.measure("First render");
 
 			// check version
 			if (useVersion && typeof versionNumber !== "undefined"){
@@ -129,7 +145,6 @@ var UI = (function(){
 					}
 				});
 			}
-
 
 			if (next) next();
 
@@ -158,7 +173,7 @@ var UI = (function(){
 		Settings.baseUrl = config.baseUrl;
 		App.isPlugin = true;
 		buildNumber = Math.random();
-		UI.Assets.preLoad(function(){
+		Assets.preLoad(function(){
 
 			console.log("UI assets loaded");
 			initAssets();
@@ -181,13 +196,15 @@ var UI = (function(){
 		if (newHeight>window.innerHeight) newHeight = window.innerHeight;
 		if (newHeight<Layout.minHeight) newHeight = Layout.minHeight;
 
-		if ((newWidth !== canvas.width) || (newHeight !== canvas.height)){
+
+		if (true || (newWidth !== canvas.width) || (newHeight !== canvas.height)){
 			ctx.clearRect(0,0,canvas.width,canvas.height);
 			screenWidth = newWidth;
 			screenHeight = newHeight;
 
 			me.scaleToDevicePixelRatio(useDevicePixelRatio);
-            me.mainPanel.setSize(newWidth,newHeight);
+			console.error("setSize",newWidth,newHeight);
+            mainPanel.setSize(newWidth,newHeight);
 			//me.mainPanel.setLayout(0,0,newWidth,newHeight);
 
 			if (modalElement){
@@ -212,7 +229,7 @@ var UI = (function(){
 		canvas.style.width = screenWidth + 'px';
 		canvas.style.height = screenHeight + 'px';
 
-		UI.mainPanel.refresh();
+		mainPanel.refresh();
 		
 	}
 
@@ -238,7 +255,7 @@ var UI = (function(){
 		fontSmall.generateColor("orange","rgba(161, 82, 0,0.9)");
 		fontSmall.generateColor("green","rgba(80, 140, 0,0.9)");
 
-		fontSmallDark = BitmapFont();
+		let fontSmallDark = BitmapFont();
 		fontSmallProperties.startY = 13;
 		fontSmallDark.generate(fontSmallProperties);
 		window.fontSmallDark = fontSmallDark;
@@ -373,16 +390,16 @@ var UI = (function(){
 		});
 		window.fontDark = fontDark;
 
-		if (debug) UI.measure("Generate font");
+		//if (debug) UI.measure("Generate font");
 		
-		UI.Assets.init();
-		UI.mainPanel = UI.MainPanel();
-		children.push(UI.mainPanel);
-		if (debug) UI.measure("Generate Main Panel");
+		Assets.init();
+		mainPanel = MainPanel();
+		UI.mainPanel = mainPanel; // TODO FIXME
+		children.push(mainPanel);
+		//if (debug) UI.measure("Generate Main Panel");
 	};
 
 	var render = function(time){
-		
 		var doRender = true;
 
 		if (Tracker.isPlaying()){
@@ -421,7 +438,7 @@ var UI = (function(){
 			EventBus.trigger(EVENT.screenRefresh);
 
 			if (modalElement && modalElement.needsRendering){
-				UI.mainPanel.refresh();
+				mainPanel.refresh();
 				needsRendering = true;
 			}
 			
@@ -485,19 +502,27 @@ var UI = (function(){
 		return modalElement;
 	};
 
+	me.getCanvas = function(){
+		return canvas;
+	}
+
+	me.getContext = function(){
+		return ctx;
+	}
+
 	me.removeModalElement = function(){
 		if (modalElement){
 			Input.clearFocusElement();
 		}
 		modalElement = undefined;
-		UI.mainPanel.refresh();
+		mainPanel.refresh();
 		needsRendering = true;
 	};
 
 	me.showTooltip = function(text,x,y){
 		if (!toolTipElement){
-			toolTipElement = UI.ToolTip();
-			UI.mainPanel.addChild(toolTipElement);
+			toolTipElement = ToolTip();
+			mainPanel.addChild(toolTipElement);
 			needsRendering = true;
 		}else{
 			toolTipElement.show();
@@ -573,8 +598,8 @@ var UI = (function(){
 	me.showDialog = function(text,onOk,onCancel,useInput){
 		var dialog = UI.modalDialog();
 		dialog.setProperties({
-			width: UI.mainPanel.width,
-			height: UI.mainPanel.height,
+			width: mainPanel.width,
+			height: mainPanel.height,
 			top: 0,
 			left: 0,
 			ok: !!onOk,
@@ -697,7 +722,7 @@ var UI = (function(){
 	me.endMeasure = function(){
 		if (Audio.context){
 			endMeasure = (Audio.context.currentTime - beginMeasure) * 1000;
-			if (debug) console.warn( "Total time: " + endMeasure);
+			//if (debug) console.warn( "Total time: " + endMeasure);
 		}
 	}
 
@@ -747,6 +772,8 @@ var UI = (function(){
 	return me;
 
 }());
+
+export default UI;
 
 
 

@@ -1,9 +1,13 @@
-UI.animsprite = function(x,y,w,h,baseImageName,frames){
+import UIElement from "./element.js";
+import Y from "../yascal/yascal.js";
+import Ticker from "../ticker.js";
+
+let UIAnimsprite = function(x,y,w,h,baseImageName,frames){
 
     w = w || 14;
     h = h || 14;
 
-    var me = UI.element(x,y,w,h,true);
+    var me = UIElement(x,y,w,h,true);
 
     var properties = ["left","top","width","height","name"];
 
@@ -20,7 +24,7 @@ UI.animsprite = function(x,y,w,h,baseImageName,frames){
     var step = 0;
 
     me.onShow = function(){
-        UI.ticker.onEachTick2(function(){
+        Ticker.onEachTick2(function(){
             step++;
             if (step>=frames) step=0;
             me.refresh();
@@ -28,7 +32,7 @@ UI.animsprite = function(x,y,w,h,baseImageName,frames){
     };
 
     me.onHide = function(){
-        UI.ticker.onEachTick2();
+        Ticker.onEachTick2();
     };
 
 
@@ -52,3 +56,5 @@ UI.animsprite = function(x,y,w,h,baseImageName,frames){
 
     return me;
 };
+
+export default UIAnimsprite;

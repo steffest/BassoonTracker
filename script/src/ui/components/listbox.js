@@ -1,5 +1,10 @@
-UI.listbox = function(x,y,w,h){
-    var me = UI.element(x,y,w,h);
+import UIElement from "../components/element.js";
+import Y from '../yascal/yascal.js';
+import Scale9Panel from "./scale9.js";
+import Assets from "../assets.js";
+
+let listbox = function(x,y,w,h){
+    var me = UIElement(x,y,w,h);
     me.selectedIndex = 0;
     var previousSelectedIndex = 0;
 
@@ -72,7 +77,7 @@ UI.listbox = function(x,y,w,h){
         return me.selectedIndex;
     };
 
-    var background = UI.scale9Panel(0,0,me.width,me.height,{
+    var background = Scale9Panel(0,0,me.width,me.height,{
         img: Y.getImage("panel_dark"),
         left:3,
         top:3,
@@ -82,19 +87,19 @@ UI.listbox = function(x,y,w,h){
     background.ignoreEvents = true;
     me.addChild(background);
 
-    var buttonUp = UI.Assets.generate("button20_20");
+    var buttonUp = Assets.generate("button20_20");
     me.addChild(buttonUp);
     buttonUp.onClick = function(){
         me.navigateUp();
     };
 
-    var buttonDown = UI.Assets.generate("button20_20");
+    var buttonDown = Assets.generate("button20_20");
     me.addChild(buttonDown);
     buttonDown.onClick = function(){
         me.navigateDown();
     };
 
-    var scrollBar = UI.scale9Panel(w-28,18,16,h-3,{
+    var scrollBar = Scale9Panel(w-28,18,16,h-3,{
         img: Y.getImage("bar"),
         left:2,
         top:2,
@@ -392,3 +397,5 @@ UI.listbox = function(x,y,w,h){
 
     return me;
 };
+
+export default listbox;

@@ -1,9 +1,15 @@
-UI.editPanel = function(x,y,w,h,visible){
-	var me = UI.element(x,y,w,h,visible);
+import UIElement from "./components/element.js";
+import Scale9Panel from "./components/scale9.js";
+import Assets from "./assets.js";
+import Editor from "../editor.js";
+import UI from "./ui.js";
+
+let editPanel = function(x,y,w,h,visible){
+	var me = UIElement(x,y,w,h,visible);
 	me.type = "EditPanel";
 
 
-	var panel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
+	var panel = Scale9Panel(0,0,0,0,Assets.panelInsetScale9);
 	me.addChild(panel);
 
 	var labels = ["clear","copy","paste"];
@@ -47,7 +53,7 @@ UI.editPanel = function(x,y,w,h,visible){
 	var buttonsPattern = [];
 	for (var i = 0; i<6;i++){
 		var button;
-		button = UI.Assets.generate("buttonDark");
+		button = Assets.generate("buttonDark");
 		button.index = i;
 		button.onClick = function(){
 			handleButton(this);
@@ -133,4 +139,6 @@ UI.editPanel = function(x,y,w,h,visible){
 
 
 };
+
+export default editPanel;
 

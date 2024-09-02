@@ -1,19 +1,7 @@
 //https://github.com/JamesMaroney/dropbox-js - MIT license
 // updates by Steffest
 
-(function (root, factory) {
-    'use strict';
-    if (typeof define === 'function' && define.amd) {
-        // AMD
-        define(factory);
-    } else if (typeof exports === 'object') {
-        // Node, CommonJS-like
-        module.exports = factory();
-    } else {
-        // Browser globals (root is window)
-        root[root.__dropbox_export || 'dropboxService'] = factory();
-    }
-}(this, function () {
+var DropBpx = function () {
     'use strict';
 
     var toString = ({}).toString;
@@ -168,4 +156,7 @@
     dropbox.clearAccessToken = function(){return tokenStore('__dbat','');};
 
     return dropbox;
-}));
+};
+
+export default DropBpx;
+

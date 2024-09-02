@@ -1,5 +1,12 @@
-UI.modalDialog = function(initialProperties){
-    var me = UI.element();
+import UIElement from "./element.js";
+import Scale9Panel from "./scale9.js";
+import Inputbox from "./inputbox.js";
+import Assets from "../assets.js";
+import UI from "../ui.js";
+
+
+let modalDialog = function(initialProperties){
+    var me = UIElement();
     var text = "";
     var inputBox;
     var properties = ["left","top","width","height","name","ok","cancel","input"];
@@ -30,7 +37,7 @@ UI.modalDialog = function(initialProperties){
 
         if (me.input){
             if (!inputBox){
-                inputBox = UI.inputbox({
+                inputBox = Inputbox({
                     name: "dialoginput",
                     width: 200,
                     height: 28,
@@ -59,12 +66,12 @@ UI.modalDialog = function(initialProperties){
 
     };
 
-    var background = UI.scale9Panel(0,0,Math.floor(me.width/2),200,UI.Assets.panelMainScale9);
+    var background = Scale9Panel(0,0,Math.floor(me.width/2),200,Assets.panelMainScale9);
 
     background.ignoreEvents = true;
     me.addChild(background);
 
-    var okButton = UI.Assets.generate("buttonLight");
+    var okButton = Assets.generate("buttonLight");
     okButton.setProperties({
         name: "okbutton",
         label: "OK",
@@ -73,7 +80,7 @@ UI.modalDialog = function(initialProperties){
     });
     me.addChild(okButton);
 
-    var cancelButton = UI.Assets.generate("buttonLight");
+    var cancelButton = Assets.generate("buttonLight");
     cancelButton.setProperties({
         name: "cancelbutton",
         label: "Cancel",
@@ -150,8 +157,9 @@ UI.modalDialog = function(initialProperties){
         me.hide();
         if (me.onClose) me.onClose();
         UI.removeModalElement();
-        delete me;
     };
 
     return me;
 };
+
+export default modalDialog;

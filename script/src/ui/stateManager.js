@@ -1,3 +1,9 @@
+import EventBus from "../eventBus.js";
+import {EDITACTION, EVENT} from "../enum.js";
+import Tracker from "../tracker.js";
+import Note from "../models/note.js";
+import UI from "./ui.js";
+
 var StateManager = function(){
 	var me = {};
 	var maxHistory = 100;
@@ -256,3 +262,5 @@ var StateManager = function(){
 
 	return me;
 }();
+
+export default StateManager;

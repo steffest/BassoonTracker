@@ -1,10 +1,23 @@
-UI.app_controlPanel = function(){
-    var me = UI.app_panelContainer(40);
+import App_panelContainer from "./panelContainer.js";
+import App_songControl from "./components/songControl.js";
+import Checkboxbutton from "../components/checkboxbutton.js";
+import Assets from "../assets.js";
+import Button from "../components/button.js";
+import Label from "../components/label.js";
+import SpinBox from "../spinBox.js";
+import Layout from "./layout.js";
+import EventBus from "../../eventBus.js";
+import {EVENT, TRACKERMODE} from "../../enum.js";
+import Tracker from "../../tracker.js";
+import Y from "../yascal/yascal.js";
 
-    var songControl = UI.app_songControl();
+let app_controlPanel = function(){
+    var me = App_panelContainer(40);
+
+    var songControl = App_songControl();
     me.addChild(songControl);
 
-    var buttonFileOperations = UI.checkboxbutton({
+    var buttonFileOperations = Checkboxbutton({
         label: "File",
         onDown: function(){
             var view = this.isActive ? "diskop_load" : "topmain";
@@ -13,7 +26,7 @@ UI.app_controlPanel = function(){
     });
 	buttonFileOperations.tooltip = "Load/Save Files";
 
-    var buttonOptions = UI.checkboxbutton({
+    var buttonOptions = Checkboxbutton({
 		label: "Options",
 		onDown: function(){
 			var view = this.isActive ? "options" : "topmain";
@@ -23,7 +36,7 @@ UI.app_controlPanel = function(){
 	buttonOptions.tooltip = "show App Settings";
 
 
-	var buttonSampleEdit = UI.checkboxbutton({
+	var buttonSampleEdit = Checkboxbutton({
 		label: "Sample Edit",
 		onDown: function(){
 			var view = this.isActive ? "sample" : "bottommain";
@@ -37,17 +50,17 @@ UI.app_controlPanel = function(){
 	me.addChild(buttonSampleEdit);
 
 	var buttonProperties = {
-		background: UI.Assets.buttonKeyScale9,
-		hoverBackground:UI.Assets.buttonKeyHoverScale9,
-		activeBackground:UI.Assets.buttonKeyActiveScale9,
+		background: Assets.buttonKeyScale9,
+		hoverBackground:Assets.buttonKeyHoverScale9,
+		activeBackground:Assets.buttonKeyActiveScale9,
 		isActive:false,
 		textAlign: "center",
 		font: window.fontDark,
 		paddingTopActive: 1
 	};
 
-	var modButton = UI.button();
-	var xmButton = UI.button();
+	var modButton = Button();
+	var xmButton = Button();
 
 	modButton.setProperties(buttonProperties);
 	modButton.setLabel("mod");
@@ -67,7 +80,7 @@ UI.app_controlPanel = function(){
 
 	var trackView = [4,8,12,16];
 	var trackButtons = [];
-	trackView.forEach(function(count){trackButtons.push(UI.button());});
+	trackView.forEach(function(count){trackButtons.push(Button());});
 	trackButtons.forEach(function(button,index){
 		button.setProperties(buttonProperties);
 		button.setLabel("" + trackView[index]);
@@ -85,7 +98,7 @@ UI.app_controlPanel = function(){
 		me.addChild(button);
 	});
 
-	var labelTrackerMode = UI.label();
+	var labelTrackerMode = Label();
 	labelTrackerMode.setProperties({
 		label : "Mode",
 		labels:[
@@ -102,7 +115,7 @@ UI.app_controlPanel = function(){
 	labelTrackerMode.ignoreEvents = true;
 	me.addChild(labelTrackerMode);
 
-	var labelTrackView = UI.label();
+	var labelTrackView = Label();
 	labelTrackView.setProperties({
 		label : "Display",
 		labels : [
@@ -121,7 +134,7 @@ UI.app_controlPanel = function(){
 	me.addChild(labelTrackView);
 
 
-	var trackCountSpinbox = UI.spinBox();
+	var trackCountSpinbox = SpinBox();
 	trackCountSpinbox.setProperties({
 		name: "Pattern",
 		value: Tracker.getTrackCount(),
@@ -342,3 +355,5 @@ UI.app_controlPanel = function(){
 
     return me;
 };
+
+export default app_controlPanel;

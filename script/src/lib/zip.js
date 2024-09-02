@@ -1014,3 +1014,5 @@
 	};
 
 })(this);
+
+export default this.zip;

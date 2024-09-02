@@ -1,3 +1,14 @@
+import EventBus from "./eventBus.js";
+import {COMMAND, EVENT, SETTINGS} from "./enum.js";
+import UI from "./ui/ui.js";
+import Host from "./host.js";
+import Editor from "./editor.js";
+import Tracker from "./tracker.js";
+import Playlist from "./models/playlist.js";
+import ModalDialog from "./ui/components/modalDialog.js";
+import Midi from "./audio/midi.js";
+import Y from "./ui/yascal/yascal.js";
+
 var App = (function(){
     var me = {};
     
@@ -54,7 +65,7 @@ var App = (function(){
                     EventBus.trigger(EVENT.toggleView,"piano");
                     break;
                 case COMMAND.showAbout:
-                    var dialog = UI.modalDialog();
+                    var dialog = ModalDialog();
                     dialog.setProperties({
                         width: UI.mainPanel.width,
                         height: UI.mainPanel.height,
@@ -72,15 +83,6 @@ var App = (function(){
                     break;
                 case COMMAND.showHelp:
                     window.open("https://www.stef.be/bassoontracker/docs/");
-                    break;
-                case COMMAND.randomSong:
-                    UI.diskOperations.playRandomSong();
-                    break;
-                case COMMAND.randomSongXM:
-                    UI.diskOperations.playRandomSong("xm");
-                    break;
-                case COMMAND.randomPlayList:
-                    UI.diskOperations.generatePlayList();
                     break;
                 case COMMAND.showGithub:
                     window.open("https://github.com/steffest/bassoontracker");
@@ -158,6 +160,9 @@ var App = (function(){
                 case COMMAND.toggleShuffle:
                     Playlist.toggleShuffle();
                     break;
+                default:
+                    EventBus.trigger(command);
+                    break;
             }
         });
     };
@@ -168,3 +173,5 @@ var App = (function(){
 
     return me;
 })();
+
+export default App;

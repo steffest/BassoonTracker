@@ -1,5 +1,12 @@
-UI.inputbox = function(initialProperties){
-	var me = UI.element();
+import UIElement from "../components/element.js";
+import Scale9Panel from "./scale9.js";
+import Y from '../yascal/yascal.js';
+import Input from '../input.js';
+import StateManager from '../stateManager.js';
+import Tracker from '../../tracker.js';
+
+let inputbox = function(initialProperties){
+	var me = UIElement();
 	var properties = ["left","top","width","height","name","type","onChange","onSubmit","backgroundImage","trackUndo","undoLabel","undoInstrument"];
 	var value = "";
 	var prevValue = "";
@@ -23,7 +30,7 @@ UI.inputbox = function(initialProperties){
 
 	if (initialProperties) me.setProperties(initialProperties);
 
-	var background = UI.scale9Panel(0,0,me.width,me.height,{
+	var background = Scale9Panel(0,0,me.width,me.height,{
 		img: Y.getImage(backgroundImage),
 		left:3,
 		top:3,
@@ -199,3 +206,5 @@ UI.inputbox = function(initialProperties){
 
 	return me;
 };
+
+export default inputbox;

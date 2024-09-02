@@ -1,3 +1,8 @@
+import ModalDialog from "../ui/components/modalDialog.js";
+import UI from "../ui/ui.js";
+import EventBus from "../eventBus.js";
+import {EVENT, SETTINGS} from "../enum.js";
+
 var Dropbox = function(){
     var me = {};
 
@@ -25,7 +30,7 @@ var Dropbox = function(){
     };
 
     me.showConnectDialog = function(){
-        var dialog = UI.modalDialog();
+        var dialog = ModalDialog();
         dialog.setProperties({
             width: UI.mainPanel.width,
             height: UI.mainPanel.height,
@@ -125,3 +130,5 @@ var Dropbox = function(){
 
     return me;
 }();
+
+export default Dropbox;

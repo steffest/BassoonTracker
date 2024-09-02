@@ -1,13 +1,29 @@
-UI.DiskOperationSave = function(){
+import Panel from "../ui/components/panel.js";
+import Scale9Panel from "../ui/components/scale9.js";
+import Button from "../ui/components/button.js";
+import Inputbox from "../ui/components/inputbox.js";
+import RadioGroup from "../ui/components/radiogroup.js";
+import Assets from "../ui/assets.js";
+import {EVENT, FILETYPE, MODULETYPE, SAMPLETYPE} from "../enum.js";
+import EventBus from "../eventBus.js";
+import Tracker from "../tracker.js";
+import Editor from "../editor.js";
+import BassoonProvider from "../provider/bassoon.js";
+import {encodeRIFFsample} from "../audio/riffWave.js";
+import Dropbox from "../lib/dropbox.js";
+import {BinaryStream} from "../filesystem.js";
 
-	var me = UI.panel();
+
+let DiskOperationSave = function(){
+
+	var me = Panel();
 	var fileName;
 	var saveAsFileType = FILETYPE.module;
 	var mainFileType = FILETYPE.module;
 	var saveAsFileFormat = MODULETYPE.mod;
 	var saveTarget = "local";
 
-	var background = UI.scale9Panel(0,0,20,20,UI.Assets.panelDarkInsetScale9);
+	var background = Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
@@ -24,7 +40,7 @@ UI.DiskOperationSave = function(){
 		{label:"RAW 8 bit",active:false, extention:".sample", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RAW_8BIT}
 	];
 
-	var selectionType = UI.radioGroup();
+	var selectionType = RadioGroup();
 	selectionType.setProperties({
 		align: "right",
 		size:"med",
@@ -40,11 +56,11 @@ UI.DiskOperationSave = function(){
 	};
 	me.addChild(selectionType);
 
-	var saveButton = UI.button();
+	var saveButton = Button();
 	saveButton.setProperties({
 		label: "Export",
 		textAlign:"center",
-		background: UI.Assets.buttonLightScale9,
+		background: Assets.buttonLightScale9,
 		font:window.fontMed
 	});
 	saveButton.onClick = function(){
@@ -73,7 +89,7 @@ UI.DiskOperationSave = function(){
                     file.clear(2);
                     var d;
                     // sample length is in word
-                    for (i = 0; i < sample.length-2; i++){
+                    for (let i = 0; i < sample.length-2; i++){
                         d = sample.data[i] || 0;
                         file.writeByte(Math.round(d*127));
                     }
@@ -99,7 +115,7 @@ UI.DiskOperationSave = function(){
 	};
 	me.addChild(saveButton);
 
-	var fileNameInput = UI.inputbox({
+	var fileNameInput = Inputbox({
 		name: "fileNameInput",
 		height: 20,
 		onChange: function(value){
@@ -129,7 +145,7 @@ UI.DiskOperationSave = function(){
 
 		var innerWidth = me.width-2;
 
-		if (!UI.mainPanel) return;
+		//if (!UI.mainPanel) return;
 		me.clearCanvas();
 
 		background.setProperties({
@@ -208,4 +224,6 @@ UI.DiskOperationSave = function(){
 	return me;
 
 };
+
+export default DiskOperationSave;
 

@@ -1,7 +1,23 @@
-UI.app_menu = function(container){
-    var me = UI.app_panelContainer(32);
+import Audio from "../../audio.js";
+import EventBus from "../../eventBus.js";
+import {COMMAND, EVENT, SETTINGS} from "../../enum.js";
+import App_panelContainer from "./panelContainer.js";
+import Scale9Panel from "../components/scale9.js";
+import Menu from "../components/menu.js";
+import Vumeter from "./components/vumeter.js";
+import Layout from "./layout.js";
+import Label from "../components/label.js";
+import Checkbox from "../components/checkbox.js";
+import Y from "../yascal/yascal.js";
+import StateManager from "../stateManager.js";
+import Host from "../../host.js";
+import Midi from "../../audio/midi.js";
 
-    var menuBackground = UI.scale9Panel(5,0,20,26,{
+
+let app_menu = function(container){
+    var me = App_panelContainer(32);
+
+    var menuBackground = Scale9Panel(5,0,20,26,{
         img: Y.getImage("menu"),
         left:4,
         top:0,
@@ -10,7 +26,7 @@ UI.app_menu = function(container){
     });
     me.addChild(menuBackground);
 
-    var menu = UI.menu(5,0,me.width,26,container);
+    var menu = Menu(5,0,me.width,26,container);
     menu.name = "MainMenu";
     me.addChild(menu);
     menu.setItems([
@@ -53,19 +69,19 @@ UI.app_menu = function(container){
             ]}
     ]);
 
-    var vumeter = UI.vumeter();
+    var vumeter = Vumeter();
     vumeter.connect(Audio.cutOffVolume);
     //vumeter.connect(Audio.masterVolume);
     window.vumeter = vumeter;
     // note: don't attach as child to menu panel, this gets attached to main UI
     
-    var keyLabel = UI.label({font: fontSmall, label: "Key"});
+    var keyLabel = Label({font: fontSmall, label: "Key"});
     keyLabel.ignoreEvents = true;
-    var keyBox = UI.checkbox(0,0,13,13);
+    var keyBox = Checkbox(0,0,13,13);
     keyBox.ignoreEvents = true;
-    var midiLabel = UI.label({font: fontSmall, label: "Midi"});
+    var midiLabel = Label({font: fontSmall, label: "Midi"});
     midiLabel.ignoreEvents = true;
-    var midiBox = UI.checkbox(0,0,13,13);
+    var midiBox = Checkbox(0,0,13,13);
     midiBox.ignoreEvents = true;
     
     me.addChild(keyLabel);
@@ -176,3 +192,5 @@ UI.app_menu = function(container){
 
     return me;
 };
+
+export default app_menu;

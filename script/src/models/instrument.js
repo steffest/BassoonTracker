@@ -1,3 +1,9 @@
+import Sample from "./sample.js";
+import Tracker, {FTNotes} from "../tracker.js";
+import EventBus from "../eventBus.js";
+import {EVENT} from "../enum.js";
+import Audio from "../audio.js";
+
 var Instrument = function(){
 	var me = {};
 
@@ -326,3 +332,5 @@ var Instrument = function(){
 
 	return me;
 };
+
+export default Instrument;

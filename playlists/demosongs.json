@@ -15,6 +15,10 @@
       "url": "demomods/StardustMemories.mod"
     },
     {
+      "title": "Subtitles",
+      "icon" : "playlists/dsr.png"
+    },
+    {
       "title": "Space Debris",
       "url": "demomods/spacedeb.mod",
       "author" : "Captain / Markus Kaarlonen",

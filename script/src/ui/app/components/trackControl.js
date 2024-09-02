@@ -1,5 +1,12 @@
-UI.trackControl = function(x,y,w,h,visible){
-    var me = UI.element(x,y,w,h,visible);
+import UIElement from "../../components/element.js";
+import Assets from "../../assets.js";
+import EventBus from "../../../eventBus.js";
+import {EVENT} from "../../../enum.js";
+import Y from "../../yascal/yascal.js";
+
+
+let trackControl = function(x,y,w,h,visible){
+    var me = UIElement(x,y,w,h,visible);
     me.type = "trackControl";
     me.track = 0;
 
@@ -8,10 +15,10 @@ UI.trackControl = function(x,y,w,h,visible){
 
     var buttons = {};
 
-    buttons.solo = UI.Assets.generate("buttonDark");
+    buttons.solo = Assets.generate("buttonDark");
     buttons.solo.setProperties({
         activeImage: Y.getImage("solo.png"),
-        activeBackground:UI.Assets.buttonDarkGreenActiveScale9
+        activeBackground:Assets.buttonDarkGreenActiveScale9
     });
     buttons.solo.onClick = function(){
         var wasSolo = buttons.solo.isActive;
@@ -26,10 +33,10 @@ UI.trackControl = function(x,y,w,h,visible){
     buttons.solo.tooltip = "Solo Track";
     me.addChild(buttons.solo);
 
-    buttons.mute = UI.Assets.generate("buttonDark");
+    buttons.mute = Assets.generate("buttonDark");
     buttons.mute.setProperties({
         activeImage: Y.getImage("mute"),
-        activeBackground:UI.Assets.buttonDarkRedActiveScale9
+        activeBackground:Assets.buttonDarkRedActiveScale9
     });
     buttons.mute.tooltip = "Mute Track";
     buttons.mute.onClick = function(){
@@ -43,7 +50,7 @@ UI.trackControl = function(x,y,w,h,visible){
     });
     me.addChild(buttons.mute);
 
-    buttons.fx = UI.Assets.generate("buttonDark");
+    buttons.fx =Assets.generate("buttonDark");
     buttons.fx.onClick = function(){
         buttons.fx.toggleActive();
         EventBus.trigger(EVENT.fxPanelToggle,me.track);
@@ -155,4 +162,6 @@ UI.trackControl = function(x,y,w,h,visible){
 
 
 };
+
+export default trackControl;
 

@@ -1,3 +1,7 @@
+import EventBus from "../eventBus.js";
+import {EVENT} from "../enum.js";
+import Tracker from "../tracker.js";
+
 var Playlist = function(){
     var me = {};
     var currentPlaylist;
@@ -163,3 +167,5 @@ var Playlist = function(){
 
     return me;
 }();
+
+export default Playlist;

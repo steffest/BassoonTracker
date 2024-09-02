@@ -1,5 +1,20 @@
-UI.MainPanel = function(){
-	var me = UI.panel(0,0,canvas.width,canvas.height,true);
+import Panel from "./components/panel.js";
+import App_menu from "./app/menu.js";
+import Menu from "./components/menu.js";
+import App_mainPanel from "./app/appMainPanel.js";
+import App_controlPanel from "./app/controlPanel.js";
+import App_patternPanel from "./app/patternPanel.js";
+import Pattern_sidebar from "./app/components/patternSidebar.js";
+import App_pianoView from "./app/pianoView.js";
+import Layout from "../ui/app/layout.js";
+import EventBus from "../eventBus.js";
+import {EVENT} from "../enum.js";
+import UI from "./ui.js";
+import Assets from "./assets.js";
+
+let MainPanel = function(){
+    let canvas = UI.getCanvas();
+    var me = Panel(0,0,canvas.width,canvas.height,true);
 	me.setProperties({
         backgroundColor: "#071028"
     });
@@ -7,34 +22,33 @@ UI.MainPanel = function(){
 
 	var contextMenus = {};
 
-    var menu = UI.app_menu(me);
+    var menu = App_menu(me);
     me.addChild(menu);
 
-	var appPanel = UI.app_mainPanel();
+	var appPanel = App_mainPanel();
     me.addChild(appPanel);
 
-    var controlPanel = UI.app_controlPanel();
+    var controlPanel = App_controlPanel();
     me.addChild(controlPanel);
 
-    var patternPanel = UI.app_patternPanel();
+    var patternPanel = App_patternPanel();
     me.addChild(patternPanel);
 
-    var patternSidebar = UI.pattern_sidebar();
+    var patternSidebar = Pattern_sidebar();
     me.addChild(patternSidebar);
     UI.patternsidebar = patternSidebar;
 
-    var pianoPanel = UI.app_pianoView();
+    var pianoPanel = App_pianoView();
     pianoPanel.hide();
     me.addChild(pianoPanel);
-
 
 	me.createContextMenu = function(properties){
 		var contextMenu = contextMenus[properties.name];
 		if (!contextMenu){
-			contextMenu = UI.menu(100,100,128,42,me);
+			contextMenu = Menu(100,100,128,42,me);
 			contextMenu.zIndex = 100;
 			contextMenu.setProperties({
-				background: UI.Assets.panelMainScale9,
+				background: Assets.panelMainScale9,
 				layout: "buttons"
 			});
 			contextMenu.setItems(properties.items);
@@ -46,9 +60,9 @@ UI.MainPanel = function(){
         return contextMenu;
 	};
 
-
     me.onResize = function(){
         Layout.setLayout(me.width,me.height);
+        console.error("MainPanel.onResize",me.width,me.height);
 
         menu.setSize(Layout.mainWidth,menu.height);
         var panelTop = menu.height;
@@ -57,9 +71,13 @@ UI.MainPanel = function(){
         appPanel.setPosition(Layout.mainLeft,panelTop);
         panelTop += appPanel.height;
 
+
+
         controlPanel.setSize(Layout.mainWidth,Layout.controlPanelHeight);
         controlPanel.setPosition(Layout.mainLeft,panelTop);
         panelTop += controlPanel.height;
+
+
 
         var remaining = me.height-panelTop;
         if (pianoPanel.isVisible()){
@@ -70,6 +88,8 @@ UI.MainPanel = function(){
 
         patternPanel.setPosition(Layout.mainLeft,panelTop);
         patternPanel.setSize(Layout.mainWidth,remaining);
+
+
 
         if (Layout.showSideBar){
             patternSidebar.show();
@@ -104,6 +124,7 @@ UI.MainPanel = function(){
     }
 
     EventBus.on(EVENT.toggleView,function(view){
+        console.error("MainPanel.toggleview",view);
         if (view === "piano"){
             pianoPanel.toggle();
             var remaining = me.height - patternPanel.top;
@@ -118,6 +139,7 @@ UI.MainPanel = function(){
     });
 
     EventBus.on(EVENT.showView,function(view){
+        console.error("MainPanel.showView",view);
         if (Layout.showSideBar){
             switch (view){
                 case "sample":
@@ -149,8 +171,10 @@ UI.MainPanel = function(){
 		me.refresh();
 	});
 
+
 	return me;
 
-
 };
+
+export default MainPanel;
 
