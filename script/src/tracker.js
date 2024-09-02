@@ -2008,7 +2008,7 @@ var Tracker = (function(){
 		}
 	};
 
-	me.processFile = function(arrayBuffer, name , next){
+	me.processFile = async function(arrayBuffer, name , next){
 
 		var isMod = false;
 		var file = new BinaryStream(arrayBuffer,true);
@@ -2028,11 +2028,15 @@ var Tracker = (function(){
 				}
 			} else {
 				// if UZIP wasn't loaded use zip.js
+				if (typeof window.zip === "undefined"){
+					let module = await import("./lib/zip.js");
+					window.zip = module.default;
+				}
 				zip.workerScriptsPath = "script/src/lib/zip/";
 				zip.useWebWorkers = Host.useWebWorkers;
-	
+
 				//ArrayBuffer Reader and Write additions: https://github.com/gildas-lormeau/zip.js/issues/21
-	
+
 				zip.createReader(new zip.ArrayBufferReader(arrayBuffer), function(reader) {
 					var zipEntry;
 					var size = 0;

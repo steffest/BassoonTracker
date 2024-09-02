@@ -630,12 +630,12 @@ var Editor = (function(){
 				initialFile = BassoonProvider.proxyUrl(initialFile.substr(6));
 			}
 		}else{
-			if (SETTINGS.loadInitialFile) initialFile = Host.initialFile || Host.getBaseUrl() + '../demomods/Tinytune.mod';
+			if (SETTINGS.loadInitialFile) initialFile = Host.initialFile || Host.getBaseUrl() + 'demomods/Tinytune.mod';
 		}
 		if (initialFile) Tracker.load(initialFile,true,function(fileType){
 			if (fileType === FILETYPE.module){
 				// load default playlist;
-				Tracker.load(Host.getRemoteUrl() + '../playlists/demosongs.json',true,null,false,true);
+				Tracker.load(Host.getRemoteUrl() + 'playlists/demosongs.json',true,null,false,true);
 			}
 			if (fileType === FILETYPE.playlist){
 				let index = 0;

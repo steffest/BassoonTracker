@@ -1013,6 +1013,6 @@
 		workerScripts : null,
 	};
 
-})(this);
+})(window);
 
-export default this.zip;
+export default window.zip;

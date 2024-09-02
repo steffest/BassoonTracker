@@ -203,7 +203,6 @@ var UI = (function(){
 			screenHeight = newHeight;
 
 			me.scaleToDevicePixelRatio(useDevicePixelRatio);
-			console.error("setSize",newWidth,newHeight);
             mainPanel.setSize(newWidth,newHeight);
 			//me.mainPanel.setLayout(0,0,newWidth,newHeight);
 

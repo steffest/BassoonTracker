@@ -62,7 +62,6 @@ let MainPanel = function(){
 
     me.onResize = function(){
         Layout.setLayout(me.width,me.height);
-        console.error("MainPanel.onResize",me.width,me.height);
 
         menu.setSize(Layout.mainWidth,menu.height);
         var panelTop = menu.height;
@@ -124,7 +123,6 @@ let MainPanel = function(){
     }
 
     EventBus.on(EVENT.toggleView,function(view){
-        console.error("MainPanel.toggleview",view);
         if (view === "piano"){
             pianoPanel.toggle();
             var remaining = me.height - patternPanel.top;
