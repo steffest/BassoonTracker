@@ -96,17 +96,14 @@ export function BinaryStream(arrayBuffer, bigEndian){
 		this.index+=4;
 	};
 
-	obj.readBytes = function(len,position) {
+	obj.readBytes = function(len,position,buffer) {
 		setIndex(position);
-		var buffer = new Uint8Array(len);
+		if (!buffer) buffer = new Uint8Array(len);
 		var i = this.index;
-		var src = this.dataView;
-		if ((len += i) > this.length) len = this.length;
 		var offset = 0;
+		for (; offset < len; offset++) buffer[offset] = this.dataView.getInt8(i+offset);
 
-		for (; i < len; ++i)
-			buffer.setUint8(offset++, this.dataView.getUint8(i));
-		this.index = len;
+		this.index += len;
 		return buffer;
 	};
 

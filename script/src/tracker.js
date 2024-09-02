@@ -2014,56 +2014,67 @@ var Tracker = (function(){
 		var file = new BinaryStream(arrayBuffer,true);
 		var result = FileDetector.detect(file,name);
 
-		if (result && result.name === "ZIP"){
-			console.log("extracting zip file");
+		if (result){
+			if (result.name === "GZIP"){
+				console.log("extracting gzip file");
+				const ds = new DecompressionStream("gzip");
+				const stream = new Blob([file.buffer]).stream();
+				const decompressedStream = stream.pipeThrough(ds);
 
-			if (UI) UI.setStatus("Extracting Zip file",true);
-			if (typeof UZIP !== "undefined") {
-				// using UZIP: https://github.com/photopea/UZIP.js
-				var myArchive = UZIP.parse(arrayBuffer);
-				console.log(myArchive);
-				for (var name in myArchive) {
-					me.processFile(myArchive[name].buffer, name, next);
-					break; // just use first entry
-				}
-			} else {
-				// if UZIP wasn't loaded use zip.js
-				if (typeof window.zip === "undefined"){
-					let module = await import("./lib/zip.js");
-					window.zip = module.default;
-				}
-				zip.workerScriptsPath = "script/src/lib/zip/";
-				zip.useWebWorkers = Host.useWebWorkers;
+				let newBuffer = await new Response(decompressedStream).arrayBuffer();
+				file = new BinaryStream(newBuffer,true);
+				result = FileDetector.detect(file,name);
+			}
+			if (result.name === "ZIP"){
+				console.log("extracting zip file");
 
-				//ArrayBuffer Reader and Write additions: https://github.com/gildas-lormeau/zip.js/issues/21
+				if (UI) UI.setStatus("Extracting Zip file",true);
+				if (typeof UZIP !== "undefined") {
+					// using UZIP: https://github.com/photopea/UZIP.js
+					var myArchive = UZIP.parse(arrayBuffer);
+					for (var name in myArchive) {
+						me.processFile(myArchive[name].buffer, name, next);
+						break; // just use first entry
+					}
+				} else {
+					// if UZIP wasn't loaded use zip.js
+					if (typeof window.zip === "undefined"){
+						let module = await import("./lib/zip.js");
+						window.zip = module.default;
+					}
+					zip.workerScriptsPath = "script/src/lib/zip/";
+					zip.useWebWorkers = Host.useWebWorkers;
 
-				zip.createReader(new zip.ArrayBufferReader(arrayBuffer), function(reader) {
-					var zipEntry;
-					var size = 0;
-					reader.getEntries(function(entries) {
-						if (entries && entries.length){
-							entries.forEach(function(entry){
-								if (entry.uncompressedSize>size){
-									size = entry.uncompressedSize;
-									zipEntry = entry;
-								}
-							});
-						}
-						if (zipEntry){
-							zipEntry.getData(new zip.ArrayBufferWriter,function(data){
-								if (data && data.byteLength) {
-									me.processFile(data,name,next);
-								}
-							})
-						}else{
-							console.error("Zip file could not be read ...");
-							if (next) next(FILETYPE.unknown);
-						}
+					//ArrayBuffer Reader and Write additions: https://github.com/gildas-lormeau/zip.js/issues/21
+
+					zip.createReader(new zip.ArrayBufferReader(arrayBuffer), function(reader) {
+						var zipEntry;
+						var size = 0;
+						reader.getEntries(function(entries) {
+							if (entries && entries.length){
+								entries.forEach(function(entry){
+									if (entry.uncompressedSize>size){
+										size = entry.uncompressedSize;
+										zipEntry = entry;
+									}
+								});
+							}
+							if (zipEntry){
+								zipEntry.getData(new zip.ArrayBufferWriter,function(data){
+									if (data && data.byteLength) {
+										me.processFile(data,name,next);
+									}
+								})
+							}else{
+								console.error("Zip file could not be read ...");
+								if (next) next(FILETYPE.unknown);
+							}
+						});
+					}, function(error) {
+						console.error("Zip file could not be read ...");
+						if (next) next(FILETYPE.unknown);
 					});
-				}, function(error) {
-					console.error("Zip file could not be read ...");
-					if (next) next(FILETYPE.unknown);
-				});
+				}
 			}
 		}
 
