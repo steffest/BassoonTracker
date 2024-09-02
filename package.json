@@ -6,8 +6,6 @@
   "author": "Steffest",
   "license": "MIT",
   "devDependencies": {
-    "@parcel/packager-raw-url": "^2.12.0",
-    "@parcel/transformer-webmanifest": "^2.12.0",
-    "terser": "^5.31.6"
+    "vite": "^5.4.2"
   }
 }

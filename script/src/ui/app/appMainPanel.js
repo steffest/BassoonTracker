@@ -28,7 +28,7 @@ let app_mainPanel = function(){
 
 	var steffestVersion = function(){
 		var img = Y.getImage("steffest");
-        var version = typeof versionNumber == "undefined" ? "dev" : versionNumber;
+        var version = typeof window.versionNumber == "undefined" ? "dev" : window.versionNumber;
         if (version.indexOf(".")>0){
             var p = version.split(".");
             version = p[0]+"."+p[1];

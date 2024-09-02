@@ -24,7 +24,7 @@ import Panel from "./ui/components/panel.js";
 var App = (function(){
     var me = {};
     
-    me.buildNumber = (typeof buildNumber === "undefined") ? "" : buildNumber; 
+    me.buildNumber = (typeof window.buildNumber === "undefined") ? "" : window.buildNumber;
     
     me.init = function(){
     	

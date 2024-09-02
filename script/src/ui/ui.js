@@ -124,7 +124,7 @@ var UI = (function(){
 			// check version
 			if (useVersion && typeof versionNumber !== "undefined"){
 				FetchService.json("package.json?ts=" + new Date().getTime(),function(result){
-					if (result && result.version && result.version !== versionNumber){
+					if (result && result.version && result.version > versionNumber){
 						console.error("app needs updating");
 
 						var lastMessage = localStorage.getItem("updatemessageshown") || 0;
@@ -172,7 +172,7 @@ var UI = (function(){
 
 		Settings.baseUrl = config.baseUrl;
 		App.isPlugin = true;
-		buildNumber = Math.random();
+		window.buildNumber = Math.random();
 		Assets.preLoad(function(){
 
 			console.log("UI assets loaded");
