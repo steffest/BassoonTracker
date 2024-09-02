@@ -1,5 +1,5 @@
 import Tracker from "../tracker.js";
-import {EVENT, TRACKERMODE} from "../enum.js";
+import {EVENT, LOOPTYPE, TRACKERMODE} from "../enum.js";
 import Instrument from "../models/instrument.js";
 import EventBus from "../eventBus.js";
 

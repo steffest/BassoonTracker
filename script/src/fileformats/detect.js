@@ -21,6 +21,7 @@ let FileDetector = function(){
 	me.detect = function(file,name){
 		let length = file.length;
 		let id = "";
+		name = name||"";
 
 		if (name.endsWith(".pls")){
 			return fileType.playlist;
@@ -117,7 +118,7 @@ let FileDetector = function(){
 				let totalSampleLength = 0;
 				let probability =0;
 				for (let s = 0; s<15;s++) {
-					for (i = 0; i<22;i++) if (!isAscii(file.readByte())) return false;
+					for (let i = 0; i<22;i++) if (!isAscii(file.readByte())) return false;
 					file.jump(-22);
 					let name = file.readString(22);
 					if (name.toLowerCase().startsWith("st-")) probability += 10;

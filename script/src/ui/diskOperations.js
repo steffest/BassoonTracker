@@ -507,9 +507,9 @@ let DiskOperations = function(){
 							Dropbox.getFile(item,function(blob){
 								var reader = new FileReader();
 								reader.onload = function(){
-									Tracker.processFile(reader.result,item.title,function(){
+									Tracker.processFile(reader.result,item.title).then(fileType=>{
 										UI.setStatus("Ready");
-									});
+									})
 								};
 								reader.readAsArrayBuffer(blob);
 							});
@@ -548,10 +548,6 @@ let DiskOperations = function(){
 						}
 					});
 				}
-
-
-
-
 				break;
 			case "samples":
 				itemHandler = false;

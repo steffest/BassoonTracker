@@ -1900,7 +1900,7 @@ var Tracker = (function(){
 				return;
 			}
 
-			me.processFile(result,name,function(fileType){
+			me.processFile(result,name).then(fileType=>{
 				if (showFeedback) UI.setStatus("Ready");
 				var isMod = (fileType === FILETYPE.module);
 
@@ -1967,7 +1967,7 @@ var Tracker = (function(){
 
 				if (isMod) checkAutoPlay(skipHistory);
 				if (next) next(fileType);
-			});
+			})
 		};
 
 		var name = "";
@@ -2000,114 +2000,113 @@ var Tracker = (function(){
 
 			var reader = new FileReader();
 			reader.onload = function(){
-				me.processFile(reader.result,file.name,function(isMod){
+				me.processFile(reader.result,file.name).then(fileType=>{
 					if (UI) UI.setStatus("Ready");
-				});
+				})
 			};
 			reader.readAsArrayBuffer(file);
 		}
 	};
 
-	me.processFile = async function(arrayBuffer, name , next){
+	me.processFile = function(arrayBuffer, name){
+		return new Promise(async next=>{
+			var file = new BinaryStream(arrayBuffer,true);
+			var result = FileDetector.detect(file,name);
 
-		var isMod = false;
-		var file = new BinaryStream(arrayBuffer,true);
-		var result = FileDetector.detect(file,name);
+			if (result){
+				if (result.name === "GZIP"){
+					console.log("extracting gzip file");
+					const ds = new DecompressionStream("gzip");
+					const stream = new Blob([file.buffer]).stream();
+					const decompressedStream = stream.pipeThrough(ds);
 
-		if (result){
-			if (result.name === "GZIP"){
-				console.log("extracting gzip file");
-				const ds = new DecompressionStream("gzip");
-				const stream = new Blob([file.buffer]).stream();
-				const decompressedStream = stream.pipeThrough(ds);
+					let newBuffer = await new Response(decompressedStream).arrayBuffer();
+					file = new BinaryStream(newBuffer,true);
+					result = FileDetector.detect(file,name);
+				}
+				if (result.name === "ZIP"){
+					console.log("extracting zip file");
 
-				let newBuffer = await new Response(decompressedStream).arrayBuffer();
-				file = new BinaryStream(newBuffer,true);
-				result = FileDetector.detect(file,name);
-			}
-			if (result.name === "ZIP"){
-				console.log("extracting zip file");
+					if (UI) UI.setStatus("Extracting Zip file",true);
+					if (typeof UZIP !== "undefined") {
+						// using UZIP: https://github.com/photopea/UZIP.js
+						var myArchive = UZIP.parse(arrayBuffer);
+						for (let fname in myArchive) {
+							me.processFile(myArchive[fname].buffer, fname).then(next)
+							break; // just use first entry
+						}
+					} else {
+						// if UZIP wasn't loaded use zip.js
+						if (typeof window.zip === "undefined"){
+							let module = await import("./lib/zip.js");
+							window.zip = module.default;
+						}
+						zip.workerScriptsPath = "script/src/lib/zip/";
+						zip.useWebWorkers = Host.useWebWorkers;
 
-				if (UI) UI.setStatus("Extracting Zip file",true);
-				if (typeof UZIP !== "undefined") {
-					// using UZIP: https://github.com/photopea/UZIP.js
-					var myArchive = UZIP.parse(arrayBuffer);
-					for (var name in myArchive) {
-						me.processFile(myArchive[name].buffer, name, next);
-						break; // just use first entry
-					}
-				} else {
-					// if UZIP wasn't loaded use zip.js
-					if (typeof window.zip === "undefined"){
-						let module = await import("./lib/zip.js");
-						window.zip = module.default;
-					}
-					zip.workerScriptsPath = "script/src/lib/zip/";
-					zip.useWebWorkers = Host.useWebWorkers;
+						//ArrayBuffer Reader and Write additions: https://github.com/gildas-lormeau/zip.js/issues/21
 
-					//ArrayBuffer Reader and Write additions: https://github.com/gildas-lormeau/zip.js/issues/21
-
-					zip.createReader(new zip.ArrayBufferReader(arrayBuffer), function(reader) {
-						var zipEntry;
-						var size = 0;
-						reader.getEntries(function(entries) {
-							if (entries && entries.length){
-								entries.forEach(function(entry){
-									if (entry.uncompressedSize>size){
-										size = entry.uncompressedSize;
-										zipEntry = entry;
-									}
-								});
-							}
-							if (zipEntry){
-								zipEntry.getData(new zip.ArrayBufferWriter,function(data){
-									if (data && data.byteLength) {
-										me.processFile(data,name,next);
-									}
-								})
-							}else{
-								console.error("Zip file could not be read ...");
-								if (next) next(FILETYPE.unknown);
-							}
+						zip.createReader(new zip.ArrayBufferReader(arrayBuffer), function(reader) {
+							var zipEntry;
+							var size = 0;
+							reader.getEntries(function(entries) {
+								if (entries && entries.length){
+									entries.forEach(function(entry){
+										if (entry.uncompressedSize>size){
+											size = entry.uncompressedSize;
+											zipEntry = entry;
+										}
+									});
+								}
+								if (zipEntry){
+									zipEntry.getData(new zip.ArrayBufferWriter,function(data){
+										if (data && data.byteLength) {
+											me.processFile(data,name).then(next)
+										}
+									})
+								}else{
+									console.error("Zip file could not be read ...");
+									next(FILETYPE.unknown);
+								}
+							});
+						}, function(error) {
+							console.error("Zip file could not be read ...");
+							next(FILETYPE.unknown);
 						});
-					}, function(error) {
-						console.error("Zip file could not be read ...");
-						if (next) next(FILETYPE.unknown);
-					});
+					}
 				}
 			}
-		}
 
-		if (result.isMod && result.loader){
-			if (me.isPlaying()) me.stop();
-			resetDefaultSettings();
+			if (result.isMod && result.loader){
+				if (me.isPlaying()) me.stop();
+				resetDefaultSettings();
 
-			song = result.loader().load(file,name);
-			song.filename = name;
+				song = result.loader().load(file,name);
+				song.filename = name;
 
-			onModuleLoad();
+				onModuleLoad();
 
-		}
-
-		if (result.isSample){
-			// check for player only lib
-			if (typeof Editor !== "undefined") {
-				Editor.importSample(file,name);
 			}
-		}
 
-		if (result.type === FILETYPE.playlist){
-			var data = file.toString();
-			if (name.endsWith(".json")){
-				data = JSON.parse(data)
-			}else{
-				data = Playlist.parse(data,name);
+			if (result.isSample){
+				// check for player only lib
+				if (typeof Editor !== "undefined") {
+					Editor.importSample(file,name);
+				}
 			}
-			Playlist.set(data,name);
-		}
 
-		if (next) next(result.type);
+			if (result.type === FILETYPE.playlist){
+				var data = file.toString();
+				if (name.endsWith(".json")){
+					data = JSON.parse(data)
+				}else{
+					data = Playlist.parse(data,name);
+				}
+				Playlist.set(data,name);
+			}
 
+			next(result.type);
+		})
 	};
 
 	me.getSong = function(){
