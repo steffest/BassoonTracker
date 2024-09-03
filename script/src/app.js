@@ -17,7 +17,7 @@ import Scale9Panel from "./ui/components/scale9.js";
 import Assets from "./ui/assets.js";
 import Label from "./ui/components/label.js";
 import Button from "./ui/components/button.js";
-import RadioGroup from "./ui/components/radioGroup.js";
+import RadioGroup from "./ui/components/radiogroup.js";
 import Checkbox from "./ui/components/checkbox.js";
 import Panel from "./ui/components/panel.js";
 

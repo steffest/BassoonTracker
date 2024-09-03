@@ -53,16 +53,16 @@
     <meta name="mobile-web-app-capable" content="yes">
 
     <script>
-        window.buildNumber = undefined;
-        window.versionNumber = undefined;
+        window.versionNumber = '{version}';
+        window.buildNumber = '{build}';
     </script>
 
-    <script src="script/src/main.js" type="module"></script>
+    <script src="script/src/main.js?v{build}" type="module"></script>
 
 </head>
 <body>
 
-<canvas id="canvas" tabindex='1' moz-opaque></canvas>
+<canvas id="canvas" tabindex='1'></canvas>
 
 </body>
 </html>

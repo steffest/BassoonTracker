@@ -312,7 +312,8 @@ var FastTracker = function(){
 		var instruments = Tracker.getInstruments(); // note: intruments start at index 1, not 0
 		var trackCount = Tracker.getTrackCount();
 
-		var version = typeof versionNumber === "undefined" ? "dev" : versionNumber;
+		var version = window.versionNumber || "dev";
+		if (version.indexOf('.')<0) version += "dev";
 
 		var highestPattern = 0;
         for (i = 0;i<128;i++){

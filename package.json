@@ -1,10 +1,14 @@
 {
-  "name": "BassoonTracker",
+  "name": "bassoontracker",
   "version": "0.4.3",
   "description": "Old School Amiga mod and xm tracker in plain javascript",
   "repository": "https://github.com/steffest/BassoonTracker",
   "author": "Steffest",
   "license": "MIT",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build"
+  },
   "devDependencies": {
     "vite": "^5.4.2"
   }

@@ -51,7 +51,7 @@ var Host = function(){
 	};
 	
 	me.getVersionNumber = function(){
-		if (typeof versionNumber !== "undefined") return versionNumber;
+		if (typeof window.versionNumber === "string" && window.versionNumber.indexOf(".")>0) return versionNumber;
 		if (hostBridge && hostBridge.getVersionNumber) 	return hostBridge.getVersionNumber();
 		return "dev";
 	};

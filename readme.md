@@ -5,15 +5,14 @@ Browser-based old-school Amiga Music Tracker in plain old JavaScript.
 ![BassoonTracker](./skin/bassoontracker_main.png?raw=true)
 
 Plays and edits Amiga Module files and FastTracker 2 XM files.  
-Live demo at [http://www.stef.be/bassoontracker/](http://www.stef.be/bassoontracker/)
+Live version at [http://www.stef.be/bassoontracker/](http://www.stef.be/bassoontracker/)
 
 If you have ever heard of [Protracker](https://en.wikipedia.org/wiki/Protracker) or [Fasttracker](https://en.wikipedia.org/wiki/FastTracker_2), then you know the drill,   
 if not, then you are probably too young :-)
 
-###Requirements
+### Requirements
 * This tracker requires a modern browser that supports [WebAudio](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API).
-It's tested to work on Chrome, Firefox, Safari, Edge, Chrome on Android, mobile Safari and the Samsung Android Browser.
-It works best in Chrome.  
+It's tested to work on all major browsers desktop and mobile browsers.
 * Midi support is not available in Firefox or Safari. 
 * Minimum requirements for mobile devices: IOS9 or Android 6
 
@@ -52,6 +51,7 @@ It works best in Chrome.
 - The [modules.pl API](http://modules.pl/) is integrated to access even more music files
 - Export to .mod, .xm, .wav, and .mp3
 - Connect your Dropbox account to directly read and write your own files
+- Supports Playlists and Favorites
 - Read more in [The Docs](https://www.stef.be/bassoontracker/docs/)
 
 The playback engine has gone through extensive compatibility testing, but as the Protracker code itself is somewhat messy and muddy
@@ -63,24 +63,27 @@ There are still some very specific [Protracker 1 and 2 playback quirks](http://w
  - The following FastTracker features are not fully supported yet:
    - Tremor
    - "Set envelope position" command
+   - Panning Slides
    - PingPong Loops are unrolled to normal loops (There's no difference in sound but if you save your XM file, your samples will have changed.)
    - When writing XM files, patterns are not packed so the resulting files will probably be a little bigger than when saved with the real FastTracker 2.
  - Safari doesn't support WebAudio StereoPanners so songs will be played in mono on Safari.
  - Safari and Firefox don't support the [Web Midi Api](https://caniuse.com/midi) so no midi on those browsers.
- 
-Note: if you use an AZERTY, QWERTZ or DVORAK keyboard, you can set that option in the settings to have the correct layout when playing notes on your computer keyboard.
+
+**How to Run**
+BassoonTracker is a web application that runs in your browser.   
+Just serve "index.html" from a webserver and you're good to go.
+If you want to run it locally and you don't want to fiddle with things as `node`and `npm`, I can recommend [Spark](https://github.com/rif/spark/releases)  
+Download the binary for your platform, drop the Spark executable in the folder where you downloaded the BassoonTracker source files and run it.   
+If you then point your browser to http://localhost:8080/ it should work.
 
 **How to Build**  
-  - The build step is **optional**, there are no runtime dependencies (*bliss!*)
-  - Just open dev.html in a browser to load the plain uncompressed scripts 
-  - To build the packaged version:
-    - If you don't have grunt installed - install it with "npm install -g grunt-cli" 
-    - Run "npm i" to install the Grunt build tools.
-    - Use "grunt" to build the compressed files -> index.html will be created.
-    - Use "grunt sprites" to build the spritesheet.
-	  This will compact all files in the "skin/src" to a single .png file and will create a spritemap.
-	- Use "grunt player" to build the player-only version (you can find it the "player" directory).
-	- Use "grunt friend" to build the version for Friend OS (you can find it the "hosts/FriendOs/build" directory)
+  - BassoonTracker doesn't need building, the build step is **optional**, there are no runtime dependencies (*bliss!*)
+  - Just open dev.html in a browser to load the plain uncompressed scripts (one way to do that by running `vite` or `npm start` on the command line)
+  - If you like you can build a "packaged" version:
+    - I'm using "[vite](https://vitejs.dev/)" for that, if you don't have it installed globally - install it with `npm i`
+    - Use `vite build` (or `npm run build`) to build the compressed files -> index.html will be created.
+    - Use `grunt sprites` to build the spritesheet.
+	  This will compact all files in the `skin/src` to a single .png file and will create a spritemap.
 
 **Future plans**  
   - ~~MIDI support~~ -> Done!

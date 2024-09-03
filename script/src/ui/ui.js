@@ -89,7 +89,8 @@ var UI = (function(){
 
 		canvas = document.getElementById("canvas");
 		ctx = canvas.getContext("2d");
-		ctx.imageSmoothingEnabled=false;
+		ctx.imageSmoothingEnabled = false;
+		ctx.alpha = false;
 		
 		var w = window.innerWidth;
 		var h = window.innerHeight;
