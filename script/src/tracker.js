@@ -13,6 +13,7 @@ import Instrument from "./models/instrument.js";
 import Editor from "./editor.js";
 import Note from "./models/note.js";
 import StateManager from "./ui/stateManager.js";
+import Favorites from "./models/favorites.js";
 
 export var periodNoteTable = {};
 export var periodFinetuneTable = {};
@@ -1900,7 +1901,7 @@ var Tracker = (function(){
 				return;
 			}
 
-			me.processFile(result,name).then(fileType=>{
+			me.processFile(result,name,url).then(fileType=>{
 				if (showFeedback) UI.setStatus("Ready");
 				var isMod = (fileType === FILETYPE.module);
 
@@ -1945,7 +1946,6 @@ var Tracker = (function(){
 							infoUrl = Playlist.getSongInfoUrl(url);
 						}
 					}
-
 
 					if (showFeedback) UI.setInfo(song.title,source,infoUrl);
 				}else{
@@ -2000,7 +2000,7 @@ var Tracker = (function(){
 
 			var reader = new FileReader();
 			reader.onload = function(){
-				me.processFile(reader.result,file.name).then(fileType=>{
+				me.processFile(reader.result,file.name, "").then(fileType=>{
 					if (UI) UI.setStatus("Ready");
 				})
 			};
@@ -2008,10 +2008,18 @@ var Tracker = (function(){
 		}
 	};
 
-	me.processFile = function(arrayBuffer, name){
+	me.processFile = function(data, name, url){
 		return new Promise(async next=>{
-			var file = new BinaryStream(arrayBuffer,true);
-			var result = FileDetector.detect(file,name);
+			var file;
+			var result = FILETYPE.unknown;
+			if (data instanceof ArrayBuffer){
+				file = new BinaryStream(data,true);
+				result = FileDetector.detect(file,name);
+			}else{
+				if (data && data.modules){
+					result = {name: "PLAYLIST", type: FILETYPE.playlist}
+				}
+			}
 
 			if (result){
 				if (result.name === "GZIP"){
@@ -2032,7 +2040,7 @@ var Tracker = (function(){
 						// using UZIP: https://github.com/photopea/UZIP.js
 						var myArchive = UZIP.parse(arrayBuffer);
 						for (let fname in myArchive) {
-							me.processFile(myArchive[fname].buffer, fname).then(next)
+							me.processFile(myArchive[fname].buffer, fname, url).then(next)
 							break; // just use first entry
 						}
 					} else {
@@ -2061,7 +2069,7 @@ var Tracker = (function(){
 								if (zipEntry){
 									zipEntry.getData(new zip.ArrayBufferWriter,function(data){
 										if (data && data.byteLength) {
-											me.processFile(data,name).then(next)
+											me.processFile(data,name,url).then(next)
 										}
 									})
 								}else{
@@ -2083,6 +2091,7 @@ var Tracker = (function(){
 
 				song = result.loader().load(file,name);
 				song.filename = name;
+				song.url=url;
 
 				onModuleLoad();
 
@@ -2096,13 +2105,17 @@ var Tracker = (function(){
 			}
 
 			if (result.type === FILETYPE.playlist){
-				var data = file.toString();
-				if (name.endsWith(".json")){
-					data = JSON.parse(data)
-				}else{
-					data = Playlist.parse(data,name);
+				let playlistData = data;
+				console.error(playlistData);
+				if (file) {
+					playlistData = file.toString();
+					if (name.endsWith(".json")){
+						playlistData = JSON.parse(playlistData)
+					}else{
+						playlistData = Playlist.parse(playlistData,name);
+					}
 				}
-				Playlist.set(data,name);
+				Playlist.set(playlistData,name);
 			}
 
 			next(result.type);
@@ -2125,6 +2138,10 @@ var Tracker = (function(){
 		instrument.instrumentIndex = index;
 		instruments[index] = instrument;
 	};
+
+	me.getCurrentUrl = function(){
+		return song.url;
+	}
 
 
 	function onModuleLoad(){

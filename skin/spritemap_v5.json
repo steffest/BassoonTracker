@@ -161,15 +161,22 @@
     "height": 256
   },
   {
-    "name": "modbig",
+    "name": "favbig",
     "x": 837,
     "y": 243,
     "width": 30,
     "height": 30
   },
   {
-    "name": "xmbig",
+    "name": "modbig",
     "x": 220,
+    "y": 390,
+    "width": 30,
+    "height": 30
+  },
+  {
+    "name": "xmbig",
+    "x": 250,
     "y": 390,
     "width": 30,
     "height": 30
@@ -194,6 +201,20 @@
     "y": 76,
     "width": 7,
     "height": 6
+  },
+  {
+    "name": "heart",
+    "x": 637,
+    "y": 476,
+    "width": 15,
+    "height": 16
+  },
+  {
+    "name": "heart_active",
+    "x": 622,
+    "y": 476,
+    "width": 15,
+    "height": 16
   },
   {
     "name": "mod",
@@ -743,7 +764,7 @@
   },
   {
     "name": "vu_red_active",
-    "x": 250,
+    "x": 280,
     "y": 390,
     "width": 14,
     "height": 19
@@ -757,7 +778,7 @@
   },
   {
     "name": "vu_yellow_active",
-    "x": 264,
+    "x": 294,
     "y": 390,
     "width": 14,
     "height": 19

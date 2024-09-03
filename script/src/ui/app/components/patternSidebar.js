@@ -15,6 +15,7 @@ import EventBus from "../../../eventBus.js";
 import App from "../../../app.js";
 import Y from "../../yascal/yascal.js";
 import Editor from "../../../editor.js";
+import Favorites from "../../../models/favorites.js";
 
 
 let pattern_sidebar = function(){
@@ -380,6 +381,9 @@ let pattern_sidebar = function(){
             if (item.url){
                 let icon = Y.getImage("mod");
                 if (item.url.endsWith(".xm")) icon = Y.getImage("xm");
+                if (item.icon){
+                    icon = item.icon;
+                }
                 var info = item.info;
                 var info2;
                 var icon2
@@ -411,6 +415,13 @@ let pattern_sidebar = function(){
 
     EventBus.on(EVENT.playListIndexChanged, function(index){
         songListBox.setSelectedIndex(index+1);
+    });
+
+    EventBus.on(EVENT.favoritesUpdated, function(){
+        let items = songListBox.getItems();
+        if (items && items.length && items[0].label === "Favorites"){
+            Playlist.set(Favorites.getPlaylist());
+        }
     });
 
     return me;

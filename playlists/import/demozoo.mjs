@@ -1,86 +1,114 @@
 import https from "https";
 import fs from "fs";
 
-let url = "https://demozoo.org/parties/4710/";
+let url = "https://demozoo.org/parties/4622/";
 let file = "demozoo.json";
-let partyName = "Evoke 2024";
-let readFromFile = true;
+let partyName;
+let scanUrl = true;
 let writePlaylist = true;
+let onlyModAndXM = true;
 
-let path = "https://www.stef.be/bassoontracker/mods/Evoke/2024/"
-
+if (process.argv.length>2){
+    let id = parseInt(process.argv[2]);
+    if (!isNaN(id)){
+        url = "https://demozoo.org/parties/" + id + "/";
+        writePlaylist = true;
+        scanUrl = true;
+    }
+}
 
 async function main(){
     console.log("init");
 
-    if (writePlaylist){
-        let content = fs.readFileSync(file);
-        let list = JSON.parse(content);
-
-        let modules = [];
-        list.forEach(item=>{
-            if (item.file) {
-                let module = {
-                    title: item.title,
-                    url: path + item.file,
-                    author: item.author,
-                    group: item.groups.join("^"),
-                    link: "https://demozoo.org" + item.link
-                }
-                if (item.ranking){
-                    let suffix = "th";
-                    if (item.ranking === "1") suffix = "st";
-                    if (item.ranking === "2") suffix = "nd";
-                    if (item.ranking === "3") suffix = "rd";
-
-                    module.info = item.ranking + suffix + " @ " + partyName;
-                }
-                modules.push(module);
-            }
-        })
-        let playlist = {
-            title : partyName,
-            info: "Tracked Compo Entries",
-            modules: modules
+    if (scanUrl){
+        let list = await getPartyData();
+        let struct = {
+            party: partyName,
+            entries: list
         }
-        let filename = partyName.toLowerCase().replace(" ","_") + ".json";
-        let json = JSON.stringify(playlist,null,2);
-        fs.writeFileSync(filename,json);
-
-        console.log("Playlist written to file");
-
-        return;
-    }
-
-    if (readFromFile){
-        let content = fs.readFileSync(file);
-        let list = JSON.parse(content);
-        for (const item of list) {
-            if (item.download){
-                if (item.format === "MOD" || item.format === "XM"){
-                    console.log("Downloading: " + item.title);
-                    await downloadFile(item.download);
-                }else{
-                    console.log("Skipping: " + item.format + " - " + item.title);
-                }
-            }else{
-                console.log("No download link for: " + item.title);
-            }
+        if (writePlaylist){
+            savePlaylist(struct);
+        }else{
+            // save to temp file
+            let json = JSON.stringify(struct,null,2);
+            fs.writeFileSync(file,json);
+            console.log(list);
         }
     }else{
-        let content = await getHTML(url);
-        let list = extractTrackedMusic(content);
-        list = await resolveDownloadUrls(list);
-
-
-        // save to file
-        let json = JSON.stringify(list);
-        fs.writeFileSync(file,json);
-
-        console.log(list);
+        if (writePlaylist){
+            savePlaylist();
+        }
     }
 
+}
 
+function savePlaylist(struct){
+    if (!struct){
+        let content = fs.readFileSync(file);
+        struct = JSON.parse(content);
+    }
+
+    let list = struct.entries;
+    console.log("Entries: " + list.length);
+    partyName = struct.party;
+
+    let modules = [
+        {title: partyName}
+    ];
+    list.forEach(item=>{
+        let passed = (item.file || item.download);
+        if (onlyModAndXM){
+            passed = passed && (item.format === "MOD" || item.format === "XM");
+        }
+        if (passed)  {
+            let module = {
+                title: item.title,
+                url: item.file || item.download,
+                author: item.author,
+                group: item.groups.join("^"),
+                link: "https://demozoo.org" + item.link
+            }
+            if (item.ranking){
+                let suffix = "th";
+                if (item.ranking === "1") suffix = "st";
+                if (item.ranking === "2") suffix = "nd";
+                if (item.ranking === "3") suffix = "rd";
+
+                module.info = item.ranking + suffix + " @ " + partyName;
+            }
+            if (item.format) module.format = item.format;
+            if (item.channels) module.channels = item.channels;
+            modules.push(module);
+        }
+    })
+    let playlist = {
+        title : partyName,
+        info: "Tracked Compo Entries",
+        modules: modules
+    }
+    let filename = partyName.toLowerCase().replace(" ","_") + ".json";
+    let json = JSON.stringify(playlist,null,2);
+    fs.writeFileSync(filename,json);
+
+    console.log("Playlist written to file: " + filename);
+}
+
+async function getPartyData(){
+    let content = await getHTML(url);
+    partyName = getPartyName(content);
+    console.log(partyName);
+    let list = extractTrackedMusic(content);
+    list = await resolveDownloadUrls(list);
+    return list;
+}
+
+function getPartyName(content){
+    let result = rightFrom(content,'focus_title party_name');
+    result = rightFrom(result,'>');
+    result = leftFrom(result,'</div>');
+    result = extractTagContent(result);
+    result = cleanString(result);
+    return result;
 }
 
 function downloadFile(url){
@@ -115,6 +143,7 @@ function resolveDownloadUrls(list){
             let details = await getDetails("https://demozoo.org" + item.link);
             item.download = details.download;
             item.format = details.format;
+            item.channels = details.channels;
         }
         next(list);
     });
@@ -134,9 +163,24 @@ function getDetails(url){
             }
         });
 
+        if (!result.download){
+            let links = extractsection(content,'"download_links"',"ul");
+            links = getTags(links,'div');
+            links.forEach(link=>{
+                if (link.indexOf('"primary">')>=0){
+                    result.download = extractTagParam(link,'href');
+                }
+            });
+        }
+
+
         if (tags.indexOf('"/productions/tagged/it/"')>=0) result.format="IT";
         if (tags.indexOf('"/productions/tagged/mod/"')>=0) result.format="MOD";
         if (tags.indexOf('"/productions/tagged/xm/"')>=0) result.format="XM";
+        if (tags.indexOf('"/productions/tagged/4ch/"')>=0) result.channels=4;
+        if (tags.indexOf('"/productions/tagged/8ch/"')>=0) result.channels=8;
+        if (tags.indexOf('"/productions/tagged/16ch/"')>=0) result.channels=16;
+        if (tags.indexOf('"/productions/tagged/32ch/"')>=0) result.channels=32;
         if (tags.indexOf('"/productions/tagged/openmpt/"')>=0) result.format="OPENMPT";
         if (tags.indexOf('"/productions/tagged/renoise/"')>=0) result.format="RENOISE";
 
@@ -146,7 +190,24 @@ function getDetails(url){
 
 
 function extractTrackedMusic(html){
-    let result = rightFrom(html,'class="competition__heading">Tracked Music');
+    let result;
+    let titles = [
+        "Tracked Music",
+        "Amiga 4 Channel Music",
+        "Combined Music",
+        "Amiga Music",
+        "Amiga Tracked MSX",
+        "Old School Music",
+        "Oldschool Music"
+    ];
+
+    for (let i=0;i<titles.length;i++){
+        if (html.indexOf('class="competition__heading">'+titles[i])>=0){
+            result = rightFrom(html,'class="competition__heading">'+titles[i]);
+            break;
+        }
+    }
+
     result = rightFrom(result,'table');
     result = leftFrom(result,'</table>');
     let rows = getTableRows(result);
@@ -200,6 +261,7 @@ function extractsection(content,section,tag){
 
 function getTableRows(content){
     let result = [];
+    if (!content) return result;
     let p = content.indexOf("<tr");
     while (p>=0){
         let q = content.indexOf("</tr>",p);
@@ -231,6 +293,7 @@ function getTags(content,tag){
 }
 
 function rightFrom(content,fragment){
+    if (!content) return content;
     let p = content.indexOf(fragment);
     let result = "";
     if (p>=0){
@@ -240,6 +303,7 @@ function rightFrom(content,fragment){
 }
 
 function leftFrom(content,fragment){
+    if (!content) return content;
     let p = content.indexOf(fragment);
     let result = "";
     if (p>=0){
@@ -278,9 +342,11 @@ function cleanString(s){
     s = s.replaceAll("&quot;", '"');
     s = s.replaceAll("&lt;", "<");
     s = s.replaceAll("&gt;", ">");
+    s = s.replaceAll(":", "");
 
     return s;
 }
+
 
 
 main();

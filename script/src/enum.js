@@ -75,6 +75,8 @@ export var EVENT = {
 	midiIn: 60,
 	playListLoaded: 61,
 	playListIndexChanged: 62,
+	toggleFavorite: 63,
+	favoritesUpdated: 64,
 };
 
 export var COMMAND = {

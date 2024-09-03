@@ -12,6 +12,8 @@ let Icon = function(){
         var ext = item.url?item.url.split(".").pop().toLowerCase():"";
         if (ext === "xm") overlay = Y.getImage("xmbig");
 
+        if (item.icon) overlay = Y.getImage(item.icon) || overlay;
+
         item.generatedIcon = document.createElement("canvas");
         item.generatedIcon.width = size;
         item.generatedIcon.height = size;

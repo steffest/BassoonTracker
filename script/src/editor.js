@@ -662,6 +662,9 @@ var Editor = (function(){
 				id = url.substr(9);
 				return "playlists/" + id + ".json";
 			}
+			if(url==="favorites"){
+				return "/favorites.pls";
+			}
 		}
 		return url;
 	}
@@ -677,6 +680,7 @@ var Editor = (function(){
 				var playlist = url.match(/playlists\/([a-z0-9]+)\.json/);
 				if (playlist && playlist[1]) return ("playlist-" + playlist[1]);
 			}
+			if (url === "/favorites.pls") return "favorites";
 		}
 		return url;
 	}

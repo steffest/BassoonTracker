@@ -1,7 +1,14 @@
 import Editor from "./editor.js";
 import BassoonProvider from "./provider/bassoon.js";
+import Favorites from "./models/favorites.js";
 
 export function loadFile(url,next) {
+
+	if (url === "/favorites.pls"){
+		if (next) next(Favorites.getPlaylist());
+		return;
+	}
+
 	var req = new XMLHttpRequest();
     req.open("GET", url, true);
     req.responseType = "arraybuffer";

@@ -69,7 +69,7 @@ There are still some very specific [Protracker 1 and 2 playback quirks](http://w
  - Safari doesn't support WebAudio StereoPanners so songs will be played in mono on Safari.
  - Safari and Firefox don't support the [Web Midi Api](https://caniuse.com/midi) so no midi on those browsers.
 
-**How to Run**
+**How to Run**  
 BassoonTracker is a web application that runs in your browser.   
 Just serve "index.html" from a webserver and you're good to go.
 If you want to run it locally and you don't want to fiddle with things as `node`and `npm`, I can recommend [Spark](https://github.com/rif/spark/releases)  
@@ -78,7 +78,7 @@ If you then point your browser to http://localhost:8080/ it should work.
 
 **How to Build**  
   - BassoonTracker doesn't need building, the build step is **optional**, there are no runtime dependencies (*bliss!*)
-  - Just open dev.html in a browser to load the plain uncompressed scripts (one way to do that by running `vite` or `npm start` on the command line)
+  - Just open dev.html in a browser to load the plain uncompressed scripts (one way to do that is by running `vite` or `npm start` on the command line)
   - If you like you can build a "packaged" version:
     - I'm using "[vite](https://vitejs.dev/)" for that, if you don't have it installed globally - install it with `npm i`
     - Use `vite build` (or `npm run build`) to build the compressed files -> index.html will be created.

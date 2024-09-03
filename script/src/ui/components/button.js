@@ -122,10 +122,8 @@ let Button = function(x,y,w,h,text){
 
     me.onHover = function(data){
         if (hasHover){
-            if (!me.isActive){
-                me.isHover = true;
-                me.refresh();
-            }
+            me.isHover = true;
+            me.refresh();
         }
     };
 
@@ -160,8 +158,9 @@ let Button = function(x,y,w,h,text){
                     var opacity = me.opacity;
                     if (me.isHover && me.hoverOpacity) opacity = me.hoverOpacity;
                     if (opacity && opacity-1) me.ctx.globalAlpha = opacity;
-                    if (me.isHover && hoverImage){
-                        stateImage =  hoverImage;
+                    if (me.isHover && hoverImage) stateImage =  hoverImage;
+                    if (me.isActive){
+                        if (activeImage) stateImage = activeImage;
                     }
                     if (me.isHover && hoverBackground){
                         hoverBackground.render();

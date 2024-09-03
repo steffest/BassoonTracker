@@ -5,6 +5,9 @@ import EventBus from "../eventBus.js";
 import {EVENT} from "../enum.js";
 import Animsprite from "./components/animsprite.js";
 import Y from "./yascal/yascal.js";
+import Button from "./components/button.js";
+import Tracker from "../tracker.js";
+import Favorites from "../models/favorites.js";
 
 let InfoPanel = function(){
 
@@ -13,6 +16,7 @@ let InfoPanel = function(){
     var source = "";
     var status = "";
     var moreInfoUrl;
+    let canFavorite = false;
 
     var infoButton = Assets.generate("buttonDark");
     infoButton.setLabel("More info ");
@@ -21,9 +25,33 @@ let InfoPanel = function(){
     };
     me.addChild(infoButton);
 
+    var fav = Button(400,6,20,20);
+    fav.setProperties({
+        image: Y.getImage("heart"),
+        activeImage: Y.getImage("heart_active"),
+        opacity: 0.4,
+        hoverOpacity: 1
+    });
+    fav.onClick = function(){
+        EventBus.trigger(EVENT.toggleFavorite);
+    };
+    me.addChild(fav);
+
+
     var spinner = Animsprite(5,7,20,18,"boing",11);
     me.addChild(spinner);
     spinner.hide();
+
+    function setFavorite(){
+        let url = Tracker.getCurrentUrl();
+        canFavorite = !!url;
+        if (canFavorite){
+            let isFavorite = Favorites.isFavorite(url);
+            fav.setActive(isFavorite);
+            fav.tooltip = isFavorite ? "Remove from favorites" : "Add to favorites";
+        }
+        me.setLayout();
+    }
 
     EventBus.on(EVENT.statusChange,function(context){
         if (context){
@@ -32,6 +60,7 @@ let InfoPanel = function(){
                 text = context.info;
                 source = context.source;
                 moreInfoUrl = context.url;
+                me.setLayout();
             }
             if (typeof context.showSpinner !== "undefined"){
                 spinner.toggle(!!context.showSpinner)
@@ -39,6 +68,9 @@ let InfoPanel = function(){
         }
         me.refresh();
     });
+
+    EventBus.on(EVENT.songLoaded,setFavorite);
+    EventBus.on(EVENT.favoritesUpdated,setFavorite);
 
 
     var properties = ["left","top","width","height","name","type","zIndex"];
@@ -70,6 +102,10 @@ let InfoPanel = function(){
             font: fontFT
         });
 
+        fav.setProperties({
+            left: moreInfoUrl ? Layout.col5X- me.left - 22 : Layout.col5W - me.left - 22,
+        });
+
     };
 
 
@@ -82,6 +118,7 @@ let InfoPanel = function(){
             me.clearCanvas();
 
             if (moreInfoUrl) infoButton.render();
+            if (canFavorite) fav.render();
 
             var fText = text;
             if (status) fText = status + ": " + fText;
