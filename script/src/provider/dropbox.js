@@ -8,25 +8,33 @@ var Dropbox = function(){
 
 	var authRedirect = "https://www.stef.be/bassoontracker/auth/dropbox.html";
     me.isConnected = false;
+    var dropboxService;
 
-    me.checkConnected = function(next){
+    me.checkConnected = function(){
 
-        if (me.isConnected){
-			if (next) next(true);
-        }
+        return new Promise(async next=>{
+            if (me.isConnected){
+                next(true);
+            }
 
-        if (dropboxService.getAccessToken()){
-            dropboxService('users/get_current_account',undefined,{onComplete:function(result){
-                if (result && result.account_id){
-                    me.isConnected = true;
-                    if (next) next(true);
-                }
-            },onError:function(){
-                if (next) next(false);
-            }});
-        }else{
-            if (next) next(false);
-        }
+            if (!dropboxService){
+                let module = await import("../lib/dropbox.js");
+                dropboxService = module.default();
+            }
+
+            if (dropboxService.getAccessToken()){
+                dropboxService('users/get_current_account',undefined,{onComplete:function(result){
+                        if (result && result.account_id){
+                            me.isConnected = true;
+                            next(true);
+                        }
+                    },onError:function(){
+                        next(false);
+                    }});
+            }else{
+                next(false);
+            }
+        })
     };
 
     me.showConnectDialog = function(){
@@ -53,12 +61,12 @@ var Dropbox = function(){
             }
         };
 
-        dialog.setText("DROPBOX ://BassoonTracker is not yet connected to DropBox//Do you want to do that now?//(BassoonTracker will only have access/to its own BassoonTracker folder)");
+        dialog.setText("DROPBOX ://BassoonTracker is not yet connected to DropBox//Do you want to do that now?//(BassoonTracker will only have access/to its own BassoonTracker folder,/not your entire DropBox)");
 
         UI.setModalElement(dialog);
     };
 
-    me.authenticate = function(){
+    me.authenticate = async function(){
         dropboxService.clearAccessToken();
         dropboxService.authenticate({client_id: 'ukk9z4f0nd1xa13',redirect_uri : authRedirect} , {
             onComplete:function(a){
@@ -115,14 +123,17 @@ var Dropbox = function(){
 			options.autorename = true;
         }
 
+        UI.setStatus("Uploading to Dropbox...",true);
         dropboxService('files/upload', options, content,{
             onComplete : function(result,a,b){
                 console.log(result);
                 console.log(a);
                 console.log(b);
+                UI.setStatus("Done uploading to Dropbox");
                 if (next) next(result);
             },
             onError : function(result,a,b){
+                UI.setStatus("Error uploading to Dropbox ...");
                 if (next) next(false);
             }
         });

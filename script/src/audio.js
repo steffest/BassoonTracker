@@ -11,6 +11,7 @@ import Tracker, {FTNotes, nameNoteTable, noteNames, periodFinetuneTable, periodN
 import FilterChain from "./audio/filterChain.js";
 import EventBus from "./eventBus.js";
 import Editor from "./editor.js";
+import {saveFile} from "./filesystem.js";
 
 
 var Audio = (function(){
@@ -407,7 +408,7 @@ var Audio = (function(){
 
                 mediaRecorder.onstop = function(evt) {
                     var blob = new Blob(recordingChunks, { 'type' : 'audio/ogg; codecs=opus' });
-                    saveAs(blob,"recording.opus");
+                    saveFile(blob,"recording.opus");
                     //document.querySelector("audio").src = URL.createObjectURL(blob);
                 };
 

@@ -1,7 +1,7 @@
 //https://github.com/JamesMaroney/dropbox-js - MIT license
 // updates by Steffest
 
-var DropBpx = function () {
+var DropBoxService = function () {
     'use strict';
 
     var toString = ({}).toString;
@@ -158,5 +158,5 @@ var DropBpx = function () {
     return dropbox;
 };
 
-export default DropBpx;
+export default DropBoxService;
 

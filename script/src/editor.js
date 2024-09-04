@@ -8,7 +8,7 @@ import StateManager from "./ui/stateManager.js";
 import Note from "./models/note.js";
 import {audioBufferToWav} from "./lib/audioBufferToWav.js";
 import UI from "./ui/ui.js";
-import Dropbox from "./lib/dropbox.js";
+import Dropbox from "./provider/dropbox.js";
 import Logger from "./log.js";
 import Instrument from "./models/instrument.js";
 import ModalDialog from "./ui/components/modalDialog.js";
@@ -17,6 +17,7 @@ import ProTracker from "./fileformats/protracker.js";
 import BassoonProvider from "./provider/bassoon.js";
 import Playlist from "./models/playlist.js";
 import {detectSampleType} from "./audio/detectSampleType.js";
+import {saveFile} from "./filesystem.js";
 
 
 var Editor = (function(){
@@ -475,7 +476,7 @@ var Editor = (function(){
 				//if (target === "dropbox"){
 				//	Dropbox.putFile("/" + fileName,b);
 				//}else{
-					saveAs(b,fileName);
+					saveFile(b,fileName);
 				//}
 			}else{
 				me.buffer2Sample(renderedBuffer);
@@ -508,7 +509,7 @@ var Editor = (function(){
                 });
             }else{
                 Logger.info("save " + fileName);
-                saveAs(b,fileName);
+                saveFile(b,fileName);
                 UI.setStatus("");
             }
         });

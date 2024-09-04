@@ -16,7 +16,7 @@ import UI from "./ui.js";
 import FetchService from "../fetchService.js";
 import Host from "../host.js";
 import Layout from "./app/layout.js";
-import Dropbox from "../lib/dropbox.js";
+import Dropbox from "../provider/dropbox.js";
 import Playlist from "../models/playlist.js";
 import App from "../app.js";
 import ModArchive from "../provider/modarchive.js";
@@ -542,7 +542,7 @@ let DiskOperations = function(){
 				if (dropBoxList.length){
 					populate(dropBoxList,0);
 				}else{
-					Dropbox.checkConnected(function(isConnected){
+					Dropbox.checkConnected().then(isConnected=>{
 						if (isConnected){
 							Dropbox.list("",function(data){
 								UI.setStatus("");

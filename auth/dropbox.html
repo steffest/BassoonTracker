@@ -1,7 +1,5 @@
 <html>
 <head>
-    <script src="../script/src/lib/dropbox.js"></script>
-    <script src="../script/src/provider/dropbox.js"></script>
     <style>
         body{
             padding: 40px;
@@ -21,9 +19,27 @@
 </div>
 
 <script>
+    function authenticate(){
+        var authRedirect = "https://www.stef.be/bassoontracker/auth/dropbox.html";
+        import("../script/src/lib/dropbox.js").then(module=>{
+            var dropboxService = module.default();
+            dropboxService.clearAccessToken();
+            dropboxService.authenticate({client_id: 'ukk9z4f0nd1xa13',redirect_uri : authRedirect} , {
+                onComplete:function(a){
+                    console.log("ok!");
+                    console.log(a);
+                },
+                onError:function(a){
+                    console.error("not OK!");
+                    console.log(a);
+                }
+            });
+        })
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         if (window.location.hash && window.location.hash.indexOf("access_token")>=0){
-            Dropbox.authenticate();
+           authenticate();
         }else{
             window.location.href = "../"
         }
