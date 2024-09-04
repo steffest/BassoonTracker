@@ -118,6 +118,17 @@ var Playlist = function(){
                     }
                 });
                 break;
+            case "m3u":
+                lines.forEach(function(line){
+                    if (line.startsWith("http")){
+                        let title = line.split("/").pop();
+                        result.modules.push({
+                            title: title,
+                            url: line.trim()
+                        });
+                    }
+                });
+                break;
         }
         return result;
     }
@@ -128,7 +139,12 @@ var Playlist = function(){
             UI.setStatus("Error: No playlist loaded");
             return;
         }
-        let result = format === PLAYLISTTYPE.JSON ? JSON.stringify(currentPlaylist,null,2) : generatePLS();
+        let result = format === PLAYLISTTYPE.JSON
+            ? JSON.stringify(currentPlaylist,null,2)
+            : format === PLAYLISTTYPE.M3U
+                ?generateM3U()
+                :generatePLS();
+
         let blob = new Blob([result], {type: "text/plain;charset=utf-8"});
         filename = filename || me.getFileName();
 
@@ -169,6 +185,22 @@ var Playlist = function(){
         });
         result += "NumberOfEntries=" + (index-1) + "\n";
         result += "Version=2";
+        return result;
+    }
+
+    function generateM3U(){
+        if (!currentPlaylist || !currentPlaylist.modules) return;
+
+        let result = "#EXTM3U\n";
+        currentPlaylist.modules.forEach(function(item){
+            if (!item.url) return;
+            let url = item.url;
+            if (url.indexOf("://")<0){
+                url = new URL(url,window.location.href).href;
+            }
+            result += "#EXTINF:-1," + item.title + "\n";
+            result += url + "\n";
+        });
         return result;
     }
 

@@ -18,7 +18,6 @@ var Main = function(){
 
         //UI.startMeasure();
         UI.init(function(){
-            console.error("UI init done");
             window.focus();
             me.isBrowserSupported = Audio.context && window.requestAnimationFrame;
             if (!me.isBrowserSupported){

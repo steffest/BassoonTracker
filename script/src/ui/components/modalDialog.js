@@ -118,10 +118,15 @@ let modalDialog = function(initialProperties){
 
                 lines.forEach(function(line){
                     var textX = 10;
-                    if (fontFT){
-                        var textLength = fontFT.getTextWidth(line,0);
+                    let font = fontFT;
+                    if (line.startsWith("*")){
+                        line = line.substr(1);
+                        font = fontBig;
+                    }
+                    if (font){
+                        var textLength = font.getTextWidth(line,0);
                         textX = background.left + 10 + Math.floor((maxWidth - textLength)/2);
-                        fontFT.write(me.ctx,line,textX,textY,0);
+                        font.write(me.ctx,line,textX,textY,0);
                     }
                     textY += 12;
                 });

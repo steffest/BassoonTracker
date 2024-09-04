@@ -43,6 +43,7 @@ let DiskOperationSave = function(){
 	];
 	selectTypes[FILETYPE.playlist] = [
 		{label:"PLS",active:true, extention:".pls", fileType: FILETYPE.playlist, fileFormat: PLAYLISTTYPE.PLS},
+		{label:"M3U",active:false, extention:".m3u", fileType: FILETYPE.playlist, fileFormat: PLAYLISTTYPE.M3U},
 		{label:"JSON",active:false, extention:".json", fileType: FILETYPE.playlist, fileFormat: PLAYLISTTYPE.JSON}
 	];
 

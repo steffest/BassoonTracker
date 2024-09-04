@@ -23,9 +23,9 @@ let FileDetector = function(){
 		let id = "";
 		name = name||"";
 
-		if (name.endsWith(".pls")){
-			return fileType.playlist;
-		}
+		if (name.endsWith(".pls"))return fileType.playlist;
+		if (name.endsWith(".m3u"))return fileType.playlist;
+
 
 		if (name.endsWith(".json")){
 			try {

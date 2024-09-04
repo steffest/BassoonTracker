@@ -89,7 +89,7 @@ var App = (function(){
 
                     var version = Host.getVersionNumber();
                     var build = Host.getBuildNumber();
-                    dialog.setText("BassoonTracker//Old School Amiga MOD and XM tracker/in plain javascript//©2017-2024 by Steffest//version " + version + "//Fork me on Github!");
+                    dialog.setText("*BassoonTracker//Old School Amiga MOD and XM tracker/in plain javascript//©2017-2024 by Steffest//version " + version + "//Fork me on Github!");
 
                     UI.setModalElement(dialog);
                     break;

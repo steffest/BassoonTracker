@@ -157,7 +157,6 @@ let MainPanel = function(){
     });
 
     EventBus.on(EVENT.showView,function(view){
-        console.error("MainPanel.showView",view);
         if (Layout.showSideBar){
             switch (view){
                 case "sample":
