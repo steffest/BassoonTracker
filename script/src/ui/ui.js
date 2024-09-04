@@ -60,6 +60,7 @@ var UI = (function(){
 	var prevEventExpired = 0;
 	var maxRenderFps = 60;
 	var fpsCalculated = false;
+	var initDone = false;
 
 	var UICache = {};
 
@@ -396,6 +397,7 @@ var UI = (function(){
 		mainPanel = MainPanel();
 		UI.mainPanel = mainPanel; // TODO FIXME
 		children.push(mainPanel);
+		initDone = true;
 		//if (debug) UI.measure("Generate Main Panel");
 	};
 
@@ -455,6 +457,9 @@ var UI = (function(){
 					modalElement.render();
 					needsRendering = false;
 				}
+
+
+
 
 				if (toolTipElement){
 					// render on top of everything;
@@ -532,6 +537,10 @@ var UI = (function(){
 
 	me.hideTooltip = function(){
 		if (toolTipElement && toolTipElement.isVisible()) toolTipElement.hide();
+	}
+
+	me.hasFloatingElements = function(){
+		return initDone &&  ((toolTipElement && toolTipElement.isVisibleAndNotTransparent()) || mainPanel.hasFloatingElements());
 	}
 
 

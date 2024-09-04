@@ -702,7 +702,7 @@ let app_patternView = function(x,y,w,h){
         }
     };
 
-    me.onClick = function(touchData){
+    me.onDown = function(touchData){
 		var track = Math.floor((touchData.x - Layout.firstTrackOffsetLeft)/(Layout.trackWidth+Layout.trackMargin));
 		var stepsPerTrack = Editor.getStepsPerTrack();
 		Editor.setCurrentCursorPosition((startTrack+track)*stepsPerTrack);
@@ -829,6 +829,7 @@ let app_patternView = function(x,y,w,h){
 		UI.showContextMenu({
 			name: "patternActions",
             focus: false,
+            align: "top",
 			items: [
 				{label: "Clear", onClick: function(){
 						me.processSelection(SELECTION.CLEAR)

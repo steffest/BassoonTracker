@@ -11,6 +11,7 @@ import {EVENT} from "../../enum.js";
 import App_patternView from "../app/components/patternView.js";
 import SampleView from "../sampleView.js";
 import UIElement from "../components/element.js";
+import UI from "../ui.js";
 
 let app_patternPanel = function(){
     var me = App_panelContainer(80);
@@ -36,16 +37,11 @@ let app_patternPanel = function(){
     var visualiser = Visualiser();
     visualiser.connect(Audio.cutOffVolume);
     visualiser.name = "mainAnalyser";
+    UI.visualiser = visualiser;
 
-    //window.visualiser = visualiser;
+    //UI.mainPanel.addChild(visualiser);
     // note: don't attach as child to main panel, this gets attached to main UI
 
-    var scopesClickHandler = UIElement();
-	scopesClickHandler.render = function(){};
-	scopesClickHandler.onClick = function(touchData){
-	    visualiser.onClick(touchData);
-    };
-	me.addChild(scopesClickHandler);
 
     var patternView = App_patternView();
     patternView.setProperties({
@@ -118,13 +114,6 @@ let app_patternPanel = function(){
             width: patternWidth - Layout.firstTrackOffsetLeft,
             height: Layout.analyserHeight
         });
-
-		scopesClickHandler.setDimensions({
-			left: visualiser.left - Layout.mainLeft,
-			top: Layout.infoPanelHeight + 3,
-			width: visualiser.width,
-			height: visualiser.height
-		});
 
         sampleView.setProperties({
             left: 0,

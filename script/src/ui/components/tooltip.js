@@ -148,7 +148,10 @@ let ToolTip = function(x,y,text){
         }else{
             opacity = startOpacity;
         }
+    }
 
+    me.isVisibleAndNotTransparent = function(){
+        return me.isVisible() && opacity>0;
     }
 
     EventBus.on(EVENT.screenRefresh,function(){

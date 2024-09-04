@@ -235,7 +235,14 @@ let visualiser = function(){
         }
 
         //me.parentCtx.drawImage(me.canvas,me.left, me.top);
-        UI.getContext().drawImage(me.canvas,me.left, me.top);
+        if (UI.hasFloatingElements()){
+            // draw on mainpanel so it's not covering floating elements
+            me.parentCtx.drawImage(me.canvas,me.left, me.top);
+            me.parent.refresh();
+        }else{
+            // draw directly on the main canvas for performance
+            UI.getContext().drawImage(me.canvas,me.left, me.top);
+        }
     };
 
     var modeDotsRender = function(){

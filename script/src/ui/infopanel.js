@@ -85,7 +85,7 @@ let InfoPanel = function(){
             items: items,
             width: 120,
             x: me.left + me.parent.left + share.left - 120,
-            y: me.top + me.parent.top + share.top + share.height + 4
+            y: me.top + me.parent.top + share.top
         });
     }
 

@@ -22,6 +22,7 @@ let MainPanel = function(){
 	me.name = "mainPanel";
 
 	var contextMenus = {};
+    var isContextMenuVisible = false;
 
     var menu = App_menu(me);
     me.addChild(menu);
@@ -42,6 +43,10 @@ let MainPanel = function(){
     var pianoPanel = App_pianoView();
     pianoPanel.hide();
     me.addChild(pianoPanel);
+
+    if (UI.visualiser){
+        me.addChild(UI.visualiser);
+    }
 
 	me.createContextMenu = function(properties){
 		var contextMenu = contextMenus[properties.name];
@@ -70,6 +75,10 @@ let MainPanel = function(){
         }
         return contextMenu;
 	};
+
+    me.hasFloatingElements = function(){
+        return isContextMenuVisible;
+    }
 
     me.onResize = function(){
         Layout.setLayout(me.width,me.height);
@@ -168,8 +177,13 @@ let MainPanel = function(){
         var contextMenu = me.createContextMenu(properties);
 		var x = properties.x;
 		if ((x+contextMenu.width)>Layout.mainWidth) x = Layout.mainWidth-contextMenu.width;
-		contextMenu.setPosition(x,properties.y-contextMenu.height-2);
+		if (properties.align === "top"){
+            contextMenu.setPosition(x,properties.y-contextMenu.height-2);
+        }else{
+            contextMenu.setPosition(x,properties.y);
+        }
 		contextMenu.show();
+        isContextMenuVisible = true;
         if (properties.focus){
             Input.setFocusElement(contextMenu);
         }
@@ -180,6 +194,7 @@ let MainPanel = function(){
 	    for (var key in contextMenus){
 			contextMenus[key].hide();
         }
+        isContextMenuVisible = false;
 		me.refresh();
 	});
 
