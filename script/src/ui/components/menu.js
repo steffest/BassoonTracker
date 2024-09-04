@@ -13,7 +13,7 @@ let menu = function(x,y,w,h,submenuParent){
 	me.keepSelection = true;
     var items;
 
-    var properties = ["left","top","width","height","name","type","background","layout"];
+    var properties = ["left","top","width","height","name","type","background","layout","controlParent","title"];
     var background;
     var buttons = [];
     var activeIndex;
@@ -37,7 +37,7 @@ let menu = function(x,y,w,h,submenuParent){
     };
 
     me.onClick = function(data){
-        if (!Host.showInternalMenu) return;
+        if (me.type === "mainmenu" && !Host.showInternalMenu) return;
         var selectedIndex = getItemIndexAtPosition(data.x);
         items.forEach(function(item,index){
             if (index !== selectedIndex && item.subMenu) item.subMenu.hide();
@@ -167,6 +167,25 @@ let menu = function(x,y,w,h,submenuParent){
     }
 
     me.deActivate = function(clickedItem){
+        if (me.type === "context" && me.isVisible()){
+            if (clickedItem){
+                if (me.controlParent && me.controlParent.name === clickedItem.name){
+                    // click on the button that opened the context menu
+                    return;
+                }
+
+                if (clickedItem.type === "context" || clickedItem.parent.type === "context"){
+                    // click within the context menu
+                    return;
+                }
+            }
+            me.hide();
+            me.hide();
+            me.parent.refresh();
+            Input.clearFocusElement();
+            return;
+        }
+
         if (activeIndex>=0){
             var activeItem = items[activeIndex];
             if (activeItem && activeItem.subMenu){
@@ -269,19 +288,37 @@ let menu = function(x,y,w,h,submenuParent){
 			font: window.fontDark,
 			paddingTopActive: 1
 		};
+        var listProperties = {
+            background: Assets.buttonLightScale9,
+            hoverBackground: Assets.buttonLightHoverScale9,
+            textAlign: "left",
+            paddingLeft: 10,
+            font: window.fontMed
+        };
 
 		var buttonX = 3;
 		var buttonY = 3;
+        if (me.title) {
+            let title = Button(3,3,me.width-6,18);
+            title.setProperties({
+                background: Assets.panelDarkGreyScale9,
+                textAlign: "left",
+                font: window.fontMed,
+                paddingLeft: 10,
+                label: me.title
+            });
+            buttons.push(title);
+            me.addChild(title);
+            buttonY += 20;
+        }
         items.forEach(function(item,index){
-
             if (me.layout === "buttons"){
-				var button = Button(buttonX,buttonY,60,18);
+                var button = Button(buttonX,buttonY,60,18);
 				buttonX += 60;
 				if (index === 1){
                     buttonX = 3;
                     buttonY += 18;
                 }
-
 
 				button.setProperties(buttonProperties);
 				button.setLabel(item.label);
@@ -290,6 +327,19 @@ let menu = function(x,y,w,h,submenuParent){
 				};
 				buttons.push(button);
 				me.addChild(button);
+            }
+
+            if (me.layout === "list"){
+                var button = Button(buttonX,buttonY,me.width-6,24);
+                buttonY += 21;
+
+                button.setProperties(listProperties);
+                button.setLabel(item.label);
+                if (item.onClick) button.onClick = function(){
+                    item.onClick();
+                };
+                buttons.push(button);
+                me.addChild(button);
             }
 
             if (item.subItems){

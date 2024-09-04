@@ -828,6 +828,7 @@ let app_patternView = function(x,y,w,h){
 
 		UI.showContextMenu({
 			name: "patternActions",
+            focus: false,
 			items: [
 				{label: "Clear", onClick: function(){
 						me.processSelection(SELECTION.CLEAR)

@@ -1994,7 +1994,7 @@ var Tracker = (function(){
 	};
 
 	me.handleUpload = function(files){
-		console.log("file uploaded");
+		console.log("file received");
 		if (files.length){
 			var file = files[0];
 
@@ -2038,7 +2038,7 @@ var Tracker = (function(){
 					if (UI) UI.setStatus("Extracting Zip file",true);
 					if (typeof UZIP !== "undefined") {
 						// using UZIP: https://github.com/photopea/UZIP.js
-						var myArchive = UZIP.parse(arrayBuffer);
+						var myArchive = UZIP.parse(data);
 						for (let fname in myArchive) {
 							me.processFile(myArchive[fname].buffer, fname, url).then(next)
 							break; // just use first entry
@@ -2054,7 +2054,7 @@ var Tracker = (function(){
 
 						//ArrayBuffer Reader and Write additions: https://github.com/gildas-lormeau/zip.js/issues/21
 
-						zip.createReader(new zip.ArrayBufferReader(arrayBuffer), function(reader) {
+						zip.createReader(new zip.ArrayBufferReader(data), function(reader) {
 							var zipEntry;
 							var size = 0;
 							reader.getEntries(function(entries) {
@@ -2106,7 +2106,6 @@ var Tracker = (function(){
 
 			if (result.type === FILETYPE.playlist){
 				let playlistData = data;
-				console.error(playlistData);
 				if (file) {
 					playlistData = file.toString();
 					if (name.endsWith(".json")){
@@ -2272,6 +2271,7 @@ var Tracker = (function(){
 	};
 
 	me.getFileName = function(){
+		if (!song) return "";
 		return song.filename || (song.title ? song.title.replace(/ /g, '-').replace(/\W/g, '') + ".mod" : "new.mod");
 	};
 

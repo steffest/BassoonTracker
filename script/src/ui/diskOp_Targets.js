@@ -42,6 +42,13 @@ let DiskOperationTargets = function(){
 		{label: "local:" , target: "local"}
 	];
 
+	var targetsPlaylist = [
+		{label: "Bassoon:" , target: "bassoon", active:true},
+		{label: "HippoPlayer:" , target: "hippo"},
+		{label: "Dropbox:" , target: "dropbox"},
+		{label: "local:" , target: "local"}
+	];
+
 	var targetsSave = [
 		{label: "local:" , target: "local", active:true},
         {label: "Dropbox:" , target: "dropbox"}
@@ -51,6 +58,7 @@ let DiskOperationTargets = function(){
 	if (!Host.useDropbox){
 	    removeTarget(targetsModule,"dropbox");
 	    removeTarget(targetsSample,"dropbox");
+	    removeTarget(targetsPlaylist,"dropbox");
 	    removeTarget(targetsSave,"dropbox");
 	}
 	
@@ -79,7 +87,6 @@ let DiskOperationTargets = function(){
 
 
 	me.setLayout = function(){
-
 		var innerWidth = me.width-3;
 
 		if (!UI.mainPanel) return;
@@ -132,6 +139,9 @@ let DiskOperationTargets = function(){
 				}
 				if (target.fileType === FILETYPE.sample){
 					currentLoadTargets = targetsSample;
+				}
+				if (target.fileType === FILETYPE.playlist){
+					currentLoadTargets = targetsPlaylist;
 				}
 
 				selectionTarget.setItems(currentLoadTargets);

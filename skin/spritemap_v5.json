@@ -231,11 +231,32 @@
     "height": 11
   },
   {
-    "name": "sample",
+    "name": "playlist",
     "x": 857,
     "y": 416,
     "width": 12,
     "height": 11
+  },
+  {
+    "name": "playlistfav",
+    "x": 857,
+    "y": 427,
+    "width": 12,
+    "height": 11
+  },
+  {
+    "name": "sample",
+    "x": 857,
+    "y": 446,
+    "width": 12,
+    "height": 11
+  },
+  {
+    "name": "share",
+    "x": 652,
+    "y": 476,
+    "width": 15,
+    "height": 16
   },
   {
     "name": "silver",
@@ -247,7 +268,7 @@
   {
     "name": "xm",
     "x": 857,
-    "y": 427,
+    "y": 457,
     "width": 12,
     "height": 11
   },
@@ -603,15 +624,15 @@
   },
   {
     "name": "radio_big_active",
-    "x": 857,
-    "y": 446,
+    "x": 667,
+    "y": 476,
     "width": 11,
     "height": 11
   },
   {
     "name": "radio_big_inactive",
-    "x": 857,
-    "y": 457,
+    "x": 678,
+    "y": 476,
     "width": 11,
     "height": 11
   },

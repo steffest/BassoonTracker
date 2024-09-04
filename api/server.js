@@ -3,6 +3,7 @@ var url = require('url');
 var modArchive  = require('./modArchive');
 var modArchiveCached  = require('./modArchiveCached');
 var modulesPL  = require('./modulesPL');
+var hippo  = require('./hippo');
 var httpProxy = require('http-proxy');
 var storage = require('./storage');
 var logger = require('./logger');
@@ -153,6 +154,9 @@ var server = http.createServer(function (req, res) {
         case "ma":
             modArchiveCached.handleRequest(action,urlParts,res);
             break;
+		case "hippo":
+			hippo.get(action,urlParts,res);
+			break;
 		case "storage":
 			storage.handleRequest(action,urlParts,req,res);
 			break;

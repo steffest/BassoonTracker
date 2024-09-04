@@ -50,6 +50,10 @@ export function saveFile(b,filename){
 	//-->
 }
 
+export function safeFileDialog(b,filename){
+	//if ()
+}
+
 export function BinaryStream(arrayBuffer, bigEndian){
 	var obj = {
 		index: 0,

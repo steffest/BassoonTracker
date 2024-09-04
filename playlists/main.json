@@ -10,7 +10,8 @@
       "title": "My Favorites",
       "info": "heart heart heart",
       "url": "favorites",
-      "icon": "favbig"
+      "icon": "favbig",
+      "iconsmall": "playlistfav"
     },
     {
       "title": "DemoScene 2024",
@@ -26,6 +27,10 @@
       "title": "DSR 2024",
       "url": "playlist-DSR2024",
       "info": "Tracked Music releases"
+    },
+    {
+      "title": "RAW diskmag",
+      "url": "playlist-raw_diskmag"
     }
   ]
 }

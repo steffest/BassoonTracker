@@ -1,17 +1,25 @@
 import EventBus from "../eventBus.js";
-import {EVENT} from "../enum.js";
+import {COMMAND, EVENT, PLAYLISTTYPE} from "../enum.js";
 import Tracker from "../tracker.js";
+import {saveFile} from "../filesystem.js";
+import Dropbox from "../lib/dropbox.js";
 
 var Playlist = function(){
     var me = {};
     var currentPlaylist;
     var playListActive = false;
-    var currentIndex;
+    var currentIndex = 0;
     var playOrder = [];
 
     me.set = function(data){
         currentPlaylist = data;
         setPlayOrder();
+
+        let currentSong = Tracker.getSong();
+        if (!currentSong && currentPlaylist.modules.length){
+            console.log("No song loaded, starting playlist");
+            me.next();
+        }
         EventBus.trigger(EVENT.playListLoaded,currentPlaylist);
     }
 
@@ -85,7 +93,9 @@ var Playlist = function(){
                     var url;
                     var title;
                     if (line.startsWith("File")){
-                        url = line.split("=")[1].trim();
+                        console.log(line);
+                        let i = line.indexOf("=");
+                        url = line.substring(i+1).trim();
                         var index = line.substring(4).split("=")[0].trim();
                         let titleLine = lines.find(function(line){
                             return line.startsWith("Title" + index);
@@ -112,9 +122,54 @@ var Playlist = function(){
         return result;
     }
 
+    me.export = function(filename,format,target){
+
+        if (!currentPlaylist || !currentPlaylist.modules){
+            UI.setStatus("Error: No playlist loaded");
+            return;
+        }
+        let result = format === PLAYLISTTYPE.JSON ? JSON.stringify(currentPlaylist,null,2) : generatePLS();
+        let blob = new Blob([result], {type: "text/plain;charset=utf-8"});
+        filename = filename || me.getFileName();
+
+        if (target === "dropbox"){
+            Dropbox.putFile("/" + filename,b);
+        }else{
+            saveFile(blob,filename);
+        }
+
+        return result;
+    }
+
     me.toggleShuffle = function(){
         me.isShuffle = !me.isShuffle;
         setPlayOrder();
+    }
+
+    me.getFileName = function(){
+        let filename = currentPlaylist.title + ".pls";
+        filename = filename.replaceAll(" ","_").toLowerCase();
+        return filename;
+    }
+
+    function generatePLS(){
+        if (!currentPlaylist || !currentPlaylist.modules) return;
+
+        let result = "[playlist]\n";
+        let index = 1;
+        currentPlaylist.modules.forEach(function(item){
+            if (!item.url) return;
+            let url = item.url;
+            if (url.indexOf("://")<0){
+                url = new URL(url,window.location.href).href;
+            }
+            result += "File" + index + "=" + url + "\n";
+            result += "Title" + index + "=" + item.title + "\n";
+            index++;
+        });
+        result += "NumberOfEntries=" + (index-1) + "\n";
+        result += "Version=2";
+        return result;
     }
 
     function moveIndex(offset){
@@ -163,6 +218,9 @@ var Playlist = function(){
             },delay);
         }
     });
+
+    EventBus.on(COMMAND.exportPlaylist,me.export);
+
 
 
     return me;

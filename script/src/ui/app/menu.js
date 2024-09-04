@@ -28,14 +28,16 @@ let app_menu = function(container){
 
     var menu = Menu(5,0,me.width,26,container);
     menu.name = "MainMenu";
+    menu.type = "mainmenu";
     me.addChild(menu);
     menu.setItems([
         {label: "File" , subItems: [
                 {label: "New" , "command" : COMMAND.newFile},
-                {label: "Load Module" , "command" : COMMAND.openFile},
-                {label: "Save Module" , "command" : COMMAND.saveFile},
+                {label: "Load File" , "command" : COMMAND.openFile},
+                {label: "Save File" , "command" : COMMAND.saveFile},
                 {label: "Open Random MOD Song" , "command" : COMMAND.randomSong},
                 {label: "Open Random XM Song" , "command" : COMMAND.randomSongXM},
+                {label: "Open Random Playlist" , "command" : COMMAND.randomPlayList},
             ]},
         {label: "Edit", subItems: [
                 {label: function(){return StateManager.getUndoLabel()} , "command" : COMMAND.undo, disabled: function(){return !StateManager.canUndo()}},

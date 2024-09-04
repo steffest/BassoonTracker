@@ -4,7 +4,7 @@ import Button from "../ui/components/button.js";
 import Inputbox from "../ui/components/inputbox.js";
 import RadioGroup from "../ui/components/radiogroup.js";
 import Assets from "../ui/assets.js";
-import {EVENT, FILETYPE, MODULETYPE, SAMPLETYPE} from "../enum.js";
+import {EVENT, FILETYPE, MODULETYPE, SAMPLETYPE, PLAYLISTTYPE} from "../enum.js";
 import EventBus from "../eventBus.js";
 import Tracker from "../tracker.js";
 import Editor from "../editor.js";
@@ -12,6 +12,7 @@ import BassoonProvider from "../provider/bassoon.js";
 import {encodeRIFFsample} from "../audio/riffWave.js";
 import Dropbox from "../lib/dropbox.js";
 import {BinaryStream} from "../filesystem.js";
+import Playlist from "../models/playlist.js";
 
 
 let DiskOperationSave = function(){
@@ -39,6 +40,10 @@ let DiskOperationSave = function(){
 		{label:"wav 8 bit",active:true, extention:".wav", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RIFF_8BIT},
 		{label:"RAW 8 bit",active:false, extention:".sample", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RAW_8BIT}
 	];
+	selectTypes[FILETYPE.playlist] = [
+		{label:"PLS",active:true, extention:".pls", fileType: FILETYPE.playlist, fileFormat: PLAYLISTTYPE.PLS},
+		{label:"JSON",active:false, extention:".json", fileType: FILETYPE.playlist, fileFormat: PLAYLISTTYPE.JSON}
+	];
 
 	var selectionType = RadioGroup();
 	selectionType.setProperties({
@@ -64,21 +69,19 @@ let DiskOperationSave = function(){
 		font:window.fontMed
 	});
 	saveButton.onClick = function(){
-		if (mainFileType == FILETYPE.module){
-			if (saveAsFileType == FILETYPE.module){
+		if (mainFileType === FILETYPE.module){
+			if (saveAsFileType === FILETYPE.module){
 				Editor.save(fileName,saveTarget);
 			}
-			if (saveAsFileType == FILETYPE.sample){
+			if (saveAsFileType === FILETYPE.sample){
 				//Editor.renderTrackToBuffer(fileName,saveTarget);
 				BassoonProvider.renderFile(fileName,saveAsFileFormat === SAMPLETYPE.MP3);
 			}
 		}
-		if (mainFileType == FILETYPE.sample){
+		if (mainFileType === FILETYPE.sample){
 			var sample = Tracker.getCurrentInstrument().sample;
 
 			if (sample){
-
-				console.error(saveAsFileFormat);
 
 				if (saveAsFileFormat === SAMPLETYPE.RAW_8BIT){
                     var fileSize = sample.length; // x2 ?
@@ -107,9 +110,12 @@ let DiskOperationSave = function(){
 					saveAs(b,fileName);
 				}
 
-                console.error("write sample with " + sample.length + " length");
+                console.log("write sample with " + sample.length + " length");
 
 			}
+		}
+		if (mainFileType === FILETYPE.playlist){
+			Playlist.export(fileName,saveAsFileFormat,saveTarget);
 		}
 
 	};
@@ -191,11 +197,14 @@ let DiskOperationSave = function(){
 		if (item && item.fileType){
 
 			mainFileType = item.fileType;
-			if (mainFileType == FILETYPE.sample) {
+			if (mainFileType === FILETYPE.sample) {
 				fileName = Tracker.getCurrentInstrument().name.replace(/ /g, '-').replace(/\W/g, '');
 			}
-			if (mainFileType == FILETYPE.module) {
+			if (mainFileType === FILETYPE.module) {
 				fileName = Tracker.getFileName();
+			}
+			if (mainFileType === FILETYPE.playlist) {
+				fileName = Playlist.getFileName();
 			}
 
 			if (selectTypes[mainFileType]){

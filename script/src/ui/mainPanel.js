@@ -11,6 +11,7 @@ import EventBus from "../eventBus.js";
 import {EVENT} from "../enum.js";
 import UI from "./ui.js";
 import Assets from "./assets.js";
+import Input from "./input.js";
 
 let MainPanel = function(){
     let canvas = UI.getCanvas();
@@ -45,11 +46,21 @@ let MainPanel = function(){
 	me.createContextMenu = function(properties){
 		var contextMenu = contextMenus[properties.name];
 		if (!contextMenu){
-			contextMenu = Menu(100,100,128,42,me);
+            let w  = properties.width || 128;
+            let h = 42;
+            if (properties.layout === "list"){
+                h = properties.items.length*23;
+            }
+            if (properties.title) h+= 20;
+			contextMenu = Menu(100,100,w,h,me);
+            contextMenu.name = properties.name;
 			contextMenu.zIndex = 100;
 			contextMenu.setProperties({
 				background: Assets.panelMainScale9,
-				layout: "buttons"
+				layout: properties.layout || "buttons",
+                type: "context",
+                controlParent: properties.parent,
+                title: properties.title
 			});
 			contextMenu.setItems(properties.items);
 			contextMenu.hide();
@@ -154,11 +165,14 @@ let MainPanel = function(){
     });
 
 	EventBus.on(EVENT.showContextMenu,function(properties){
-	    var contextMenu = me.createContextMenu(properties);
+        var contextMenu = me.createContextMenu(properties);
 		var x = properties.x;
 		if ((x+contextMenu.width)>Layout.mainWidth) x = Layout.mainWidth-contextMenu.width;
 		contextMenu.setPosition(x,properties.y-contextMenu.height-2);
 		contextMenu.show();
+        if (properties.focus){
+            Input.setFocusElement(contextMenu);
+        }
 		me.refresh();
 	});
 

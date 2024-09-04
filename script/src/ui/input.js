@@ -113,7 +113,7 @@ let Input = (function(){
 				}else{
 					currentEventTarget = UI.getEventElement(x,y);
 				}
-				
+
 				if (currentEventTarget && focusElement && focusElement.deActivate && focusElement.name !== currentEventTarget.name){
 					focusElement.deActivate(currentEventTarget);
 				}

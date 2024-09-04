@@ -21,10 +21,12 @@ import Playlist from "../models/playlist.js";
 import App from "../app.js";
 import ModArchive from "../provider/modarchive.js";
 import ModulesPl from "../provider/modulespl.js";
+import Hippo from "../provider/hippo.js";
+import Editor from "../editor.js";
 
 let DiskOperations = function(){
 
-	var me = Panel();
+	var me = Panel(0,0,20,20);
 	me.hide();
 
 	var currentAction = "load";
@@ -34,9 +36,11 @@ let DiskOperations = function(){
 
 	var modules = [];
 	var samples = [];
+	var playlists = [];
 	var modArchive = [];
 	var modulesPl = [];
 	var dropBoxList = [];
+	var playlistSelectedIndex = 0;
 	var sampleSelectedIndex = 0;
 	var moduleSelectedIndex = 0;
 	var onLoadChildren = function(){};
@@ -305,6 +309,9 @@ let DiskOperations = function(){
                 var icon;
                 if (item.icon) icon = Y.getImage(item.icon);
 				if (!icon) icon = currentView === "modules" ? Y.getImage("module") : Y.getImage("sample");
+				if (currentView === "playlists"){
+					icon = Y.getImage(item.iconsmall||"playlist");
+				}
 				if (item.children) icon = Y.getImage("disk");
 				items.push({label: item.title, data: item, level: level, index: index, icon: icon, info: item.info});
 				itemsMap[index] = item;
@@ -605,9 +612,50 @@ let DiskOperations = function(){
 					})
 				}
 				break;
+			case "playlists":
+				itemHandler = false;
+				label.setLabel("Load Playlist");
+				listbox.onClick = function(e){
+					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
+					listbox.setSelectedIndex(index);
+					Tracker.load(Editor.unpackUrl(item.data.url));
+					App.doCommand(COMMAND.showTopMain);
+				};
+
+				if (playlists.length){
+					populate(playlists,playlistSelectedIndex);
+				}else{
+					FetchService.json(Host.getBaseUrl() + "playlists/main.json",function(data){
+						if (data && data.modules){
+							playlists = data.modules;
+							populate(playlists,playlistSelectedIndex);
+						}
+					})
+				}
+				break;
+			case "hippo":
+				itemHandler = false;
+				label.setLabel("Hippo Playlists");
+				listbox.onClick = function(e){
+					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
+					listbox.setSelectedIndex(index);
+					Hippo.get("playlist/" + item.data.url,function(data){
+						console.log(data);
+						Playlist.set(data);
+						App.doCommand(COMMAND.showTopMain);
+					});
+					//Tracker.load(Editor.unpackUrl(item.data.url));
+				};
+
+				listbox.setItems([{label: "loading ..."}]);
+
+				Hippo.get("playlists",function(data){
+					populate(data,0);
+				});
+				break;
 			case "local":
 				itemHandler = false;
-				label.setLabel("Upload files");
+				label.setLabel("Open Local files");
 				break;
 		}
 
@@ -699,6 +747,7 @@ let DiskOperations = function(){
         if (target && target.fileType){
             if (target.fileType === FILETYPE.module) target = "modules";
             if (target.fileType === FILETYPE.sample) target = "samples";
+            if (target.fileType === FILETYPE.playlist) target = "playlists";
         }
         if (typeof target === "undefined") target = targetPanel.getTarget();
 
@@ -710,6 +759,7 @@ let DiskOperations = function(){
 
             var labelText = "Export Module";
             if (currentView === "samples")  labelText = "Export Sample";
+            if (currentView === "playlists")  labelText = "Export Playlist";
             label.setLabel(labelText);
 
             if (loadButton.isActive) loadButton.setActive(false);

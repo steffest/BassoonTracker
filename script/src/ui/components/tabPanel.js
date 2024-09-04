@@ -149,7 +149,7 @@ let tabPanel = function(x,y,w,h,config){
         tabButton.onHoverExit= function(){
             if (tabButton.opacity<1) tabButton.setProperties({opacity:0.5});
         }
-        tabButton.onClick = function(){
+        tabButton.onDown = function(){
             tabButtons.forEach(function(elm){
                 elm.setProperties({opacity:0.5});
                 if (elm.panel) elm.panel.hide();
@@ -176,7 +176,7 @@ let tabPanel = function(x,y,w,h,config){
     me.setTab = function(index){
         var button = tabButtons[index];
         if (button){
-            button.onClick();
+            button.onDown();
         }
     }
 

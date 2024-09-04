@@ -249,7 +249,7 @@ let pattern_sidebar = function(){
             ["iprev",COMMAND.playPrevious,"Play Previous song in playlist"],
             ["iplay",COMMAND.play, "Toggle Play [Enter]"],
             ["inext",COMMAND.playNext, "Play Next song in playlist"],
-            ["ishuffle",COMMAND.toggleShuffle, "Toggle Shuffle",true],
+            ["ishuffle",COMMAND.toggleShuffle, "Toggle Shuffle",true]
         ]
 
         let buttons2 = [

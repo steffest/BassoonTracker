@@ -35,7 +35,8 @@ let DiskOperationType = function(){
 	});
 	selectionType.setItems([
 		{label:"module",active:true, fileType: FILETYPE.module},
-		{label:"sample",active:false, fileType: FILETYPE.sample}
+		{label:"sample",active:false, fileType: FILETYPE.sample},
+		{label:"playlist",active:false, fileType: FILETYPE.playlist}
 		//{label:"pattern",active:false, fileType: FILETYPE.pattern}
 	]);
 	selectionType.onChange = function(selectedIndex){
@@ -46,12 +47,7 @@ let DiskOperationType = function(){
 	me.setLayout = function(){
 
 		var innerWidth = me.width-2;
-		var innerHeight = 70;
-
-		if (me.height<100){
-			innerHeight = me.height - 20;
-		}
-
+		var innerHeight = me.height - 20;
 
 		if (!UI.mainPanel) return;
 		me.clearCanvas();
@@ -92,7 +88,7 @@ let DiskOperationType = function(){
 		var index = selectionType.getSelectedIndex();
 		var result = "modules";
 		if (index == 1) result = "samples";
-		if (index == 2) result = "patterns";
+		if (index == 2) result = "playlists";
 		return result;
 	};
 

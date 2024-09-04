@@ -2,12 +2,15 @@ import UIElement from "./components/element.js";
 import Assets from "./assets.js";
 import Layout from "./app/layout.js";
 import EventBus from "../eventBus.js";
-import {EVENT} from "../enum.js";
+import {EVENT, SELECTION} from "../enum.js";
 import Animsprite from "./components/animsprite.js";
 import Y from "./yascal/yascal.js";
 import Button from "./components/button.js";
 import Tracker from "../tracker.js";
 import Favorites from "../models/favorites.js";
+import UI from "./ui.js";
+import ShareService from "../service/shareService.js";
+import Input from "./input.js";
 
 let InfoPanel = function(){
 
@@ -17,6 +20,7 @@ let InfoPanel = function(){
     var status = "";
     var moreInfoUrl;
     let canFavorite = false;
+    let canShare = false;
 
     var infoButton = Assets.generate("buttonDark");
     infoButton.setLabel("More info ");
@@ -38,13 +42,67 @@ let InfoPanel = function(){
     me.addChild(fav);
 
 
+    var share = Button(400,6,20,20);
+    share.setProperties({
+        name:"share",
+        image: Y.getImage("share"),
+        activeImage: Y.getImage("heart_active"),
+        opacity: 0.4,
+        hoverOpacity: 1
+    });
+    share.tooltip = "Share this Song";
+    share.onDown = toggleShareMenu;
+    me.addChild(share);
+
+
     var spinner = Animsprite(5,7,20,18,"boing",11);
     me.addChild(spinner);
     spinner.hide();
 
+    function toggleShareMenu(){
+
+        let focusElement = Input.getFocusElement();
+        if (focusElement && focusElement.name === "ShareMenu"){
+            hideShareMenu();
+            return;
+        }
+
+        let items = [
+            {label: "Facebook", onClick: ()=>handleShare("facebook")},
+            {label: "X", onClick: ()=>handleShare("x")},
+            {label: "Copy URL", onClick: ()=>handleShare("copy")}
+        ]
+        if (ShareService.canShareNative()){
+            items.push({label: "More...", onClick: ()=>handleShare("native")});
+        }
+
+        UI.showContextMenu({
+            name: "ShareMenu",
+            title: "Share on",
+            focus: true,
+            layout: "list",
+            parent: share,
+            items: items,
+            width: 120,
+            x: me.left + me.parent.left + share.left - 120,
+            y: me.top + me.parent.top + share.top + share.height + 4
+        });
+    }
+
+    function hideShareMenu(){
+        UI.hideContextMenu();
+        Input.clearFocusElement();
+    }
+
+    function handleShare(target){
+        hideShareMenu();
+        ShareService.share(target,"mod");
+    }
+
     function setFavorite(){
         let url = Tracker.getCurrentUrl();
         canFavorite = !!url;
+        canShare = canFavorite;
         if (canFavorite){
             let isFavorite = Favorites.isFavorite(url);
             fav.setActive(isFavorite);
@@ -106,6 +164,10 @@ let InfoPanel = function(){
             left: moreInfoUrl ? Layout.col5X- me.left - 22 : Layout.col5W - me.left - 22,
         });
 
+        share.setProperties({
+            left: fav.left - 22,
+        });
+
     };
 
 
@@ -119,6 +181,7 @@ let InfoPanel = function(){
 
             if (moreInfoUrl) infoButton.render();
             if (canFavorite) fav.render();
+            if (canShare) share.render();
 
             var fText = text;
             if (status) fText = status + ": " + fText;

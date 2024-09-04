@@ -114,6 +114,7 @@ export var COMMAND = {
 	playPrevious: 1032,
 	toggleShuffle: 1033,
 	randomPlayList: 1034,
+	exportPlaylist: 1035,
 };
 
 export var PLAYTYPE = {
@@ -148,6 +149,12 @@ export var SAMPLETYPE = {
 	OGG: 9,
 	OPUS: 10
 };
+
+export var PLAYLISTTYPE = {
+	PLS: 1,
+	M3U: 2,
+	JSON: 3
+}
 
 export var STEREOSEPARATION = {
 	FULL: 1,
