@@ -57,7 +57,7 @@
 
         #content{
             padding: 30px 30px 30px 250px;
-            min-height: 200px;
+            min-height: 280px;
             line-height: 130%;
         }
 
@@ -167,10 +167,12 @@
         <a href="?tracker">What is a tracker?</a>
         <a href="?keyboard_commands">Keyboard commands</a>
         <a href="?tracker_commands">Tracker commands</a>
+        <a href="?playlists">Playlists</a>
         <a href="?history">History</a>
         <a href="?player">Standalone player</a>
         <a href="?urlparams">URL parameters</a>
         <a href="?faq">FAQ</a>
+        <a href="?contact">Contact</a>
     </div>
     <div id="content" class="panel">
 
@@ -196,7 +198,8 @@
 				}else{
 					content.innerHTML = xhr.responseText;
 					currentPage = url;
-					window.location.hash = url;
+					//window.location.hash = url;
+                    history.pushState({}, null, window.location.pathname + "?" + url);
 				}
 			}
 		};
@@ -227,7 +230,27 @@
         }
     };
 
-    loadPage(window.location.hash ? window.location.hash.substr(1) : "about");
+    var targetPage = "about";
+    if (window.location.search){
+       let s = window.location.search.substr(1);
+       if (s){
+           targetPage = s;
+           if (s.indexOf("=") > 0){
+               targetPage = s.split("=")[1].split("&")[0];
+           }
+           history.pushState({}, null, window.location.pathname);
+       }
+    }
+    if (window.location.hash) targetPage = window.location.hash.substr(1);
+
+    loadPage(targetPage);
+    if (targetPage !== "about"){
+        menu.querySelectorAll("a").forEach(function(a){
+            a.classList.remove("active");
+        });
+        let active = menu.querySelector("a[href='?"+targetPage+"']");
+        if (active) active.classList.add("active");
+    }
 
 </script>
 
