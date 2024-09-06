@@ -1,19 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BassoonTracker - Amiga music tracker - by Steffest</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width user-scalable=no">
-    <meta name="author" content="Steffest">
-
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
 
     <style>
         html,body{
             height: 100%;
             overflow: hidden;
-            cursor: url(skin/cursor_amiga.cur),default;
         }
         body{
             background-color: black;
@@ -24,10 +16,12 @@
         canvas{
             margin: auto;
             display: block;
+            cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAMAAADzapwJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjMzMjE5MTBBNkJENDExRTg5OTkyRDA3Njg4MTYwMUQ5IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjMzMjE5MTBCNkJENDExRTg5OTkyRDA3Njg4MTYwMUQ5Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzMyMTkxMDg2QkQ0MTFFODk5OTJEMDc2ODgxNjAxRDkiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzMyMTkxMDk2QkQ0MTFFODk5OTJEMDc2ODgxNjAxRDkiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz56Mwk0AAAADFBMVEXeICH///8AAAAAAABbVXbAAAAABHRSTlP///8AQCqp9AAAAEhJREFUeNqUz0EKACAIRFHL+985wtKpGMxZtHgfoqTD1CeUmy8CZ1mrMGLOlbvtjMBY1b59Bs57GHLG8MMWnksoz3A9EHkIMACNUwPV+QXmtwAAAABJRU5ErkJggg==) 1 2, auto;
         }
         canvas:focus {
             outline:none;
         }
+
         .message{
             font-family: sans-serif;
             position: absolute;
@@ -44,47 +38,31 @@
         .message a{
             color: white;
         }
+
+        .message button{
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
     </style>
 
-    <script>var buildNumber = "0.4.3-build20240712.0755"; var versionNumber = "0.4.3";</script>
-    <script src="script/bassoontracker-min.js?v0.4.3-build20240712.0755"></script>
+    <title>BassoonTracker - Amiga music tracker</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width user-scalable=no">
+
+    <link rel="manifest" href="./build/manifest-DlP27BoI.json">
+    <meta name="mobile-web-app-capable" content="yes">
 
     <script>
-		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-		ga('create', 'UA-2499735-7', 'auto');
-		ga('send', 'pageview');
-
-		// force HTTPS - it is needed for the Dropbox integration
-        if (document.location.href.indexOf("stef.be")>0 && document.location.href.indexOf("https:")<0){
-            document.location.href = document.location.href.replace("http:","https:");
-        }
-
-        if (document.location.href.indexOf("updateversion")<0){
-            if (window.XMLHttpRequest) {
-                var req = new XMLHttpRequest();
-                req.onreadystatechange = function() {
-                    if (this.readyState === 4 && this.status === 200) {
-                        var version = this.responseText;
-                        if (version != versionNumber){
-                            console.log("update available");
-                            var char = document.location.href.indexOf("?") > 0 ? "&" : "?";
-                            document.location.href = document.location.href + char + "updateversion=" + version;
-                        }
-                    }
-                };
-                req.open("GET", "version.txt?r=" + new Date().getTime(), true);
-                req.send();
-            }
-        }
-
+        window.versionNumber = '0.5.0';
+        window.buildNumber = '0.5.0_20240906_07067944';
     </script>
+
+
+  <script type="module" crossorigin src="./build/main-iCLpjixR.js?v=0.5.0_20240906_07067944"></script>
 </head>
 <body>
 
-<canvas id="canvas" tabindex='1' moz-opaque></canvas>
+<canvas id="canvas" tabindex='1'></canvas>
+
 </body>
 </html>

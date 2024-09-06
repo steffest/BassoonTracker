@@ -10,7 +10,7 @@ const copyIndexHtmlPlugin = () => {
         apply: 'build',
         writeBundle() {
             const srcPath = resolve(__dirname, "./build/dev.html");
-            const destPath = resolve(__dirname, "./index2.html");
+            const destPath = resolve(__dirname, "./index.html");
             let content = fs.readFileSync(srcPath, 'utf-8');
             content = content.replaceAll('./ma', './build/ma');
 
