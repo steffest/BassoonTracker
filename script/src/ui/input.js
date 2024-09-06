@@ -291,6 +291,7 @@ let Input = (function(){
 
 			var keyCode = event.keyCode;
 			var key = event.code || event.key;
+			var keyChar = event.key;
 
 			var meta={
 				shift: event.shiftKey,
@@ -360,7 +361,7 @@ let Input = (function(){
                 case "Space":
                     Tracker.toggleRecord();
                     return;
-                case 33:// pageup
+                case "PageUp":
                     var step = Math.floor(Tracker.getPatternLength()/4);
                     if (step === 0) step = 1;
                     var pos = Math.floor(Tracker.getCurrentPatternPos()/step) * step;
@@ -368,7 +369,7 @@ let Input = (function(){
                     if (pos<0) pos=0;
                     Tracker.setCurrentPatternPos(pos);
                     return;
-                case 34:// pagedown
+                case "PageDown":
                     step = Math.floor(Tracker.getPatternLength()/4);
                     if (step === 0) step = 1;
                     pos = Math.ceil(Tracker.getCurrentPatternPos()/step) * step;
@@ -376,10 +377,10 @@ let Input = (function(){
                     if (pos>=Tracker.getPatternLength()-1) pos=Tracker.getPatternLength()-1;
                     Tracker.setCurrentPatternPos(pos);
                     return;
-                case 35:// end
+                case "End":
                     Tracker.setCurrentPatternPos(Tracker.getPatternLength()-1);
                     return;
-                case 36:// home
+                case "Home":
                     Tracker.setCurrentPatternPos(0);
                     return;
                 case "ArrowLeft":
@@ -405,16 +406,16 @@ let Input = (function(){
                         Tracker.moveCurrentPatternPos(1);
                     }
                     return;
-				case 96: // Numeric keypad
-				case 97:
-				case 98:
-				case 99:
-				case 100:
-				case 101:
-				case 102:
-				case 103:
-				case 104:
-				case 105:
+				case "Numpad1": // Numeric keypad
+				case "Numpad2":
+				case "Numpad3":
+				case "Numpad4":
+				case "Numpad5":
+				case "Numpad6":
+				case "Numpad7":
+				case "Numpad8":
+				case "Numpad9":
+				case "Numpad10":
 					if (!Tracker.isRecording()){
 						var index = keyCode-96;
 						if (index<1) index+=10;
@@ -422,10 +423,10 @@ let Input = (function(){
 						return;
 					}
 					break;
-				case 107: // Numeric pad +
+				case "NumpadAdd":
 					Tracker.setCurrentInstrumentIndex(Tracker.getCurrentInstrumentIndex()+1);
 					return;
-				case 109: // Numeric pad -
+				case "NumpadSubtract":
 					var index = Tracker.getCurrentInstrumentIndex();
 					if (index>1){
 						Tracker.setCurrentInstrumentIndex(index-1);
@@ -505,14 +506,13 @@ let Input = (function(){
 
                 var index = -1;
 				var keyboardNote = keyboardTable[key];
-				console.log(keyboardNote,key,keyboardTable);
 
 				if (typeof keyboardNote === "number"){
 					index = (currentOctave*12) + keyboardNote;
 					if (keyboardNote === 0) index = 0;
 				}
 
-				me.handleNoteOn(index,key);
+				me.handleNoteOn(index,key,undefined,undefined,keyChar);
 			}
 
 		}
@@ -699,7 +699,7 @@ let Input = (function(){
 	};
 
 	// handles the input for an indexed note
-	me.handleNoteOn = function(index,key,offset,volume){
+	me.handleNoteOn = function(index,key,offset,volume, keyChar){
 
         var note;
         var doPlay = true;
@@ -744,26 +744,28 @@ let Input = (function(){
 
         if (Tracker.isRecording()){
             if (Editor.getCurrentTrackPosition() > 0){
+				console.error(key);
+				console.error(keyChar);
                 // cursorPosition is not on note
                 doPlay = false;
                 var re = /[0-9A-Fa-f]/g;
                 var value = -1;
-                key = key||"";
+				keyChar = keyChar||"";
 
-                if (re.test(key)){
-                    value = parseInt(key,16);
+                if (re.test(keyChar)){
+                    value = parseInt(keyChar,16);
                 }else{
                     if (Tracker.inFTMode() && Editor.getCurrentTrackPosition() === 5){
                         // Special Fasttracker commands // should we allow all keys ?
                         re = /[0-9A-Za-z]/g;
-                        if (re.test(key)) value = parseInt(key,36);
+                        if (re.test(keyChar)) value = parseInt(keyChar,36);
                     }
                 }
 
 				if (Tracker.inFTMode() && Editor.getCurrentTrackPosition() === 3){
 					// Special Fasttracker volume commands
 					value = -1;
-					switch (key) {
+					switch (keyChar) {
 						case "0": value=0; break;
 						case "1": value=1; break;
 						case "2": value=2; break;
