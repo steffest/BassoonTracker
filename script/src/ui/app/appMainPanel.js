@@ -12,12 +12,14 @@ import DiskOperations from "../diskOperations.js";
 import OptionsPanel from "../optionsPanel.js";
 import Layout from "./layout.js";
 import EventBus from "../../eventBus.js";
-import {EVENT, TRACKERMODE} from "../../enum.js";
+import {COMMAND, EVENT, TRACKERMODE} from "../../enum.js";
 import Tracker from "../../tracker.js";
 import Input from "../input.js";
 import Editor from "../../editor.js";
 import RadioGroup from "../components/radiogroup.js";
 import Panel from "../components/panel.js";
+import App from "../../app.js";
+import Image from "../components/image.js";
 
 let app_mainPanel = function(){
     var me = App_panelContainer(160);
@@ -54,6 +56,9 @@ let app_mainPanel = function(){
 	};
     me.addChild(logo);
 
+	var corner = Image(1,1,22,19,"togglecorner");
+	me.addChild(corner);
+
     var tracker = Button();
     tracker.setProperties({
         background: Assets.panelInsetScale9,
@@ -65,7 +70,6 @@ let app_mainPanel = function(){
         tracker.toggleActive();
     };
     me.addChild(tracker);
-
 
     var modNameInputBox = Inputbox({
         name: "modName",

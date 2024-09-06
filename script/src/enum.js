@@ -72,11 +72,12 @@ export var EVENT = {
 	commandProcessSample: 57,
 	pluginRenderHook: 58,
 	menuLayoutChanged: 59,
-	midiIn: 60,
-	playListLoaded: 61,
-	playListIndexChanged: 62,
-	toggleFavorite: 63,
-	favoritesUpdated: 64,
+	appLayoutChanged: 60,
+	midiIn: 61,
+	playListLoaded: 62,
+	playListIndexChanged: 63,
+	toggleFavorite: 64,
+	favoritesUpdated: 65,
 };
 
 export var COMMAND = {
@@ -104,7 +105,7 @@ export var COMMAND = {
 	copy: 1022,
 	paste: 1023,
 	pattern2Sample: 1024,
-	toggleAppSideBar: 1025,
+	toggleSideBar: 1025,
 	undo: 1026,
 	redo: 1027,
 	nibbles: 1028,
@@ -115,6 +116,7 @@ export var COMMAND = {
 	toggleShuffle: 1033,
 	randomPlayList: 1034,
 	exportPlaylist: 1035,
+	toggleAppPanel: 1036,
 };
 
 export var PLAYTYPE = {

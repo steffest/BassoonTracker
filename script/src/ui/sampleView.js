@@ -66,6 +66,7 @@ let SampleView = function(){
 
 	bit8Button.setProperties(buttonProperties);
 	bit8Button.setLabel("8");
+	bit8Button.tooltip = "store as 8bit sample";
 	bit8Button.setActive(true);
 	bit8Button.onDown = function(){
 		changeSampleBit(8);
@@ -73,6 +74,7 @@ let SampleView = function(){
 	me.addChild(bit8Button);
 	bit16Button.setProperties(buttonProperties);
 	bit16Button.setLabel("16");
+	bit16Button.tooltip = "store as 16bit sample";
 	bit16Button.onDown = function(){
 		changeSampleBit(16);
 	};
@@ -533,6 +535,7 @@ let SampleView = function(){
         label: "Vibrato",
         font: fontSmall,
         paddingTop: 2,
+		paddingLeft: 5,
         paddingTopActive: 2
     });
     vibratoTitleBar.onDown = function(){

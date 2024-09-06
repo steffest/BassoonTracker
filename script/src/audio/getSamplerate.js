@@ -8,6 +8,9 @@
 	and always resamples to audio device sample rate
 	https://stackoverflow.com/questions/51252732/javascript-getchanneldata-some-out-of-bounds
 */
+
+import Audio from "../audio.js";
+
 export function getSamplerate(file,ext) {
 	var ret = {}; // return object
 	var sbuf8 = new Uint8Array(file.buffer);

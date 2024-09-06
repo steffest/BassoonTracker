@@ -11,6 +11,8 @@ let Layout = function(){
   me.minheight = 200;
   me.defaultMargin =  4;
 
+  me.hasSideBar = true;
+
   me.setLayout = function(w,h){
   	
   	  me.width = w || me.width;
@@ -126,7 +128,8 @@ let Layout = function(){
 
 	  var margins = me.defaultMargin*(me.visibleTracks-1);
 
-	  me.showSideBar = me.visibleTracks<17 && mainWidth>620;
+	  me.canShowSideBar = me.visibleTracks<17 && mainWidth>620;
+	  me.showSideBar = me.canShowSideBar && me.hasSideBar;
 
 
 	  var totalWidth = me.showSideBar ? me.col4W:me.col5W;

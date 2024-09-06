@@ -31,15 +31,27 @@ If you want to share a song that you've created yourself, you will have to put i
 <a href="https://modarchive.org/" target="_blank">ModArchive</a>)<br>
 You can then create a shareable link to your song by using the url in the "file" parameter. (<a href="https://www.stef.be/bassoontracker?file=https%3A%2F%2Famp.dascene.net%2Fdownmod.php%3Findex%3D167822">Like this</a>)
 </div>
+<h3>UI improvements</h3>
+<div class="padded">
+    <img src="_img/togglepanel.png">
+</div>
+    <ul>
+        <li>Tooltips! little help balloons if you linger your mouse pointer over an element.<br>
+            <span class="dim">(No need for it? Disable them in the settings)</span></li>
+        <li>Maximize you workspace by collapsing section you don't need</li>
+        <li>With songs with lots of channels, the App now resizes to make occupy more horizontal space</li>
+    </ul>
 <h3>And more!</h3>
 <ul>
-    <li>Tooltips! little help balloons if you linger your mouse pointer over an element.</li>
     <li>Use the Media buttons (Play/pause/next/previous) to control playback</li>
-    <li>The Code has been modernized and has been moved to ES Modules</li>
+    <li>
+        The Code has been modernized and has been moved to ES Modules<br>
+        I'm happy to say this also made the footprint a lot smaller and faster, because we can now defer loading of some seldom used parts until they are actually needed. (Like the Dropbox integration and the Zip file support).<br>
+    </li>
     <li>Support for Gzip compressed files (as used by <a href="https://amp.dascene.net/" target="_blank">Amp</a>)</li>
     <li>We now use a device-independent keyboard handler, so entering notes using your keyboard works the same on QWERTY, QWERTZ, AZERTY, DVORAK and other layouts</li>
     <li>More FX: Delay, Compression and Distortion (Thanks "No Zak_ no Kings")</li>
-    <li>You can now load FLAC and OGG compressed samples (Thanks DrSnuggles)</li>
+    <li>You can now load FLAC, OGG and OPUS compressed audio samples (Thanks DrSnuggles)</li>
 </ul>
 
 <br>

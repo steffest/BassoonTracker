@@ -3,14 +3,12 @@ import Scale9Panel from "./components/scale9.js";
 import Assets from "./assets.js";
 import Editor from "../editor.js";
 import UI from "./ui.js";
+import App from "../app.js";
+import {COMMAND} from "../enum.js";
 
 let editPanel = function(x,y,w,h,visible){
 	var me = UIElement(x,y,w,h,visible);
 	me.type = "EditPanel";
-
-
-	var panel = Scale9Panel(0,0,0,0,Assets.panelInsetScale9);
-	me.addChild(panel);
 
 	var labels = ["clear","copy","paste"];
 	var toolTips = [
@@ -59,10 +57,10 @@ let editPanel = function(x,y,w,h,visible){
 			handleButton(this);
 		};
 		button.setProperties({
-			label:"  " + labels[Math.floor(i/2)],
+			label:labels[Math.floor(i/2)],
 			font: fontSmall,
 			textAlign: "center",
-			paddingTop: 3
+			paddingTop: 1
 		});
 		button.tooltip = toolTips[i];
 		me.addChild(button);
@@ -87,7 +85,6 @@ let editPanel = function(x,y,w,h,visible){
 		me.setSize(me.width,me.height);
 		me.setPosition(me.left,me.top);
 
-		panel.setSize(me.width,me.height);
 
 		var buttonWidth = Math.floor(me.width/2) - 2;
 		var buttonHeight = 21;
@@ -114,8 +111,6 @@ let editPanel = function(x,y,w,h,visible){
 
 			if (!me.isVisible()) return;
 			me.clearCanvas();
-
-			panel.render();
 
 			window.fontMed.write(me.ctx,"↓Track",6,11,0);
 			window.fontMed.write(me.ctx,"↓Pattern",buttonsPattern[1].left + 6,11,0);

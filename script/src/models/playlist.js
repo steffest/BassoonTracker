@@ -15,11 +15,12 @@ var Playlist = function(){
         currentPlaylist = data;
         setPlayOrder();
 
-        let currentSong = Tracker.getSong();
+        /*let currentSong = Tracker.getSong();
         if (!currentSong && currentPlaylist.modules.length){
             console.log("No song loaded, starting playlist");
+            //https://www.stef.be/bassoontracker/dev.html?file=playlist-demoscene2024&index=47
             me.next();
-        }
+        }*/
         EventBus.trigger(EVENT.playListLoaded,currentPlaylist);
     }
 
@@ -122,6 +123,7 @@ var Playlist = function(){
                 lines.forEach(function(line){
                     if (line.startsWith("http")){
                         let title = line.split("/").pop();
+                        title = decodeURIComponent(title);
                         result.modules.push({
                             title: title,
                             url: line.trim()

@@ -27,7 +27,6 @@ let pattern_sidebar = function(){
     var playlistListBox = Listbox();
     playlistListBox.name = "playlistListBox";
 
-
     var tabPanel = TabPanel(0,0,me.width,me.height,{
         tabs:[
             {

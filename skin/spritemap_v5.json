@@ -8,7 +8,7 @@
   },
   {
     "name": "background",
-    "x": 382,
+    "x": 494,
     "y": 219,
     "width": 17,
     "height": 17
@@ -127,14 +127,14 @@
   },
   {
     "name": "checkbox_off",
-    "x": 845,
-    "y": 137,
+    "x": 625,
+    "y": 151,
     "width": 14,
     "height": 14
   },
   {
     "name": "checkbox_on",
-    "x": 625,
+    "x": 639,
     "y": 151,
     "width": 14,
     "height": 14
@@ -519,15 +519,15 @@
   },
   {
     "name": "panel_light",
-    "x": 845,
-    "y": 118,
+    "x": 382,
+    "y": 219,
     "width": 23,
     "height": 19
   },
   {
     "name": "panel_mid",
-    "x": 845,
-    "y": 386,
+    "x": 405,
+    "y": 219,
     "width": 23,
     "height": 19
   },
@@ -603,7 +603,7 @@
   },
   {
     "name": "play_icon",
-    "x": 639,
+    "x": 653,
     "y": 151,
     "width": 14,
     "height": 14
@@ -617,8 +617,8 @@
   },
   {
     "name": "radio_active",
-    "x": 859,
-    "y": 137,
+    "x": 743,
+    "y": 151,
     "width": 10,
     "height": 10
   },
@@ -638,7 +638,7 @@
   },
   {
     "name": "radio_inactive",
-    "x": 729,
+    "x": 753,
     "y": 151,
     "width": 10,
     "height": 10
@@ -736,10 +736,45 @@
   },
   {
     "name": "tab_panel_corner",
-    "x": 713,
+    "x": 727,
     "y": 151,
     "width": 16,
     "height": 10
+  },
+  {
+    "name": "togglecorner",
+    "x": 428,
+    "y": 219,
+    "width": 22,
+    "height": 19
+  },
+  {
+    "name": "toggleleft",
+    "x": 845,
+    "y": 386,
+    "width": 19,
+    "height": 24
+  },
+  {
+    "name": "toggleleft_active",
+    "x": 845,
+    "y": 118,
+    "width": 19,
+    "height": 24
+  },
+  {
+    "name": "toggleup",
+    "x": 472,
+    "y": 219,
+    "width": 22,
+    "height": 19
+  },
+  {
+    "name": "toggleup_active",
+    "x": 450,
+    "y": 219,
+    "width": 22,
+    "height": 19
   },
   {
     "name": "tooltip",
@@ -813,28 +848,28 @@
   },
   {
     "name": "wave_saw",
-    "x": 668,
+    "x": 682,
     "y": 151,
     "width": 15,
     "height": 11
   },
   {
     "name": "wave_saw_inverse",
-    "x": 653,
+    "x": 667,
     "y": 151,
     "width": 15,
     "height": 11
   },
   {
     "name": "wave_sin",
-    "x": 683,
+    "x": 697,
     "y": 151,
     "width": 15,
     "height": 11
   },
   {
     "name": "wave_square",
-    "x": 698,
+    "x": 712,
     "y": 151,
     "width": 15,
     "height": 11

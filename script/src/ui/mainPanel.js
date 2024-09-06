@@ -8,10 +8,13 @@ import Pattern_sidebar from "./app/components/patternSidebar.js";
 import App_pianoView from "./app/pianoView.js";
 import Layout from "../ui/app/layout.js";
 import EventBus from "../eventBus.js";
-import {EVENT} from "../enum.js";
+import {COMMAND, EVENT} from "../enum.js";
 import UI from "./ui.js";
 import Assets from "./assets.js";
 import Input from "./input.js";
+import App from "../app.js";
+import Button from "./components/button.js";
+import Y from "./yascal/yascal.js";
 
 let MainPanel = function(){
     let canvas = UI.getCanvas();
@@ -43,6 +46,17 @@ let MainPanel = function(){
     var pianoPanel = App_pianoView();
     pianoPanel.hide();
     me.addChild(pianoPanel);
+
+    var toggleButton = Button(1,1,22,19);
+    toggleButton.setProperties({
+        image: Y.getImage("toggleup"),
+        hoverImage: Y.getImage("toggleup_active"),
+    });
+    toggleButton.tooltip = "Toggle App Panel";
+    toggleButton.onClick = function(){
+        App.doCommand(COMMAND.toggleAppPanel);
+    };
+    me.addChild(toggleButton);
 
     if (UI.visualiser){
         me.addChild(UI.visualiser);
@@ -77,7 +91,8 @@ let MainPanel = function(){
 	};
 
     me.hasFloatingElements = function(){
-        return isContextMenuVisible;
+        let isMenuFloating = !appPanel.isVisible() && Input.getFocusElement() && Input.getFocusElement().name === "MainMenu";
+        return isContextMenuVisible || isMenuFloating;
     }
 
     me.onResize = function(){
@@ -86,9 +101,15 @@ let MainPanel = function(){
         menu.setSize(Layout.mainWidth,menu.height);
         var panelTop = menu.height;
 
-        appPanel.setSize(Layout.mainWidth,appPanel.height);
-        appPanel.setPosition(Layout.mainLeft,panelTop);
-        panelTop += appPanel.height;
+        toggleButton.setPosition(1,panelTop+1);
+
+        if (appPanel.isVisible()){
+            appPanel.setSize(Layout.mainWidth,appPanel.height);
+            appPanel.setPosition(Layout.mainLeft,panelTop);
+            panelTop += appPanel.height;
+        }
+
+
 
 
 
@@ -157,6 +178,20 @@ let MainPanel = function(){
     });
 
     EventBus.on(EVENT.showView,function(view){
+        console.error("showView",view);
+        if (view === "main" || view === "diskop_load" || view === "options"){
+            if (!appPanel.isVisible()){
+                appPanel.show();
+                me.onResize();
+            }
+        }
+        if (view === "diskop_load" || view === "options"){
+            toggleButton.hide();
+        }
+        if (view === "topmain" || view === "main"){
+            toggleButton.show();
+        }
+
         if (Layout.showSideBar){
             switch (view){
                 case "sample":
@@ -196,6 +231,16 @@ let MainPanel = function(){
         isContextMenuVisible = false;
 		me.refresh();
 	});
+
+    EventBus.on(EVENT.appLayoutChanged,function(){
+       me.onResize();
+    });
+
+    EventBus.on(COMMAND.toggleAppPanel,function(){
+       appPanel.toggle();
+        me.onResize();
+    });
+
 
 
 	return me;

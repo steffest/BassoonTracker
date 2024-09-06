@@ -44,7 +44,7 @@ let DiskOperationTargets = function(){
 
 	var targetsPlaylist = [
 		{label: "Bassoon:" , target: "bassoon", active:true},
-		{label: "HippoPlayer:" , target: "hippo"},
+		{label: "HippoPlayer.se:" , target: "hippo"},
 		{label: "Dropbox:" , target: "dropbox"},
 		{label: "local:" , target: "local"}
 	];

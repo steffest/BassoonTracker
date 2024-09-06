@@ -645,7 +645,12 @@ var Editor = (function(){
 					index = parseInt(url.searchParams.get("index"));
 					if (isNaN(index)) index = 0;
 				}
-				Playlist.loadTrack(index);
+				if (index){
+					Playlist.play(index);
+				}else{
+					Playlist.next();
+				}
+
 			}
 		},true);
 
@@ -678,7 +683,7 @@ var Editor = (function(){
 				if (moduleid && moduleid[1]) return ("ma-" + moduleid[1]);
 			}
 			if (url.indexOf("playlists/")>=0){
-				var playlist = url.match(/playlists\/([a-z0-9]+)\.json/);
+				var playlist = url.match(/playlists\/([A-Za-z0-9]+)\.json/);
 				if (playlist && playlist[1]) return ("playlist-" + playlist[1]);
 			}
 			if (url === "/favorites.pls") return "favorites";

@@ -54,6 +54,9 @@ let menu = function(x,y,w,h,submenuParent){
             selectedItem.subMenu.setPosition((selectedItem.startX || 0) + xOffset,me.height);
             selectedItem.subMenu.toggle();
             selectedItem.subMenu.parent.refresh();
+            if (!selectedItem.subMenu.isVisible()){
+                Input.clearFocusElement();
+            }
 
             if(selectedItem.subMenu.isVisible()){
                 activeIndex = selectedIndex;

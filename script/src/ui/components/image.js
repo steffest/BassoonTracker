@@ -36,7 +36,7 @@ let image = function(x,y,w,h,src){
                     var marginW = (me.width-baseImage.width)>>1;
                     var marginH = (me.height-baseImage.height)>>1;
                     if (me.verticalAlign === "top") marginH=0;
-                    if (me.horizintalAlign === "right") marginW = me.width-baseImage.width;
+                    if (me.horizontalAlign === "right") marginW = me.width-baseImage.width;
                     me.ctx.drawImage(baseImage,marginW,marginH);
             }
         }

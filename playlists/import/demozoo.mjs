@@ -198,7 +198,8 @@ function extractTrackedMusic(html){
         "Amiga Music",
         "Amiga Tracked MSX",
         "Old School Music",
-        "Oldschool Music"
+        "Oldschool Music",
+        "Tracked MSX"
     ];
 
     for (let i=0;i<titles.length;i++){

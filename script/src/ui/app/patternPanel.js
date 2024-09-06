@@ -7,11 +7,15 @@ import TrackControl from "./components/trackControl.js";
 import Visualiser from "./components/visualiser.js";
 import Layout from "../app/layout.js";
 import EventBus from "../../eventBus.js";
-import {EVENT} from "../../enum.js";
+import {COMMAND, EVENT} from "../../enum.js";
 import App_patternView from "../app/components/patternView.js";
 import SampleView from "../sampleView.js";
 import UIElement from "../components/element.js";
 import UI from "../ui.js";
+import Assets from "../assets.js";
+import App from "../../app.js";
+import Button from "../components/button.js";
+import Y from "../yascal/yascal.js";
 
 let app_patternPanel = function(){
     var me = App_panelContainer(80);
@@ -28,6 +32,17 @@ let app_patternPanel = function(){
 
     var infoPanel = InfoPanel();
     me.addChild(infoPanel);
+
+    var closeButton = Button(1,1,19,24);
+    closeButton.setProperties({
+        image: Y.getImage("toggleleft"),
+        hoverImage: Y.getImage("toggleleft_active"),
+    });
+    closeButton.tooltip = "Toggle Sidebar";
+    closeButton.onClick = function(){
+        App.doCommand(COMMAND.toggleSideBar);
+    };
+    me.addChild(closeButton);
 
     for (i=0;i<Tracker.getTrackCount();i++){
         trackControls[i] = TrackControl();
@@ -67,6 +82,20 @@ let app_patternPanel = function(){
 			//patternSidebar.hide();
 			editPanel.hide();
 		}
+
+        if (Layout.showSideBar){
+            closeButton.show();
+            closeButton.setPosition(Layout.col1W-8,1);
+        }else{
+            if (Layout.canShowSideBar){
+                closeButton.show();
+                closeButton.setPosition(0,1);
+            }else{
+                closeButton.hide();
+            }
+
+        }
+
 
 
         var patternTop = Layout.infoPanelHeight + Layout.trackControlHeight + Layout.analyserHeight + (Layout.defaultMargin*2);

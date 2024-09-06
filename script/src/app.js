@@ -76,6 +76,12 @@ var App = (function(){
                 case COMMAND.togglePiano:
                     EventBus.trigger(EVENT.toggleView,"piano");
                     break;
+                case COMMAND.toggleSideBar:
+                    console.log("toggle sidebar");
+                    Layout.hasSideBar = !Layout.hasSideBar;
+                    EventBus.trigger(EVENT.appLayoutChanged);
+                    EventBus.trigger(EVENT.toggleView,"main");
+                    break;
                 case COMMAND.showAbout:
                     var dialog = ModalDialog();
                     dialog.setProperties({
@@ -135,6 +141,7 @@ var App = (function(){
                     EventBus.trigger(EVENT.commandRedo);
                     break;
 				case COMMAND.nibbles:
+                    EventBus.trigger(EVENT.showView,"main");
 					Plugin.load("Nibbles",function(){
 						Nibbles.init({
                             UI:{

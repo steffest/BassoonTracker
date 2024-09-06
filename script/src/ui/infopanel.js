@@ -187,6 +187,9 @@ let InfoPanel = function(){
             if (status) fText = status + ": " + fText;
 
             var textX = 6;
+            if (!Layout.showSideBar){
+                textX += 14;
+            }
             if (spinner.isVisible()){
                 spinner.render();
                 textX += 20;
