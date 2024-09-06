@@ -74,7 +74,7 @@ BassoonTracker is a web application that runs in your browser.
 Just serve "index.html" from a webserver and you're good to go.
 If you want to run it locally and you don't want to fiddle with things as `node`and `npm`, I can recommend [Spark](https://github.com/rif/spark/releases)  
 Download the binary for your platform, drop the Spark executable in the folder where you downloaded the BassoonTracker source files and run it.   
-If you then point your browser to http://localhost:8080/ it should work.
+If you then point your browser to http://localhost:8080/dev.html it should work.
 
 **How to Build**  
   - BassoonTracker doesn't need building, the build step is **optional**, there are no runtime dependencies (*bliss!*)
