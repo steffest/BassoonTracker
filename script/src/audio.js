@@ -24,6 +24,7 @@ var Audio = (function(){
     var masterVolume;
     var cutOffVolume;
     var lowPassfilter;
+    var highShelfFilter;
     var i;
     var filterChains = [];
     var isRecording;
@@ -89,7 +90,14 @@ var Audio = (function(){
         lowPassfilter.type = "lowpass";
         lowPassfilter.frequency.setValueAtTime(20000,0);
 
-        lowPassfilter.connect(masterVolume);
+        highShelfFilter = context.createBiquadFilter();
+        highShelfFilter.type = "highshelf";
+        highShelfFilter.frequency.value = 1200.0;
+        highShelfFilter.gain.value = 4;
+
+
+        lowPassfilter.connect(highShelfFilter);
+        highShelfFilter.connect(masterVolume);
 
         me.masterVolume = masterVolume;
         me.cutOffVolume = cutOffVolume;
@@ -302,8 +310,14 @@ var Audio = (function(){
             }
 
 			var volumeFadeOut = Audio.context.createGain();
-			volumeFadeOut.gain.setValueAtTime(0,time);
-			volumeFadeOut.gain.linearRampToValueAtTime(1,time + 0.01);
+            if (Tracker.inFTMode()){
+                volumeFadeOut.gain.setValueAtTime(0,time);
+                volumeFadeOut.gain.linearRampToValueAtTime(1,time + 0.01);
+
+            }else{
+                volumeFadeOut.gain.setValueAtTime(1,time);
+            }
+
 			volumeGain.connect(volumeFadeOut);
 
 			if (usePanning){
@@ -484,7 +498,7 @@ var Audio = (function(){
 					break;
 				default:
 					// balanced: pan even channels somewhat to the left, uneven to the right;
-					panAmount = 0.5;
+					panAmount = 0.3;
 					SETTINGS.stereoSeparation = STEREOSEPARATION.BALANCED;
 					break;
 			}
@@ -676,7 +690,7 @@ var Audio = (function(){
 
     me.setAmigaLowPassFilter = function(on,time){
         // note: this is determined by ear comparing a real Amiga 500 - maybe too much effect ?
-        var value = on ? 2000 : 20000;
+        var value = on ? 2000 : 21000;
         lowPassfilter.frequency.setValueAtTime(value,time);
     };
 
