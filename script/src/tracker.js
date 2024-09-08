@@ -1450,7 +1450,7 @@ var Tracker = (function(){
 			if (trackNotes[track].source) {
 				var gain = trackNotes[track].volume.gain;
 				gain.setValueAtTime(trackNotes[track].currentVolume/100,time-0.002);
-				gain.linearRampToValueAtTime(0,time);
+				gain.linearRampToValueAtTime(0,time + 0.01);
 				trackNotes[track].source.stop(time+0.02);
 				//trackNotes[track].source.stop(time);
 			}
@@ -1697,7 +1697,9 @@ var Tracker = (function(){
 
 		if (effects.cutNote){
 			if (trackNote.volume) {
-				trackNote.volume.gain.setValueAtTime(0,time + (effects.cutNote.value*tickTime));
+				let t = time + (effects.cutNote.value*tickTime);
+				trackNote.volume.gain.setValueAtTime(trackNote.currentVolume/100,t);
+				trackNote.volume.gain.linearRampToValueAtTime(0,t+0.005);
 			}
 			trackNote.currentVolume = 0;
 		}
