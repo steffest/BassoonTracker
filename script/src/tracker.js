@@ -1295,7 +1295,23 @@ var Tracker = (function(){
 								if (subValue<ticksPerStep){
 									time += tickTime * subValue;
 								}else{
+									//delay is too large
 									doPlayNote = false;
+									// FastTracker ignores this note
+									// But in ProTracker, If the sample has a loop, the loop is played ... (Yeah ... weird)
+
+									if (!me.inFTMode()){
+										if (instrument && instrument.samples && instrument.samples[0]){
+											let sample = instrument.samples[0];
+											if (sample.loop.enabled && sample.loop.length){
+												trackEffects.offset = {
+													value: sample.loop.start,
+													stepValue: sample.loop.start
+												};
+												doPlayNote = true;
+											}
+										}
+									}
 								}
 							}
 							break;
