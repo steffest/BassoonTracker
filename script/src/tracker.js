@@ -2281,6 +2281,10 @@ var Tracker = (function(){
 		onModuleLoad();
 	};
 
+	me.reset = function(){
+		resetDefaultSettings();
+	}
+
 
 	me.clearInstrument = function(){
 		instruments[currentInstrumentIndex]=Instrument();

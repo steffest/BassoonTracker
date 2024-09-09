@@ -248,7 +248,9 @@ var Playlist = function(){
         delay = (delay || 0) * 1000;
         if (playListActive){
             setTimeout(function(){
-                me.next();
+                Tracker.stop();
+                Tracker.reset();
+                setTimeout(me.next,100);
             },delay);
         }
     });
