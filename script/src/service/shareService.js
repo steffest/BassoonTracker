@@ -1,6 +1,7 @@
 import Tracker from "../tracker.js";
 import Host from "../host.js";
 import UI from "../ui/ui.js";
+import Editor from "../editor.js";
 
 let ShareService = (()=>{
     let me = {};
@@ -53,7 +54,7 @@ let ShareService = (()=>{
             base = window.location.href.split("?")[0];
             base = base.substring(0,base.lastIndexOf("/")) + "/";
         }
-        url = base + "?file=" + url;
+        url = base + "?file=" + encodeURIComponent(Editor.packUrl(url));
         return url;
     }
 
