@@ -52,7 +52,6 @@ let ShareService = (()=>{
         if (!base){
             base = window.location.href.split("?")[0];
             base = base.substring(0,base.lastIndexOf("/")) + "/";
-            base = "https://www.stef.be/bassoontracker/";
         }
         url = base + "?file=" + url;
         return url;
