@@ -190,7 +190,9 @@ let InfoPanel = function(){
             if (!Layout.showSideBar){
                 textX += 14;
             }
+
             if (spinner.isVisible()){
+                spinner.setPosition(textX-1,7);
                 spinner.render();
                 textX += 20;
             }else{
