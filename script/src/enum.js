@@ -515,5 +515,6 @@ export var SETTINGS = {
 	vubars: true,
 	stereoSeparation: STEREOSEPARATION.BALANCED,
 	emulateProtracker1OffsetBug: true,
+	useSampleSwapping: false,
 	loadInitialFile:true
 };

@@ -41,6 +41,38 @@ If more curated lists are your cup of tea, you can check out the playlists that 
     <img src="_img/save_favorites.png">
 </div>
 
+
+<h3>JSON fileformat</h3>
+<div class="padded">
+    Most playlists would be in the .PLS or .M3U format, but in case you are wondering, the JSON format looks like this:
+    <pre>
+        {
+             <b>"title"</b>: <i>"Your title here"</i>,
+             <b>"info"</b>: <i>"Subtitle"</i>,
+             <b>"modules"</b>: [
+                {
+                     <b>"title"</b>: <i>"Cool Song"</i>,
+                     <b>"url"</b>: <i>"https://link.to/cool_song.mod"</i>,
+                     <b>"author"</b> : <i>"name of the author"</i>,
+                     <b>"info"</b> : <i>"subtitle"</i>,
+                     <b>"link"</b>: <i>"external link under the 'more info' button"</i>
+                },
+                {
+                     <b>"title"</b>: <i>"Large Title"</i>,
+                },
+                {
+                     <b>"title"</b>: <i>"Another Cool Song"</i>,
+                     <b>"url"</b>: <i>"https://link.to/another_cool_song.mod"</i>,
+                     <b>"author"</b> : <i>"name of the author"</i>,
+                     <b>"info"</b> : <i>"subtitle"</i>,
+                     <b>"link"</b>: <i>"external link under the 'more info' button"</i>
+                },
+                <em>....</em>
+            ]
+        }
+    </pre>
+</div>
+
 <br>
 If you have some nice playlists you want to share, please do!.<br/>
 I'm also always open to new integration and cooperations.<br/>

@@ -428,8 +428,10 @@ var Tracker = (function(){
 									// check if we are not in an endless playing loop when autoplay is enabled
 									console.log("Backwards Position Jump in autoPlay, checking for endless loop");
 
-									if (playSongPosition>=song.length-1){
-										// we are at the last pattern, let's assume the song is done
+									// TODO: it would be better to scan if the patterns after the pattern break are used in the songlist.
+									// quite a few files have unused patterns at the end.
+									if (playSongPosition>=song.length-2){
+										// we are near the last pattern, let's assume the song is done
 										console.warn("Ending song at Position Jump in last pattern");
 										nextPosition = song.length;
 									}
@@ -611,15 +613,64 @@ var Tracker = (function(){
 			}
 		}
 
+		if (typeof instrumentIndex === "number"){
+			instrument = me.getInstrument(instrumentIndex);
+		}
+
+		if (SETTINGS.useSampleSwapping && instrument && !notePeriod){
+			if (!me.inFTMode()){
+				// TODO: how does swapping in FT works exactly?
+				console.warn("sample swap");
+				let current = trackNotes[track];
+				if (current){
+
+					let prevInstrument = me.getInstrument(current.instrumentIndex);
+					let startingTime = current.time;
+					let elapsed = time - startingTime;
+
+					let sourceSample = prevInstrument.samples[0];
+					let targetSample = instrument.samples[0];
+					if (sourceSample){
+						// find the time of the swap
+						if (sourceSample.loop && sourceSample.loop.enabled && sourceSample.loop.length>0){
+							// find next end of loop.
+							let loopStart = sourceSample.loop.start / current.sampleRate;
+							let loopLen = sourceSample.loop.length / current.sampleRate;
+							let t = startingTime + loopStart + loopLen;
+							while (t<time) t += loopLen;
+							time = t;
+							console.error("loop",loopStart,loopLen)
+						}else{
+							let duration = sourceSample.length / current.sampleRate;
+							if (duration>elapsed){
+								let remaining = duration - elapsed;
+								time +=  remaining;
+							}
+						}
+
+						if (targetSample.loop && targetSample.loop.enabled && targetSample.loop.length>0){
+							// play the loop part of the sample
+							notePeriod = current.currentPeriod;
+							trackEffects.offset = {
+								value: targetSample.loop.start,
+								stepValue: targetSample.loop.start
+							};
+						}else{
+							// else stop the sample
+							cutNote(track,time);
+						}
+
+						//debugger;
+
+					}
+
+				}
+			}
+		}
 
 
 		var volume = defaultVolume;
 		var doPlayNote = true;
-
-
-		if (typeof instrumentIndex === "number"){
-			instrument = me.getInstrument(instrumentIndex);
-		}
 
 
 		if (noteIndex && me.inFTMode()){

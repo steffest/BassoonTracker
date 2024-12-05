@@ -178,7 +178,6 @@ let MainPanel = function(){
     });
 
     EventBus.on(EVENT.showView,function(view){
-        console.error("showView",view);
         if (view === "main" || view === "diskop_load" || view === "options"){
             if (!appPanel.isVisible()){
                 appPanel.show();
