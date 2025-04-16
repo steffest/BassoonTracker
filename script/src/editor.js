@@ -1,6 +1,6 @@
 import EventBus from './eventBus.js';
 import {COMMAND, EVENT, FILETYPE, MODULETYPE, SETTINGS, TRACKERMODE} from "./enum.js";
-import Tracker, {periodNoteTable, nameNoteTable} from './tracker.js';
+import Tracker, {periodNoteTable, nameNoteTable, FTNotes} from './tracker.js';
 import {getUrlParameter} from "./lib/util.js";
 import Host from "./host.js";
 import Audio from "./audio.js";
@@ -836,11 +836,16 @@ var Editor = (function(){
 							}
 						}
 
-						let noteName = n.name.replace("#","S");
+						let noteName = n.name;
+						if (note.index){
+							var ftNote = FTNotes[note.index];
+							if (ftNote) noteName = ftNote.name;
+						}
+						noteName = noteName.replace("#","S");
 
 						output.push("    new Attention.ToneProfile(" + noteName + ", t*" + duration + "),");
 						if (isPaused && pause<20){
-							output.push("    new Pause(t*" + pause + "),");
+							output.push("    new Attention.ToneProfile(0, t*" + pause + "),");
 						}
 
 					}else{
