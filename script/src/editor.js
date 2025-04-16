@@ -842,6 +842,7 @@ var Editor = (function(){
 							if (ftNote) noteName = ftNote.name;
 						}
 						noteName = noteName.replace("#","S");
+						noteName = noteName.replace("-","_");
 
 						output.push("    new Attention.ToneProfile(" + noteName + ", t*" + duration + "),");
 						if (isPaused && pause<20){
