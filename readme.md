@@ -102,6 +102,7 @@ If you then point your browser to http://localhost:8080/dev.html it should work.
   	- Jukebox plugins, filter on genre/rating/etc.: hit play and let it perform.
   	- More expanded sample editor with audio processing features - probably as an external plugin.
   	- ~~Nibbles... we definitely need Nibbles.~~ -> We do!
+  - Integrate https://github.com/bitwig/dawproject ? 
   
 
 **Player**

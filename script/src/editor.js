@@ -1,6 +1,6 @@
 import EventBus from './eventBus.js';
-import {EVENT, FILETYPE, MODULETYPE, SETTINGS, TRACKERMODE} from "./enum.js";
-import Tracker from './tracker.js';
+import {COMMAND, EVENT, FILETYPE, MODULETYPE, SETTINGS, TRACKERMODE} from "./enum.js";
+import Tracker, {periodNoteTable, nameNoteTable} from './tracker.js';
 import {getUrlParameter} from "./lib/util.js";
 import Host from "./host.js";
 import Audio from "./audio.js";
@@ -560,7 +560,6 @@ var Editor = (function(){
 			}
 		}
 
-
     };
 
 	me.buffer2Sample = function(buffer){
@@ -711,6 +710,155 @@ var Editor = (function(){
 		var max = trackCount*me.getStepsPerTrack();
 		if (currentCursorPosition >= max) me.setCurrentTrack(trackCount-1);
 	});
+
+
+	window.batchEdit = function(){
+		let editor = {};
+
+		// change all notes in current song
+		editor.octaveDown = index=>{
+			let song = Tracker.getSong();
+			song.patterns.forEach((pattern,patternIndex)=>{
+				pattern.forEach((row,rowIndex)=>{
+					row.forEach((note,trackIndex)=>{
+						if (note && note.period && note.instrument === index){
+							let n = periodNoteTable[note.period];
+							if (!n){
+								console.error("no note found for period " + note.period);
+								return;
+							}
+
+							if (n.name.indexOf("-1")>0){
+								console.error("note is already at lowest octave");
+								return;
+							}
+							let newNoteName = n.name.replace("2","1").replace("3","2");
+							let newNote = nameNoteTable[newNoteName];
+							if (!newNote){
+								console.error("no note found for name " + newNoteName);
+								return;
+							}
+
+							note.period = newNote.period;
+						}
+					});
+				});
+			});
+
+			EventBus.trigger(EVENT.patternChange,currentPattern);
+		}
+
+		editor.printUseCount = ()=>{
+			let song = Tracker.getSong();
+			let useCount = {};
+			song.patterns.forEach((pattern,patternIndex)=>{
+				pattern.forEach((row,rowIndex)=>{
+					row.forEach((note,trackIndex)=>{
+						if (note && note.instrument){
+							if (!useCount[note.instrument]) useCount[note.instrument] = 0;
+							useCount[note.instrument]++;
+						}
+					});
+				});
+			});
+			console.log(useCount);
+		}
+
+		return editor;
+	}();
+
+
+
+	window.exportRBBS = function(){
+		let panel = document.createElement("div");
+		panel.style.width = "400px";
+		panel.style.height = "300px";
+		panel.style.overflow = "auto";
+		panel.style.backgroundColor = "silver";
+		panel.style.position = "absolute";
+		panel.style.top = "50%";
+		panel.style.left = "50%";
+		panel.style.transform = "translate(-50%,-50%)";
+		panel.style.zIndex = "100";
+		panel.style.border = "5px solid silver";
+
+		let textarea = document.createElement("textarea");
+		textarea.style.width = "100%";
+		textarea.style.height = "260px";
+		textarea.style.resize = "none";
+
+		let button = document.createElement("button");
+		button.innerText = "Close";
+		button.style.width = "100%";
+		button.style.height = "30px";
+		button.style.marginTop = "5px";
+		button.onclick = function(){
+			document.body.removeChild(panel);
+		};
+
+		panel.appendChild(textarea);
+		panel.appendChild(button);
+
+		document.body.appendChild(panel);
+
+
+		let song = Tracker.getSong();
+		console.log(song);
+
+		let output = [];
+		output.push("const toneOC = [");
+
+		for (let i = 0; i<song.length; i++){
+			let pattern = song.patterns[song.patternTable[i]];
+			console.error(pattern);
+
+			pattern.forEach((step,stepIndex)=>{
+				let note = step[0];
+				if (note && note.period){
+					let n = periodNoteTable[note.period];
+					if (n && n.name){
+						let duration = 1;
+						let pause = 0;
+						let isPaused = false;
+						for (let j = stepIndex+1; j<pattern.length; j++){
+							let nextNote = pattern[j][0];
+							if (nextNote && nextNote.period){
+								break;
+							}
+							if (nextNote.effect === 12 && !nextNote.param){
+								isPaused = true;
+							}
+
+							if (isPaused){
+								pause++;
+							}else{
+								duration++;
+							}
+						}
+
+						let noteName = n.name.replace("#","S");
+
+						output.push("    new Attention.ToneProfile(" + noteName + ", t*" + duration + "),");
+						if (isPaused && pause<20){
+							output.push("    new Pause(t*" + pause + "),");
+						}
+
+					}else{
+						console.error("no note found for period " + note.period);
+					}
+				}
+			})
+		}
+
+		output.push("];");
+
+		textarea.value = output.join("\n");
+
+
+
+	}
+
+	EventBus.on(COMMAND.exportFile,window.exportRBBS);
 
 
 

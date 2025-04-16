@@ -231,7 +231,7 @@ var UI = (function(){
 		canvas.style.height = screenHeight + 'px';
 
 		mainPanel.refresh();
-		
+
 	}
 
 	var initAssets = function(){

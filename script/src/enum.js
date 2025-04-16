@@ -117,6 +117,7 @@ export var COMMAND = {
 	randomPlayList: 1034,
 	exportPlaylist: 1035,
 	toggleAppPanel: 1036,
+	exportFile: 1037,
 };
 
 export var PLAYTYPE = {
@@ -496,7 +497,8 @@ export var KEYBOARDTABLE = {
 		"KeyH": KEYBOARDKEYS.Gsharp,
 		"KeyJ": KEYBOARDKEYS.Asharp,
 
-		"Backquote": KEYBOARDKEYS.OFF
+		"Backquote": KEYBOARDKEYS.OFF,
+		"Backslash": KEYBOARDKEYS.OFF,
 	}
 };
 
