@@ -228,6 +228,8 @@ var Playlist = function(){
             case ".pls":
                 return true;
         }
+        if (url.indexOf('.modarchive.')>0) return true;
+        if (url.indexOf('bassoontracker')>0) return true;
         return false;
     }
 
