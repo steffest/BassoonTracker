@@ -2,6 +2,7 @@ import {FILETYPE} from "../enum.js";
 import ProTracker from "./protracker.js";
 import SoundTracker from "./soundtracker.js";
 import FastTracker from "./fasttracker.js";
+import ScreamTracker from "./screamtracker.js";
 
 let FileDetector = function(){
 	let me = {};
@@ -12,6 +13,7 @@ let FileDetector = function(){
 		mod_ProTracker: {name: "PROTRACKER", isMod: true, type: FILETYPE.module, loader: function(){return ProTracker()}},
 		mod_SoundTracker: {name: "SOUNDTRACKER", isMod: true, type: FILETYPE.module, loader: function(){return SoundTracker()}},
 		mod_FastTracker: {name: "FASTTRACKER", isMod: true, type: FILETYPE.module, loader: function(){return FastTracker()}},
+		mod_ScreamTracker: {name: "SCREAMTRACKER", isMod: true, type: FILETYPE.module, loader: function(){return ScreamTracker()}},
 		sample: {name: "SAMPLE",isSample:true, type: FILETYPE.sample},
 		zip: {name: "ZIP"},
 		gzip: {name: "GZIP"}
@@ -38,6 +40,11 @@ let FileDetector = function(){
 		id = file.readString(17,0);
 		if (id === "Extended Module: "){
 			return fileType.mod_FastTracker;
+		}
+
+		if (length>48){
+			id = file.readString(4,44);
+			if (id === "SCRM") return fileType.mod_ScreamTracker;
 		}
 
 

@@ -9,6 +9,7 @@ var Sample = function(){
 	me.volume = 64;
 	me.finetune = 0;
 	me.finetuneX = 0;
+	me.c2spd = 0;
 	me.panning = 0;
 	me.relativeNote = 0;
 

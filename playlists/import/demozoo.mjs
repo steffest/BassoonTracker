@@ -1,7 +1,14 @@
 import https from "https";
 import fs from "fs";
 
-let url = "https://demozoo.org/parties/5033/";
+let params = process.argv.slice(2);
+
+let partyId = params ||  5143;
+
+let url = "https://demozoo.org/parties/" + partyId + "/"
+
+
+;
 let file = "demozoo.json";
 let partyName;
 let scanUrl = true;

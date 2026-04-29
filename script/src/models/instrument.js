@@ -19,12 +19,16 @@ var Instrument = function(){
 	me.volumeEnvelope = {raw: [], enabled: false, points: [[0,48],[10,64],[20,40],[30,18],[40,28],[50,18]], count:6};
 	me.panningEnvelope = {raw: [], enabled: false, points: [[0,32],[20,40],[40,24],[60,32],[80,32]], count:5};
 	me.vibrato = {};
+	me.synth = {};
 
 	me.sampleNumberForNotes = [];
 
 	me.play = function(noteIndex,notePeriod,volume,track,trackEffects,time){
 		if (Tracker.inFTMode()) {
 			notePeriod = me.getPeriodForNote(noteIndex);
+		}
+		if (me.type === "synth"){
+			return Audio.playSynth(me.instrumentIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
 		}
 		return Audio.playSample(me.instrumentIndex,notePeriod,volume,track,trackEffects,time,noteIndex);
 	};

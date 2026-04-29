@@ -4,11 +4,16 @@ import Audio from "./src/audio.js";
 let BassoonTracker = (()=>{
     let me = Tracker;
     let initDone;
+    let audioContext;
+
+    me.setContext=context=>{
+        audioContext= context;
+    }
 
     me.load=async url=>{
         if (!initDone){
             Tracker.init();
-            Audio.init();
+            Audio.init(audioContext);
             initDone = true;
         }
         let data = await fetch(url).then(res => res.arrayBuffer());

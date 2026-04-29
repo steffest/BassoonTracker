@@ -553,7 +553,7 @@ var Editor = (function(){
 					});
 					dialog.onClick = dialog.close;
 
-					dialog.setText("Warning//The maximum sample lenght in .MOD format is 128kb//If you save in .MOD format/this sample will be truncated.//Please try downsampling or trimming the sample/to below 131072 bytes/or switch to .XM format");
+					dialog.setText("Warning//The maximum sample length in .MOD format is 128kb//If you save in .MOD format/this sample will be truncated.//Please try downsampling or trimming the sample/to below 131072 bytes/or switch to .XM format");
 
 					UI.setModalElement(dialog);
 				}
@@ -693,7 +693,6 @@ var Editor = (function(){
 	me.unpackUrl = unpackUrl;
 	me.packUrl = packUrl;
 
-
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
 		me.setCurrentTrackPosition(0);
 	});
@@ -710,7 +709,6 @@ var Editor = (function(){
 		var max = trackCount*me.getStepsPerTrack();
 		if (currentCursorPosition >= max) me.setCurrentTrack(trackCount-1);
 	});
-
 
 	window.batchEdit = function(){
 		let editor = {};
@@ -764,9 +762,41 @@ var Editor = (function(){
 			console.log(useCount);
 		}
 
+		editor.halfStepUp = index=>{
+			// move all notes up by one halfstep
+			let song = Tracker.getSong();
+			let periods = Object.keys(periodNoteTable);
+			song.patterns.forEach((pattern,patternIndex)=>{
+				pattern.forEach((row,rowIndex)=>{
+					row.forEach((note,trackIndex)=>{
+						if (note && note.period){
+							console.error(note);
+
+							let n = periodNoteTable[note.period];
+							let index = periods.indexOf(note.period.toString());
+
+							if (index>=0){
+								let nextIndex = index-1;
+								if (nextIndex<0){
+									console.error("note is already at highest note");
+									return;
+								}else{
+									let newPeriod = parseInt(periods[nextIndex]);
+									note.period = newPeriod;
+									return;
+								}
+							}
+						}
+					});
+				})
+			});
+			EventBus.trigger(EVENT.patternChange,currentPattern);
+			console.error(periodNoteTable);
+		}
+
+
 		return editor;
 	}();
-
 
 
 	window.exportRBBS = function(){
@@ -892,13 +922,9 @@ var Editor = (function(){
 
 		textarea.value = output.join("\n") + "\n\n" + beats.join("\n");
 
-
-
 	}
 
 	EventBus.on(COMMAND.exportFile,window.exportRBBS);
-
-
 
 	return me;
 }());

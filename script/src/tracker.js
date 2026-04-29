@@ -1518,7 +1518,11 @@ var Tracker = (function(){
 				var gain = trackNotes[track].volume.gain;
 				gain.setValueAtTime(trackNotes[track].currentVolume/100,time-0.002);
 				gain.linearRampToValueAtTime(0,time + 0.01);
-				trackNotes[track].source.stop(time+0.02);
+				if (trackNotes[track].stop){
+					trackNotes[track].stop(time+0.02);
+				}else{
+					trackNotes[track].source.stop(time+0.02);
+				}
 				//trackNotes[track].source.stop(time);
 			}
 		}catch (e){
@@ -1783,13 +1787,14 @@ var Tracker = (function(){
 			var notePeriod = trackNote.startPeriod;
 			volume = trackNote.startVolume;
 			var noteIndex = trackNote.noteIndex;
+			var instrument = me.getInstrument(instrumentIndex);
 
 			var triggerStep = effects.reTrigger.value || 1;
 			var triggerCount = triggerStep;
 			while (triggerCount<ticksPerStep){
 				var triggerTime = time + (triggerCount * tickTime);
 				cutNote(track,triggerTime);
-				trackNotes[track] = Audio.playSample(instrumentIndex,notePeriod,volume,track,effects,triggerTime,noteIndex);
+				trackNotes[track] = instrument ? instrument.play(noteIndex,notePeriod,volume,track,effects,triggerTime) : Audio.playSample(instrumentIndex,notePeriod,volume,track,effects,triggerTime,noteIndex);
 				triggerCount += triggerStep;
 			}
 		}
@@ -1928,6 +1933,11 @@ var Tracker = (function(){
         // TODO: shouldn't we always set the full samplerate from the period?
 
 		period = Math.max(period,1);
+
+		if (trackNote.synth && trackNote.setPeriodAtTime){
+			trackNote.setPeriodAtTime(period,time);
+			return;
+		}
 
         if (me.inFTMode() && me.useLinearFrequency){
             var sampleRate = (8363 * Math.pow(2,((4608 - period) / 768)));
