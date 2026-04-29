@@ -75,6 +75,49 @@ import {EVENT} from "../enum.js";
         toleranceEarly: 0.001
     }
 
+    var clockWorkletName = 'waaclock-processor-' + Math.random().toString(36).slice(2)
+    var CLOCK_WORKLET_PROCESSOR = [
+        'class WAAClockProcessor extends AudioWorkletProcessor {',
+        '    constructor() {',
+        '        super();',
+        '        this.frameCount = 0;',
+        '        this.tickFrames = 256;',
+        '    }',
+        '    process(inputs, outputs) {',
+        '        var output = outputs[0];',
+        '        var frameLength = output && output[0] ? output[0].length : 128;',
+        '        this.frameCount += frameLength;',
+        '        if (this.frameCount >= this.tickFrames) {',
+        '            this.frameCount %= this.tickFrames;',
+        '            this.port.postMessage(0);',
+        '        }',
+        '        return true;',
+        '    }',
+        '}',
+        'registerProcessor("' + clockWorkletName + '", WAAClockProcessor);'
+    ].join('\n')
+
+    var clockWorkletUrl = null
+
+    function getClockWorkletUrl() {
+        if (!clockWorkletUrl) {
+            var blob = new Blob([CLOCK_WORKLET_PROCESSOR], {type: 'application/javascript'})
+            clockWorkletUrl = URL.createObjectURL(blob)
+        }
+        return clockWorkletUrl
+    }
+
+    function canUseAudioWorklet(context) {
+        return isBrowser
+            && context
+            && context.audioWorklet
+            && typeof context.audioWorklet.addModule === 'function'
+            && typeof AudioWorkletNode !== 'undefined'
+            && typeof Blob !== 'undefined'
+            && typeof URL !== 'undefined'
+            && typeof URL.createObjectURL === 'function'
+    }
+
 // ==================== Event ==================== //
     var Event = function(clock, deadline, func) {
         this.clock = clock
@@ -204,17 +247,71 @@ import {EVENT} from "../enum.js";
 // Removes all scheduled events and starts the clock
     WAAClock.prototype.start = function() {
         if (this._started === false) {
-            var self = this
             this._started = true
             this._events = []
+            this._startId = (this._startId || 0) + 1
 
-            var bufferSize = 256
-            // We have to keep a reference to the node to avoid garbage collection
-            this._clockNode = this.context.createScriptProcessor(bufferSize, 1, 1)
-            this._clockNode.connect(this.context.destination)
-            this._clockNode.onaudioprocess = function () {
+            if (canUseAudioWorklet(this.context)) {
+                this._startAudioWorklet(this._startId)
+            } else {
+                this._startScriptProcessor()
+            }
+        }
+    }
+
+    WAAClock.prototype._startAudioWorklet = function(startId) {
+        var self = this
+        this._workletPending = true
+
+        this._workletBootstrapTimer = setInterval(function() {
+            if (self._started && self._workletPending)
+                process.nextTick(function() { self._tick() })
+        }, 25)
+
+        if (!this._workletModulePromise)
+            this._workletModulePromise = this.context.audioWorklet.addModule(getClockWorkletUrl())
+
+        this._workletModulePromise.then(function() {
+            if (!self._started || self._startId !== startId) return
+
+            self._clearWorkletBootstrapTimer()
+            self._workletPending = false
+            self._clockNode = new AudioWorkletNode(self.context, clockWorkletName, {
+                numberOfInputs: 0,
+                numberOfOutputs: 1,
+                outputChannelCount: [1]
+            })
+            self._clockNode.port.onmessage = function () {
                 process.nextTick(function() { self._tick() })
             }
+            self._clockNode.connect(self.context.destination)
+            process.nextTick(function() { self._tick() })
+        }).catch(function(error) {
+            if (!self._started || self._startId !== startId) return
+
+            self._clearWorkletBootstrapTimer()
+            self._workletPending = false
+            if (typeof console !== 'undefined' && console.warn)
+                console.warn('WAAClock AudioWorklet unavailable, falling back to ScriptProcessorNode', error)
+            self._startScriptProcessor()
+        })
+    }
+
+    WAAClock.prototype._startScriptProcessor = function() {
+        var self = this
+        var bufferSize = 256
+        // We have to keep a reference to the node to avoid garbage collection
+        this._clockNode = this.context.createScriptProcessor(bufferSize, 1, 1)
+        this._clockNode.connect(this.context.destination)
+        this._clockNode.onaudioprocess = function () {
+            process.nextTick(function() { self._tick() })
+        }
+    }
+
+    WAAClock.prototype._clearWorkletBootstrapTimer = function() {
+        if (this._workletBootstrapTimer) {
+            clearInterval(this._workletBootstrapTimer)
+            this._workletBootstrapTimer = null
         }
     }
 
@@ -222,7 +319,14 @@ import {EVENT} from "../enum.js";
     WAAClock.prototype.stop = function() {
         if (this._started === true) {
             this._started = false
-            this._clockNode.disconnect()
+            this._startId = (this._startId || 0) + 1
+            this._workletPending = false
+            this._clearWorkletBootstrapTimer()
+            if (this._clockNode) {
+                if (this._clockNode.port) this._clockNode.port.onmessage = null
+                this._clockNode.disconnect()
+                this._clockNode = null
+            }
         }
     }
 
