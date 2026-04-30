@@ -73,6 +73,8 @@ var ScreamTracker = function(){
 		var patternPointers = [];
 		for (i = 0; i<mod.numberOfPatterns; i++) patternPointers.push(file.readWord() * 16);
 
+		var sampleLengthModes = getSampleLengthModes(file,instrumentPointers);
+
 		if (mod.defaultPanning === 252){
 			for (i = 0; i<32; i++){
 				var panning = file.readUbyte();
@@ -106,7 +108,7 @@ var ScreamTracker = function(){
 		var instrumentContainer = [];
 
 		for (i = 1; i<=mod.numberOfInstruments; i++){
-			var instrument = readInstrument(file,instrumentPointers[i-1],mod.sampleFormat);
+			var instrument = readInstrument(file,instrumentPointers[i-1],mod.sampleFormat,sampleLengthModes[i-1]);
 			Tracker.setInstrument(i,instrument);
 			instrumentContainer.push({label: i + " " + instrument.name, data: i});
 		}
@@ -170,7 +172,66 @@ var ScreamTracker = function(){
 		return patternData;
 	}
 
-	function readInstrument(file,offset,sampleFormat){
+	function getSampleLengthModes(file,instrumentPointers){
+		var result = [];
+		var headers = [];
+		var oldIndex = file.index;
+
+		for (var i = 0; i<instrumentPointers.length; i++){
+			var offset = instrumentPointers[i];
+			if (!offset) continue;
+
+			file.goto(offset);
+			var type = file.readUbyte();
+			if (type !== 1) continue;
+
+			file.jump(12);
+			var memSegHi = file.readUbyte();
+			var memSegLo = file.readWord();
+			var sampleOffset = ((memSegHi << 16) | memSegLo) * 16;
+			var length = file.readDWord();
+			file.jump(8);
+			file.jump(2);
+			var packType = file.readUbyte();
+			var flags = file.readUbyte();
+
+			if (!packType && sampleOffset && length){
+				headers.push({
+					index: i,
+					offset: sampleOffset,
+					length: length,
+					bits: (flags & 4) ? 16 : 8
+				});
+			}
+		}
+
+		headers.sort(function(a,b){return a.offset - b.offset;});
+		for (i = 0; i<headers.length; i++){
+			var header = headers[i];
+			if (header.bits !== 16){
+				result[header.index] = "bytes";
+				continue;
+			}
+
+			var nextOffset = file.length;
+			for (var j = i + 1; j<headers.length; j++){
+				if (headers[j].offset > header.offset){
+					nextOffset = headers[j].offset;
+					break;
+				}
+			}
+
+			var available = Math.max(0,nextOffset - header.offset);
+			var byteDistance = Math.abs(available - header.length);
+			var sampleDistance = Math.abs(available - (header.length * 2));
+			result[header.index] = sampleDistance < byteDistance ? "samples" : "bytes";
+		}
+
+		file.goto(oldIndex);
+		return result;
+	}
+
+	function readInstrument(file,offset,sampleFormat,sampleLengthMode){
 		var instrument = Instrument();
 		instrument.samples = [];
 		instrument.sampleNumberForNotes = [];
@@ -194,7 +255,7 @@ var ScreamTracker = function(){
 			var memSegHi = file.readUbyte();
 			var memSegLo = file.readWord();
 			var sampleOffset = ((memSegHi << 16) | memSegLo) * 16;
-			var sampleByteLength = file.readDWord();
+			var sampleLength = file.readDWord();
 			var loopStart = file.readDWord();
 			var loopEnd = file.readDWord();
 			sample.volume = file.readUbyte();
@@ -210,13 +271,13 @@ var ScreamTracker = function(){
 			sample.bits = (flags & 4) ? 16 : 8;
 			sample.isStereo = !!(flags & 2);
 			sample.isPacked = !!packType;
-			sample.length = sampleByteLength;
+			sample.length = sampleLength;
 			sample.loop.start = loopStart;
 			sample.loop.length = Math.max(0,loopEnd - loopStart);
 			sample.loop.enabled = !!(flags & 1) && sample.loop.length > 2;
 			sample.loop.type = LOOPTYPE.FORWARD;
 
-			if (sample.bits === 16){
+			if (sample.bits === 16 && sampleLengthMode !== "samples"){
 				sample.length = sample.length >> 1;
 				sample.loop.start = sample.loop.start >> 1;
 				sample.loop.length = sample.loop.length >> 1;

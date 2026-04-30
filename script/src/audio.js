@@ -9,6 +9,7 @@ import {
 } from "./enum.js";
 import Tracker, {FTNotes, nameNoteTable, noteNames, periodFinetuneTable, periodNoteTable} from "./tracker.js";
 import FilterChain from "./audio/filterChain.js";
+import Synth from "./audio/synth.js";
 import EventBus from "./eventBus.js";
 import Editor from "./editor.js";
 import {saveFile} from "./filesystem.js";
@@ -401,139 +402,26 @@ var Audio = (function(){
 		var instrument = Tracker.getInstrument(index);
 		if (!instrument || !instrument.synth) return {};
 
-		var synth = instrument.synth;
-		var patch = synth.adlib || {};
-		var basePeriod = period;
-		var currentFrequency = getSynthFrequency(period,instrument);
-		var modulator = audioContext.createOscillator();
-		var carrier = audioContext.createOscillator();
-		var modGain = audioContext.createGain();
-		var volumeGain = audioContext.createGain();
-		var volumeFadeOut = audioContext.createGain();
-		var panning;
-
-		var carrierMultiplier = getOplMultiplier(patch.carrierMultiple);
-		var modulatorMultiplier = getOplMultiplier(patch.modulatorMultiple);
-		var carrierLevel = getOplLevel(patch.carrierLevel);
-		var modulatorLevel = getOplLevel(patch.modulatorLevel);
-		var feedback = patch.feedback || 0;
-
-		volume = typeof volume === "undefined" ? (100 * (synth.volume || 64) / 64) : volume;
-
-		modulator.type = getSynthWaveform(patch.modulatorWaveform);
-		carrier.type = getSynthWaveform(patch.carrierWaveform);
-		modulator.frequency.setValueAtTime(currentFrequency * modulatorMultiplier,time);
-		carrier.frequency.setValueAtTime(currentFrequency * carrierMultiplier,time);
-
-		modGain.gain.setValueAtTime(currentFrequency * modulatorLevel * (1 + feedback) * 0.8,time);
-		modulator.connect(modGain);
-		modGain.connect(carrier.frequency);
-		carrier.connect(volumeGain);
-
-		volumeGain.gain.setValueAtTime(0,time);
-		applySynthEnvelope(volumeGain.gain,time,volume/100 * carrierLevel,patch);
-
-		volumeFadeOut.gain.setValueAtTime(0,time);
-		volumeFadeOut.gain.linearRampToValueAtTime(1,time + 0.01);
-		volumeGain.connect(volumeFadeOut);
-
-		if (usePanning){
-			panning = audioContext.createStereoPanner();
-			panning.pan.setValueAtTime((instrument.sample.panning || 0) / 128,time);
-			volumeFadeOut.connect(panning);
-			panning.connect(filterChains[track].input());
-		}else{
-			volumeFadeOut.connect(filterChains[track].input());
-		}
-
-		modulator.start(time);
-		carrier.start(time);
-
-		var result = {
-			source: carrier,
-			modulator: modulator,
-			volume: volumeGain,
-			panning: panning,
-			volumeFadeOut: volumeFadeOut,
-			startVolume: volume,
-			currentVolume: volume,
-			startPeriod: period,
-			basePeriod: basePeriod,
-			noteIndex: noteIndex,
-			startPlaybackRate: 1,
-			sampleRate: currentFrequency,
-			instrumentIndex: index,
-			effects: effects,
+		var result = Synth.play({
+			audioContext: audioContext,
+			instrument: instrument,
+			index: index,
+			period: period,
+			volume: volume,
 			track: track,
+			effects: effects,
 			time: time,
-			synth: true
-		};
+			noteIndex: noteIndex,
+			usePanning: usePanning,
+			output: filterChains[track].input()
+		});
 
-		result.setPeriodAtTime = function(newPeriod,newTime){
-			var frequency = getSynthFrequency(newPeriod,instrument);
-			carrier.frequency.setValueAtTime(frequency * carrierMultiplier,newTime);
-			modulator.frequency.setValueAtTime(frequency * modulatorMultiplier,newTime);
-			modGain.gain.setValueAtTime(frequency * modulatorLevel * (1 + feedback) * 0.8,newTime);
-			result.sampleRate = frequency;
-		};
-
-		result.stop = function(stopTime){
-			try{
-				carrier.stop(stopTime);
-				modulator.stop(stopTime);
-			}catch (e){
-			}
-		};
-
-		scheduledNotes[scheduledNotesBucket].push(volumeGain);
+		scheduledNotes[scheduledNotesBucket].push(result.volume);
 
 		if (!isRendering) EventBus.trigger(EVENT.samplePlay,result);
 
 		return result;
 	};
-
-	function getSynthFrequency(period,instrument){
-		var c4Frequency = 261.625565;
-		var c2spd = (instrument.synth && instrument.synth.c2spd) || 8363;
-		return c4Frequency * (428 / Math.max(period,1)) * (c2spd / 8363);
-	}
-
-	function getOplMultiplier(value){
-		value = value || 0;
-		if (value === 0) return 0.5;
-		return value;
-	}
-
-	function getOplLevel(value){
-		value = typeof value === "number" ? value : 0;
-		value = Math.max(0,Math.min(63,value));
-		return (63 - value) / 63;
-	}
-
-	function getSynthWaveform(value){
-		switch(value & 3){
-			case 1: return "sawtooth";
-			case 2: return "square";
-			case 3: return "triangle";
-		}
-		return "sine";
-	}
-
-	function getOplTime(value,min,max){
-		value = Math.max(0,Math.min(15,value || 0));
-		return min + ((15 - value) / 15) * (max - min);
-	}
-
-	function applySynthEnvelope(param,time,level,patch){
-		var attack = getOplTime(patch.carrierAttack,0.005,0.8);
-		var decay = getOplTime(patch.carrierDecay,0.02,1.2);
-		var sustain = 1 - ((patch.carrierSustain || 0) / 15);
-		sustain = Math.max(0,Math.min(1,sustain));
-
-		param.setValueAtTime(0,time);
-		param.linearRampToValueAtTime(level,time + attack);
-		param.linearRampToValueAtTime(level * sustain,time + attack + decay);
-	}
 
     me.playSilence = function(){
         // used to activate Audio engine on first touch in IOS and Android devices

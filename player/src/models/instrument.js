@@ -64,6 +64,10 @@ var Instrument = function(){
 
 	me.noteOff = function(time,noteInfo){
 		if (!noteInfo || !noteInfo.volume) return;
+		if (noteInfo.synth && noteInfo.applyRelease){
+			noteInfo.applyRelease(time);
+			return 100;
+		}
 
 		function cancelScheduledValues(){
 			// Note: we should cancel Volume and Panning scheduling independently ...
