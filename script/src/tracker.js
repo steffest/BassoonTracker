@@ -2087,6 +2087,39 @@ var Tracker = (function(){
 		}
 	};
 
+	function getZipEntryScore(filename){
+		if (!filename) return 0;
+
+		let basename = filename.split(/[\\/]/).pop().toLowerCase();
+		if (!basename) return 0;
+		if (basename.endsWith(".mod")) return 1;
+		if (basename.endsWith(".xm")) return 1;
+		if (basename.endsWith(".s3m")) return 1;
+		if (basename.startsWith("mod.")) return 1;
+		return 0;
+	}
+
+	function pickZipEntry(entries,getName,getSize,isDirectory){
+		let selected;
+		let selectedScore = -1;
+		let selectedSize = -1;
+
+		entries.forEach(function(entry){
+			if (isDirectory && isDirectory(entry)) return;
+
+			let filename = getName(entry) || "";
+			let size = getSize(entry) || 0;
+			let score = getZipEntryScore(filename);
+			if (score>selectedScore || (score === selectedScore && size>selectedSize)){
+				selected = entry;
+				selectedScore = score;
+				selectedSize = size;
+			}
+		});
+
+		return selected;
+	}
+
 	me.processFile = function(data, name, url){
 		return new Promise(async next=>{
 			var file;
@@ -2118,9 +2151,30 @@ var Tracker = (function(){
 					if (typeof UZIP !== "undefined") {
 						// using UZIP: https://github.com/photopea/UZIP.js
 						var myArchive = UZIP.parse(data);
+						let entries = [];
 						for (let fname in myArchive) {
-							me.processFile(myArchive[fname].buffer, fname, url).then(next)
-							break; // just use first entry
+							if (myArchive[fname]){
+								entries.push({
+									name: fname,
+									data: myArchive[fname]
+								})
+							}
+						}
+						let zipEntry = pickZipEntry(entries,function(entry){
+							return entry.name;
+						},function(entry){
+							return entry.data ? entry.data.byteLength || entry.data.length || 0 : 0;
+						});
+						if (zipEntry){
+							let entry = zipEntry.data;
+							let buffer = entry.buffer || entry;
+							if (entry.byteOffset || entry.byteLength !== buffer.byteLength){
+								buffer = buffer.slice(entry.byteOffset, entry.byteOffset + entry.byteLength);
+							}
+							me.processFile(buffer, zipEntry.name, url).then(next)
+						}else{
+							console.error("Zip file could not be read ...");
+							next(FILETYPE.unknown);
 						}
 					} else {
 						// if UZIP wasn't loaded use zip.js
@@ -2135,20 +2189,20 @@ var Tracker = (function(){
 
 						zip.createReader(new zip.ArrayBufferReader(data), function(reader) {
 							var zipEntry;
-							var size = 0;
 							reader.getEntries(function(entries) {
 								if (entries && entries.length){
-									entries.forEach(function(entry){
-										if (entry.uncompressedSize>size){
-											size = entry.uncompressedSize;
-											zipEntry = entry;
-										}
+									zipEntry = pickZipEntry(entries,function(entry){
+										return entry.filename;
+									},function(entry){
+										return entry.uncompressedSize || 0;
+									},function(entry){
+										return entry.directory;
 									});
 								}
 								if (zipEntry){
 									zipEntry.getData(new zip.ArrayBufferWriter,function(data){
 										if (data && data.byteLength) {
-											me.processFile(data,name,url).then(next)
+											me.processFile(data,zipEntry.filename || name,url).then(next)
 										}
 									})
 								}else{
@@ -2161,6 +2215,7 @@ var Tracker = (function(){
 							next(FILETYPE.unknown);
 						});
 					}
+					return;
 				}
 			}
 
