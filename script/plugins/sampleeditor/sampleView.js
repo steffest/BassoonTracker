@@ -577,6 +577,13 @@ let SampleView = function(){
 
 		var envelopeHeight = 130;
         var spinButtonHeight = 28;
+		sideButtonPanel.setProperties({
+			left:0,
+			top: 0,
+			width: Layout.col1W,
+			height:me.height
+		});
+
         var sliderHeight = sideButtonPanel.height - envelopeHeight- 10;
 		var sliderWidth = Math.ceil(sideButtonPanel.width/4);
 		var sliderRow2Top = 0;
@@ -639,15 +646,6 @@ let SampleView = function(){
 			height: 20,
 			left: instrumentName.left + instrumentName.width + Layout.defaultMargin + 18 + bitButtonOffScreen
 		});
-
-
-		sideButtonPanel.setProperties({
-			left:0,
-			top: 0,
-			width: Layout.col1W,
-			height:me.height
-		});
-
 
 		spinBoxInstrument.setProperties({
 			left:Layout.col2X,

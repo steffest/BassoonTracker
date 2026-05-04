@@ -1,5 +1,8 @@
 export default {
 	name: "SampleEditor",
-	entry: "./sampleeditor/sampleEditor.js",
+	entry: "script/plugins/sampleeditor/sampleEditor.js",
+	load: function(){
+		return import("./sampleEditor.js");
+	},
 	assets: []
 };

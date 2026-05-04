@@ -20,9 +20,7 @@ var SampleEditor = function(){
 
 				if (!sampleView){
 					sampleView = SampleView();
-					sampleView.setProperties({
-						name: "sampleViewPanel"
-					});
+					sampleView.name = "sampleViewPanel";
 				}
 
 				renderTarget.children = [];

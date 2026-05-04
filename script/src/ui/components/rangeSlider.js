@@ -9,9 +9,9 @@ let rangeSlider = function(initialProperties){
 	var properties = ["left","top","width","height","name","onChange"];
 
 	var knob = Y.getImage("slider_knob");
-	var knobVert = Y.getImage("slider_knob_vert");
+	var knobVert = Y.getImage("slider_knob_vert") || knob;
 	var backImage = Y.getImage("slider_back");
-	var backImageVert = Y.getImage("slider_back_vert");
+	var backImageVert = Y.getImage("slider_back_vert") || backImage;
     var vertical = false;
     var maxHeight = 0;
 
@@ -148,6 +148,7 @@ let rangeSlider = function(initialProperties){
 
 	me.onResize = function(){
 
+		if (!knobVert) return;
 		maxHeight = me.height-knobVert.height+3;
 
 		back.setSize(me.width,me.height);

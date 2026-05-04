@@ -22,7 +22,6 @@ const copyIndexHtmlPlugin = () => {
             let buildNumber = version + "_" + _y + _m + _d + "_" + Math.random().toString().substr(2, 8);
             content = content.replace("{version}", version);
             content = content.replaceAll("{build}", buildNumber);
-            content = content.replace('.js"', '.js?v=' + buildNumber + '"');
 
             fs.writeFileSync(destPath, content);
         }

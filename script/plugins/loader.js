@@ -84,15 +84,15 @@ var Plugin = function(){
 	}
 
 	function loadModule(manifest){
+		if (manifest.load) return manifest.load();
 		if (!manifest.entry) return Promise.resolve({});
-		var baseUrl = Host.getRemoteUrl() ? Host.getRemoteUrl() + "script/plugins/loader.js" : import.meta.url;
-		var url = new URL(manifest.entry,baseUrl).href;
+		var url = getPluginUrl(manifest.entry);
 		return import(/* @vite-ignore */ url);
 	}
 
 	function loadGraphics(manifest,src){
 		return new Promise(function(resolve){
-			Y.loadImage(Host.getRemoteUrl() + src,function(img){
+			Y.loadImage(getPluginUrl(src),function(img){
 				var name = src.split("/").pop().split(".")[0];
 				Y.sprites[manifest.name + "." + name] = sprite({
 					img:img,
@@ -102,6 +102,11 @@ var Plugin = function(){
 				resolve();
 			});
 		});
+	}
+
+	function getPluginUrl(path){
+		var remoteUrl = Host.getRemoteUrl();
+		return remoteUrl ? remoteUrl + path : new URL(path,document.baseURI).href;
 	}
 
 	return me;
