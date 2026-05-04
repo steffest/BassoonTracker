@@ -1,124 +1,108 @@
 import Y from "../src/ui/yascal/yascal.js";
 import sprite from "../src/ui/yascal/sprite.js";
 import Host from "../src/host.js";
-
+import pluginRegistry from "./registry.js";
 
 var Plugin = function(){
 	var me = {};
-	
-	var pluginSources={
-		"Nibbles":[
-			"script/plugins/games/nibbles/nibbles.js",
-			"script/plugins/games/nibbles/logo.png",
-			"script/plugins/games/nibbles/levels.png",
-			"script/plugins/games/nibbles/player1.png"],
-		"Generator":[
-			"script/plugins/apps/generator/generator.js",
-			"script/plugins/apps/generator/sin.png",
-			"script/plugins/apps/generator/logo.png"
-		]
-	}
-
 	var plugins = {};
 
 	me.register = function(plugin){
-		console.log("register");
-		console.log(plugin);
+		console.log("register",plugin);
 		plugins[plugin.name] = plugin;
 	};
-	
+
 	me.load = function(plugin,next){
-		var pluginName = plugin.name || plugin;
-		
-		if (typeof window[pluginName] === "object"){
-			// already packaged
-			console.log("Plugin " + pluginName + " already loaded");
+		var manifest = resolveManifest(plugin);
+		if (!manifest){
+			console.warn("Can't load plugin: unknown plugin",plugin);
 			if (next) next();
-		}else{
-			if (typeof plugin === "string"){
-				plugin = {
-					name: plugin,
-					src: pluginSources[plugin]
-				};
-			}
-			var p = plugins[plugin.name];
-			if (p){
-				if (p.loading) {
-					console.warn("Plugin already being loaded");
-				}else{
-					console.log("Plugin already loaded");
-					if (next) next();
-				}
-			}else{
-				var todo;
-				var done;
-
-				var loadCallback = function (e) {
-					if (e && e.type === 'load'){
-						done++;
-					}else{
-						console.error("Error loading resource",e);
-						done++;
-					}
-					//console.error(this.src);
-					if (done>=todo){
-						plugin.loaded = true;
-						console.log("loaded",plugin);
-						if (plugin.onLoad) plugin.onLoad();
-						if (next) next();
-					}
-				};
-
-				var loadScript = function (src) {
-					var s = document.createElement('script');
-					s.type = 'application/javascript';
-					s.src = Host.getRemoteUrl() + src;
-					s.addEventListener('error', loadCallback, false);
-					s.addEventListener('load', loadCallback, false);
-					document.getElementsByTagName('head')[0].appendChild(s);
-					return s.src;
-				};
-
-				var loadGraphics = function (src) {
-					Y.loadImage(Host.getRemoteUrl() + src,function(img){
-						var name = src.split("/").pop().split(".")[0];
-						Y.sprites[plugin.name + "." + name] = sprite({
-							img:img,
-							width:img.width,
-							height: img.height
-						});
-						loadCallback({type:'load'});
-					})
-				};
-
-				if (plugin.src){
-					console.log("loading Plugin " + plugin.name + " with " + plugin.src.length + " source files");
-					plugin.loading = true;
-					todo=plugin.src.length;
-					done=0;
-					plugin.src.forEach(function(s){
-						var ext = s.split(".").pop().toLowerCase();
-						switch (ext){
-							case "js":
-								loadScript(s);
-								break;
-							case "png":
-								loadGraphics(s);
-								break;
-							default:
-								console.warn("Warning, unknown loader for " + s);
-								loadCallback(s);
-						}
-					});
-				}else{
-					console.warn("Can't load plugin " + plugin.name + ": no source files");
-					if (next) next();
-				}
-			}
+			return Promise.resolve();
 		}
+
+		var loadedPlugin = plugins[manifest.name];
+		if (loadedPlugin && loadedPlugin.loaded){
+			console.log("Plugin already loaded");
+			if (next) next(loadedPlugin.module,loadedPlugin);
+			return Promise.resolve(loadedPlugin.module);
+		}
+		if (loadedPlugin && loadedPlugin.loading){
+			console.warn("Plugin already being loaded");
+			return loadedPlugin.loading.then(function(module){
+				if (next) next(module,loadedPlugin);
+				return module;
+			});
+		}
+
+		loadedPlugin = {
+			name: manifest.name,
+			manifest: manifest,
+			loaded: false
+		};
+		plugins[manifest.name] = loadedPlugin;
+
+		console.log("loading Plugin " + manifest.name);
+		loadedPlugin.loading = Promise.all([
+			loadAssets(manifest),
+			loadModule(manifest)
+		]).then(function(result){
+			var module = result[1];
+			loadedPlugin.module = module.default || module;
+			loadedPlugin.loaded = true;
+			loadedPlugin.loading = null;
+			console.log("loaded",loadedPlugin);
+			if (loadedPlugin.onLoad) loadedPlugin.onLoad(loadedPlugin.module,loadedPlugin);
+			if (next) next(loadedPlugin.module,loadedPlugin);
+			return loadedPlugin.module;
+		}).catch(function(error){
+			loadedPlugin.loading = null;
+			console.error("Error loading plugin " + manifest.name,error);
+			if (next) next();
+		});
+
+		return loadedPlugin.loading;
 	};
 
+	function resolveManifest(plugin){
+		if (typeof plugin === "string") return pluginRegistry[plugin];
+		if (plugin && plugin.entry) return plugin;
+		if (plugin && plugin.name) return pluginRegistry[plugin.name] || plugin;
+	}
 
+	function loadAssets(manifest){
+		var assets = manifest.assets || [];
+		return Promise.all(assets.map(function(src){
+			var ext = src.split(".").pop().toLowerCase();
+			switch (ext){
+				case "png":
+					return loadGraphics(manifest,src);
+				default:
+					console.warn("Warning, unknown loader for " + src);
+					return Promise.resolve();
+			}
+		}));
+	}
+
+	function loadModule(manifest){
+		if (!manifest.entry) return Promise.resolve({});
+		var baseUrl = Host.getRemoteUrl() ? Host.getRemoteUrl() + "script/plugins/loader.js" : import.meta.url;
+		var url = new URL(manifest.entry,baseUrl).href;
+		return import(/* @vite-ignore */ url);
+	}
+
+	function loadGraphics(manifest,src){
+		return new Promise(function(resolve){
+			Y.loadImage(Host.getRemoteUrl() + src,function(img){
+				var name = src.split("/").pop().split(".")[0];
+				Y.sprites[manifest.name + "." + name] = sprite({
+					img:img,
+					width:img.width,
+					height: img.height
+				});
+				resolve();
+			});
+		});
+	}
 
 	return me;
 }();

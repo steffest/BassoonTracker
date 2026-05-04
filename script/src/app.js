@@ -142,7 +142,8 @@ var App = (function(){
                     break;
 				case COMMAND.nibbles:
                     EventBus.trigger(EVENT.showView,"main");
-					Plugin.load("Nibbles",function(){
+					Plugin.load("Nibbles",function(Nibbles){
+						if (!Nibbles) return;
 						Nibbles.init({
                             UI:{
                                 element: UIElement,
@@ -160,12 +161,14 @@ var App = (function(){
                             EventBus: EventBus,
                             EVENT: EVENT,
                             COMMAND: COMMAND,
-                            Layout: Layout
+                            Layout: Layout,
+                            Tracker: Tracker
                         });
 					});
 					break;
                 case COMMAND.generator:
-                    Plugin.load("Generator",function(){
+                    Plugin.load("Generator",function(Generator){
+						if (!Generator) return;
                         Generator.init({
                             UI:UI,
                             Input: Input,

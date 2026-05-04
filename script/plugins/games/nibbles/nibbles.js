@@ -1275,3 +1275,5 @@ var Nibbles = function(){
 	}
 	return me;
 }();
+
+export default Nibbles;
