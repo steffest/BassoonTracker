@@ -572,7 +572,7 @@ let WaveForm = function(){
 				}
 			}
 
-			if (currentInstrument.sample.loop.length>2 || currentInstrument.sample.loop.enabled){
+			if (currentInstrument && currentInstrument.sample && (currentInstrument.sample.loop.length>2 || currentInstrument.sample.loop.enabled)){
 
 				var color = currentInstrument.sample.loop.enabled ? "rgb(241, 220, 71)" : "rgba(150, 150, 150,0.7)";
 

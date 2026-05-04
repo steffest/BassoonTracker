@@ -71,7 +71,14 @@ var App = (function(){
                     EventBus.trigger(EVENT.showView,"diskop_load");
                     break;
                 case COMMAND.showSampleEditor:
-                    EventBus.trigger(EVENT.showView,"sample");
+                    Plugin.load("SampleEditor",function(SampleEditor){
+						if (!SampleEditor) return;
+						SampleEditor.init({
+							EventBus: EventBus,
+							EVENT: EVENT
+						});
+						EventBus.trigger(EVENT.showView,"sample");
+					});
                     break;
                 case COMMAND.togglePiano:
                     EventBus.trigger(EVENT.toggleView,"piano");

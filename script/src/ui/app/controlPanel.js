@@ -7,7 +7,7 @@ import Label from "../components/label.js";
 import SpinBox from "../spinBox.js";
 import Layout from "./layout.js";
 import EventBus from "../../eventBus.js";
-import {EVENT, TRACKERMODE} from "../../enum.js";
+import {COMMAND, EVENT, TRACKERMODE} from "../../enum.js";
 import Tracker from "../../tracker.js";
 import Y from "../yascal/yascal.js";
 
@@ -39,8 +39,11 @@ let app_controlPanel = function(){
 	var buttonSampleEdit = Checkboxbutton({
 		label: "Sample Edit",
 		onDown: function(){
-			var view = this.isActive ? "sample" : "bottommain";
-			EventBus.trigger(EVENT.showView,view);
+			if (this.isActive){
+				EventBus.trigger(EVENT.command,COMMAND.showSampleEditor);
+			}else{
+				EventBus.trigger(EVENT.showView,"bottommain");
+			}
 		}
 	});
 	buttonSampleEdit.tooltip = "Show Sample Editor";

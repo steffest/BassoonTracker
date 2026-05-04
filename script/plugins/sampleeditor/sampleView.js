@@ -1,21 +1,21 @@
-import Panel from "./components/panel.js";
-import Assets from "./assets.js";
-import Y from "./yascal/yascal.js";
-import EventBus from "../eventBus.js";
-import {COMMAND, EVENT, TRACKERMODE} from "../enum.js";
-import Button from "./components/button.js";
-import ButtonGroup from "./app/components/buttonGroup.js";
-import Inputbox from "./components/inputbox.js";
-import SliderBox from "./sliderBox.js";
-import SpinBox from "./spinBox.js";
-import WaveForm from "./waveform.js";
-import EnvelopePanel from "./envelopePanel.js";
-import Checkbox from "./components/checkbox.js";
-import Tracker from "../tracker.js";
-import App from "../app.js";
-import Layout from "./app/layout.js";
-import Input from "./input.js";
-import UI from "./ui.js";
+import Panel from "../../src/ui/components/panel.js";
+import Assets from "../../src/ui/assets.js";
+import Y from "../../src/ui/yascal/yascal.js";
+import EventBus from "../../src/eventBus.js";
+import {COMMAND, EVENT, TRACKERMODE} from "../../src/enum.js";
+import Button from "../../src/ui/components/button.js";
+import ButtonGroup from "../../src/ui/app/components/buttonGroup.js";
+import Inputbox from "../../src/ui/components/inputbox.js";
+import SliderBox from "../../src/ui/sliderBox.js";
+import SpinBox from "../../src/ui/spinBox.js";
+import WaveForm from "../../src/ui/waveform.js";
+import EnvelopePanel from "../../src/ui/envelopePanel.js";
+import Checkbox from "../../src/ui/components/checkbox.js";
+import Tracker from "../../src/tracker.js";
+import App from "../../src/app.js";
+import Layout from "../../src/ui/app/layout.js";
+import Input from "../../src/ui/input.js";
+import UI from "../../src/ui/ui.js";
 
 let SampleView = function(){
 
@@ -545,8 +545,15 @@ let SampleView = function(){
 
     me.onShow = function(){
     	Input.setFocusElement(me);
+		me.refreshState();
         me.onResize();
     };
+
+	me.refreshState = function(){
+		EventBus.trigger(EVENT.songPropertyChange,Tracker.getSong());
+		EventBus.trigger(EVENT.instrumentChange,Tracker.getCurrentInstrumentIndex());
+		EventBus.trigger(EVENT.trackerModeChanged,Tracker.getTrackerMode());
+	};
 
 	me.onKeyDown = function(keyCode,event){
 		if (!me.visible) return;

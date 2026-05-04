@@ -9,13 +9,13 @@ import Layout from "../app/layout.js";
 import EventBus from "../../eventBus.js";
 import {COMMAND, EVENT} from "../../enum.js";
 import App_patternView from "../app/components/patternView.js";
-import SampleView from "../sampleView.js";
 import UIElement from "../components/element.js";
 import UI from "../ui.js";
 import Assets from "../assets.js";
 import App from "../../app.js";
 import Button from "../components/button.js";
 import Y from "../yascal/yascal.js";
+import Panel from "../components/panel.js";
 
 let app_patternPanel = function(){
     var me = App_panelContainer(80);
@@ -26,6 +26,7 @@ let app_patternPanel = function(){
 	var patternLeft;
 	var patternTrackLeft;
 	var currentView = "main";
+	var customPanel;
 
     var editPanel = EditPanel();
     me.addChild(editPanel);
@@ -64,12 +65,6 @@ let app_patternPanel = function(){
     });
     me.addChild(patternView);
 
-
-    var sampleView = SampleView();
-    sampleView.setProperties({
-        name: "sampleViewPanel"
-    });
-    me.addChild(sampleView);
 
     me.onPanelResize = function(){
 
@@ -144,7 +139,7 @@ let app_patternPanel = function(){
             height: Layout.analyserHeight
         });
 
-        sampleView.setProperties({
+        if (customPanel) customPanel.setProperties({
             left: 0,
             top: Layout.expandSampleViewHeight ? Layout.infoPanelHeight : patternTop,
             width: me.width,
@@ -246,10 +241,28 @@ let app_patternPanel = function(){
         setTrackControlsLayout();
     });
 
+	EventBus.on(EVENT.pluginRenderHook,function(hook){
+		if (hook.target && hook.target === "pattern"){
+			if (!customPanel){
+				customPanel = Panel(0,0,me.width,me.height);
+				customPanel.setProperties({
+					name: "patternPluginPanel"
+				});
+				me.addChild(customPanel);
+			}else{
+				customPanel.children = [];
+			}
+
+			if (hook.setRenderTarget) hook.setRenderTarget(customPanel);
+			currentView = hook.view || "custom";
+			me.onPanelResize();
+		}
+	});
+
     EventBus.on(EVENT.showView,function(view){
         switch (view){
             case "sample":
-                sampleView.show();
+				if (customPanel) customPanel.show();
                 patternView.hide();
                 //patternSidebar.hide();
 
@@ -264,7 +277,7 @@ let app_patternPanel = function(){
                 break;
             case "bottommain":
             case "main":
-                sampleView.hide();
+				if (customPanel) customPanel.hide();
                 patternView.show();
 				visualiser.show();
                 if (Layout.showSideBar){
