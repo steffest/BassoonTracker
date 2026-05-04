@@ -8,7 +8,7 @@ import ButtonGroup from "../../src/ui/app/components/buttonGroup.js";
 import Inputbox from "../../src/ui/components/inputbox.js";
 import SliderBox from "../../src/ui/sliderBox.js";
 import SpinBox from "../../src/ui/spinBox.js";
-import WaveForm from "../../src/ui/waveform.js";
+import WaveForm from "./waveform.js";
 import EnvelopePanel from "../../src/ui/envelopePanel.js";
 import Checkbox from "../../src/ui/components/checkbox.js";
 import Tracker from "../../src/tracker.js";

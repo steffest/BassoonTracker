@@ -1,13 +1,13 @@
-import UIElement from "./components/element.js";
-import Scale9Panel from "./components/scale9.js";
-import EventBus from "../eventBus.js";
-import {EVENT, SELECTION} from "../enum.js";
-import Audio from "../audio.js";
-import UI from "./ui.js";
-import StateManager from "./stateManager.js";
-import Tracker from "../tracker.js";
-import Input from "./input.js";
-import Y from "./yascal/yascal.js";
+import UIElement from "../../src/ui/components/element.js";
+import Scale9Panel from "../../src/ui/components/scale9.js";
+import EventBus from "../../src/eventBus.js";
+import {EVENT, SELECTION} from "../../src/enum.js";
+import Audio from "../../src/audio.js";
+import UI from "../../src/ui/ui.js";
+import StateManager from "../../src/ui/stateManager.js";
+import Tracker from "../../src/tracker.js";
+import Input from "../../src/ui/input.js";
+import Y from "../../src/ui/yascal/yascal.js";
 
 let WaveForm = function(){
 
@@ -764,6 +764,38 @@ let WaveForm = function(){
 		
 	}
 
+	function getSoftClippedVolume(value, peak){
+		var sign = value<0 ? -1 : 1;
+		var abs = Math.abs(value);
+		var inputKnee = 0.9;
+		var outputKnee = 0.95;
+
+		if (abs<=inputKnee){
+			return value * (outputKnee/inputKnee);
+		}
+
+		abs = Math.min(abs,peak);
+		var compressed = outputKnee + ((abs-inputKnee)/(peak-inputKnee)) * (1-outputKnee);
+		return sign * Math.min(compressed,1);
+	}
+
+	function boostVolumeSoftClip(data,scale){
+		var i,len;
+		var peak = 0;
+
+		for (i = 0, len = data.length; i<len; i++){
+			data[i] = data[i] * scale;
+			peak = Math.max(peak,Math.abs(data[i]));
+		}
+
+		if (peak<=0.9) return;
+		peak = Math.max(peak,1);
+
+		for (i = 0, len = data.length; i<len; i++){
+			data[i] = getSoftClippedVolume(data[i],peak);
+		}
+	}
+
 
 	me.adjustVolume = function(amount){
 		var data = splitRange();
@@ -811,8 +843,12 @@ let WaveForm = function(){
 		if (!update){
 			if (typeof amount === "number"){
 				scale = 1 + (1/amount);
-				for (i = 0, len = data.range.length-1; i<=len; i++){
-					data.range[i] = Math.min(Math.max(data.range[i]*scale,-1),1);
+				if (amount>0){
+					boostVolumeSoftClip(data.range,scale);
+				}else{
+					for (i = 0, len = data.range.length-1; i<=len; i++){
+						data.range[i] = Math.min(Math.max(data.range[i]*scale,-1),1);
+					}
 				}
 			}
 			update = true;
