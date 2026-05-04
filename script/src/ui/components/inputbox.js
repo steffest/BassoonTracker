@@ -7,13 +7,14 @@ import Tracker from '../../tracker.js';
 
 let inputbox = function(initialProperties){
 	var me = UIElement();
-	var properties = ["left","top","width","height","name","type","onChange","onSubmit","backgroundImage","trackUndo","undoLabel","undoInstrument"];
+	var properties = ["left","top","width","height","name","type","onChange","onSubmit","backgroundImage","placeholder","trackUndo","undoLabel","undoInstrument"];
 	var value = "";
 	var prevValue = "";
 	var isActive;
 	var isCursorVisible;
 	var cursorPos;
 	var backgroundImage = "panel_dark";
+	var placeholder = "";
 
 	me.setProperties = function(p){
 		properties.forEach(function(key){
@@ -26,6 +27,7 @@ let inputbox = function(initialProperties){
 
 		if (p["value"]) value = p["value"];
 		if (p["backgroundImage"]) backgroundImage = p["backgroundImage"];
+		if (typeof p["placeholder"] != "undefined") placeholder = p["placeholder"];
 	};
 
 	if (initialProperties) me.setProperties(initialProperties);
@@ -47,17 +49,20 @@ let inputbox = function(initialProperties){
 		if (this.needsRendering){
 			background.render();
 
-			var textX = 0;
+			var textX = 10;
 			if (value && fontMed){
-				textX = 10;
 				var textY = 6;
 				fontMed.write(me.ctx,value,textX,textY,0);
+			}else if (placeholder && fontMed){
+				me.ctx.globalAlpha = 0.35;
+				fontMed.write(me.ctx,placeholder,textX,6,0);
+				me.ctx.globalAlpha = 1;
 			}
 
 			if (isCursorVisible){
 				me.ctx.fillStyle = "rgba(255,255,255,0.7)";
 				var charWidth = 9;
-				var cursorX = textX + cursorPos*charWidth + 8;
+				var cursorX = textX + ((cursorPos + 1) * charWidth);
 				me.ctx.fillRect(cursorX,4,2,me.height-8);
 			}
 

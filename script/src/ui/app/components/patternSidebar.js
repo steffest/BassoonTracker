@@ -1,5 +1,6 @@
 import Panel from "../../components/panel.js";
 import Listbox from "../../components/listbox.js";
+import InputBox from "../../components/inputbox.js";
 import TabPanel from "../../components/tabPanel.js";
 import Button from "../../components/button.js";
 import Checkboxbutton from "../../components/checkboxbutton.js";
@@ -24,8 +25,14 @@ let pattern_sidebar = function(){
 
     var songListBox = Listbox();
     songListBox.name = "songListBox";
+    var sampleListBox = Listbox();
+    sampleListBox.name = "sampleListBox";
+    var sampleSearchBox = InputBox();
+    sampleSearchBox.name = "sampleSearchBox";
     var playlistListBox = Listbox();
     playlistListBox.name = "playlistListBox";
+    var sampleList = [];
+    var sampleSearchText = "";
 
     var tabPanel = TabPanel(0,0,me.width,me.height,{
         tabs:[
@@ -35,6 +42,11 @@ let pattern_sidebar = function(){
                 isSelected: true,
                 panel: generateTabPanel("songs"),
                 footer: generateSongControls()
+            },
+            {
+                label: "Samples",
+                width: 80,
+                panel: generateTabPanel("samples")
             },
             {
                 label: "PlayLists",
@@ -113,16 +125,19 @@ let pattern_sidebar = function(){
     me.onResize();
 
     function generateTabPanel(type){
-        var listbox = type === "songs" ? songListBox : playlistListBox;
+        var listbox = getListBox(type);
         var line = Y.getImage("line_hor");
 
         listbox.setProperties({
             background: false,
-            lineHeight: 32,
+            lineHeight: type === "samples" ? 20 : 32,
             itemRenderFunction: function(ctx,item,isHover,isSelected){
                 var text = item.label;
 
-                if (item.level){
+                if (type === "samples"){
+                    renderSampleItem(ctx,item,line,listbox.width);
+                    return;
+                }else if (item.level){
                     var iconX = 13;
                     var mainAlpha = 0.8;
                     var _x;
@@ -198,7 +213,9 @@ let pattern_sidebar = function(){
                     listbox.setSelectedIndex(index);
                 }
                 if (item.url){
-                    if (typeof item.index === "number" && type === "songs"){
+                    if (type === "samples"){
+                        Tracker.load(item.url);
+                    }else if (typeof item.index === "number" && type === "songs"){
                         Playlist.play(item.index);
                     }else{
                         Tracker.load(Editor.unpackUrl(item.url),false,function(){
@@ -207,7 +224,19 @@ let pattern_sidebar = function(){
                         })
                     }
                 }else{
-                    // TODO: collapse/expand ?
+                    if (type === "samples" && item.data && item.data.children){
+                        item.data.isExpanded = !item.data.isExpanded;
+                        if (item.data.url && item.data.isExpanded && !item.data.children.length){
+                            FetchService.json(item.data.url,function(data){
+                                if (data && data.samples){
+                                    item.data.children = data.samples;
+                                    refreshSampleList();
+                                }
+                            })
+                        }else{
+                            refreshSampleList();
+                        }
+                    }
                 }
             }
         };
@@ -217,14 +246,32 @@ let pattern_sidebar = function(){
             zIndex: 100,
         })
         panel.onResize = function(){
+            var listTop = 0;
+            if (type === "samples"){
+                sampleSearchBox.setProperties({
+                    left: 0,
+                    top: 0,
+                    width: panel.width,
+                    height: 20,
+                    placeholder: "Search"
+                });
+                listTop = 22;
+            }
             listbox.setProperties({
                 left: 0,
-                top: 0,
+                top: listTop,
                 width: panel.width,
-                height: panel.height-8
+                height: panel.height-listTop-8
             });
         }
         me.addChild(panel);
+        if (type === "samples"){
+            sampleSearchBox.onChange = function(value){
+                sampleSearchText = value;
+                refreshSampleList();
+            };
+            panel.addChild(sampleSearchBox);
+        }
         panel.addChild(listbox);
 
         if (type === "playlists"){
@@ -237,8 +284,91 @@ let pattern_sidebar = function(){
                 }
             }
         }
+        if (type === "samples"){
+            panel.onShow = function(){
+                let items = listbox.getItems();
+                if (items.length === 1){
+                    if (sampleList.length){
+                        refreshSampleList();
+                    }else{
+                        FetchService.json("data/samples.full.json",function(data){
+                            if (data){
+                                sampleList = groupSamplesByType(data.samples || data);
+                                refreshSampleList();
+                            }
+                        });
+                    }
+                }
+            }
+        }
 
         return panel;
+    }
+
+    function getListBox(type){
+        if (type === "samples") return sampleListBox;
+        if (type === "playlists") return playlistListBox;
+        return songListBox;
+    }
+
+    function renderSampleItem(ctx,item,line,width){
+        var textX = 4 + (item.level * 10);
+        var font = window.fontFT;
+        var text = item.label;
+
+        if (item.icon){
+            ctx.drawImage(item.icon,textX,0,16,16);
+            textX += 19;
+        }
+
+        if (item.info){
+            var infoWidth = font.getTextWidth(item.info,0) + 12;
+            window.fontSmall.write(ctx,item.info,width-infoWidth,5,0);
+            text = text.substr(0,Math.floor((width-infoWidth-textX-8)/6));
+        }
+
+        font.write(ctx,text,textX,2,0);
+        ctx.drawImage(line,0,18,width-2,2);
+    }
+
+    function refreshSampleList(){
+        sampleListBox.setItems(generateSampleListBoxItems(sampleList,sampleSearchText));
+        sampleListBox.setSelectedIndex(0,true);
+    }
+
+    function groupSamplesByType(data){
+        let groups = {};
+        let result = [];
+
+        data.forEach(function(item){
+            let type = item.type || "other";
+            if (!groups[type]){
+                groups[type] = {
+                    title: firstLetterToUpperCase(type),
+                    icon: "disk",
+                    children: [],
+                    isExpanded: false
+                };
+                result.push(groups[type]);
+            }
+            groups[type].children.push(item);
+        });
+
+        result.sort(function(a,b){
+            return a.title.localeCompare(b.title);
+        });
+        result.forEach(function(group){
+            group.info = group.children.length + "";
+            group.children.sort(function(a,b){
+                return a.title.localeCompare(b.title);
+            });
+        });
+
+        return result;
+    }
+
+    function firstLetterToUpperCase(value){
+        return value.substr(0,1).toUpperCase() + value.substr(1);
     }
 
     function generateSongControls(){
@@ -405,6 +535,41 @@ let pattern_sidebar = function(){
                 items.push({label: item.title, icon: item.icon, sub:true});
             }
         });
+        return items;
+    }
+
+    function generateSampleListBoxItems(data,searchText){
+        let items = [];
+        let query = searchText ? searchText.toLowerCase() : "";
+
+        function addItems(source,level){
+            source.forEach(function(item){
+                let hasChildren = !!item.children;
+                let children = item.children;
+                if (query && children){
+                    children = children.filter(function(child){
+                        return child.title && child.title.toLowerCase().indexOf(query)>=0;
+                    });
+                    if (!children.length) return;
+                }
+                let icon = hasChildren ? Y.getImage("disk") : Y.getImage(item.icon || "sample");
+                let listItem = {
+                    label: item.title,
+                    info: query && children ? children.length + "" : item.info,
+                    url: hasChildren ? undefined : item.url,
+                    icon: icon,
+                    level: level,
+                    data: item,
+                    listIndex: items.length
+                };
+                items.push(listItem);
+                if (hasChildren && (item.isExpanded || query) && children.length){
+                    addItems(children,level+1);
+                }
+            });
+        }
+
+        addItems(data,0);
         return items;
     }
 
