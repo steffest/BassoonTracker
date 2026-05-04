@@ -382,8 +382,11 @@ function writePng(width,height,rgba){
     for (let y=0;y<height;y++){
         let source = y * scanlineLength;
         let target = y * (scanlineLength + 1);
-        raw[target] = 0;
-        rgba.copy(raw,target+1,source,source+scanlineLength);
+        let previous = y > 0 ? rgba.subarray(source - scanlineLength,source) : undefined;
+        let current = rgba.subarray(source,source+scanlineLength);
+        let filtered = filterScanline(current,previous,4);
+        raw[target] = filtered.type;
+        filtered.data.copy(raw,target+1);
     }
 
     let header = Buffer.alloc(13);
@@ -398,9 +401,55 @@ function writePng(width,height,rgba){
     return Buffer.concat([
         PNG_SIGNATURE,
         pngChunk("IHDR",header),
-        pngChunk("IDAT",zlib.deflateSync(raw)),
+        pngChunk("IDAT",zlib.deflateSync(raw,{level:9})),
         pngChunk("IEND",Buffer.alloc(0))
     ]);
+}
+
+function filterScanline(current,previous,bpp){
+    let best = {
+        type: 0,
+        data: current,
+        score: filterScore(current)
+    };
+
+    for (let type=1;type<=4;type++){
+        let data = Buffer.alloc(current.length);
+        for (let i=0;i<current.length;i++){
+            let left = i>=bpp ? current[i-bpp] : 0;
+            let up = previous ? previous[i] : 0;
+            let upLeft = previous && i>=bpp ? previous[i-bpp] : 0;
+            let predictor;
+
+            switch(type){
+                case 1: predictor = left; break;
+                case 2: predictor = up; break;
+                case 3: predictor = Math.floor((left + up) / 2); break;
+                case 4: predictor = paeth(left,up,upLeft); break;
+            }
+
+            data[i] = (current[i] - predictor) & 255;
+        }
+
+        let score = filterScore(data);
+        if (score < best.score){
+            best = {
+                type: type,
+                data: data,
+                score: score
+            };
+        }
+    }
+
+    return best;
+}
+
+function filterScore(data){
+    let score = 0;
+    for (let i=0;i<data.length;i++){
+        score += data[i] < 128 ? data[i] : 256 - data[i];
+    }
+    return score;
 }
 
 function pngChunk(type,data){
