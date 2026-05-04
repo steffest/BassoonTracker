@@ -7,14 +7,10 @@
   "license": "MIT",
   "scripts": {
     "start": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "skin": "node skin/generate.js"
   },
-  "devDependencies": {
-    "grunt": "^1.6.1",
-    "grunt-spritesmith": "^6.10.0",
-    "terser": "^5.39.2"
-  },
-  "dependencies": {
+  "optionalDependencies": {
     "vite": "^6.3.6"
   }
 }

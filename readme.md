@@ -82,9 +82,8 @@ If you then point your browser to http://localhost:8080/dev.html it should work.
   - If you like you can build a "packaged" version:
     - I'm using "[vite](https://vitejs.dev/)" for that, if you don't have it installed globally - install it with `npm i`
     - Use `vite build` (or `npm run build`) to build the compressed files -> index.html will be created.
-    - If you make changes to the graphics, use `grunt sprites` to build the spritesheet.
+    - If you make changes to the graphics, use `npm run skin` to build the spritesheet.
 	  This will compact all files in the `skin/src` to a single .png file and will create a spritemap.
-
 **Future plans**  
   - ~~MIDI support~~ -> Done!
   - ~~Undo/redo on pattern edits and sample edits~~ -> Done!
