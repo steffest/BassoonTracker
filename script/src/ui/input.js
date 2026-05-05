@@ -25,6 +25,7 @@ let Input = (function(){
 	var currentOctave = 2;
 	var maxOctave = 3;
 	var minOctave = 1;
+	var currentTrackerMode;
 
 	var prevHoverTarget;
 	var prevIndex = 13;
@@ -924,14 +925,16 @@ let Input = (function(){
 
 
 	EventBus.on(EVENT.trackerModeChanged,function(mode){
+		var modeChanged = mode !== currentTrackerMode;
+		currentTrackerMode = mode;
 		if (Tracker.inFTMode()){
             maxOctave = 7;
             minOctave = 0;
-			me.setCurrentOctave(currentOctave+2);
+			if (modeChanged) me.setCurrentOctave(currentOctave+2);
 		}else{
             maxOctave = 3;
             minOctave = 1;
-			me.setCurrentOctave(Math.min(Math.max(currentOctave-2,minOctave),maxOctave));
+			if (modeChanged) me.setCurrentOctave(Math.min(Math.max(currentOctave-2,minOctave),maxOctave));
 		}
 	});
 
