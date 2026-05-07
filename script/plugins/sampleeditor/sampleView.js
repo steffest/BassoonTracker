@@ -2,20 +2,24 @@ import Panel from "../../src/ui/components/panel.js";
 import Assets from "../../src/ui/assets.js";
 import Y from "../../src/ui/yascal/yascal.js";
 import EventBus from "../../src/eventBus.js";
-import {COMMAND, EVENT, TRACKERMODE} from "../../src/enum.js";
+import {COMMAND, EVENT, TRACKERMODE, SETTINGS} from "../../src/enum.js";
 import Button from "../../src/ui/components/button.js";
 import ButtonGroup from "../../src/ui/app/components/buttonGroup.js";
 import Inputbox from "../../src/ui/components/inputbox.js";
 import SliderBox from "../../src/ui/sliderBox.js";
 import SpinBox from "../../src/ui/spinBox.js";
 import WaveForm from "./waveform.js";
+import LoopCreator from "./loopCreator.js";
 import EnvelopePanel from "../../src/ui/envelopePanel.js";
 import Checkbox from "../../src/ui/components/checkbox.js";
+import Menu from "../../src/ui/components/menu.js";
 import Tracker from "../../src/tracker.js";
 import App from "../../src/app.js";
 import Layout from "../../src/ui/app/layout.js";
 import Input from "../../src/ui/input.js";
 import UI from "../../src/ui/ui.js";
+import AudioProcessing from "../../src/audio/audioprocessing.js";
+import HissReductionPanel from "./hissReductionPanel.js";
 
 let SampleView = function(){
 
@@ -25,6 +29,8 @@ let SampleView = function(){
 
 	var currentInstrumentIndex;
 	var subPanel = "loop";
+	var isMaximized = false;
+	var moreExpanded = false;
 
 	var inputboxHeight = 20;
 	var font = window.fontMed;
@@ -84,6 +90,12 @@ let SampleView = function(){
 	var waveForm = WaveForm();
 	me.addChild(waveForm);
 
+	var loopCreator = LoopCreator();
+	waveForm.addLoopCreator(loopCreator);
+
+	var hissReductionPanel = HissReductionPanel();
+	waveForm.addHissReductionPanel(hissReductionPanel);
+
 	waveForm.onMouseWheel = function(touchData){
 		if (touchData.mouseWheels[0] > 0){
 			waveForm.zoom(1.01)
@@ -91,6 +103,88 @@ let SampleView = function(){
 			waveForm.zoom(0.99)
 		}
 	};
+
+	waveForm.onZoomChange = function(state) {
+		if (loopCreator.isVisible()) loopCreator.setZoom(state);
+	};
+
+	loopCreator.onMouseWheel = waveForm.onMouseWheel;
+
+	loopCreator.onPreviewUpdate = function() {
+		waveForm.invalidateWave();
+	};
+
+	hissReductionPanel.onPreviewUpdate = function() {
+		waveForm.invalidateWave();
+	};
+
+	function openLoopCreator() {
+		loopCreator.open(Tracker.getCurrentInstrument());
+		loopCreator.setZoom(waveForm.getZoomState());
+		sampleEditorMenu.hide();
+		me.onResize();
+	}
+
+	function openHissReductionPanel() {
+		hissReductionPanel.open(Tracker.getCurrentInstrument());
+		sampleEditorMenu.hide();
+		me.onResize();
+	}
+
+	loopCreator.onClose = function() {
+		sampleEditorMenu.show();
+		me.onResize();
+	};
+
+	hissReductionPanel.onClose = function() {
+		sampleEditorMenu.show();
+		me.onResize();
+	};
+
+	var sampleEditorMenu = Menu(0,0,140,26,me);
+	sampleEditorMenu.name = "SampleEditorMenu";
+	sampleEditorMenu.zIndex = 500;
+
+	sampleEditorMenu.setItems([
+		{label: "Sample", subItems: [
+			{label: "Load", onClick: function(){
+				EventBus.trigger(EVENT.showView,"diskop_samples_load");
+			}},
+			{label: "Save", onClick: function(){
+				EventBus.trigger(EVENT.showView,"diskop_samples_save");
+			}}
+		]},
+		{label: "View", subItems: [
+			{label: "Maximize", onClick: function(){
+				toggleMaximize();
+			}}
+		]},
+		{label: "Edit", subItems: [
+			{label: "Normalize", onClick: function(){
+				waveForm.adjustVolume("max");
+			}},
+			{label: "Trim", onClick: function(){
+				waveForm.trim();
+			}},
+
+			{label: "Upsample", onClick: function(){
+				waveForm.resample("up");
+			}},
+			{label: "DownSample", onClick: function(){
+				waveForm.resample("down");
+			}},
+			{label: "Make 8-bit", onClick: function(){
+				changeSampleBit(8);
+			}},
+			{label: "Filter", subItems: [
+				{label: "Hiss reduction", onClick: function(){
+					openHissReductionPanel();
+				}}
+			]},
+			{label: "Create Loop", onClick: function(){ openLoopCreator(); }}
+		]}
+	]);
+	me.addChild(sampleEditorMenu);
 
 
 	var volumeEnvelope = EnvelopePanel("volume");
@@ -188,6 +282,7 @@ let SampleView = function(){
 		trackUndo: true,
 		undoInstrument: true,
 		onChange: function(value){
+			if (loopCreator.isVisible()) { loopCreator.setLoopStart(value); return; }
 			var instrument= Tracker.getCurrentInstrument();
             if (instrument){
                 if ((instrument.sample.loop.length+value)>instrument.sample.length) {
@@ -212,6 +307,7 @@ let SampleView = function(){
 		trackUndo: true,
 		undoInstrument: true,
 		onChange: function(value){
+			if (loopCreator.isVisible()) { loopCreator.setLoopLength(value); return; }
 			var instrument = Tracker.getCurrentInstrument();
 			if (instrument){
 				if ((instrument.sample.loop.start+value)>instrument.sample.length) {
@@ -380,14 +476,8 @@ let SampleView = function(){
 				waveForm.stop();
 			}},
 		{label: "More", onClick : function(){
-			sampleDisplayPanel.toggle();
-			sampleSelectPanel.toggle();
-			sampleEditPanel.toggle();
-			sampleVolumePanel.toggle();
-
-			volumeEnvelope.toggle();
-			panningEnvelope.toggle();
-
+			moreExpanded = !moreExpanded;
+			me.onResize();
 			me.refresh();
 		}}
 	];
@@ -460,11 +550,23 @@ let SampleView = function(){
 		{label: "]", width: 15, onClick : function(){
 				waveForm.select("end");
 			}},
-		{label: "None" , width: 50, onClick : function(){
-				waveForm.select("none");
+		{label: "[", width: 15, onClick : function(){
+				var instr = Tracker.getCurrentInstrument();
+				if (instr && instr.sample.loop.length > 2) {
+					waveForm.select("range", instr.sample.loop.start, 0);
+				}
 			}},
-		{label: "Loop", width: 50 , onClick : function(){
+		{label: "Loop", width: 70, onClick : function(){
 				waveForm.select("loop");
+			}},
+		{label: "]", width: 15, onClick : function(){
+				var instr = Tracker.getCurrentInstrument();
+				if (instr && instr.sample.loop.length > 2) {
+					waveForm.select("range", instr.sample.loop.start + instr.sample.loop.length, 0);
+				}
+			}},
+		{label: "None", width: 50, onClick : function(){
+				waveForm.select("none");
 			}},
 		{label: "Cut", width: 50, onClick : function(){
 				UI.cutSelection();
@@ -472,10 +574,9 @@ let SampleView = function(){
 		{label: "Copy", width: 50, onClick : function(){
 				UI.copySelection();
 			}},
-		{label: "Paste", onClick : function(){
+		{label: "Paste", width: 50, onClick : function(){
 				UI.pasteSelection();
 			}}
-
 	];
 
 	buttonsInfo.forEach(function(buttonInfo){
@@ -577,12 +678,28 @@ let SampleView = function(){
 
 		var envelopeHeight = 130;
         var spinButtonHeight = 28;
-		sideButtonPanel.setProperties({
-			left:0,
-			top: 0,
-			width: Layout.col1W,
-			height:me.height
-		});
+
+		var margin = Layout.defaultMargin * 2;
+		var waveLeft = isMaximized ? margin : Layout.col2X;
+		var waveWidth = isMaximized ? me.width - margin * 2 : Layout.col4W;
+
+		if (isMaximized) {
+			sideButtonPanel.hide();
+			loopTitleBar.hide();
+			loopEnabledCheckbox.hide();
+			vibratoTitleBar.hide();
+		} else {
+			sideButtonPanel.show();
+			sideButtonPanel.setProperties({
+				left:0,
+				top: 0,
+				width: Layout.col1W,
+				height:me.height
+			});
+			loopTitleBar.show();
+			loopEnabledCheckbox.show();
+			vibratoTitleBar.show();
+		}
 
         var sliderHeight = sideButtonPanel.height - envelopeHeight- 10;
 		var sliderWidth = Math.ceil(sideButtonPanel.width/4);
@@ -596,25 +713,144 @@ let SampleView = function(){
 			sliderRow2Left = 0;
 		}
 
-		waveForm.setPosition(Layout.col2X,inputboxHeight + Layout.defaultMargin + 8);
-		waveForm.setSize(Layout.col4W,me.height - waveForm.top - envelopeHeight - spinButtonHeight - 8);
+		var menuH   = 26;
+		var menuTop = inputboxHeight + Layout.defaultMargin + 8;
 
-		volumeEnvelope.setPosition(Layout.col2X,waveForm.top + waveForm.height + Layout.defaultMargin + 30);
-		volumeEnvelope.setSize(Layout.col2W,envelopeHeight);
+		sampleEditorMenu.setPosition(waveLeft, menuTop);
+		sampleEditorMenu.setSize(waveWidth, menuH);
 
-		panningEnvelope.setPosition(Layout.col4X,volumeEnvelope.top);
-		panningEnvelope.setSize(Layout.col2W,envelopeHeight);
+		waveForm.menuHeight = menuH;
+		waveForm.setPosition(waveLeft, menuTop);
 
+		if (isMaximized) {
+			waveForm.setSize(waveWidth, me.height - menuTop - 8);
+			volumeEnvelope.hide();
+			panningEnvelope.hide();
+			sampleEditPanel.hide();
+			sampleDisplayPanel.hide();
+			sampleSelectPanel.hide();
+			sampleVolumePanel.hide();
+			buttons.forEach(function(b){ b.hide(); });
+		} else {
+			waveForm.setSize(waveWidth, me.height - menuTop - envelopeHeight - spinButtonHeight - 8);
 
-		sampleEditPanel.setSize(Layout.col1W,envelopeHeight);
-		sampleDisplayPanel.setSize(Layout.col1W,envelopeHeight);
-		sampleSelectPanel.setSize(Layout.col1W,envelopeHeight);
-		sampleVolumePanel.setSize(Layout.col1W,envelopeHeight);
+			if (moreExpanded) {
+				volumeEnvelope.hide();
+				panningEnvelope.hide();
 
-		sampleDisplayPanel.setPosition(Layout.col2X,waveForm.top + waveForm.height + Layout.defaultMargin + 30);
-		sampleSelectPanel.setPosition(Layout.col3X,sampleDisplayPanel.top);
-		sampleEditPanel.setPosition(Layout.col4X,sampleDisplayPanel.top);
-		sampleVolumePanel.setPosition(Layout.col5X,sampleDisplayPanel.top);
+				sampleEditPanel.show();
+				sampleDisplayPanel.show();
+				sampleSelectPanel.show();
+				sampleVolumePanel.show();
+
+				sampleEditPanel.setSize(Layout.col1W,envelopeHeight);
+				sampleDisplayPanel.setSize(Layout.col1W,envelopeHeight);
+				sampleSelectPanel.setSize(Layout.col1W,envelopeHeight);
+				sampleVolumePanel.setSize(Layout.col1W,envelopeHeight);
+
+				sampleDisplayPanel.setPosition(Layout.col2X,waveForm.top + waveForm.height + Layout.defaultMargin + 30);
+				sampleSelectPanel.setPosition(Layout.col3X,sampleDisplayPanel.top);
+				sampleEditPanel.setPosition(Layout.col4X,sampleDisplayPanel.top);
+				sampleVolumePanel.setPosition(Layout.col5X,sampleDisplayPanel.top);
+			} else {
+				volumeEnvelope.show();
+				volumeEnvelope.setPosition(Layout.col2X,waveForm.top + waveForm.height + Layout.defaultMargin + 30);
+				volumeEnvelope.setSize(Layout.col2W,envelopeHeight);
+
+				panningEnvelope.show();
+				panningEnvelope.setPosition(Layout.col4X,volumeEnvelope.top);
+				panningEnvelope.setSize(Layout.col2W,envelopeHeight);
+
+				sampleEditPanel.hide();
+				sampleDisplayPanel.hide();
+				sampleSelectPanel.hide();
+				sampleVolumePanel.hide();
+			}
+
+			buttons.forEach(function(b){ b.show(); });
+			var BottomPanelTop = waveForm.top + waveForm.height + Layout.defaultMargin;
+			var buttonWidth = Layout.col4W / buttons.length;
+			buttons.forEach(function(button,index){
+				button.setProperties({
+					width: buttonWidth,
+					height: spinButtonHeight,
+					left: Layout.col2X + (buttonWidth*index),
+					top: BottomPanelTop
+				});
+			});
+
+			loopTitleBar.setProperties({
+				width: Layout.col1W/2,
+				height: 18,
+				left: 2,
+				top: volumeEnvelope.top
+			});
+
+			loopEnabledCheckbox.setPosition(loopTitleBar.left+2,loopTitleBar.top+2);
+
+	        vibratoTitleBar.setProperties({
+	            width: loopTitleBar.width,
+	            height: loopTitleBar.height,
+	            left: loopTitleBar.left + loopTitleBar.width,
+	            top: loopTitleBar.top
+	        });
+
+			var loopSpinnerHeight = 34;
+			var vibratoSpinnerHeight = 30;
+
+			repeatSpinbox.setProperties({
+				left:0,
+				top: loopTitleBar.top + 24,
+				width: Layout.col1W,
+				height: loopSpinnerHeight
+			});
+
+			repeatLengthSpinbox.setProperties({
+				left:0,
+				top: loopTitleBar.top + 24 + loopSpinnerHeight,
+				width: Layout.col1W,
+				height: loopSpinnerHeight
+			});
+
+			spinBoxRelativeNote.setProperties({
+				left:0,
+				top: loopTitleBar.top + 24 + (loopSpinnerHeight*2),
+				width: Layout.col1W,
+				height: loopSpinnerHeight
+			});
+
+	        spinBoxVibratoSpeed.setProperties({
+	            left:0,
+	            top: vibratoTitleBar.top + 22,
+	            width: Layout.col1W,
+	            height: vibratoSpinnerHeight
+	        });
+
+	        spinBoxVibratoDepth.setProperties({
+	            left:0,
+	            top: vibratoTitleBar.top + 22 + vibratoSpinnerHeight,
+	            width: Layout.col1W,
+	            height: vibratoSpinnerHeight
+	        });
+
+	        spinBoxVibratoSweep.setProperties({
+	            left:0,
+	            top: vibratoTitleBar.top + 22 + (vibratoSpinnerHeight*2),
+	            width: Layout.col1W,
+	            height: vibratoSpinnerHeight
+	        });
+
+	        var waveButtonWidth = Math.floor((Layout.col1W-4)/4);
+	        var marginLeft = Layout.col1W - (waveButtonWidth*4);
+	        waveButtons.forEach(function(button,index){
+	            button.setProperties({
+	                left: marginLeft + index*waveButtonWidth,
+	                top: vibratoTitleBar.top + 22 + (vibratoSpinnerHeight*3),
+	                width: waveButtonWidth,
+	                height: 17
+	            });
+			})
+		}
 
 		var bitButtonSpace = 0;
 		var bitButtonOffScreen = 100;
@@ -625,8 +861,8 @@ let SampleView = function(){
 
 		instrumentName.setProperties({
 			top: Layout.defaultMargin,
-			left: Layout.col2X + 71,
-			width: Layout.col4W - 71 - 25 - Layout.defaultMargin - bitButtonSpace
+			left: waveLeft + 71,
+			width: waveWidth - 71 - 25 - Layout.defaultMargin - bitButtonSpace
 		});
 
 		closeButton.setProperties({
@@ -648,127 +884,50 @@ let SampleView = function(){
 		});
 
 		spinBoxInstrument.setProperties({
-			left:Layout.col2X,
+			left: waveLeft,
 			top: 1,
 			width: 68,
 			height: spinButtonHeight
 		});
 
-		volumeSlider.setProperties({
-			left:0,
-			top: 0,
-			width: sliderWidth,
-			height: sliderHeight
-		});
-
-		fineTuneSlider.setProperties({
-			left:sliderWidth,
-			top: 0,
-			width: sliderWidth,
-			height: sliderHeight
-		});
-
-		fadeOutSlider.setProperties({
-			left:sliderRow2Left,
-			top: sliderRow2Top,
-			width: sliderWidth,
-			height: sliderHeight
-		});
-
-		panningSlider.setProperties({
-			left:sliderRow2Left + sliderWidth,
-			top: sliderRow2Top,
-			width: sliderWidth,
-			height: sliderHeight
-		});
-
-
-		var BottomPanelTop = waveForm.top + waveForm.height + Layout.defaultMargin;
-
-		var buttonWidth = Layout.col4W / buttons.length;
-		buttons.forEach(function(button,index){
-			button.setProperties({
-				width: buttonWidth,
-				height: spinButtonHeight,
-				left: Layout.col2X + (buttonWidth*index),
-				top: BottomPanelTop
+		if (!isMaximized) {
+			volumeSlider.setProperties({
+				left:0,
+				top: 0,
+				width: sliderWidth,
+				height: sliderHeight
 			});
-		});
 
-		loopTitleBar.setProperties({
-			width: Layout.col1W/2,
-			height: 18,
-			left: 2,
-			top: volumeEnvelope.top
-		});
+			fineTuneSlider.setProperties({
+				left:sliderWidth,
+				top: 0,
+				width: sliderWidth,
+				height: sliderHeight
+			});
 
-		loopEnabledCheckbox.setPosition(loopTitleBar.left+2,loopTitleBar.top+2);
+			fadeOutSlider.setProperties({
+				left:sliderRow2Left,
+				top: sliderRow2Top,
+				width: sliderWidth,
+				height: sliderHeight
+			});
 
-        vibratoTitleBar.setProperties({
-            width: loopTitleBar.width,
-            height: loopTitleBar.height,
-            left: loopTitleBar.left + loopTitleBar.width,
-            top: loopTitleBar.top
-        });
-
-		var loopSpinnerHeight = 34;
-		var vibratoSpinnerHeight = 30;
-
-		repeatSpinbox.setProperties({
-			left:0,
-			top: loopTitleBar.top + 24,
-			width: Layout.col1W,
-			height: loopSpinnerHeight
-		});
-
-		repeatLengthSpinbox.setProperties({
-			left:0,
-			top: loopTitleBar.top + 24 + loopSpinnerHeight,
-			width: Layout.col1W,
-			height: loopSpinnerHeight
-		});
-
-		spinBoxRelativeNote.setProperties({
-			left:0,
-			top: loopTitleBar.top + 24 + (loopSpinnerHeight*2),
-			width: Layout.col1W,
-			height: loopSpinnerHeight
-		});
-
-        spinBoxVibratoSpeed.setProperties({
-            left:0,
-            top: vibratoTitleBar.top + 22,
-            width: Layout.col1W,
-            height: vibratoSpinnerHeight
-        });
-
-        spinBoxVibratoDepth.setProperties({
-            left:0,
-            top: vibratoTitleBar.top + 22 + vibratoSpinnerHeight,
-            width: Layout.col1W,
-            height: vibratoSpinnerHeight
-        });
-
-        spinBoxVibratoSweep.setProperties({
-            left:0,
-            top: vibratoTitleBar.top + 22 + (vibratoSpinnerHeight*2),
-            width: Layout.col1W,
-            height: vibratoSpinnerHeight
-        });
-
-        var waveButtonWidth = Math.floor((Layout.col1W-4)/4);
-        var marginLeft = Layout.col1W - (waveButtonWidth*4);
-        waveButtons.forEach(function(button,index){
-            button.setProperties({
-                left: marginLeft + index*waveButtonWidth,
-                top: vibratoTitleBar.top + 22 + (vibratoSpinnerHeight*3),
-                width: waveButtonWidth,
-                height: 17
-            });
-		})
+			panningSlider.setProperties({
+				left:sliderRow2Left + sliderWidth,
+				top: sliderRow2Top,
+				width: sliderWidth,
+				height: sliderHeight
+			});
+		}
 
 	};
 
+
+	function toggleMaximize() {
+		isMaximized = !isMaximized;
+		Layout.sampleViewMaximized = isMaximized;
+		EventBus.trigger(EVENT.showView, "sample");
+	}
 
 	function changeSampleBit(amount){
 		var instrument = Tracker.getCurrentInstrument();
@@ -778,8 +937,20 @@ let SampleView = function(){
 				bit8Button.setActive(false);
 				bit16Button.setActive(true);
 			}else{
-				for (var i = 0, max = instrument.sample.data.length; i<max;i++){
-					instrument.sample.data[i] = Math.round(instrument.sample.data[i]*127)/127;
+				var data = instrument.sample.data;
+				var len = data.length;
+				if (SETTINGS.dither8bit) {
+					var error = 0;
+					for (var i = 0; i < len; i++) {
+						var input = Math.max(-1, Math.min(1, data[i] - error));
+						var quantized = Math.round(input * 127) / 127;
+						error = quantized - input;
+						data[i] = quantized;
+					}
+				} else {
+					for (var i = 0; i < len; i++) {
+						data[i] = Math.round(data[i] * 127) / 127;
+					}
 				}
 				instrument.sample.bits = 8;
 				bit8Button.setActive(true);
@@ -956,6 +1127,13 @@ let SampleView = function(){
 	});
 
 
+
+	loopCreator.onLoopMarkerChange = function(start, length) {
+		repeatSpinbox.setValue(start, true);
+		repeatLengthSpinbox.setValue(length, true);
+	};
+
+	me.sortZIndex();
 
 	return me;
 

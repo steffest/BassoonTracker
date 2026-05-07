@@ -191,6 +191,28 @@ let OptionsPanel = function(){
 			}
 		},
 		{
+			label: "Sample editor",
+			labels: [
+				{width: 56, label: "Sample"},
+				{width: 110, label: "Sample editor"}
+			],
+			values: [],
+			setValue: function() {},
+			getValue: function() { return -1; },
+			checkBoxes: [{
+				label: "Dither on 8-bit",
+				labels: [
+					{width: 60, label: "Dither"},
+					{width: 110, label: "Dither on 8-bit"}
+				],
+				getValue: function() { return SETTINGS.dither8bit; },
+				handler: function(active) {
+					SETTINGS.dither8bit = active;
+					Settings.saveSettings();
+				}
+			}]
+		},
+		{
 			label: "Midi-in",
 			labels : [
 				{width: 20, label: "Midi"},

@@ -1,5 +1,6 @@
 import UIElement from "../../src/ui/components/element.js";
 import Scale9Panel from "../../src/ui/components/scale9.js";
+import Scrollbar from "../../src/ui/components/scrollbar.js";
 import EventBus from "../../src/eventBus.js";
 import {EVENT, SELECTION} from "../../src/enum.js";
 import Audio from "../../src/audio.js";
@@ -8,6 +9,7 @@ import StateManager from "../../src/ui/stateManager.js";
 import Tracker from "../../src/tracker.js";
 import Input from "../../src/ui/input.js";
 import Y from "../../src/ui/yascal/yascal.js";
+import SampleProcessing from "./sampleProcessing.js";
 
 let WaveForm = function(){
 
@@ -38,12 +40,49 @@ let WaveForm = function(){
 	var ignoreInstrumentChange;
 	var rangeCache = [];
 	var playingOffset = 0;
-
 	var MARKERTYPE = {
 		loopStart: 1,
 		loopEnd: 2,
 		rangeStart: 3,
 		rangeEnd: 4
+	};
+
+	me.menuHeight = 0;
+	me.onZoomChange = null;
+
+	me.getZoomState = function() {
+		return { zoomStart: zoomStart, zoomLength: zoomLength || sampleLength };
+	};
+
+	me.invalidateWave = function() {
+		waveformDisplay.needsRendering = true;
+		me.refresh();
+	};
+
+	var loopCreator = null;
+	var hissReductionPanel = null;
+
+	me.addLoopCreator = function(lc) {
+		loopCreator = lc;
+		me.addChild(lc);
+	};
+
+	me.addHissReductionPanel = function(hrp) {
+		hissReductionPanel = hrp;
+		me.addChild(hrp);
+	};
+
+	me.setZoomState = function(state) {
+		if (!sampleLength) return;
+		zoomStart  = state.zoomStart  || 0;
+		zoomLength = state.zoomLength || sampleLength;
+		zoomEnd    = zoomStart + zoomLength;
+		zoom       = sampleLength / zoomLength;
+		hasHorizontalScrollBar = zoom > 1;
+		if (hasHorizontalScrollBar) syncScrollBarToZoom();
+		waveformDisplay.needsRendering = true;
+		me.refresh();
+		// Deliberately does NOT fire onZoomChange to avoid feedback loops
 	};
 
 	var waveformDisplay = UIElement();
@@ -57,40 +96,21 @@ let WaveForm = function(){
 	});
 	background.ignoreEvents = true;
 
-	var scrollBar = Scale9Panel(1,0,100,18,{
+	var scrollBar = Scrollbar(1, 0, 100, 18, {
 		img: Y.getImage("bar"),
-		left:2,
-		top:2,
-		right:3,
+		left: 2,
+		top: 2,
+		right: 3,
 		bottom: 3
+	}, {
+		zoom: true,
+		trackLeft: 1,
+		trackWidth: function(){ return getScrollTrackWidth(); },
+		minWidth: 18,
+		edgeSize: 6,
+		onScroll: updateZoomFromScrollBar,
+		onZoom: updateZoomFromScrollBar
 	});
-
-	scrollBar.onDragStart=function(){
-		//if (Tracker.isPlaying()) return;
-		scrollBar.startDragIndex = zoomStart;
-		scrollBar.startLeft = scrollBar.left;
-	};
-
-	scrollBar.onDrag=function(touchData){
-		var delta =  touchData.deltaX;
-		var newPos = scrollBar.startLeft + delta;
-		var min = 1;
-		var max = me.width - scrollBar.width - 1;
-
-		newPos = Math.max(newPos,min);
-		newPos = Math.min(newPos,max);
-
-		scrollBar.setPosition(newPos,scrollBar.top);
-
-		var range = newPos/(max-min);
-		zoomLength = zoomEnd - zoomStart;
-		zoomStart = Math.floor((sampleLength-zoomLength) * range);
-		zoomEnd = zoomStart + zoomLength;
-		waveformDisplay.refresh();
-
-
-
-	};
 	me.addChild(scrollBar);
 
 
@@ -106,20 +126,9 @@ let WaveForm = function(){
 	
 	
 	me.scroll = function(delta){
-		var newPos = scrollBar.left + delta;
-		var min = 1;
-		var max = me.width - scrollBar.width - 1;
-
-		newPos = Math.max(newPos,min);
-		newPos = Math.min(newPos,max);
-
-		scrollBar.setPosition(newPos,scrollBar.top);
-
-		var range = newPos/(max-min);
-		zoomLength = zoomEnd - zoomStart;
-		zoomStart = Math.floor((sampleLength-zoomLength) * range);
-		zoomEnd = zoomStart + zoomLength;
-		waveformDisplay.refresh();
+		if (!hasHorizontalScrollBar) return;
+		setScrollBarBounds(scrollBar.left + delta,scrollBar.width);
+		updateZoomFromScrollBar();
 		
 	}
 
@@ -267,6 +276,7 @@ let WaveForm = function(){
 		isDown = true;
 	};
 
+
 	me.onHover = function(data){
 
 		if (!isDraggingRange && !dragMarker && !isDown){
@@ -281,6 +291,7 @@ let WaveForm = function(){
 				markerX = getRangeMarkerPos(MARKERTYPE.rangeStart);
 				if (Math.abs(x-markerX)<5){
 					activeDragMarker = MARKERTYPE.rangeStart;
+					UI.setCursor("ew-resize");
 					if (prevDragMarker !== activeDragMarker)me.refresh();
 					return;
 				}
@@ -290,17 +301,18 @@ let WaveForm = function(){
 				var markerX = getRangeMarkerPos(MARKERTYPE.rangeEnd);
 				if (Math.abs(x-markerX)<5){
 					activeDragMarker = MARKERTYPE.rangeEnd;
+					UI.setCursor("ew-resize");
 					if (prevDragMarker !== activeDragMarker) me.refresh();
 					return;
 				}
 			}
-
 
 			if (currentInstrument.sample.loop.enabled){
 
 					markerX = getLoopMarkerPos(MARKERTYPE.loopEnd);
 					if (Math.abs(x-markerX)<5){
 						activeDragMarker = MARKERTYPE.loopEnd;
+						UI.setCursor("ew-resize");
 						if (prevDragMarker !== activeDragMarker)me.refresh();
 						return;
 					}
@@ -308,6 +320,7 @@ let WaveForm = function(){
 					markerX = getLoopMarkerPos(MARKERTYPE.loopStart);
 					if (Math.abs(x-markerX)<5){
 						activeDragMarker = MARKERTYPE.loopStart;
+						UI.setCursor("ew-resize");
 						if (prevDragMarker !== activeDragMarker)me.refresh();
 						return;
 					}
@@ -315,21 +328,30 @@ let WaveForm = function(){
 			}
 
 			if (prevDragMarker !== activeDragMarker){
+				UI.setCursor("default");
 				me.refresh();
 			}
 		}
 
 	};
 
-	me.onResize = function(){
-		waveformDisplay.setPosition(0,0);
-		waveformDisplay.setSize(me.width,me.height);
+	me.onHoverExit = function() {
+		UI.setCursor("default");
+	};
 
-		scrollBar.setPosition(scrollBar.left,me.height - 18);
+	me.onResize = function(){
+		var waveTop = me.menuHeight || 0;
+		waveformDisplay.setPosition(0, waveTop);
+		waveformDisplay.setSize(me.width, me.height - waveTop);
+		waveformDisplay.needsRendering = true;
+
+		scrollBar.setPosition(scrollBar.left, me.height - 18);
 		if (zoom>1){
-			scrollBar.setSize(Math.floor(me.width/zoom),18);
+			syncScrollBarToZoom();
 		}
 
+		if (loopCreator && loopCreator.isVisible()) resizeLoopCreator();
+		if (hissReductionPanel && hissReductionPanel.isVisible()) resizeHissReductionPanel();
 	};
 
 	me.setInstrument = function(instrument){
@@ -394,10 +416,6 @@ let WaveForm = function(){
 				zoomLength = rangeLength;
 				zoomEnd = zoomStart + zoomLength;
 				zoom = sampleLength/zoomLength;
-
-				var sWidth = me.width/zoom;
-				var sMax = me.width-sWidth-2;
-				scrollBar.setPosition(Math.floor((zoomStart/(sampleLength-zoomLength))*sMax),scrollBar.top);
 				handled = true;
 			}else{
 				// zoom to entire sample
@@ -411,10 +429,6 @@ let WaveForm = function(){
 				zoomLength = currentInstrument.sample.loop.length;
 				zoomEnd = zoomStart + zoomLength;
 				zoom = sampleLength/zoomLength;
-
-				sWidth = me.width/zoom;
-				sMax = me.width-sWidth-2;
-				scrollBar.setPosition(Math.floor((zoomStart/(sampleLength-zoomLength))*sMax),scrollBar.top);
 			}
 			handled = true;
 		}
@@ -433,20 +447,87 @@ let WaveForm = function(){
 		}
 
 
-		scrollBar.setSize(Math.floor(me.width/zoom),18);
 		hasHorizontalScrollBar = zoom>1;
 
 		if (hasHorizontalScrollBar){
 			if (zoomEnd>sampleLength){
 				zoomStart = sampleLength - zoomLength;
 				zoomEnd = sampleLength;
-				scrollBar.setPosition(me.width - scrollBar.width - 1,scrollBar.top);
 			}
+			syncScrollBarToZoom();
 		}
 		waveformDisplay.refresh();
 		me.refresh();
+		if (me.onZoomChange) me.onZoomChange(me.getZoomState());
 
+		if (loopCreator && loopCreator.isVisible()) resizeLoopCreator();
+		if (hissReductionPanel && hissReductionPanel.isVisible()) resizeHissReductionPanel();
 	};
+
+	function resizeHissReductionPanel() {
+		if (!hissReductionPanel) return;
+		var scrollH = hasHorizontalScrollBar ? 18 : 0;
+		hissReductionPanel.menuHeight = me.menuHeight;
+		hissReductionPanel.setPosition(0, 0);
+		hissReductionPanel.setSize(me.width, me.height - scrollH);
+		if (hissReductionPanel.onResize) hissReductionPanel.onResize();
+	}
+
+	function resizeLoopCreator() {
+		if (!loopCreator) return;
+		var scrollH = hasHorizontalScrollBar ? 18 : 0;
+		loopCreator.menuHeight = me.menuHeight;
+		loopCreator.setPosition(0, 0);
+		loopCreator.setSize(me.width, me.height - scrollH);
+		if (loopCreator.onResize) loopCreator.onResize();
+	}
+
+	function getScrollTrackWidth(){
+		return Math.max(me.width - 2,1);
+	}
+
+	function setScrollBarBounds(left,width){
+		var trackLeft = 1;
+		var trackWidth = getScrollTrackWidth();
+		var minWidth = Math.min(18,trackWidth);
+
+		width = Math.max(width,minWidth);
+		width = Math.min(width,trackWidth);
+		left = Math.max(trackLeft,left);
+		left = Math.min(left,trackLeft + trackWidth - width);
+
+		scrollBar.setPosition(Math.round(left),scrollBar.top);
+		scrollBar.setSize(Math.round(width),18);
+	}
+
+	function syncScrollBarToZoom(){
+		if (!sampleLength) return;
+
+		var trackWidth = getScrollTrackWidth();
+		var left = 1 + Math.floor((zoomStart/sampleLength) * trackWidth);
+		var width = Math.ceil((zoomLength/sampleLength) * trackWidth);
+		setScrollBarBounds(left,width);
+	}
+
+	function updateZoomFromScrollBar(){
+		if (!sampleLength) return;
+
+		var trackWidth = getScrollTrackWidth();
+		var left = Math.max(scrollBar.left - 1,0);
+		var right = Math.min(left + scrollBar.width,trackWidth);
+
+		zoomStart = Math.floor((left/trackWidth) * sampleLength);
+		zoomEnd = Math.ceil((right/trackWidth) * sampleLength);
+		zoomEnd = Math.max(zoomEnd,zoomStart + 1);
+		zoomEnd = Math.min(zoomEnd,sampleLength);
+		zoomLength = zoomEnd - zoomStart;
+		zoom = sampleLength/zoomLength;
+		hasHorizontalScrollBar = zoom>1;
+
+		waveformDisplay.refresh();
+		me.refresh();
+		if (me.onZoomChange) me.onZoomChange(me.getZoomState());
+	}
 
 
 	me.select = function(range,start,length){
@@ -499,21 +580,25 @@ let WaveForm = function(){
 
 
 	me.render = function(){
-		//   TODO: put wave on separate canvas
+		var waveTop = me.menuHeight || 0;
+		var waveH   = me.height - waveTop;
+
+		if (loopCreator && loopCreator.isVisible() && loopCreator.needsRendering) {
+			this.needsRendering = true;
+		}
+
 		if (this.needsRendering) {
 
 			if (waveformDisplay.needsRendering){
 
-				console.log("updating wave");
-
 				waveformDisplay.clearCanvas();
 
 				waveformDisplay.ctx.fillStyle = "rgb(13, 19, 27)";
-				waveformDisplay.ctx.fillRect(0, 0, me.width, me.height);
+				waveformDisplay.ctx.fillRect(0, 0, me.width, waveH);
 				waveformDisplay.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
 
-				if (background.width !== me.width) background.setSize(me.width,me.height);
-				waveformDisplay.ctx.drawImage(background.render(true),0,0,me.width,me.height);
+				if (background.width !== me.width) background.setSize(me.width, waveH);
+				waveformDisplay.ctx.drawImage(background.render(true), 0, 0, me.width, waveH);
 
 				if (currentSampleData && currentSampleData.length && me.width){
 
@@ -524,13 +609,11 @@ let WaveForm = function(){
 
 					zoomLength = zoomEnd-zoomStart;
 
-
-					// instrument 1 value each pixel
 					var step = zoomLength / me.width;
-					var mid = me.height/2;
+					var mid = waveH / 2;
 					waveformDisplay.ctx.beginPath();
 
-					var maxHeight = (me.height/2) - 2;
+					var maxHeight = (waveH / 2) - 2;
 
 					for (var i = 0; i<me.width; i++){
 						var index = Math.floor(i*step);
@@ -539,7 +622,7 @@ let WaveForm = function(){
 						if(i === 0) {
 							waveformDisplay.ctx.moveTo(i, mid + peak);
 						} else {
-							waveformDisplay.ctx.lineTo(i,mid + peak);
+							waveformDisplay.ctx.lineTo(i, mid + peak);
 						}
 					}
 					waveformDisplay.ctx.stroke();
@@ -547,7 +630,7 @@ let WaveForm = function(){
 				}
 				waveformDisplay.needsRendering = false;
 			}
-			me.ctx.drawImage(waveformDisplay.canvas,0,0);
+			me.ctx.drawImage(waveformDisplay.canvas, 0, waveTop);
 
 
 			if (isPlaying && sampleLength){
@@ -560,14 +643,14 @@ let WaveForm = function(){
 					//isPlaying=false;
 					var pos = (index / sampleLength) * me.width;
 					me.ctx.fillStyle = "rgb(241, 162, 71)";
-					me.ctx.fillRect(pos,0,1,me.height);
+					me.ctx.fillRect(pos, waveTop, 1, waveH);
 				}else{
 					if (index>sampleLength){
 						isPlaying=false;
 					}else{
 						var pos = (index / sampleLength) * me.width;
 						me.ctx.fillStyle = "rgb(241, 162, 71)";
-						me.ctx.fillRect(pos,0,1,me.height);
+						me.ctx.fillRect(pos, waveTop, 1, waveH);
 					}
 				}
 			}
@@ -579,14 +662,14 @@ let WaveForm = function(){
 				me.ctx.fillStyle = color;
 				if (activeDragMarker === MARKERTYPE.loopStart) me.ctx.fillStyle = "white";
 				var lineX = getLoopMarkerPos(MARKERTYPE.loopStart);
-				me.ctx.fillRect(lineX,0,1,me.height-1);
-				me.ctx.fillRect(lineX-4,0,4,10);
+				me.ctx.fillRect(lineX, waveTop, 1, waveH - 1);
+				me.ctx.fillRect(lineX-4, waveTop, 4, 10);
 
 				me.ctx.fillStyle = color;
 				if (activeDragMarker === MARKERTYPE.loopEnd) me.ctx.fillStyle = "white";
 				lineX = getLoopMarkerPos(MARKERTYPE.loopEnd);
-				me.ctx.fillRect(lineX,0,1,me.height-1);
-				me.ctx.fillRect(lineX+1,0,4,10);
+				me.ctx.fillRect(lineX, waveTop, 1, waveH - 1);
+				me.ctx.fillRect(lineX+1, waveTop, 4, 10);
 			}
 
 			var rangeLineX1 = -1;
@@ -597,8 +680,8 @@ let WaveForm = function(){
 				me.ctx.fillStyle = color;
 				if (activeDragMarker === MARKERTYPE.rangeEnd) me.ctx.fillStyle = "white";
 				rangeLineX2 = getRangeMarkerPos(MARKERTYPE.rangeEnd);
-				me.ctx.fillRect(rangeLineX2,0,1,me.height-1);
-				me.ctx.fillRect(rangeLineX2+1,11,4,10);
+				me.ctx.fillRect(rangeLineX2, waveTop, 1, waveH - 1);
+				me.ctx.fillRect(rangeLineX2+1, waveTop + 11, 4, 10);
 			}
 
 			if (rangeStart>=0){
@@ -609,8 +692,8 @@ let WaveForm = function(){
 					me.ctx.fillStyle = color;
 					if (activeDragMarker === MARKERTYPE.rangeStart) me.ctx.fillStyle = "white";
 					rangeLineX1 = getRangeMarkerPos(MARKERTYPE.rangeStart);
-					me.ctx.fillRect(rangeLineX1,0,1,me.height-1);
-					me.ctx.fillRect(rangeLineX1-4,11,4,10);
+					me.ctx.fillRect(rangeLineX1, waveTop, 1, waveH - 1);
+					me.ctx.fillRect(rangeLineX1-4, waveTop + 11, 4, 10);
 				}
 
 				if ((rangeStart+rangeLength)<zoomStart){
@@ -621,24 +704,29 @@ let WaveForm = function(){
 
 			if (rangeLineX1 !== rangeLineX2){
 				if (rangeLineX1>=0){
-					rangeLineX2 = Math.min(rangeLineX2,me.width);
+					rangeLineX2 = Math.min(rangeLineX2, me.width);
 					if (rangeLineX2 <= 0) rangeLineX2 = me.width;
 				}
 				me.ctx.fillStyle = "rgba(241, 162, 71,0.1)";
-				me.ctx.fillRect(rangeLineX1,0,rangeLineX2-rangeLineX1,me.height);
+				me.ctx.fillRect(rangeLineX1, waveTop, rangeLineX2-rangeLineX1, waveH);
 			}
 
+			if (loopCreator && loopCreator.isVisible()) {
+				loopCreator.render();
+			}
+
+			if (hissReductionPanel && hissReductionPanel.isVisible()) {
+				hissReductionPanel.render();
+			}
 
 			if (hasHorizontalScrollBar){
 				scrollBar.render();
 			}
 
-
 		}
 		this.needsRendering = false;
 
-
-		me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
+		me.parentCtx.drawImage(me.canvas, me.left, me.top, me.width, me.height);
 
 	};
 
@@ -724,6 +812,28 @@ let WaveForm = function(){
 		waveformDisplay.refresh();
 		me.refresh();
 	}
+
+	var sampleProcessing = SampleProcessing({
+		splitRange: splitRange,
+		joinRange: joinRange,
+		getRange: function(){ return {rangeStart: rangeStart, rangeLength: rangeLength}; },
+		getLoop: function(){
+			if (!currentInstrument) return null;
+			var loop = currentInstrument.sample.loop;
+			if (!loop || (!loop.enabled && loop.length <= 2)) return null;
+			return {start: loop.start || 0, length: loop.length || 0};
+		},
+		setLoop: function(start, length){
+			if (!currentInstrument) return;
+			currentInstrument.sample.loop.start = start;
+			currentInstrument.sample.loop.length = length;
+			ignoreInstrumentChange = true;
+			EventBus.trigger(EVENT.instrumentChange, Tracker.getCurrentInstrumentIndex());
+			ignoreInstrumentChange = false;
+			waveformDisplay.refresh();
+			me.refresh();
+		}
+	});
 	
 	function checkLoop(){
 		var ls = currentInstrument.sample.loop.start;
@@ -764,135 +874,10 @@ let WaveForm = function(){
 		
 	}
 
-	function getSoftClippedVolume(value, peak){
-		var sign = value<0 ? -1 : 1;
-		var abs = Math.abs(value);
-		var inputKnee = 0.9;
-		var outputKnee = 0.95;
-
-		if (abs<=inputKnee){
-			return value * (outputKnee/inputKnee);
-		}
-
-		abs = Math.min(abs,peak);
-		var compressed = outputKnee + ((abs-inputKnee)/(peak-inputKnee)) * (1-outputKnee);
-		return sign * Math.min(compressed,1);
-	}
-
-	function boostVolumeSoftClip(data,scale){
-		var i,len;
-		var peak = 0;
-
-		for (i = 0, len = data.length; i<len; i++){
-			data[i] = data[i] * scale;
-			peak = Math.max(peak,Math.abs(data[i]));
-		}
-
-		if (peak<=0.9) return;
-		peak = Math.max(peak,1);
-
-		for (i = 0, len = data.length; i<len; i++){
-			data[i] = getSoftClippedVolume(data[i],peak);
-		}
-	}
-
-
-	me.adjustVolume = function(amount){
-		var data = splitRange();
-
-		//console.error(currentSampleData.length,data.range.length);
-		var scale,i,len;
-		var update = false;
-
-		
-		var editAction = StateManager.createSampleUndo(SELECTION.REPLACE,rangeStart,rangeLength);
-		editAction.data = data.range.slice(0);
-		editAction.name = "Adjust Volume";
-
-		if (amount === "max"){
-			var min = 0;
-			var max = 0;
-			for (i = 0, len = data.range.length; i<len; i++){
-				min = Math.min(min,data.range[i]);
-				max = Math.max(max,data.range[i]);
-			}
-			scale = 1/Math.max(max,-min);
-			if (scale>1){
-				for (i = 0, len = data.range.length; i<len; i++){
-					data.range[i] = data.range[i]*scale;
-				}
-				update = true;
-			}
-		}
-
-		if (amount === "fadein"){
-			for (i = 0, len = data.range.length-1; i<=len; i++){
-				scale = i/len;
-				data.range[i] = data.range[i]*scale;
-			}
-			update = true;
-		}
-		if (amount === "fadeout"){
-			for (i = 0, len = data.range.length-1; i<=len; i++){
-				scale = 1-i/len;
-				data.range[i] = data.range[i]*scale;
-			}
-			update = true;
-		}
-
-		if (!update){
-			if (typeof amount === "number"){
-				scale = 1 + (1/amount);
-				if (amount>0){
-					boostVolumeSoftClip(data.range,scale);
-				}else{
-					for (i = 0, len = data.range.length-1; i<=len; i++){
-						data.range[i] = Math.min(Math.max(data.range[i]*scale,-1),1);
-					}
-				}
-			}
-			update = true;
-		}
-
-		if (update){
-			editAction.dataTo = data.range.slice(0);
-			StateManager.registerEdit(editAction);
-			joinRange(data);
-		}
-	};
-
-	me.reverse = function(){
-		var data = splitRange();
-
-		var editAction = StateManager.createSampleUndo(SELECTION.REPLACE,rangeStart,rangeLength);
-		editAction.data = data.range.slice(0);
-		editAction.name = "Reverse Sample";
-		
-		data.range = data.range.reverse();
-
-		editAction.dataTo = data.range.slice(0);
-		StateManager.registerEdit(editAction);
-		
-		joinRange(data);
-	};
-
-	me.invert = function(){
-		var data = splitRange();
-
-		var editAction = StateManager.createSampleUndo(SELECTION.REPLACE,rangeStart,rangeLength);
-		editAction.data = data.range.slice(0);
-		editAction.name = "Reverse Sample";
-		
-		
-		for (var i = 0, len = data.range.length-1; i<=len; i++){
-			data.range[i] = -data.range[i];
-		}
-
-		editAction.dataTo = data.range.slice(0);
-		StateManager.registerEdit(editAction);
-		
-		joinRange(data);
-	};
+	me.adjustVolume = sampleProcessing.adjustVolume;
+	me.trim = sampleProcessing.trim;
+	me.reverse = sampleProcessing.reverse;
+	me.invert = sampleProcessing.invert;
 
 	me.resample = function(direction){
 		var data = splitRange();

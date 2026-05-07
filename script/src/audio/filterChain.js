@@ -143,7 +143,7 @@ let FilterChain = (function(filters) {
     }
 
         if (usePanning){
-            panner =  panner || Audio.context.createStereoPanner();
+            panner =  panner || context.createStereoPanner();
             output.connect(panner);
             output = panner;
         }
