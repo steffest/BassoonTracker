@@ -19,7 +19,6 @@ let listbox = function(x,y,w,h){
     var startY = 1;
     var scrollBarItemOffset = 0;
     var hoverIndex;
-    var prevHoverIndex;
     var properties = ["left","top","width","height","name","type","onChange","selectedIndex","selectedIcon","centerSelection","background"];
     var itemCache = [];
 
@@ -166,43 +165,27 @@ let listbox = function(x,y,w,h){
             }
 
             for (var i = 0, len = items.length;i<len;i++){
-                var item = items[i];
                 var itemY = startY + ((i-visibleIndex)*lineHeight);
-                var isHover = hoverIndex+visibleIndex === i;
-                var isSelected = me.selectedIndex === i;
-
                 if ((itemY>=0) && (itemY<me.height)){
-
-                    var targetCtx = me.ctx;
-                    var _y  = itemY;
+                    var item = items[i];
+                    var isHover = hoverIndex+visibleIndex === i;
+                    var isSelected = me.selectedIndex === i;
                     var clip = itemY>=me.height-lineHeight;
-                    var lastItemHeight
-
                     var itemCanvas = renderItem(item,i,isHover,isSelected);
 
-                    if (clip) lastItemHeight = me.height-itemY;
-
-                    if (targetCtx){
-
-                        if (isHover){
-                            targetCtx.fillStyle = 'rgba(110,130,220,0.07)';
-                            targetCtx.fillRect(0,_y,me.width-2,lineHeight);
-                        }
-
-                        if (isSelected){
-                            targetCtx.fillStyle = 'rgba(110,130,220,0.15)';
-                            targetCtx.fillRect(0,_y,me.width-2,lineHeight);
-                        }
-
-                        if (clip){
-                            me.ctx.drawImage(itemCanvas,0,_y,me.width-2,lastItemHeight);
-                        }else{
-                            me.ctx.drawImage(itemCanvas,0,_y);
-                        }
-
+                    if (isHover){
+                        me.ctx.fillStyle = 'rgba(110,130,220,0.15)';
+                        me.ctx.fillRect(0,itemY,me.width-2,lineHeight);
                     }
-
-
+                    if (isSelected){
+                        me.ctx.fillStyle = 'rgba(110,130,220,0.25)';
+                        me.ctx.fillRect(0,itemY,me.width-2,lineHeight);
+                    }
+                    if (clip){
+                        me.ctx.drawImage(itemCanvas,0,itemY,me.width-2,me.height-itemY);
+                    }else{
+                        me.ctx.drawImage(itemCanvas,0,itemY);
+                    }
                 }
             }
 
@@ -254,6 +237,8 @@ let listbox = function(x,y,w,h){
 
     };
 
+    var lineHor = Y.getImage("line_hor");
+
     function renderItem(item,index,isHover,isSelected){
         var key = index;
         if (itemRenderFunction) key += "_"+isHover+"_"+isSelected;
@@ -271,7 +256,6 @@ let listbox = function(x,y,w,h){
         }else{
             var textX = 10;
             var indent = 10;
-            var line = Y.getImage("line_hor");
 
             if (item.level) textX += item.level*indent;
 
@@ -292,10 +276,7 @@ let listbox = function(x,y,w,h){
                 font.write(targetCtx,text,textX,5,0);
             }
 
-            //textY += 11;
-            //_y += 11;
-
-            if (line) targetCtx.drawImage(line,0,lineHeight-2,me.width-2,2);
+            if (lineHor) targetCtx.drawImage(lineHor,0,lineHeight-2,me.width-2,2);
         }
 
         itemCache[key] = itemCanvas;
@@ -365,22 +346,19 @@ let listbox = function(x,y,w,h){
     };
 
 
-    me.onHover = function(data){
+    me.onHover = function(){
         var index = Math.floor((me.eventY-startY)/lineHeight);
-        if (index !== prevHoverIndex){
+        if (index !== hoverIndex){
             hoverIndex = index;
-            prevHoverIndex = hoverIndex;
             me.refresh();
         }
     };
 
     me.onHoverExit = function(){
-        if (hoverIndex){
+        if (hoverIndex !== undefined){
             hoverIndex = undefined;
-            prevHoverIndex = undefined;
             me.refresh();
         }
-
     };
 
 
