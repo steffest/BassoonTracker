@@ -169,7 +169,15 @@ let Input = (function(){
 				touchData.mouseMoved = new Date().getTime();
 
 				if (SETTINGS.useHover){
-					var hoverEventTarget = UI.getEventElement(_x,_y);
+					var _modal = UI.getModalElement();
+					var hoverEventTarget;
+					if (_modal) {
+						hoverEventTarget = _modal;
+						hoverEventTarget.eventX = _x;
+						hoverEventTarget.eventY = _y;
+					} else {
+						hoverEventTarget = UI.getEventElement(_x,_y);
+					}
 
 					if (SETTINGS.useTooltip && hoverEventTarget){
 						if (hoverEventTarget.tooltip){
