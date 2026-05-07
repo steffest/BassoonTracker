@@ -98,12 +98,21 @@ let app_patternPanel = function(){
 
         Layout.expandSampleViewHeight = patternHeight<280;
 
-        if (Layout.expandSampleViewHeight && currentView==="sample"){
+		var expandForSample = (Layout.expandSampleViewHeight || Layout.sampleViewMaximized) && currentView === "sample";
+		var sampleMaximized = Layout.sampleViewMaximized && currentView === "sample";
+
+        if (expandForSample){
             visualiser.hide();
 			editPanel.hide();
         }else{
             visualiser.show();
 			if (Layout.showSideBar) editPanel.show();
+        }
+
+        if (sampleMaximized){
+            infoPanel.hide();
+        }else{
+            infoPanel.show();
         }
 
 		patternLeft = Layout.showSideBar ? Layout.col2X : Layout.col1X;
@@ -141,9 +150,9 @@ let app_patternPanel = function(){
 
         if (customPanel) customPanel.setProperties({
             left: 0,
-            top: Layout.expandSampleViewHeight ? Layout.infoPanelHeight : patternTop,
+            top: sampleMaximized ? 0 : (expandForSample ? Layout.infoPanelHeight : patternTop),
             width: me.width,
-            height: Layout.expandSampleViewHeight ? me.height - Layout.infoPanelHeight - Layout.defaultMargin - 3 : patternHeight
+            height: sampleMaximized ? me.height : (expandForSample ? me.height - Layout.infoPanelHeight - Layout.defaultMargin - 3 : patternHeight)
         });
 
         setTrackControlsLayout();
@@ -159,7 +168,7 @@ let app_patternPanel = function(){
         var startTrack = patternView.getStartTrack();
         var endTrack = Math.min(startTrack + Layout.visibleTracks,Tracker.getTrackCount());
 
-        var isVisible = !(Layout.expandSampleViewHeight && currentView === "sample");
+        var isVisible = !((Layout.expandSampleViewHeight || Layout.sampleViewMaximized) && currentView === "sample");
 
         for (i = 0;i< trackControls.length;i++){
 
@@ -266,7 +275,7 @@ let app_patternPanel = function(){
                 patternView.hide();
                 //patternSidebar.hide();
 
-                if (Layout.expandSampleViewHeight){
+                if (Layout.expandSampleViewHeight || Layout.sampleViewMaximized){
                     visualiser.hide();
                     editPanel.hide();
                 }

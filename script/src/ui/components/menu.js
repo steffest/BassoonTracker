@@ -51,7 +51,7 @@ let menu = function(x,y,w,h,submenuParent){
 
         if (selectedItem.subMenu){
             var xOffset = data.globalX - data.x;
-            selectedItem.subMenu.setPosition((selectedItem.startX || 0) + xOffset,me.height);
+            selectedItem.subMenu.setPosition(getSubmenuLeft(selectedItem,xOffset),getSubmenuTop());
             selectedItem.subMenu.toggle();
             selectedItem.subMenu.parent.refresh();
             if (!selectedItem.subMenu.isVisible()){
@@ -215,7 +215,7 @@ let menu = function(x,y,w,h,submenuParent){
         if (selectedItem && selectedItem.subMenu){
             activeIndex=index;
             var xOffset = me.left;
-            selectedItem.subMenu.setPosition((selectedItem.startX || 0) + xOffset,me.height);
+            selectedItem.subMenu.setPosition(getSubmenuLeft(selectedItem,xOffset),getSubmenuTop());
             selectedItem.subMenu.toggle();
             selectedItem.subMenu.parent.refresh();
         }
@@ -378,6 +378,15 @@ let menu = function(x,y,w,h,submenuParent){
             }
         }
         return -1;
+    }
+
+    function getSubmenuLeft(item,xOffset){
+        if (submenuParent === me.parent) xOffset = me.left;
+        return (item.startX || 0) + xOffset;
+    }
+
+    function getSubmenuTop(){
+        return submenuParent === me.parent ? me.top + me.height : me.height;
     }
 
     return me;

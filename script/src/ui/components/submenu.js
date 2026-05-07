@@ -105,6 +105,11 @@ let Submenu = function(x,y,w,h){
                 me.parent.refresh();
                 if (me.mainMenu) me.mainMenu.deActivate();
                 EventBus.trigger(EVENT.command,item.command);
+            }else if (item.onClick){
+                me.hide();
+                me.parent.refresh();
+                if (me.mainMenu) me.mainMenu.deActivate();
+                item.onClick();
             }else if (item.subItems){
                 me.toggleSubmenu(item);
             }

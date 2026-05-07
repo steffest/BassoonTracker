@@ -12,6 +12,7 @@ let Layout = function(){
   me.defaultMargin =  4;
 
   me.hasSideBar = true;
+  me.sampleViewMaximized = false;
 
   me.setLayout = function(w,h){
   	
