@@ -4,15 +4,17 @@ import fs from 'fs';
 
 let version = "0.5.0.7";
 
+const outDir = process.env.VITE_OUTDIR || 'build';
+
 const copyIndexHtmlPlugin = () => {
     return {
         name: 'copy-index-html',
         apply: 'build',
         writeBundle() {
-            const srcPath = resolve(__dirname, "./build/dev.html");
+            const srcPath = resolve(__dirname, `./${outDir}/dev.html`);
             const destPath = resolve(__dirname, "./index.html");
             let content = fs.readFileSync(srcPath, 'utf-8');
-            content = content.replaceAll('./main', './build/main');
+            content = content.replaceAll('./main', `./${outDir}/main`);
             content = content.replaceAll(/manifest-\w+\.json/gm, 'manifest.json');
 
             let d = new Date();
@@ -30,9 +32,9 @@ const copyIndexHtmlPlugin = () => {
 
 export default defineConfig({
     base: "./",
-    plugins: [copyIndexHtmlPlugin()],
+    plugins: outDir === 'live' ? [copyIndexHtmlPlugin()] : [],
     build: {
-        outDir: './build',
+        outDir: `./${outDir}`,
         assetsDir: '',
         rollupOptions: {
             input: {
