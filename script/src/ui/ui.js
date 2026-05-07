@@ -511,6 +511,10 @@ var UI = (function(){
 		return canvas;
 	}
 
+	me.setCursor = function(cursor){
+		if (canvas && canvas.style.cursor !== cursor) canvas.style.cursor = cursor;
+	};
+
 	me.getContext = function(){
 		return ctx;
 	}

@@ -1,4 +1,5 @@
 import Scale9Panel from "./scale9.js";
+import UI from "../ui.js";
 
 let Scrollbar = function(x, y, w, h, base, options) {
 	var me = Scale9Panel(x, y, w, h, base);
@@ -55,13 +56,13 @@ let Scrollbar = function(x, y, w, h, base, options) {
 	};
 
 	me.onHover = function() {
-		setCanvasCursor(getDragMode(me.eventX) === "middle"
+		UI.setCursor(getDragMode(me.eventX) === "middle"
 			? (options.cursor || "default")
 			: (options.resizeCursor || "ew-resize"));
 	};
 
 	me.onHoverExit = function() {
-		setCanvasCursor(options.cursor || "default");
+		UI.setCursor(options.cursor || "default");
 	};
 
 	function getDragMode(x) {
@@ -79,11 +80,6 @@ let Scrollbar = function(x, y, w, h, base, options) {
 	function getTrackWidth() {
 		if (typeof options.trackWidth === "function") return options.trackWidth();
 		return options.trackWidth || (me.parent ? me.parent.width : me.width);
-	}
-
-	function setCanvasCursor(cursor) {
-		var canvas = document.getElementById("canvas");
-		if (canvas) canvas.style.cursor = cursor;
 	}
 
 	return me;
