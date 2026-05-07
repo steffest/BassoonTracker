@@ -52,9 +52,16 @@ let ButtonGroup = function(title,buttonsInfo){
 		titleBar.setSize(me.width,18);
 
 		var buttonTop = 20;
-		var buttonHeight = (me.height-buttonTop-2) / 4;
 		var buttonWidth = me.width;
 		var left = 0;
+
+		var numRows = 0, tmpLeft = 0;
+		buttons.forEach(function(b) {
+			tmpLeft += b.widthParam;
+			if (tmpLeft > 95) { numRows++; tmpLeft = 0; }
+		});
+		if (tmpLeft > 0) numRows++;
+		var buttonHeight = (me.height - buttonTop - 2) / Math.max(numRows, 1);
 
 		buttons.forEach(function(button,index){
 			button.setProperties({
