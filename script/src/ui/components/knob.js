@@ -64,7 +64,7 @@ let knob = function(initialProperties){
 	};
 
 	me.setValue = function(newValue){
-		angle = newValue;
+		value = Math.max(0, Math.min(100, newValue));
 		me.refresh();
 	};
 
@@ -144,7 +144,7 @@ let knob = function(initialProperties){
 
 		if (me.isDisabled) return;
 
-			var delta =  touchData.deltaY;
+			var delta = -touchData.deltaY;
 			value = startValue + delta;
 			value = Math.max(value,0);
 			value = Math.min(value,100);

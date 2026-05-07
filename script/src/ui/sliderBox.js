@@ -197,6 +197,7 @@ let sliderBox = function(initialProperties){
 		if (internal){
 			return me.canvas;
 		}else{
+			if (!me.visible) return;
 			me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
 		}
 
