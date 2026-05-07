@@ -10,6 +10,7 @@ import Tracker from "../tracker.js";
 import Editor from "../editor.js";
 import BassoonProvider from "../provider/bassoon.js";
 import {encodeRIFFsample} from "../audio/riffWave.js";
+import FastTracker from "../fileformats/fasttracker.js";
 import Dropbox from "../provider/dropbox.js";
 import {BinaryStream} from "../filesystem.js";
 import Playlist from "../models/playlist.js";
@@ -39,7 +40,8 @@ let DiskOperationSave = function(){
 	selectTypes[FILETYPE.sample] = [
 		{label:"wav 16 bit",active:false, extention:".wav", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RIFF_16BIT},
 		{label:"wav 8 bit",active:true, extention:".wav", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RIFF_8BIT},
-		{label:"RAW 8 bit",active:false, extention:".sample", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RAW_8BIT}
+		{label:"RAW 8 bit",active:false, extention:".sample", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RAW_8BIT},
+		{label:"xi",active:false, extention:".xi", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.XI}
 	];
 	selectTypes[FILETYPE.playlist] = [
 		{label:"PLS",active:true, extention:".pls", fileType: FILETYPE.playlist, fileFormat: PLAYLISTTYPE.PLS},
@@ -81,6 +83,20 @@ let DiskOperationSave = function(){
 			}
 		}
 		if (mainFileType === FILETYPE.sample){
+
+			if (saveAsFileFormat === SAMPLETYPE.XI){
+				FastTracker().writeXI(Tracker.getCurrentInstrumentIndex(), function(file){
+					if (!file) return;
+					var b = new Blob([file.buffer], {type: "application/octet-stream"});
+					if (saveTarget === "dropbox"){
+						Dropbox.putFile("/" + fileName, b);
+					}else{
+						saveFile(b, fileName);
+					}
+				});
+				return;
+			}
+
 			var sample = Tracker.getCurrentInstrument().sample;
 
 			if (sample){

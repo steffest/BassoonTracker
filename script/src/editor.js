@@ -515,19 +515,44 @@ var Editor = (function(){
         });
     };
 
+    me.importInstrument = function(file, name, loaderFactory){
+        console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + Tracker.getCurrentInstrumentIndex());
+
+        var loader = loaderFactory ? loaderFactory() : FastTracker();
+        var instrument = loader.loadXI(file);
+        if (!instrument){
+            console.error("Failed to load XI instrument: " + name);
+            return;
+        }
+
+        if (!instrument.name || instrument.name.trim() === "") instrument.name = name.replace(/\.[^.]+$/, "");
+
+        var index = Tracker.getCurrentInstrumentIndex();
+        Tracker.setInstrument(index, instrument);
+
+        var instrumentContainer = [];
+        Tracker.getInstruments().forEach(function(inst, i){
+            if (inst) instrumentContainer.push({label: i + " " + inst.name, data: i});
+        });
+        EventBus.trigger(EVENT.instrumentListChange, instrumentContainer);
+        EventBus.trigger(EVENT.instrumentChange, index);
+        EventBus.trigger(EVENT.instrumentNameChange, index);
+    };
+
     me.importSample = function(file,name){
         console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + Tracker.getCurrentInstrumentIndex());
 
         var instrument = Tracker.getCurrentInstrument() || Instrument();
+        var baseName = name.replace(/\.[^.]+$/, "");
 
-        instrument.name = name;
+        instrument.name = baseName;
         instrument.sample.length = file.length;
         instrument.sample.loop.start = 0;
         instrument.sample.loop.length = 0;
         instrument.setFineTune(0);
         instrument.sample.volume = 64;
         instrument.sample.data = [];
-        instrument.sample.name = name;
+        instrument.sample.name = baseName;
 
         detectSampleType(file,instrument.sample,function(){
         	// some decoders are async: retrigger event on callback
@@ -925,6 +950,108 @@ var Editor = (function(){
 	}
 
 	EventBus.on(COMMAND.exportFile,window.exportRBBS);
+
+	// Usage: await renderToMp3()  or  await renderToMp3("mysong.mp3", {bitrate: 192})
+	window.renderToMp3 = async function(fileName, options) {
+		options = options || {};
+		var bitrate = options.bitrate || 128;
+
+		if (Tracker.isPlaying()) Tracker.stop();
+
+		if (typeof lamejs === 'undefined') {
+			console.log("Loading lamejs MP3 encoder...");
+			await new Promise(function(resolve, reject) {
+				var script = document.createElement('script');
+				script.src = 'https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js';
+				script.onload = resolve;
+				script.onerror = function() { reject(new Error("Failed to load lamejs from CDN")); };
+				document.head.appendChild(script);
+			});
+		}
+
+		var song = Tracker.getSong();
+		var props = Tracker.getProperties();
+		var ticksPerStep = props.ticksPerStep;
+		var tickTime = props.tickTime;
+
+		var totalLength = 0;
+		for (var i = 0; i < song.length; i++) {
+			var pat = song.patterns[song.patternTable[i]];
+			totalLength += ticksPerStep * tickTime * pat.length;
+		}
+		totalLength += 0.5;
+
+		console.log('[renderToMp3] Scheduling ' + song.length + ' patterns (~' + totalLength.toFixed(1) + 's) at ' + bitrate + 'kbps...');
+		var t0 = performance.now();
+
+		var time = 0.1;
+		Audio.startRendering(totalLength);
+
+		for (var p = 0; p < song.length; p++) {
+			var currentPatternData = song.patterns[song.patternTable[p]];
+			for (var s = 0; s < currentPatternData.length; s++) {
+				Tracker.playPatternStep(s, time, currentPatternData);
+				time += ticksPerStep * tickTime;
+			}
+		}
+		console.log('[renderToMp3] Scheduling done (' + ((performance.now() - t0) / 1000).toFixed(2) + 's). Waiting for offline render...');
+
+		var heartbeat = setInterval(function() {
+			console.log('[renderToMp3] Still rendering... (' + ((performance.now() - t0) / 1000).toFixed(0) + 's elapsed)');
+		}, 5000);
+
+		return new Promise(function(resolve, reject) {
+			Audio.stopRendering(function(renderedBuffer) {
+				try {
+					console.log('[renderToMp3] Offline render done (' + ((performance.now() - t0) / 1000).toFixed(2) + 's). Encoding MP3...');
+
+					var sampleRate = renderedBuffer.sampleRate;
+					var left = renderedBuffer.getChannelData(0);
+					var right = renderedBuffer.numberOfChannels > 1 ? renderedBuffer.getChannelData(1) : left;
+
+					var mp3encoder = new lamejs.Mp3Encoder(2, sampleRate, bitrate);
+					var mp3Chunks = [];
+					var blockSize = 1152;
+					var totalBlocks = Math.ceil(left.length / blockSize);
+					var logEvery = Math.max(1, Math.floor(totalBlocks / 10));
+					var leftBlock = new Int16Array(blockSize);
+					var rightBlock = new Int16Array(blockSize);
+
+					for (var i = 0; i < left.length; i += blockSize) {
+						var len = Math.min(blockSize, left.length - i);
+						for (var j = 0; j < len; j++) {
+							var ls = Math.max(-1, Math.min(1, left[i + j]));
+							leftBlock[j] = ls < 0 ? ls * 0x8000 : ls * 0x7FFF;
+							var rs = Math.max(-1, Math.min(1, right[i + j]));
+							rightBlock[j] = rs < 0 ? rs * 0x8000 : rs * 0x7FFF;
+						}
+						var blockIndex = i / blockSize;
+						if (blockIndex % logEvery === 0) {
+							console.log('[renderToMp3] Encoding ' + Math.round(blockIndex / totalBlocks * 100) + '%...');
+						}
+						var encoded = mp3encoder.encodeBuffer(
+							leftBlock.subarray(0, len),
+							rightBlock.subarray(0, len)
+						);
+						if (encoded.length > 0) mp3Chunks.push(new Uint8Array(encoded.buffer, encoded.byteOffset, encoded.byteLength));
+					}
+
+					var flushed = mp3encoder.flush();
+					if (flushed.length > 0) mp3Chunks.push(new Uint8Array(flushed.buffer, flushed.byteOffset, flushed.byteLength));
+
+					var blob = new Blob(mp3Chunks, {type: 'audio/mpeg'});
+					var name = fileName || (song.title.replace(/ /g, '-').replace(/\W/g, '') || 'render') + '.mp3';
+					saveFile(blob, name);
+					console.log('[renderToMp3] Done in ' + ((performance.now() - t0) / 1000).toFixed(2) + 's — ' + name + ' (' + (blob.size / 1024).toFixed(1) + ' KB)');
+					resolve(blob);
+				} catch(e) {
+					reject(e);
+				} finally {
+					clearInterval(heartbeat);
+				}
+			});
+		});
+	};
 
 	return me;
 }());

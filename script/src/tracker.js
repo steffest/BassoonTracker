@@ -2238,6 +2238,12 @@ var Tracker = (function(){
 				}
 			}
 
+			if (result.isInstrument){
+				if (typeof Editor !== "undefined") {
+					Editor.importInstrument(file,name,result.loader);
+				}
+			}
+
 			if (result.type === FILETYPE.playlist){
 				let playlistData = data;
 				if (file) {

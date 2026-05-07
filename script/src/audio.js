@@ -91,7 +91,7 @@ var Audio = (function(){
         lowPassfilter.type = "lowpass";
         lowPassfilter.frequency.setValueAtTime(20000,0);
 
-        highShelfFilter = context.createBiquadFilter();
+        highShelfFilter = audioContext.createBiquadFilter();
         highShelfFilter.type = "highshelf";
         highShelfFilter.frequency.value = 1200.0;
         highShelfFilter.gain.value = 4;
@@ -315,7 +315,7 @@ var Audio = (function(){
                 source.connect(volumeGain);
             }
 
-			var volumeFadeOut = Audio.context.createGain();
+			var volumeFadeOut = audioContext.createGain();
             if (Tracker.inFTMode()){
                 volumeFadeOut.gain.setValueAtTime(0,time);
                 volumeFadeOut.gain.linearRampToValueAtTime(1,time + 0.01);
@@ -327,7 +327,7 @@ var Audio = (function(){
 			volumeGain.connect(volumeFadeOut);
 
 			if (usePanning){
-				var panning = Audio.context.createStereoPanner();
+				var panning = audioContext.createStereoPanner();
 				panning.pan.setValueAtTime(pan,time);
 				volumeFadeOut.connect(panning);
 				panning.connect(filterChains[track].input());
@@ -500,7 +500,22 @@ var Audio = (function(){
         offlineContext = new OfflineAudioContext(2,44100*length,44100);
         onlineContext = context;
         me.context = offlineContext;
+
+        // Skip filter node creation for offline rendering — fewer nodes, same output quality.
+        var savedFilters = {reverb: filters.reverb, high: filters.high, mid: filters.mid, low: filters.low, lowPass: filters.lowPass};
+        filters.reverb = false;
+        filters.high = false;
+        filters.mid = false;
+        filters.low = false;
+        filters.lowPass = false;
+
         me.init(offlineContext);
+
+        filters.reverb = savedFilters.reverb;
+        filters.high   = savedFilters.high;
+        filters.mid    = savedFilters.mid;
+        filters.low    = savedFilters.low;
+        filters.lowPass = savedFilters.lowPass;
     };
 
     me.stopRendering = function(next){

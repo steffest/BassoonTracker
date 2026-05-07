@@ -552,6 +552,261 @@ var FastTracker = function(){
 	};
 	//-->
 
+    // see https://github.com/milkytracker/MilkyTracker/blob/master/resources/reference/xm-form.txt
+    me.loadXI = function(file){
+        file.litteEndian = true;
+        file.goto(0);
+
+        var instrument = Instrument();
+        instrument.samples = [];
+
+        var signature = file.readString(21); // "Extended Instrument: "
+        if (signature !== "Extended Instrument: ") {
+            console.error("Not a valid XI file");
+            return null;
+        }
+
+        instrument.name = file.readString(22);
+        file.jump(1); // 0x1A separator
+        var trackerName = file.readString(20);
+        var version = file.readWord(); // 0x0102
+        console.log("XI file from " + trackerName + " version " + version.toString(16));
+
+        for (var si = 0; si < 96; si++) instrument.sampleNumberForNotes.push(file.readUbyte());
+        for (si = 0; si < 24; si++) instrument.volumeEnvelope.raw.push(file.readWord());
+        for (si = 0; si < 24; si++) instrument.panningEnvelope.raw.push(file.readWord());
+
+        instrument.volumeEnvelope.count = file.readUbyte();
+        instrument.panningEnvelope.count = file.readUbyte();
+        instrument.volumeEnvelope.sustainPoint = file.readUbyte();
+        instrument.volumeEnvelope.loopStartPoint = file.readUbyte();
+        instrument.volumeEnvelope.loopEndPoint = file.readUbyte();
+        instrument.panningEnvelope.sustainPoint = file.readUbyte();
+        instrument.panningEnvelope.loopStartPoint = file.readUbyte();
+        instrument.panningEnvelope.loopEndPoint = file.readUbyte();
+        instrument.volumeEnvelope.type = file.readUbyte();
+        instrument.panningEnvelope.type = file.readUbyte();
+        instrument.vibrato.type = file.readUbyte();
+        instrument.vibrato.sweep = file.readUbyte();
+        instrument.vibrato.depth = Math.min(file.readUbyte(), 15);
+        instrument.vibrato.rate = file.readUbyte();
+        instrument.fadeout = file.readWord();
+        file.jump(22); // 22 reserved bytes (matches XM instrument header padding)
+        instrument.numberOfSamples = file.readWord();
+
+        function processEnvelope(envelope){
+            envelope.points = [];
+            for (si = 0; si < 12; si++) envelope.points.push(envelope.raw.slice(si*2, si*2+2));
+            if (envelope.type & 1) envelope.enabled = true;
+            if (envelope.type & 2) envelope.sustain = true;
+            if (envelope.type & 4) envelope.loop = true;
+            return envelope;
+        }
+
+        instrument.volumeEnvelope = processEnvelope(instrument.volumeEnvelope);
+        instrument.panningEnvelope = processEnvelope(instrument.panningEnvelope);
+
+        if (instrument.numberOfSamples === 0){
+            instrument.samples = [Sample()];
+            instrument.setSampleIndex(0);
+            return instrument;
+        }
+
+        for (var sampleI = 0; sampleI < instrument.numberOfSamples; sampleI++){
+            var sample = Sample();
+            sample.length = file.readDWord();
+            sample.loop.start = file.readDWord();
+            sample.loop.length = file.readDWord();
+            sample.volume = file.readUbyte();
+            sample.finetuneX = file.readByte();
+            sample.type = file.readUbyte();
+            sample.panning = file.readUbyte() - 128;
+            sample.relativeNote = file.readByte();
+            sample.reserved = file.readByte();
+            sample.name = file.readString(22);
+            sample.bits = 8;
+            instrument.samples.push(sample);
+        }
+
+        for (sampleI = 0; sampleI < instrument.numberOfSamples; sampleI++){
+            sample = instrument.samples[sampleI];
+            if (!sample.length) continue;
+
+            if (sample.type & 16){
+                sample.bits       = 16;
+                sample.type      ^= 16;
+                sample.length    >>= 1;
+                sample.loop.start >>= 1;
+                sample.loop.length   >>= 1;
+            }
+            sample.loop.type = sample.type || 0;
+            sample.loop.enabled = !!sample.loop.type;
+
+            var sampleEnd = sample.length;
+            var old = 0;
+
+            if (sample.bits === 16){
+                for (var j = 0; j < sampleEnd; j++){
+                    var b = file.readShort() + old;
+                    if (b < -32768) b += 65536;
+                    else if (b > 32767) b -= 65536;
+                    old = b;
+                    sample.data.push(b / 32768);
+                }
+            }else{
+                for (j = 0; j < sampleEnd; j++){
+                    b = file.readByte() + old;
+                    if (b < -128) b += 256;
+                    else if (b > 127) b -= 256;
+                    old = b;
+                    sample.data.push(b / 127);
+                }
+            }
+
+            if (sample.loop.type === LOOPTYPE.PINGPONG){
+                var loopPart = sample.data.slice(sample.loop.start, sample.loop.start + sample.loop.length);
+                sample.data = sample.data.slice(0, sample.loop.start + sample.loop.length);
+                sample.data = sample.data.concat(loopPart.reverse());
+                sample.loop.length = sample.loop.length * 2;
+                sample.length = sample.loop.start + sample.loop.length;
+            }
+        }
+
+        instrument.setSampleIndex(0);
+        return instrument;
+    };
+
+    me.writeXI = function(instrumentIndex, next){
+        var instrument = Tracker.getInstrument(instrumentIndex);
+        if (!instrument){
+            if (next) next(null);
+            return;
+        }
+
+        var numberOfSamples = instrument.samples ? instrument.samples.length : 0;
+        var max, si, sampleI, thisSample, b, delta, prev, point, sampleType;
+        var sampleByteLength, sampleLoopByteStart, sampleLoopByteLength;
+
+        var fileSize = 298; // XI header (278 + 20 extra reserved bytes vs original estimate)
+        instrument.samples.forEach(function(sample){
+            var len = sample.length;
+            if (sample.bits === 16) len *= 2;
+            fileSize += 40 + len; // sample header + data
+        });
+
+        var arrayBuffer = new ArrayBuffer(fileSize);
+        var file = new BinaryStream(arrayBuffer, false); // false = little-endian
+
+        file.writeStringSection("Extended Instrument: ", 21);
+        file.writeStringSection(instrument.name || "", 22);
+        file.writeByte(0x1A);
+
+        var version = window.versionNumber || "dev";
+        file.writeStringSection("BassoonTracker " + version, 20);
+        file.writeWord(0x0102); // XI format version 1.02
+
+        for (si = 0; si < 96; si++){
+            file.writeUByte(instrument.sampleNumberForNotes[si] || 0);
+        }
+
+        var volumeEnvelopeType =
+            (instrument.volumeEnvelope.enabled ? 1 : 0)
+            + (instrument.volumeEnvelope.sustain ? 2 : 0)
+            + (instrument.volumeEnvelope.loop ? 4 : 0);
+
+        var panningEnvelopeType =
+            (instrument.panningEnvelope.enabled ? 1 : 0)
+            + (instrument.panningEnvelope.sustain ? 2 : 0)
+            + (instrument.panningEnvelope.loop ? 4 : 0);
+
+        for (si = 0; si < 12; si++){
+            point = instrument.volumeEnvelope.points[si] || [0, 0];
+            file.writeWord(point[0]);
+            file.writeWord(point[1]);
+        }
+        for (si = 0; si < 12; si++){
+            point = instrument.panningEnvelope.points[si] || [0, 0];
+            file.writeWord(point[0]);
+            file.writeWord(point[1]);
+        }
+
+        file.writeUByte(instrument.volumeEnvelope.count || 0);
+        file.writeUByte(instrument.panningEnvelope.count || 0);
+        file.writeUByte(instrument.volumeEnvelope.sustainPoint || 0);
+        file.writeUByte(instrument.volumeEnvelope.loopStartPoint || 0);
+        file.writeUByte(instrument.volumeEnvelope.loopEndPoint || 0);
+        file.writeUByte(instrument.panningEnvelope.sustainPoint || 0);
+        file.writeUByte(instrument.panningEnvelope.loopStartPoint || 0);
+        file.writeUByte(instrument.panningEnvelope.loopEndPoint || 0);
+        file.writeUByte(volumeEnvelopeType);
+        file.writeUByte(panningEnvelopeType);
+        file.writeUByte(instrument.vibrato.type || 0);
+        file.writeUByte(instrument.vibrato.sweep || 0);
+        file.writeUByte(instrument.vibrato.depth || 0);
+        file.writeUByte(instrument.vibrato.rate || 0);
+        file.writeWord(instrument.fadeout || 0);
+        file.fill(0, 22); // 22 reserved bytes (matches XM instrument header padding)
+        file.writeWord(numberOfSamples);
+
+        for (sampleI = 0; sampleI < numberOfSamples; sampleI++){
+            thisSample = instrument.samples[sampleI];
+
+            sampleType = 0;
+            if (thisSample.loop.length > 2 && thisSample.loop.enabled) sampleType = 1;
+
+            sampleByteLength = thisSample.length;
+            sampleLoopByteStart = thisSample.loop.start;
+            sampleLoopByteLength = thisSample.loop.length;
+            if (thisSample.bits === 16){
+                sampleType += 16;
+                sampleByteLength *= 2;
+                sampleLoopByteStart *= 2;
+                sampleLoopByteLength *= 2;
+            }
+
+            file.writeDWord(sampleByteLength);
+            file.writeDWord(sampleLoopByteStart);
+            file.writeDWord(sampleLoopByteLength);
+            file.writeUByte(thisSample.volume);
+            file.writeByte(thisSample.finetuneX);
+            file.writeUByte(sampleType);
+            file.writeUByte((thisSample.panning || 0) + 128);
+            file.writeUByte(thisSample.relativeNote || 0);
+            file.writeUByte(0); // reserved
+            file.writeStringSection(thisSample.name || "", 22);
+        }
+
+        for (sampleI = 0; sampleI < numberOfSamples; sampleI++){
+            thisSample = instrument.samples[sampleI];
+
+            b = 0;
+            delta = 0;
+            prev = 0;
+
+            if (thisSample.bits === 16){
+                for (si = 0, max = thisSample.length; si < max; si++){
+                    b = Math.round(thisSample.data[si] * 32768);
+                    delta = b - prev;
+                    prev = b;
+                    if (delta < -32768) delta += 65536;
+                    else if (delta > 32767) delta -= 65536;
+                    file.writeWord(delta);
+                }
+            }else{
+                for (si = 0, max = thisSample.length; si < max; si++){
+                    b = Math.round(thisSample.data[si] * 127);
+                    delta = b - prev;
+                    prev = b;
+                    if (delta < -128) delta += 256;
+                    else if (delta > 127) delta -= 256;
+                    file.writeByte(delta);
+                }
+            }
+        }
+
+        if (next) next(file);
+    };
+
     me.validate = function(song){
     	
 		function checkEnvelope(envelope,type){

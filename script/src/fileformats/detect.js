@@ -14,6 +14,7 @@ let FileDetector = function(){
 		mod_SoundTracker: {name: "SOUNDTRACKER", isMod: true, type: FILETYPE.module, loader: function(){return SoundTracker()}},
 		mod_FastTracker: {name: "FASTTRACKER", isMod: true, type: FILETYPE.module, loader: function(){return FastTracker()}},
 		mod_ScreamTracker: {name: "SCREAMTRACKER", isMod: true, type: FILETYPE.module, loader: function(){return ScreamTracker()}},
+		xi_FastTracker: {name: "FASTTRACKER_XI", isInstrument: true, type: FILETYPE.instrument, loader: function(){return FastTracker()}},
 		sample: {name: "SAMPLE",isSample:true, type: FILETYPE.sample},
 		zip: {name: "ZIP"},
 		gzip: {name: "GZIP"},
@@ -39,8 +40,11 @@ let FileDetector = function(){
 			return fileType.unknown;
 		}
 
-		id = file.readString(17,0);
-		if (id === "Extended Module: "){
+		id = file.readString(21,0);
+		if (id === "Extended Instrument: "){
+			return fileType.xi_FastTracker;
+		}
+		if (id.startsWith("Extended Module: ")){
 			return fileType.mod_FastTracker;
 		}
 

@@ -150,7 +150,8 @@ export var SAMPLETYPE = {
 	RIFF_16BIT: 6,
 	FLAC: 5,
 	OGG: 9,
-	OPUS: 10
+	OPUS: 10,
+	XI: 11
 };
 
 export var PLAYLISTTYPE = {
@@ -518,5 +519,6 @@ export var SETTINGS = {
 	stereoSeparation: STEREOSEPARATION.BALANCED,
 	emulateProtracker1OffsetBug: true,
 	useSampleSwapping: false,
-	loadInitialFile:true
+	loadInitialFile:true,
+	dither8bit: false
 };
