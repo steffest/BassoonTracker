@@ -517,7 +517,7 @@ var FastTracker = function(){
 					if (thisSample.bits === 16){
 						for (si = 0, max=thisSample.length; si<max ; si++){
 							// write 16-bit sample data
-							b = Math.round(thisSample.data[si] * 32768);
+							b = Math.max(-32768, Math.min(32767, Math.round(thisSample.data[si] * 32768)));
 							delta = b-prev;
 							prev = b;
 
@@ -785,7 +785,7 @@ var FastTracker = function(){
 
             if (thisSample.bits === 16){
                 for (si = 0, max = thisSample.length; si < max; si++){
-                    b = Math.round(thisSample.data[si] * 32768);
+                    b = Math.max(-32768, Math.min(32767, Math.round(thisSample.data[si] * 32768)));
                     delta = b - prev;
                     prev = b;
                     if (delta < -32768) delta += 65536;
