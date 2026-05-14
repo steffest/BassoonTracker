@@ -76,6 +76,26 @@ export function getSamplerate(file,ext) {
 	} else if (ret.type.substring(0, 3) === "ID3") {
 		// MP3 is only good identifyable if ID3 is present
 		ret = getMP3Header(sbuf8);
+	} else if (ret.type === "FORM") {
+		var subtype = String.fromCharCode(sbuf8[8], sbuf8[9], sbuf8[10], sbuf8[11]);
+		if (subtype === "AIFF" || subtype === "AIFC") {
+			ret.type = "AIFF";
+			var apos = 12;
+			while (apos + 8 <= sbuf8.length) {
+				var aid = String.fromCharCode(sbuf8[apos], sbuf8[apos+1], sbuf8[apos+2], sbuf8[apos+3]);
+				var asize = ((sbuf8[apos+4]<<24)|(sbuf8[apos+5]<<16)|(sbuf8[apos+6]<<8)|sbuf8[apos+7])>>>0;
+				apos += 8;
+				if (aid === "COMM") {
+					ret.numberOfChannels = (sbuf8[apos]<<8) | sbuf8[apos+1];
+					ret.bits = (sbuf8[apos+6]<<8) | sbuf8[apos+7];
+					ret.sampleRate = read80BitFloat(sbuf8, apos+8);
+					break;
+				}
+				apos += asize;
+				if (asize & 1) apos++;
+			}
+			if (!ret.sampleRate) ret.sampleRate = Audio.context.sampleRate;
+		}
 	} else {
 		// check for MP3 only by file extension, trying to validate header info went often wrong for IFF,RAW samples
 		if (ext === 'mp3') {
@@ -101,6 +121,13 @@ export function getSamplerate(file,ext) {
 		}
 		return ret.join("");
 	}
+	function read80BitFloat(buf, offset) {
+		var exponent = ((buf[offset] & 0x7F) << 8) | buf[offset + 1];
+		var mantissa = 0;
+		for (var i = 2; i < 10; i++) mantissa = mantissa * 256 + buf[offset + i];
+		return mantissa * Math.pow(2, exponent - 16383 - 63);
+	}
+
 	function getMP3Header(buf) {
 		/* read samplerate from frame: https://de.wikipedia.org/wiki/MP3#Frame-Header
 		https://www.mp3-tech.org/programmer/frame_header.html

@@ -93,6 +93,8 @@ let FileDetector = function(){
 		if (ext === "wav") return fileType.sample;
 		if (ext === "mp3") return fileType.sample;
 		if (ext === "iff") return fileType.sample;
+		if (ext === "aif") return fileType.sample;
+		if (ext === "aiff") return fileType.sample;
 		if (ext === "flac") return fileType.sample;
 		if (ext === "ogg") return fileType.sample;
 		if (ext === "opus") return fileType.sample;

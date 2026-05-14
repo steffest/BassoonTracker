@@ -2,6 +2,7 @@ import {SAMPLETYPE} from "../enum.js";
 import {readRAWsample} from "./raw.js";
 import {getSamplerate} from "./getSamplerate.js";
 import {read8SVXsample} from "./8svx.js";
+import {readAIFFsample} from "./aiff.js";
 
 export function detectSampleType(file,sample,next){
 
@@ -29,6 +30,10 @@ export function detectSampleType(file,sample,next){
 		case "OPUS":
 			sampleType = SAMPLETYPE[sample.info.type];
 			decoder = decodeFileWithAudioContext; //readRIFFsample;
+			break;
+		case "AIFF":
+			sampleType = SAMPLETYPE.WAVE_PCM;
+			decoder = readAIFFsample;
 			break;
 		case "FORM":
 			file.goto(8);
