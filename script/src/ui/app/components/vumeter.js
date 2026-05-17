@@ -1,169 +1,135 @@
 import Audio from "../../../audio.js";
-import EventBus from "../../../eventBus.js";
 import {EVENT} from "../../../enum.js";
 import Panel from "../../components/panel.js";
 import Y from "../../yascal/yascal.js";
 import UI from "../../ui.js";
 
+export default class VUMeter extends Panel {
+    _analyserLeft  = null;
+    _analyserRight = null;
+    _connected     = false;
+    _bufferLength  = 0;
+    _dataArray     = null;
+    _base;
+    _baseActive;
 
-let vumeter = function(){
-	var me = Panel();
+    _vuWidth      = 500;
+    _vuHeight     = 6;
+    _dotWidth     = 10;
+    _margin       = 2;
+    _middleMargin = 4;
 
+    constructor() {
+        super(0, 0, 20, 20);
 
-	me.left = 400;
-	me.top = 9;
+        this.left = 400;
+        this.top  = 9;
 
-	var analyserLeft;
-	var analyserRight;
-	var connected;
-    var bufferLength;
-    var dataArray;
+        this._base       = document.createElement("canvas");
+        this._baseActive = document.createElement("canvas");
 
-	if (Audio.context){
-		analyserLeft = Audio.context.createAnalyser();
-		analyserLeft.minDecibels = -90;
-		analyserLeft.maxDecibels = -10;
-		analyserLeft.smoothingTimeConstant = 0.85;
+        if (Audio.context) {
+            this._analyserLeft  = Audio.context.createAnalyser();
+            this._analyserLeft.minDecibels  = -90;
+            this._analyserLeft.maxDecibels  = -10;
+            this._analyserLeft.smoothingTimeConstant = 0.85;
 
-		analyserRight = Audio.context.createAnalyser();
-		analyserRight.minDecibels = -90;
-		analyserRight.maxDecibels = -10;
-		analyserRight.smoothingTimeConstant = 0.85;
+            this._analyserRight = Audio.context.createAnalyser();
+            this._analyserRight.minDecibels  = -90;
+            this._analyserRight.maxDecibels  = -10;
+            this._analyserRight.smoothingTimeConstant = 0.85;
 
-        analyserLeft.fftSize = 32;
-        analyserRight.fftSize = 32;
-        bufferLength = analyserLeft.fftSize;
-        dataArray = new Uint8Array(bufferLength);
-	}
+            this._analyserLeft.fftSize  = 32;
+            this._analyserRight.fftSize = 32;
+            this._bufferLength = this._analyserLeft.fftSize;
+            this._dataArray    = new Uint8Array(this._bufferLength);
+        }
 
-	var vuWidth = 500;
-	var vuHeight = 6;
-	var dotWidth = 10;
-	var margin = 2;
-	var middleMargin = 4;
+        this.setSize(this._vuWidth, this._vuHeight * 2 + this._middleMargin);
+        this._buildVu();
+        this.needsRendering = true;
 
-	var base = document.createElement("canvas");
-	var baseActive = document.createElement("canvas");
-	var baseCtx = base.getContext("2d");
-	var baseActiveCtx = baseActive.getContext("2d");
+        this.on(EVENT.screenRender, () => this._renderVU());
+    }
 
-	var dotGreen = Y.getImage("vu_green");
-	var dotGreenActive = Y.getImage("vu_green_active");
-	var dotYellow = Y.getImage("vu_yellow");
-	var dotYellowActive = Y.getImage("vu_yellow_active");
-	var dotRed = Y.getImage("vu_red");
-	var dotRedActive = Y.getImage("vu_red_active");
+    get width() {
+        return super.width;
+    }
 
-	function buildVu(){
+    set width(value) {
+        this._vuWidth = value;
+        this.setSize(this._vuWidth, this._vuHeight * 2 + this._middleMargin);
+        this._buildVu();
+    }
 
-		base.width = baseActive.width = vuWidth;
-		base.height = baseActive.height = vuHeight;
-		var dots = Math.floor(vuWidth / (dotWidth+margin));
-
-		baseCtx.clearRect(0,0,base.width,base.height);
-		baseActiveCtx.clearRect(0,0,baseActive.width,baseActive.height);
-
-		for (var i = 0; i< dots; i++){
-			var img = dotGreen;
-			var imgActive = dotGreenActive;
-			if (i>=dots/3){
-				img = dotYellow;
-				imgActive = dotYellowActive;
-			}
-			if (i>=dots/1.5){
-				img = dotRed;
-				imgActive = dotRedActive;
-			}
-
-			baseCtx.drawImage(img,i*(dotWidth+margin),0,dotWidth,vuHeight);
-			baseActiveCtx.drawImage(imgActive,i*(dotWidth+margin),0,dotWidth,vuHeight);
-		}
-        me.ctx.fillStyle = "#253352";
-	}
+    connect(audioNode) {
+        if (Audio.context) {
+            const splitter = Audio.context.createChannelSplitter(2);
+            audioNode.connect(splitter);
+            splitter.connect(this._analyserLeft,  0);
+            splitter.connect(this._analyserRight, 1);
+            this._connected = true;
+        }
+    }
 
 
-	me.setSize(vuWidth,vuHeight*2+middleMargin);
-	buildVu();
+    _buildVu() {
+        const baseCtx       = this._base.getContext("2d");
+        const baseActiveCtx = this._baseActive.getContext("2d");
 
-	me.needsRendering = true;
+        this._base.width = this._baseActive.width = this._vuWidth;
+        this._base.height = this._baseActive.height = this._vuHeight;
 
-	me.connect = function(audioNode){
-		if (Audio.context){
-			var splitter = Audio.context.createChannelSplitter(2);
-			audioNode.connect(splitter);
-			splitter.connect(analyserLeft,0);
-			splitter.connect(analyserRight,1);
-			connected = true;
-		}
-	};
+        const dots = Math.floor(this._vuWidth / (this._dotWidth + this._margin));
+        baseCtx.clearRect(0, 0, this._vuWidth, this._vuHeight);
+        baseActiveCtx.clearRect(0, 0, this._vuWidth, this._vuHeight);
 
-	me.setProperties = function(properties){
+        const dotGreen       = Y.getImage("vu_green");
+        const dotGreenActive = Y.getImage("vu_green_active");
+        const dotYellow      = Y.getImage("vu_yellow");
+        const dotYellowActive = Y.getImage("vu_yellow_active");
+        const dotRed         = Y.getImage("vu_red");
+        const dotRedActive   = Y.getImage("vu_red_active");
 
-		vuWidth = properties.width;
-		me.left = properties.left;
+        for (let i = 0; i < dots; i++) {
+            let img = dotGreen, imgActive = dotGreenActive;
+            if (i >= dots / 3)   { img = dotYellow; imgActive = dotYellowActive; }
+            if (i >= dots / 1.5) { img = dotRed;    imgActive = dotRedActive; }
+            const x = i * (this._dotWidth + this._margin);
+            baseCtx.drawImage(img, x, 0, this._dotWidth, this._vuHeight);
+            baseActiveCtx.drawImage(imgActive, x, 0, this._dotWidth, this._vuHeight);
+        }
+        this.ctx.fillStyle = "#253352";
+    }
 
-		me.setSize(vuWidth,vuHeight*2+middleMargin);
-		buildVu();
+    _renderVU() {
+        if (!this._connected) return;
 
-	};
+        this._analyserLeft.getByteTimeDomainData(this._dataArray);
+        const rangeLeft  = this._getDynamicRange(this._dataArray) * (Math.E - 1);
+        this._analyserRight.getByteTimeDomainData(this._dataArray);
+        const rangeRight = this._getDynamicRange(this._dataArray) * (Math.E - 1);
 
+        this.ctx.fillRect(0, 0, this.width, this.height);
+        this.ctx.drawImage(this._base, 0, 0);
+        this.ctx.drawImage(this._base, 0, this._vuHeight + this._middleMargin);
 
-	me.render = function(){
+        const wLeft  = Math.min(Math.floor(rangeLeft  * this._vuWidth), this._vuWidth);
+        const wRight = Math.min(Math.floor(rangeRight * this._vuWidth), this._vuWidth);
 
-		if (!connected) return;
+        if (wLeft)  this.ctx.drawImage(this._baseActive, 0, 0, wLeft,  this._vuHeight, 0, 0, wLeft,  this._vuHeight);
+        if (wRight) this.ctx.drawImage(this._baseActive, 0, 0, wRight, this._vuHeight, 0, this._vuHeight + this._middleMargin, wRight, this._vuHeight);
 
-		analyserLeft.getByteTimeDomainData(dataArray);
-		var rangeLeft = getDynamicRange(dataArray) * (Math.E - 1);
-		analyserRight.getByteTimeDomainData(dataArray);
-		var rangeRight = getDynamicRange(dataArray) * (Math.E - 1);
+        UI.getContext().drawImage(this.canvas, this.left, this.top);
+    }
 
-
-		me.ctx.fillRect(0,0,me.width,me.height);
-
-		me.ctx.drawImage(base,0,0);
-		me.ctx.drawImage(base,0,vuHeight + middleMargin);
-
-		var wLeft = Math.min(Math.floor(rangeLeft * vuWidth),vuWidth);
-		var wRight = Math.min(Math.floor(rangeRight * vuWidth),vuWidth);
-
-		if (wLeft) me.ctx.drawImage(baseActive,0,0,wLeft,vuHeight,0,0,wLeft,vuHeight);
-		if (wRight) me.ctx.drawImage(baseActive,0,0,wRight,vuHeight,0,vuHeight + middleMargin,wRight,vuHeight);
-
-		//ctx.fillStyle = "green";
-		//ctx.clearRect(400,4,400,20);
-		//ctx.fillRect(400,4,400 * rangeLeft,8);
-		//ctx.fillRect(400,16,400 * rangeRight,8);
-
-		UI.getContext().drawImage(me.canvas,me.left,me.top);
-
-		//console.error(range);
-
-		//console.error(dataArray[0]);
-
-	};
-
-	function getDynamicRange(buffer) {
-		var len = buffer.length;
-		var min = 128;
-		var max = 128;
-
-		for (var i = 0; i < len; i++) {
-			var instrument = buffer[i];
-			if (instrument < min) min = instrument;
-			else if (instrument > max) max = instrument
-		}
-
-		return (max - min) / 255
-	}
-
-	EventBus.on(EVENT.screenRender,function(){
-		me.render();
-	});
-
-
-
-	return me;
-
-};
-
-export default vumeter;
+    _getDynamicRange(buffer) {
+        let min = 128, max = 128;
+        for (let i = 0; i < buffer.length; i++) {
+            const v = buffer[i];
+            if (v < min) min = v;
+            else if (v > max) max = v;
+        }
+        return (max - min) / 255;
+    }
+}

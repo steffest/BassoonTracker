@@ -1,169 +1,140 @@
 import UIElement from "./element.js";
 import Y from "../yascal/yascal.js";
+import Font from "../font.js";
 
-let radioGroup = function(x,y,w,h){
-	var me = UIElement(x,y,w,h,true);
+export default class RadioGroup extends UIElement {
+    _items = [];
+    _selectedIndex = undefined;
+    _previousSelectedIndex = undefined;
+    _align = "right";
+    _size = "small";
+    _divider = null;
+    _highLightSelection = false;
+    _startY = 0;
+    _buttonY = -3;
+    _itemHeight = 13;
 
-	var items = [];
+    constructor(x, y, w, h) {
+        super(x, y, w, h);
+        this.type = "radiogroup";
+    }
 
-	var previousSelectedIndex;
+    get items()               { return this._items; }
+    set items(v)              { this.setItems(v); }
 
-	var startY = 0;
-	var size = "small";
-	var align = "right";
-	var buttonY = -3;
-	var itemHeight = 13;
-	var divider;
-	var type="radio";
-	var highLightSelection;
+    get selectedIndex()       { return this._selectedIndex; }
+    set selectedIndex(v)      { this.setSelectedIndex(v); }
 
-	var properties = ["left","top","width","height","name"];
+    get align()               { return this._align; }
+    set align(v)              { this._align = v; this.refresh(); }
 
-	me.setProperties = function(p){
-		properties.forEach(function(key){
-			if (typeof p[key] != "undefined") me[key] = p[key];
-		});
+    get size()                { return this._size; }
+    set size(v)               { this._size = v; this.refresh(); }
 
-		me.setSize(me.width,me.height);
-		me.setPosition(me.left,me.top);
+    get divider()             { return this._divider; }
+    set divider(v)            { this._divider = v; this.refresh(); }
 
-		if (p.align) align = p.align;
-		if (p.size) size = p.size;
-		if (p.divider) divider = p.divider;
-		if (p.type) type = p.type;
-		if (p.highLightSelection) highLightSelection = true;
-	};
+    get highLightSelection()  { return this._highLightSelection; }
+    set highLightSelection(v) { this._highLightSelection = !!v; this.refresh(); }
 
-	me.onClick=function(e){
-		me.setSelectedIndex(Math.floor((me.eventY-startY+buttonY)/itemHeight));
-	};
+    onClick() {
+        this.setSelectedIndex(Math.floor((this.eventY - this._startY + this._buttonY) / this._itemHeight));
+    }
 
-	me.setSelectedIndex = function(index,internal){
-		index = Math.min(index,items.length-1);
-		for (var i = 0, len = items.length; i<len;i++){
-			items[i].active = i == index;
-		}
-		me.selectedIndex = index;
-		me.refresh();
+    setSelectedIndex(index, internal) {
+        if (!this._items.length) return;
+        index = Math.max(0, Math.min(index, this._items.length - 1));
+        for (let i = 0, len = this._items.length; i < len; i++) {
+            this._items[i].active = i === index;
+        }
+        this._selectedIndex = index;
+        this.refresh();
+        if (!internal && this.onChange && this._previousSelectedIndex !== this._selectedIndex) {
+            this.onChange(this._selectedIndex);
+        }
+        this._previousSelectedIndex = this._selectedIndex;
+    }
 
-		if (!internal && me.onChange && previousSelectedIndex!=me.selectedIndex) me.onChange(me.selectedIndex);
-		previousSelectedIndex = me.selectedIndex;
-	};
+    getSelectedIndex() { return this._selectedIndex; }
+    getSelectedItem()  { return this._items[this._selectedIndex]; }
 
-	me.getSelectedIndex = function(){
-		return me.selectedIndex;
-	};
+    setItems(newItems) {
+        this._selectedIndex = undefined;
+        this._items = newItems || [];
+        for (let i = 0, len = this._items.length; i < len; i++) {
+            if (this._items[i].active) this._selectedIndex = i;
+        }
+        this.refresh();
+    }
 
-	me.getSelectedItem = function(){
-		return items[me.selectedIndex];
-	};
+    render(internal) {
+        internal = !!internal;
+        if (!this.isVisible()) return;
+        if (this.needsRendering) {
+            this.clearCanvas();
 
-	me.render = function(internal){
-		internal = !!internal;
-		if (!me.isVisible()) return;
+            let buttonActive   = Y.getImage("radio_active");
+            let buttonInactive = Y.getImage("radio_inactive");
+            if (!this._items.length) { this.needsRendering = false; return; }
+            this._itemHeight = Math.floor(this.height / this._items.length);
 
-		if (this.needsRendering){
+            let font    = Font.small;
+            let textX   = 5;
+            let buttonX = this.width - 15;
+            this._buttonY = -3;
 
-			me.clearCanvas();
+            if (this._size === "med") {
+                buttonActive   = Y.getImage("radio_big_active");
+                buttonInactive = Y.getImage("radio_big_inactive");
+                this._buttonY  = -2;
+                buttonX        = this.width - 20;
+                font           = Font.med;
+            }
 
-			var buttonActive = Y.getImage("radio_active");
-			var buttonInactive = Y.getImage("radio_inactive");
-			itemHeight = Math.floor(me.height / items.length);
+            const paddingTop = font ? Math.floor((this._itemHeight - font.charHeight) / 2) : 0;
 
-			var font = fontSmall;
-			var textX = 5;
-			var buttonX = me.width - 15;
-			buttonY = -3;
+            if (this._align === "left") {
+                textX   = 30;
+                buttonX = 5;
+            }
 
-			if (size === "med"){
-				buttonActive = Y.getImage("radio_big_active");
-				buttonInactive = Y.getImage("radio_big_inactive");
-				buttonY = -2;
-				buttonX = me.width - 20;
-				font = fontMed;
-			}
+            const line = Y.getImage("line_hor");
 
-			var paddingTop = Math.floor((itemHeight - font.charHeight) / 2);
+            for (let i = 0, len = this._items.length; i < len; i++) {
+                const item    = this._items[i];
+                const itemTop = this._startY + (i * this._itemHeight);
+                const textTop = itemTop + paddingTop;
 
-			if (align === "left"){
-				textX = 30;
-				buttonX = 5;
-			}
+                if (this._divider === "line" && i > 0 && line) {
+                    this.ctx.drawImage(line, 0, itemTop, this.width, 2);
+                }
 
+                if (font) {
+                    let label = item.label;
+                    if (this._align === "right") {
+                        textX = buttonX - font.getTextWidth(item.label, 0) - 4;
+                        if (textX < 0 && item.labels) {
+                            const rest = buttonX - 4;
+                            item.labels.forEach(lb => { if (lb.width <= rest) label = lb.label; });
+                            textX = buttonX - font.getTextWidth(label, 0) - 4;
+                        }
+                    }
+                    font.write(this.ctx, label, textX, textTop, 0);
+                }
 
-			var line = Y.getImage("line_hor");
-
-			for (var i = 0, len = items.length;i<len;i++){
-				var item = items[i];
-				var itemTop = startY + (i*itemHeight);
-				var textTop = itemTop + paddingTop;
-
-				if (divider == "line" && i>0){
-					me.ctx.drawImage(line,0,itemTop,me.width,2);
-				}
-
-				if (font){
-					var label = item.label;
-					if (align === "right"){
-						textX = buttonX - font.getTextWidth(item.label,0) - 4;
-						if (textX<0 && item.labels){
-							var rest = buttonX - 4;
-							item.labels.forEach(function(lb){
-								if (lb.width<=rest) label = lb.label;
-							});
-							textX = buttonX - font.getTextWidth(label,0) - 4;
-						}
-					}
-
-					font.write(me.ctx,label,textX,textTop,0);
-				}
-
-				if (item.active){
-
-					if (highLightSelection){
-						me.ctx.fillStyle = 'rgba(100,100,255,0.1';
-						me.ctx.fillRect(0,itemTop,me.width-2,itemHeight);
-					}
-
-					me.ctx.drawImage(buttonActive,buttonX,textTop + buttonY);
-				}else{
-					me.ctx.drawImage(buttonInactive,buttonX,textTop + buttonY);
-				}
-			}
-
-		}
-		this.needsRendering = false;
-
-		if (internal){
-			return me.canvas;
-		}else{
-			me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-		}
-
-	};
-
-	me.setItems = function(newItems){
-		me.selectedIndex = undefined;
-		items = newItems;
-		for (var i = 0, len = items.length; i<len;i++){
-			if (items[i].active) me.selectedIndex = i;
-		}
-
-		me.refresh();
-	};
-
-	me.getItemAtPosition = function(x,y){
-		y = y-startY;
-		var index = Math.floor(y/itemHeight) + visibleIndex;
-		if (index>=0 && index<items.length){
-			items[index].index = index;
-			return(items[index]);
-		}else{
-			return undefined;
-		}
-	};
-
-	return me;
-};
-
-export default radioGroup;
+                if (item.active) {
+                    if (this._highLightSelection) {
+                        this.ctx.fillStyle = "rgba(100,100,255,0.1)";
+                        this.ctx.fillRect(0, itemTop, this.width - 2, this._itemHeight);
+                    }
+                    this.ctx.drawImage(buttonActive, buttonX, textTop + this._buttonY);
+                } else {
+                    this.ctx.drawImage(buttonInactive, buttonX, textTop + this._buttonY);
+                }
+            }
+        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

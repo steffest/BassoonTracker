@@ -2,256 +2,209 @@ import UIElement from "../components/element.js";
 import Scale9Panel from "./scale9.js";
 import Y from "../yascal/yascal.js";
 import Assets from "../assets.js";
-import UI from "../ui.js"
+import UI from "../ui.js";
 import EventBus from "../../eventBus.js";
 import {EVENT} from "../../enum.js";
+import Font from "../font.js";
 
-let Submenu = function(x,y,w,h){
-    var me = UIElement(x,y,w,h);
-    me.type = "submenu";
-    var items;
+export default class Submenu extends UIElement {
+    _items = null;
+    _background = null;
+    _itemHeight = 26;
+    _paddingTop = 9;
+    _paddingLeft = 9;
+    _charWidth = 9;
+    _hoverIndex = undefined;
+    _preHoverIndex = undefined;
+    _activeSubmenu = undefined;
 
-    var itemHeight = 26;
-    var properties = ["left","top","width","height","name","type"];
-    var background;
+    mainMenu = null;
 
-    var paddingTop = 9;
-    var paddingLeft = 9;
-    var charWidth = 9;
-
-    var hoverIndex;
-    var preHoverIndex;
-
-    var activeSubmenu;
-
-    me.setProperties = function(p){
-
-        properties.forEach(function(key){
-            if (typeof p[key] != "undefined") me[key] = p[key];
-        });
-
-        if (p["background"]){
-            background = Scale9Panel(0,0,me.width,me.height,p["background"]);
-            background.ignoreEvents = true;
-            me.addChild(background);
-        }
-
-        me.setSize(me.width,me.height);
-        me.setPosition(me.left,me.top);
-
-    };
-
-    me.onHover = function(data){
-        var index = Math.floor(me.eventY/itemHeight);
-        if (index !== preHoverIndex){
-            me.setSelectedIndex(index)
-        }
-    };
-
-    me.onHoverExit = function(){
-        if (hoverIndex){
-            hoverIndex = undefined;
-            preHoverIndex = undefined;
-            me.refresh();
-        }
-    };
-
-    me.onShow = function(){
-        hoverIndex=0;
-        preHoverIndex=0;
+    constructor(x, y, w, h) {
+        super(x || 0, y || 0, w || 20, h || 20);
+        this.type = "submenu";
     }
 
-    me.onHide = function(){
-        if (activeSubmenu){
-            activeSubmenu.subMenu.hide();
-            activeSubmenu = undefined;
+    get background()  { return this._background; }
+    set background(v) {
+        if (v) {
+            const bg = new Scale9Panel(0, 0, this.width, this.height, v);
+            bg.ignoreEvents = true;
+            this.addChild(bg);
+            this._background = bg;
+        }
+        this.refresh();
+    }
+
+    get items()  { return this._items; }
+    set items(v) { this.setItems(v); }
+
+    onHover() {
+        const index = Math.floor(this.eventY / this._itemHeight);
+        if (index !== this._preHoverIndex) this.setSelectedIndex(index);
+    }
+
+    onHoverExit() {
+        if (this._hoverIndex !== undefined) {
+            this._hoverIndex    = undefined;
+            this._preHoverIndex = undefined;
+            this.refresh();
         }
     }
 
-    me.setSelectedIndex = function(index){
-        hoverIndex = Math.min(index,items.length-1);
-        if (hoverIndex<0) hoverIndex=0;
-        preHoverIndex = hoverIndex;
+    onShow() {
+        this._hoverIndex    = 0;
+        this._preHoverIndex = 0;
+    }
 
-        var item = items[hoverIndex];
-        if (item.subItems){
-            me.activateSubmenu(item);
-        }else{
-            if (activeSubmenu){
-                activeSubmenu.subMenu.hide();
-                activeSubmenu = undefined;
-            }
+    onHide() {
+        if (this._activeSubmenu) {
+            this._activeSubmenu.subMenu.hide();
+            this._activeSubmenu = undefined;
         }
-
-        me.refresh();
     }
 
-    me.getSelectedIndex = function(){
-        if (typeof hoverIndex !== "undefined") return hoverIndex;
-        return -1;
+    setSelectedIndex(index) {
+        this._hoverIndex    = Math.max(0, Math.min(index, this._items.length - 1));
+        this._preHoverIndex = this._hoverIndex;
+        const item = this._items[this._hoverIndex];
+        if (item.subItems) {
+            this.activateSubmenu(item);
+        } else if (this._activeSubmenu) {
+            this._activeSubmenu.subMenu.hide();
+            this._activeSubmenu = undefined;
+        }
+        this.refresh();
     }
 
-    me.onClick = function(data){
-        if (!(items && items.length)) return;
-        var selectedItem = items[Math.floor(me.eventY/itemHeight)];
-        me.executeItem(selectedItem);
-    };
+    getSelectedIndex() {
+        return (typeof this._hoverIndex !== "undefined") ? this._hoverIndex : -1;
+    }
 
-    me.executeItem = function(item){
-        if (isDisabled(item)) return;
-        if (item){
-            if (item.command){
-                me.hide();
-                me.parent.refresh();
-                if (me.mainMenu) me.mainMenu.deActivate();
-                EventBus.trigger(EVENT.command,item.command);
-            }else if (item.onClick){
-                me.hide();
-                me.parent.refresh();
-                if (me.mainMenu) me.mainMenu.deActivate();
+    onClick() {
+        if (!(this._items && this._items.length)) return;
+        const selectedItem = this._items[Math.floor(this.eventY / this._itemHeight)];
+        this.executeItem(selectedItem);
+    }
+
+    executeItem(item) {
+        if (this._isDisabled(item)) return;
+        if (item) {
+            if (item.command) {
+                this.hide();
+                this.parent.refresh();
+                if (this.mainMenu) this.mainMenu.deActivate();
+                EventBus.trigger(EVENT.command, item.command);
+            } else if (item.onClick) {
+                this.hide();
+                this.parent.refresh();
+                if (this.mainMenu) this.mainMenu.deActivate();
                 item.onClick();
-            }else if (item.subItems){
-                me.toggleSubmenu(item);
+            } else if (item.subItems) {
+                this.toggleSubmenu(item);
             }
         }
     }
 
-    me.activateSubmenu = function(item){
-        if (!item.subMenu){
-            var subMenu = Submenu();
-            subMenu.setProperties({
-                background: Assets.buttonLightScale9
-            });
+    activateSubmenu(item) {
+        if (!item.subMenu) {
+            const subMenu    = new Submenu();
+            subMenu.background = Assets.buttonLightScale9;
             subMenu.hide();
             subMenu.setItems(item.subItems);
-            subMenu.zIndex = 300;
-            me.parent.addChild(subMenu);
-            subMenu.mainMenu = me.mainMenu;
-            item.subMenu = subMenu;
+            subMenu.zIndex   = 300;
+            this.parent.addChild(subMenu);
+            subMenu.mainMenu = this.mainMenu;
+            item.subMenu     = subMenu;
         }
-        var left = me.left + me.width - 20;
-        if ((left+item.subMenu.width)>UI.mainPanel.width){
-            left = UI.mainPanel.width-item.subMenu.width;
-        }
-        item.subMenu.setPosition(left,me.top + item.index*itemHeight);
+        let left = this.left + this.width - 20;
+        if (left + item.subMenu.width > UI.mainPanel.width) left = UI.mainPanel.width - item.subMenu.width;
+        item.subMenu.setPosition(left, this.top + item.index * this._itemHeight);
         item.subMenu.show();
-        activeSubmenu = item;
-        me.refresh();
+        this._activeSubmenu = item;
+        this.refresh();
     }
 
-    me.deActivateSubmenu = function(){
-        if (activeSubmenu){
-            activeSubmenu.subMenu.hide();
-            activeSubmenu = undefined;
-            me.refresh();
+    deActivateSubmenu() {
+        if (this._activeSubmenu) {
+            this._activeSubmenu.subMenu.hide();
+            this._activeSubmenu = undefined;
+            this.refresh();
         }
     }
 
-    me.toggleSubmenu = function(item){
-        if (item.subMenu && item.subMenu.isVisible()){
-            me.deActivateSubmenu();
-        }else{
-            me.activateSubmenu(item);
+    toggleSubmenu(item) {
+        if (item.subMenu && item.subMenu.isVisible()) {
+            this.deActivateSubmenu();
+        } else {
+            this.activateSubmenu(item);
         }
-
     }
 
-    me.render = function(internal){
-        if (!me.isVisible()) return;
+    setItems(newItems) {
+        this._items = newItems;
+        let width = 50;
+        this._items.forEach((item, index) => {
+            const labelWidth = item.label ? this._getLabel(item).length * this._charWidth : 0;
+            width = Math.max(width, labelWidth + this._paddingLeft * 2 + 6);
+            item.index = index;
+        });
+        const height = this._items.length * this._itemHeight + 4;
+        this.setSize(width, height);
+        if (this._background) this._background.setSize(this.width, this.height);
+        this._hoverIndex    = undefined;
+        this._preHoverIndex = undefined;
+        this._activeSubmenu = undefined;
+        this.refresh();
+    }
+
+    getItems() { return this._items; }
+
+    render(internal) {
+        if (!this.isVisible()) return;
         internal = !!internal;
+        if (this.needsRendering) {
+            this.clearCanvas();
+            if (this._background) this._background.render();
 
-        if (this.needsRendering){
-            me.clearCanvas();
-            if (background)background.render();
+            const line      = Y.getImage("line_hor");
+            let textY       = 0;
+            const textX     = 0;
+            const textWidth = this.width - 3;
+            const max       = this._items.length - 1;
 
-            var line = Y.getImage("line_hor");
+            for (let i = 0; i <= max; i++) {
+                const item     = this._items[i];
+                const disabled = this._isDisabled(item);
 
-            var textY = 0;
-            var textX = 0;
-            var textWidth = me.width - 3;
-
-            var max = items.length-1;
-
-            for (var i = 0; i<=max;i++){
-                var item = items[i];
-
-                var disabled = isDisabled(item);
-
-                if (i === hoverIndex && !disabled){
-                    me.ctx.fillStyle = "rgba(255,255,255,0.2)";
-                    me.ctx.fillRect(textX,textY,textWidth,itemHeight);
+                if (i === this._hoverIndex && !disabled) {
+                    this.ctx.fillStyle = "rgba(255,255,255,0.2)";
+                    this.ctx.fillRect(textX, textY, textWidth, this._itemHeight);
                 }
-
-                if (item.label){
-                    fontFT.write(me.ctx,getLabel(item),textX + paddingLeft,textY + paddingTop);
+                if (item.label && Font.ft) {
+                    Font.ft.write(this.ctx, this._getLabel(item), textX + this._paddingLeft, textY + this._paddingTop);
                 }
-
-                if (item.subItems){
-                    fontMed.write(me.ctx,">",me.width-16,textY + paddingTop + 2);
+                if (item.subItems && Font.med) {
+                    Font.med.write(this.ctx, ">", this.width - 16, textY + this._paddingTop + 2);
                 }
-
-                if (disabled){
-                    me.ctx.fillStyle = "rgba(88,105,129,0.6)";
-                    me.ctx.fillRect(textX,textY,textWidth,itemHeight);
+                if (disabled) {
+                    this.ctx.fillStyle = "rgba(88,105,129,0.6)";
+                    this.ctx.fillRect(textX, textY, textWidth, this._itemHeight);
                 }
-                textY += itemHeight;
-                if (i<max) me.ctx.drawImage(line,textX,textY,textWidth,2);
+                textY += this._itemHeight;
+                if (i < max && line) this.ctx.drawImage(line, textX, textY, textWidth, 2);
             }
         }
         this.needsRendering = false;
-
-        if (internal){
-            return me.canvas;
-        }else{
-            me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-        }
-
-    };
-
-    me.setItems = function(newItems){
-        items = newItems;
-        var width = 50;
-        items.forEach(function(item,index){
-            var labelWidth = item.label ? getLabel(item).length * charWidth : 0;
-            labelWidth += paddingLeft*2 + 6;
-            width = Math.max(width,labelWidth);
-            item.index = index;
-        });
-
-        var height = items.length*itemHeight + 4;
-        me.setSize(width,height);
-        if (background) background.setSize(me.width,me.height);
-
-        hoverIndex = undefined;
-        preHoverIndex = undefined;
-        activeSubmenu = undefined;
-        
-        
-        me.refresh();
-    };
-
-    me.getItems = function(){
-        return items;
-    };
-
-
-
-    function isDisabled(item){
-        if (typeof item.disabled === "function"){
-            return item.disabled();
-        }
-        return !!item.disabled;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
     }
 
-    function getLabel(item){
-        if (typeof item.label === "function"){
-            return item.label();
-        }
-        return item.label;
+    _isDisabled(item) {
+        return typeof item.disabled === "function" ? item.disabled() : !!item.disabled;
     }
 
-
-    return me;
-};
-
-export default Submenu;
+    _getLabel(item) {
+        return typeof item.label === "function" ? item.label() : item.label;
+    }
+}

@@ -6,8 +6,8 @@ const zlib = require("zlib");
 
 const skinPath = __dirname;
 const sourcePath = path.join(skinPath,"src");
-const spriteSheetPath = path.join(skinPath,"spritesheet_v5.png");
-const spriteMapPath = path.join(skinPath,"spritemap_v5.json");
+const spriteSheetPath = path.join(skinPath,"spritesheet_v6.png");
+const spriteMapPath = path.join(skinPath,"spritemap_v6.json");
 const dryRun = process.argv.indexOf("--dry-run")>=0;
 
 const PNG_SIGNATURE = Buffer.from([137,80,78,71,13,10,26,10]);

@@ -5,248 +5,179 @@ import StateManager from "./stateManager.js";
 import Tracker from "../tracker.js";
 import Y from "./yascal/yascal.js";
 
-let sliderBox = function(initialProperties){
-	var me = UIElement();
-	me.type = "sliderBox";
+export default class SliderBox extends UIElement {
+    _label = "";
+    _value = 0;
+    _prevValue = 0;
+    _min = 0;
+    _max = 100;
+    _padLength = 4;
+    _padChar = " ";
+    _onChange = null;
+    _vertical = false;
+    _disabled = false;
+    _font = null;
 
-	var label = "";
-	var value = 0;
-	var prevValue = 0;
-	var min =  0;
-	var max = 100;
-	var step = 1;
-	var font;
-	var properties;
-	var padLength = 4;
-	var padChar = " ";
-	var onChange;
-	var vertical;
+    _labelX = 0;
+    _labelY = 0;
+    _digitX = 0;
+    _digitY = 0;
+    _digitW = 40;
+    _digitH = 20;
+    _sliderHeight = 20;
+    _sliderWidth = 20;
 
-	var labelX=0;
-	var labelY=0;
-	var digitX=0;
-	var digitY=0;
-	var digitW=10;
-	var digitH=10;
+    _slider;
+    _numberDisplay;
 
-	var sliderHeight = 20;
-	var sliderwidth = 20;
-    var disabled = false;
+    constructor(x, y, w, h) {
+        super(x || 0, y || 0, w || 20, h || 20);
+        this.type = "sliderBox";
 
-	var lineVer = Y.getImage("line_ver");
+        this._slider = new RangeSlider(0, 0, this._sliderWidth, this._sliderHeight);
+        this._slider.min = this._min;
+        this._slider.max = this._max;
+        this._slider.onChange = (v) => { if (v !== this._value) this.setValue(v); };
+        this._slider.onMouseWheel = (touchData) => this.onMouseWheel(touchData);
+        this.addChild(this._slider);
 
-	var properties = ["left","top","width","height","name","label","value","onChange","min","max","step","vertical","font","trackUndo","undoLabel","undoInstrument"];
-	if (initialProperties) setPropertiesValues(initialProperties);
+        this._numberDisplay = new NumberDisplay(0, 0, this._digitW, this._digitH);
+        this._numberDisplay.min = this._min;
+        this._numberDisplay.max = this._max;
+        this._numberDisplay.padLength = 4;
+        this._numberDisplay.size = "small";
+        this._numberDisplay.onChange = (v) => { if (v !== this._value) this.setValue(v); };
+        this._numberDisplay.paddingBottom = -1;
+        this.addChild(this._numberDisplay);
+    }
 
-	if (max>9999) padLength = 5;
+    get label()    { return this._label; }
+    set label(v)   { this._label = v; this.refresh(); }
 
-	function padValue(){
-		var result = "" + value;
-		while (result.length < padLength){
-			result = padChar + result;
-		}
-		return result;
-	}
+    get value()    { return this._value; }
+    set value(v)   { this.setValue(v); }
 
-	var slider = RangeSlider({
-		min: min,
-		max: max,
-		height: sliderHeight,
-		width: sliderwidth,
-		vertical: !!vertical,
-		onChange: function(v){
-				if (v!==value){
-					me.setValue(v);
-				}
-		}
-	});
-	me.addChild(slider);
+    get min()      { return this._min; }
+    set min(v)     { this.setMin(v); }
 
-	var numberDisplay = NumberDisplay({
-		min: min,
-		max: max,
-		padLength: 4,
-		size: "small",
-		onChange:function(v){
-			if (v!==value){
-				me.setValue(v);
-			}
-		}
-	});
-	numberDisplay.paddingBottom = -1;
-	me.addChild(numberDisplay);
+    get max()      { return this._max; }
+    set max(v)     { this.setMax(v); }
 
+    get onChange() { return this._onChange; }
+    set onChange(v){ this._onChange = v; }
 
-	me.setProperties = function(newProperties){
-		setPropertiesValues(newProperties);
+    get vertical() { return this._vertical; }
+    set vertical(v){
+        this._vertical = !!v;
+        if (this._slider) this._slider.vertical = this._vertical;
+        this.refresh();
+    }
 
-		me.setSize(me.width,me.height);
-		me.setPosition(me.left,me.top);
+    get font()    { return this._font; }
+    set font(v)   { this._font = v; this.refresh(); }
 
-	};
+    get isDisabled() { return this._disabled; }
+    set isDisabled(v){ this._disabled = !!v; this.ignoreEvents = this._disabled; this.refresh(); }
 
-	function setPropertiesValues(p){
+    setValue(newValue, internal) {
+        if (newValue !== this._value) this._prevValue = this._value;
+        this._value = newValue;
+        this._slider.setValue(this._value, internal);
+        this._numberDisplay.setValue(this._value, internal);
+        this.refresh();
+        if (!internal && this._onChange) {
+            if (this.trackUndo) {
+                const editAction = StateManager.createValueUndo(this);
+                editAction.name = this.undoLabel || "Change " + this.name;
+                if (this.undoInstrument) {
+                    editAction.instrument = Tracker.getCurrentInstrumentIndex();
+                    editAction.id += editAction.instrument;
+                }
+                StateManager.registerEdit(editAction);
+            }
+            this._onChange(this._value);
+        }
+    }
 
-		properties.forEach(function(key){
-			if (typeof p[key] != "undefined"){
-				switch(key){
-					case "label": label=p[key];break;
-					case "value" : 
-						value=p[key];
-						prevValue = value;
-						break;
-					case "min" : min=p[key];break;
-					case "max" : max=p[key];break;
-					case "step" : step=p[key];break;
-					case "onChange" : onChange=p[key];break;
-					case "font" : font=p[key];break;
-					case "vertical" : 
-						vertical=!!p[key];
-						if (slider) slider.setProperties({vertical: vertical})
-						break;
-					default:
-						me[key] = p[key];
-				}
-			}
-		});
-	}
+    getValue()     { return this._value; }
+    getPrevValue() { return this._prevValue; }
 
-	me.setValue = function(newValue,internal){
-		if (newValue!==value) {
-			prevValue=value;
-		}
-		value=newValue;
-		slider.setValue(value,internal);
-		numberDisplay.setValue(value,internal);
-		me.refresh();
-		if (!internal && onChange) {
+    setMax(newMax, skipCheck) {
+        this._max = newMax;
+        if (!skipCheck && this._value > this._max) this.setValue(this._max);
+        this._slider.max = this._max;
+        this._numberDisplay._max = this._max;
+        this._numberDisplay.needsRendering = true;
+    }
 
-			if (me.trackUndo){
-				var editAction = StateManager.createValueUndo(me);
-				editAction.name= me.undoLabel || "Change " + me.name;
-				if (me.undoInstrument) {
-					editAction.instrument = Tracker.getCurrentInstrumentIndex();
-					editAction.id += editAction.instrument;
-				}
-				StateManager.registerEdit(editAction);
-			}
-			
-			
-			onChange(value);
-		}
-	};
+    setMin(newMin, skipCheck) {
+        this._min = newMin;
+        if (!skipCheck && this._value < this._min) this.setValue(this._min);
+        this._slider.min = this._min;
+        this._numberDisplay._min = this._min;
+        this._numberDisplay.needsRendering = true;
+    }
 
-	me.getValue = function(){
-		return value;
-	};
+    onResize() {
+        this._digitW = 40;
+        this._digitH = 20;
+        if (this._padLength === 5) this._digitW = 48;
 
-	me.getPrevValue = function(){
-		return prevValue;
-	};
+        if (this._vertical) {
+            this._slider.setSize(this._sliderWidth, this.height - 36);
+            this._slider.setPosition(Math.floor((this.width - this._sliderWidth) / 2), 0);
+            this._digitX = Math.floor((this.width - this._digitW) / 2);
+            this._digitY = this.height - 32;
+            if (this._font) {
+                this._labelX = Math.floor((this.width - this._font.getTextWidth(this._label, 0)) / 2);
+            }
+            this._labelY = this.height - 10;
+        } else {
+            this._slider.setSize(this.width, this._sliderHeight);
+            this._slider.setPosition(0, this.height - this._sliderHeight);
+            this._digitX = this.width - this._digitW;
+            this._digitY = 2;
+        }
 
-	me.setMax = function(newMax,skipCheck){
-		max = newMax;
-		if (!skipCheck && value>max) me.setValue(max);
-		slider.setMax(max,skipCheck);
-		numberDisplay.setMax(max,skipCheck);
-	};
+        this._numberDisplay.setSize(this._digitW, this._digitH);
+        this._numberDisplay.setPosition(this._digitX, this._digitY);
+    }
 
-	me.setMin = function(newMin,skipCheck){
-		min = newMin;
-		if (!skipCheck && value<min) me.setValue(min);
-        slider.setMin(min,skipCheck);
-		numberDisplay.setMin(min,skipCheck);
-	};
+    onMouseWheel(touchData) {
+        if (touchData.mouseWheels[0] > 0) {
+            this.setValue(Math.min(this._value + 1, this._max));
+        } else {
+            this.setValue(Math.max(this._value - 1, this._min));
+        }
+    }
 
-    me.setDisabled = function(value){
-        disabled = value;
-        me.refresh();
-        me.ignoreEvents = disabled;
-    };
+    render(internal) {
+        internal = !!internal;
+        if (this.needsRendering) {
+            this.clearCanvas();
+            this._slider.render();
+            this._numberDisplay.render();
 
-	me.render = function(internal){
-		internal = !!internal;
-		if (me.needsRendering){
-			me.clearCanvas();
-
-			//me.ctx.drawImage(Y.getImage("panel_inset_dark"),digitX,digitY,digitW,digitH);
-			//window.fontLed.write(me.ctx,padValue(),digitX+4,digitY+2,0);
-			slider.render();
-			numberDisplay.render();
-
-			if (font){
-				font.write(me.ctx,label,labelX,labelY,0);
-			}else{
-				me.ctx.fillStyle = "white";
-				me.ctx.fillText(label,labelX,labelY);
-			}
-
-			if (vertical){
-				me.ctx.drawImage(lineVer,me.width-2,0,2,me.height);
-			}
-
-            if (disabled){
-                me.ctx.fillStyle = "rgba(34, 49, 85, 0.6)";
-                me.ctx.fillRect(1,0,me.width-1,me.height);
+            if (this._font) {
+                this._font.write(this.ctx, this._label, this._labelX, this._labelY, 0);
+            } else {
+                this.ctx.fillStyle = "white";
+                this.ctx.fillText(this._label, this._labelX, this._labelY);
             }
 
+            if (this._vertical) {
+                const lineVer = Y.getImage("line_ver");
+                if (lineVer) this.ctx.drawImage(lineVer, this.width - 2, 0, 2, this.height);
+            }
 
-		}
-		me.needsRendering = false;
-
-		if (internal){
-			return me.canvas;
-		}else{
-			if (!me.visible) return;
-			me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-		}
-
-	};
-
-	me.onMouseWheel = function(touchData){
-		if (touchData.mouseWheels[0] > 0){
-			value++;
-			if (value>max) value=max;
-			me.setValue(value);
-		}else{
-			value--;
-			if (value<min) value=min;
-			me.setValue(value);
-		}
-	};
-	slider.onMouseWheel = me.onMouseWheel;
-
-	me.onResize = function(){
-
-		digitW = 40;
-		digitH = 20;
-		if (padLength == 5){
-			digitW = 48;
-			digitX -= 8;
-		}
-
-		if (vertical){
-            slider.setSize(sliderwidth, me.height-36);
-            slider.setPosition(Math.floor((me.width-sliderwidth)/2),0);
-			digitX = Math.floor((me.width - 40)/2);
-			digitY = me.height-32;
-			labelX = Math.floor((me.width - font.getTextWidth(label,0))/2);
-			labelY = me.height-10;
-		}else{
-            slider.setSize(me.width, sliderHeight);
-            slider.setPosition(0, me.height - sliderHeight);
-			digitX = me.width - 40;
-			digitY = 2;
-		}
-
-		numberDisplay.setSize(digitW,digitH);
-		numberDisplay.setPosition(digitX,digitY);
-	};
-
-	return me;
-
-
-};
-
-export default sliderBox;
-
+            if (this._disabled) {
+                this.ctx.fillStyle = "rgba(34, 49, 85, 0.6)";
+                this.ctx.fillRect(1, 0, this.width - 1, this.height);
+            }
+        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        if (!this.isVisible()) return;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

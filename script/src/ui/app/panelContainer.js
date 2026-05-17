@@ -3,20 +3,19 @@ import Scale9Panel from '../components/scale9.js';
 import Assets from "../assets.js";
 import UI from "../ui.js";
 
-let app_panelContainer = function(height){
-    let canvas = UI.getCanvas();
-    var me = Panel(0,0,canvas.width,height,true);
+export default class PanelContainer extends Panel {
+    _background;
 
-    var background = Scale9Panel(0,0,me.width,me.height,Assets.panelMainScale9);
-    background.ignoreEvents = true;
-    me.addChild(background);
+    constructor(height) {
+        const canvas = UI.getCanvas();
+        super(0, 0, canvas.width, height);
+        this._background = new Scale9Panel(0, 0, this.width, this.height, Assets.panelMainScale9);
+        this._background.ignoreEvents = true;
+        this.addChild(this._background);
+    }
 
-    me.onResize = function(){
-        background.setSize(me.width,me.height);
-        if (me.onPanelResize) me.onPanelResize();
-    };
-
-    return me;
-};
-
-export default app_panelContainer;
+    onResize() {
+        this._background.setSize(this.width, this.height);
+        if (this.onPanelResize) this.onPanelResize();
+    }
+}

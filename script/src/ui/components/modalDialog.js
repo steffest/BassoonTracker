@@ -1,170 +1,137 @@
 import UIElement from "./element.js";
 import Scale9Panel from "./scale9.js";
-import Inputbox from "./inputbox.js";
+import InputBox from "./inputbox.js";
 import Assets from "../assets.js";
 import UI from "../ui.js";
+import Font from "../font.js";
 
+export default class ModalDialog extends UIElement {
+    _text = "";
+    _ok = false;
+    _cancel = false;
+    _input = false;
+    _inputValue = "";
+    _background;
+    _okButton;
+    _cancelButton;
+    _inputBox = null;
 
-let modalDialog = function(initialProperties){
-    var me = UIElement();
-    var text = "";
-    var inputBox;
-    var properties = ["left","top","width","height","name","ok","cancel","input"];
+    constructor(x, y, w, h) {
+        super(x || 0, y || 0, w || 20, h || 20);
+        this.type = "modaldialog";
 
-    me.setProperties = function(p){
+        this._background = new Scale9Panel(0, 0, Math.floor((w || 20) / 2), 200, Assets.panelMainScale9);
+        this._background.ignoreEvents = true;
+        this.addChild(this._background);
 
-        properties.forEach(function(key){
-            if (typeof p[key] !== "undefined") me[key] = p[key];
-        });
+        this._okButton = Assets.generate("buttonLight");
+        this._okButton.name   = "okbutton";
+        this._okButton.label  = "OK";
+        this._okButton.width  = 100;
+        this._okButton.height = 28;
+        this.addChild(this._okButton);
 
-        me.setSize(me.width,me.height);
-        me.setPosition(me.left,me.top);
-
-        var panelHeight = 200;
-        if (me.height<panelHeight) panelHeight = me.height - 20;
-
-        var panelWidth = Math.max(Math.floor(me.width/2),380);
-
-        background.setSize(panelWidth,panelHeight);
-        background.setPosition(Math.floor((me.width-panelWidth)/2),Math.floor((me.height-panelHeight)/2));
-
-        if (me.cancel){
-            okButton.setPosition(background.left + Math.floor(background.width/2) - 110,background.top + background.height - 40);
-            cancelButton.setPosition(background.left + Math.floor(background.width/2) + 10,background.top + background.height - 40);
-        }else{
-            okButton.setPosition(background.left + Math.floor(background.width/2) - 50,background.top + background.height - 40);
-        }
-
-        if (me.input){
-            if (!inputBox){
-                inputBox = Inputbox({
-                    name: "dialoginput",
-                    width: 200,
-                    height: 28,
-                    value: "",
-                    onChange:function(){
-                        me.inputValue = inputBox.getValue();
-                    },
-                    onSubmit:function(value){
-                        me.inputValue = value;
-                        me.onKeyDown(13);
-                    }
-                });
-                me.addChild(inputBox);
-                setTimeout(function(){
-                    inputBox.activate();
-                },0);
-            }
-            inputBox.setProperties({
-                left: background.left + 50,
-                top: background.top + background.height - 80,
-                width: background.width-100,
-                height: 28
-            })
-
-        }
-
-    };
-
-    var background = Scale9Panel(0,0,Math.floor(me.width/2),200,Assets.panelMainScale9);
-
-    background.ignoreEvents = true;
-    me.addChild(background);
-
-    var okButton = Assets.generate("buttonLight");
-    okButton.setProperties({
-        name: "okbutton",
-        label: "OK",
-        width: 100,
-        height: 28
-    });
-    me.addChild(okButton);
-
-    var cancelButton = Assets.generate("buttonLight");
-    cancelButton.setProperties({
-        name: "cancelbutton",
-        label: "Cancel",
-        width: 100,
-        height: 28
-    });
-    me.addChild(cancelButton);
-
-
-    // will be overriden if other functionality needed
-    me.onKeyDown = function(keyCode){
-        switch (keyCode){
-            case 13:
-                me.close();
-                return true;
-        }
+        this._cancelButton = Assets.generate("buttonLight");
+        this._cancelButton.name   = "cancelbutton";
+        this._cancelButton.label  = "Cancel";
+        this._cancelButton.width  = 100;
+        this._cancelButton.height = 28;
+        this.addChild(this._cancelButton);
     }
 
-    me.render = function(internal){
+    get text()        { return this._text; }
+    set text(v)       { this._text = v; this.refresh(); }
+
+    get ok()          { return this._ok; }
+    set ok(v)         { this._ok = !!v; this._layout(); this.refresh(); }
+
+    get cancel()      { return this._cancel; }
+    set cancel(v)     { this._cancel = !!v; this._layout(); this.refresh(); }
+
+    get input()       { return this._input; }
+    set input(v)      { this._input = !!v; this._layout(); this.refresh(); }
+
+    get inputValue()  { return this._inputValue; }
+
+    setSize(w, h) {
+        super.setSize(w, h);
+        if (this._background) this._layout();
+    }
+
+    setText(newText) { this.text = newText; }
+    getText()        { return this._text; }
+
+    onKeyDown(keyCode) {
+        if (keyCode === 13) { this.close(); return true; }
+    }
+
+    close() {
+        this.hide();
+        if (this.onClose) this.onClose();
+        UI.removeModalElement();
+    }
+
+    render(internal) {
         internal = !!internal;
-        if (this.needsRendering){
+        if (this.needsRendering) {
+            this.clearCanvas();
+            this.ctx.fillStyle = "rgba(0,0,0,0.6)";
+            this.ctx.fillRect(0, 0, this.width, this.height);
 
-            me.clearCanvas();
-            me.ctx.fillStyle = "rgba(0,0,0,0.6)";
-            me.ctx.fillRect(0,0,me.width,me.height);
+            this._background.render();
 
-            background.render();
-
-            if (text){
-                var lines = text.split("/");
-                var textY = background.top + 20;
-                var textX = background.left + 10;
-
-                var maxWidth = background.width - 20;
-
-                lines.forEach(function(line){
-                    var textX = 10;
-                    let font = fontFT;
-                    if (line.startsWith("*")){
-                        line = line.substr(1);
-                        font = fontBig;
-                    }
-                    if (font){
-                        var textLength = font.getTextWidth(line,0);
-                        textX = background.left + 10 + Math.floor((maxWidth - textLength)/2);
-                        font.write(me.ctx,line,textX,textY,0);
+            if (this._text) {
+                const lines    = this._text.split("/");
+                let textY      = this._background.top + 20;
+                const maxWidth = this._background.width - 20;
+                lines.forEach(line => {
+                    let font = Font.ft;
+                    if (line.startsWith("*")) { line = line.substr(1); font = Font.big; }
+                    if (font) {
+                        const textX = this._background.left + 10 + Math.floor((maxWidth - font.getTextWidth(line, 0)) / 2);
+                        font.write(this.ctx, line, textX, textY, 0);
                     }
                     textY += 12;
                 });
             }
 
-            if (me.ok) okButton.render();
-            if (me.cancel) cancelButton.render();
-
-            if (inputBox){
-                inputBox.render();
-            }
-
+            if (this._ok)     this._okButton.render();
+            if (this._cancel) this._cancelButton.render();
+            if (this._inputBox) this._inputBox.render();
         }
         this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
 
-        if (internal){
-            return me.canvas;
-        }else{
-            me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
+    _layout() {
+        const panelHeight = Math.min(200, Math.max(20, this.height - 20));
+        const panelWidth  = Math.max(Math.floor(this.width / 2), 380);
+
+        this._background.setSize(panelWidth, panelHeight);
+        this._background.setPosition(
+            Math.floor((this.width - panelWidth) / 2),
+            Math.floor((this.height - panelHeight) / 2)
+        );
+
+        if (this._cancel) {
+            this._okButton.setPosition(this._background.left + Math.floor(this._background.width / 2) - 110, this._background.top + this._background.height - 40);
+            this._cancelButton.setPosition(this._background.left + Math.floor(this._background.width / 2) + 10, this._background.top + this._background.height - 40);
+        } else {
+            this._okButton.setPosition(this._background.left + Math.floor(this._background.width / 2) - 50, this._background.top + this._background.height - 40);
         }
 
-    };
-
-    me.setText = function(newText){
-        text = newText;
-    };
-
-    me.getText= function(){
-        return text;
-    };
-
-    me.close = function(){
-        me.hide();
-        if (me.onClose) me.onClose();
-        UI.removeModalElement();
-    };
-
-    return me;
-};
-
-export default modalDialog;
+        if (this._input) {
+            if (!this._inputBox) {
+                this._inputBox = new InputBox(0, 0, 200, 28);
+                this._inputBox.name     = "dialoginput";
+                this._inputBox.onChange = () => { this._inputValue = this._inputBox.value; };
+                this._inputBox.onSubmit = (value) => { this._inputValue = value; this.onKeyDown(13); };
+                this.addChild(this._inputBox);
+                setTimeout(() => this._inputBox.activate(), 0);
+            }
+            this._inputBox.setPosition(this._background.left + 50, this._background.top + this._background.height - 80);
+            this._inputBox.setSize(this._background.width - 100, 28);
+        }
+    }
+}

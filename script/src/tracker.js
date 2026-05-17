@@ -265,6 +265,7 @@ var Tracker = (function(){
 		me.stop();
 		Audio.checkState();
 		//Audio.setMasterVolume(1);
+		if (SETTINGS.playFrom !== "cursor") currentPatternPos = 0;
 		me.setPlayType(PLAYTYPE.song);
 		isPlaying = true;
 		//Audio.startRecording();
@@ -276,7 +277,7 @@ var Tracker = (function(){
 		me.stop();
         Audio.checkState();
 		//Audio.setMasterVolume(1);
-		currentPatternPos = 0;
+		if (SETTINGS.playFrom !== "cursor") currentPatternPos = 0;
 		me.setPlayType(PLAYTYPE.pattern);
 		isPlaying = true;
 		playPattern(currentPattern);
@@ -349,7 +350,7 @@ var Tracker = (function(){
 		var stepResult = {};
 
 		// look-ahead playback - far less demanding, works OK on mobile devices
-		var p =  0;
+		var p = Math.max(0, Math.min(currentPatternPos, currentPatternData.length - 1));
 		var time = Audio.context.currentTime + 0.1; //  add small delay to allow some time to render the first notes before playing
 
 

@@ -23,10 +23,11 @@ import ModArchive from "../provider/modarchive.js";
 import ModulesPl from "../provider/modulespl.js";
 import Hippo from "../provider/hippo.js";
 import Editor from "../editor.js";
+import Font from "./font.js";
 
 let DiskOperations = function(){
 
-	var me = Panel(0,0,20,20);
+	var me = new Panel(0,0,20,20);
 	me.hide();
 
 	var currentAction = "load";
@@ -46,7 +47,7 @@ let DiskOperations = function(){
 	var onLoadChildren = function(){};
 	var itemHandler;
 
-	var background = Scale9Panel(0,0,20,20,Assets.panelMainScale9);
+	var background = new Scale9Panel(0,0,20,20,Assets.panelMainScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
@@ -70,46 +71,45 @@ let DiskOperations = function(){
         activeBackground:Assets.buttonKeyActiveScale9,
         isActive:false,
         textAlign: "center",
-        font: window.fontDark,
+        font: Font.dark,
         paddingTopActive: 1,
 		height: 18,
 		width: 50
     };
 
-    var saveButton = Button();
-    var loadButton = Button();
+    var saveButton = new Button();
+    var loadButton = new Button();
     loadButton.setActive(true);
 
-    saveButton.setProperties(buttonProperties);
-    saveButton.setLabel("Save");
+	Object.assign(saveButton, buttonProperties);
+	saveButton.label = "Save";
     saveButton.onDown = function(){
         actionPanel.setSelectedIndex(1);
     };
     me.addChild(saveButton);
 
-    loadButton.setProperties(buttonProperties);
-    loadButton.setLabel("Load");
+	Object.assign(loadButton, buttonProperties);
+	loadButton.label = "Load";
     loadButton.onDown = function(){
         actionPanel.setSelectedIndex(0);
     };
     me.addChild(loadButton);
     
 
-	var label = Label({
-		label: "Load module",
-		font: fontMed
-	});
+	var label = new Label(0, 0, 20, 20);
+	label.label = "Load module";
+	label.font = Font.med;
 	me.addChild(label);
 
 	var closeButton = Assets.generate("button20_20");
-	closeButton.setLabel("x");
+	closeButton.label = "x";
 	closeButton.onClick = function(){
         App.doCommand(COMMAND.showTopMain);
 	};
 	me.addChild(closeButton);
 	
 	var browseButton = Assets.generate("buttonKey");
-	browseButton.setLabel("browse");
+	browseButton.label = "browse";
 	browseButton.onClick = function(){
 		var input = document.createElement('input');
 		input.type = 'file';
@@ -121,17 +121,15 @@ let DiskOperations = function(){
 	me.addChild(browseButton);
 	browseButton.hide();
 
-	var listbox = Listbox();
+	var listbox = new Listbox();
 	me.addChild(listbox);
 
 
-	var dropzone = Button();
-	dropzone.setProperties({
-		background: Assets.buttonDarkActiveScale9,
-		image: Y.getImage("dropzone"),
-		font: fontSmall,
-		textAlign: "center"
-	});
+	var dropzone = new Button();
+	dropzone.background = Assets.buttonDarkActiveScale9;
+	dropzone.image = Y.getImage("dropzone");
+	dropzone.font = Font.small;
+	dropzone.textAlign = "center";
 	dropzone.onClick = browseButton.onClick;
 	me.addChild(dropzone);
 	dropzone.hide();
@@ -145,28 +143,22 @@ let DiskOperations = function(){
 		if(me.isVisible()){
             me.clearCanvas();
 
-            background.setProperties({
-                left: 0,
-                top: 0,
-                height: me.height,
-                width: me.width
-            });
+			background.left = 0;
+			background.top = 0;
+			background.height = me.height;
+			background.width = me.width;
 
             var startTop = 5;
 
-            closeButton.setProperties({
-                top: startTop-2,
-                width: 20,
-                heigth: 18,
-                left: me.width - 30
-            });
+			closeButton.top = startTop-2;
+			closeButton.width = 20;
+			closeButton.heigth = 18;
+			closeButton.left = me.width - 30;
 
-			browseButton.setProperties({
-				top: closeButton.top+2,
-				width: 55,
-				height: 18,
-				left: closeButton.left - 60
-			});
+			browseButton.top = closeButton.top+2;
+			browseButton.width = 55;
+			browseButton.height = 18;
+			browseButton.left = closeButton.left - 60;
 
 			
             if (me.width >= 730){
@@ -176,39 +168,29 @@ let DiskOperations = function(){
                 loadButton.hide();
                 saveButton.hide();
 
-				actionPanel.setProperties({
-					top: startTop,
-					left: Layout.col1X,
-					width: Layout.col1W,
-					height: me.height - 10
-				});
-                typePanel.setProperties({
-                    top: startTop,
-                    left: Layout.col2X,
-                    width: Layout.col1W,
-                    height: me.height - 10
-                });
-                targetPanel.setProperties({
-                    top: startTop,
-                    left: Layout.col3X,
-                    width: Layout.col1W,
-                    height: me.height - 10
-                });
+												actionPanel.top = startTop;
+												actionPanel.left = Layout.col1X;
+												actionPanel.width = Layout.col1W;
+												actionPanel.height = me.height - 10;
+												typePanel.top = startTop;
+												typePanel.left = Layout.col2X;
+												typePanel.width = Layout.col1W;
+												typePanel.height = me.height - 10;
+												targetPanel.top = startTop;
+												targetPanel.left = Layout.col3X;
+												targetPanel.width = Layout.col1W;
+												targetPanel.height = me.height - 10;
 
-                label.setProperties({
-                    left: Layout.col4X,
-                    top: startTop,
-                    height: 20,
-                    width: Layout.col2W
-                });
+				label.left = Layout.col4X;
+				label.top = startTop;
+				label.height = 20;
+				label.width = Layout.col2W;
 
 
-                listbox.setProperties({
-                    left: Layout.col4X,
-                    width: Layout.col2W,
-                    top: startTop + 19,
-                    height: me.height - (19+startTop) - 5
-                });
+				listbox.left = Layout.col4X;
+				listbox.width = Layout.col2W;
+				listbox.top = startTop + 19;
+				listbox.height = me.height - (19+startTop) - 5;
 
             }else{
 
@@ -217,46 +199,34 @@ let DiskOperations = function(){
                 loadButton.show();
                 saveButton.show();
 
-                loadButton.setProperties({
-					top: 5,
-					left: Layout.col3X
-				});
-                saveButton.setProperties({
-                    top: 5,
-                    left: Layout.col3X + 50
-                });
+				loadButton.top = 5;
+				loadButton.left = Layout.col3X;
+				saveButton.top = 5;
+				saveButton.left = Layout.col3X + 50;
 
-                typePanel.setProperties({
-                    top: startTop,
-                    left: Layout.defaultMargin,
-                    width: Layout.col2W,
-                    height: (me.height / 2) - startTop - 16
-                });
+				typePanel.top = startTop;
+				typePanel.left = Layout.defaultMargin;
+				typePanel.width = Layout.col2W;
+				typePanel.height = (me.height / 2) - startTop - 16;
 
-                targetPanel.setProperties({
-                    top: me.height / 2 - 16,
-                    left: Layout.defaultMargin,
-                    width: Layout.col2W,
-                    height: me.height / 2 + 16
-                });
+				targetPanel.top = me.height / 2 - 16;
+				targetPanel.left = Layout.defaultMargin;
+				targetPanel.width = Layout.col2W;
+				targetPanel.height = me.height / 2 + 16;
 
-                listbox.setProperties({
-                    left: Layout.col3X,
-                    width: Layout.col3W,
-                    top: startTop + 19,
-                    height: me.height - (19+startTop) - 5
-                });
+				listbox.left = Layout.col3X;
+				listbox.width = Layout.col3W;
+				listbox.top = startTop + 19;
+				listbox.height = me.height - (19+startTop) - 5;
 
             }
 
             if (currentAction === "save"){
 
-                savePanel.setProperties({
-                    left: listbox.left,
-                    width: listbox.width,
-                    top: listbox.top,
-                    height:listbox.height
-                });
+				savePanel.left = listbox.left;
+				savePanel.width = listbox.width;
+				savePanel.top = listbox.top;
+				savePanel.height = listbox.height;
 
                 listbox.hide();
                 savePanel.show();
@@ -266,12 +236,10 @@ let DiskOperations = function(){
             }
 
 
-            dropzone.setProperties({
-                left: listbox.left,
-                width: listbox.width,
-                top: listbox.top,
-                height:listbox.height
-            });
+			dropzone.left = listbox.left;
+			dropzone.width = listbox.width;
+			dropzone.top = listbox.top;
+			dropzone.height = listbox.height;
 		}
 	};
 
@@ -350,7 +318,7 @@ let DiskOperations = function(){
 		switch (currentView){
 			case "modules":
 				itemHandler = false;
-				label.setLabel("Load Module");
+				label.label = "Load Module";
 				listbox.onClick = function(e){
 					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 					if (item && item.data){
@@ -380,7 +348,7 @@ let DiskOperations = function(){
 				break;
 			case "modarchive":
 				itemHandler = ModArchive;
-				label.setLabel("Browse Modarchive");
+				label.label = "Browse Modarchive";
 				listbox.onClick = function(e){
 					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 					if (item && item.data){
@@ -436,7 +404,7 @@ let DiskOperations = function(){
 
 			case "modulespl":
 				itemHandler = ModulesPl;
-				label.setLabel("Browse Modules.pl");
+				label.label = "Browse Modules.pl";
 				listbox.onClick = function(e){
 					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 					if (item && item.data){
@@ -492,7 +460,7 @@ let DiskOperations = function(){
 
 			case "dropbox":
 				itemHandler = Dropbox;
-				label.setLabel("Browse Your Dropbox");
+				label.label = "Browse Your Dropbox";
 
 				UI.setStatus("Contacting Dropbox",true);
 				listbox.setItems([{label: "loading ..."}]);
@@ -558,7 +526,7 @@ let DiskOperations = function(){
 				break;
 			case "samples":
 				itemHandler = false;
-				label.setLabel("Load Sample to slot " + Tracker.getCurrentInstrumentIndex());
+				label.label = "Load Sample to slot " + Tracker.getCurrentInstrumentIndex();
 				listbox.onClick = function(e){
 					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 					if (item && item.data){
@@ -614,7 +582,7 @@ let DiskOperations = function(){
 				break;
 			case "playlists":
 				itemHandler = false;
-				label.setLabel("Load Playlist");
+				label.label = "Load Playlist";
 				listbox.onClick = function(e){
 					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 					listbox.setSelectedIndex(index);
@@ -635,7 +603,7 @@ let DiskOperations = function(){
 				break;
 			case "hippo":
 				itemHandler = false;
-				label.setLabel("Hippo Playlists");
+				label.label = "Hippo Playlists";
 				listbox.onClick = function(e){
 					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 					listbox.setSelectedIndex(index);
@@ -655,7 +623,7 @@ let DiskOperations = function(){
 				break;
 			case "local":
 				itemHandler = false;
-				label.setLabel("Open Local files");
+				label.label = "Open Local files";
 				break;
 		}
 
@@ -760,7 +728,7 @@ let DiskOperations = function(){
             var labelText = "Export Module";
             if (currentView === "samples")  labelText = "Export Sample";
             if (currentView === "playlists")  labelText = "Export Playlist";
-            label.setLabel(labelText);
+			label.label = labelText;
 
             if (loadButton.isActive) loadButton.setActive(false);
             if (!saveButton.isActive) saveButton.setActive(true);
@@ -789,7 +757,7 @@ let DiskOperations = function(){
 
 
 	EventBus.on(EVENT.instrumentChange,function(value){
-		if (me.isVisible() && currentView == "samples") label.setLabel("Load Sample to slot " + Tracker.getCurrentInstrumentIndex());
+		if (me.isVisible() && currentView == "samples") label.label = "Load Sample to slot " + Tracker.getCurrentInstrumentIndex();
 	});
 
 	EventBus.on(COMMAND.randomSong,function(){

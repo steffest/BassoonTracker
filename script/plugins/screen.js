@@ -37,7 +37,7 @@ var UI = function(){
 
 
 		panel = UI.panel(10,10,300,300);
-		panel.setProperties({
+		Object.assign(panel, {
 			backgroundColor : "blue"
 		});
 		me.addChild(panel);

@@ -18,12 +18,39 @@ import App from "../../src/app.js";
 import Layout from "../../src/ui/app/layout.js";
 import Input from "../../src/ui/input.js";
 import UI from "../../src/ui/ui.js";
-import AudioProcessing from "../../src/audio/audioprocessing.js";
 import HissReductionPanel from "./hissReductionPanel.js";
+
+function setProps(target, props){
+	if (!target || !props) return;
+
+	const hasLayout = (
+		props.left !== undefined || props.top !== undefined ||
+		props.width !== undefined || props.height !== undefined ||
+		props.visible !== undefined
+	);
+
+	if (hasLayout && typeof target.setDimensions === "function"){
+		target.setDimensions({
+			left: props.left,
+			top: props.top,
+			width: props.width,
+			height: props.height,
+			visible: props.visible
+		});
+	}
+
+	if (props.active !== undefined && target.isActive !== undefined) target.isActive = !!props.active;
+	if (props.disabled !== undefined && target.isDisabled !== undefined) target.isDisabled = !!props.disabled;
+
+	for (const [key, value] of Object.entries(props)){
+		if (key === "left" || key === "top" || key === "width" || key === "height" || key === "visible" || key === "active" || key === "disabled") continue;
+		target[key] = value;
+	}
+}
 
 let SampleView = function(){
 
-	var me = Panel();
+	var me = new Panel();
 	me.name = "SampleView";
 	me.hide();
 
@@ -33,26 +60,24 @@ let SampleView = function(){
 	var moreExpanded = false;
 
 	var inputboxHeight = 20;
-	var font = window.fontMed;
-	font = window.fontCondensed;
+	var font = UI.font.med;
+	font = UI.font.condensed;
 
-	var instrumentName = Inputbox({
-		name: "instrumentName",
-		height: inputboxHeight,
-		trackUndo: true,
-		undoInstrument: true,
-		onChange: function(value){
-			if (currentInstrumentIndex){
-				var instrument = Tracker.getInstrument(currentInstrumentIndex);
-				if (instrument) instrument.name = value;
-				EventBus.trigger(EVENT.instrumentNameChange,currentInstrumentIndex);
-			}
+	var instrumentName = new Inputbox(0, 0, 20, inputboxHeight);
+	instrumentName.name = "instrumentName";
+	instrumentName.trackUndo = true;
+	instrumentName.undoInstrument = true;
+	instrumentName.onChange = function(value){
+		if (currentInstrumentIndex){
+			var instrument = Tracker.getInstrument(currentInstrumentIndex);
+			if (instrument) instrument.name = value;
+			EventBus.trigger(EVENT.instrumentNameChange,currentInstrumentIndex);
 		}
-	});
+	};
 	me.addChild(instrumentName);
 
 	var closeButton = Assets.generate("button20_20");
-	closeButton.setLabel("x");
+	closeButton.label = "x";
 	closeButton.onClick = function(){
 		App.doCommand(COMMAND.showBottomMain);
 	};
@@ -63,23 +88,23 @@ let SampleView = function(){
 		activeBackground:Assets.buttonKeyActiveScale9,
 		isActive:false,
 		textAlign: "center",
-		font: window.fontDark,
+		font: UI.font.dark,
 		paddingTopActive: 1
 	};
 
-	var bit8Button = Button();
-	var bit16Button = Button();
+	var bit8Button = new Button();
+	var bit16Button = new Button();
 
-	bit8Button.setProperties(buttonProperties);
-	bit8Button.setLabel("8");
+	setProps(bit8Button, buttonProperties);
+	bit8Button.label = "8";
 	bit8Button.tooltip = "store as 8bit sample";
 	bit8Button.setActive(true);
 	bit8Button.onDown = function(){
 		changeSampleBit(8);
 	};
 	me.addChild(bit8Button);
-	bit16Button.setProperties(buttonProperties);
-	bit16Button.setLabel("16");
+	setProps(bit16Button, buttonProperties);
+	bit16Button.label = "16";
 	bit16Button.tooltip = "store as 16bit sample";
 	bit16Button.onDown = function(){
 		changeSampleBit(16);
@@ -141,7 +166,24 @@ let SampleView = function(){
 		me.onResize();
 	};
 
-	var sampleEditorMenu = Menu(0,0,140,26,me);
+	var drawModeButton = new Button();
+	setProps(drawModeButton, {
+		name: "drawMode",
+		image: Y.getImage("share"),
+		activeImage: Y.getImage("share"),
+		isActive: false,
+		opacity: 0.4,
+		hoverOpacity: 1
+	});
+	drawModeButton.tooltip = "Toggle Draw Mode";
+	drawModeButton.onDown = function(){
+		var active = !drawModeButton.isActive;
+		drawModeButton.setActive(active);
+		waveForm.setDrawMode(active);
+	};
+	me.addChild(drawModeButton);
+
+	var sampleEditorMenu = new Menu(0,0,140,26,me);
 	sampleEditorMenu.name = "SampleEditorMenu";
 	sampleEditorMenu.zIndex = 500;
 
@@ -194,238 +236,88 @@ let SampleView = function(){
 	me.addChild(panningEnvelope);
 
 	var sideButtonPanel = new Panel();
-	sideButtonPanel.setProperties({
+	setProps(sideButtonPanel, {
 		name: "instrumentSideButtonPanel"
 	});
 
-	var spinBoxInstrument = SpinBox({
-		name: "Instrument",
-		label: "",
-		value: 1,
-		max: 64,
-		padLength: 2,
-		min:1,
-		font: font,
-		onChange : function(value){Tracker.setCurrentInstrumentIndex(value);}
-	});
+	var spinBoxInstrument = new SpinBox(0, 0, 20, 20);
+	setProps(spinBoxInstrument, {name:"Instrument", label:"", value:1, max:64, padLength:2, min:1, font:font, onChange:function(value){Tracker.setCurrentInstrumentIndex(value);}});
 	me.addChild(spinBoxInstrument);
 
 
-	var volumeSlider = SliderBox({
-		name: "Volume",
-		label: "Volume",
-		font: font,
-		height: 200,
-		width: 40,
-		value: 64,
-		max: 64,
-		min: 0,
-		step:1,
-		vertical:true,
-		trackUndo: true,
-		undoInstrument: true,
-		onChange: function(value){
-			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) {
-				instrument.sample.volume = value;
-			}
-		}
-	});
+	var volumeSlider = new SliderBox(0, 0, 40, 200);
+	setProps(volumeSlider, {name:"Volume", label:"Volume", font:font, value:64, max:64, min:0, step:1, vertical:true, trackUndo:true, undoInstrument:true, onChange:function(value){var instrument=Tracker.getCurrentInstrument();if(instrument){instrument.sample.volume=value;}}});
 	sideButtonPanel.addChild(volumeSlider);
 
-	var fineTuneSlider = SliderBox({
-		name: "Finetune",
-		label: "Finetune",
-		font: font,
-		value: 0,
-		max: 7,
-		min: -8,
-		step:1,
-		vertical:true,
-		trackUndo: true,
-		undoInstrument: true,
-		onChange: function(value){
-			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) instrument.setFineTune(value);
-		}
-	});
+	var fineTuneSlider = new SliderBox(0, 0, 20, 20);
+	setProps(fineTuneSlider, {name:"Finetune", label:"Finetune", font:font, value:0, max:7, min:-8, step:1, vertical:true, trackUndo:true, undoInstrument:true, onChange:function(value){var instrument=Tracker.getCurrentInstrument();if(instrument)instrument.setFineTune(value);}});
 	sideButtonPanel.addChild(fineTuneSlider);
 
-	var panningSlider = SliderBox({
-		name: "Panning",
-		label: "Panning",
-		font: font,
-		value: 0,
-		max: 127,
-		min: -127,
-		vertical:true,
-		trackUndo: true,
-		undoInstrument: true,
-		onChange: function(value){
-			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) {
-				instrument.panning = value;
-				instrument.sample.panning = value;
-			}
-		}
-	});
+	var panningSlider = new SliderBox(0, 0, 20, 20);
+	setProps(panningSlider, {name:"Panning", label:"Panning", font:font, value:0, max:127, min:-127, vertical:true, trackUndo:true, undoInstrument:true, onChange:function(value){var instrument=Tracker.getCurrentInstrument();if(instrument){instrument.panning=value;instrument.sample.panning=value;}}});
 	sideButtonPanel.addChild(panningSlider);
 
-	var repeatSpinbox = SpinBox({
-		name: "Repeat",
-		label: "Start",
-		value: 0,
-		max: 65535,
-		min:0,
-		step:2,
-		font: font,
-		trackUndo: true,
-		undoInstrument: true,
-		onChange: function(value){
-			if (loopCreator.isVisible()) { loopCreator.setLoopStart(value); return; }
-			var instrument= Tracker.getCurrentInstrument();
-            if (instrument){
-                if ((instrument.sample.loop.length+value)>instrument.sample.length) {
-                    value = instrument.sample.length-instrument.sample.loop.length;
-                    repeatSpinbox.setValue(value,true);
-                }
-                instrument.sample.loop.start = value;
-            }
-			waveForm.refresh();
+	var repeatSpinbox = new SpinBox(0, 0, 20, 20);
+	setProps(repeatSpinbox, {name:"Repeat", label:"Start", value:0, max:65535, min:0, step:2, font:font, trackUndo:true, undoInstrument:true, onChange:function(value){
+		if (loopCreator.isVisible()) { loopCreator.setLoopStart(value); return; }
+		var instrument= Tracker.getCurrentInstrument();
+		if (instrument){
+			if ((instrument.sample.loop.length+value)>instrument.sample.length) {
+				value = instrument.sample.length-instrument.sample.loop.length;
+				repeatSpinbox.setValue(value,true);
+			}
+			instrument.sample.loop.start = value;
 		}
-	});
+		waveForm.refresh();
+	}});
 	sideButtonPanel.addChild(repeatSpinbox);
 
-	var repeatLengthSpinbox = SpinBox({
-		name: "Repeat Length",
-		label: "Length",
-		value: 0,
-		max: 65535,
-		min:0,
-		step:2,
-		font: font,
-		trackUndo: true,
-		undoInstrument: true,
-		onChange: function(value){
-			if (loopCreator.isVisible()) { loopCreator.setLoopLength(value); return; }
-			var instrument = Tracker.getCurrentInstrument();
-			if (instrument){
-				if ((instrument.sample.loop.start+value)>instrument.sample.length) {
-					value = instrument.sample.length-instrument.sample.loop.start;
-                    repeatLengthSpinbox.setValue(value,true);
-                }
-                instrument.sample.loop.length = value;
+	var repeatLengthSpinbox = new SpinBox(0, 0, 20, 20);
+	setProps(repeatLengthSpinbox, {name:"Repeat Length", label:"Length", value:0, max:65535, min:0, step:2, font:font, trackUndo:true, undoInstrument:true, onChange:function(value){
+		if (loopCreator.isVisible()) { loopCreator.setLoopLength(value); return; }
+		var instrument = Tracker.getCurrentInstrument();
+		if (instrument){
+			if ((instrument.sample.loop.start+value)>instrument.sample.length) {
+				value = instrument.sample.length-instrument.sample.loop.start;
+				repeatLengthSpinbox.setValue(value,true);
 			}
-			EventBus.trigger(EVENT.samplePropertyChange,{interal_loopLength: value});
-			waveForm.refresh();
+			instrument.sample.loop.length = value;
 		}
-	});
+		EventBus.trigger(EVENT.samplePropertyChange,{interal_loopLength: value});
+		waveForm.refresh();
+	}});
 	sideButtonPanel.addChild(repeatLengthSpinbox);
 
-	var fadeOutSlider = SliderBox({
-		name: "Fadeout",
-		label: "Fadeout",
-		value: 0,
-		max: 4095,
-		min:0,
-		step:1,
-		font: font,
-		vertical:true,
-		trackUndo: true,
-		undoInstrument: true,
-		onChange: function(value){
-			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) instrument.fadeout = value;
-		}
-	});
+	var fadeOutSlider = new SliderBox(0, 0, 20, 20);
+	setProps(fadeOutSlider, {name:"Fadeout", label:"Fadeout", value:0, max:4095, min:0, step:1, font:font, vertical:true, trackUndo:true, undoInstrument:true, onChange:function(value){var instrument=Tracker.getCurrentInstrument();if(instrument)instrument.fadeout=value;}});
 	sideButtonPanel.addChild(fadeOutSlider);
 
-	var spinBoxRelativeNote = SpinBox({
-		name: "relativeNote",
-		label: "RelativeNote",
-		value: 0,
-		max: 128,
-		min:-127,
-		step:1,
-		font: font,
-		trackUndo: true,
-		undoInstrument: true,
-		onChange: function(value){
-			var instrument = Tracker.getCurrentInstrument();
-			if (instrument) {
-				instrument.sample.relativeNote = value;
-			}
-		}
-	});
+	var spinBoxRelativeNote = new SpinBox(0, 0, 20, 20);
+	setProps(spinBoxRelativeNote, {name:"relativeNote", label:"RelativeNote", value:0, max:128, min:-127, step:1, font:font, trackUndo:true, undoInstrument:true, onChange:function(value){var instrument=Tracker.getCurrentInstrument();if(instrument){instrument.sample.relativeNote=value;}}});
 	sideButtonPanel.addChild(spinBoxRelativeNote);
 
 
 
-    var spinBoxVibratoSpeed = SpinBox({
-        name: "vibratoSpeed",
-        label: "Vib Speed",
-        value: 0,
-        max: 63,
-        min:0,
-        step:1,
-        font: font,
-		trackUndo: true,
-		undoInstrument: true,
-        onChange: function(value){
-            var instrument = Tracker.getCurrentInstrument();
-            if (instrument) {
-                instrument.vibrato.rate = value;
-            }
-        }
-    });
+    var spinBoxVibratoSpeed = new SpinBox(0, 0, 20, 20);
+    setProps(spinBoxVibratoSpeed, {name:"vibratoSpeed", label:"Vib Speed", value:0, max:63, min:0, step:1, font:font, trackUndo:true, undoInstrument:true, onChange:function(value){var instrument=Tracker.getCurrentInstrument();if(instrument){instrument.vibrato.rate=value;}}});
     sideButtonPanel.addChild(spinBoxVibratoSpeed);
     spinBoxVibratoSpeed.hide();
 
-    var spinBoxVibratoDepth = SpinBox({
-        name: "vibratoDepth",
-        label: "Vib Depth",
-        value: 0,
-        max: 15,
-        min:0,
-        step:1,
-        font: font,
-		trackUndo: true,
-		undoInstrument: true,
-        onChange: function(value){
-            var instrument = Tracker.getCurrentInstrument();
-            if (instrument) {
-                instrument.vibrato.depth = value;
-            }
-        }
-    });
+    var spinBoxVibratoDepth = new SpinBox(0, 0, 20, 20);
+    setProps(spinBoxVibratoDepth, {name:"vibratoDepth", label:"Vib Depth", value:0, max:15, min:0, step:1, font:font, trackUndo:true, undoInstrument:true, onChange:function(value){var instrument=Tracker.getCurrentInstrument();if(instrument){instrument.vibrato.depth=value;}}});
     sideButtonPanel.addChild(spinBoxVibratoDepth);
     spinBoxVibratoDepth.hide();
 
-    var spinBoxVibratoSweep = SpinBox({
-        name: "vibratoSweep",
-        label: "Vib Sweep",
-        value: 0,
-        max: 255,
-        min:0,
-        step:1,
-        font: font,
-		trackUndo: true,
-		undoInstrument: true,
-        onChange: function(value){
-            var instrument = Tracker.getCurrentInstrument();
-            if (instrument) {
-                instrument.vibrato.sweep = value;
-            }
-        }
-    });
+    var spinBoxVibratoSweep = new SpinBox(0, 0, 20, 20);
+    setProps(spinBoxVibratoSweep, {name:"vibratoSweep", label:"Vib Sweep", value:0, max:255, min:0, step:1, font:font, trackUndo:true, undoInstrument:true, onChange:function(value){var instrument=Tracker.getCurrentInstrument();if(instrument){instrument.vibrato.sweep=value;}}});
     sideButtonPanel.addChild(spinBoxVibratoSweep);
     spinBoxVibratoSweep.hide();
 
     var waveLabels = ["sin","square","saw","saw_inverse"];
     var waveButtons = [];
     waveLabels.forEach(function(label,index){
-        var button = Button();
-        button.setProperties({
+        var button = new Button();
+        setProps(button, {
             background: Assets.buttonKeyScale9,
             activeBackground:Assets.buttonKeyActiveScale9,
             image: Y.getImage("wave_" + label),
@@ -581,7 +473,7 @@ let SampleView = function(){
 
 	buttonsInfo.forEach(function(buttonInfo){
 		var button = Assets.generate("buttonLight");
-		button.setLabel(buttonInfo.label);
+		button.label = buttonInfo.label;
 		button.onClick = buttonInfo.onClick;
 		button.onDown = buttonInfo.onDown;
 		button.onTouchUp = buttonInfo.onUp;
@@ -589,10 +481,10 @@ let SampleView = function(){
 		buttons.push(button);
 	});
 
-	var sampleDisplayPanel = ButtonGroup("Display",buttonsDisplay);
-	var sampleSelectPanel = ButtonGroup("Select",buttonsSelect);
-	var sampleEditPanel = ButtonGroup("Edit",buttonsEdit);
-	var sampleVolumePanel = ButtonGroup("Volume",buttonsVolume);
+	var sampleDisplayPanel = new ButtonGroup("Display",buttonsDisplay);
+	var sampleSelectPanel = new ButtonGroup("Select",buttonsSelect);
+	var sampleEditPanel = new ButtonGroup("Edit",buttonsEdit);
+	var sampleVolumePanel = new ButtonGroup("Volume",buttonsVolume);
 	me.addChild(sampleDisplayPanel);
 	me.addChild(sampleSelectPanel);
 	me.addChild(sampleEditPanel);
@@ -600,13 +492,13 @@ let SampleView = function(){
 
 
 
-    var loopTitleBar = Button();
-    loopTitleBar.setProperties({
+    var loopTitleBar = new Button();
+    setProps(loopTitleBar, {
         background: Assets.panelDarkGreyScale9,
         activeBackground: Assets.panelDarkGreyBlueScale9,
         isActive:false,
         label: "Loop",
-        font: fontSmall,
+		font: UI.font.small,
         paddingTop: 2,
         paddingTopActive: 2,
 		paddingLeft: 20
@@ -617,24 +509,24 @@ let SampleView = function(){
     me.addChild(loopTitleBar);
 
 
-	var loopEnabledCheckbox = Checkbox();
+	var loopEnabledCheckbox = new Checkbox();
 	loopEnabledCheckbox.onToggle = function(checked){
 		var instrument = Tracker.getInstrument(currentInstrumentIndex);
 		if (instrument) instrument.sample.loop.enabled = checked;
 
-		repeatSpinbox.setDisabled(!checked);
-		repeatLengthSpinbox.setDisabled(!checked);
+		repeatSpinbox.disabled =
+		repeatLengthSpinbox.disabled = !checked;
 		waveForm.refresh();
 	};
 	me.addChild(loopEnabledCheckbox);
 
-    var vibratoTitleBar = Button();
-    vibratoTitleBar.setProperties({
+    var vibratoTitleBar = new Button();
+    setProps(vibratoTitleBar, {
         background: Assets.panelDarkGreyScale9,
         activeBackground: Assets.panelDarkGreyBlueScale9,
         isActive:false,
         label: "Vibrato",
-        font: fontSmall,
+		font: UI.font.small,
         paddingTop: 2,
 		paddingLeft: 5,
         paddingTopActive: 2
@@ -690,7 +582,7 @@ let SampleView = function(){
 			vibratoTitleBar.hide();
 		} else {
 			sideButtonPanel.show();
-			sideButtonPanel.setProperties({
+			setProps(sideButtonPanel, {
 				left:0,
 				top: 0,
 				width: Layout.col1W,
@@ -716,8 +608,23 @@ let SampleView = function(){
 		var menuH   = 26;
 		var menuTop = inputboxHeight + Layout.defaultMargin + 8;
 
+		var menuPanelActive = !loopCreator.isVisible() && !hissReductionPanel.isVisible();
+		var drawBtnW = 22;
+
 		sampleEditorMenu.setPosition(waveLeft, menuTop);
-		sampleEditorMenu.setSize(waveWidth, menuH);
+		sampleEditorMenu.setSize(menuPanelActive ? waveWidth - drawBtnW : waveWidth, menuH);
+
+		if (menuPanelActive){
+			setProps(drawModeButton, {
+				left: waveLeft + waveWidth - drawBtnW + 1,
+				top: menuTop + 3,
+				width: 20,
+				height: 20
+			});
+			drawModeButton.show();
+		} else {
+			drawModeButton.hide();
+		}
 
 		waveForm.menuHeight = menuH;
 		waveForm.setPosition(waveLeft, menuTop);
@@ -771,7 +678,7 @@ let SampleView = function(){
 			var BottomPanelTop = waveForm.top + waveForm.height + Layout.defaultMargin;
 			var buttonWidth = Layout.col4W / buttons.length;
 			buttons.forEach(function(button,index){
-				button.setProperties({
+				setProps(button, {
 					width: buttonWidth,
 					height: spinButtonHeight,
 					left: Layout.col2X + (buttonWidth*index),
@@ -779,7 +686,7 @@ let SampleView = function(){
 				});
 			});
 
-			loopTitleBar.setProperties({
+			setProps(loopTitleBar, {
 				width: Layout.col1W/2,
 				height: 18,
 				left: 2,
@@ -788,7 +695,7 @@ let SampleView = function(){
 
 			loopEnabledCheckbox.setPosition(loopTitleBar.left+2,loopTitleBar.top+2);
 
-	        vibratoTitleBar.setProperties({
+	        setProps(vibratoTitleBar, {
 	            width: loopTitleBar.width,
 	            height: loopTitleBar.height,
 	            left: loopTitleBar.left + loopTitleBar.width,
@@ -798,42 +705,42 @@ let SampleView = function(){
 			var loopSpinnerHeight = 34;
 			var vibratoSpinnerHeight = 30;
 
-			repeatSpinbox.setProperties({
+			setProps(repeatSpinbox, {
 				left:0,
 				top: loopTitleBar.top + 24,
 				width: Layout.col1W,
 				height: loopSpinnerHeight
 			});
 
-			repeatLengthSpinbox.setProperties({
+			setProps(repeatLengthSpinbox, {
 				left:0,
 				top: loopTitleBar.top + 24 + loopSpinnerHeight,
 				width: Layout.col1W,
 				height: loopSpinnerHeight
 			});
 
-			spinBoxRelativeNote.setProperties({
+			setProps(spinBoxRelativeNote, {
 				left:0,
 				top: loopTitleBar.top + 24 + (loopSpinnerHeight*2),
 				width: Layout.col1W,
 				height: loopSpinnerHeight
 			});
 
-	        spinBoxVibratoSpeed.setProperties({
+	        setProps(spinBoxVibratoSpeed, {
 	            left:0,
 	            top: vibratoTitleBar.top + 22,
 	            width: Layout.col1W,
 	            height: vibratoSpinnerHeight
 	        });
 
-	        spinBoxVibratoDepth.setProperties({
+	        setProps(spinBoxVibratoDepth, {
 	            left:0,
 	            top: vibratoTitleBar.top + 22 + vibratoSpinnerHeight,
 	            width: Layout.col1W,
 	            height: vibratoSpinnerHeight
 	        });
 
-	        spinBoxVibratoSweep.setProperties({
+	        setProps(spinBoxVibratoSweep, {
 	            left:0,
 	            top: vibratoTitleBar.top + 22 + (vibratoSpinnerHeight*2),
 	            width: Layout.col1W,
@@ -843,7 +750,7 @@ let SampleView = function(){
 	        var waveButtonWidth = Math.floor((Layout.col1W-4)/4);
 	        var marginLeft = Layout.col1W - (waveButtonWidth*4);
 	        waveButtons.forEach(function(button,index){
-	            button.setProperties({
+	            setProps(button, {
 	                left: marginLeft + index*waveButtonWidth,
 	                top: vibratoTitleBar.top + 22 + (vibratoSpinnerHeight*3),
 	                width: waveButtonWidth,
@@ -859,31 +766,31 @@ let SampleView = function(){
 			bitButtonOffScreen = 0;
 		}
 
-		instrumentName.setProperties({
+		setProps(instrumentName, {
 			top: Layout.defaultMargin,
 			left: waveLeft + 71,
 			width: waveWidth - 71 - 25 - Layout.defaultMargin - bitButtonSpace
 		});
 
-		closeButton.setProperties({
+		setProps(closeButton, {
 			top: Layout.defaultMargin,
 			left: instrumentName.left + instrumentName.width + Layout.defaultMargin + bitButtonSpace
 		});
 
-		bit8Button.setProperties({
+		setProps(bit8Button, {
 			top: Layout.defaultMargin,
 			width: 20,
 			height: 20,
 			left: instrumentName.left + instrumentName.width + Layout.defaultMargin - 2 + bitButtonOffScreen
 		});
-		bit16Button.setProperties({
+		setProps(bit16Button, {
 			top: Layout.defaultMargin,
 			width: 20,
 			height: 20,
 			left: instrumentName.left + instrumentName.width + Layout.defaultMargin + 18 + bitButtonOffScreen
 		});
 
-		spinBoxInstrument.setProperties({
+		setProps(spinBoxInstrument, {
 			left: waveLeft,
 			top: 1,
 			width: 68,
@@ -891,28 +798,28 @@ let SampleView = function(){
 		});
 
 		if (!isMaximized) {
-			volumeSlider.setProperties({
+			setProps(volumeSlider, {
 				left:0,
 				top: 0,
 				width: sliderWidth,
 				height: sliderHeight
 			});
 
-			fineTuneSlider.setProperties({
+			setProps(fineTuneSlider, {
 				left:sliderWidth,
 				top: 0,
 				width: sliderWidth,
 				height: sliderHeight
 			});
 
-			fadeOutSlider.setProperties({
+			setProps(fadeOutSlider, {
 				left:sliderRow2Left,
 				top: sliderRow2Top,
 				width: sliderWidth,
 				height: sliderHeight
 			});
 
-			panningSlider.setProperties({
+			setProps(panningSlider, {
 				left:sliderRow2Left + sliderWidth,
 				top: sliderRow2Top,
 				width: sliderWidth,
@@ -939,18 +846,8 @@ let SampleView = function(){
 			}else{
 				var data = instrument.sample.data;
 				var len = data.length;
-				if (SETTINGS.dither8bit) {
-					var error = 0;
-					for (var i = 0; i < len; i++) {
-						var input = Math.max(-1, Math.min(1, data[i] - error));
-						var quantized = Math.round(input * 127) / 127;
-						error = quantized - input;
-						data[i] = quantized;
-					}
-				} else {
-					for (var i = 0; i < len; i++) {
-						data[i] = Math.round(data[i] * 127) / 127;
-					}
+				for (var i = 0; i < len; i++) {
+					data[i] = Math.round(data[i] * 127) / 127;
 				}
 				instrument.sample.bits = 8;
 				bit8Button.setActive(true);
@@ -1083,19 +980,19 @@ let SampleView = function(){
 			fineTuneSlider.setValue(instrument.getFineTune(),true);
 		}
 
-		volumeEnvelope.setDisabled(!Tracker.inFTMode());
-		panningEnvelope.setDisabled(!Tracker.inFTMode());
-		spinBoxRelativeNote.setDisabled(!Tracker.inFTMode());
-		spinBoxVibratoSpeed.setDisabled(!Tracker.inFTMode());
-        spinBoxVibratoDepth.setDisabled(!Tracker.inFTMode());
-        spinBoxVibratoSweep.setDisabled(!Tracker.inFTMode());
-		fadeOutSlider.setDisabled(!Tracker.inFTMode());
-		panningSlider.setDisabled(!Tracker.inFTMode());
+		volumeEnvelope.disabled =
+		panningEnvelope.disabled =
+		spinBoxRelativeNote.disabled =
+		spinBoxVibratoSpeed.disabled =
+        spinBoxVibratoDepth.disabled =
+        spinBoxVibratoSweep.disabled =
+		fadeOutSlider.disabled =
+		panningSlider.disabled = !Tracker.inFTMode();
 		spinBoxInstrument.setMax(Tracker.getMaxInstruments());
 
 		if (mode === TRACKERMODE.PROTRACKER){
-			repeatSpinbox.setProperties({step:2});
-			repeatLengthSpinbox.setProperties({step:2});
+			setProps(repeatSpinbox, {step:2});
+			setProps(repeatLengthSpinbox, {step:2});
 			if (instrument){
 				instrument.sample.loop.start = Math.floor(instrument.sample.loop.start/2)*2;
 				instrument.sample.loop.length = Math.floor(instrument.sample.loop.length/2)*2;
@@ -1104,8 +1001,8 @@ let SampleView = function(){
 			}
 			setSubPanel("loop");
 		}else{
-			repeatSpinbox.setProperties({step:1});
-			repeatLengthSpinbox.setProperties({step:1});
+			setProps(repeatSpinbox, {step:1});
+			setProps(repeatLengthSpinbox, {step:1});
 		}
 		me.onResize();
 	});

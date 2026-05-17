@@ -7,7 +7,6 @@ import App_patternPanel from "./app/patternPanel.js";
 import Pattern_sidebar from "./app/components/patternSidebar.js";
 import App_pianoView from "./app/pianoView.js";
 import Layout from "../ui/app/layout.js";
-import EventBus from "../eventBus.js";
 import {COMMAND, EVENT} from "../enum.js";
 import UI from "./ui.js";
 import Assets from "./assets.js";
@@ -16,235 +15,202 @@ import App from "../app.js";
 import Button from "./components/button.js";
 import Y from "./yascal/yascal.js";
 
-let MainPanel = function(){
-    let canvas = UI.getCanvas();
-    var me = Panel(0,0,canvas.width,canvas.height,true);
-	me.setProperties({
-        backgroundColor: "#071028"
-    });
-	me.name = "mainPanel";
+export default class MainPanel extends Panel {
+    _contextMenus = {};
+    _isContextMenuVisible = false;
+    _menu;
+    _appPanel;
+    _controlPanel;
+    _patternPanel;
+    _patternSidebar;
+    _pianoPanel;
+    _toggleButton;
 
-	var contextMenus = {};
-    var isContextMenuVisible = false;
+    constructor() {
+        const canvas = UI.getCanvas();
+        super(0, 0, canvas.width, canvas.height, true);
+        this.backgroundColor = "#071028";
+        this.name = "mainPanel";
 
-    var menu = App_menu(me);
-    me.addChild(menu);
+        this._menu = App_menu(this);
+        this.addChild(this._menu);
 
-	var appPanel = App_mainPanel();
-    me.addChild(appPanel);
+        this._appPanel = new App_mainPanel();
+        this.addChild(this._appPanel);
 
-    var controlPanel = App_controlPanel();
-    me.addChild(controlPanel);
+        this._controlPanel = new App_controlPanel();
+        this.addChild(this._controlPanel);
 
-    var patternPanel = App_patternPanel();
-    me.addChild(patternPanel);
+        this._patternPanel = App_patternPanel();
+        this.addChild(this._patternPanel);
 
-    var patternSidebar = Pattern_sidebar();
-    me.addChild(patternSidebar);
-    UI.patternsidebar = patternSidebar;
+        this._patternSidebar = new Pattern_sidebar();
+        this.addChild(this._patternSidebar);
+        UI.patternsidebar = this._patternSidebar;
 
-    var pianoPanel = App_pianoView();
-    pianoPanel.hide();
-    me.addChild(pianoPanel);
+        this._pianoPanel = App_pianoView();
+        this._pianoPanel.hide();
+        this.addChild(this._pianoPanel);
 
-    var toggleButton = Button(1,1,22,19);
-    toggleButton.setProperties({
-        image: Y.getImage("toggleup"),
-        hoverImage: Y.getImage("toggleup_active"),
-    });
-    toggleButton.tooltip = "Toggle App Panel";
-    toggleButton.onClick = function(){
-        App.doCommand(COMMAND.toggleAppPanel);
-    };
-    me.addChild(toggleButton);
+        this._toggleButton = new Button(1, 1, 22, 19);
+        this._toggleButton.image      = Y.getImage("toggleup");
+        this._toggleButton.hoverImage = Y.getImage("toggleup_active");
+        this._toggleButton.tooltip    = "Toggle App Panel";
+        this._toggleButton.onClick    = () => { App.doCommand(COMMAND.toggleAppPanel); };
+        this.addChild(this._toggleButton);
 
-    if (UI.visualiser){
-        me.addChild(UI.visualiser);
+        if (UI.visualiser)  this.addChild(UI.visualiser);
+        if (UI.multitrack)  this.addChild(UI.multitrack);
+
+        this.on(EVENT.toggleView, view => {
+                if (view === "piano") {
+                    this._pianoPanel.toggle();
+                    let remaining = this.height - this._patternPanel.top;
+                    if (this._pianoPanel.isVisible()) {
+                        this._pianoPanel.setSize(Layout.mainWidth, Layout.pianoHeight);
+                        this._pianoPanel.setPosition(Layout.mainLeft, this.height - this._pianoPanel.height);
+                        remaining -= this._pianoPanel.height;
+                    }
+                    this._patternPanel.setSize(Layout.mainWidth, remaining);
+                    if (Layout.showSideBar) {
+                        this._patternSidebar.setSize(Layout.col1W, remaining - Layout.infoPanelHeight - Layout.analyserHeight - Layout.defaultMargin);
+                    }
+                }
+            });
+        this.on(EVENT.showView, view => {
+                if (view === "main" || view === "diskop_load" || view === "options") {
+                    if (!this._appPanel.isVisible()) {
+                        this._appPanel.show();
+                        this.onResize();
+                    }
+                }
+                if (view === "diskop_load" || view === "options") {
+                    this._toggleButton.hide();
+                }
+                if (view === "topmain" || view === "main") {
+                    this._toggleButton.show();
+                }
+
+                if (Layout.showSideBar) {
+                    switch (view) {
+                        case "sample":      this._patternSidebar.hide(); break;
+                        case "bottommain":
+                        case "main":        this._patternSidebar.show(); break;
+                    }
+                } else {
+                    this._setMobileSideBar();
+                }
+            });
+        this.on(EVENT.showContextMenu, properties => {
+                const contextMenu = this.createContextMenu(properties);
+                let x = properties.x;
+                if ((x + contextMenu.width) > Layout.mainWidth) x = Layout.mainWidth - contextMenu.width;
+                if (properties.align === "top") {
+                    contextMenu.setPosition(x, properties.y - contextMenu.height - 2);
+                } else {
+                    contextMenu.setPosition(x, properties.y);
+                }
+                contextMenu.show();
+                this._isContextMenuVisible = true;
+                if (properties.focus) Input.setFocusElement(contextMenu);
+                this.refresh();
+            });
+        this.on(EVENT.hideContextMenu, () => {
+                for (const key in this._contextMenus) this._contextMenus[key].hide();
+                this._isContextMenuVisible = false;
+                this.refresh();
+            });
+        this.on(EVENT.appLayoutChanged, () => { this.onResize(); });
+        this.on(COMMAND.toggleAppPanel, () => {
+                this._appPanel.toggle();
+                this.onResize();
+            });
+
+        this.sortZIndex();
+        this.onResize();
     }
 
-	me.createContextMenu = function(properties){
-		var contextMenu = contextMenus[properties.name];
-		if (!contextMenu){
-            let w  = properties.width || 128;
-            let h = 42;
-            if (properties.layout === "list"){
-                h = properties.items.length*23;
-            }
-            if (properties.title) h+= 20;
-			contextMenu = Menu(100,100,w,h,me);
-            contextMenu.name = properties.name;
-			contextMenu.zIndex = 100;
-			contextMenu.setProperties({
-				background: Assets.panelMainScale9,
-				layout: properties.layout || "buttons",
-                type: "context",
-                controlParent: properties.parent,
-                title: properties.title
-			});
-			contextMenu.setItems(properties.items);
-			contextMenu.hide();
-			me.addChild(contextMenu);
-			contextMenus[properties.name] = contextMenu;
-
+    createContextMenu(properties) {
+        let contextMenu = this._contextMenus[properties.name];
+        if (!contextMenu) {
+            const w = properties.width || 128;
+            let h   = 42;
+            if (properties.layout === "list") h = properties.items.length * 23;
+            if (properties.title) h += 20;
+            contextMenu = new Menu(100, 100, w, h, this);
+            contextMenu.name   = properties.name;
+            contextMenu.zIndex = 100;
+            contextMenu.background     = Assets.panelMainScale9;
+            contextMenu.layout         = properties.layout || "buttons";
+            contextMenu.type           = "context";
+            contextMenu.controlParent  = properties.parent;
+            contextMenu.title          = properties.title;
+            contextMenu.setItems(properties.items);
+            contextMenu.hide();
+            this.addChild(contextMenu);
+            this._contextMenus[properties.name] = contextMenu;
         }
         return contextMenu;
-	};
-
-    me.hasFloatingElements = function(){
-        let isMenuFloating = !appPanel.isVisible() && Input.getFocusElement() && Input.getFocusElement().name === "MainMenu";
-        return isContextMenuVisible || isMenuFloating;
     }
 
-    me.onResize = function(){
-        Layout.setLayout(me.width,me.height);
+    hasFloatingElements() {
+        const isMenuFloating = !this._appPanel.isVisible() && Input.getFocusElement() && Input.getFocusElement().name === "MainMenu";
+        return this._isContextMenuVisible || isMenuFloating;
+    }
 
-        menu.setSize(Layout.mainWidth,menu.height);
-        var panelTop = menu.height;
+    onResize() {
+        Layout.setLayout(this.width, this.height);
 
-        toggleButton.setPosition(1,panelTop+1);
+        this._menu.setSize(Layout.mainWidth, this._menu.height);
+        let panelTop = this._menu.height;
 
-        if (appPanel.isVisible()){
-            appPanel.setSize(Layout.mainWidth,appPanel.height);
-            appPanel.setPosition(Layout.mainLeft,panelTop);
-            panelTop += appPanel.height;
+        this._toggleButton.setPosition(1, panelTop + 1);
+
+        if (this._appPanel.isVisible()) {
+            this._appPanel.setSize(Layout.mainWidth, this._appPanel.height);
+            this._appPanel.setPosition(Layout.mainLeft, panelTop);
+            panelTop += this._appPanel.height;
         }
 
+        this._controlPanel.setSize(Layout.mainWidth, Layout.controlPanelHeight);
+        this._controlPanel.setPosition(Layout.mainLeft, panelTop);
+        panelTop += this._controlPanel.height;
 
-
-
-
-        controlPanel.setSize(Layout.mainWidth,Layout.controlPanelHeight);
-        controlPanel.setPosition(Layout.mainLeft,panelTop);
-        panelTop += controlPanel.height;
-
-
-
-        var remaining = me.height-panelTop;
-        if (pianoPanel.isVisible()){
-            pianoPanel.setSize(Layout.mainWidth,Layout.pianoHeight);
-            pianoPanel.setPosition(Layout.mainLeft,me.height-pianoPanel.height);
-            remaining = remaining- pianoPanel.height;
+        let remaining = this.height - panelTop;
+        if (this._pianoPanel.isVisible()) {
+            this._pianoPanel.setSize(Layout.mainWidth, Layout.pianoHeight);
+            this._pianoPanel.setPosition(Layout.mainLeft, this.height - this._pianoPanel.height);
+            remaining -= this._pianoPanel.height;
         }
 
-        patternPanel.setPosition(Layout.mainLeft,panelTop);
-        patternPanel.setSize(Layout.mainWidth,remaining);
+        this._patternPanel.setPosition(Layout.mainLeft, panelTop);
+        this._patternPanel.setSize(Layout.mainWidth, remaining);
 
-
-
-        if (Layout.showSideBar){
-            patternSidebar.show();
-            patternSidebar.setDimensions({
-                left: Layout.col1X,
-                top : panelTop + Layout.infoPanelHeight + Layout.analyserHeight,
-                width: Layout.col1W,
+        if (Layout.showSideBar) {
+            this._patternSidebar.show();
+            this._patternSidebar.setDimensions({
+                left:   Layout.col1X,
+                top:    panelTop + Layout.infoPanelHeight + Layout.analyserHeight,
+                width:  Layout.col1W,
                 height: remaining - Layout.infoPanelHeight - Layout.analyserHeight - Layout.defaultMargin
             });
-        }else{
-            patternSidebar.setDimensions({
-                left: Layout.col32X,
-                top : appPanel.top,
-                width: Layout.col32W,
-                height: appPanel.height
+        } else {
+            this._patternSidebar.setDimensions({
+                left:   Layout.col32X,
+                top:    this._appPanel.top,
+                width:  Layout.col32W,
+                height: this._appPanel.height
             });
-            setMobileSideBar();
-        }
-
-
-	};
-
-    me.sortZIndex();
-    me.onResize();
-
-    function setMobileSideBar(){
-        if (appPanel.getCurrentView() === "" && appPanel.getCurrentSubView() === "playlist"){
-            patternSidebar.show();
-        }else{
-            patternSidebar.hide();
+            this._setMobileSideBar();
         }
     }
 
-    EventBus.on(EVENT.toggleView,function(view){
-        if (view === "piano"){
-            pianoPanel.toggle();
-            var remaining = me.height - patternPanel.top;
-            if (pianoPanel.isVisible()){
-                pianoPanel.setSize(Layout.mainWidth,Layout.pianoHeight);
-                pianoPanel.setPosition(Layout.mainLeft,me.height-pianoPanel.height);
-                remaining = remaining-pianoPanel.height;
-            }
-            patternPanel.setSize(Layout.mainWidth,remaining);
-            if (Layout.showSideBar) patternSidebar.setSize(Layout.col1W,remaining - Layout.infoPanelHeight - Layout.analyserHeight - Layout.defaultMargin);
+
+    _setMobileSideBar() {
+        if (this._appPanel.getCurrentView() === "" && this._appPanel.getCurrentSubView() === "playlist") {
+            this._patternSidebar.show();
+        } else {
+            this._patternSidebar.hide();
         }
-    });
-
-    EventBus.on(EVENT.showView,function(view){
-        if (view === "main" || view === "diskop_load" || view === "options"){
-            if (!appPanel.isVisible()){
-                appPanel.show();
-                me.onResize();
-            }
-        }
-        if (view === "diskop_load" || view === "options"){
-            toggleButton.hide();
-        }
-        if (view === "topmain" || view === "main"){
-            toggleButton.show();
-        }
-
-        if (Layout.showSideBar){
-            switch (view){
-                case "sample":
-                    patternSidebar.hide();
-                    break;
-                case "bottommain":
-                case "main":
-                    patternSidebar.show();
-                    break;
-            }
-        }else{
-            setMobileSideBar();
-        }
-    });
-
-	EventBus.on(EVENT.showContextMenu,function(properties){
-        var contextMenu = me.createContextMenu(properties);
-		var x = properties.x;
-		if ((x+contextMenu.width)>Layout.mainWidth) x = Layout.mainWidth-contextMenu.width;
-		if (properties.align === "top"){
-            contextMenu.setPosition(x,properties.y-contextMenu.height-2);
-        }else{
-            contextMenu.setPosition(x,properties.y);
-        }
-		contextMenu.show();
-        isContextMenuVisible = true;
-        if (properties.focus){
-            Input.setFocusElement(contextMenu);
-        }
-		me.refresh();
-	});
-
-	EventBus.on(EVENT.hideContextMenu,function(){
-	    for (var key in contextMenus){
-			contextMenus[key].hide();
-        }
-        isContextMenuVisible = false;
-		me.refresh();
-	});
-
-    EventBus.on(EVENT.appLayoutChanged,function(){
-       me.onResize();
-    });
-
-    EventBus.on(COMMAND.toggleAppPanel,function(){
-       appPanel.toggle();
-        me.onResize();
-    });
-
-
-
-	return me;
-
-};
-
-export default MainPanel;
-
+    }
+}

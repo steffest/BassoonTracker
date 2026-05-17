@@ -38,15 +38,13 @@ var Dropbox = function(){
     };
 
     me.showConnectDialog = function(){
-        var dialog = ModalDialog();
-        dialog.setProperties({
-            width: UI.mainPanel.width,
-            height: UI.mainPanel.height,
-            top: 0,
-            left: 0,
-            ok: true,
-            cancel: true
-        });
+        var dialog = new ModalDialog();
+        dialog.width = UI.mainPanel.width;
+        dialog.height = UI.mainPanel.height;
+        dialog.top = 0;
+        dialog.left = 0;
+        dialog.ok = true;
+        dialog.cancel = true;
 
         dialog.onClick = function(touchData){
             var elm = dialog.getElementAtPoint(touchData.x,touchData.y);

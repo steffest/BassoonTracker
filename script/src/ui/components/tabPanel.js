@@ -3,184 +3,135 @@ import Scale9Panel from "./scale9.js";
 import Y from "../yascal/yascal.js";
 import Button from "./button.js";
 import Layout from "../app/layout.js";
+import Font from "../font.js";
 
+export default class TabPanel extends UIElement {
+    _background;
+    _footer;
+    _tabButtons = [];
+    _tabX = 0;
+    _activeTabIndex = 0;
+    _footerHeight = 10;
+    _showFooter = true;
 
-let tabPanel = function(x,y,w,h,config){
-    var me = UIElement(x,y,w,h);
-    me.type = "tabpanel";
+    constructor(x, y, w, h, config) {
+        super(x, y, w, h);
+        this.type = "tabpanel";
 
-    let footerHeight = 10;
-    let activeTabIndex = 0;
-    let showFooter = true;
-
-    // background
-    let background = Scale9Panel(0,0,me.width,me.height,{
-        img: Y.getImage("tab_panel"),
-        left:8,
-        top:9,
-        right:8,
-        bottom: 9
-    });
-
-    let footer = Scale9Panel(0,0,0,0,{
-        img: Y.getImage("tab_panel_bottom"),
-        left:10,
-        top:2,
-        right:10,
-        bottom: 6,
-    });
-    me.addChild(footer);
-
-    // tabs
-    let tabButtons = [];
-    let tabX = 0;
-    config.tabs.forEach(function(tab){
-        addTab(tab);
-    });
-
-    me.setProperties = function(p){
-        var properties = ["left","top","width","height","name","type","zIndex"];
-
-        if (!p){
-            var result = {};
-            properties.forEach(function(key){
-                result[key] = me[key];
-            });
-            return result;
-        }
-
-        properties.forEach(function(key){
-            if (typeof p[key] != "undefined") me[key] = p[key];
+        this._background = new Scale9Panel(0, 0, w, h, {
+            img: Y.getImage("tab_panel"), left: 8, top: 9, right: 8, bottom: 9
         });
 
-        me.setSize(me.width,me.height);
-        me.setPosition(me.left,me.top);
+        this._footer = new Scale9Panel(0, 0, 0, 0, {
+            img: Y.getImage("tab_panel_bottom"), left: 10, top: 2, right: 10, bottom: 6
+        });
+        this.addChild(this._footer);
 
-    };
-
-
-    var createCanvas = function(){
-        me.clearCanvas();
-        let back = background.render(true);
-        let y = Layout.trackControlHeight-2;
-        me.ctx.drawImage(back,0,Layout.trackControlHeight-2);
-        if (tabButtons[0] && tabButtons[0].opacity < 1){
-            me.ctx.drawImage(Y.getImage("tab_panel_corner"),0,y);
-        }
+        if (config && config.tabs) config.tabs.forEach(tab => this._addTab(tab));
     }
 
-    me.onResize = function(){
-        background.setSize(me.width,me.height-Layout.trackControlHeight);
-        showFooter = me.height>160;
-        tabButtons.forEach(function(elm){
-            if (elm.panel){
-                let h = background.height;
-                if (elm.footer && showFooter) h -= (footerHeight+2);
-                elm.panel.setSize(background.width-2,h);
-                elm.panel.setPosition(2,Layout.trackControlHeight+4);
+    onResize() {
+        this._background.setSize(this.width, this.height - Layout.trackControlHeight);
+        this._showFooter = this.height > 160;
+        this._tabButtons.forEach(btn => {
+            if (btn.panel) {
+                let h = this._background.height;
+                if (btn.footer && this._showFooter) h -= (this._footerHeight + 2);
+                btn.panel.setSize(this._background.width - 2, h);
+                btn.panel.setPosition(2, Layout.trackControlHeight + 4);
             }
         });
-        footer.setSize(me.width,footerHeight);
-        footer.setPosition(0,me.height-(footerHeight+2));
-        if (footer.children){
-            footer.children.forEach(function(elm){
-                elm.setPosition(2,2);
-                elm.setSize(footer.width-4,footer.height-4);
+        this._footer.setSize(this.width, this._footerHeight);
+        this._footer.setPosition(0, this.height - (this._footerHeight + 2));
+        if (this._footer.children) {
+            this._footer.children.forEach(elm => {
+                elm.setPosition(2, 2);
+                elm.setSize(this._footer.width - 4, this._footer.height - 4);
             });
         }
-        let activeButton = tabButtons[activeTabIndex];
-        footer.toggle(!!(activeButton.footer && showFooter));
+        const activeButton = this._tabButtons[this._activeTabIndex];
+        this._footer.toggle(!!(activeButton && activeButton.footer && this._showFooter));
     }
 
-    me.render = function(internal){
+    setTab(index) {
+        const button = this._tabButtons[index];
+        if (button) button.onDown();
+    }
+
+    render(internal) {
         internal = !!internal;
-        if (!me.isVisible()) return;
+        if (!this.isVisible()) return;
+        if (this.needsRendering) {
+            console.error("Rendering tab panel");
+            this.clearCanvas();
+            const back = this._background.render(true);
+            const y    = Layout.trackControlHeight - 2;
+            this.ctx.drawImage(back, 0, y);
+            if (this._tabButtons[0] && this._tabButtons[0].opacity < 1) {
+                this.ctx.drawImage(Y.getImage("tab_panel_corner"), 0, y);
+            }
 
-        if (me.needsRendering){
-            createCanvas();
-
-            var activeButton;
-            tabButtons.forEach(function(elm){
-                if (elm.opacity === 1){
+            let activeButton;
+            this._tabButtons.forEach(elm => {
+                if (elm.opacity === 1) {
                     activeButton = elm;
-                }else{
+                } else {
                     elm.render();
                 }
-            })
-            if (activeButton){
+            });
+            if (activeButton) {
                 activeButton.render();
-                if (activeButton.left>20){
-                    me.ctx.drawImage(Y.getImage("tab_border"),activeButton.left-22,activeButton.top+activeButton.height);
+                if (activeButton.left > 20) {
+                    this.ctx.drawImage(Y.getImage("tab_border"), activeButton.left - 22, activeButton.top + activeButton.height);
                 }
             }
-
-            footer.render();
-
+            this._footer.render();
         }
-        me.needsRendering = false;
-
-        if (internal){
-            return me.canvas;
-        }else{
-            me.parentCtx.drawImage(me.canvas,me.left,me.top);
-        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top);
     }
 
-    function addTab(config){
-        var tabButton = Button(tabX,12,config.width,18);
-        tabButton.setProperties({
-            label: config.label,
-            textAlign:"left",
-            background: {
-                img: Y.getImage("tab"),
-                left:4,
-                top:4,
-                right:30,
-                bottom: 4
-            },
-            font:window.fontDark,
-            paddingLeft: 10,
-            paddingTop: 1,
-            opacity: config.isSelected?1:0.5
-        });
-        tabButton.onHover = function(){
-            if (tabButton.opacity<1) tabButton.setProperties({opacity:0.7});
-        }
-        tabButton.onHoverExit= function(){
-            if (tabButton.opacity<1) tabButton.setProperties({opacity:0.5});
-        }
-        tabButton.onDown = function(){
-            tabButtons.forEach(function(elm){
-                elm.setProperties({opacity:0.5});
+    _addTab(config) {
+        const tabButton       = new Button(this._tabX, 12, config.width, 18);
+        tabButton.label       = config.label;
+        tabButton.textAlign   = "left";
+        tabButton.background  = { img: Y.getImage("tab"), left: 4, top: 4, right: 30, bottom: 4 };
+        tabButton.font        = Font.dark;
+        tabButton.paddingLeft = 10;
+        tabButton.paddingTop  = 1;
+        tabButton.opacity     = config.isSelected ? 1 : 0.5;
+
+        tabButton.onHover     = () => {
+            if (tabButton.opacity < 1) tabButton.opacity = 0.7;
+        };
+        tabButton.onHoverExit = () => {
+            if (tabButton.opacity < 1) tabButton.opacity = 0.5;
+        };
+        tabButton.onDown      = () => {
+            this._tabButtons.forEach(elm => {
+                elm.opacity = 0.5;
+                elm.refresh();
                 if (elm.panel) elm.panel.hide();
             });
-            tabButton.setProperties({opacity:1});
+            tabButton.opacity        = 1;
+            tabButton.refresh();
+            this._activeTabIndex     = tabButton.index;
             if (config.panel) config.panel.show();
-            activeTabIndex = tabButton.index;
-            footer.toggle(!!(config.footer && showFooter));
-        }
-        tabButton.panel = config.panel;
+            this._footer.toggle(!!(config.footer && this._showFooter));
+        };
+
+        tabButton.panel  = config.panel;
         tabButton.footer = config.footer;
-        tabButton.index = tabButtons.length;
-        if (!config.isSelected) config.panel.hide();
-        me.addChild(tabButton);
-        tabButtons.push(tabButton);
-        tabX += config.width-12;
+        tabButton.index  = this._tabButtons.length;
+        if (!config.isSelected && config.panel) config.panel.hide();
+        this.addChild(tabButton);
+        this._tabButtons.push(tabButton);
+        this._tabX += config.width - 12;
 
-        if (config.footer){
-            footerHeight = config.footer.height;
-            footer.addChild(config.footer);
+        if (config.footer) {
+            this._footerHeight = config.footer.height;
+            this._footer.addChild(config.footer);
         }
     }
-
-    me.setTab = function(index){
-        var button = tabButtons[index];
-        if (button){
-            button.onDown();
-        }
-    }
-
-    return me;
 }
-
-export default tabPanel;

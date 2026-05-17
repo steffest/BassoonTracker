@@ -1,138 +1,105 @@
 import Ticker from "./ticker.js";
 import NumberDisplay from "./components/numberdisplay.js";
 import Assets from "./assets.js";
+import Font from "./font.js";
 
-let spinBox = function(initialProperties){
+export default class SpinBox extends NumberDisplay {
+    _spinLabel = "";
+    _spinLabels = null;
+    _spinFont = null;
+    _buttonDown;
+    _buttonUp;
 
-	var me = NumberDisplay(initialProperties);
-	me.type = "spinBox";
-	
-	var size="medium";
-	var label = "";
-	var labels;
-	var font;
-	var step = 1;
+    constructor(x, y, w, h) {
+        super(x || 0, y || 0, w || 20, h || 20);
+        this.type = "spinBox";
 
-	if (initialProperties) setPropertiesValues(initialProperties);
+        this._buttonDown = Assets.generate("button20_20");
+        this._buttonDown.name = "buttonDown";
+        this._buttonDown.label = "↓";
+        this._buttonDown.onDown = () => {
+            if (this.isDisabled) return;
+            this.updateValue(this.getValue() - this._step);
+            Ticker.onEachTick4(() => {
+                this.updateValue(this.getValue() - this._step);
+            }, 10);
+        };
+        this._buttonDown.onTouchUp = () => { Ticker.onEachTick4(); };
+        this.addChild(this._buttonDown);
 
-	var buttonDown = Assets.generate("button20_20");
-	buttonDown.onDown = function(){
-		if (me.isDisabled) return;
-		me.updateValue(me.getValue()-step);
-		Ticker.onEachTick4(function(){
-			me.updateValue(me.getValue()-step);
-		},10);
-	};
-	buttonDown.onTouchUp = function(){
-		Ticker.onEachTick4();
-	};
+        this._buttonUp = Assets.generate("button20_20");
+        this._buttonUp.name = "buttonUp";
+        this._buttonUp.label = "↑";
+        this._buttonUp.onDown = () => {
+            if (this.isDisabled) return;
+            this.updateValue(this.getValue() + this._step);
+            Ticker.onEachTick4(() => {
+                this.updateValue(this.getValue() + this._step);
+            }, 10);
+        };
+        this._buttonUp.onTouchUp = () => { Ticker.onEachTick4(); };
+        this.addChild(this._buttonUp);
+    }
 
-	buttonDown.setProperties({
-		name:"buttonDown",
-		label:"↓"
-	});
-	buttonDown.tooltip = me.tooltip;
-	me.addChild(buttonDown);
+    get label()  { return this._spinLabel; }
+    set label(v) { this._spinLabel = v; this.refresh(); }
 
-	var buttonUp = Assets.generate("button20_20");
-	buttonUp.onDown = function(){
-		if (me.isDisabled) return;
-		me.updateValue(me.getValue()+step);
-		Ticker.onEachTick4(function(){
-			me.updateValue(me.getValue()+step);
-		},10);
-	};
-	buttonUp.onTouchUp = function(){
-		Ticker.onEachTick4();
-	};
-	buttonUp.setProperties({
-		name:"buttonUp",
-		label:"↑"
-	});
-	buttonUp.tooltip = me.tooltip;
-	me.addChild(buttonUp);
+    get labels()    { return this._spinLabels; }
+    set labels(v)   { this._spinLabels = v; }
+    setLabels(v)    { this.labels = v; }
 
-	var setPropertiesIntern = me.setProperties;
+    get font()  { return this._spinFont; }
+    set font(v) { this._spinFont = v; this.refresh(); }
 
-	me.setProperties = function(newProperties){
-		setPropertiesValues(newProperties);
-		if (setPropertiesIntern) setPropertiesIntern(newProperties);
-	}
+    getValue() { return this._value; }
 
-	function setPropertiesValues(properties){
-		if (typeof properties.size != "undefined") size = properties.size;
-		if (typeof properties.label != "undefined") label = properties.label;
-		if (typeof properties.labels != "undefined") labels = properties.labels;
-		if (typeof properties.font != "undefined") font = properties.font;
-		if (typeof properties.step != "undefined") step = properties.step;
-		if (typeof properties.tooltip != "undefined") me.tooltip = properties.tooltip;
-		//if (typeof properties.disabled != "undefined") disabled = !!properties.disabled;
-	}
+    setMax(v, skipCheck) {
+        if (skipCheck) { this._max = v; } else { this.max = v; }
+    }
 
-	me.renderInternal = function(){
-		if (label){
-			if (font){
-				font.write(me.ctx,label,6,11,0);
-			}else{
-				me.ctx.fillStyle = "white";
-				me.ctx.fillText(label,10,10);
-			}
-		}
+    setMin(v, skipCheck) {
+        if (skipCheck) { this._min = v; } else { this.min = v; }
+    }
 
-		buttonUp.render();
-		buttonDown.render();
+    renderInternal() {
+        if (this._spinLabel) {
+            if (this._spinFont) {
+                this._spinFont.write(this.ctx, this._spinLabel, 6, 11, 0);
+            } else {
+                this.ctx.fillStyle = "white";
+                this.ctx.fillText(this._spinLabel, 10, 10);
+            }
+        }
+        this._buttonUp.render();
+        this._buttonDown.render();
+    }
 
+    onResize() {
+        super.onResize();
+        if (this._spinLabels) {
+            this._spinLabels.forEach(item => {
+                if (this.width >= item.width) this._spinLabel = item.label;
+            });
+        }
 
-	};
-	
-	me.onResize = function(){
-		//me.setPadLength(Math.floor(me.width/9) - 1);
-		
-		if (labels){
-			labels.forEach(function(item){
-				if (me.width>=item.width) label=item.label;
-			})
-		}
+        if (this._fontSize === "big") {
+            const halfH = Math.floor(this.height / 2);
+            this._buttonUp.setPosition(this.width - this._buttonUp.width, 0);
+            this._buttonUp.setSize(this._buttonUp.width, halfH);
+            this._buttonDown.setPosition(this._buttonUp.left, this.height - halfH);
+            this._buttonDown.setSize(this._buttonDown.width, halfH);
 
-		if (size === "big"){
-			buttonUp.setProperties({
-				left: me.width  - buttonDown.width,
-				height: Math.floor(me.height/2),
-				top:0
-			});
-			buttonDown.setProperties({
-				left:buttonUp.left,
-				height: buttonUp.height,
-				top: me.height - buttonUp.height
-			});
+            this.paddingLeft   = 2;
+            this.paddingRight  = this._buttonUp.width;
+            this.paddingBottom = -1;
+            this.paddingTop    = -1;
+        } else {
+            this._buttonDown.setPosition(this.width - this._buttonDown.width, 3);
+            this._buttonUp.setPosition(this.width - this._buttonUp.width - this._buttonDown.width, 3);
 
-			me.paddingLeft = 2;
-			me.paddingRight = buttonUp.width;
-			me.paddingBottom = -1;
-			me.paddingTop = -1;
-
-		}else{
-			buttonDown.setProperties({
-				left: me.width  - buttonDown.width,
-				top:3
-			});
-			buttonUp.setProperties({
-				left:me.width - buttonUp.width - buttonDown.width,
-				top:3
-			});
-
-			me.paddingLeft = buttonUp.left - (me.padLength*8) - 10 - 4;
-			me.paddingRight = buttonUp.width + buttonDown.width + 1;
-			me.paddingBottom = me.height - buttonUp.height - 8;
-		}
-
-	};
-	
-	
-	return me;
-
-
-};
-
-export default spinBox;
-
+            this.paddingLeft   = this._buttonUp.left - (this.padLength * 8) - 10 - 4;
+            this.paddingRight  = this._buttonUp.width + this._buttonDown.width + 1;
+            this.paddingBottom = this.height - this._buttonUp.height - 8;
+        }
+    }
+}

@@ -5,10 +5,10 @@ import Y from "./yascal/yascal.js";
 
 let Envelope = function(type){
 
-	var me = UIElement();
+	var me = new UIElement();
 	me.type = type;
 
-	var background = Scale9Panel(0,0,me.width,me.height,{
+	var background = new Scale9Panel(0,0,me.width,me.height,{
 		img: Y.getImage("panel_dark"),
 		left:3,
 		top:3,

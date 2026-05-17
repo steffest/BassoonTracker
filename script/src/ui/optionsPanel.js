@@ -8,463 +8,304 @@ import Settings from "../settings.js";
 import Audio from "../audio.js";
 import Tracker from "../tracker.js";
 import Checkboxbutton from "./components/checkboxbutton.js";
-import UI from "./ui.js"
+import UI from "./ui.js";
 import Layout from "./app/layout.js";
 import App from "../app.js";
 import Midi from "../audio/midi.js";
+import Font from "./font.js";
 
-let OptionsPanel = function(){
+export default class OptionsPanel extends Panel {
+    _background;
+    _mainLabel;
+    _closeButton;
+    _options = [];
 
-	var me = Panel();
-	me.hide();
+    constructor() {
+        super(0, 0, 20, 20);
+        this.hide();
 
-	var background = Scale9Panel(0,0,20,20,Assets.panelMainScale9);
-	background.ignoreEvents = true;
-	me.addChild(background);
+        this._background = new Scale9Panel(0, 0, 20, 20, Assets.panelMainScale9);
+        this._background.ignoreEvents = true;
+        this.addChild(this._background);
 
-	var mainLabel = Label({
-		label: "Options:",
-		font: fontMed,
-		left: 5,
-		height: 18,
-		top: 9,
-		width: 200
-	});
-	me.addChild(mainLabel);
+        this._mainLabel = new Label(5, 9, 200, 18);
+        this._mainLabel.label = "Options:";
+        this._mainLabel.font  = Font.med;
+        this.addChild(this._mainLabel);
 
-	//var insetPanel = UI.scale9Panel(0,0,0,0,UI.Assets.panelInsetScale9);
-	//me.addChild(insetPanel);
+        this._closeButton = Assets.generate("button20_20");
+        this._closeButton.label   = "x";
+        this._closeButton.tooltip = "Close";
+        this._closeButton.onClick = () => { App.doCommand(COMMAND.showTopMain); };
+        this.addChild(this._closeButton);
 
-	var closeButton = Assets.generate("button20_20");
-	closeButton.setLabel("x");
-	closeButton.onClick = function(){
-        App.doCommand(COMMAND.showTopMain);
-	};
-	closeButton.tooltip = "Close";
-	me.addChild(closeButton);
+        const optionDefs = [
+            {
+                label: "VU bars",
+                values: ["NONE", "COLOURS: AMIGA", "TRANSPARENT"],
+                valueLabels: {
+                    "COLOURS: AMIGA": [{width: 56, label: "AMIGA"}, {width: 110, label: "COLOURS: AMIGA"}]
+                },
+                setValue: index => {
+                    SETTINGS.vubars = index === 0 ? "none" : index === 2 ? "trans" : "colour";
+                    Settings.saveSettings();
+                },
+                getValue: () => {
+                    if (SETTINGS.vubars === "none") return 0;
+                    if (SETTINGS.vubars === "trans") return 2;
+                    return 1;
+                },
+                checkBoxes: [{
+                    label: "Show Help Bubbles",
+                    labels: [{width: 60, label: "Help"}, {width: 100, label: "Show Help"}, {width: 150, label: "Show Help Bubbles"}],
+                    getValue: () => SETTINGS.useTooltip,
+                    handler: active => {
+                        SETTINGS.useTooltip = active;
+                        Settings.saveSettings();
+                        EventBus.trigger(EVENT.menuLayoutChanged);
+                    }
+                }]
+            },
+            {
+                label: "Stereo",
+                values: ["Hard: Amiga", "Balanced", "None: mono"],
+                setValue: index => {
+                    if (index === 0)      Audio.setStereoSeparation(STEREOSEPARATION.FULL);
+                    else if (index === 2) Audio.setStereoSeparation(STEREOSEPARATION.NONE);
+                    else                  Audio.setStereoSeparation(STEREOSEPARATION.BALANCED);
+                    Settings.saveSettings();
+                },
+                getValue: () => {
+                    if (SETTINGS.stereoSeparation === STEREOSEPARATION.NONE) return 2;
+                    if (SETTINGS.stereoSeparation === STEREOSEPARATION.FULL) return 0;
+                    return 1;
+                },
+                checkBoxes: [{
+                    label: "Show Key Input",
+                    labels: [{width: 60, label: "Show"}, {width: 100, label: "Show Key"}, {width: 150, label: "Show Key Input"}],
+                    getValue: () => SETTINGS.showKey,
+                    handler: active => {
+                        SETTINGS.showKey = active;
+                        Settings.saveSettings();
+                        EventBus.trigger(EVENT.menuLayoutChanged);
+                    }
+                }]
+            },
+            {
+                label: "Screen refresh",
+                labels: [{width: 56, label: "Screen"}, {width: 100, label: "Screen refresh"}],
+                values: ["Smooth", "Normal", "Economical", "Low CPU"],
+                setValue: index => {
+                    UI.skipFrame(index);
+                    Settings.saveSettings();
+                },
+                getValue: () => UI.getSkipFrame(),
+                checkBoxes: [{
+                    label: "Optimize High DPI",
+                    labels: [{width: 60, label: "H-DPI"}, {width: 100, label: "High DPI"}, {width: 155, label: "Optimize High DPI"}],
+                    getValue: () => SETTINGS.highDPI,
+                    handler: active => {
+                        SETTINGS.highDPI = active;
+                        Settings.saveSettings();
+                        UI.scaleToDevicePixelRatio(active);
+                    }
+                }]
+            },
+            {
+                label: "Frequency table",
+                labels: [{width: 56, label: "Frequency"}, {width: 110, label: "Frequency table"}],
+                values: ["Linear", "Amiga periods"],
+                valueLabels: {
+                    "Amiga periods": [{width: 56, label: "AMIGA"}, {width: 110, label: "Amiga periods"}]
+                },
+                setValue: index => { Tracker.useLinearFrequency = (index === 0); },
+                getValue: () => Tracker.useLinearFrequency ? 0 : 1
+            },
+            {
+                label: "Dropbox: existing file",
+                labels: [{width: 20, label: "Dropbox"}, {width: 80, label: "Dropbox save"}, {width: 160, label: "Dropbox existing file"}],
+                values: ["Rename", "Overwrite"],
+                setValue: index => {
+                    SETTINGS.dropboxMode = index === 0 ? "rename" : "overwrite";
+                    Settings.saveSettings();
+                },
+                getValue: () => SETTINGS.dropboxMode === "overwrite" ? 1 : 0
+            },
+            {
+                label: "Midi-in",
+                labels: [{width: 20, label: "Midi"}, {width: 80, label: "Midi-in"}],
+                values: ["Disabled", "Enabled Note", "Enabled Note-Volume"],
+                valueLabels: {
+                    "Enabled Note":        [{width: 80, label: "Note"},        {width: 150, label: "Enabled Note"}],
+                    "Enabled Note-Volume": [{width: 80, label: "Note-Volume"}, {width: 150, label: "Enabled Note-Volume"}]
+                },
+                setValue: index => {
+                    if (index === 0)      { SETTINGS.midi = "disabled";     Midi.disable(); }
+                    else if (index === 1) { SETTINGS.midi = "enabled-note"; Midi.enable();  }
+                    else                  { SETTINGS.midi = "enabled";      Midi.enable();  }
+                    Settings.saveSettings();
+                },
+                getValue: () => {
+                    if (SETTINGS.midi === "enabled-note") return 1;
+                    if (SETTINGS.midi === "enabled")      return 2;
+                    return 0;
+                },
+                checkBoxes: [{
+                    label: "Show Midi Input",
+                    labels: [{width: 60, label: "Show"}, {width: 100, label: "Show Midi"}, {width: 150, label: "Show Midi Input"}],
+                    getValue: () => SETTINGS.showMidi,
+                    handler: active => {
+                        SETTINGS.showMidi = active;
+                        Settings.saveSettings();
+                        EventBus.trigger(EVENT.menuLayoutChanged);
+                    }
+                }]
+            },
+            {
+                label: "Play from",
+                values: ["Pattern start", "Current pos"],
+                setValue: index => {
+                    SETTINGS.playFrom = index === 0 ? "start" : "cursor";
+                    Settings.saveSettings();
+                },
+                getValue: () => SETTINGS.playFrom === "cursor" ? 1 : 0
+            }
+        ];
 
-	var options = [
-        {
-            label: "VU bars",
-            values: ["NONE", "COLOURS: AMIGA","TRANSPARENT"],
-			valueLabels: {
-				"COLOURS: AMIGA": [
-					{width: 56, label: "AMIGA"},
-					{width: 110, label: "COLOURS: AMIGA"}
-				]
-			},
-            setValue: function (index) {
-                if (index === 0){
-                    SETTINGS.vubars = "none";
-                }else if (index === 2){
-                    SETTINGS.vubars = "trans";
-                }else{
-                    SETTINGS.vubars = "colour";
+        optionDefs.forEach(optDef => {
+            const labelBox = new Scale9Panel(0, 0, 20, 20, Assets.panelDarkGreyScale9);
+            labelBox.ignoreEvents = true;
+            this.addChild(labelBox);
+
+            const label = new Label(0, 0, 20, 20);
+            label.label     = optDef.label;
+            label.font      = Font.small;
+            label.textAlign = "center";
+            if (optDef.labels) label.setLabels(optDef.labels);
+            this.addChild(label);
+
+            const option = {
+                def:      optDef,
+                labelBox,
+                label,
+                buttons:  []
+            };
+
+            optDef.values.forEach((value, i) => {
+                const button = Assets.generate("buttonKey");
+                if (optDef.valueLabels && optDef.valueLabels[value]) {
+                    button.label = value;
+                    button.setLabels(optDef.valueLabels[value]);
+                } else {
+                    button.label = value;
                 }
-                Settings.saveSettings();
-            },
-            getValue: function () {
-                var result = 1;
-                if (SETTINGS.vubars === "none") result = 0;
-                if (SETTINGS.vubars === "trans") result = 2;
-                return result;
-            },
-			checkBoxes:[{
-				label : "Show Help Bubbles",
-				labels: [
-					{width: 60, label: "Help"},
-					{width: 100, label: "Show Help"},
-					{width: 150, label: "Show Help Bubbles"}
-				],
-				getValue: function(){return SETTINGS.useTooltip},
-				handler: function(active){
-					SETTINGS.useTooltip = active;
-					Settings.saveSettings();
-					EventBus.trigger(EVENT.menuLayoutChanged);
-				}
-			}]
-        },
-        {
-            label: "Stereo",
-            values: ["Hard: Amiga", "Balanced", "None: mono"],
-            setValue: function (index) {
-                if (index === 0){
-                    Audio.setStereoSeparation(STEREOSEPARATION.FULL)
-                }else if (index === 2){
-                    Audio.setStereoSeparation(STEREOSEPARATION.NONE)
-                }
-                else{
-                    Audio.setStereoSeparation(STEREOSEPARATION.BALANCED)
-                }
-                Settings.saveSettings();
-            },
-            getValue: function () {
-                var result = 1;
-                if (SETTINGS.stereoSeparation === STEREOSEPARATION.NONE) result = 2;
-                if (SETTINGS.stereoSeparation === STEREOSEPARATION.FULL) result = 0;
-                return result;
-            },
-			checkBoxes:[{
-				label : "Show Key Input",
-				labels: [
-					{width: 60, label: "Show"},
-					{width: 100, label: "Show Key"},
-					{width: 150, label: "Show Key Input"}
-				],
-				getValue: function(){return SETTINGS.showKey},
-				handler: function(active){
-					SETTINGS.showKey = active;
-					Settings.saveSettings();
-					EventBus.trigger(EVENT.menuLayoutChanged);
-				}
-			}]
-        },
-        {
-            label: "Screen refresh",
-            labels : [
-                {width: 56, label: "Screen"},
-                {width: 100, label: "Screen refresh"}
-            ],
-            values: ["Smooth", "Normal", "Economical" , "Low CPU"],
-            setValue: function (index) {
-				UI.skipFrame(index);
-                Settings.saveSettings();
-            },
-            getValue: function () {
-                return UI.getSkipFrame();
-            },
-			checkBoxes:[{
-            	label : "Optimize High DPI",
-				labels: [
-					{width: 60, label: "H-DPI"},
-					{width: 100, label: "High DPI"},
-					{width: 155, label: "Optimize High DPI"}
-				],
-				getValue: function(){return SETTINGS.highDPI}, 
-				handler: function(active){
-					SETTINGS.highDPI = active;
-					Settings.saveSettings();
-            		UI.scaleToDevicePixelRatio(active);
-				}
-			}]
-        },
-		{
-			label: "Frequency table",
-            labels : [
-                {width: 56, label: "Frequency"},
-                {width: 110, label: "Frequency table"}
-            ],
-			values: ["Linear", "Amiga periods"],
-			valueLabels: {
-				"Amiga periods": [
-					{width: 56, label: "AMIGA"},
-					{width: 110, label: "Amiga periods"}
-				]
-			},
-			setValue: function (index) {
-                Tracker.useLinearFrequency = index === 0;
-			},
-			getValue: function () {
-				return Tracker.useLinearFrequency ? 0 : 1;
-			}
-		},
-		{
-			label: "Dropbox: existing file",
-            labels : [
-                {width: 20, label: "Dropbox"},
-                {width: 80, label: "Dropbox save"},
-                {width: 160, label: "Dropbox existing file"}
-            ],
-			values: ["Rename", "Overwrite"],
-			setValue: function (index) {
-				if (index === 0){
-					SETTINGS.dropboxMode = "rename";
-				}else{
-					SETTINGS.dropboxMode = "overwrite";
-				}
-				Settings.saveSettings();
-			},
-			getValue: function () {
-				var result = 0;
-				if (SETTINGS.dropboxMode === "overwrite") result = 1;
-				return result;
-			}
-		},
-		{
-			label: "Midi-in",
-			labels : [
-				{width: 20, label: "Midi"},
-				{width: 80, label: "Midi-in"}
-			],
-			values: ["Disabled", "Enabled Note", "Enabled Note-Volume"],
-			valueLabels: {
-				"Enabled Note": [
-					{width: 80, label: "Note"},
-					{width: 150, label: "Enabled Note"}
-				],
-				"Enabled Note-Volume": [
-					{width: 80, label: "Note-Volume"},
-					{width: 150, label: "Enabled Note-Volume"}
-				]
-			},
-			setValue: function (index) {
-				if (index === 0){
-					SETTINGS.midi = "disabled";
-					Midi.disable();
-				}else if (index === 1){
-					SETTINGS.midi = "enabled-note";
-					Midi.enable();
-				}else{
-					SETTINGS.midi = "enabled";
-					Midi.enable();
-				}
-				Settings.saveSettings();
-			},
-			getValue: function () {
-				var result = 0;
-				if (SETTINGS.midi === "enabled-note") result = 1;
-				if (SETTINGS.midi === "enabled") result = 2;
-				return result;
-			},
-			checkBoxes:[{
-				label : "Show Midi Input",
-				labels: [
-					{width: 60, label: "Show"},
-					{width: 100, label: "Show Midi"},
-					{width: 150, label: "Show Midi Input"}
-				],
-				getValue: function(){return SETTINGS.showMidi},
-				handler: function(active){
-					SETTINGS.showMidi = active;
-					Settings.saveSettings();
-					EventBus.trigger(EVENT.menuLayoutChanged);
-				}
-			}]
-		}
-	];
+                button.index  = i;
+                button.option = option;
+                button.onClick = function() {
+                    if (this.isDisabled) return;
+                    this.option.def.setValue(this.index);
+                    this.option.buttons.forEach((b, bi) => { b.isActive = (bi === this.index); });
+                };
+                this.addChild(button);
+                option.buttons.push(button);
+            });
 
-
-	options.forEach(function(option){
-        var labelBox = Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
-        labelBox.ignoreEvents = true;
-        me.addChild(labelBox);
-
-
-		var label = Label();
-		label.setProperties({
-			label: option.label,
-			labels: option.labels,
-			font: fontSmall,
-			textAlign: "center"
-		});
-		me.addChild(label);
-		option.labelBox = labelBox;
-		option.label = label;
-
-		var buttons = [];
-		var selectedIndex = option.getValue();
-
-		for (var i = 0; i<option.values.length; i++){
-			var value = option.values[i];
-			var button;
-			if (value){
-				button = Assets.generate("buttonKey");
-				var labels;
-				if (option.valueLabels && option.valueLabels[value]){
-					button.setProperties({
-						label: value,
-						labels: option.valueLabels[value]
-					});
-				}else{
-					button.setProperties({
-						label: value
-					});
-				}
-
-				button.index = i;
-				button.option = option;
-				button.onClick = function(){
-					if (this.isDisabled) return;
-					activateOption(this);
-				}
-			}
-
-			me.addChild(button);
-			buttons.push(button);
-		}
-		option.buttons = buttons;
-		
-		if (option.checkBoxes){
-			//for (i = 0; i<option.checkBoxes.length; i++){
-				var b = option.checkBoxes[0];
-				var cb = Checkboxbutton({
-					background: Assets.panelDarkInsetScale9,
-					hoverBackground: Assets.panelInsetScale9,
-					activeBackground: Assets.panelDarkInsetScale9,
-					label: b.label,
-					labels: b.labels,
-					checkbox: true
-				});
-				cb.getValue = b.getValue;
-				me.addChild(cb);
-				cb.onClick = function(){
-					b.handler(cb.isActive);
-				}
-			//}
-			option.checkBox = cb;
-				
-		}
-	});
-
-	let activateOption = function(button){
-		var option = button.option;
-
-		option.buttons.forEach(function(child){
-			child.setActive(false);
-		});
-		button.setActive(true);
-		option.setValue(button.index)
-	};
-
-
-    me.onShow = function(){
-        me.onResize();
-    };
-
-	me.onResize = function(){
-
-        if(!me.isVisible())return;
-
-		me.clearCanvas();
-
-		background.setProperties({
-			left: 0,
-			top: 0,
-			height: me.height,
-			width: me.width
-		});
-
-		var startTop = 5;
-		var innerHeight = me.height-(Layout.defaultMargin*2) - startTop;
-
-		closeButton.setProperties({
-			top: startTop,
-			left: me.width - 30
-		});
-
-		/*insetPanel.setProperties({
-			left: me.left + Layout.defaultMargin,
-			top: me.top + startTop,
-			height: innerHeight - 6 - mainLabel.height,
-			width: me.width - (Layout.defaultMargin*2) - 4
-		});*/
-
-		var optionTops = [27,103];
-		var optionHeight = 20;
-		var buttonHeight = 20;
-		var col=0;
-		var row=0;
-		var useMultipleRows = false;
-
-		var maxVisible = options.length;
-		var maxCols = options.length;
-		if (me.width < 600){
-			//maxVisible = 3;
-            useMultipleRows = true;
-            optionTops = [27,103];
-            optionHeight = 18;
-            buttonHeight = 18;
-            maxCols = 4;
-        }
-
-		var bWidth = Math.floor(( me.width - Layout.defaultMargin*(maxCols+1)) / maxCols);
-
-		options.forEach(function(option,index){
-			//var thisLeft = Layout["col3"+(i+1)+"X"];
-
-			var thisLeft = Layout.defaultMargin + (col*(bWidth+Layout.defaultMargin));
-			var thisTop =  optionTops[row];
-
-			if (index>=maxVisible) thisLeft = me.width + 100;
-
-            option.labelBox.setProperties({
-                top: thisTop,
-                width: bWidth,
-                height: optionHeight,
-                left: thisLeft
-			});
-
-			option.label.setProperties({
-				top: thisTop+3,
-				_width: Layout.col31W,
-				width: bWidth,
-				height: optionHeight,
-				left: thisLeft+2
-			});
-			var selectedIndex = option.getValue();
-
-			for (var b = 0; b<option.buttons.length; b++){
-				var button = option.buttons[b];
-				button.setProperties({
-					top: thisTop + (b*buttonHeight) + optionHeight,
-					height: buttonHeight,
-					width: bWidth,
-					left: thisLeft
-				});
-
-				button.setActive(b === selectedIndex);
-			}
-			
-			if (option.checkBox){
-				option.checkBox.setProperties({
-					top: me.height - buttonHeight - 7,
-					height: buttonHeight + 4,
-					width: bWidth,
-					left: thisLeft
-				})
-				option.checkBox.setActive(option.checkBox.getValue());
-			}
-
-            col++;
-			if (useMultipleRows && col>=4) {
-				col=0;
-				row++;
+            if (optDef.checkBoxes) {
+                const b  = optDef.checkBoxes[0];
+                const cb = new Checkboxbutton({
+                    background:       Assets.panelDarkInsetScale9,
+                    hoverBackground:  Assets.panelInsetScale9,
+                    activeBackground: Assets.panelDarkInsetScale9,
+                    label:    b.label,
+                    labels:   b.labels,
+                    checkbox: true
+                });
+                cb.getValue = b.getValue;
+                cb.onClick  = () => { b.handler(cb.isActive); };
+                this.addChild(cb);
+                option.checkBox = cb;
             }
 
-		});
+            this._options.push(option);
+        });
 
-
-	};
-
-    EventBus.on(EVENT.songPropertyChange,function(){
-        if (me.isVisible()){
-        	me.onResize();
-		}
-    });
-
-    EventBus.on(EVENT.trackerModeChanged,function(){
-    	var freqOptions = options[4];
-        if (freqOptions.buttons && freqOptions.buttons.length){
-            freqOptions.buttons.forEach(function(button){
-            	button.setDisabled(!Tracker.inFTMode());
+        this.on(EVENT.songPropertyChange, () => { if (this.isVisible()) this.onResize(); });
+        this.on(EVENT.trackerModeChanged, () => {
+                const freqOption = this._options[4];
+                if (freqOption && freqOption.buttons.length) {
+                    freqOption.buttons.forEach(b => { b.isDisabled = !Tracker.inFTMode(); });
+                }
+                const stereoOption = this._options[1];
+                if (stereoOption && stereoOption.buttons.length) {
+                    stereoOption.buttons.forEach(b => { b.isDisabled = Tracker.inFTMode(); });
+                }
+                if (this.isVisible()) this.onResize();
             });
-		}
+    }
 
-        var stereoOptions = options[1];
-		if (stereoOptions.buttons && stereoOptions.buttons.length){
-            stereoOptions.buttons.forEach(function(button){
-				button.setDisabled(Tracker.inFTMode());
-			});
-		}
+    onShow() { this.onResize(); }
 
-        if (me.isVisible()){
-            me.onResize();
+    onResize() {
+        if (!this.isVisible()) return;
+        this.clearCanvas();
+
+        this._background.setDimensions({left: 0, top: 0, width: this.width, height: this.height});
+
+        const startTop    = 5;
+        const buttonHeight = 20;
+
+        this._closeButton.setDimensions({top: startTop, left: this.width - 30, width: 20, height: 20});
+
+        let optionTops      = [27, 103];
+        let optionHeight    = 20;
+        let bHeight         = 20;
+        let col             = 0;
+        let row             = 0;
+        let useMultipleRows = false;
+        const maxVisible    = this._options.length;
+        let maxCols         = this._options.length;
+
+        if (this.width < 600) {
+            useMultipleRows = true;
+            optionTops      = [27, 103];
+            optionHeight    = 18;
+            bHeight         = 18;
+            maxCols         = 4;
         }
-    });
 
-	return me;
+        const bWidth = Math.floor((this.width - Layout.defaultMargin * (maxCols + 1)) / maxCols);
 
-};
+        this._options.forEach((option, index) => {
+            const thisLeft = Layout.defaultMargin + (col * (bWidth + Layout.defaultMargin));
+            const thisTop  = optionTops[row];
 
-export default OptionsPanel;
+            option.labelBox.setDimensions({top: thisTop, width: bWidth, height: optionHeight, left: thisLeft});
+            option.label.setDimensions({top: thisTop + 3, width: bWidth, height: optionHeight, left: thisLeft + 2});
 
+            const selectedIndex = option.def.getValue();
+            option.buttons.forEach((button, b) => {
+                button.setDimensions({
+                    top:    thisTop + (b * bHeight) + optionHeight,
+                    height: bHeight,
+                    width:  bWidth,
+                    left:   thisLeft
+                });
+                button.isActive = (b === selectedIndex);
+            });
+
+            if (option.checkBox) {
+                option.checkBox.setDimensions({
+                    top:    this.height - bHeight - 7,
+                    height: bHeight + 4,
+                    width:  bWidth,
+                    left:   thisLeft
+                });
+                option.checkBox.isActive = option.checkBox.getValue();
+            }
+
+            col++;
+            if (useMultipleRows && col >= 4) { col = 0; row++; }
+        });
+    }
+
+}

@@ -12,583 +12,458 @@ import FetchService from "../../../fetchService.js";
 import Playlist from "../../../models/playlist.js";
 import Tracker from "../../../tracker.js";
 import {COMMAND, EVENT} from "../../../enum.js";
-import EventBus from "../../../eventBus.js";
 import App from "../../../app.js";
 import Y from "../../yascal/yascal.js";
 import Editor from "../../../editor.js";
 import Favorites from "../../../models/favorites.js";
+import Font from "../../font.js";
 
+export default class PatternSidebar extends Panel {
+    _songListBox;
+    _sampleListBox;
+    _sampleSearchBox;
+    _playlistListBox;
+    _sampleList = [];
+    _sampleSearchText = "";
+    _tabPanel;
+    _pianoButton;
+    _nibblesButton;
 
-let pattern_sidebar = function(){
-    var me = Panel();
-    me.name =  "patternSidebar";
+    constructor() {
+        super(0, 0, 20, 20);
+        this.name = "patternSidebar";
 
-    var songListBox = Listbox();
-    songListBox.name = "songListBox";
-    var sampleListBox = Listbox();
-    sampleListBox.name = "sampleListBox";
-    var sampleSearchBox = InputBox();
-    sampleSearchBox.name = "sampleSearchBox";
-    var playlistListBox = Listbox();
-    playlistListBox.name = "playlistListBox";
-    var sampleList = [];
-    var sampleSearchText = "";
+        this._songListBox     = new Listbox(0, 0, 20, 20);
+        this._songListBox.name = "songListBox";
+        this._sampleListBox   = new Listbox(0, 0, 20, 20);
+        this._sampleListBox.name = "sampleListBox";
+        this._sampleSearchBox = new InputBox(0, 0, 20, 20);
+        this._sampleSearchBox.name = "sampleSearchBox";
+        this._playlistListBox = new Listbox(0, 0, 20, 20);
+        this._playlistListBox.name = "playlistListBox";
 
-    var tabPanel = TabPanel(0,0,me.width,me.height,{
-        tabs:[
-            {
-                label: "Songs",
-                width: 70,
-                isSelected: true,
-                panel: generateTabPanel("songs"),
-                footer: generateSongControls()
-            },
-            {
-                label: "Samples",
-                width: 80,
-                panel: generateTabPanel("samples")
-            },
-            {
-                label: "PlayLists",
-                width: 90,
-                panel: generateTabPanel("playlists")
-            }
-        ]
-    });
-    tabPanel.name = "tabPanel";
-    tabPanel.zIndex=1;
-    me.addChild(tabPanel);
+        this._tabPanel = new TabPanel(0, 0, this.width, this.height, {
+            tabs: [
+                {label: "Songs",     width: 70, panel: this._generateTabPanel("songs"), isSelected: true, footer: this._generateSongControls()},
+                {label: "Samples",   width: 80, panel: this._generateTabPanel("samples")},
+                {label: "PlayLists", width: 90, panel: this._generateTabPanel("playlists")}
+            ]
+        });
+        this._tabPanel.name   = "tabPanel";
+        this._tabPanel.zIndex = 1;
+        this.addChild(this._tabPanel);
+        this.sortZIndex();
 
-    me.sortZIndex();
+        this._pianoButton = new Button(0, 0, 20, 20);
+        this._pianoButton.background      = Assets.buttonLightScale9;
+        this._pianoButton.hoverBackground = Assets.buttonLightHoverScale9;
+        this._pianoButton.image           = Y.getImage("piano");
+        this._pianoButton.font            = Font.med;
+        this._pianoButton.onClick         = () => { App.doCommand(COMMAND.togglePiano); };
+        this._pianoButton.tooltip         = "Toggle Piano Keys";
+        this.addChild(this._pianoButton);
 
-    var pianoButton = Button();
-    pianoButton.setProperties({
-        label: "",
-        textAlign:"center",
-        background: Assets.buttonLightScale9,
-        hoverBackground: Assets.buttonLightHoverScale9,
-        image: Y.getImage("piano"),
-        font:window.fontMed
-    });
-    pianoButton.onClick = function(){App.doCommand(COMMAND.togglePiano)};
-    pianoButton.tooltip = "Toggle Piano Keys";
-    me.addChild(pianoButton);
+        this._nibblesButton = new Button(0, 0, 20, 20);
+        this._nibblesButton.background      = Assets.buttonLightScale9;
+        this._nibblesButton.hoverBackground = Assets.buttonLightHoverScale9;
+        this._nibblesButton.image           = Y.getImage("nibbles");
+        this._nibblesButton.onClick         = () => { App.doCommand(COMMAND.nibbles); };
+        this._nibblesButton.tooltip         = "Play Nibbles Game!";
+        this.addChild(this._nibblesButton);
 
-    var nibblesButton = Button();
-    nibblesButton.setProperties({
-        label: "",
-        textAlign:"center",
-        background: Assets.buttonLightScale9,
-        hoverBackground: Assets.buttonLightHoverScale9,
-        image: Y.getImage("nibbles")
-    });
-    nibblesButton.onClick = function(){App.doCommand(COMMAND.nibbles)}
-    nibblesButton.tooltip = "Play Nibbles Game!";
-    me.addChild(nibblesButton);
+        this.on(EVENT.playListLoaded, data => {
+                this._songListBox.setItems(this._generateListBoxItems(data));
+            });
+        this.on(EVENT.playListIndexChanged, index => {
+                this._songListBox.setSelectedIndex(index + 1);
+            });
+        this.on(EVENT.favoritesUpdated, () => {
+                const items = this._songListBox.getItems();
+                if (items && items.length && items[0].label === "Favorites") {
+                    Playlist.set(Favorites.getPlaylist());
+                }
+            });
 
+        this.onResize();
+    }
 
-    me.onResize = function(){
-        var buttonHeight = 30;
-        var listHeight =  me.height - buttonHeight*2 - 10;
+    onResize() {
+        const buttonHeight = 30;
+        let listHeight     = this.height - buttonHeight * 2 - 10;
 
-        if (listHeight<100){
-            pianoButton.hide();
-            nibblesButton.hide();
-            listHeight = me.height-4;
-        }else{
-            pianoButton.show();
-            nibblesButton.show();
+        if (listHeight < 100) {
+            this._pianoButton.hide();
+            this._nibblesButton.hide();
+            listHeight = this.height - 4;
+        } else {
+            this._pianoButton.show();
+            this._nibblesButton.show();
         }
 
-        pianoButton.setProperties({
-            left:0,
-            top: me.height - buttonHeight,
-            width: me.width,
-            height:buttonHeight
+        this._pianoButton.setDimensions({
+            left: 0, top: this.height - buttonHeight, width: this.width, height: buttonHeight
         });
-
-        nibblesButton.setProperties({
-            left:0,
-            top: me.height - buttonHeight - buttonHeight,
-            width: me.width,
-            height:buttonHeight
+        this._nibblesButton.setDimensions({
+            left: 0, top: this.height - buttonHeight * 2, width: this.width, height: buttonHeight
         });
-
-        tabPanel.setProperties({
-            left:0,
-            top: 0 ,
-            width: me.width,
-            height: listHeight
+        this._tabPanel.setDimensions({
+            left: 0, top: 0, width: this.width, height: listHeight
         });
+    }
 
-    };
-    me.onResize();
 
-    function generateTabPanel(type){
-        var listbox = getListBox(type);
-        var line = Y.getImage("line_hor");
+    _getListBox(type) {
+        if (type === "samples")   return this._sampleListBox;
+        if (type === "playlists") return this._playlistListBox;
+        return this._songListBox;
+    }
 
-        listbox.setProperties({
-            background: false,
-            lineHeight: type === "samples" ? 20 : 32,
-            itemRenderFunction: function(ctx,item,isHover,isSelected){
-                var text = item.label;
+    _generateTabPanel(type) {
+        const listbox = this._getListBox(type);
+        const line    = Y.getImage("line_hor");
 
-                if (type === "samples"){
-                    renderSampleItem(ctx,item,line,listbox.width);
-                    return;
-                }else if (item.level){
-                    var iconX = 13;
-                    var mainAlpha = 0.8;
-                    var _x;
-                    ctx.globalAlpha = 0.6;
-
-                    if (isHover || isSelected){
-                        mainAlpha = 1;
-                        iconX = 12;
-                        if (isSelected){
-                            ctx.globalAlpha = 0.5;
-                            ctx.drawImage(Y.getImage("playing_overlay"),0,0,listbox.width-2,31);
-                        }
-                        ctx.globalAlpha = 1;
-                    }
-
-                    ctx.drawImage(Icon.get(item),iconX,0);
-                    ctx.globalAlpha = mainAlpha;
-                    window.fontMed.write(ctx,text,43,4,0);
-                    if (isSelected){
-                        window.fontMed.write(ctx,text,43,4,0);
-                    }
-                    if (item.info) window.fontSmall.write(ctx,item.info,43,14,0,"blue");
-                    if (item.infoExtra) {
-                        _x = window.fontSmall.getTextWidth(item.info);
-                        window.fontSmall.write(ctx,item.infoExtra,48+_x,14,0,"green");
-                    }
-                    _x = 0;
-                    if (item.icon2){
-                        ctx.drawImage(item.icon2,43,21);
-                        _x = 9;
-                    }
-                    if (item.info2){
-                        window.fontSmall.write(ctx,item.info2,43+_x,21,0,"orange");
+        listbox.background  = false;
+        listbox.lineHeight  = type === "samples" ? 20 : 32;
+        listbox.itemRenderFunction = (ctx, item, isHover, isSelected) => {
+            const text = item.label;
+            if (type === "samples") {
+                this._renderSampleItem(ctx, item, line, listbox.width);
+                return;
+            } else if (item.level) {
+                let iconX     = 13;
+                let mainAlpha = 0.8;
+                let _x;
+                ctx.globalAlpha = 0.6;
+                if (isHover || isSelected) {
+                    mainAlpha = 1;
+                    iconX = 12;
+                    if (isSelected) {
+                        ctx.globalAlpha = 0.5;
+                        ctx.drawImage(Y.getImage("playing_overlay"), 0, 0, listbox.width - 2, 31);
                     }
                     ctx.globalAlpha = 1;
-
-                    if (type === "songs" && isSelected){
-                        ctx.drawImage(Y.getImage("play_icon"),1,8);
-                    }
-                }else{
-                    var textY = 11;
-                    var textX = 12;
-                    if (item.icon){
-                        if (typeof item.icon === "string"){
-                            Y.loadImage(item.icon,function(img){
-                                item.icon = img;
-                                listbox.clearCache();
-                                listbox.refresh();
-                            });
-                        }else{
-                            ctx.drawImage(item.icon,3,2);
-                        }
-
-                        textX = 32;
-                    }
-                    if (item.info){
-                        textY = 6;
-                        window.fontSmall.write(ctx,item.info,textX,20,0);
-                    }
-                    let font = item.sub?fontMed:fontBig;
-                    font.write(ctx,text,textX,textY,0);
                 }
-
-                ctx.drawImage(line,0,30,listbox.width-2,2);
+                ctx.drawImage(Icon.get(item), iconX, 0);
+                ctx.globalAlpha = mainAlpha;
+                Font.med.write(ctx, text, 43, 4, 0);
+                if (isSelected) Font.med.write(ctx, text, 43, 4, 0);
+                if (item.info) Font.small.write(ctx, item.info, 43, 14, 0, "blue");
+                if (item.infoExtra) {
+                    _x = Font.small.getTextWidth(item.info);
+                    Font.small.write(ctx, item.infoExtra, 48 + _x, 14, 0, "green");
+                }
+                _x = 0;
+                if (item.icon2) { ctx.drawImage(item.icon2, 43, 21); _x = 9; }
+                if (item.info2) Font.small.write(ctx, item.info2, 43 + _x, 21, 0, "orange");
+                ctx.globalAlpha = 1;
+                if (type === "songs" && isSelected) ctx.drawImage(Y.getImage("play_icon"), 1, 8);
+            } else {
+                let textY = 11, textX = 12;
+                if (item.icon) {
+                    if (typeof item.icon === "string") {
+                        Y.loadImage(item.icon, img => {
+                            item.icon = img;
+                            listbox.clearCache();
+                            listbox.refresh();
+                        });
+                    } else {
+                        ctx.drawImage(item.icon, 3, 2);
+                    }
+                    textX = 32;
+                }
+                if (item.info) { textY = 6; Font.small.write(ctx, item.info, textX, 20, 0); }
+                const font = item.sub ? Font.med : Font.big;
+                font.write(ctx, text, textX, textY, 0);
             }
-        })
+            ctx.drawImage(line, 0, 30, listbox.width - 2, 2);
+        };
+
         listbox.setItems([{label: "Loading ...", index: 0}]);
-        listbox.onClick = function(){
-            var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
-            if (item){
-                var index = item.listIndex;
-                if (item !== listbox.getSelectedIndex()){
-                    listbox.setSelectedIndex(index);
-                }
-                if (item.url){
-                    if (type === "samples"){
+        listbox.onClick = () => {
+            const item = listbox.getItemAtPosition(listbox.eventX, listbox.eventY);
+            if (item) {
+                const index = item.listIndex;
+                if (item !== listbox.getSelectedIndex()) listbox.setSelectedIndex(index);
+                if (item.url) {
+                    if (type === "samples") {
                         Tracker.load(item.url);
-                    }else if (typeof item.index === "number" && type === "songs"){
+                    } else if (typeof item.index === "number" && type === "songs") {
                         Playlist.play(item.index);
-                    }else{
-                        Tracker.load(Editor.unpackUrl(item.url),false,function(){
+                    } else {
+                        Tracker.load(Editor.unpackUrl(item.url), false, () => {
                             Tracker.autoPlay = false;
-                            tabPanel.setTab(0);
-                        })
+                            this._tabPanel.setTab(0);
+                        });
                     }
-                }else{
-                    if (type === "samples" && item.data && item.data.children){
+                } else {
+                    if (type === "samples" && item.data && item.data.children) {
                         item.data.isExpanded = !item.data.isExpanded;
-                        if (item.data.url && item.data.isExpanded && !item.data.children.length){
-                            FetchService.json(item.data.url,function(data){
-                                if (data && data.samples){
+                        if (item.data.url && item.data.isExpanded && !item.data.children.length) {
+                            FetchService.json(item.data.url, data => {
+                                if (data && data.samples) {
                                     item.data.children = data.samples;
-                                    refreshSampleList();
+                                    this._refreshSampleList();
                                 }
-                            })
-                        }else{
-                            refreshSampleList();
+                            });
+                        } else {
+                            this._refreshSampleList();
                         }
                     }
                 }
             }
         };
-        var panel = Panel();
-        panel.setProperties({
-            name: "songPanel",
-            zIndex: 100,
-        })
-        panel.onResize = function(){
-            var listTop = 0;
-            if (type === "samples"){
-                sampleSearchBox.setProperties({
-                    left: 0,
-                    top: 0,
-                    width: panel.width,
-                    height: 20,
-                    placeholder: "Search"
-                });
+
+        const panel = new Panel(0, 0, 20, 20);
+        panel.name   = "songPanel";
+        panel.zIndex = 100;
+        panel.onResize = () => {
+            let listTop = 0;
+            if (type === "samples") {
+                this._sampleSearchBox.setDimensions({left: 0, top: 0, width: panel.width, height: 20});
+                this._sampleSearchBox.placeholder = "Search";
                 listTop = 22;
             }
-            listbox.setProperties({
-                left: 0,
-                top: listTop,
-                width: panel.width,
-                height: panel.height-listTop-8
-            });
-        }
-        me.addChild(panel);
-        if (type === "samples"){
-            sampleSearchBox.onChange = function(value){
-                sampleSearchText = value;
-                refreshSampleList();
+            listbox.setDimensions({left: 0, top: listTop, width: panel.width, height: panel.height - listTop - 8});
+        };
+        this.addChild(panel);
+
+        if (type === "samples") {
+            this._sampleSearchBox.onChange = value => {
+                this._sampleSearchText = value;
+                this._refreshSampleList();
             };
-            panel.addChild(sampleSearchBox);
+            panel.addChild(this._sampleSearchBox);
         }
         panel.addChild(listbox);
 
-        if (type === "playlists"){
-            panel.onShow = function(){
-                let items = listbox.getItems();
-                if (items.length === 1){
-                    FetchService.json("playlists/main.json",function(data){
-                        listbox.setItems(generateListBoxItems(data));
+        if (type === "playlists") {
+            panel.onShow = () => {
+                const items = listbox.getItems();
+                if (items.length === 1) {
+                    FetchService.json("playlists/main.json", data => {
+                        listbox.setItems(this._generateListBoxItems(data));
                     });
                 }
-            }
+            };
         }
-        if (type === "samples"){
-            panel.onShow = function(){
-                let items = listbox.getItems();
-                if (items.length === 1){
-                    if (sampleList.length){
-                        refreshSampleList();
-                    }else{
-                        FetchService.json("data/samples.full.json",function(data){
-                            if (data){
-                                sampleList = groupSamplesByType(data.samples || data);
-                                refreshSampleList();
+        if (type === "samples") {
+            panel.onShow = () => {
+                const items = listbox.getItems();
+                if (items.length === 1) {
+                    if (this._sampleList.length) {
+                        this._refreshSampleList();
+                    } else {
+                        FetchService.json("data/samples.full.json", data => {
+                            if (data) {
+                                this._sampleList = this._groupSamplesByType(data.samples || data);
+                                this._refreshSampleList();
                             }
                         });
                     }
                 }
-            }
+            };
         }
 
         return panel;
     }
 
-    function getListBox(type){
-        if (type === "samples") return sampleListBox;
-        if (type === "playlists") return playlistListBox;
-        return songListBox;
-    }
+    _generateSongControls() {
+        const controls = new Panel(0, 0, 20, 68);
 
-    function renderSampleItem(ctx,item,line,width){
-        var textX = 4 + (item.level * 10);
-        var font = window.fontFT;
-        var text = item.label;
+        const buttons = [
+            ["iprev",    COMMAND.playPrevious,   "Play Previous song in playlist"],
+            ["iplay",    COMMAND.play,            "Toggle Play [Enter]"],
+            ["inext",    COMMAND.playNext,        "Play Next song in playlist"],
+            ["ishuffle", COMMAND.toggleShuffle,   "Toggle Shuffle", true]
+        ];
 
-        if (item.icon){
-            ctx.drawImage(item.icon,textX,0,16,16);
-            textX += 19;
-        }
-
-        if (item.info){
-            var infoWidth = font.getTextWidth(item.info,0) + 12;
-            window.fontSmall.write(ctx,item.info,width-infoWidth,5,0);
-            text = text.substr(0,Math.floor((width-infoWidth-textX-8)/6));
-        }
-
-        font.write(ctx,text,textX,2,0);
-        ctx.drawImage(line,0,18,width-2,2);
-    }
-
-    function refreshSampleList(){
-        sampleListBox.setItems(generateSampleListBoxItems(sampleList,sampleSearchText));
-        sampleListBox.setSelectedIndex(0,true);
-    }
-
-    function groupSamplesByType(data){
-        let groups = {};
-        let result = [];
-
-        data.forEach(function(item){
-            let type = item.type || "other";
-            if (!groups[type]){
-                groups[type] = {
-                    title: firstLetterToUpperCase(type),
-                    icon: "disk",
-                    children: [],
-                    isExpanded: false
-                };
-                result.push(groups[type]);
-            }
-            groups[type].children.push(item);
-        });
-
-        result.sort(function(a,b){
-            return a.title.localeCompare(b.title);
-        });
-        result.forEach(function(group){
-            group.info = group.children.length + "";
-            group.children.sort(function(a,b){
-                return a.title.localeCompare(b.title);
-            });
-        });
-
-        return result;
-    }
-
-    function firstLetterToUpperCase(value){
-        return value.substr(0,1).toUpperCase() + value.substr(1);
-    }
-
-    function generateSongControls(){
-        let controls = Panel(0,0,20,68);
-
-        let buttons = [
-            ["iprev",COMMAND.playPrevious,"Play Previous song in playlist"],
-            ["iplay",COMMAND.play, "Toggle Play [Enter]"],
-            ["inext",COMMAND.playNext, "Play Next song in playlist"],
-            ["ishuffle",COMMAND.toggleShuffle, "Toggle Shuffle",true]
-        ]
-
-        let buttons2 = [
-            ["Mod",COMMAND.randomSong,"Play a random MOD song"],
-            ["XM",COMMAND.randomSongXM,"Play a random XM song"],
-            ["PlayList",COMMAND.randomPlayList,"Generate a random playlist"],
-        ]
+        const buttons2 = [
+            ["Mod",      COMMAND.randomSong,      "Play a random MOD song"],
+            ["XM",       COMMAND.randomSongXM,    "Play a random XM song"],
+            ["PlayList", COMMAND.randomPlayList,  "Generate a random playlist"]
+        ];
 
         let x = 10;
-        buttons.forEach(function(item){
-            let isCheckbox = item[3];
+        buttons.forEach(item => {
+            const isCheckbox = item[3];
             let width = 18;
             let button;
-            if (isCheckbox){
-                button = Checkboxbutton({
-                    checkbox: true,
-                    transparent: true,
-                    paddingLeft: 10,
-                })
-                width = 50;
-            }else{
-                button = Button(x,0,18,18);
+            if (isCheckbox) {
+                button = new Checkboxbutton({checkbox: true, transparent: true, paddingLeft: 10});
+                width  = 50;
+            } else {
+                button = new Button(x, 0, 18, 18);
             }
-            button.setProperties({
-                image: Y.getImage(item[0]),
-                hoverImage: Y.getImage(item[0]+"_active"),
-                opacity: 0.7,
-                hoverOpacity: 1,
-                left: x,
-                top: 2,
-                width: width
-            });
-            button.onClick = function(){
-                App.doCommand(item[1]);
-            }
-            button.tooltip = item[2] || "Play";
+            button.image       = Y.getImage(item[0]);
+            button.hoverImage  = Y.getImage(item[0] + "_active");
+            button.opacity     = 0.7;
+            button.hoverOpacity = 1;
+            button.left        = x;
+            button.top         = 2;
+            button.setSize(width, button.height);
+            button.onClick     = () => { App.doCommand(item[1]); };
+            button.tooltip     = item[2] || "Play";
             controls.addChild(button);
             item.push(button);
-            x+=20;
+            x += 20;
         });
 
-        let line = UIImage(0,22,10,2,"line_hor");
+        const line  = new UIImage(0, 22, 10, 2, "line_hor");
         controls.addChild(line);
 
-
-        let label = Label();
-        label.setProperties({
-            label: "Play Random",
-            font: fontSmall,
-            color: "white",
-            left: 0,
-            textAlign: "center",
-            top: 30
-        });
+        const label = new Label(0, 30, 20, 20);
+        label.label     = "Play Random";
+        label.font      = Font.small;
+        label.textAlign = "center";
         controls.addChild(label);
 
-
-        buttons2.forEach(function(item){
-            let button = Assets.generate("buttonDarkBlue");
-            button.setProperties({
-                label: item[0],
-                font: fontSmall,
-                paddingTop: 1,
-                textAlign: "center"
-            });
-            button.onClick = function(){
-                App.doCommand(item[1]);
-            }
-            button.tooltip = item[2];
+        buttons2.forEach(item => {
+            const button = Assets.generate("buttonDarkBlue");
+            button.label     = item[0];
+            button.font      = Font.small;
+            button.paddingTop = 1;
+            button.textAlign = "center";
+            button.onClick   = () => { App.doCommand(item[1]); };
+            button.tooltip   = item[2];
             controls.addChild(button);
-            x+=60;
             item.push(button);
         });
 
-        EventBus.on(EVENT.playingChange,function(isPlaying){
-            let button = controls.children[1];
-            if (isPlaying){
-                button.setProperties({
-                    image: Y.getImage("istop"),
-                    hoverImage: Y.getImage("istop_active"),
-                });
-            }else{
-                button.setProperties({
-                    image: Y.getImage("iplay"),
-                    hoverImage: Y.getImage("iplay_active"),
-                });
+        controls.on(EVENT.playingChange, isPlaying => {
+            const button = controls.children[1];
+            if (isPlaying) {
+                button.image      = Y.getImage("istop");
+                button.hoverImage = Y.getImage("istop_active");
+            } else {
+                button.image      = Y.getImage("iplay");
+                button.hoverImage = Y.getImage("iplay_active");
             }
         });
 
-
-        controls.onResize = function(){
-            let w = Math.floor((controls.width-10)/3);
-            buttons.forEach(function(item,index){
-                let button = item[item.length-1];
-                let margin = Math.floor((controls.width - (18*3 + 50))/5);
-                button.setProperties({
-                    left: margin*(index+1) + 18*index
-                });
+        controls.onResize = () => {
+            const w = Math.floor((controls.width - 10) / 3);
+            buttons.forEach((item, index) => {
+                const button = item[item.length - 1];
+                const margin = Math.floor((controls.width - (18 * 3 + 50)) / 5);
+                button.left  = margin * (index + 1) + 18 * index;
             });
-
-            buttons2.forEach(function(item,index){
-                item[3].setProperties({
-                    left: w*index + 5,
-                    top: 40,
-                    width: w
-                });
+            buttons2.forEach((item, index) => {
+                const b = item[3];
+                b.left   = w * index + 5;
+                b.top    = 40;
+                b.setSize(w, b.height);
             });
-            line.setSize(controls.width,2);
-            label.setSize(controls.width,10);
+            line.setSize(controls.width, 2);
+            label.setSize(controls.width, 10);
         };
 
         return controls;
     }
 
-    function generateListBoxItems(data){
-        let items = [];
-        let level = 0;
-        if (data.title){
-            items.push(
-                {
-                    label: data.title,
-                    listIndex:0,
-                    info: data.info,
-                    icon: data.icon,
-                });
+    _renderSampleItem(ctx, item, line, width) {
+        let textX = 4 + (item.level * 10);
+        const font = Font.ft;
+        let text   = item.label;
+
+        if (item.icon) { ctx.drawImage(item.icon, textX, 0, 16, 16); textX += 19; }
+
+        if (item.info) {
+            const infoWidth = font.getTextWidth(item.info, 0) + 12;
+            Font.small.write(ctx, item.info, width - infoWidth, 5, 0);
+            text = text.substr(0, Math.floor((width - infoWidth - textX - 8) / 6));
+        }
+
+        font.write(ctx, text, textX, 2, 0);
+        ctx.drawImage(line, 0, 18, width - 2, 2);
+    }
+
+    _refreshSampleList() {
+        this._sampleListBox.setItems(this._generateSampleListBoxItems(this._sampleList, this._sampleSearchText));
+        this._sampleListBox.setSelectedIndex(0, true);
+    }
+
+    _groupSamplesByType(data) {
+        const groups = {};
+        const result = [];
+        data.forEach(item => {
+            const type = item.type || "other";
+            if (!groups[type]) {
+                groups[type] = {title: this._firstLetterToUpperCase(type), icon: "disk", children: [], isExpanded: false};
+                result.push(groups[type]);
+            }
+            groups[type].children.push(item);
+        });
+        result.sort((a, b) => a.title.localeCompare(b.title));
+        result.forEach(group => {
+            group.info = group.children.length + "";
+            group.children.sort((a, b) => a.title.localeCompare(b.title));
+        });
+        return result;
+    }
+
+    _firstLetterToUpperCase(value) {
+        return value.substr(0, 1).toUpperCase() + value.substr(1);
+    }
+
+    _generateListBoxItems(data) {
+        const items = [];
+        let level   = 0;
+        if (data.title) {
+            items.push({label: data.title, listIndex: 0, info: data.info, icon: data.icon});
             level++;
         }
-        data.modules.forEach(function(item,index){
-            if (item.url){
+        data.modules.forEach((item, index) => {
+            if (item.url) {
                 let icon = Y.getImage("mod");
                 if (item.url.endsWith(".xm")) icon = Y.getImage("xm");
-                if (item.icon){
-                    icon = item.icon;
-                }
-                var info = item.info;
-                var info2;
-                var icon2
-                var infoExtra;
-                if (item.author){
-                    info = item.author;
-                    info2 = item.info;
-                }
-                if (item.group){
-                    infoExtra = item.group;
-                }
-                if (info2){
+                if (item.icon) icon = item.icon;
+
+                let info = item.info, info2, icon2, infoExtra;
+                if (item.author) { info = item.author; info2 = item.info; }
+                if (item.group)  infoExtra = item.group;
+                if (info2) {
                     if (info2.startsWith("1st")) icon2 = Y.getImage("gold");
                     if (info2.startsWith("2nd")) icon2 = Y.getImage("silver");
                     if (info2.startsWith("3rd")) icon2 = Y.getImage("bronze");
                 }
-
-                items.push({label: item.title, info: info, info2: info2, icon2: icon2, infoExtra: infoExtra, url: item.url, icon: icon, level: level, index: index, listIndex: index+level});
-            }else{
-                items.push({label: item.title, icon: item.icon, sub:true});
+                items.push({label: item.title, info, info2, icon2, infoExtra, url: item.url, icon, level, index, listIndex: index + level});
+            } else {
+                items.push({label: item.title, icon: item.icon, sub: true});
             }
         });
         return items;
     }
 
-    function generateSampleListBoxItems(data,searchText){
-        let items = [];
-        let query = searchText ? searchText.toLowerCase() : "";
+    _generateSampleListBoxItems(data, searchText) {
+        const items = [];
+        const query = searchText ? searchText.toLowerCase() : "";
 
-        function addItems(source,level){
-            source.forEach(function(item){
-                let hasChildren = !!item.children;
-                let children = item.children;
-                if (query && children){
-                    children = children.filter(function(child){
-                        return child.title && child.title.toLowerCase().indexOf(query)>=0;
-                    });
+        const addItems = (source, level) => {
+            source.forEach(item => {
+                const hasChildren = !!item.children;
+                let children      = item.children;
+                if (query && children) {
+                    children = children.filter(c => c.title && c.title.toLowerCase().indexOf(query) >= 0);
                     if (!children.length) return;
                 }
-                let icon = hasChildren ? Y.getImage("disk") : Y.getImage(item.icon || "sample");
-                let listItem = {
-                    label: item.title,
-                    info: query && children ? children.length + "" : item.info,
-                    url: hasChildren ? undefined : item.url,
-                    icon: icon,
-                    level: level,
-                    data: item,
+                const icon      = hasChildren ? Y.getImage("disk") : Y.getImage(item.icon || "sample");
+                const listItem  = {
+                    label:    item.title,
+                    info:     query && children ? children.length + "" : item.info,
+                    url:      hasChildren ? undefined : item.url,
+                    icon,
+                    level,
+                    data:     item,
                     listIndex: items.length
                 };
                 items.push(listItem);
-                if (hasChildren && (item.isExpanded || query) && children.length){
-                    addItems(children,level+1);
+                if (hasChildren && (item.isExpanded || query) && children.length) {
+                    addItems(children, level + 1);
                 }
             });
-        }
+        };
 
-        addItems(data,0);
+        addItems(data, 0);
         return items;
     }
-
-    EventBus.on(EVENT.playListLoaded,function(data){
-        songListBox.setItems(generateListBoxItems(data));
-    });
-
-    EventBus.on(EVENT.playListIndexChanged, function(index){
-        songListBox.setSelectedIndex(index+1);
-    });
-
-    EventBus.on(EVENT.favoritesUpdated, function(){
-        let items = songListBox.getItems();
-        if (items && items.length && items[0].label === "Favorites"){
-            Playlist.set(Favorites.getPlaylist());
-        }
-    });
-
-    return me;
-};
-
-export default pattern_sidebar;
+}

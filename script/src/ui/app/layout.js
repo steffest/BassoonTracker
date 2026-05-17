@@ -2,11 +2,11 @@ import Tracker from "../../tracker.js";
 import UI from "../ui.js";
 import EventBus from "../../eventBus.js";
 import {EVENT} from "../../enum.js";
+import Font from "../font.js";
 
 let Layout = function(){
   var me = {};
 
-  me.maxWidth = 1200;
   me.maxHeight = 2000;
   me.minheight = 200;
   me.defaultMargin =  4;
@@ -56,9 +56,9 @@ let Layout = function(){
 	  me.controlPanelLayout = "full";
 	  me.controlPanelButtonLayout = "1row";
 	  me.controlPanelButtonsLeft = me.col2X;
-	  me.controlPanelButtonsWidth = me.col3W;
-	  me.modeButtonsWidth = me.col1W;
-	  me.modeButtonsLeft = me.col5X;
+	  me.controlPanelButtonsWidth = me.col2W;
+	  me.modeButtonsWidth = me.col2W;
+	  me.modeButtonsLeft = me.col4X;
 	  me.songControlWidth =  me.col1W;
 	  me.TrackCountSpinboxWidth = 60;
 
@@ -70,7 +70,7 @@ let Layout = function(){
       me.trackControlHeight = 32;
       me.analyserHeight = 66;
       me.pianoHeight = 200;
-      me.trackFont = fontMed;
+      me.trackFont = Font.med;
       me.useCondensedTrackFont = false;
 
 	  me.maxVisibleTracks = 16;
@@ -83,23 +83,15 @@ let Layout = function(){
 		  return;
 	  }
 
-	  let maxWidth = 1200;
-	  if (me.visibleTracks>4) maxWidth = 1400;
-	  if (me.visibleTracks>8) maxWidth = 1600;
-	  if (maxWidth !== Layout.maxWidth){
-		  Layout.maxWidth = maxWidth;
-		  UI.setSize(maxWidth,me.height);
-		  return;
-	  }
-      
+
       if (mainWidth<820){
 		  //me.controlPanelHeight = 80;
 		  me.controlPanelButtonLayout = "condensed";
-		  me.modeButtonsWidth = me.col1W + me.colHalfW;
-		  me.modeButtonsLeft = me.col5X - me.colHalfW;
-		  me.songControlWidth = me.modeButtonsWidth;
+		  me.modeButtonsWidth = me.col2W + me.colHalfW;
+		  me.modeButtonsLeft = me.col4X - me.colHalfW;
+		  me.songControlWidth = me.col1W;
 		  me.controlPanelButtonsLeft = me.col2X + me.colHalfW;
-		  me.controlPanelButtonsWidth = me.col2W;
+		  me.controlPanelButtonsWidth = me.col1W;
 	  }
 
 	  if (mainWidth<650){
@@ -143,7 +135,7 @@ let Layout = function(){
 	  }
 	  var minTrackWidth = Tracker.inFTMode() ? 100 : 78;
 	  if (me.trackWidth<minTrackWidth) {
-	  	  me.trackFont = fontSuperCondensed;
+	  	  me.trackFont = Font.superCondensed;
 		  me.useCondensedTrackFont = true;
 	  }
   };

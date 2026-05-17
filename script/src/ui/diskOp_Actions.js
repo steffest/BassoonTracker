@@ -6,34 +6,32 @@ import RadioGroup from "./components/radiogroup.js";
 import EventBus from "../eventBus.js";
 import {EVENT} from "../enum.js";
 import UI from "./ui.js";
+import Font from "./font.js";
 
 
 let DiskOperationActions = function(){
 
-	var me = Panel();
+	var me = new Panel();
 
-	var background = Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
+	var background = new Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
-	var label1 = Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
+	var label1 = new Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
 	label1.ignoreEvents = true;
 	me.addChild(label1);
 
-	var labelLoad = Label({
-		label: "Action",
-		font: fontSmall
-	});
+	var labelLoad = new Label(0, 0, 20, 20);
+	labelLoad.label = "Action";
+	labelLoad.font = Font.small;
 	me.addChild(labelLoad);
 
-	var selectionType = RadioGroup();
-	selectionType.setProperties({
-		align: "right",
-		size:"med",
-		divider: "line",
-		type:"buttons",
-		highLightSelection:true
-	});
+	var selectionType = new RadioGroup();
+	selectionType.align = "right";
+	selectionType.size = "med";
+	selectionType.divider = "line";
+	selectionType.type = "buttons";
+	selectionType.highLightSelection = true;
 	selectionType.setItems([
 		{label:"load",active:true},
 		{label:"save",active:false}
@@ -43,7 +41,7 @@ let DiskOperationActions = function(){
 	};
 	me.addChild(selectionType);
 
-	me.setLayout = function(){
+	me.onResize = function(){
 
 		var innerWidth = me.width-2;
 		var innerHeight = 70;
@@ -56,37 +54,31 @@ let DiskOperationActions = function(){
 		if (!UI.mainPanel) return;
 		me.clearCanvas();
 
-		background.setProperties({
-			left: 0,
-			top: 0,
-			height: me.height,
-			width: me.width
-		});
+		background.left = 0;
+		background.top = 0;
+		background.height = me.height;
+		background.width = me.width;
 
-		label1.setProperties({
-			left: 1,
-			top: 1,
-			height: 16,
-			width: innerWidth
-		});
+		label1.left = 1;
+		label1.top = 1;
+		label1.height = 16;
+		label1.width = innerWidth;
 
-		labelLoad.setProperties({
-			left: -1,
-			top: 3,
-			height: 16,
-			width: innerWidth
-		});
+		labelLoad.left = -1;
+		labelLoad.top = 3;
+		labelLoad.height = 16;
+		labelLoad.width = innerWidth;
 
-		selectionType.setProperties({
-			left:4,
-			width: innerWidth-4,
-			height: innerHeight,
-			top: 18
-		});
+		selectionType.left = 4;
+		selectionType.width = innerWidth-4;
+		selectionType.height = innerHeight;
+		selectionType.top = 18;
 
 
 
 	};
+
+	me.setLayout = me.onResize;
 
 	me.getAction = function(){
 		var index = selectionType.getSelectedIndex();

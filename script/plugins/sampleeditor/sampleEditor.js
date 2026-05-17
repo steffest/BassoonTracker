@@ -1,5 +1,33 @@
 import SampleView from "./sampleView.js";
 
+function setProps(target, props){
+	if (!target || !props) return;
+
+	const hasLayout = (
+		props.left !== undefined || props.top !== undefined ||
+		props.width !== undefined || props.height !== undefined ||
+		props.visible !== undefined
+	);
+
+	if (hasLayout && typeof target.setDimensions === "function"){
+		target.setDimensions({
+			left: props.left,
+			top: props.top,
+			width: props.width,
+			height: props.height,
+			visible: props.visible
+		});
+	}
+
+	if (props.active !== undefined && target.isActive !== undefined) target.isActive = !!props.active;
+	if (props.disabled !== undefined && target.isDisabled !== undefined) target.isDisabled = !!props.disabled;
+
+	for (const [key, value] of Object.entries(props)){
+		if (key === "left" || key === "top" || key === "width" || key === "height" || key === "visible" || key === "active" || key === "disabled") continue;
+		target[key] = value;
+	}
+}
+
 var SampleEditor = function(){
 	var me = {
 		name: "sampleeditor"
@@ -10,7 +38,7 @@ var SampleEditor = function(){
 	var sampleView;
 
 	me.init = function(mapping){
-		host = mapping;
+		host = mapping.UI || mapping;
 
 		host.EventBus.trigger(host.EVENT.pluginRenderHook,{
 			target: "pattern",
@@ -48,7 +76,7 @@ var SampleEditor = function(){
 
 	function resize(){
 		if (!renderTarget || !sampleView) return;
-		sampleView.setProperties({
+		setProps(sampleView, {
 			left: 0,
 			top: 0,
 			width: renderTarget.width,

@@ -1,225 +1,119 @@
 import UIElement from "../../components/element.js";
 import RadioGroup from "../../components/radiogroup.js";
 import Assets from "../../assets.js";
-import EventBus from "../../../eventBus.js";
 import {EVENT, PLAYTYPE} from "../../../enum.js";
 import Tracker from "../../../tracker.js";
 import Y from "../../yascal/yascal.js";
 
+export default class SongControl extends UIElement {
+    _radioGroup;
+    _buttons = {};
+    songPatternSelector = null;
 
-let app_songControl = function(x,y,w,h,visible){
-    var me = UIElement(x,y,w,h,visible);
-    me.type = "songControl";
+    constructor(x, y, w, h) {
+        super(x || 0, y || 0, w || 20, h || 20);
+        this.type = "songControl";
 
-    var radioGroup = RadioGroup();
-    radioGroup.setItems([
-        {
-            label:"song",
-            active:true
-        },
-        {
-            label:"pattern",
-			labels : [
-				{width: 10, label: "p"},
-				{width: 20, label: "pat"}
-			],
-            active:false
-        }
-    ]);
-    radioGroup.onChange = function(selectedIndex){
-        if (selectedIndex == 0){
-            Tracker.setPlayType(PLAYTYPE.song);
-        }else{
-            Tracker.setPlayType(PLAYTYPE.pattern);
-        }
-    };
-    radioGroup.tooltip = "Toggle between playing the song or the pattern";
-    me.addChild(radioGroup);
-
-    var buttons = {};
-    buttons.play = Assets.generate("buttonDarkGreen");
-    buttons.play.setProperties({
-        image: Y.getImage("play_green"),
-        hoverImage: Y.getImage("play_green_hover"),
-        activeImage: Y.getImage("play_active_red"),
-        activeBackground: Assets.buttonDarkRedActiveScale9
-    });
-    buttons.play.tooltip = "Toggle Play [ENTER]";
-    buttons.play.onClick = function(){
-        buttons.play.toggleActive();
-        if (Tracker.isPlaying()){
-            Tracker.stop();
-        }else{
-            if (Tracker.getPlayType() == PLAYTYPE.song){
-                Tracker.playSong();
-            }else{
-                Tracker.playPattern();
+        this._radioGroup = new RadioGroup(0, 0, 20, 20);
+        this._radioGroup.setItems([
+            { label: "song", active: true },
+            {
+                label: "pattern",
+                labels: [{width: 10, label: "p"}, {width: 20, label: "pat"}],
+                active: false
             }
-        }
-    };
-    buttons.play.setProperties({
-        name:"buttonPlay"
-    });
-    me.addChild(buttons.play);
+        ]);
+        this._radioGroup.onChange = selectedIndex => {
+            if (selectedIndex === 0) {
+                Tracker.setPlayType(PLAYTYPE.song);
+            } else {
+                Tracker.setPlayType(PLAYTYPE.pattern);
+            }
+        };
+        this._radioGroup.tooltip = "Toggle between playing the song or the pattern";
+        this.addChild(this._radioGroup);
 
-
-    buttons.record = Assets.generate("buttonDarkRed");
-    buttons.record.setProperties({
-        image: Y.getImage("record"),
-        hoverImage: Y.getImage("record_hover"),
-        activeImage: Y.getImage("record_active")
-    });
-    buttons.record.tooltip = "Toggle Edit Mode [SPACE]";
-    buttons.record.onClick = function(){
-        Tracker.toggleRecord();
-    };
-    buttons.record.setProperties({
-        name:"buttonRecord"
-    });
-    me.addChild(buttons.record);
-
-
-
-    buttons.song = Assets.generate("buttonDark");
-    buttons.song.onClick = function(){
-        Tracker.playSong();
-    };
-    buttons.song.setProperties({
-        label: "Song"
-    });
-    me.addChild(buttons.song);
-
-    buttons.pattern = Assets.generate("buttonDark");
-    buttons.pattern.onClick = function(){
-        Tracker.playPattern();
-    };
-    buttons.pattern.setProperties({
-        label: "Pattern"
-    });
-    me.addChild(buttons.pattern);
-
-
-
-
-    EventBus.on(EVENT.recordingChange,function(isRecording){
-        buttons.record.setActive(isRecording);
-    });
-    EventBus.on(EVENT.playingChange,function(isPlaying){
-        buttons.play.setActive(isPlaying);
-    });
-
-    EventBus.on(EVENT.playTypeChange,function(playType){
-        if (playType == PLAYTYPE.song){
-            radioGroup.setSelectedIndex(0,true);
-        }else{
-            radioGroup.setSelectedIndex(1,true);
-        }
-    });
-
-    var properties = ["left","top","width","height","name","type","songPatternSelector"];
-    me.setProperties = function(p){
-
-        properties.forEach(function(key){
-            if (typeof p[key] != "undefined"){
-                switch(key){
-                    default:
-                        me[key] = p[key];
+        this._buttons.play = Assets.generate("buttonDarkGreen");
+        this._buttons.play.image            = Y.getImage("play_green");
+        this._buttons.play.hoverImage       = Y.getImage("play_green_hover");
+        this._buttons.play.activeImage      = Y.getImage("play_active_red");
+        this._buttons.play.activeBackground = Assets.buttonDarkRedActiveScale9;
+        this._buttons.play.name             = "buttonPlay";
+        this._buttons.play.tooltip          = "Toggle Play [ENTER]";
+        this._buttons.play.onClick = () => {
+            this._buttons.play.toggleActive();
+            if (Tracker.isPlaying()) {
+                Tracker.stop();
+            } else {
+                if (Tracker.getPlayType() === PLAYTYPE.song) {
+                    Tracker.playSong();
+                } else {
+                    Tracker.playPattern();
                 }
             }
-        });
+        };
+        this.addChild(this._buttons.play);
 
-        me.setSize(me.width,me.height);
-        me.setPosition(me.left,me.top);
+        this._buttons.record = Assets.generate("buttonDarkRed");
+        this._buttons.record.image      = Y.getImage("record");
+        this._buttons.record.hoverImage = Y.getImage("record_hover");
+        this._buttons.record.activeImage = Y.getImage("record_active");
+        this._buttons.record.name        = "buttonRecord";
+        this._buttons.record.tooltip     = "Toggle Edit Mode [SPACE]";
+        this._buttons.record.onClick     = () => { Tracker.toggleRecord(); };
+        this.addChild(this._buttons.record);
 
-        var buttonWidth = Math.floor(me.width/3);
+        this._buttons.song = Assets.generate("buttonDark");
+        this._buttons.song.label   = "Song";
+        this._buttons.song.onClick = () => { Tracker.playSong(); };
+        this.addChild(this._buttons.song);
 
-        radioGroup.setProperties({
-            left: 0,
-            width: buttonWidth,
-            top:0,
-            height: me.height,
-            align: "right"
-        });
-        buttons.play.setProperties({
-            left: buttonWidth,
-            width: buttonWidth,
-            top:0,
-            height: me.height
-        });
-        buttons.record.setProperties({
-            left: buttonWidth*2,
-            width: buttonWidth,
-            top:0,
-            height: me.height
-        });
+        this._buttons.pattern = Assets.generate("buttonDark");
+        this._buttons.pattern.label   = "Pattern";
+        this._buttons.pattern.onClick = () => { Tracker.playPattern(); };
+        this.addChild(this._buttons.pattern);
 
-
-        if (me.songPatternSelector == "big"){
-            radioGroup.left = -500;
-            buttonWidth = Math.floor(me.width/4) + 1;
-
-            buttons.play.setProperties({
-                left: 0,
-                width: buttonWidth
+        this.on(EVENT.recordingChange, isRecording => { this._buttons.record.isActive = isRecording; });
+        this.on(EVENT.playingChange, isPlaying => { this._buttons.play.isActive = isPlaying; });
+        this.on(EVENT.playTypeChange, playType => {
+                this._radioGroup.setSelectedIndex(playType === PLAYTYPE.song ? 0 : 1, true);
             });
-            buttons.record.setProperties({
-                left: buttonWidth,
-                width: buttonWidth
-            });
-
-            buttons.song.setProperties({
-                left: buttonWidth*2,
-                width: buttonWidth,
-                top:0,
-                height: me.height
-            });
-            buttons.pattern.setProperties({
-                left: buttonWidth*3,
-                width: buttonWidth,
-                top:0,
-                height: me.height
-            });
-
-
-
-        }
-    };
-
-    function triggerChangeEvent(){
-        //EventBus.trigger(EVENT.trackStateChange,{track: me.track,  solo: buttons.solo.isActive, mute: buttons.mute.isActive});
     }
 
-    me.render = function(internal){
+    onResize() {
+        let buttonWidth = Math.floor(this.width / 3);
+
+        this._radioGroup.setDimensions({left: 0, top: 0, width: buttonWidth, height: this.height});
+        this._radioGroup.align = "right";
+        this._buttons.play.setDimensions({left: buttonWidth, top: 0, width: buttonWidth, height: this.height});
+        this._buttons.record.setDimensions({left: buttonWidth * 2, top: 0, width: buttonWidth, height: this.height});
+
+        if (this.songPatternSelector === "big") {
+            this._radioGroup.left = -500;
+            buttonWidth = Math.floor(this.width / 4) + 1;
+
+            this._buttons.play.setDimensions({left: 0, top: 0, width: buttonWidth, height: this.height});
+            this._buttons.record.setDimensions({left: buttonWidth, top: 0, width: buttonWidth, height: this.height});
+            this._buttons.song.setDimensions({left: buttonWidth * 2, top: 0, width: buttonWidth, height: this.height});
+            this._buttons.pattern.setDimensions({left: buttonWidth * 3, top: 0, width: buttonWidth, height: this.height});
+        }
+    }
+
+
+    render(internal) {
         internal = !!internal;
-        if (me.needsRendering){
-            me.clearCanvas();
-
-            if (me.songPatternSelector == "small") radioGroup.render();
-
-            buttons.play.render();
-            buttons.record.render();
-
-            if (me.songPatternSelector == "big"){
-                buttons.song.render();
-                buttons.pattern.render();
+        if (this.needsRendering) {
+            this.clearCanvas();
+            if (this.songPatternSelector === "small") this._radioGroup.render();
+            this._buttons.play.render();
+            this._buttons.record.render();
+            if (this.songPatternSelector === "big") {
+                this._buttons.song.render();
+                this._buttons.pattern.render();
             }
-
-
         }
-        me.needsRendering = false;
-
-        if (internal){
-            return me.canvas;
-        }else{
-            me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-        }
-
-    };
-
-    return me;
-
-
-};
-
-export default app_songControl;
-
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

@@ -2,18 +2,16 @@ import https from "https";
 import fs from "fs";
 
 let params = process.argv.slice(2);
+let appendToDemoScenePlaylist = params[1];
 
-let partyId = params ||  5143;
+let partyId = params[0] || 5382;
 
-let url = "https://demozoo.org/parties/" + partyId + "/"
-
-
-;
+let url = "https://demozoo.org/parties/" + partyId + "/";
 let file = "demozoo.json";
 let partyName;
 let scanUrl = true;
 let writePlaylist = true;
-let onlyModAndXM = true;
+let onlyKnownFormats = true;
 
 if (process.argv.length>2){
     let id = parseInt(process.argv[2]);
@@ -64,8 +62,8 @@ function savePlaylist(struct){
     ];
     list.forEach(item=>{
         let passed = (item.file || item.download);
-        if (onlyModAndXM){
-            passed = passed && (item.format === "MOD" || item.format === "XM");
+        if (onlyKnownFormats){
+            passed = passed && (item.format === "MOD" || item.format === "XM" || item.format === "S3M");
         }
         if (passed)  {
             let module = {
@@ -100,10 +98,31 @@ function savePlaylist(struct){
     fs.writeFileSync(filename,json);
 
     console.log("Playlist written to file: " + filename);
+
+    if (appendToDemoScenePlaylist !== undefined) {
+        let demosceneFile = "../demoscene" + appendToDemoScenePlaylist + ".json";
+        let demoscene;
+        try {
+            demoscene = JSON.parse(fs.readFileSync(demosceneFile, "utf8"));
+        } catch (e) {
+            console.log("Creating new demoscene playlist file: " + demosceneFile);
+            demoscene = {
+                title: "DemoScene " + appendToDemoScenePlaylist,
+                info: "Tracked Compo Entries",
+                modules: []
+            };
+        }
+        // modules[0] is the party title header, the rest are actual entries
+        demoscene.modules.push(...modules);
+        fs.writeFileSync(demosceneFile, JSON.stringify(demoscene, null, 2));
+        console.log("Appended " + (modules.length) + " item(s) to " + demosceneFile);
+    }
 }
 
 async function getPartyData(){
     let content = await getHTML(url);
+    console.log("got HTML - size: " + content.length);
+    console.log(url);
     partyName = getPartyName(content);
     console.log(partyName);
     let list = extractTrackedMusic(content);
@@ -186,6 +205,8 @@ function getDetails(url){
         if (tags.indexOf('"/productions/tagged/it/"')>=0) result.format="IT";
         if (tags.indexOf('"/productions/tagged/mod/"')>=0) result.format="MOD";
         if (tags.indexOf('"/productions/tagged/xm/"')>=0) result.format="XM";
+        if (tags.indexOf('"/productions/tagged/s3m/"')>=0) result.format="S3M";
+        if (tags.indexOf('"/productions/tagged/sunvox/"')>=0) result.format="Sunvox";
         if (tags.indexOf('"/productions/tagged/4ch/"')>=0) result.channels=4;
         if (tags.indexOf('"/productions/tagged/8ch/"')>=0) result.channels=8;
         if (tags.indexOf('"/productions/tagged/16ch/"')>=0) result.channels=16;
@@ -204,14 +225,18 @@ function extractTrackedMusic(html){
     let titles = [
         "Tracked Music",
         "Amiga 4 Channel Music",
+        "Amiga 4-Channel Music",
         "Combined Music",
         "Amiga Music",
         "Amiga Tracked MSX",
+        "ProTracker",
         "Old School Music",
         "Oldschool Music",
         "Tracked MSX",
         "MSX",
-        "Music"
+        "HiEnd Tracker Music",
+        "Music",
+        "Streaming Music"
     ];
 
     for (let i=0;i<titles.length;i++){

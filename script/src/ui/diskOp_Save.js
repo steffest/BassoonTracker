@@ -15,18 +15,19 @@ import Dropbox from "../provider/dropbox.js";
 import {BinaryStream} from "../filesystem.js";
 import Playlist from "../models/playlist.js";
 import {saveFile} from "../filesystem.js";
+import Font from "./font.js";
 
 
 let DiskOperationSave = function(){
 
-	var me = Panel();
+	var me = new Panel();
 	var fileName;
 	var saveAsFileType = FILETYPE.module;
 	var mainFileType = FILETYPE.module;
 	var saveAsFileFormat = MODULETYPE.mod;
 	var saveTarget = "local";
 
-	var background = Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
+	var background = new Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
@@ -49,13 +50,11 @@ let DiskOperationSave = function(){
 		{label:"JSON",active:false, extention:".json", fileType: FILETYPE.playlist, fileFormat: PLAYLISTTYPE.JSON}
 	];
 
-	var selectionType = RadioGroup();
-	selectionType.setProperties({
-		align: "right",
-		size:"med",
-		divider: "line",
-		highLightSelection:true
-	});
+	var selectionType = new RadioGroup();
+	selectionType.align = "right";
+	selectionType.size = "med";
+	selectionType.divider = "line";
+	selectionType.highLightSelection = true;
 	selectionType.setItems(selectTypes[FILETYPE.module]);
 	selectionType.onChange = function(selectedIndex){
 		var item = this.getSelectedItem();
@@ -65,13 +64,11 @@ let DiskOperationSave = function(){
 	};
 	me.addChild(selectionType);
 
-	var saveButton = Button();
-	saveButton.setProperties({
-		label: "Export",
-		textAlign:"center",
-		background: Assets.buttonLightScale9,
-		font:window.fontMed
-	});
+	var saveButton = new Button();
+	saveButton.label = "Export";
+	saveButton.textAlign = "center";
+	saveButton.background = Assets.buttonLightScale9;
+	saveButton.font = Font.med;
 	saveButton.onClick = function(){
 		if (mainFileType === FILETYPE.module){
 			if (saveAsFileType === FILETYPE.module){
@@ -139,14 +136,9 @@ let DiskOperationSave = function(){
 	};
 	me.addChild(saveButton);
 
-	var fileNameInput = Inputbox({
-		name: "fileNameInput",
-		height: 20,
-		onChange: function(value){
-			fileName = value;
-		},
-		backgroundImage:"panel_mid"
-	});
+	var fileNameInput = new Inputbox(0, 0, 20, 20);
+	fileNameInput.name = "fileNameInput";
+	fileNameInput.onChange = function(value){ fileName = value; };
 	me.addChild(fileNameInput);
 
 
@@ -172,32 +164,24 @@ let DiskOperationSave = function(){
 		//if (!UI.mainPanel) return;
 		me.clearCanvas();
 
-		background.setProperties({
-			left: 0,
-			top: 0,
-			height: me.height,
-			width: me.width
-		});
+		background.left = 0;
+		background.top = 0;
+		background.height = me.height;
+		background.width = me.width;
 
-		fileNameInput.setProperties({
-			left:4,
-			width: innerWidth-6,
-			top: 4
-		});
+		fileNameInput.left = 4;
+		fileNameInput.width = innerWidth-6;
+		fileNameInput.top = 4;
 
-        saveButton.setProperties({
-            left:2,
-            width: innerWidth,
-            height: 28,
-            top: me.height - 27
-        });
+		saveButton.left = 2;
+		saveButton.width = innerWidth;
+		saveButton.height = 28;
+		saveButton.top = me.height - 27;
 
-		selectionType.setProperties({
-			left:4,
-			width: innerWidth-4,
-			height: me.height - saveButton.height - 30,
-			top: 30
-		});
+		selectionType.left = 4;
+		selectionType.width = innerWidth-4;
+		selectionType.height = me.height - saveButton.height - 30;
+		selectionType.top = 30;
 
 	};
 

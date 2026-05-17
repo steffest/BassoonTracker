@@ -2,7 +2,7 @@ import UIElement from "./components/element.js";
 import Assets from "./assets.js";
 import Layout from "./app/layout.js";
 import EventBus from "../eventBus.js";
-import {EVENT, SELECTION} from "../enum.js";
+import {EVENT} from "../enum.js";
 import Animsprite from "./components/animsprite.js";
 import Y from "./yascal/yascal.js";
 import Button from "./components/button.js";
@@ -11,215 +11,178 @@ import Favorites from "../models/favorites.js";
 import UI from "./ui.js";
 import ShareService from "../service/shareService.js";
 import Input from "./input.js";
+import Font from "./font.js";
 
-let InfoPanel = function(){
+export default class InfoPanel extends UIElement {
+    _text = "";
+    _source = "";
+    _status = "";
+    _moreInfoUrl = null;
+    _canFavorite = false;
+    _canShare = false;
 
-    var me = UIElement();
-    var text = "";
-    var source = "";
-    var status = "";
-    var moreInfoUrl;
-    let canFavorite = false;
-    let canShare = false;
+    _infoButton;
+    _fav;
+    _share;
+    _spinner;
 
-    var infoButton = Assets.generate("buttonDark");
-    infoButton.setLabel("More info ");
-    infoButton.onClick = function(){
-        if (moreInfoUrl) window.open(moreInfoUrl);
-    };
-    me.addChild(infoButton);
+    constructor() {
+        super(0, 0, 20, 20);
+        this.type = "infoPanel";
 
-    var fav = Button(400,6,20,20);
-    fav.setProperties({
-        image: Y.getImage("heart"),
-        activeImage: Y.getImage("heart_active"),
-        opacity: 0.4,
-        hoverOpacity: 1
-    });
-    fav.onClick = function(){
-        EventBus.trigger(EVENT.toggleFavorite);
-    };
-    me.addChild(fav);
+        this._infoButton = Assets.generate("buttonDark");
+        this._infoButton.label = "More info ";
+        this._infoButton.onClick = () => {
+            if (this._moreInfoUrl) window.open(this._moreInfoUrl);
+        };
+        this.addChild(this._infoButton);
 
+        this._fav = new Button(400, 6, 20, 20);
+        this._fav.image       = Y.getImage("heart");
+        this._fav.activeImage = Y.getImage("heart_active");
+        this._fav.opacity     = 0.4;
+        this._fav.hoverOpacity = 1;
+        this._fav.onClick = () => { EventBus.trigger(EVENT.toggleFavorite); };
+        this.addChild(this._fav);
 
-    var share = Button(400,6,20,20);
-    share.setProperties({
-        name:"share",
-        image: Y.getImage("share"),
-        activeImage: Y.getImage("heart_active"),
-        opacity: 0.4,
-        hoverOpacity: 1
-    });
-    share.tooltip = "Share this Song";
-    share.onDown = toggleShareMenu;
-    me.addChild(share);
+        this._share = new Button(400, 6, 20, 20);
+        this._share.name       = "share";
+        this._share.image      = Y.getImage("share");
+        this._share.activeImage = Y.getImage("heart_active");
+        this._share.opacity    = 0.4;
+        this._share.hoverOpacity = 1;
+        this._share.tooltip    = "Share this Song";
+        this._share.onDown     = () => this._toggleShareMenu();
+        this.addChild(this._share);
 
+        this._spinner = new Animsprite(5, 7, 20, 18, "boing", 11);
+        this.addChild(this._spinner);
+        this._spinner.hide();
 
-    var spinner = Animsprite(5,7,20,18,"boing",11);
-    me.addChild(spinner);
-    spinner.hide();
+        this.on(EVENT.statusChange, context => {
+                if (context) {
+                    if (typeof context.status !== "undefined") this._status = context.status;
+                    if (typeof context.info !== "undefined") {
+                        this._text = context.info;
+                        this._source = context.source;
+                        this._moreInfoUrl = context.url;
+                        this.setLayout();
+                    }
+                    if (typeof context.showSpinner !== "undefined") {
+                        this._spinner.toggle(!!context.showSpinner);
+                    }
+                }
+                this.refresh();
+            });
+        this.on(EVENT.songLoaded, () => this._setFavorite());
+        this.on(EVENT.favoritesUpdated, () => this._setFavorite());
+    }
 
-    function toggleShareMenu(){
-
-        let focusElement = Input.getFocusElement();
-        if (focusElement && focusElement.name === "ShareMenu"){
-            hideShareMenu();
+    _toggleShareMenu() {
+        const focusElement = Input.getFocusElement();
+        if (focusElement && focusElement.name === "ShareMenu") {
+            this._hideShareMenu();
             return;
         }
-
-        let items = [
-            {label: "Facebook", onClick: ()=>handleShare("facebook")},
-            {label: "X", onClick: ()=>handleShare("x")},
-            {label: "Copy URL", onClick: ()=>handleShare("copy")}
-        ]
-        if (ShareService.canShareNative()){
-            items.push({label: "More...", onClick: ()=>handleShare("native")});
+        const items = [
+            {label: "Facebook",  onClick: () => this._handleShare("facebook")},
+            {label: "X",         onClick: () => this._handleShare("x")},
+            {label: "Copy URL",  onClick: () => this._handleShare("copy")}
+        ];
+        if (ShareService.canShareNative()) {
+            items.push({label: "More...", onClick: () => this._handleShare("native")});
         }
-
         UI.showContextMenu({
             name: "ShareMenu",
             title: "Share on",
             focus: true,
             layout: "list",
-            parent: share,
-            items: items,
+            parent: this._share,
+            items,
             width: 120,
-            x: me.left + me.parent.left + share.left - 120,
-            y: me.top + me.parent.top + share.top
+            x: this.left + this.parent.left + this._share.left - 120,
+            y: this.top + this.parent.top + this._share.top
         });
     }
 
-    function hideShareMenu(){
+    _hideShareMenu() {
         UI.hideContextMenu();
         Input.clearFocusElement();
     }
 
-    function handleShare(target){
-        hideShareMenu();
-        ShareService.share(target,"mod");
+    _handleShare(target) {
+        this._hideShareMenu();
+        ShareService.share(target, "mod");
     }
 
-    function setFavorite(){
-        let url = Tracker.getCurrentUrl();
-        canFavorite = !!url;
-        canShare = canFavorite;
-        if (canFavorite){
-            let isFavorite = Favorites.isFavorite(url);
-            fav.setActive(isFavorite);
-            fav.tooltip = isFavorite ? "Remove from favorites" : "Add to favorites";
+    _setFavorite() {
+        const url = Tracker.getCurrentUrl();
+        this._canFavorite = !!url;
+        this._canShare    = this._canFavorite;
+        if (this._canFavorite) {
+            const isFavorite = Favorites.isFavorite(url);
+            this._fav.isActive = isFavorite;
+            this._fav.tooltip  = isFavorite ? "Remove from favorites" : "Add to favorites";
         }
-        me.setLayout();
+        this.setLayout();
     }
 
-    EventBus.on(EVENT.statusChange,function(context){
-        if (context){
-            if (typeof context.status !== "undefined") status = context.status;
-            if (typeof context.info !== "undefined"){
-                text = context.info;
-                source = context.source;
-                moreInfoUrl = context.url;
-                me.setLayout();
-            }
-            if (typeof context.showSpinner !== "undefined"){
-                spinner.toggle(!!context.showSpinner)
-            }
-        }
-        me.refresh();
-    });
+    setLayout() {
+        let width = Layout.col1W;
+        let label = "More Info";
+        if (width < 100) label = "info";
+        if (width < 45)  label = "i";
 
-    EventBus.on(EVENT.songLoaded,setFavorite);
-    EventBus.on(EVENT.favoritesUpdated,setFavorite);
-
-
-    var properties = ["left","top","width","height","name","type","zIndex"];
-    me.setProperties = function(p){
-
-        properties.forEach(function(key){
-            if (typeof p[key] !== "undefined") me[key] = p[key];
-        });
-
-        me.setSize(me.width,me.height);
-        me.setPosition(me.left,me.top);
-
-        if (me.setLayout) me.setLayout(me.left,me.top,me.width, me.height);
-    };
-
-    me.setLayout = function(){
-
-        var width = Layout.col1W;
-        var label = "More Info";
-        if (width<100) label = "info";
-        if (width<45) label = "i";
-
-        infoButton.setProperties({
-            width: Layout.col1W,
+        this._infoButton.setDimensions({
+            width:  Layout.col1W,
             height: 24,
-            top: 2,
-            left:Layout.col5X - 2 - me.left,
-            label: label,
-            font: fontFT
+            top:    2,
+            left:   Layout.col5X - 2 - this.left
         });
+        this._infoButton.label = label;
+        this._infoButton.font  = Font.ft;
 
-        fav.setProperties({
-            left: moreInfoUrl ? Layout.col5X- me.left - 22 : Layout.col5W - me.left - 22,
-        });
-
-        share.setProperties({
-            left: fav.left - 22,
-        });
-
-    };
+        this._fav.setPosition(
+            this._moreInfoUrl ? Layout.col5X - this.left - 22 : Layout.col5W - this.left - 22,
+            this._fav.top
+        );
+        this._share.setPosition(this._fav.left - 22, this._share.top);
+    }
 
 
-    me.render = function(internal){
-        if (!me.isVisible()) return;
-
+    render(internal) {
+        if (!this.isVisible()) return;
         internal = !!internal;
 
-        if (this.needsRendering){
-            me.clearCanvas();
+        if (this.needsRendering) {
+            this.clearCanvas();
 
-            if (moreInfoUrl) infoButton.render();
-            if (canFavorite) fav.render();
-            if (canShare) share.render();
+            if (this._moreInfoUrl) this._infoButton.render();
+            if (this._canFavorite)  this._fav.render();
+            if (this._canShare)     this._share.render();
 
-            var fText = text;
-            if (status) fText = status + ": " + fText;
+            let fText = this._text;
+            if (this._status) fText = this._status + ": " + fText;
 
-            var textX = 6;
-            if (!Layout.showSideBar){
-                textX += 14;
-            }
+            let textX = 6;
+            if (!Layout.showSideBar) textX += 14;
 
-            if (spinner.isVisible()){
-                spinner.setPosition(textX-1,7);
-                spinner.render();
+            if (this._spinner.isVisible()) {
+                this._spinner.setPosition(textX - 1, 7);
+                this._spinner.render();
                 textX += 20;
-            }else{
-                if (fText.startsWith("Error")){
-                    me.ctx.drawImage(Y.getImage("alert"),4,8);
+            } else {
+                if (fText.startsWith("Error")) {
+                    this.ctx.drawImage(Y.getImage("alert"), 4, 8);
                     textX += 20;
                 }
             }
 
-            window.fontFT.write(me.ctx,fText,textX,11,0);
-
-
-
+            Font.ft.write(this.ctx, fText, textX, 11, 0);
         }
 
         this.needsRendering = false;
-        if (internal){
-            return me.canvas;
-        }else{
-            me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-        }
-
-    };
-
-    return me;
-
-};
-
-export default InfoPanel;
-
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

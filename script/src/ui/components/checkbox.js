@@ -1,68 +1,37 @@
 import UIElement from "./element.js";
 import Y from "../yascal/yascal.js";
 
-let checkbox = function(x,y,w,h){
+export default class Checkbox extends UIElement {
+    _checked = false;
 
-	w = w || 14;
-	h = h || 14;
+    constructor(x, y, w, h) {
+        super(x, y, w || 14, h || 14);
+        this.type = "checkbox";
+    }
 
-	var me = UIElement(x,y,w,h,true);
+    get checked()  { return this._checked; }
+    set checked(v) { this._checked = !!v; this.refresh(); }
 
-	var properties = ["left","top","width","height","name","type","checked"];
+    setState(checked, internal) {
+        this._checked = !!checked;
+        this.refresh();
+        if (this.onToggle && !internal) this.onToggle(this._checked);
+    }
 
-	me.setProperties = function(p){
-		properties.forEach(function(key){
-			if (typeof p[key] != "undefined") me[key] = p[key];
-		});
+    check()   { this.setState(true); }
+    unCheck() { this.setState(false); }
+    toggle()  { this.setState(!this._checked); }
+    onClick() { this.setState(!this._checked); }
 
-		me.setSize(me.width,me.height);
-		me.setPosition(me.left,me.top);
-
-	};
-
-	me.setState = function(checked,internal){
-		me.checked = checked;
-		me.refresh();
-		if (me.onToggle && !internal) me.onToggle(me.checked);
-	};
-
-	me.onClick=function(e){
-		me.setState(!me.checked);
-	};
-
-	me.check = function(){
-		me.setState(true);
-	};
-	me.unCheck = function(){
-		me.setState(false);
-	};
-	me.toggle = function(){
-        me.setState(!me.checked);
-	};
-
-	me.render = function(internal){
-		internal = !!internal;
-		if (!me.isVisible()) return;
-
-		if (this.needsRendering){
-
-			me.clearCanvas();
-
-			var stateImage = me.checked ? Y.getImage("checkbox_on") : Y.getImage("checkbox_off");
-			me.ctx.drawImage(stateImage,0,0);
-
-		}
-		this.needsRendering = false;
-
-		if (internal){
-			return me.canvas;
-		}else{
-			me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-		}
-
-	};
-
-	return me;
-};
-
-export default checkbox;
+    render(internal) {
+        if (!this.isVisible()) return;
+        if (this.needsRendering) {
+            this.clearCanvas();
+            const stateImage = this._checked ? Y.getImage("checkbox_on") : Y.getImage("checkbox_off");
+            this.ctx.drawImage(stateImage, 0, 0);
+        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

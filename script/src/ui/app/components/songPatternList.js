@@ -2,152 +2,134 @@ import Panel from "../../components/panel.js";
 import Scale9Panel from "../../components/scale9.js";
 import Assets from "../../assets.js";
 import Listbox from "../../components/listbox.js";
-import EventBus from "../../../eventBus.js";
 import {EVENT} from "../../../enum.js";
 import Tracker from "../../../tracker.js";
 import Editor from "../../../editor.js";
 import Ticker from "../../ticker.js";
 
+export default class SongPatternList extends Panel {
+    _songPanel;
+    _songlistbox;
+    _spPlus;
+    _spMin;
+    _spInsert;
+    _spDelete;
 
-let app_songPatternList = function(height){
+    constructor(height) {
+        super(0, 0, 20, height || 20);
 
-    var me = Panel();
+        this._songPanel = new Scale9Panel(0, 0, 0, 0, Assets.panelInsetScale9);
+        this.addChild(this._songPanel);
 
-    var songPanel = Scale9Panel(0,0,0,0,Assets.panelInsetScale9);
-    me.addChild(songPanel);
-
-    var songlistbox = Listbox();
-    songlistbox.setItems([
-        {label: "01:00", data: 1}
-    ]);
-    songlistbox.onClick = function(){
-
-        var item = songlistbox.getItemAtPosition(songlistbox.eventX,songlistbox.eventY);
-        if (item){
-            var index = item.index;
-            if (item !== songlistbox.getSelectedIndex()){
-                songlistbox.setSelectedIndex(index);
+        this._songlistbox = new Listbox(0, 0, 20, 20);
+        this._songlistbox.setItems([{label: "01:00", data: 1}]);
+        this._songlistbox.onClick = () => {
+            const item = this._songlistbox.getItemAtPosition(this._songlistbox.eventX, this._songlistbox.eventY);
+            if (item) {
+                const index = item.index;
+                if (item !== this._songlistbox.getSelectedIndex()) {
+                    this._songlistbox.setSelectedIndex(index);
+                }
             }
-        }
+        };
+        this.addChild(this._songlistbox);
 
-    };
-    me.addChild(songlistbox);
+        this._spPlus = Assets.generate("button20_20");
+        this._spPlus.label = "↑";
+        this._spPlus.onDown = () => {
+            const index = this._songlistbox.getSelectedIndex();
+            let pattern = Tracker.getSong().patternTable[index];
+            pattern++;
+            Tracker.updatePatternTable(index, pattern);
+            Ticker.onEachTick4(() => {
+                const i = this._songlistbox.getSelectedIndex();
+                let p = Tracker.getSong().patternTable[i];
+                p++;
+                Tracker.updatePatternTable(i, p);
+            }, 5);
+        };
+        this._spPlus.onTouchUp = () => { Ticker.onEachTick4(); };
+        this.addChild(this._spPlus);
 
-    var spPlus = Assets.generate("button20_20");
-    spPlus.setLabel("↑");
-    spPlus.onDown = function(){
-        var index = songlistbox.getSelectedIndex();
-        var pattern = Tracker.getSong().patternTable[index];
-        pattern++;
-        Tracker.updatePatternTable(index,pattern);
-		Ticker.onEachTick4(function(){
-			var index = songlistbox.getSelectedIndex();
-			var pattern = Tracker.getSong().patternTable[index];
-			pattern++;
-			Tracker.updatePatternTable(index,pattern);
-		},5);
+        this._spMin = Assets.generate("button20_20");
+        this._spMin.label = "↓";
+        this._spMin.onDown = () => {
+            const index = this._songlistbox.getSelectedIndex();
+            let pattern = Tracker.getSong().patternTable[index];
+            if (pattern > 0) pattern--;
+            Tracker.updatePatternTable(index, pattern);
+            Ticker.onEachTick4(() => {
+                const i = this._songlistbox.getSelectedIndex();
+                let p = Tracker.getSong().patternTable[i];
+                if (p > 0) p--;
+                Tracker.updatePatternTable(i, p);
+            }, 5);
+        };
+        this._spMin.onTouchUp = () => { Ticker.onEachTick4(); };
+        this.addChild(this._spMin);
 
-    };
-	spPlus.onTouchUp = function(){
-		Ticker.onEachTick4();
-	};
-    me.addChild(spPlus);
+        this._spInsert = Assets.generate("button20_20");
+        this._spInsert.label = "Ins";
+        this._spInsert.onDown = () => {
+            const index = this._songlistbox.getSelectedIndex();
+            Editor.addToPatternTable(index);
+        };
+        this._spInsert.setSize(40, 20);
+        this.addChild(this._spInsert);
 
+        this._spDelete = Assets.generate("button20_20");
+        this._spDelete.label = "Del";
+        this._spDelete.onDown = () => {
+            const index = this._songlistbox.getSelectedIndex();
+            Editor.removeFromPatternTable(index);
+        };
+        this._spDelete.setSize(40, 20);
+        this.addChild(this._spDelete);
 
-    var spMin = Assets.generate("button20_20");
-    spMin.setLabel("↓");
-    spMin.onDown = function(){
-        var index = songlistbox.getSelectedIndex();
-        var pattern = Tracker.getSong().patternTable[index];
-        if (pattern>0) pattern--;
-        Tracker.updatePatternTable(index,pattern);
-		Ticker.onEachTick4(function(){
-			var index = songlistbox.getSelectedIndex();
-			var pattern = Tracker.getSong().patternTable[index];
-			if (pattern>0) pattern--;
-			Tracker.updatePatternTable(index,pattern);
-		},5);
-    };
-	spMin.onTouchUp = function(){
-		Ticker.onEachTick4();
-	};
-    me.addChild(spMin);
+        this.on(EVENT.patternTableChange, () => {
+                this.setPatternTable(Tracker.getSong().patternTable);
+            });
+        this.on(EVENT.songLoaded, song => {
+                this.setPatternTable(song.patternTable);
+            });
+        this.on(EVENT.songPositionChange, value => {
+                this._songlistbox.setSelectedIndex(value, true);
+            });
+    }
 
+    onResize() {
+        this._songPanel.setSize(this.width, this.height);
 
-
-    var spInsert = Assets.generate("button20_20");
-    spInsert.setLabel("Ins");
-    spInsert.onDown = function(){
-        var index = songlistbox.getSelectedIndex();
-        Editor.addToPatternTable(index);
-
-    };
-    spInsert.setProperties({width: 40, height: 20});
-    me.addChild(spInsert);
-
-
-    var spDelete = Assets.generate("button20_20");
-    spDelete.setLabel("Del");
-    spDelete.onDown = function(){
-        var index = songlistbox.getSelectedIndex();
-        Editor.removeFromPatternTable(index);
-
-    };
-    spDelete.setProperties({width: 40, height: 20});
-    me.addChild(spDelete);
-    
-    
-
-    me.onResize = function(){
-        songPanel.setSize(me.width,me.height);
-
-        songlistbox.setProperties({
-            left:0,
-            top:0,
-            width:  me.width - 42,
-            height: me.height,
-            centerSelection: true,
-            onChange: function(){
-                Tracker.setCurrentSongPosition(songlistbox.getSelectedIndex(),true);
-            }
+        this._songlistbox.setDimensions({
+            left: 0,
+            top: 0,
+            width: this.width - 42,
+            height: this.height
         });
+        this._songlistbox.centerSelection = true;
+        this._songlistbox.onChange = () => {
+            Tracker.setCurrentSongPosition(this._songlistbox.getSelectedIndex(), true);
+        };
 
-        spMin.setPosition(me.width - 22,Math.floor(me.height/2)-10);
-        spPlus.setPosition(me.width - 42,spMin.top);
+        this._spMin.setPosition(this.width - 22, Math.floor(this.height / 2) - 10);
+        this._spPlus.setPosition(this.width - 42, this._spMin.top);
+        this._spInsert.setPosition(this._spPlus.left, this._spPlus.top - 22);
+        this._spDelete.setPosition(this._spPlus.left, this._spPlus.top + 22);
+    }
 
-        spInsert.setPosition(spPlus.left,spPlus.top - 22);
-        spDelete.setPosition(spPlus.left,spPlus.top + 22);
-    };
-
-    EventBus.on(EVENT.patternTableChange,function(value){
-        me.setPatternTable(Tracker.getSong().patternTable);
-    });
-
-
-    me.setPatternTable = function(patternTable){
-        var items = [];
-        for (var i = 0, len = Tracker.getSong().length; i<len; i++){
-            var value = patternTable[i];
-            items.push({label: padd2(i+1) + ":" + padd2(value), data:value, index: i});
+    setPatternTable(patternTable) {
+        const items = [];
+        for (let i = 0, len = Tracker.getSong().length; i < len; i++) {
+            const value = patternTable[i];
+            items.push({label: this._padd2(i + 1) + ":" + this._padd2(value), data: value, index: i});
         }
-        songlistbox.setItems(items);
-    };
+        this._songlistbox.setItems(items);
+    }
 
-    function padd2(s){
+    _padd2(s) {
         s = "" + s;
-        if (s.length < 2){s = "0" + s}
+        if (s.length < 2) s = "0" + s;
         return s;
     }
 
-    EventBus.on(EVENT.songLoaded,function(song){
-        me.setPatternTable(song.patternTable);
-    });
-
-    EventBus.on(EVENT.songPositionChange,function(value){
-        songlistbox.setSelectedIndex(value,true);
-    });
-
-    return me;
-};
-
-export default app_songPatternList;
+}

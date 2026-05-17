@@ -2,6 +2,34 @@ var Nibbles = function(){
 	var me = {
 		name: "nibbles"
 	};
+
+	function setProps(target, props){
+		if (!target || !props) return;
+
+		const hasLayout = (
+			props.left !== undefined || props.top !== undefined ||
+			props.width !== undefined || props.height !== undefined ||
+			props.visible !== undefined
+		);
+
+		if (hasLayout && typeof target.setDimensions === "function"){
+			target.setDimensions({
+				left: props.left,
+				top: props.top,
+				width: props.width,
+				height: props.height,
+				visible: props.visible
+			});
+		}
+
+		if (props.active !== undefined && target.isActive !== undefined) target.isActive = !!props.active;
+		if (props.disabled !== undefined && target.isDisabled !== undefined) target.isDisabled = !!props.disabled;
+
+		for (const [key, value] of Object.entries(props)){
+			if (key === "left" || key === "top" || key === "width" || key === "height" || key === "visible" || key === "active" || key === "disabled") continue;
+			target[key] = value;
+		}
+	}
 	
 	var DIRECTION={
 		LEFT: 37,
@@ -447,15 +475,15 @@ var Nibbles = function(){
 						var colW = Math.floor(highScore.width/2);
 						var displayCount = 10;
 
-						var titleFont = fontBig;
+						var titleFont = host.UI.font.big;
 						if (w < 380){
-							titleFont = fontMed;
+							titleFont = host.UI.font.med;
 							marginLeft = 4;
 							displayCount = 5;
 							colW=highScore.width;
 						}
 						if (w < 300){
-							titleFont = fontSuperCondensed;
+							titleFont = host.UI.font.superCondensed;
 						}
 						
 
@@ -465,13 +493,13 @@ var Nibbles = function(){
 						var marginTop = 6;
 						titleFont.write(highScore.ctx,"Nibbles Highscore List of Fame",marginLeft,marginTop+3,1);
 
-						var font = fontMed;
+						var font = host.UI.font.med;
 						if (colW <270){
-							font = fontSmall
+							font = host.UI.font.small
 							marginLeft = 4;
 						}
 						if (colW <200){
-							font = fontSuperCondensed;
+							font = host.UI.font.superCondensed;
 							marginLeft = 4;
 						}
 						highScoreTable.forEach(function(item,i){
@@ -581,8 +609,8 @@ var Nibbles = function(){
 				ctx.fillStyle = color;
 				ctx.fillRect(x,y,g,g);
 			}else{
-				fontMed.write(ctx,""+color,x,y);
-				fontMed.write(ctx,""+color,x,y);
+				host.UI.font.med.write(ctx,""+color,x,y);
+				host.UI.font.med.write(ctx,""+color,x,y);
 			}
 			
 		}
@@ -664,15 +692,16 @@ var Nibbles = function(){
 		var infoPanel = host.UI.scale9Panel(0,0,20,20,host.UI.Assets.panelMainScale9);
 		infoPanel.ignoreEvents = true;
 
-		var infoLabel = host.UI.label( {textAlign:"center",label: "Ready Player 1?",font:fontFT});
+		var infoLabel = host.UI.label(0,0,20,20);
+		setProps(infoLabel, {textAlign:"center",label: "Ready Player 1?",font:host.UI.font.ft});
 
 		var mainButton = host.UI.button(0,0,100,20);
-		mainButton.setProperties({
+		setProps(mainButton, {
 			label: "Start",
 			textAlign:"center",
 			background: host.UI.Assets.buttonLightScale9,
 			hoverBackground: host.UI.Assets.buttonLightHoverScale9,
-			font:window.fontMed,
+			font:host.UI.font.med,
 			zIndex: 10
 		});
 		mainButton.onClick = function(){
@@ -680,24 +709,24 @@ var Nibbles = function(){
 		}
 
 		var exitButton = host.UI.button(0,0,100,20);
-		exitButton.setProperties({
+		setProps(exitButton, {
 			label: "Exit",
 			textAlign:"center",
 			background: host.UI.Assets.buttonLightScale9,
 			hoverBackground: host.UI.Assets.buttonLightHoverScale9,
-			font:window.fontMed,
+			font:host.UI.font.med,
 			zIndex: 10
 		});
 		exitButton.onClick = function(){
 			host.EventBus.trigger(host.EVENT.command,host.COMMAND.showMain);
 		}
 		var highScoreButton = host.UI.button(0,0,100,20);
-		highScoreButton.setProperties({
+		setProps(highScoreButton, {
 			label: "HighScore",
 			textAlign:"center",
 			background: host.UI.Assets.buttonLightScale9,
 			hoverBackground: host.UI.Assets.buttonLightHoverScale9,
-			font:window.fontMed,
+			font:host.UI.font.med,
 			zIndex: 10
 		});
 		highScoreButton.onClick = function(){
@@ -707,24 +736,24 @@ var Nibbles = function(){
 		var labelBoxOptions = host.UI.scale9Panel(0,0,20,20,host.UI.Assets.panelDarkGreyScale9);
 		labelBoxOptions.ignoreEvents = true;
 		var labelOptions = host.UI.label();
-		labelOptions.setProperties({
+		setProps(labelOptions, {
 			label: "Options",
-			font: fontSmall
+			font: host.UI.font.small
 		});
 
 		var labelBoxDifficulty = host.UI.scale9Panel(0,0,20,20,host.UI.Assets.panelDarkGreyScale9);
 		labelBoxDifficulty.ignoreEvents = true;
 		var labelDifficulty = host.UI.label();
-		labelDifficulty.setProperties({
+		setProps(labelDifficulty, {
 			label: "Difficulty",
-			font: fontSmall
+			font: host.UI.font.small
 		});
 
 		var radioGroup = host.UI.radioGroup();
-		radioGroup.setProperties({
+		setProps(radioGroup, {
 			align: "left",
 			size:"med",
-			font: fontFT,
+			font: host.UI.font.ft,
 			highLightSelection:false,
 			zIndex: 1
 		});
@@ -746,9 +775,10 @@ var Nibbles = function(){
 		wrapCheckbox.onToggle = function(v){
 			game.setWrap(v);
 		}
-		var wrapLabel = host.UI.label({
+		var wrapLabel = host.UI.label(0,0,20,20);
+		setProps(wrapLabel, {
 			label:"Wrap",
-			font: fontMed,
+			font: host.UI.font.med,
 			width:60
 		});
 		wrapLabel.onClick = function(){
@@ -760,9 +790,10 @@ var Nibbles = function(){
 		gridCheckbox.onToggle = function(v){
 			game.setGrid(v);
 		}
-		var gridLabel = host.UI.label({
+		var gridLabel = host.UI.label(0,0,20,20);
+		setProps(gridLabel, {
 			label:"Grid",
-			font: fontMed,
+			font: host.UI.font.med,
 			width:60
 		});
 		gridLabel.onClick = function(){
@@ -795,14 +826,14 @@ var Nibbles = function(){
 			player1.setSize(scoreBoard.width,colH);
 			
 			
-			var labelFont = fontBig;
-			var ledFont = fontLedBig;
+			var labelFont = host.UI.font.big;
+			var ledFont = host.UI.font.ledBig;
 			var labelWidth = 72;
 			var ledMargin = 6;
 			
 			if (scoreBoard.width<200){
-				labelFont = fontMed;
-				ledFont = fontLed;
+				labelFont = host.UI.font.med;
+				ledFont = host.UI.font.led;
 				labelWidth = 58;
 				ledMargin = 2;
 			}
@@ -814,20 +845,20 @@ var Nibbles = function(){
 				labelMargin = 0;
 			}
 
-			scoreBackground.setProperties({
+			setProps(scoreBackground, {
 				width: scoreBoard.width - labelWidth,
 				height: 32,
 				left:labelWidth-4,
 				top: colH + boxMargin
 			})
-			scoreNumber.setProperties({
+			setProps(scoreNumber, {
 				width: scoreBackground.width,
 				height: 32,
 				left:scoreBackground.left,
 				top: scoreBackground.top - ledMargin,
 				font: ledFont
 			})
-			scoreLabel.setProperties({
+			setProps(scoreLabel, {
 				width: 100,
 				height: 32,
 				left:-4,
@@ -835,33 +866,33 @@ var Nibbles = function(){
 				font: labelFont
 			})
 
-			livesBackground.setProperties({
+			setProps(livesBackground, {
 				width: scoreBackground.width,
 				height: scoreBackground.height,
 				left: scoreBackground.left,
 				top: colH*2 + boxMargin
 			})
-			livesNumber.setProperties({
+			setProps(livesNumber, {
 				width: scoreNumber.width,
 				height: scoreNumber.height,
 				left: scoreNumber.left,
 				top:livesBackground.top-ledMargin,
 				font: ledFont
 			})
-			livesLabel.setProperties({
+			setProps(livesLabel, {
 				width: scoreLabel.width,
 				height: scoreLabel.height,
 				left: scoreLabel.left,
 				top: colH*2 + labelMargin,
 				font: labelFont
 			})
-			s_line1.setProperties({
+			setProps(s_line1, {
 				width: scoreBoard.width,
 				height: 2,
 				left: 0,
 				top: colH
 			})
-			s_line2.setProperties({
+			setProps(s_line2, {
 				width: scoreBoard.width,
 				height: 2,
 				left: 0,
@@ -878,25 +909,29 @@ var Nibbles = function(){
 		var scoreBackground = host.UI.scale9Panel(0,0,50,20,insetScale9);
 		var livesBackground = host.UI.scale9Panel(0,0,50,20,insetScale9);
 
-		var scoreNumber = host.UI.label({
+		var scoreNumber = host.UI.label(0,0,20,20);
+		setProps(scoreNumber, {
 			textAlign:"right",
 			label: "",
-			font:fontLedBig
+			font:host.UI.font.ledBig
 		});
-		var livesNumber = host.UI.label({
+		var livesNumber = host.UI.label(0,0,20,20);
+		setProps(livesNumber, {
 			textAlign:"right",
 			label: "",
-			font:fontLedBig
+			font:host.UI.font.ledBig
 		});
-		var scoreLabel = host.UI.label({
+		var scoreLabel = host.UI.label(0,0,20,20);
+		setProps(scoreLabel, {
 			textAlign:"left",
 			label: "Score",
-			font:fontBig
+			font:host.UI.font.big
 		});
-		var livesLabel = host.UI.label({
+		var livesLabel = host.UI.label(0,0,20,20);
+		setProps(livesLabel, {
 			textAlign:"left",
 			label: "Lives",
-			font:fontBig
+			font:host.UI.font.big
 		});
 		var s_line1 = host.UI.image(0,0,2,160,"line_hor");
 		var s_line2 = host.UI.image(0,0,2,160,"line_hor");
@@ -922,9 +957,9 @@ var Nibbles = function(){
 
 		gameControls.showInfo = function(text,label){
 			infoPanel.show();
-			if (text) infoLabel.setLabel(text);
+			if (text) infoLabel.label = text;
 			infoLabel.show();
-			if (label) mainButton.setLabel(label);
+			if (label) mainButton.label = label;
 			mainButton.show()
 		}
 		
@@ -942,7 +977,7 @@ var Nibbles = function(){
 
 				logo.setPosition(-2000,0);
 
-				scoreBoard.setProperties({
+				setProps(scoreBoard, {
 					width: host.Layout.col31W,
 					height:renderTarget.height,
 					left:host.Layout.col33X,
@@ -960,7 +995,7 @@ var Nibbles = function(){
 				infoLabel.setSize(panelWidth,40);
 				infoLabel.setPosition(host.Layout.col31X + panelMargin,renderTarget.height - 90);
 
-				mainButton.setProperties({
+				setProps(mainButton, {
 					left: host.Layout.col31X + buttonMargin,
 					top: renderTarget.height - 50,
 					width: buttonWidth,
@@ -985,22 +1020,22 @@ var Nibbles = function(){
 				wrapLabel.setPosition(host.Layout.col33X + 20,30+ 2);
 				gridCheckbox.setPosition(host.Layout.col33X + 10,30 + 20+ 2);
 				gridLabel.setPosition(host.Layout.col33X + 20,30 + 20+ 2);
-				wrapLabel.setProperties({font:fontSmall});
-				gridLabel.setProperties({font:fontSmall});
+				setProps(wrapLabel, {font:host.UI.font.small});
+				setProps(gridLabel, {font:host.UI.font.small});
 
 				radioGroup.setSize(halfColW,80);
 				radioGroup.setPosition(host.Layout.col33X + halfColW+2,30);
-				radioGroup.setProperties(
+				setProps(radioGroup, 
 					{size: "small"}
 				)
 
-				highScoreButton.setProperties({
+				setProps(highScoreButton, {
 					left: host.Layout.col33X +1,
 					top: renderTarget.height - 24,
 					width: halfColW,
 					height: 24
 				});
-				exitButton.setProperties({
+				setProps(exitButton, {
 					left: host.Layout.col33X + halfColW + 3,
 					top: renderTarget.height - 24,
 					width: halfColW,
@@ -1017,13 +1052,13 @@ var Nibbles = function(){
 				backgroundPanel.setSize(host.Layout.col3W+4,renderTarget.height+4);
 
 				// logo
-				logo.setProperties({
+				setProps(logo, {
 					width: host.Layout.col1W - 4,
 					height: renderTarget.height - 4,
 					left:host.Layout.col1X+2,
 					top: 2
 				});
-				scoreBoard.setProperties({
+				setProps(scoreBoard, {
 					width: host.Layout.col1W,
 					height:renderTarget.height,
 					left:host.Layout.col1X,
@@ -1041,7 +1076,7 @@ var Nibbles = function(){
 				infoLabel.setSize(panelWidth,40);
 				infoLabel.setPosition(host.Layout.col2X + panelMargin,renderTarget.height - 90);
 
-				mainButton.setProperties({
+				setProps(mainButton, {
 					left: host.Layout.col2X + buttonMargin,
 					top: renderTarget.height - 50,
 					width: buttonWidth,
@@ -1070,13 +1105,13 @@ var Nibbles = function(){
 				radioGroup.setSize(halfColW,80);
 				radioGroup.setPosition(host.Layout.col5X + halfColW+2,30);
 
-				highScoreButton.setProperties({
+				setProps(highScoreButton, {
 					left: host.Layout.col5X +1,
 					top: renderTarget.height - 24,
 					width: halfColW,
 					height: 24
 				});
-				exitButton.setProperties({
+				setProps(exitButton, {
 					left: host.Layout.col5X + halfColW + 3,
 					top: renderTarget.height - 24,
 					width: halfColW,
@@ -1084,7 +1119,7 @@ var Nibbles = function(){
 				});
 			}
 			
-			highScoreButton.setLabel(highScoreButton.width<100?"High":"HighScore");
+			highScoreButton.label = highScoreButton.width<100?"High":"HighScore";
 
 		}
 
@@ -1096,16 +1131,16 @@ var Nibbles = function(){
 			}
 			
 			var s = "" + score;
-			var len = Math.floor(scoreNumber.width/(scoreNumber.getFont().charWidth + 2)) ;
+			var len = scoreNumber.font ? Math.floor(scoreNumber.width/(scoreNumber.font.charWidth + 2)) : 10;
 			while(s.length<len){s=" "+s}
-			scoreNumber.setLabel(s);
+			scoreNumber.label = s;
 		}
 
 		gameControls.setLives = function(lives){
 			var s = "" + lives;
 			var len = Math.floor(livesNumber.width/16);
 			while(s.length<len){s=" "+s}
-			livesNumber.setLabel(s);
+			livesNumber.label = s;
 		}
 		
 		gameControls.attach = function(_game){
@@ -1173,7 +1208,8 @@ var Nibbles = function(){
 	
 	me.init = function(mapping){
 		console.log("Init Nibbles");
-		host = mapping;
+		host = mapping.UI || mapping;
+		host.UI = host.UI || host;
 		host.Input.setFocusElement(me);
 
 		if (renderTarget){

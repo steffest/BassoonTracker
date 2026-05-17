@@ -13,7 +13,7 @@ import SampleProcessing from "./sampleProcessing.js";
 
 let WaveForm = function(){
 
-	var me = UIElement();
+	var me = new UIElement();
 	me.name = "Waveform";
 	var currentSampleData;
 	var currentInstrument;
@@ -40,11 +40,37 @@ let WaveForm = function(){
 	var ignoreInstrumentChange;
 	var rangeCache = [];
 	var playingOffset = 0;
+	var rangeHandleSnapshot = null;
+	var rangeHandleEditAction = null;
+	var rangeHandleDirty = false;
+	var dragSampleIndex = -1;
+	var dragSampleStartValue = 0;
+	var activeSampleMarkerIndex = -1;
+	var sampleEditAction = null;
+	var sampleEditDirty = false;
+	var drawMode = false;
+	var isDrawing = false;
+	var prevDrawX = 0;
+	var prevDrawY = 0;
+	var drawEditSnapshot = null;
+	var drawEditFrom = -1;
+	var drawEditTo = -1;
+
+	me.setDrawMode = function(enabled){
+		drawMode = enabled;
+	};
+
+	me.isDrawMode = function(){
+		return drawMode;
+	};
 	var MARKERTYPE = {
 		loopStart: 1,
 		loopEnd: 2,
 		rangeStart: 3,
-		rangeEnd: 4
+		rangeEnd: 4,
+		rangeVolumeLeft: 5,
+		rangeVolumeCenter: 6,
+		rangeVolumeRight: 7
 	};
 
 	me.menuHeight = 0;
@@ -85,9 +111,9 @@ let WaveForm = function(){
 		// Deliberately does NOT fire onZoomChange to avoid feedback loops
 	};
 
-	var waveformDisplay = UIElement();
+	var waveformDisplay = new UIElement();
 
-	var background = Scale9Panel(0,0,me.width,me.height,{
+	var background = new Scale9Panel(0,0,me.width,me.height,{
 		img: Y.getImage("panel_dark"),
 		left:3,
 		top:3,
@@ -96,7 +122,7 @@ let WaveForm = function(){
 	});
 	background.ignoreEvents = true;
 
-	var scrollBar = Scrollbar(1, 0, 100, 18, {
+	var scrollBar = new Scrollbar(1, 0, 100, 18, {
 		img: Y.getImage("bar"),
 		left: 2,
 		top: 2,
@@ -135,8 +161,27 @@ let WaveForm = function(){
 	me.onDragStart = function(touchData){
 
 		var x = touchData.startX;
+		var y = touchData.startY;
 
-		if (currentInstrument.sample.loop.enabled){
+		if (rangeLength > 0) {
+			var hitType = null;
+			if (isNearRangeHandle(x, y, MARKERTYPE.rangeVolumeLeft))   hitType = MARKERTYPE.rangeVolumeLeft;
+			else if (isNearRangeHandle(x, y, MARKERTYPE.rangeVolumeRight))  hitType = MARKERTYPE.rangeVolumeRight;
+			else if (isNearRangeHandle(x, y, MARKERTYPE.rangeVolumeCenter)) hitType = MARKERTYPE.rangeVolumeCenter;
+
+			if (hitType !== null) {
+				dragMarker = hitType;
+				activeDragMarker = hitType;
+				rangeHandleSnapshot = currentSampleData.slice(rangeStart, rangeStart + rangeLength);
+				rangeHandleEditAction = StateManager.createSampleUndo(SELECTION.REPLACE, rangeStart, rangeLength);
+				rangeHandleEditAction.data = rangeHandleSnapshot.slice(0);
+				rangeHandleEditAction.name = "Range Volume Adjust";
+				rangeHandleDirty = false;
+				return;
+			}
+		}
+
+		if (!drawMode && currentInstrument.sample.loop.enabled){
 
 			var markerX = getLoopMarkerPos(MARKERTYPE.loopEnd);
 			if (Math.abs(x-markerX)<5){
@@ -172,6 +217,40 @@ let WaveForm = function(){
 			}
 		}
 
+		if (drawMode && currentSampleData){
+			var waveTop = me.menuHeight || 0;
+			var waveH = me.height - waveTop;
+			var mid = waveH >> 1;
+			var maxHeight = (waveH / 2) - 2;
+			var si = Math.round(zoomStart + (x / me.width) * zoomLength);
+			si = Math.max(0, Math.min(sampleLength - 1, si));
+			var val = Math.min(1, Math.max(-1, (waveTop + mid - y) / maxHeight));
+			drawEditSnapshot = currentSampleData.slice();
+			drawEditFrom = si;
+			drawEditTo = si;
+			isDrawing = true;
+			prevDrawX = x;
+			prevDrawY = y;
+			currentSampleData[si] = val;
+			currentInstrument.sample.data = currentSampleData;
+			waveformDisplay.needsRendering = true;
+			me.refresh();
+			return;
+		}
+
+		if (getPixelsPerSample() >= 3 && currentSampleData){
+			var nearIndex = getNearestSampleMarker(x, y);
+			if (nearIndex >= 0){
+				dragSampleIndex = nearIndex;
+				dragSampleStartValue = currentSampleData[nearIndex];
+				sampleEditAction = StateManager.createSampleUndo(SELECTION.REPLACE, nearIndex, 1);
+				sampleEditAction.data = [dragSampleStartValue];
+				sampleEditAction.name = "Edit Sample Point";
+				sampleEditDirty = false;
+				return;
+			}
+		}
+
 		isDraggingRange = true;
 		dragRangeStart = dragRangeEnd = touchData.startX;
 
@@ -185,6 +264,80 @@ let WaveForm = function(){
 
 	me.onDrag = function(touchData){
 		var pixelValue = (currentInstrument.sample.length/me.width)/zoom;
+
+		if (isDrawing && currentSampleData){
+			var waveTop = me.menuHeight || 0;
+			var waveH = me.height - waveTop;
+			var mid = waveH >> 1;
+			var maxHeight = (waveH / 2) - 2;
+			var cx = touchData.x;
+			var cy = touchData.startY + touchData.deltaY;
+			var si1 = Math.round(zoomStart + (prevDrawX / me.width) * zoomLength);
+			var si2 = Math.round(zoomStart + (cx / me.width) * zoomLength);
+			si1 = Math.max(0, Math.min(sampleLength - 1, si1));
+			si2 = Math.max(0, Math.min(sampleLength - 1, si2));
+			var v1 = Math.min(1, Math.max(-1, (waveTop + mid - prevDrawY) / maxHeight));
+			var v2 = Math.min(1, Math.max(-1, (waveTop + mid - cy) / maxHeight));
+			var fromSI = Math.min(si1, si2);
+			var toSI = Math.max(si1, si2);
+			for (var dsi = fromSI; dsi <= toSI; dsi++){
+				var t = (fromSI === toSI) ? 0 : (dsi - fromSI) / (toSI - fromSI);
+				if (si2 < si1) t = 1 - t;
+				currentSampleData[dsi] = v1 + t * (v2 - v1);
+			}
+			drawEditFrom = Math.min(drawEditFrom, fromSI);
+			drawEditTo = Math.max(drawEditTo, toSI);
+			prevDrawX = cx;
+			prevDrawY = cy;
+			currentInstrument.sample.data = currentSampleData;
+			waveformDisplay.needsRendering = true;
+			me.refresh();
+			return;
+		}
+
+		if (dragSampleIndex >= 0){
+			var waveTop = me.menuHeight || 0;
+			var waveH = me.height - waveTop;
+			var maxHeight = (waveH / 2) - 2;
+			var newValue = Math.min(1, Math.max(-1, dragSampleStartValue - (touchData.deltaY / maxHeight)));
+			currentSampleData[dragSampleIndex] = newValue;
+			currentInstrument.sample.data = currentSampleData;
+			sampleEditDirty = true;
+			waveformDisplay.needsRendering = true;
+			me.refresh();
+			return;
+		}
+
+		if (dragMarker === MARKERTYPE.rangeVolumeLeft ||
+		    dragMarker === MARKERTYPE.rangeVolumeCenter ||
+		    dragMarker === MARKERTYPE.rangeVolumeRight) {
+
+			activeDragMarker = dragMarker;
+			var waveH = me.height - (me.menuHeight || 0);
+			var deltaY = touchData.deltaY || 0;
+			var scale = Math.max(0, 1 - (deltaY / (waveH / 2)));
+			var len = rangeHandleSnapshot.length;
+
+			for (var i = 0; i < len; i++) {
+				var s;
+				if (dragMarker === MARKERTYPE.rangeVolumeCenter) {
+					s = scale;
+				} else if (dragMarker === MARKERTYPE.rangeVolumeLeft) {
+					var t = len > 1 ? i / (len - 1) : 0;
+					s = scale + (1 - scale) * t;
+				} else {
+					var t = len > 1 ? i / (len - 1) : 1;
+					s = 1 + (scale - 1) * t;
+				}
+				currentSampleData[rangeStart + i] = Math.min(Math.max(rangeHandleSnapshot[i] * s, -1), 1);
+			}
+
+			currentInstrument.sample.data = currentSampleData;
+			rangeHandleDirty = true;
+			waveformDisplay.needsRendering = true;
+			me.refresh();
+			return;
+		}
 
 		if (dragMarker && (dragMarker === MARKERTYPE.loopStart || dragMarker === MARKERTYPE.loopEnd)){
 			activeDragMarker = dragMarker;
@@ -266,8 +419,55 @@ let WaveForm = function(){
 		}
 
 		isDraggingRange = false;
-		dragMarker = 0;
 		isDown = false;
+
+		if (isDrawing){
+			isDrawing = false;
+			if (drawEditSnapshot && drawEditFrom >= 0){
+				var drawLen = drawEditTo - drawEditFrom + 1;
+				var drawAction = StateManager.createSampleUndo(SELECTION.REPLACE, drawEditFrom, drawLen);
+				drawAction.data = drawEditSnapshot.slice(drawEditFrom, drawEditTo + 1);
+				drawAction.dataTo = currentSampleData.slice(drawEditFrom, drawEditTo + 1);
+				drawAction.name = "Draw Samples";
+				StateManager.registerEdit(drawAction);
+				ignoreInstrumentChange = true;
+				EventBus.trigger(EVENT.instrumentChange, Tracker.getCurrentInstrumentIndex());
+				ignoreInstrumentChange = false;
+			}
+			drawEditSnapshot = null;
+			drawEditFrom = -1;
+			drawEditTo = -1;
+		}
+
+		if (dragSampleIndex >= 0){
+			if (sampleEditAction && sampleEditDirty){
+				sampleEditAction.dataTo = [currentSampleData[dragSampleIndex]];
+				StateManager.registerEdit(sampleEditAction);
+				ignoreInstrumentChange = true;
+				EventBus.trigger(EVENT.instrumentChange, Tracker.getCurrentInstrumentIndex());
+				ignoreInstrumentChange = false;
+			}
+			sampleEditAction = null;
+			sampleEditDirty = false;
+			dragSampleIndex = -1;
+		}
+
+		if (dragMarker === MARKERTYPE.rangeVolumeLeft ||
+		    dragMarker === MARKERTYPE.rangeVolumeCenter ||
+		    dragMarker === MARKERTYPE.rangeVolumeRight) {
+			if (rangeHandleEditAction && rangeHandleDirty) {
+				rangeHandleEditAction.dataTo = currentSampleData.slice(rangeStart, rangeStart + rangeLength);
+				StateManager.registerEdit(rangeHandleEditAction);
+				ignoreInstrumentChange = true;
+				EventBus.trigger(EVENT.instrumentChange, Tracker.getCurrentInstrumentIndex());
+				ignoreInstrumentChange = false;
+			}
+			rangeHandleEditAction = null;
+			rangeHandleSnapshot = null;
+			rangeHandleDirty = false;
+		}
+
+		dragMarker = 0;
 
 		if (rangeLength) UI.setSelection(me.processSelection);
 	};
@@ -279,13 +479,33 @@ let WaveForm = function(){
 
 	me.onHover = function(data){
 
+		if (drawMode){
+			UI.setCursor("crosshair");
+			return;
+		}
+
 		if (!isDraggingRange && !dragMarker && !isDown){
 
 			var prevDragMarker = activeDragMarker;
+			var prevSampleMarker = activeSampleMarkerIndex;
 			if (!isDown) activeDragMarker = 0;
+			activeSampleMarkerIndex = -1;
 
 			var x = me.eventX;
 			var y = me.eventY;
+
+			if (rangeLength > 0) {
+				var hType = null;
+				if (isNearRangeHandle(x, y, MARKERTYPE.rangeVolumeLeft))        hType = MARKERTYPE.rangeVolumeLeft;
+				else if (isNearRangeHandle(x, y, MARKERTYPE.rangeVolumeRight))  hType = MARKERTYPE.rangeVolumeRight;
+				else if (isNearRangeHandle(x, y, MARKERTYPE.rangeVolumeCenter)) hType = MARKERTYPE.rangeVolumeCenter;
+				if (hType !== null) {
+					activeDragMarker = hType;
+					UI.setCursor("ns-resize");
+					if (prevDragMarker !== activeDragMarker) me.refresh();
+					return;
+				}
+			}
 
 			if (rangeStart>=0){
 				markerX = getRangeMarkerPos(MARKERTYPE.rangeStart);
@@ -327,7 +547,17 @@ let WaveForm = function(){
 
 			}
 
-			if (prevDragMarker !== activeDragMarker){
+			if (getPixelsPerSample() >= 3 && currentSampleData){
+				var nearIndex = getNearestSampleMarker(x, y);
+				if (nearIndex >= 0){
+					activeSampleMarkerIndex = nearIndex;
+					UI.setCursor("ns-resize");
+					if (prevDragMarker !== activeDragMarker || prevSampleMarker !== activeSampleMarkerIndex) me.refresh();
+					return;
+				}
+			}
+
+			if (prevDragMarker !== activeDragMarker || prevSampleMarker !== activeSampleMarkerIndex){
 				UI.setCursor("default");
 				me.refresh();
 			}
@@ -595,10 +825,37 @@ let WaveForm = function(){
 
 				waveformDisplay.ctx.fillStyle = "rgb(13, 19, 27)";
 				waveformDisplay.ctx.fillRect(0, 0, me.width, waveH);
-				waveformDisplay.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
 
 				if (background.width !== me.width) background.setSize(me.width, waveH);
 				waveformDisplay.ctx.drawImage(background.render(true), 0, 0, me.width, waveH);
+
+
+				// center lines
+				var mid = waveH>>1;
+				var mid2 = mid>>1;
+				waveformDisplay.ctx.strokeStyle = 'rgba(0, 200, 180, 0.5)';
+				waveformDisplay.ctx.beginPath();
+				waveformDisplay.ctx.moveTo(0, mid);
+				waveformDisplay.ctx.lineTo(me.width, mid);
+				waveformDisplay.ctx.stroke();
+
+				waveformDisplay.ctx.strokeStyle = 'rgba(0, 200, 180, 0.2)';
+				waveformDisplay.ctx.beginPath();
+				waveformDisplay.ctx.moveTo(0, mid+mid2);
+				waveformDisplay.ctx.lineTo(me.width, mid+mid2);
+				waveformDisplay.ctx.stroke();
+
+				waveformDisplay.ctx.beginPath();
+				waveformDisplay.ctx.moveTo(0, mid-mid2);
+				waveformDisplay.ctx.lineTo(me.width, mid-mid2);
+				waveformDisplay.ctx.stroke();
+
+
+				waveformDisplay.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
+
+
+
+
 
 				if (currentSampleData && currentSampleData.length && me.width){
 
@@ -610,7 +867,6 @@ let WaveForm = function(){
 					zoomLength = zoomEnd-zoomStart;
 
 					var step = zoomLength / me.width;
-					var mid = waveH / 2;
 					waveformDisplay.ctx.beginPath();
 
 					var maxHeight = (waveH / 2) - 2;
@@ -632,6 +888,21 @@ let WaveForm = function(){
 			}
 			me.ctx.drawImage(waveformDisplay.canvas, 0, waveTop);
 
+			if (currentSampleData && zoomLength > 0){
+				var pixPerSample = getPixelsPerSample();
+				if (pixPerSample >= 3){
+					var mh = 1;
+					var firstSample = Math.max(0, Math.ceil(zoomStart));
+					var lastSample = Math.min(sampleLength - 1, Math.floor(zoomEnd));
+					for (var si = firstSample; si <= lastSample; si++){
+						var sc = getSampleMarkerCoords(si);
+						var drawY = Math.max(waveTop + mh, Math.min(waveTop + waveH - mh - 1, sc.y));
+						var isActiveSample = (si === activeSampleMarkerIndex || si === dragSampleIndex);
+						me.ctx.fillStyle = isActiveSample ? "white" : "rgba(255, 220, 0, 0.85)";
+						me.ctx.fillRect(sc.x - mh, drawY - mh, mh * 2 + 1, mh * 2 + 1);
+					}
+				}
+			}
 
 			if (isPlaying && sampleLength){
 				var now = new Date().getTime();
@@ -702,6 +973,8 @@ let WaveForm = function(){
 			}
 
 
+			var rawRangeLineX2 = rangeLineX2;
+
 			if (rangeLineX1 !== rangeLineX2){
 				if (rangeLineX1>=0){
 					rangeLineX2 = Math.min(rangeLineX2, me.width);
@@ -709,6 +982,36 @@ let WaveForm = function(){
 				}
 				me.ctx.fillStyle = "rgba(241, 162, 71,0.1)";
 				me.ctx.fillRect(rangeLineX1, waveTop, rangeLineX2-rangeLineX1, waveH);
+			}
+
+			if (rangeLength > 0 && (rangeLineX1 >= 0 || rawRangeLineX2 >= 0)) {
+				var hx1 = rangeLineX1 >= 0 ? rangeLineX1 : 0;
+				var hx2 = rawRangeLineX2 >= 0 ? rawRangeLineX2 : me.width;
+				var hxC = Math.round((hx1 + hx2) / 2);
+				var hY  = waveTop + Math.floor(waveH / 2);
+				var hw  = 5;
+
+				me.ctx.strokeStyle = "rgba(241, 162, 71, 0.35)";
+				me.ctx.lineWidth = 1;
+				me.ctx.beginPath();
+				me.ctx.moveTo(hx1, hY);
+				me.ctx.lineTo(hx2, hY);
+				me.ctx.stroke();
+
+				var handleTypes = [
+					{x: hx1, type: MARKERTYPE.rangeVolumeLeft,   visible: rangeLineX1 > 0},
+					{x: hxC, type: MARKERTYPE.rangeVolumeCenter, visible: true},
+					{x: hx2, type: MARKERTYPE.rangeVolumeRight,  visible: rawRangeLineX2 > 0}
+				];
+				handleTypes.forEach(function(h) {
+					if (!h.visible) return;
+					var isActive = activeDragMarker === h.type;
+					me.ctx.fillStyle   = isActive ? "white" : "rgba(241, 200, 80, 0.9)";
+					me.ctx.strokeStyle = "rgba(180, 130, 40, 0.9)";
+					me.ctx.lineWidth   = 1;
+					me.ctx.fillRect(h.x - hw, hY - hw, hw * 2 + 1, hw * 2 + 1);
+					me.ctx.strokeRect(h.x - hw + 0.5, hY - hw + 0.5, hw * 2, hw * 2);
+				});
 			}
 
 			if (loopCreator && loopCreator.isVisible()) {
@@ -774,8 +1077,59 @@ let WaveForm = function(){
 		return(Math.min(lineX,me.width-(zoomEnd>sampleLength-6?6:0)));
 	}
 
+	function getRangeHandleY() {
+		var waveTop = me.menuHeight || 0;
+		return waveTop + Math.floor((me.height - waveTop) / 2);
+	}
+
+	function getRangeHandleX(type) {
+		var x1 = getRangeMarkerPos(MARKERTYPE.rangeStart);
+		var x2 = getRangeMarkerPos(MARKERTYPE.rangeEnd);
+		if (type === MARKERTYPE.rangeVolumeLeft) return x1;
+		if (type === MARKERTYPE.rangeVolumeRight) return x2;
+		var cx1 = x1 < 0 ? 0 : x1;
+		var cx2 = x2 < 0 ? me.width : x2;
+		return Math.round((cx1 + cx2) / 2);
+	}
+
+	function isNearRangeHandle(x, y, type) {
+		if (!rangeLength) return false;
+		var hx = getRangeHandleX(type);
+		if (hx < 0) return false;
+		var hy = getRangeHandleY();
+		return Math.abs(x - hx) <= 7 && Math.abs(y - hy) <= 7;
+	}
+
 	function xToZoomX(x){
 		if (x<zoomStart) return -1;
+	}
+
+	function getPixelsPerSample(){
+		return zoomLength > 0 ? me.width / zoomLength : 0;
+	}
+
+	function getSampleMarkerCoords(sampleIndex){
+		var waveTop = me.menuHeight || 0;
+		var waveH = me.height - waveTop;
+		var mid = waveH >> 1;
+		var maxHeight = (waveH / 2) - 2;
+		var x = Math.round(((sampleIndex - zoomStart) / zoomLength) * me.width);
+		var y = waveTop + mid + currentSampleData[sampleIndex] * -maxHeight;
+		return {x: x, y: y};
+	}
+
+	function getNearestSampleMarker(x, y){
+		if (!currentSampleData || !zoomLength) return -1;
+		var pixPerSample = getPixelsPerSample();
+		if (pixPerSample < 3) return -1;
+		var sampleIndex = Math.round(zoomStart + (x / me.width) * zoomLength);
+		sampleIndex = Math.max(0, Math.min(sampleLength - 1, sampleIndex));
+		var coords = getSampleMarkerCoords(sampleIndex);
+		var markerHalf = Math.min(3, Math.max(1, Math.floor(pixPerSample / 3)));
+		if (Math.abs(y - coords.y) <= markerHalf + 3){
+			return sampleIndex;
+		}
+		return -1;
 	}
 
 

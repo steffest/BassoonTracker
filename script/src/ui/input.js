@@ -561,6 +561,7 @@ let Input = (function(){
 
 					touchData.mouseWheels.unshift(deltaY);
 					if (touchData.mouseWheels.length > 10) touchData.mouseWheels.pop();
+					touchData.mouseWheelX = deltaX;
 
 					target.onMouseWheel(touchData);
 

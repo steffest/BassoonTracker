@@ -3,87 +3,75 @@ import Scale9Panel from "../../components/scale9.js";
 import Assets from "../../assets.js";
 import Label from "../../components/label.js";
 import NumberDisplay from "../../components/numberdisplay.js";
-import EventBus from "../../../eventBus.js";
 import {EVENT} from "../../../enum.js";
+import Font from "../../font.js";
 
-let ButtonGroup = function(title,buttonsInfo){
+export default class ButtonGroup extends Panel {
+    _titleBar;
+    _titleLabel;
+    _buttons = [];
 
-	var me = Panel();
-	me.hide();
+    constructor(title, buttonsInfo) {
+        super(0, 0, 20, 20);
+        this.hide();
 
-	var titleBar = Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
-	titleBar.ignoreEvents = true;
-	me.addChild(titleBar);
+        this._titleBar = new Scale9Panel(0, 0, 20, 20, Assets.panelDarkGreyScale9);
+        this._titleBar.ignoreEvents = true;
+        this.addChild(this._titleBar);
 
-	var titleLabel = Label({
-		label: title,
-		font: fontSmall,
-		width: 60,
-		top: 1
-	});
-	me.addChild(titleLabel);
+        this._titleLabel = new Label(0, 0, 60, 18);
+        this._titleLabel.label = title;
+        this._titleLabel.font  = Font.small;
+        this._titleLabel.top   = 1;
+        this.addChild(this._titleLabel);
 
-	var buttons = [];
+        buttonsInfo.forEach(buttonInfo => {
+            let button;
+            if (buttonInfo.type === "number") {
+                button = new NumberDisplay(0, 0, 40, 20);
+                button.autoPadding = true;
+                button.setValue(buttonInfo.value);
+            } else {
+                button = Assets.generate("buttonLight");
+                button.label   = buttonInfo.label;
+                button.onClick = buttonInfo.onClick;
+            }
+            button.widthParam = buttonInfo.width || 100;
+            this.addChild(button);
+            this._buttons.push(button);
 
-	buttonsInfo.forEach(function(buttonInfo){
-		if (buttonInfo.type === "number"){
-			var button = NumberDisplay({
-				autoPadding: true
-			});
-			button.setValue(buttonInfo.value);
-		}else{
-			button = Assets.generate("buttonLight");
-			button.setLabel(buttonInfo.label);
-			button.onClick = buttonInfo.onClick;
-		}
-		button.widthParam = buttonInfo.width || 100;
-		me.addChild(button);
-		buttons.push(button);
+            if (buttonInfo.onSamplePropertyChange) {
+                this.on(EVENT.samplePropertyChange, newProps => {
+                        buttonInfo.onSamplePropertyChange(button, newProps);
+                    });
+            }
+        });
+    }
 
+    onResize() {
+        this._titleBar.setSize(this.width, 18);
 
-		if (buttonInfo.onSamplePropertyChange){
-			EventBus.on(EVENT.samplePropertyChange,function(newProps){
-				buttonInfo.onSamplePropertyChange(button,newProps);
-			});
-		}
-	});
+        let buttonTop  = 20;
+        const buttonWidth = this.width;
+        let left = 0;
 
-	me.onResize = function(){
-		titleBar.setSize(me.width,18);
+        let numRows = 0, tmpLeft = 0;
+        this._buttons.forEach(b => {
+            tmpLeft += b.widthParam;
+            if (tmpLeft > 95) { numRows++; tmpLeft = 0; }
+        });
+        if (tmpLeft > 0) numRows++;
+        const buttonHeight = (this.height - buttonTop - 2) / Math.max(numRows, 1);
 
-		var buttonTop = 20;
-		var buttonWidth = me.width;
-		var left = 0;
+        this._buttons.forEach(button => {
+            button.setPosition(Math.floor(left * buttonWidth / 100), buttonTop);
+            button.setSize(Math.floor(buttonWidth * button.widthParam / 100), buttonHeight);
+            left += button.widthParam;
+            if (left > 95) {
+                left = 0;
+                buttonTop += buttonHeight;
+            }
+        });
+    }
 
-		var numRows = 0, tmpLeft = 0;
-		buttons.forEach(function(b) {
-			tmpLeft += b.widthParam;
-			if (tmpLeft > 95) { numRows++; tmpLeft = 0; }
-		});
-		if (tmpLeft > 0) numRows++;
-		var buttonHeight = (me.height - buttonTop - 2) / Math.max(numRows, 1);
-
-		buttons.forEach(function(button,index){
-			button.setProperties({
-				width: Math.floor(buttonWidth * button.widthParam/100),
-				height: buttonHeight,
-				left: Math.floor(left * buttonWidth/100),
-				top: buttonTop
-			});
-
-			left += button.widthParam;
-			if (left>95){
-				left=0;
-				buttonTop+=buttonHeight;
-			}
-
-
-		});
-	};
-
-	return me;
-
-};
-
-export default ButtonGroup;
-
+}

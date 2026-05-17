@@ -1,102 +1,63 @@
 import UIElement from "./element.js";
 
-let label = function(initialProperties){
-	var me = UIElement();
-	me.type = "label";
+export default class Label extends UIElement {
+    _label = "";
+    _font;
+    _textAlign = "left";
+    _paddingTop = 0;
 
-	var label = "";
-	var font;
-	var textAlign = "left";
-	var paddingTop = 0;
+    constructor(x, y, w, h) {
+        super(x, y, w, h);
+        this.type = "label";
+    }
 
-	var properties = ["left","top","width","height","name","font","label","textAlign","paddingTop"];
+    get label()      { return this._label; }
+    set label(v)     { this._label = v; this.refresh(); }
 
-	me.setProperties = function(p){
+    get font()       { return this._font; }
+    set font(v)      { this._font = v; this.refresh(); }
 
-		properties.forEach(function(key){
-			if (typeof p[key] != "undefined"){
-				// set internal var
-				switch(key){
-					case "label": label=p[key];break;
-					case "font": font=p[key];break;
-					case "textAlign": textAlign=p[key];break;
-					case "paddingTop": paddingTop=parseInt(p[key]);break;
-					default:
-						me[key] = p[key];
-				}
-			}
-		});
+    get textAlign()  { return this._textAlign; }
+    set textAlign(v) { this._textAlign = v; this.refresh(); }
 
-		me.setSize(me.width,me.height);
-		me.setPosition(me.left,me.top);
+    get paddingTop()  { return this._paddingTop; }
+    set paddingTop(v) { this._paddingTop = parseInt(v); this.refresh(); }
 
-		if (p.labels){
-			me.onResize = function(){
-				var currentLabel = label;
-				p.labels.forEach(function(item){
-					if (me.width>=item.width) label=item.label;
-				});
-				if (currentLabel !== label) me.refresh();
-			};
-		}
+    setLabels(labels) {
+        this.onResize = () => {
+            const prev = this._label;
+            labels.forEach(item => { if (this.width >= item.width) this._label = item.label; });
+            if (prev !== this._label) this.refresh();
+        };
+    }
 
-	};
-
-	me.setFont = function(f){
-		font = f;
-		me.refresh();
-	};
-
-	me.getFont = function(){
-		return font;
-	};
-
-	me.setLabel = function(text){
-		label = text;
-		me.refresh();
-	};
-
-	me.render = function(internal){
-        if (!me.isVisible()) return;
-		if (me.needsRendering){
-			internal = !!internal;
-
-			me.clearCanvas();
-
-			if (label){
-				var fontSize = 10;
-				var textY = Math.floor((me.height-fontSize)/2) + paddingTop;
-				var textX = 10;
-				if (font){
-					var textLength;
-					if (textAlign == "center"){
-						textLength = font.getTextWidth(label,0);
-						textX = Math.floor((me.width - textLength)/2);
-					}
-					if (textAlign == "right"){
-						textLength = font.getTextWidth(label,0);
-						textX = Math.floor(me.width - textLength) - 10;
-					}
-					font.write(me.ctx,label,textX,textY,0);
-				}else{
-					me.ctx.fillStyle = "white";
-					me.ctx.fillText(label,textX,textY);
-				}
-			}
-
-		}
-		me.needsRendering = false;
-
-		if (internal){
-			return me.canvas;
-		}else{
-			me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-		}
-	};
-
-	if (initialProperties) me.setProperties(initialProperties);
-
-	return me;
-};
-
-export default label;
+    render(internal) {
+        if (!this.isVisible()) return;
+        if (this.needsRendering) {
+            this.clearCanvas();
+            if (this._label) {
+                const fontSize = 10;
+                let textY = Math.floor((this.height - fontSize) / 2) + this._paddingTop;
+                let textX = 10;
+                if (this._font) {
+                    let textLength;
+                    if (this._textAlign === "center") {
+                        textLength = this._font.getTextWidth(this._label, 0);
+                        textX = Math.floor((this.width - textLength) / 2);
+                    }
+                    if (this._textAlign === "right") {
+                        textLength = this._font.getTextWidth(this._label, 0);
+                        textX = Math.floor(this.width - textLength) - 10;
+                    }
+                    this._font.write(this.ctx, this._label, textX, textY, 0);
+                } else {
+                    this.ctx.fillStyle = "white";
+                    this.ctx.fillText(this._label, textX, textY);
+                }
+            }
+        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

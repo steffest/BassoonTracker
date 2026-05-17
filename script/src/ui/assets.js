@@ -5,6 +5,7 @@ import Y from "./yascal/yascal.js";
 import sprite from "./yascal/sprite.js";
 import Button from "./components/button.js";
 import Scale9Panel from "./components/scale9.js"
+import Font from "./font.js";
 
 
 let Assets = (function(){
@@ -36,12 +37,12 @@ let Assets = (function(){
 			}
 		};
 		
-		FetchService.json(assetUrl("./skin/spritemap_v5.json"),function(data){
+		FetchService.json(assetUrl("./skin/spritemap_v6.json"),function(data){
 			spriteMap = data;
 			createSprites();
 		});
 
-		Y.loadImage(assetUrl("./skin/spritesheet_v5.png"),function(img){
+		Y.loadImage(assetUrl("./skin/spritesheet_v6.png"),function(img){
 			spriteSheet = img;
 			createSprites();
 		})
@@ -198,6 +199,18 @@ let Assets = (function(){
 		right: 5,
 		bottom: 5
 	};
+	me.buttonDaw = {
+		left: 4,
+		top:4,
+		right: 4,
+		bottom: 4
+	};
+	me.buttonDawActive = {
+		left: 4,
+		top:4,
+		right: 4,
+		bottom: 4
+	};
 
 
 	var assetsInfo = {
@@ -205,15 +218,13 @@ let Assets = (function(){
 			generate:function(andCache){
 				var result;
 				var scale = me.panelDarkScale9;
-				//result = Scale9Panel(0,0,20,20,scale);
-				result = Button(0,0,20,20);
-				result.setProperties({
-					background: scale,
-					hoverBackground: me.panelDarkHoverScale9,
-					textAlign: "center",
-					font: window.fontMed,
-					paddingTop: 2
-				});
+				//result = new Scale9Panel(0,0,20,20,scale);
+				result = new Button(0,0,20,20);
+				result.background = scale;
+				result.hoverBackground = me.panelDarkHoverScale9;
+				result.textAlign = "center";
+				result.font = Font.med;
+				result.paddingTop = 2;
 				if (andCache){
 					assets["buttonUp20_20"] = result;
 				}else{
@@ -225,7 +236,7 @@ let Assets = (function(){
 			generate:function(andCache){
 				var result;
 				var scale = me.buttonLightScale9;
-				result = Scale9Panel(0,0,30,30,scale);
+				result = new Scale9Panel(0,0,30,30,scale);
 				if (andCache){
 					assets["buttonUp30_30"] = result;
 				}else{
@@ -237,13 +248,11 @@ let Assets = (function(){
 			generate:function(andCache){
 				var result;
 				var scale = me.buttonLightScale9;
-				result = Button();
-				result.setProperties({
-					background: scale,
-					hoverBackground: me.buttonLightHoverScale9,
-					textAlign: "center",
-					font: window.fontMed
-				});
+				result = new Button();
+				result.background = scale;
+				result.hoverBackground = me.buttonLightHoverScale9;
+				result.textAlign = "center";
+				result.font = Font.med;
 				if (andCache){
 					assets["buttonLight"] = result;
 				}else{
@@ -255,15 +264,13 @@ let Assets = (function(){
 			generate:function(andCache){
 				var result;
 				var scale = me.buttonDarkScale9;
-				result = Button(0,0,20,20);
-				result.setProperties({
-					background: scale,
-					hoverBackground:Assets.buttonDarkBlueActiveScale9,
-					activeBackground:Assets.buttonDarkActiveScale9,
-					isActive:false,
-					textAlign: "center",
-					font: window.fontMed
-				});
+				result = new Button(0,0,20,20);
+				result.background = scale;
+				result.hoverBackground = Assets.buttonDarkBlueActiveScale9;
+				result.activeBackground = Assets.buttonDarkActiveScale9;
+				result.isActive = false;
+				result.textAlign = "center";
+				result.font = Font.med;
 				if (andCache){
 					assets["buttonDark"] = result;
 				}else{
@@ -274,15 +281,13 @@ let Assets = (function(){
 		buttonDarkBlue:{
 			generate:function(andCache){
 				var result;
-				result = Button(0,0,20,20);
-				result.setProperties({
-					background: me.buttonDarkBlueScale9,
-					hoverBackground:Assets.buttonDarkBlueActiveScale9,
-					activeBackground:Assets.buttonDarkBlueActiveScale9,
-					isActive:false,
-					textAlign: "center",
-					font: window.fontMed
-				});
+				result = new Button(0,0,20,20);
+				result.background = me.buttonDarkBlueScale9;
+				result.hoverBackground = Assets.buttonDarkBlueActiveScale9;
+				result.activeBackground = Assets.buttonDarkBlueActiveScale9;
+				result.isActive = false;
+				result.textAlign = "center";
+				result.font = Font.med;
 				if (andCache){
 					assets["buttonDarkBlue"] = result;
 				}else{
@@ -293,15 +298,13 @@ let Assets = (function(){
 		buttonDarkRed:{
 			generate:function(andCache){
 				var result;
-				result = Button(0,0,20,20);
-				result.setProperties({
-					background: me.buttonDarkRedScale9,
-					hoverBackground:Assets.buttonDarkRedHoverScale9,
-					activeBackground:Assets.buttonDarkRedActiveScale9,
-					isActive:false,
-					textAlign: "center",
-					font: window.fontMed
-				});
+				result = new Button(0,0,20,20);
+				result.background = me.buttonDarkRedScale9;
+				result.hoverBackground = Assets.buttonDarkRedHoverScale9;
+				result.activeBackground = Assets.buttonDarkRedActiveScale9;
+				result.isActive = false;
+				result.textAlign = "center";
+				result.font = Font.med;
 				if (andCache){
 					assets["buttonDarkRed"] = result;
 				}else{
@@ -312,15 +315,13 @@ let Assets = (function(){
 		buttonDarkGreen:{
 			generate:function(andCache){
 				var result;
-				result = Button(0,0,20,20);
-				result.setProperties({
-					background: me.buttonDarkGreenScale9,
-					hoverBackground:Assets.buttonDarkGreenHoverScale9,
-					activeBackground:Assets.buttonDarkGreenActiveScale9,
-					isActive:false,
-					textAlign: "center",
-					font: window.fontMed
-				});
+				result = new Button(0,0,20,20);
+				result.background = me.buttonDarkGreenScale9;
+				result.hoverBackground = Assets.buttonDarkGreenHoverScale9;
+				result.activeBackground = Assets.buttonDarkGreenActiveScale9;
+				result.isActive = false;
+				result.textAlign = "center";
+				result.font = Font.med;
 				if (andCache){
 					assets["buttonDarkGreen"] = result;
 				}else{
@@ -331,17 +332,31 @@ let Assets = (function(){
 		buttonKey:{
 			generate:function(andCache){
 				var result;
-				result = Button(0,0,20,20);
-				result.setProperties({
-					background: me.buttonKeyScale9,
-					hoverBackground:Assets.buttonKeyHoverScale9,
-					activeBackground:Assets.buttonKeyActiveScale9,
-					isActive:false,
-					textAlign: "center",
-					font: window.fontDark
-				});
+				result = new Button(0,0,20,20);
+				result.background = me.buttonKeyScale9;
+				result.hoverBackground = Assets.buttonKeyHoverScale9;
+				result.activeBackground = Assets.buttonKeyActiveScale9;
+				result.isActive = false;
+				result.textAlign = "center";
+				result.font = Font.dark;
 				if (andCache){
 					assets["buttonKey"] = result;
+				}else{
+					return result;
+				}
+			}
+		},
+		buttonDAW:{
+			generate:function(andCache){
+				var result;
+				result = new Button(0,0,28,28);
+				result.background = me.buttonDaw;
+				result.activeBackground = Assets.buttonDawActive;
+				result.isActive = false;
+				result.textAlign = "center";
+				result.font = Font.dark;
+				if (andCache){
+					assets["buttonDAW"] = result;
 				}else{
 					return result;
 				}
@@ -375,6 +390,8 @@ let Assets = (function(){
 		me.buttonKeyScale9.img = Y.getImage("keybutton");
 		me.buttonKeyHoverScale9.img = Y.getImage("keybutton_hover");
 		me.buttonKeyActiveScale9.img = Y.getImage("keybutton_highlight3");
+		me.buttonDaw.img = Y.getImage("dawbutton");
+		me.buttonDawActive.img = Y.getImage("dawbutton_active");
 
 		console.log("Assets init done");
 

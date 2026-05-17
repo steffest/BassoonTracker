@@ -7,25 +7,25 @@ import {EVENT, FILETYPE} from "../enum.js";
 import Host from "../host.js";
 import EventBus from "../eventBus.js";
 import UI from "./ui.js";
+import Font from "./font.js";
 
 
 let DiskOperationTargets = function(){
 
-	var me = Panel();
+	var me = new Panel();
 	var currentTarget = "bassoon";
 
-	var background = Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
+	var background = new Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
-	var label1 = Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
+	var label1 = new Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
 	label1.ignoreEvents = true;
 	me.addChild(label1);
 
-	var label = Label({
-		label: "From",
-		font: fontSmall
-	});
+	var label = new Label(0, 0, 20, 20);
+	label.label = "From";
+	label.font = Font.small;
 	me.addChild(label);
 
 	var targetsModule = [
@@ -72,13 +72,11 @@ let DiskOperationTargets = function(){
 	var currentLoadTargets = targetsModule;
 	var currentAction = "load";
 
-	var selectionTarget = RadioGroup();
-	selectionTarget.setProperties({
-		align: "right",
-		size:"med",
-		divider: "line",
-		highLightSelection:true
-	});
+	var selectionTarget = new RadioGroup();
+	selectionTarget.align = "right";
+	selectionTarget.size = "med";
+	selectionTarget.divider = "line";
+	selectionTarget.highLightSelection = true;
 	selectionTarget.setItems(targetsModule);
 	selectionTarget.onChange = function(selectedIndex){
 		EventBus.trigger(EVENT.diskOperationTargetChange,this.getSelectedItem());
@@ -86,43 +84,37 @@ let DiskOperationTargets = function(){
 	me.addChild(selectionTarget);
 
 
-	me.setLayout = function(){
+	me.onResize = function(){
 		var innerWidth = me.width-3;
 
 		if (!UI.mainPanel) return;
 		me.clearCanvas();
 
-		background.setProperties({
-			left: 0,
-			top: 0,
-			height: me.height,
-			width: me.width
-		});
+		background.left = 0;
+		background.top = 0;
+		background.height = me.height;
+		background.width = me.width;
 
-		label1.setProperties({
-			left: 2,
-			top: 1,
-			height: 16,
-			width: innerWidth
-		});
+		label1.left = 2;
+		label1.top = 1;
+		label1.height = 16;
+		label1.width = innerWidth;
 
-		label.setProperties({
-			left: -1,
-			top: 3,
-			height: 16,
-			width: innerWidth
-		});
+		label.left = -1;
+		label.top = 3;
+		label.height = 16;
+		label.width = innerWidth;
 
 		var buttonTop = 18;
 
-		selectionTarget.setProperties({
-			width: innerWidth,
-			height: me.height - buttonTop - 2,
-			left: 2,
-			top: buttonTop
-		});
+		selectionTarget.width = innerWidth;
+		selectionTarget.height = me.height - buttonTop - 2;
+		selectionTarget.left = 2;
+		selectionTarget.top = buttonTop;
 
 	};
+
+	me.setLayout = me.onResize;
 
 	me.getTarget = function(){
 		return currentTarget;
@@ -154,11 +146,11 @@ let DiskOperationTargets = function(){
 
 	EventBus.on(EVENT.diskOperationActionChange,function(target){
 		if (target.label === "save"){
-			label.setLabel("To");
+			label.label = "To";
 			currentAction = "save";
 			selectionTarget.setItems(targetsSave);
 		}else{
-			label.setLabel("From");
+			label.label = "From";
 			currentAction = "load";
 			selectionTarget.setItems(currentLoadTargets);
 		}

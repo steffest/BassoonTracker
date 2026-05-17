@@ -2,59 +2,36 @@ import UIElement from "./element.js";
 import Y from "../yascal/yascal.js";
 import Ticker from "../ticker.js";
 
-let UIAnimsprite = function(x,y,w,h,baseImageName,frames){
+export default class UIAnimsprite extends UIElement {
+    _baseImage;
+    _frames;
+    _step = 0;
 
-    w = w || 14;
-    h = h || 14;
+    constructor(x, y, w, h, baseImageName, frames) {
+        super(x, y, w || 14, h || 14);
+        this._baseImage = Y.getImage(baseImageName);
+        this._frames = frames;
+    }
 
-    var me = UIElement(x,y,w,h,true);
+    onShow() {
+        Ticker.onEachTick2(() => {
+            this._step++;
+            if (this._step >= this._frames) this._step = 0;
+            this.refresh();
+        }, 0);
+    }
 
-    var properties = ["left","top","width","height","name"];
-
-    me.setProperties = function(p){
-        properties.forEach(function(key){
-            if (typeof p[key] != "undefined") me[key] = p[key];
-        });
-
-        me.setSize(me.width,me.height);
-        me.setPosition(me.left,me.top);
-    };
-
-    var baseImage = Y.getImage(baseImageName);
-    var step = 0;
-
-    me.onShow = function(){
-        Ticker.onEachTick2(function(){
-            step++;
-            if (step>=frames) step=0;
-            me.refresh();
-        },0);
-    };
-
-    me.onHide = function(){
+    onHide() {
         Ticker.onEachTick2();
-    };
+    }
 
-
-    me.render = function(internal){
-        internal = !!internal;
-
-        if (this.needsRendering){
-
-            me.clearCanvas();
-            me.ctx.drawImage(baseImage,step*w,0,w,h,0,0,w,h);
+    render(internal) {
+        if (this.needsRendering) {
+            this.clearCanvas();
+            this.ctx.drawImage(this._baseImage, this._step * this.width, 0, this.width, this.height, 0, 0, this.width, this.height);
         }
         this.needsRendering = false;
-
-        if (internal){
-            return me.canvas;
-        }else{
-            me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-        }
-
-    };
-
-    return me;
-};
-
-export default UIAnimsprite;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

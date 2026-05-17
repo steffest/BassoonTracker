@@ -6,33 +6,31 @@ import Assets from "./assets.js";
 import {EVENT, FILETYPE} from "../enum.js";
 import UI from "./ui.js";
 import EventBus from "../eventBus.js";
+import Font from "./font.js";
 
 
 let DiskOperationType = function(){
 
-	var me = Panel();
+	var me = new Panel();
 
-	var background = Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
+	var background = new Scale9Panel(0,0,20,20,Assets.panelDarkInsetScale9);
 	background.ignoreEvents = true;
 	me.addChild(background);
 
-	var label1 = Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
+	var label1 = new Scale9Panel(0,0,20,20,Assets.panelDarkGreyScale9);
 	label1.ignoreEvents = true;
 	me.addChild(label1);
 
-	var labelLoad = Label({
-		label: "Type",
-		font: fontSmall
-	});
+	var labelLoad = new Label(0, 0, 20, 20);
+	labelLoad.label = "Type";
+	labelLoad.font = Font.small;
 	me.addChild(labelLoad);
 
-	var selectionType = RadioGroup();
-	selectionType.setProperties({
-		align: "right",
-		size:"med",
-		divider: "line",
-		highLightSelection:true
-	});
+	var selectionType = new RadioGroup();
+	selectionType.align = "right";
+	selectionType.size = "med";
+	selectionType.divider = "line";
+	selectionType.highLightSelection = true;
 	selectionType.setItems([
 		{label:"module",active:true, fileType: FILETYPE.module},
 		{label:"sample",active:false, fileType: FILETYPE.sample},
@@ -44,7 +42,7 @@ let DiskOperationType = function(){
 	};
 	me.addChild(selectionType);
 
-	me.setLayout = function(){
+	me.onResize = function(){
 
 		var innerWidth = me.width-2;
 		var innerHeight = me.height - 20;
@@ -52,37 +50,31 @@ let DiskOperationType = function(){
 		if (!UI.mainPanel) return;
 		me.clearCanvas();
 
-		background.setProperties({
-			left: 0,
-			top: 0,
-			height: me.height,
-			width: me.width
-		});
+		background.left = 0;
+		background.top = 0;
+		background.height = me.height;
+		background.width = me.width;
 
-		label1.setProperties({
-			left: 1,
-			top: 1,
-			height: 16,
-			width: innerWidth
-		});
+		label1.left = 1;
+		label1.top = 1;
+		label1.height = 16;
+		label1.width = innerWidth;
 
-		labelLoad.setProperties({
-			left: -1,
-			top: 3,
-			height: 16,
-			width: innerWidth
-		});
+		labelLoad.left = -1;
+		labelLoad.top = 3;
+		labelLoad.height = 16;
+		labelLoad.width = innerWidth;
 
-		selectionType.setProperties({
-			left:4,
-			width: innerWidth-4,
-			height: innerHeight,
-			top: 18
-		});
+		selectionType.left = 4;
+		selectionType.width = innerWidth-4;
+		selectionType.height = innerHeight;
+		selectionType.top = 18;
 
 
 
 	};
+
+	me.setLayout = me.onResize;
 
 	me.getType = function(){
 		var index = selectionType.getSelectedIndex();

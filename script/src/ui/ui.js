@@ -7,7 +7,7 @@ import App from "../app.js";
 import Host from "../host.js";
 import Assets from "./assets.js";
 import Y from "./yascal/yascal.js";
-import BitmapFont from "./components/bitmapfont.js";
+import Font from "./font.js";
 import MainPanel from "./mainPanel.js";
 import Tracker from "../tracker.js";
 import Audio from "../audio.js";
@@ -18,6 +18,7 @@ import FetchService from "../fetchService.js";
 var UI = (function(){
 
 	var me={};
+	me.font = Font;
 
 	var canvas;
 	var ctx;
@@ -27,16 +28,9 @@ var UI = (function(){
 	var useDevicePixelRatio = false;
 
 	var children = [];
-	var fontSmall;
-	var fontMed;
-	var fontBig;
-	var fontFT;
-	var fontCondensed;
-	var fontDark;
 
 	var mainPanel;
 
-	var maxWidth = Layout.maxWidth;
 	var maxHeight =  Layout.maxHeight;
 	var minHeight = Layout.minheight;
 	var modalElement;
@@ -96,7 +90,6 @@ var UI = (function(){
 		var w = window.innerWidth;
 		var h = window.innerHeight;
 
-		if (w>maxWidth) w=maxWidth;
 		if (h>maxHeight) h=maxHeight;
 
 		screenWidth = w;
@@ -162,7 +155,6 @@ var UI = (function(){
 			canvas = document.getElementById("canvas");
 			var w = window.innerWidth;
 
-			if (w>maxWidth) w=maxWidth;
 			if (w>maxHeight) w=maxHeight;
 			canvas.width = w;
 			//canvas.height = window.innerHeight;
@@ -192,7 +184,6 @@ var UI = (function(){
 
 
 	me.setSize = function(newWidth,newHeight){
-		if (newWidth>Layout.maxWidth) newWidth = Layout.maxWidth;
 		if (newWidth>window.innerWidth) newWidth = window.innerWidth;
 		if (newHeight>Layout.maxHeight) newHeight = Layout.maxHeight;
 		if (newHeight>window.innerHeight) newHeight = window.innerHeight;
@@ -209,7 +200,8 @@ var UI = (function(){
 			//me.mainPanel.setLayout(0,0,newWidth,newHeight);
 
 			if (modalElement){
-				modalElement.setProperties({width: newWidth, height: newHeight});
+				modalElement.width = newWidth;
+				modalElement.height = newHeight;
 			}
 			needsRendering = true;
 		}
@@ -235,166 +227,12 @@ var UI = (function(){
 	}
 
 	var initAssets = function(){
-		var fontImage =  Y.getImage("font");
-
-		var fontSmallProperties = {
-			image: fontImage,
-			startX: 1,
-			startY: 1,
-			charWidth: 6,
-			charHeight: 6,
-			spaceWidth: 6,
-			margin: 0,
-			charsPerLine:42,
-			chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_#/&@$+^!",
-			onlyUpperCase:true
-		}
-		fontSmall =  BitmapFont();
-		fontSmall.generate(fontSmallProperties);
-		window.fontSmall = fontSmall;
-		fontSmall.generateColor("blue","rgba(15,118,122,0.7)");
-		fontSmall.generateColor("orange","rgba(161, 82, 0,0.9)");
-		fontSmall.generateColor("green","rgba(80, 140, 0,0.9)");
-
-		let fontSmallDark = BitmapFont();
-		fontSmallProperties.startY = 13;
-		fontSmallDark.generate(fontSmallProperties);
-		window.fontSmallDark = fontSmallDark;
-
-		fontMed =  BitmapFont();
-		fontMed.generate({
-			image: fontImage,
-			startX: 1,
-			startY: 110,
-			charWidth: 8,
-			charHeight: 8,
-			spaceWidth: 8,
-			margin: 1,
-			charsPerLine:26,
-			lineSpacing:1,
-			chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789↑↓-#:.!©_?;()=/+<>&[]{}\\*%$'\"`°,",
-			onlyUpperCase:true
-		});
-		fontMed.generateColor("green","rgba(80, 140, 0,0.9)");
-		fontMed.generateColor("orange","rgba(161, 82, 0,0.9)");
-		window.fontMed = fontMed;
-
-		fontBig =  BitmapFont();
-		fontBig.generate({
-			image: fontImage,
-			startX: 1,
-			startY: 27,
-			charWidth: 11,
-			charHeight: 11,
-			spaceWidth: 11,
-			margin: 1,
-			charsPerLine:20,
-			lineSpacing: 3,
-			chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_",
-			onlyUpperCase:true
-		});
-		window.fontBig = fontBig;
-
-		fontFT =  BitmapFont();
-		fontFT.generate({
-			image: fontImage,
-			startX: 1,
-			startY: 145,
-			charHeight: 12,
-			spaceWidth: 4,
-			margin: 1,
-			charsPerLine:[26,26,40],
-			lineSpacing:0,
-			chars: 	   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890#©_-&\"'()!.,?+=*$/\\;:[]{}",
-			charWidth: "888888883888998888888899987777757735739777757578987777777777778868864553348767888435555",
-			onlyUpperCase:false,
-			debug: false
-		});
-		window.fontFT = fontFT;
-
-
-		fontCondensed =  BitmapFont();
-		fontCondensed.generate({
-			image: fontImage,
-			startX: 1,
-			startY: 184,
-			charHeight: 10,
-			spaceWidth: 5,
-			margin: 0,
-			charsPerLine:[26,26,10],
-			lineSpacing:0,
-			chars: 	   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-			charWidth: "6666556625656666666666666655555455245365555454566555",
-			onlyUpperCase:false
-		});
-		window.fontCondensed = fontCondensed;
-
-		var fontSuperCondensed =  BitmapFont();
-		fontSuperCondensed.generate({
-			image: fontImage,
-			startX: 2,
-			startY: 208,
-			charHeight: 8,
-			charWidth: 4,
-			spaceWidth: 4,
-			margin: 0,
-			charsPerLine:[45],
-			lineSpacing:0,
-			chars: 	   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_.-#+><↑↓",
-			onlyUpperCase:true
-		});
-		fontSuperCondensed.generateColor("green","rgba(80, 140, 0,0.9)");
-		fontSuperCondensed.generateColor("orange","rgba(161, 82, 0,0.9)");
-		window.fontSuperCondensed = fontSuperCondensed;
-
-		var fontLed =  BitmapFont();
-		fontLed.generate({
-			image: fontImage,
-			startX: 107,
-			startY: 68,
-			charWidth: 8,
-			charHeight: 13,
-			spaceWidth: 8,
-			margin: 0,
-			charsPerLine:20,
-			chars:" 0123456789-"
-		});
-		window.fontLed = fontLed;
-
-        var fontLedBig =  BitmapFont();
-        fontLedBig.generate({
-            image: fontImage,
-            startX: 9,
-            startY: 82,
-            charWidth: 14,
-            charHeight: 22,
-            spaceWidth: 8,
-            margin: 0,
-            charsPerLine:11,
-            chars:" 0123456789"
-        });
-        window.fontLedBig = fontLedBig;
-
-		var fontDark =  BitmapFont();
-		fontDark.generate({
-			image: fontImage,
-			startX: 1,
-			startY: 216,
-			charHeight: 9,
-			spaceWidth: 5,
-			margin: 0,
-			charsPerLine:[40],
-			lineSpacing:0,
-			chars: 	   "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890():-",
-			charWidth: "7777667736768777877778887746666666664434",
-			onlyUpperCase:true
-		});
-		window.fontDark = fontDark;
+		Font.init(Y.getImage("font"));
 
 		//if (debug) UI.measure("Generate font");
 		
 		Assets.init();
-		mainPanel = MainPanel();
+		mainPanel = new MainPanel();
 		UI.mainPanel = mainPanel; // TODO FIXME
 		children.push(mainPanel);
 		initDone = true;
@@ -530,13 +368,17 @@ var UI = (function(){
 
 	me.showTooltip = function(text,x,y){
 		if (!toolTipElement){
-			toolTipElement = ToolTip();
+			toolTipElement = new ToolTip();
 			mainPanel.addChild(toolTipElement);
-			needsRendering = true;
-		}else{
-			toolTipElement.show();
 		}
-		toolTipElement.setProperties({left:Math.floor(x), top: Math.floor(y)-24, text: text});
+		toolTipElement.show();
+		toolTipElement.update({
+			text: text,
+			left: Math.floor(x),
+			top: Math.floor(y) - 24
+		});
+		toolTipElement.needsRendering = true;
+		needsRendering = true;
 	}
 
 	me.hideTooltip = function(){
@@ -610,15 +452,13 @@ var UI = (function(){
 
 	me.showDialog = function(text,onOk,onCancel,useInput){
 		var dialog = UI.modalDialog();
-		dialog.setProperties({
-			width: mainPanel.width,
-			height: mainPanel.height,
-			top: 0,
-			left: 0,
-			ok: !!onOk,
-			cancel: !!onCancel,
-			input: !!useInput
-		});
+		dialog.width = mainPanel.width;
+		dialog.height = mainPanel.height;
+		dialog.top = 0;
+		dialog.left = 0;
+		dialog.ok = !!onOk;
+		dialog.cancel = !!onCancel;
+		dialog.input = !!useInput;
 
 		dialog.onClick = function(touchData){
 			if (useInput){

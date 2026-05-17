@@ -1,5 +1,4 @@
 import Audio from "../../audio.js";
-import EventBus from "../../eventBus.js";
 import {COMMAND, EVENT, SETTINGS} from "../../enum.js";
 import App_panelContainer from "./panelContainer.js";
 import Scale9Panel from "../components/scale9.js";
@@ -12,12 +11,13 @@ import Y from "../yascal/yascal.js";
 import StateManager from "../stateManager.js";
 import Host from "../../host.js";
 import Midi from "../../audio/midi.js";
+import Font from "../font.js";
 
 
 let app_menu = function(container){
-    var me = App_panelContainer(32);
+    var me = new App_panelContainer(32);
 
-    var menuBackground = Scale9Panel(5,0,20,26,{
+    var menuBackground = new Scale9Panel(5,0,20,26,{
         img: Y.getImage("menu"),
         left:4,
         top:0,
@@ -26,7 +26,7 @@ let app_menu = function(container){
     });
     me.addChild(menuBackground);
 
-    var menu = Menu(5,0,me.width,26,container);
+    var menu = new Menu(5,0,me.width,26,container);
     menu.name = "MainMenu";
     menu.type = "mainmenu";
     me.addChild(menu);
@@ -72,19 +72,21 @@ let app_menu = function(container){
             ]}
     ]);
 
-    var vumeter = Vumeter();
+    var vumeter = new Vumeter();
     vumeter.connect(Audio.cutOffVolume);
     //vumeter.connect(Audio.masterVolume);
     window.vumeter = vumeter;
     // note: don't attach as child to menu panel, this gets attached to main UI
     
-    var keyLabel = Label({font: fontSmall, label: "Key"});
+    var keyLabel = new Label(0, 0, 20, 20);
+    keyLabel.font = Font.small; keyLabel.label = "Key";
     keyLabel.ignoreEvents = true;
-    var keyBox = Checkbox(0,0,13,13);
+    var keyBox = new Checkbox(0,0,13,13);
     keyBox.ignoreEvents = true;
-    var midiLabel = Label({font: fontSmall, label: "Midi"});
+    var midiLabel = new Label(0, 0, 20, 20);
+    midiLabel.font = Font.small; midiLabel.label = "Midi";
     midiLabel.ignoreEvents = true;
-    var midiBox = Checkbox(0,0,13,13);
+    var midiBox = new Checkbox(0,0,13,13);
     midiBox.ignoreEvents = true;
     
     me.addChild(keyLabel);
@@ -116,22 +118,16 @@ let app_menu = function(container){
             width: menuWidth
         });
 
-        vumeter.setProperties({
-            width: vuWidth,
-            left: vuLeft
-        });
+        vumeter.width = vuWidth;
+        vumeter.left = vuLeft;
 
-        keyLabel.setProperties({
-            top: 4,
-            left: me.width - 56,
-            width: 40,
-            height: 20
-        });
-        keyBox.setProperties({
-            top: 4,
-            left: me.width - 20
-        });
-        
+        keyLabel.top = 4;
+        keyLabel.left = me.width - 56;
+        keyLabel.width = 40;
+        keyLabel.height = 20;
+        keyBox.top = 4;
+        keyBox.left = me.width - 20;
+
         if (SETTINGS.showKey){
             keyLabel.show();
             keyBox.show();
@@ -141,16 +137,12 @@ let app_menu = function(container){
         }
 
         if (SETTINGS.showMidi){
-            midiLabel.setProperties({
-                top: 14,
-                left: keyLabel.left,
-                width: keyLabel.width,
-                height: keyLabel.height
-            });
-            midiBox.setProperties({
-                top: 16,
-                left: keyBox.left,
-            });
+            midiLabel.top = 14;
+            midiLabel.left = keyLabel.left;
+            midiLabel.width = keyLabel.width;
+            midiLabel.height = keyLabel.height;
+            midiBox.top = 16;
+            midiBox.left = keyBox.left;
             midiLabel.show();
             midiBox.show();
         }else{
@@ -181,14 +173,14 @@ let app_menu = function(container){
         },100);
     }
     
-    EventBus.on(EVENT.menuLayoutChanged,function(){
+    me.on(EVENT.menuLayoutChanged,function(){
         me.onPanelResize();
     });
 
-    EventBus.on(EVENT.pianoNoteOn,function(){
+    me.on(EVENT.pianoNoteOn,function(){
         if (SETTINGS.showKey) flash(keyBox);
     });
-    EventBus.on(EVENT.midiIn,function(){
+    me.on(EVENT.midiIn,function(){
         if (SETTINGS.showMidi) flash(midiBox);
     });
 

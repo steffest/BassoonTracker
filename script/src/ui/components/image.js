@@ -1,56 +1,38 @@
 import UIElement from "./element.js";
 import Y from "../yascal/yascal.js";
 
-let image = function(x,y,w,h,src){
+export default class UIImage extends UIElement {
+    _baseImage;
 
-    w = w || 14;
-    h = h || 14;
+    constructor(x, y, w, h, src) {
+        super(x, y, w || 14, h || 14);
+        this._baseImage = Y.getImage(src);
+    }
 
-    var me = UIElement(x,y,w,h,true);
+    get src()  { return this._src; }
+    set src(v) { this._src = v; this._baseImage = Y.getImage(v); this.refresh(); }
 
-    var properties = ["left","top","width","height","name"];
-
-    me.setProperties = function(p){
-        properties.forEach(function(key){
-            if (typeof p[key] != "undefined") me[key] = p[key];
-        });
-
-        me.setSize(me.width,me.height);
-        me.setPosition(me.left,me.top);
-    };
-
-    var baseImage = Y.getImage(src);
-
-    me.render = function(internal){
-        internal = !!internal;
-        if (!me.isVisible()) return;
-
-        if (this.needsRendering){
-            me.clearCanvas();
-            if (baseImage)
-            switch (me.scale){
-                case "stretch":
-                    me.ctx.drawImage(baseImage,0,0,me.width,me.height);
-                    break;
-                default:
-                    var marginW = (me.width-baseImage.width)>>1;
-                    var marginH = (me.height-baseImage.height)>>1;
-                    if (me.verticalAlign === "top") marginH=0;
-                    if (me.horizontalAlign === "right") marginW = me.width-baseImage.width;
-                    me.ctx.drawImage(baseImage,marginW,marginH);
+    render(internal) {
+        if (!this.isVisible()) return;
+        if (this.needsRendering) {
+            this.clearCanvas();
+            if (this._baseImage) {
+                switch (this.scale) {
+                    case "stretch":
+                        this.ctx.drawImage(this._baseImage, 0, 0, this.width, this.height);
+                        break;
+                    default: {
+                        let marginW = (this.width - this._baseImage.width) >> 1;
+                        let marginH = (this.height - this._baseImage.height) >> 1;
+                        if (this.verticalAlign === "top") marginH = 0;
+                        if (this.horizontalAlign === "right") marginW = this.width - this._baseImage.width;
+                        this.ctx.drawImage(this._baseImage, marginW, marginH);
+                    }
+                }
             }
         }
         this.needsRendering = false;
-
-        if (internal){
-            return me.canvas;
-        }else{
-            me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-        }
-
-    };
-
-    return me;
-};
-
-export default image;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

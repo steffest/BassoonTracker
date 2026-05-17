@@ -1,142 +1,79 @@
 import UIElement from "./element.js";
 
-let scale9Panel = function(x,y,w,h,base){
-	var me = UIElement(x,y,w,h,true);
-	me.type = "scale9";
+export default class Scale9Panel extends UIElement {
+    _base;
 
-	base.scale = base.scale || "stretch";
+    constructor(x, y, w, h, base) {
+        super(x, y, w || 1, h || 1);
+        this.type = "scale9";
+        this._base = base || {};
+        this._base.scale = this._base.scale || "stretch";
+    }
 
-	me.setProperties = function(p){
+    setBase(config) {
+        if (config.img       !== undefined) this._base.img    = config.img;
+        if (config.scale     !== undefined) this._base.scale  = config.scale;
+        if (config.imgTop    !== undefined) this._base.top    = config.imgTop;
+        if (config.imgBottom !== undefined) this._base.bottom = config.imgBottom;
+        if (config.imgLeft   !== undefined) this._base.left   = config.imgLeft;
+        if (config.imgRight  !== undefined) this._base.right  = config.imgRight;
+        this.refresh();
+    }
 
-		var properties = ["left","top","width","height","name","type"];
+    _createCanvas() {
+        const b   = this._base;
+        const img = b.img;
+        if (!img) return;
 
-		if (!p){
-			var result = {};
-			properties.forEach(function(key){
-				result[key] = me[key];
-			});
-			return result;
-		}
+        const centerW       = img.width  - b.left - b.right;
+        const centerH       = img.height - b.top  - b.bottom;
+        const targetCenterW = this.width  - b.left - b.right;
+        const targetCenterH = this.height - b.top  - b.bottom;
 
-		properties.forEach(function(key){
-			if (typeof p[key] != "undefined") me[key] = p[key];
-		});
+        this.clearCanvas();
 
-		if (typeof p.img !== "undefined") base.img=p.img;
-		if (typeof p.scale !== "undefined") base.scale=p.scale;
+        if (b.top  && b.left)  this.ctx.drawImage(img, 0, 0, b.left, b.top, 0, 0, b.left, b.top);
+        if (b.top)              this.ctx.drawImage(img, b.left, 0, centerW, b.top, b.left, 0, targetCenterW, b.top);
+        if (b.top  && b.right) this.ctx.drawImage(img, b.left + centerW, 0, b.right, b.top, b.left + targetCenterW, 0, b.right, b.top);
+        if (b.left)             this.ctx.drawImage(img, 0, b.top, b.left, centerH, 0, b.top, b.left, targetCenterH);
 
-		if (typeof p.imgTop !== "undefined") base.top=p.imgTop;
-		if (typeof p.imgBottom !== "undefined") base.bottom=p.imgBottom;
-		if (typeof p.imgLeft !== "undefined") base.left=p.imgLeft;
-		if (typeof p.imgRight !== "undefined") base.right=p.imgRight;
-
-		me.setSize(me.width,me.height);
-		me.setPosition(me.left,me.top);
-
-	};
-
-	var createCanvas = function(){
-		var img = base.img;
-
-		if (img){
-			var centerW = img.width-base.left-base.right;
-			var centerH = img.height-base.top-base.bottom;
-
-			var targetCenterW = me.width-base.left-base.right;
-			var targetCenterH = me.height-base.top-base.bottom;
-
-			me.clearCanvas();
-
-			// topleft
-			if (base.top && base.left) me.ctx.drawImage(img,0,0,base.left,base.top,0,0,base.left,base.top);
-
-			// top
-			if (base.top) me.ctx.drawImage(img,base.left,0,centerW,base.top,base.left,0,targetCenterW,base.top);
-
-			// topright
-			if (base.top && base.right) me.ctx.drawImage(img,base.left+centerW,0,base.right,base.top,base.left+targetCenterW,0,base.right,base.top);
-
-
-			// midLeft
-			if (base.left) me.ctx.drawImage(img,0,base.top,base.left,centerH,0,base.top,base.left,targetCenterH);
-
-			// mid
-			if (base.scale === "stretch"){
-				me.ctx.drawImage(img,base.left,base.top,centerW,centerH,base.left,base.top,targetCenterW,targetCenterH);
-			}
-
-
-			if (base.scale === "repeatX"){
-				var tx = base.left;
-				var tMax = base.left+targetCenterW;
-				var tw;
-
-				// render first row
-				while (tx<tMax){
-					tw = centerW;
-					if (tx+tw>tMax) tw = tMax-tx;
-					me.ctx.drawImage(img,base.left,base.top,tw,centerH,tx,base.top,tw,centerH);
-					tx+=tw;
-				}
-
-			}
-
-            if (base.scale === "repeatY"){
-                var ty = base.top;
-                tMax = base.top+targetCenterH;
-                var th;
-
-                // render first col
-                while (ty<tMax){
-                    th = centerH;
-                    if (ty+th>tMax) th = tMax-ty;
-                    me.ctx.drawImage(img,base.left,base.top,centerW,th,base.left,ty,centerW,th);
-                    ty+=th;
-                }
+        if (b.scale === "stretch") {
+            this.ctx.drawImage(img, b.left, b.top, centerW, centerH, b.left, b.top, targetCenterW, targetCenterH);
+        }
+        if (b.scale === "repeatX") {
+            let tx = b.left, tMax = b.left + targetCenterW;
+            while (tx < tMax) {
+                let tw = centerW;
+                if (tx + tw > tMax) tw = tMax - tx;
+                this.ctx.drawImage(img, b.left, b.top, tw, centerH, tx, b.top, tw, centerH);
+                tx += tw;
             }
+        }
+        if (b.scale === "repeatY") {
+            let ty = b.top, tMax = b.top + targetCenterH;
+            while (ty < tMax) {
+                let th = centerH;
+                if (ty + th > tMax) th = tMax - ty;
+                this.ctx.drawImage(img, b.left, b.top, centerW, th, b.left, ty, centerW, th);
+                ty += th;
+            }
+        }
 
+        if (b.right)             this.ctx.drawImage(img, b.left + centerW, b.top, b.right, centerH, b.left + targetCenterW, b.top, b.right, targetCenterH);
+        if (b.bottom && b.left)  this.ctx.drawImage(img, 0, b.top + centerH, b.left, b.bottom, 0, b.top + targetCenterH, b.left, b.bottom);
+        if (b.bottom)            this.ctx.drawImage(img, b.left, b.top + centerH, centerW, b.bottom, b.left, b.top + targetCenterH, targetCenterW, b.bottom);
+        if (b.bottom && b.right) this.ctx.drawImage(img, b.left + centerW, b.top + centerH, b.right, b.bottom, b.left + targetCenterW, b.top + targetCenterH, b.right, b.bottom);
+    }
 
-			// midRight
-			if (base.right) me.ctx.drawImage(img,base.left+centerW,base.top,base.right,centerH,base.left+targetCenterW,base.top,base.right,targetCenterH);
-
-			// bottomLeft
-			if (base.bottom && base.left) me.ctx.drawImage(img,0,base.top+centerH,base.left,base.bottom,0,base.top+targetCenterH,base.left,base.bottom);
-
-			// bottom
-			if (base.bottom) me.ctx.drawImage(img,base.left,base.top+centerH,centerW,base.bottom,base.left,base.top+targetCenterH,targetCenterW,base.bottom);
-
-			// bottomRight
-			if (base.bottom && base.right) me.ctx.drawImage(img,base.left+centerW,base.top+centerH,base.right,base.bottom,base.left+targetCenterW,base.top+targetCenterH,base.right,base.bottom);
-
-			//myCtx.drawImage(img,0,0);
-		}
-	};
-
-
-	me.render = function(internal){
-
-		internal = !!internal;
-		if (!me.isVisible()) return;
-
-		if (me.needsRendering){
-			createCanvas();
-
-			this.children.forEach(function(elm){
-				elm.render();
-			});
-		}
-		me.needsRendering = false;
-
-		if (internal){
-			return me.canvas;
-		}else{
-			me.parentCtx.drawImage(me.canvas,me.left,me.top);
-		}
-	};
-
-    //if (base) me.setProperties(base);
-
-	return me;
-};
-
-export default scale9Panel;
+    render(internal) {
+        internal = !!internal;
+        if (!this.isVisible()) return;
+        if (this.needsRendering) {
+            this._createCanvas();
+            this.children.forEach(elm => elm.render());
+        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top);
+    }
+}

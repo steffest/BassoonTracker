@@ -8,12 +8,12 @@ import UI from "./ui.js";
 
 let fxPanel= function(track){
 
-    var me = Panel();
+    var me = new Panel();
     me.hide();
 
     track = track || 0;
 
-    var background = Scale9Panel(0,0,20,20,Assets.buttonDarkScale9);
+    var background = new Scale9Panel(0,0,20,20,Assets.buttonDarkScale9);
     background.ignoreEvents = true;
     me.addChild(background);
 
@@ -26,24 +26,24 @@ let fxPanel= function(track){
     var knobLeft = 10;
     var knobs = [];
     for (var i = 0, len = effects.length; i<len;i++){
-        var knob = Knob();
-        knob.setProperties({
-            top: KnobTop,
-            left: knobLeft,
-            label: effects[i],
-            disabled: i>1
-        });
+        var knob = new Knob();
+
+        knob.top = KnobTop;
+        knob.left = knobLeft;
+        knob.label = effects[i];
+        knob.disabled = i>1;
+
         knob.onChange = function(value){
             handleKnob(this,value);
         };
 		knob.onToggle = function(value){
 			handleKnobState(this,value);
-            handleKnob(this,this.getValue());
+            handleKnob(this,this.value);
 		};
         me.addChild(knob);
 		knobs.push(knob);
 
-        if ((i%2) == 0){
+        if ((i%2) === 0){
             knobLeft = knobLeft + knobSpaceX;
         }else{
             knobLeft = 10;
@@ -57,11 +57,9 @@ let fxPanel= function(track){
     function handleKnob(knob,value){
 
         if (!filterChain) return;
-        if (knob.isDisabled) return;
+        if (knob.disabled) return;
 
-        var label = knob.getLabel();
-
-        switch (label){
+        switch (knob.label){
             case "volume":{
                 filterChain.volumeValue(value);
                 break;
@@ -110,8 +108,7 @@ let fxPanel= function(track){
 	function handleKnobState(knob,value){
 
 		if (!filterChain) return;
-		var label = knob.getLabel();
-		filterChain.setState(label,value);
+		filterChain.setState(knob.label,value);
 	}
 
     me.setLayout = function(){

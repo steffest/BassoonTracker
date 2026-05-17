@@ -1,73 +1,49 @@
 import UIElement from "./element.js";
 
-let Panel = function(x,y,w,h){
-	var me = UIElement(x,y,w,h);
-	me.type = "panel";
-	var properties = ["left","top","width","height","name","type","zIndex","backgroundColor","borderColor"];
+export default class Panel extends UIElement {
+    _backgroundColor;
+    _borderColor;
 
-	me.setProperties = function(p){
+    constructor(x, y, w, h) {
+        super(x, y, w, h);
+        this.type = "panel";
+    }
 
-		properties.forEach(function(key){
-			if (typeof p[key] != "undefined") me[key] = p[key];
-		});
+    get backgroundColor()  { return this._backgroundColor; }
+    set backgroundColor(v) { this._backgroundColor = v; this.refresh(); }
 
-		me.setSize(me.width,me.height);
-		me.setPosition(me.left,me.top);
+    get borderColor()  { return this._borderColor; }
+    set borderColor(v) { this._borderColor = v; this.refresh(); }
 
-		if (me.setLayout) me.setLayout(me.left,me.top,me.width, me.height);
-	};
+    sortZIndex() {
+        this.children.sort((a, b) => a.zIndex === b.zIndex ? 0 : (a.zIndex > b.zIndex ? 1 : -1));
+    }
 
-	me.render = function(internal){
-		
-		if (!me.isVisible()) return;
-		internal = !!internal;
+    onClick() {}
 
-		if (this.needsRendering){
-			
-			if (me.renderOverride){
-				me.renderOverride();
-			}else{
-				me.clearCanvas();
-
-				if (me.backgroundColor){
-					me.ctx.fillStyle = me.backgroundColor;
-					me.ctx.fillRect(0,0,me.width,me.height);
-				}
-				if (me.borderColor){
-					me.ctx.fillStyle = me.borderColor;
-					me.ctx.rect(0,0,me.width,me.height);
-					me.ctx.stroke();
-				}
-
-				this.children.forEach(function(elm){
-					elm.render();
-				});
-
-				if (me.renderInternal) me.renderInternal();
-			}
-		}
-		
-		this.needsRendering = false;
-		if (internal){
-			return me.canvas;
-		}else{
-			me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-		}
-	};
-
-	me.onClick=function(){
-
-	};
-
-	me.sortZIndex = function(){
-		// sort reverse order as children are rendered bottom to top;
-		this.children.sort(function(a, b){
-			return a.zIndex == b.zIndex ? 0 : (a.zIndex > b.zIndex) || -1;
-		});
-	};
-
-
-	return me;
-};
-
-export default Panel;
+    render(internal) {
+        if (!this.isVisible()) return;
+        internal = !!internal;
+        if (this.needsRendering) {
+            if (this.renderOverride) {
+                this.renderOverride();
+            } else {
+                this.clearCanvas();
+                if (this._backgroundColor) {
+                    this.ctx.fillStyle = this._backgroundColor;
+                    this.ctx.fillRect(0, 0, this.width, this.height);
+                }
+                if (this._borderColor) {
+                    this.ctx.strokeStyle = this._borderColor;
+                    this.ctx.rect(0, 0, this.width, this.height);
+                    this.ctx.stroke();
+                }
+                this.children.forEach(elm => elm.render());
+                if (this.renderInternal) this.renderInternal();
+            }
+        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

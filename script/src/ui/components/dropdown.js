@@ -2,265 +2,205 @@ import UIElement from "./element.js";
 import Scale9Panel from "./scale9.js";
 import Y from "../yascal/yascal.js";
 import UI from "../ui.js";
+import Font from "../font.js";
 
-let Dropdown = function(x, y, w, h) {
-    var me = UIElement(x, y, w, h);
-    me.type = "dropdown";
+export default class Dropdown extends UIElement {
+    _items = [];
+    _selectedIndex = 0;
+    _hoverIndex = 0;
+    _scrollOffset = 0;
+    _isOpen = false;
+    _isHover = false;
+    _popup = null;
+    _background;
 
-    var items = [];
-    var selectedIndex = 0;
-    var hoverIndex = 0;
-    var scrollOffset = 0;
-    var isOpen = false;
-    var isHover = false;
-    var popup = null;
+    _listLeft = 0;
+    _listTop = 0;
+    _listWidth = 0;
+    _listHeight = 0;
 
-    var listLeft = 0;
-    var listTop = 0;
-    var listWidth = 0;
-    var listHeight = 0;
+    _itemHeight = 22;
+    _maxVisibleItems = 8;
+    _arrowWidth = 18;
+    _labelCharWidth = 7;
 
-    var itemHeight = 22;
-    var maxVisibleItems = 8;
-    var arrowWidth = 18;
-    var labelCharWidth = 7;
+    constructor(x, y, w, h) {
+        super(x, y, w, h);
+        this.type = "dropdown";
 
-    me.label = "";
-    me.labelPosition = "left";  // "left" | "right" | "none"
-    me.labelWidth = 0;          // 0 = auto-compute from label length
-    me.labelFont = null;        // defaults to window.fontSmall
-    me.itemFont = null;         // defaults to window.fontMed
+        this.label         = "";
+        this.labelPosition = "left";
+        this.labelWidth    = 0;
+        this.labelFont     = null;
+        this.itemFont      = null;
 
-    var properties = ["left","top","width","height","name","selectedIndex","onChange","label","labelPosition","labelWidth","labelFont","itemFont","itemWidth"];
-
-    var background = Scale9Panel(0, 0, me.width, me.height, {
-        img: Y.getImage("panel_dark"),
-        left: 3, top: 3, right: 2, bottom: 2
-    });
-    background.ignoreEvents = true;
-    me.addChild(background);
-
-    function computedLabelWidth() {
-        if (!me.label || me.labelPosition === "none") return 0;
-        return me.labelWidth || (me.label.length * labelCharWidth + 8);
-    }
-
-    function computedButtonWidth() {
-        return me.itemWidth || (me.width - computedLabelWidth());
-    }
-
-    function updateBackground() {
-        var lw = computedLabelWidth();
-        var bx = (me.labelPosition === "left") ? lw : 0;
-        var bw = computedButtonWidth();
-        background.setSize(Math.max(bw, 1), me.height);
-        background.setPosition(bx, 0);
-    }
-
-    me.setProperties = function(p) {
-        properties.forEach(function(key) {
-            if (typeof p[key] !== "undefined") me[key] = p[key];
+        this._background = new Scale9Panel(0, 0, this.width, this.height, {
+            img: Y.getImage("panel_dark"), left: 3, top: 3, right: 2, bottom: 2
         });
-        if (typeof p.items !== "undefined") me.setItems(p.items);
-        me.setSize(me.width, me.height);
-        me.setPosition(me.left, me.top);
-        updateBackground();
-        me.refresh();
-    };
+        this._background.ignoreEvents = true;
+        this.addChild(this._background);
+    }
 
-    me.setItems = function(newItems) {
-        items = newItems || [];
-        selectedIndex = Math.min(selectedIndex, Math.max(0, items.length - 1));
-        if (popup) popup.clearCache();
-        me.refresh();
-    };
+    get items()  { return this._items; }
+    set items(v) { this.setItems(v); }
 
-    me.getItems = function() {
-        return items;
-    };
+    get selectedIndex()  { return this._selectedIndex; }
+    set selectedIndex(v) { this.setSelectedIndex(v); }
 
-    me.setSelectedIndex = function(index, silent) {
-        if (!items.length) return;
-        selectedIndex = Math.max(0, Math.min(index, items.length - 1));
-        me.refresh();
-        if (!silent && me.onChange) me.onChange(selectedIndex, items[selectedIndex]);
-    };
+    setItems(newItems) {
+        this._items = newItems || [];
+        this._selectedIndex = Math.min(this._selectedIndex, Math.max(0, this._items.length - 1));
+        if (this._popup) this._popup.clearCache();
+        this.refresh();
+    }
 
-    me.getSelectedIndex = function() {
-        return selectedIndex;
-    };
+    getItems()         { return this._items; }
+    getSelectedIndex() { return this._selectedIndex; }
+    getSelectedItem()  { return this._items[this._selectedIndex]; }
 
-    me.getSelectedItem = function() {
-        return items[selectedIndex];
-    };
+    setSelectedIndex(index, silent) {
+        if (!this._items.length) return;
+        this._selectedIndex = Math.max(0, Math.min(index, this._items.length - 1));
+        this.refresh();
+        if (!silent && this.onChange) this.onChange(this._selectedIndex, this._items[this._selectedIndex]);
+    }
 
-    function getLabel(item) {
+    open() {
+        if (this._isOpen || !this._items.length) return;
+        this._isOpen = true;
+        this._hoverIndex   = this._selectedIndex;
+        this._scrollOffset = Math.max(0, this._selectedIndex - Math.floor(this._maxVisibleItems / 2));
+
+        const abs          = this._getAbsolutePosition();
+        const visibleCount = Math.min(this._items.length, this._maxVisibleItems);
+        const lw           = this._computedLabelWidth();
+        const btnLeft      = this.labelPosition === "left" ? lw : 0;
+
+        this._listWidth  = this.itemWidth || (this.width - lw);
+        this._listHeight = visibleCount * this._itemHeight + 4;
+        this._listLeft   = abs.x + btnLeft;
+        this._listTop    = abs.y + this.height;
+
+        if (UI.mainPanel && this._listTop + this._listHeight > UI.mainPanel.height) {
+            this._listTop = abs.y - this._listHeight;
+        }
+
+        if (!this._popup) this._popup = this._createPopup();
+        this._popup.syncWidth();
+        this._popup.setSize(
+            UI.mainPanel ? UI.mainPanel.width  : 800,
+            UI.mainPanel ? UI.mainPanel.height : 600
+        );
+        this._popup.setPosition(0, 0);
+        this._popup.refresh();
+        UI.setModalElement(this._popup);
+        this.refresh();
+    }
+
+    close(apply) {
+        if (!this._isOpen) return;
+        this._isOpen = false;
+        if (apply) this.setSelectedIndex(this._hoverIndex);
+        UI.removeModalElement();
+        this.refresh();
+    }
+
+    onHover()      { if (!this._isHover) { this._isHover = true;  this.refresh(); } }
+    onHoverExit()  { if (this._isHover)  { this._isHover = false; this.refresh(); } }
+    onClick()      { if (this._isOpen) { this.close(false); } else { this.open(); } }
+
+    _computedLabelWidth() {
+        if (!this.label || this.labelPosition === "none") return 0;
+        return this.labelWidth || (this.label.length * this._labelCharWidth + 8);
+    }
+
+    _computedButtonWidth() {
+        return this.itemWidth || (this.width - this._computedLabelWidth());
+    }
+
+    _getAbsolutePosition() {
+        let x = this.left, y = this.top, parent = this.parent;
+        while (parent) {
+            x += parent.left + (parent.scrollOffsetX || 0);
+            y += parent.top  + (parent.scrollOffsetY || 0);
+            parent = parent.parent;
+        }
+        return { x, y };
+    }
+
+    _ensureVisible() {
+        if (this._hoverIndex < this._scrollOffset) {
+            this._scrollOffset = this._hoverIndex;
+        } else if (this._hoverIndex >= this._scrollOffset + this._maxVisibleItems) {
+            this._scrollOffset = this._hoverIndex - this._maxVisibleItems + 1;
+        }
+    }
+
+    _getItemLabel(item) {
         if (!item) return "";
         if (typeof item.label === "function") return item.label();
         return item.label || "";
     }
 
-    function getAbsolutePosition() {
-        var x = me.left, y = me.top;
-        var parent = me.parent;
-        while (parent) {
-            x += parent.left + (parent.scrollOffsetX || 0);
-            y += parent.top + (parent.scrollOffsetY || 0);
-            parent = parent.parent;
-        }
-        return { x: x, y: y };
-    }
+    _createPopup() {
+        const self      = this;
+        const p         = new UIElement(0, 0, 800, 600);
+        p.type          = "dropdown-popup";
+        let itemCache   = [];
+        let cachedListWidth = 0;
+        const lineHor   = Y.getImage("line_hor");
 
-    function ensureVisible() {
-        if (hoverIndex < scrollOffset) {
-            scrollOffset = hoverIndex;
-        } else if (hoverIndex >= scrollOffset + maxVisibleItems) {
-            scrollOffset = hoverIndex - maxVisibleItems + 1;
-        }
-    }
-
-    me.open = function() {
-        if (isOpen || !items.length) return;
-        isOpen = true;
-        hoverIndex = selectedIndex;
-        scrollOffset = Math.max(0, selectedIndex - Math.floor(maxVisibleItems / 2));
-
-        var abs = getAbsolutePosition();
-        var visibleCount = Math.min(items.length, maxVisibleItems);
-        var lw = computedLabelWidth();
-        var btnLeft = (me.labelPosition === "left") ? lw : 0;
-        listWidth = me.itemWidth || (me.width - lw);
-        listHeight = visibleCount * itemHeight + 4;
-        listLeft = abs.x + btnLeft;
-        listTop = abs.y + me.height;
-
-        // flip above trigger if not enough room below
-        if (UI.mainPanel && listTop + listHeight > UI.mainPanel.height) {
-            listTop = abs.y - listHeight;
-        }
-
-        if (!popup) popup = createPopup();
-        popup.syncWidth();
-
-        popup.setSize(
-            UI.mainPanel ? UI.mainPanel.width : 800,
-            UI.mainPanel ? UI.mainPanel.height : 600
-        );
-        popup.setPosition(0, 0);
-        popup.refresh();
-        UI.setModalElement(popup);
-        me.refresh();
-    };
-
-    me.close = function(apply) {
-        if (!isOpen) return;
-        isOpen = false;
-        if (apply) me.setSelectedIndex(hoverIndex);
-        UI.removeModalElement();
-        me.refresh();
-    };
-
-    me.onHover = function() {
-        if (!isHover) { isHover = true; me.refresh(); }
-    };
-
-    me.onHoverExit = function() {
-        if (isHover) { isHover = false; me.refresh(); }
-    };
-
-    me.onClick = function() {
-        if (isOpen) {
-            me.close(false);
-        } else {
-            me.open();
-        }
-    };
-
-    function createPopup() {
-        var p = UIElement(0, 0, 800, 600);
-        p.type = "dropdown-popup";
-        var itemCache = [];
-        var cachedListWidth = 0;
-        var lineHor = Y.getImage("line_hor");
-
-        var panelBg = Scale9Panel(0, 0, 100, 100, {
-            img: Y.getImage("panel_dark"),
-            left: 3, top: 3, right: 2, bottom: 2
+        const panelBg = new Scale9Panel(0, 0, 100, 100, {
+            img: Y.getImage("panel_dark"), left: 3, top: 3, right: 2, bottom: 2
         });
         panelBg.ignoreEvents = true;
         p.addChild(panelBg);
 
         function renderItem(item, index) {
-            var cached = itemCache[index];
-            if (cached) return cached;
-
-            var canvas = document.createElement("canvas");
-            canvas.width = Math.max(1, listWidth - 4);
-            canvas.height = itemHeight;
-            var ctx = canvas.getContext("2d");
-
-            var textX = 10;
-
-            if (item.icon) {
-                ctx.drawImage(item.icon, textX, 3);
-                textX += item.icon.width + 4;
-            }
-
-            var itemFont = me.itemFont || window.fontMed;
-            if (itemFont) {
-                itemFont.write(ctx, getLabel(item), textX, 5, 0);
-            }
-
-            if (lineHor) ctx.drawImage(lineHor, 0, itemHeight - 2, canvas.width, 2);
-
+            if (itemCache[index]) return itemCache[index];
+            const canvas  = document.createElement("canvas");
+            canvas.width  = Math.max(1, self._listWidth - 4);
+            canvas.height = self._itemHeight;
+            const ctx     = canvas.getContext("2d");
+            let textX     = 10;
+            if (item.icon) { ctx.drawImage(item.icon, textX, 3); textX += item.icon.width + 4; }
+            const itemFont = self.itemFont || Font.med;
+            if (itemFont) itemFont.write(ctx, self._getItemLabel(item), textX, 5, 0);
+            if (lineHor) ctx.drawImage(lineHor, 0, self._itemHeight - 2, canvas.width, 2);
             itemCache[index] = canvas;
             return canvas;
         }
 
-        p.clearCache = function() { itemCache = []; cachedListWidth = 0; };
-
-        p.syncWidth = function() {
-            if (cachedListWidth !== listWidth) {
-                itemCache = [];
-                cachedListWidth = listWidth;
-            }
-        };
+        p.clearCache  = () => { itemCache = []; cachedListWidth = 0; };
+        p.syncWidth   = () => { if (cachedListWidth !== self._listWidth) { itemCache = []; cachedListWidth = self._listWidth; } };
 
         p.render = function(internal) {
             internal = !!internal;
             if (p.needsRendering) {
                 p.clearCanvas();
-
-                panelBg.setSize(listWidth, listHeight);
-                panelBg.setPosition(listLeft, listTop);
+                panelBg.setSize(self._listWidth, self._listHeight);
+                panelBg.setPosition(self._listLeft, self._listTop);
                 panelBg.render();
 
-                var visibleCount = Math.min(items.length - scrollOffset, maxVisibleItems);
-                for (var i = 0; i < visibleCount; i++) {
-                    var itemIndex = i + scrollOffset;
-                    var itemY = listTop + 2 + i * itemHeight;
-                    var isItemHover = itemIndex === hoverIndex;
-                    var isSelected = itemIndex === selectedIndex;
-
-                    if (isItemHover) {
+                const visibleCount = Math.min(self._items.length - self._scrollOffset, self._maxVisibleItems);
+                for (let i = 0; i < visibleCount; i++) {
+                    const idx   = i + self._scrollOffset;
+                    const itemY = self._listTop + 2 + i * self._itemHeight;
+                    if (idx === self._hoverIndex) {
                         p.ctx.fillStyle = "rgba(110,130,220,0.15)";
-                        p.ctx.fillRect(listLeft + 2, itemY, listWidth - 4, itemHeight);
-                    } else if (isSelected) {
+                        p.ctx.fillRect(self._listLeft + 2, itemY, self._listWidth - 4, self._itemHeight);
+                    } else if (idx === self._selectedIndex) {
                         p.ctx.fillStyle = "rgba(110,130,220,0.25)";
-                        p.ctx.fillRect(listLeft + 2, itemY, listWidth - 4, itemHeight);
+                        p.ctx.fillRect(self._listLeft + 2, itemY, self._listWidth - 4, self._itemHeight);
                     }
-
-                    p.ctx.drawImage(renderItem(items[itemIndex], itemIndex), listLeft + 2, itemY);
+                    p.ctx.drawImage(renderItem(self._items[idx], idx), self._listLeft + 2, itemY);
                 }
 
-                // scroll indicators
-                var labelFont = me.labelFont || window.fontSmall;
-                if (scrollOffset > 0 && labelFont) {
-                    labelFont.write(p.ctx, "▲", listLeft + listWidth - 16, listTop + 4, 0);
-                }
-                if (scrollOffset + maxVisibleItems < items.length && labelFont) {
-                    labelFont.write(p.ctx, "▼", listLeft + listWidth - 16, listTop + listHeight - 14, 0);
-                }
+                const labelFont = self.labelFont || Font.small;
+                if (self._scrollOffset > 0 && labelFont)
+                    labelFont.write(p.ctx, "▲", self._listLeft + self._listWidth - 16, self._listTop + 4, 0);
+                if (self._scrollOffset + self._maxVisibleItems < self._items.length && labelFont)
+                    labelFont.write(p.ctx, "▼", self._listLeft + self._listWidth - 16, self._listTop + self._listHeight - 14, 0);
             }
             p.needsRendering = false;
             if (internal) return p.canvas;
@@ -268,30 +208,23 @@ let Dropdown = function(x, y, w, h) {
         };
 
         p.onClick = function() {
-            var insideList = (
-                p.eventX >= listLeft && p.eventX <= listLeft + listWidth &&
-                p.eventY >= listTop  && p.eventY <= listTop  + listHeight
-            );
-            if (insideList) {
-                var clickedIndex = Math.floor((p.eventY - listTop - 2) / itemHeight) + scrollOffset;
-                if (clickedIndex >= 0 && clickedIndex < items.length) {
-                    hoverIndex = clickedIndex;
-                    me.close(true);
-                }
+            const inside = p.eventX >= self._listLeft && p.eventX <= self._listLeft + self._listWidth &&
+                           p.eventY >= self._listTop  && p.eventY <= self._listTop  + self._listHeight;
+            if (inside) {
+                const idx = Math.floor((p.eventY - self._listTop - 2) / self._itemHeight) + self._scrollOffset;
+                if (idx >= 0 && idx < self._items.length) { self._hoverIndex = idx; self.close(true); }
             } else {
-                me.close(false);
+                self.close(false);
             }
         };
 
         p.onHover = function() {
-            var insideList = (
-                p.eventX >= listLeft && p.eventX <= listLeft + listWidth &&
-                p.eventY >= listTop  && p.eventY <= listTop  + listHeight
-            );
-            if (insideList) {
-                var index = Math.floor((p.eventY - listTop - 2) / itemHeight) + scrollOffset;
-                if (index >= 0 && index < items.length && index !== hoverIndex) {
-                    hoverIndex = index;
+            const inside = p.eventX >= self._listLeft && p.eventX <= self._listLeft + self._listWidth &&
+                           p.eventY >= self._listTop  && p.eventY <= self._listTop  + self._listHeight;
+            if (inside) {
+                const idx = Math.floor((p.eventY - self._listTop - 2) / self._itemHeight) + self._scrollOffset;
+                if (idx >= 0 && idx < self._items.length && idx !== self._hoverIndex) {
+                    self._hoverIndex = idx;
                     p.refresh();
                 }
             }
@@ -299,44 +232,24 @@ let Dropdown = function(x, y, w, h) {
 
         p.onMouseWheel = function(touchData) {
             if (touchData.mouseWheels[0] > 0) {
-                if (scrollOffset > 0) { scrollOffset--; p.refresh(); }
+                if (self._scrollOffset > 0) { self._scrollOffset--; p.refresh(); }
             } else {
-                if (scrollOffset + maxVisibleItems < items.length) { scrollOffset++; p.refresh(); }
+                if (self._scrollOffset + self._maxVisibleItems < self._items.length) { self._scrollOffset++; p.refresh(); }
             }
         };
 
         p.onKeyDown = function(keyCode) {
             switch (keyCode) {
-                case 27: // Escape
-                    me.close(false);
+                case 27: self.close(false); return true;
+                case 13: self.close(true);  return true;
+                case 38:
+                    if (self._hoverIndex > 0) { self._hoverIndex--; self._ensureVisible(); p.refresh(); }
                     return true;
-                case 13: // Enter
-                    me.close(true);
+                case 40:
+                    if (self._hoverIndex < self._items.length - 1) { self._hoverIndex++; self._ensureVisible(); p.refresh(); }
                     return true;
-                case 38: // Arrow Up
-                    if (hoverIndex > 0) {
-                        hoverIndex--;
-                        ensureVisible();
-                        p.refresh();
-                    }
-                    return true;
-                case 40: // Arrow Down
-                    if (hoverIndex < items.length - 1) {
-                        hoverIndex++;
-                        ensureVisible();
-                        p.refresh();
-                    }
-                    return true;
-                case 36: // Home
-                    hoverIndex = 0;
-                    scrollOffset = 0;
-                    p.refresh();
-                    return true;
-                case 35: // End
-                    hoverIndex = items.length - 1;
-                    ensureVisible();
-                    p.refresh();
-                    return true;
+                case 36: self._hoverIndex = 0; self._scrollOffset = 0; p.refresh(); return true;
+                case 35: self._hoverIndex = self._items.length - 1; self._ensureVisible(); p.refresh(); return true;
             }
             return false;
         };
@@ -344,51 +257,45 @@ let Dropdown = function(x, y, w, h) {
         return p;
     }
 
-    me.render = function(internal) {
-        if (!me.isVisible()) return;
+    render(internal) {
+        if (!this.isVisible()) return;
         internal = !!internal;
+        if (this.needsRendering) {
+            this.clearCanvas();
 
-        if (me.needsRendering) {
-            me.clearCanvas();
-            background.render();
+            const lw      = this._computedLabelWidth();
+            const btnLeft = this.labelPosition === "left" ? lw : 0;
+            const btnRight = btnLeft + this._computedButtonWidth();
+            const cy      = Math.floor(this.height / 2);
 
-            var lw  = computedLabelWidth();
-            var btnLeft = (me.labelPosition === "left") ? lw : 0;
-            var btnRight = btnLeft + computedButtonWidth();
-            var cy = Math.floor(me.height / 2);
+            this._background.setSize(Math.max(this._computedButtonWidth(), 1), this.height);
+            this._background.setPosition(btnLeft, 0);
+            this._background.render();
 
-            // label text
-            var labelFont = me.labelFont || window.fontSmall;
-            if (me.label && me.labelPosition !== "none" && labelFont) {
-                var lx = (me.labelPosition === "right") ? (me.width - lw + 4) : 4;
-                labelFont.write(me.ctx, me.label, lx, cy - 4, 0);
+            const labelFont = this.labelFont || Font.small;
+            if (this.label && this.labelPosition !== "none" && labelFont) {
+                const lx = this.labelPosition === "right" ? (this.width - lw + 4) : 4;
+                labelFont.write(this.ctx, this.label, lx, cy - 4, 0);
             }
 
-            // selected item label inside button area
-            var item = items[selectedIndex];
-            var itemLabel = item ? getLabel(item) : "";
-            var itemFont = me.itemFont || window.fontMed;
-            if (itemLabel && itemFont) {
-                itemFont.write(me.ctx, itemLabel, btnLeft + 8, cy - 5, 0);
-            }
+            const item      = this._items[this._selectedIndex];
+            const itemLabel = item ? this._getItemLabel(item) : "";
+            const itemFont  = this.itemFont || Font.med;
+            if (itemLabel && itemFont) itemFont.write(this.ctx, itemLabel, btnLeft + 8, cy - 5, 0);
 
-            // triangle arrow — brighter when open or hovered
-            me.ctx.fillStyle = isOpen ? "rgba(255,255,255,0.9)" : (isHover ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.5)");
-            var cx = btnRight - Math.floor(arrowWidth / 2);
-            me.ctx.beginPath();
-            me.ctx.moveTo(cx - 5, cy - 2);
-            me.ctx.lineTo(cx + 5, cy - 2);
-            me.ctx.lineTo(cx,     cy + 4);
-            me.ctx.closePath();
-            me.ctx.fill();
+            this.ctx.fillStyle = this._isOpen
+                ? "rgba(255,255,255,0.9)"
+                : (this._isHover ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.5)");
+            const cx = btnRight - Math.floor(this._arrowWidth / 2);
+            this.ctx.beginPath();
+            this.ctx.moveTo(cx - 5, cy - 2);
+            this.ctx.lineTo(cx + 5, cy - 2);
+            this.ctx.lineTo(cx,     cy + 4);
+            this.ctx.closePath();
+            this.ctx.fill();
         }
-
-        me.needsRendering = false;
-        if (internal) return me.canvas;
-        me.parentCtx.drawImage(me.canvas, me.left, me.top, me.width, me.height);
-    };
-
-    return me;
-};
-
-export default Dropdown;
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

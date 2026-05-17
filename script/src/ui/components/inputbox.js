@@ -4,212 +4,158 @@ import Y from '../yascal/yascal.js';
 import Input from '../input.js';
 import StateManager from '../stateManager.js';
 import Tracker from '../../tracker.js';
+import Font from "../font.js";
 
-let inputbox = function(initialProperties){
-	var me = UIElement();
-	var properties = ["left","top","width","height","name","type","onChange","onSubmit","backgroundImage","placeholder","trackUndo","undoLabel","undoInstrument"];
-	var value = "";
-	var prevValue = "";
-	var isActive;
-	var isCursorVisible;
-	var cursorPos;
-	var backgroundImage = "panel_dark";
-	var placeholder = "";
+export default class InputBox extends UIElement {
+    _value = "";
+    _prevValue = "";
+    _isActive = false;
+    _isCursorVisible = false;
+    _cursorPos = -1;
+    _placeholder = "";
+    _background;
 
-	me.setProperties = function(p){
-		properties.forEach(function(key){
-			if (typeof p[key] != "undefined") me[key] = p[key];
-		});
+    constructor(x, y, w, h) {
+        super(x, y, w, h);
 
-		me.setSize(me.width,me.height);
-		me.setPosition(me.left,me.top);
-		if (background) background.setSize(me.width,me.height);
+        this._background = new Scale9Panel(0, 0, this.width, this.height, {
+            img: Y.getImage("panel_dark"),
+            left: 3, top: 3, right: 2, bottom: 2
+        });
+        this._background.ignoreEvents = true;
+        this.addChild(this._background);
+    }
 
-		if (p["value"]) value = p["value"];
-		if (p["backgroundImage"]) backgroundImage = p["backgroundImage"];
-		if (typeof p["placeholder"] != "undefined") placeholder = p["placeholder"];
-	};
+    onResize() {
+        if (this._background) {
+            this._background.setPosition(0, 0);
+            this._background.setSize(this.width, this.height);
+        }
+    }
 
-	if (initialProperties) me.setProperties(initialProperties);
+    get value()       { return this._value; }
+    set value(v)      { this._value = v; this.refresh(); }
 
-	var background = Scale9Panel(0,0,me.width,me.height,{
-		img: Y.getImage(backgroundImage),
-		left:3,
-		top:3,
-		right:2,
-		bottom: 2
-	});
-	background.ignoreEvents = true;
-	me.addChild(background);
-	
-	me.render = function(internal){
-		internal = !!internal;
-		if (!me.isVisible()) return;
+    get prevValue()   { return this._prevValue; }
 
-		if (this.needsRendering){
-			background.render();
+    get placeholder() { return this._placeholder; }
+    set placeholder(v){ this._placeholder = v; this.refresh(); }
 
-			var textX = 10;
-			if (value && fontMed){
-				var textY = 6;
-				fontMed.write(me.ctx,value,textX,textY,0);
-			}else if (placeholder && fontMed){
-				me.ctx.globalAlpha = 0.35;
-				fontMed.write(me.ctx,placeholder,textX,6,0);
-				me.ctx.globalAlpha = 1;
-			}
+    setValue(newValue, internal) {
+        if (newValue !== this._value) this._prevValue = this._value;
+        this._value = newValue;
+        this.refresh();
+        if (!internal && this.onChange) {
+            if (this.trackUndo) {
+                const editAction = StateManager.createValueUndo(this);
+                editAction.name = this.undoLabel || "Change " + this.name;
+                if (this.undoInstrument) {
+                    editAction.instrument = Tracker.getCurrentInstrumentIndex();
+                    editAction.id += editAction.instrument;
+                }
+                StateManager.registerEdit(editAction);
+            }
+            this.onChange(this._value);
+        }
+    }
 
-			if (isCursorVisible){
-				me.ctx.fillStyle = "rgba(255,255,255,0.7)";
-				var charWidth = 9;
-				var cursorX = textX + ((cursorPos + 1) * charWidth);
-				me.ctx.fillRect(cursorX,4,2,me.height-8);
-			}
+    activate() {
+        if (this._isActive) return;
+        this._cursorPos = this._value ? this._value.length - 1 : -1;
+        this._isActive = true;
+        Input.setFocusElement(this);
+        this._pingCursor();
+    }
 
-		}
-		this.needsRendering = false;
+    deActivate(andSubmit) {
+        if (this._isActive) {
+            this._isCursorVisible = false;
+            this._isActive = false;
+            this.refresh();
+            Input.clearFocusElement();
+            if (andSubmit && this.onSubmit) this.onSubmit(this._value);
+        }
+    }
 
-		if (internal){
-			return me.canvas;
-		}else{
-			me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-		}
+    onClick() {
+        if (!this._isActive) this.activate();
+    }
 
-	};
+    onKeyDown(keyCode, event) {
+        let handled = false;
+        switch (keyCode) {
+            case 8:
+                if (this._value && this._cursorPos >= 0) {
+                    this.setValue(this._value.substr(0, this._cursorPos) + this._value.substr(this._cursorPos + 1));
+                    this._cursorPos--;
+                }
+                handled = true;
+                break;
+            case 9: case 13: case 27:
+                this.deActivate(keyCode === 13);
+                handled = true;
+                break;
+            case 37:
+                if (this._cursorPos >= 0) this._cursorPos--;
+                this.refresh();
+                handled = true;
+                break;
+            case 39:
+                if (this._value) {
+                    this._cursorPos = Math.min(this._cursorPos + 1, this._value.length - 1);
+                    this.refresh();
+                }
+                handled = true;
+                break;
+            case 46:
+                if (this._value && this._cursorPos < this._value.length - 1) {
+                    this.setValue(this._value.substr(0, this._cursorPos + 1) + this._value.substr(this._cursorPos + 2));
+                }
+                handled = true;
+                break;
+            case 89: case 90:
+                if (Input.isMetaKeyDown()) { this.deActivate(); return; }
+                break;
+        }
+        if (!handled && keyCode > 31) {
+            const key = event.key;
+            if (key.length === 1 && key.match(/[a-z0-9\._:\-\ #]/i)) {
+                this.setValue(this._value.substr(0, this._cursorPos + 1) + key + this._value.substr(this._cursorPos + 1));
+                this._cursorPos++;
+            }
+            handled = true;
+        }
+        return handled;
+    }
 
-	me.setValue = function(newValue,internal){
-		if (newValue!==value) {
-			prevValue=value;
-		}
-		value = newValue;
-		me.refresh();
-		
-		if (!internal && me.onChange) {
-			if (me.trackUndo){
-				var editAction = StateManager.createValueUndo(me);
-				editAction.name= me.undoLabel || "Change " + me.name;
-				if (me.undoInstrument) {
-					editAction.instrument = Tracker.getCurrentInstrumentIndex();
-					editAction.id += editAction.instrument;
-				}
-				StateManager.registerEdit(editAction);
-			}
-			me.onChange(value);
-		}
-	};
-	
-	me.getValue = function(){
-		return value;
-	};
+    render(internal) {
+        internal = !!internal;
+        if (!this.isVisible()) return;
+        if (this.needsRendering) {
+            this._background.render();
+            const textX = 10;
+            if (this._value && Font.med) {
+                Font.med.write(this.ctx, this._value, textX, 6, 0);
+            } else if (this._placeholder && Font.med) {
+                this.ctx.globalAlpha = 0.35;
+                Font.med.write(this.ctx, this._placeholder, textX, 6, 0);
+                this.ctx.globalAlpha = 1;
+            }
+            if (this._isCursorVisible) {
+                this.ctx.fillStyle = "rgba(255,255,255,0.7)";
+                const cursorX = textX + ((this._cursorPos + 1) * 9);
+                this.ctx.fillRect(cursorX, 4, 2, this.height - 8);
+            }
+        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
 
-	me.getPrevValue = function(){
-		return prevValue;
-	}
-
-	me.getItemAtPosition = function(x,y){
-		y = y-startY;
-		var index = Math.floor(y/lineHeight) + visibleIndex;
-		if (index>=0 && index<items.length){
-			return(items[index]);
-		}else{
-			return undefined;
-		}
-	};
-
-	me.onClick = function(){
-		if (!isActive){
-			me.activate();
-		}
-	};
-
-	me.activate = function(){
-		if (isActive) return;
-		cursorPos = value ? value.length-1 : -1;
-		isActive = true;
-		Input.setFocusElement(me);
-		pingCursor();
-	};
-
-	me.deActivate = function(andSubmit){
-		if (isActive){
-			isCursorVisible = false;
-			isActive = false;
-			me.refresh();
-			Input.clearFocusElement();
-			if (andSubmit && me.onSubmit){
-				me.onSubmit(value);
-			}
-		}
-	};
-
-	me.onKeyDown = function(keyCode,event){
-		var handled = false;
-		switch(keyCode){
-			case 8:// backspace
-				if (value) {
-					if (cursorPos>=0){
-						me.setValue(value.substr(0,cursorPos) + value.substr(cursorPos+1));
-						cursorPos--;
-					}
-				}
-				handled = true;
-				break;
-			case 9:// tab
-			case 13:// enter
-			case 27:// esc
-				me.deActivate(keyCode===13);
-				handled = true;
-				break;
-			case 37:// left
-				if (cursorPos>=0) cursorPos--;
-				me.refresh();
-				handled = true;
-				break;
-			case 39:// right
-				if (value) {
-					cursorPos++;
-					cursorPos = Math.min(cursorPos,value.length-1);
-					me.refresh();
-				}
-				handled = true;
-				break;
-			case 46: // delete
-				if (value) {
-					if (cursorPos<value.length-1){
-						me.setValue(value.substr(0,cursorPos+1) + value.substr(cursorPos+2));
-					}
-				}
-				handled = true;
-				break;
-			case 89: ///y - redo
-			case 90: //z - undo
-				if (Input.isMetaKeyDown()){
-					me.deActivate();
-					return;
-				}
-				break;
-		}
-
-		if (!handled && keyCode>31){
-			var key = event.key;
-			if (key.length === 1 && key.match(/[a-z0-9\._:\-\ #]/i)){
-				me.setValue(value.substr(0,cursorPos+1) + key + value.substr(cursorPos+1));
-				cursorPos++;
-			}
-			handled = true;
-		}
-
-		return handled;
-	};
-
-	var pingCursor = function(){
-		if (!isActive) return;
-		isCursorVisible = !isCursorVisible;
-		me.refresh();
-		setTimeout(pingCursor,300);
-	};
-
-	return me;
-};
-
-export default inputbox;
+    _pingCursor() {
+        if (!this._isActive) return;
+        this._isCursorVisible = !this._isCursorVisible;
+        this.refresh();
+        setTimeout(() => this._pingCursor(), 300);
+    }
+}

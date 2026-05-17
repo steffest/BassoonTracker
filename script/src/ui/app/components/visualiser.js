@@ -6,395 +6,199 @@ import Audio from "../../../audio.js";
 import Tracker from "../../../tracker.js";
 import UI from "../../ui.js";
 
+export default class Visualiser extends Panel {
+    _modes       = ["wave", "spectrum", "tracks"];
+    _modeIndex   = 2;
+    _mode        = "tracks";
+    _analyser    = null;
+    _background  = null;
+    _trackAnalyser = [];
+    _trackMuteState = [];
+    _analyserPos = [];
+    _analyserSize = 512;
+    _analyserAmp  = 1.5;
 
-let visualiser = function(){
-    var me = Panel();
+    constructor() {
+        super(0, 0, 20, 20);
 
-    var modes = [
-        "wave",
-        "spectrum",
-        "tracks"
-    ];
-    var modeIndex = 2;
-    var mode =  modes[modeIndex];
-    var analyser;
-    var background;
-    var trackAnalyser = [];
-    var trackMuteState = [];
-    var analyserPos = [];
-    var analyserSize = 512;
-    var analyserAmp = 1.5;
+        this.ctx.fillStyle   = "black";
+        this.ctx.lineWidth   = 2;
+        this.ctx.strokeStyle = "rgba(120, 255, 50, 0.5)";
 
-    me.ctx.fillStyle = 'black';
-    me.ctx.lineWidth = 2;
-    //me.ctx.strokeStyle = 'rgba(0, 255, 0,0.5)';
-    //me.ctx.strokeStyle = 'rgba(255, 221, 0, 0.3)';
-    me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
+        this.on(EVENT.screenRender, () => { this.render(); });
+        this.on(EVENT.second, () => {
+                if (Tracker.isPlaying()) {
+                    const fps = UI.getAverageFps();
+                    if (fps < 32 && this._analyserSize > 32) {
+                        this._analyserSize >>= 1;
+                        this._analyserSize = Math.max(this._analyserSize, 32);
+                        UI.resetAverageFps();
+                        console.warn("Low framerate, setting analyser FFT size to " + this._analyserSize);
+                    }
+                }
+            });
 
-    me.init = function(){
-        if (Audio.context){
-            analyser = Audio.context.createAnalyser();
-            analyser.minDecibels = -90;
-            analyser.maxDecibels = -10;
-            analyser.smoothingTimeConstant = 0.85;
+        this.init();
+    }
 
-            for (var i = 0; i<Tracker.getTrackCount(); i++){
-                addAnalyser();
-            }
-			setAnalyserPositions();
+    init() {
+        if (Audio.context) {
+            this._analyser = Audio.context.createAnalyser();
+            this._analyser.minDecibels            = -90;
+            this._analyser.maxDecibels            = -10;
+            this._analyser.smoothingTimeConstant  = 0.85;
+
+            for (let i = 0; i < Tracker.getTrackCount(); i++) this._addAnalyser();
+            this._setAnalyserPositions();
         }
 
-		background = Y.getImage("oscilloscope");
+        this._background = Y.getImage("oscilloscope");
 
-        EventBus.on(EVENT.filterChainCountChange,function(trackCount){
-            for (var i = trackAnalyser.length; i<trackCount; i++){
-                addAnalyser()
-            }
-			setAnalyserPositions();
-            me.connect();
+        this.on(EVENT.filterChainCountChange, trackCount => {
+            for (let i = this._trackAnalyser.length; i < trackCount; i++) this._addAnalyser();
+            this._setAnalyserPositions();
+            this.connect();
         });
 
-		EventBus.on(EVENT.trackStateChange,function(state){
-			if (typeof state.track !== "undefined"){
-				trackMuteState[state.track] = state.mute;
-			}
-		});
+        this.on(EVENT.trackStateChange, state => {
+            if (typeof state.track !== "undefined") this._trackMuteState[state.track] = state.mute;
+        });
 
-
-        me.needsRendering = true;
-    };
-
-    me.connect = function(audioNode){
-        if (Audio.context){
-            if (audioNode) audioNode.connect(analyser);
-
-            for (var i = 0; i< Tracker.getTrackCount(); i++){
-                Audio.filterChains[i].output().connect(trackAnalyser[i]);
-            }
-        }
-
-    };
-
-    me.nextMode = function(){
-        modeIndex++;
-        if (modeIndex>=modes.length) modeIndex = 0;
-        mode = modes[modeIndex];
-        console.log("setting visualiser to mode " + mode);
-    };
-
-    function addAnalyser(){
-        var a = Audio.context.createAnalyser();
-        a.smoothingTimeConstant = 0;
-        a.fftSize = analyserSize;
-        trackAnalyser.push(a);
+        this.needsRendering = true;
     }
 
-    var modeWaveRender = function(){
-        var bufferLength;
-        var dataArray;
-        me.ctx.clearRect(0,0,me.width,me.height);
-
-        analyser.fftSize = 256;
-        bufferLength = analyser.fftSize;
-        dataArray = new Uint8Array(bufferLength);
-
-        function drawWave() {
-            analyser.getByteTimeDomainData(dataArray);
-
-            me.ctx.lineWidth = 2;
-            me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
-            me.ctx.beginPath();
-            var sliceWidth = me.width * 1.0 / bufferLength;
-            var wx = 0;
-
-            for(var i = 0; i < bufferLength; i++) {
-                var v = dataArray[i] / 128.0;
-                var wy = v * me.height/2;
-
-                if(i === 0) {
-                    me.ctx.moveTo(wx, wy);
-                } else {
-                    me.ctx.lineTo(wx, wy);
-                }
-
-                wx += sliceWidth;
-            }
-
-            me.ctx.lineTo(me.width, me.height/2);
-            me.ctx.stroke();
-
-            me.parentCtx.drawImage(me.canvas,me.left, me.top);
-        }
-        drawWave();
-    };
-
-    var modeSpectrumRender = function() {
-
-        me.ctx.clearRect(0,0,me.width,me.height);
-
-        var bufferLength;
-        var dataArray;
-
-        analyser.fftSize = 128;
-        bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
-
-        var lowTreshold = 8;
-        var highTreshold = 8;
-        var max = bufferLength-highTreshold;
-
-        var visualBufferLength = bufferLength - lowTreshold - highTreshold;
-
-        analyser.getByteFrequencyData(dataArray);
-
-        var barWidth = (me.width - visualBufferLength) / visualBufferLength;
-        var barHeight;
-        var wx = 0;
-
-        // only display range
-
-        for(var i = lowTreshold; i < max; i++) {
-            barHeight = dataArray[i];
-
-            me.ctx.fillStyle = 'rgb(' + (barHeight+100) + ',50,50)';
-            me.ctx.fillRect(wx,me.height-barHeight/2,barWidth,barHeight/2);
-
-            wx += barWidth + 1;
-        }
-
-        UI.getContext().drawImage(me.canvas,me.left, me.top);
-
-
-    };
-
-    var modeTracksRender = function(){
-        me.ctx.clearRect(0,0,me.width,me.height);
-        me.ctx.lineWidth = 2;
-        me.ctx.strokeStyle = 'rgba(120, 255, 50, 0.5)';
-
-        var hasVolume = !Audio.cutOff;
-        var bufferLength;
-        var dataArray;
-
-        for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
-
-            var track = trackAnalyser[trackIndex];
-            var pos = analyserPos[trackIndex];
-
-            var isMute = trackMuteState[trackIndex];
-
-            me.ctx.drawImage(background,pos.left,pos.top,pos.width,pos.height);
-
-            if (track){
-                me.ctx.beginPath();
-
-                var wy;
-                var wx = pos.lineLeft;
-                var ww = pos.lineWidth;
-
-                if (hasVolume && !isMute){
-
-                    track.fftSize = analyserSize;
-                    bufferLength = track.fftSize;
-                    dataArray = new Uint8Array(bufferLength);
-                    track.getByteTimeDomainData(dataArray);
-
-                    var sliceWidth = ww/bufferLength;
-
-                    for(var i = 0; i < bufferLength; i++) {
-                        var v = dataArray[i] / 128.0;
-                        let offsetY = 0;
-                        if (analyserAmp>1){
-                            v = v * analyserAmp;
-                            offsetY = pos.height/2 - pos.height/2 * analyserAmp;
-                        }
-                        wy = v * pos.height/2 + pos.top + offsetY;
-
-                        if(i === 0) {
-                            me.ctx.moveTo(wx, wy);
-                        } else {
-                            me.ctx.lineTo(wx, wy);
-                        }
-
-                        wx += sliceWidth;
-                    }
-                }else{
-                    wy = pos.height/2 + pos.top;
-                    me.ctx.moveTo(wx, wy);
-                    me.ctx.lineTo(wx + ww-1, wy);
-                }
-
-                //myCtx.lineTo(aWidth, height/2);
-                me.ctx.stroke();
-
-                if (isMute){
-                    me.ctx.fillStyle = "rgba(34, 49, 85, 0.5)";
-                    me.ctx.fillRect(pos.left,pos.top,pos.width,pos.height);
-                }
+    connect(audioNode) {
+        if (Audio.context) {
+            if (audioNode) audioNode.connect(this._analyser);
+            for (let i = 0; i < Tracker.getTrackCount(); i++) {
+                Audio.filterChains[i].output().connect(this._trackAnalyser[i]);
             }
         }
+    }
 
-        //me.parentCtx.drawImage(me.canvas,me.left, me.top);
-        if (UI.hasFloatingElements()){
-            // draw on mainpanel so it's not covering floating elements
-            me.parentCtx.drawImage(me.canvas,me.left, me.top);
-            me.parent.refresh();
-        }else{
-            // draw directly on the main canvas for performance
-            UI.getContext().drawImage(me.canvas,me.left, me.top);
-        }
-    };
+    nextMode() {
+        this._modeIndex++;
+        if (this._modeIndex >= this._modes.length) this._modeIndex = 0;
+        this._mode = this._modes[this._modeIndex];
+        console.log("setting visualiser to mode " + this._mode);
+    }
 
-    var modeDotsRender = function(){
-        me.ctx.clearRect(0,0,me.width,me.height);
-
-        me.ctx.fillStyle = 'rgba(120, 255, 50, 0.7)';
-        me.ctx.lineStyle = 'rgba(120, 255, 50, 0.5)';
-
-        var hasVolume = !Audio.cutOff;
-        var bufferLength = analyserSize;
-        var dataArray = new Uint8Array(bufferLength);
-
-        for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
-
-            var track = trackAnalyser[trackIndex];
-            var pos = analyserPos[trackIndex];
-
-            var isMute = trackMuteState[trackIndex];
-
-            me.ctx.drawImage(background,pos.left,pos.top,pos.width,pos.height);
-
-            if (track){
-                me.ctx.beginPath();
-
-                var wy;
-                var wx = pos.lineLeft;
-                var ww = pos.lineWidth;
-
-                if (hasVolume && !isMute){
-
-                    track.fftSize = analyserSize;
-                    track.getByteTimeDomainData(dataArray);
-
-                    var sliceWidth = ww/bufferLength;
-
-                    for(var i = 0; i < bufferLength; i++) {
-                        var v = dataArray[i] / 128.0;
-                        wy = v * pos.height/2 + pos.top;
-
-                        me.ctx.fillRect(wx,wy,sliceWidth,2);
-
-                        //if(i === 0) {
-                            //me.ctx.moveTo(wx, wy);
-                        //} else {
-                            //me.ctx.lineTo(wx, wy);
-                        //}
-
-                        wx += sliceWidth;
-                    }
-                }else{
-                    wy = pos.height/2 + pos.top;
-                    me.ctx.fillRect(wx,wy,ww-1,2);
-                    //me.ctx.moveTo(wx, wy);
-                    //me.ctx.lineTo(wx + ww-1, wy);
-                }
-
-                //myCtx.lineTo(aWidth, height/2);
-                //me.ctx.stroke();
-
-                if (isMute){
-                    me.ctx.fillStyle = "rgba(34, 49, 85, 0.5)";
-                    me.ctx.fillRect(pos.left,pos.top,pos.width,pos.height);
-                }
-            }
-        }
-
-        //me.parentCtx.drawImage(me.canvas,me.left, me.top);
-        UI.getContext().drawImage(me.canvas,me.left, me.top);
-    };
-
-
-    me.render = function(){
-
+    render() {
         if (!Audio.context) return;
-        if (!me.isVisible()) return;
-        //modeDotsRender();
-        modeTracksRender();
-        //modeSpectrumRender();
+        if (!this.isVisible()) return;
+        this._modeTracksRender();
+    }
 
-    };
+    onResize() {
+        this._setAnalyserPositions();
+    }
 
-    me.init();
-
-    function setAnalyserPositions(){
-		analyserPos = [];
-
-		var cols = Tracker.getTrackCount();
-		var aHeight = me.height;
-
-		if (Tracker.getTrackCount()>4){
-		    cols = Math.ceil(Tracker.getTrackCount()/2);
-			aHeight = me.height/2
-        }
-		var aWidth = me.width/cols;
-
-		for (var i = 0; i < Tracker.getTrackCount(); i++){
-		    var aLeft = i*aWidth;
-		    var aTop = 0;
-		    if (i>=cols){
-				aLeft = (i-cols)*aWidth;
-				aTop = me.height - aHeight;
-            }
-			analyserPos[i] = {
-			    left: Math.floor(aLeft),
-				top: Math.floor(aTop),
-			    width: Math.floor(aWidth),
-			    height: Math.floor(aHeight),
-                lineLeft: Math.ceil(aLeft + aWidth/70),
-                lineWidth: Math.floor(aWidth - (aWidth/30))
+    onClick(touchData) {
+        if (this._mode === "tracks") {
+            for (let trackIndex = 0; trackIndex < Tracker.getTrackCount(); trackIndex++) {
+                const pos = this._analyserPos[trackIndex];
+                const x   = touchData.x;
+                const y   = touchData.y;
+                if (x > pos.left && x < pos.left + pos.width && y > pos.top && y < pos.top + pos.height) {
+                    EventBus.trigger(EVENT.trackScopeClick, trackIndex);
+                    break;
+                }
             }
         }
     }
 
-	me.onResize = function(){
-		setAnalyserPositions();
-	};
 
-    EventBus.on(EVENT.screenRender,function(){
-        me.render();
-    });
+    _addAnalyser() {
+        const a = Audio.context.createAnalyser();
+        a.smoothingTimeConstant = 0;
+        a.fftSize = this._analyserSize;
+        this._trackAnalyser.push(a);
+    }
 
-	EventBus.on(EVENT.second,function(){
-		if (Tracker.isPlaying()){
-		    // lower fft size on slower machines
-			var fps = UI.getAverageFps();
-			if (fps<32 && analyserSize>32){
-				analyserSize >>= 1;
-				analyserSize = Math.max(analyserSize,32);
-				UI.resetAverageFps();
-				console.warn("Low framerate, setting analyser FFT size to " + analyserSize);
+    _modeTracksRender() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.lineWidth   = 2;
+        this.ctx.strokeStyle = "rgba(120, 255, 50, 0.5)";
+
+        const hasVolume   = !Audio.cutOff;
+        const bufferLength = this._analyserSize;
+        const dataArray   = new Uint8Array(bufferLength);
+
+        for (let trackIndex = 0; trackIndex < Tracker.getTrackCount(); trackIndex++) {
+            const track  = this._trackAnalyser[trackIndex];
+            const pos    = this._analyserPos[trackIndex];
+            const isMute = this._trackMuteState[trackIndex];
+
+            this.ctx.drawImage(this._background, pos.left, pos.top, pos.width, pos.height);
+
+            if (track) {
+                this.ctx.beginPath();
+                const wx0 = pos.lineLeft;
+                const ww  = pos.lineWidth;
+                let wx = wx0, wy;
+
+                if (hasVolume && !isMute) {
+                    track.fftSize = this._analyserSize;
+                    track.getByteTimeDomainData(dataArray);
+                    const sliceWidth = ww / bufferLength;
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        const v      = dataArray[i] / 128.0;
+                        let offsetY  = 0;
+                        let vScaled  = v;
+                        if (this._analyserAmp > 1) {
+                            vScaled  = v * this._analyserAmp;
+                            offsetY  = pos.height / 2 - pos.height / 2 * this._analyserAmp;
+                        }
+                        wy = vScaled * pos.height / 2 + pos.top + offsetY;
+                        if (i === 0) this.ctx.moveTo(wx, wy); else this.ctx.lineTo(wx, wy);
+                        wx += sliceWidth;
+                    }
+                } else {
+                    wy = pos.height / 2 + pos.top;
+                    this.ctx.moveTo(wx, wy);
+                    this.ctx.lineTo(wx + ww - 1, wy);
+                }
+                this.ctx.stroke();
+
+                if (isMute) {
+                    this.ctx.fillStyle = "rgba(34, 49, 85, 0.5)";
+                    this.ctx.fillRect(pos.left, pos.top, pos.width, pos.height);
+                }
             }
         }
-	});
 
-	me.onClick = function(touchData){
-		if (mode==="tracks"){
-			for (var trackIndex = 0; trackIndex<Tracker.getTrackCount();trackIndex++){
+        if (UI.hasFloatingElements()) {
+            this.parentCtx.drawImage(this.canvas, this.left, this.top);
+            this.parent.refresh();
+        } else {
+            UI.getContext().drawImage(this.canvas, this.left, this.top);
+        }
+    }
 
-				var pos = analyserPos[trackIndex];
-				var x = touchData.x;
-				var y = touchData.y;
-				if (x>pos.left && x<pos.left+pos.width && y>pos.top && y<pos.top+pos.height){
-					EventBus.trigger(EVENT.trackScopeClick,trackIndex);
-					break;
-				}
-			}
-		}
-	};
-	
-    return me;
+    _setAnalyserPositions() {
+        this._analyserPos = [];
+        let cols    = Tracker.getTrackCount();
+        let aHeight = this.height;
 
+        if (Tracker.getTrackCount() > 4) {
+            cols    = Math.ceil(Tracker.getTrackCount() / 2);
+            aHeight = this.height / 2;
+        }
+        const aWidth = this.width / cols;
 
-};
-
-export default visualiser;
+        for (let i = 0; i < Tracker.getTrackCount(); i++) {
+            let aLeft = i * aWidth;
+            let aTop  = 0;
+            if (i >= cols) { aLeft = (i - cols) * aWidth; aTop = this.height - aHeight; }
+            this._analyserPos[i] = {
+                left:      Math.floor(aLeft),
+                top:       Math.floor(aTop),
+                width:     Math.floor(aWidth),
+                height:    Math.floor(aHeight),
+                lineLeft:  Math.ceil(aLeft + aWidth / 70),
+                lineWidth: Math.floor(aWidth - aWidth / 30)
+            };
+        }
+    }
+}

@@ -4,14 +4,14 @@ import SpinBox from "../spinBox.js";
 import Assets from "../assets.js";
 import Layout from "./layout.js";
 import Input from "../input.js";
-import EventBus from "../../eventBus.js";
 import {COMMAND, EVENT} from "../../enum.js";
 import App from "../../app.js";
 import Tracker from "../../tracker.js";
+import Font from "../font.js";
 
 let app_pianoView = function(){
 
-    var me = App_panelContainer(200);
+    var me = new App_panelContainer(200);
     me.name = "pianoViewPanel";
 
     var keyWidth = 64;
@@ -37,26 +37,24 @@ let app_pianoView = function(){
 
 
     var closeButton = Assets.generate("button20_20");
-    closeButton.setLabel("x");
+    closeButton.label = "x";
     closeButton.onClick = function(){
         App.doCommand(COMMAND.togglePiano);
     };
     me.addChild(closeButton);
 
-    var octaveBox = SpinBox();
-    octaveBox.setProperties({
-        name: "Octave",
-        label: "Octave",
-        value: 1,
-        max: maxOctave,
-        min:minOctave,
-        left: 4,
-        top: 2,
-        height: 28,
-        width: 150,
-        font: window.fontMed,
-        onChange : function(value){Input.setCurrentOctave(value)}
-    });
+    var octaveBox = new SpinBox();
+    octaveBox.name = "Octave";
+    octaveBox.label = "Octave";
+    octaveBox.value = 1;
+    octaveBox.max = maxOctave;
+    octaveBox.min = minOctave;
+    octaveBox.left = 4;
+    octaveBox.top = 2;
+    octaveBox.height = 28;
+    octaveBox.width = 150;
+    octaveBox.font = Font.med;
+    octaveBox.onChange = function(value){Input.setCurrentOctave(value)};
     me.addChild(octaveBox);
 
     me.onShow = function(){
@@ -65,22 +63,20 @@ let app_pianoView = function(){
 
     me.onPanelResize = function(){
         me.innerHeight = me.height - (Layout.defaultMargin*2);
-        closeButton.setProperties({
-            top: 4,
-            left: me.width - 24
-        });
+        closeButton.top = 4;
+        closeButton.left = me.width - 24;
 
     };
     me.onPanelResize();
 
 
-    EventBus.on(EVENT.pianoNoteOn,function(index){
+    me.on(EVENT.pianoNoteOn,function(index){
         if (!me.isVisible()) return;
         keyDown[index] = true;
         me.refresh();
     });
 
-    EventBus.on(EVENT.pianoNoteOff,function(index){
+    me.on(EVENT.pianoNoteOff,function(index){
         if (!me.isVisible()) return;
         keyDown[index] = false;
         me.refresh();
@@ -236,12 +232,12 @@ let app_pianoView = function(){
 
     };
 
-    EventBus.on(EVENT.octaveChanged,function(value){
+    me.on(EVENT.octaveChanged,function(value){
         octave = value;
 		octaveBox.setValue(octave,true);
     });
 
-    EventBus.on(EVENT.trackerModeChanged,function(mode){
+    me.on(EVENT.trackerModeChanged,function(mode){
 		maxOctave = Tracker.inFTMode() ? 7 : 3;
 		minOctave = Tracker.inFTMode() ? 0 : 1;
 		octaveBox.setMax(maxOctave,true);

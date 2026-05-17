@@ -5,20 +5,18 @@ import InfoPanel from "../infopanel.js";
 import Tracker from "../../tracker.js";
 import TrackControl from "./components/trackControl.js";
 import Visualiser from "./components/visualiser.js";
+import Multitrack from "./components/multitrack.js";
 import Layout from "../app/layout.js";
-import EventBus from "../../eventBus.js";
 import {COMMAND, EVENT} from "../../enum.js";
 import App_patternView from "../app/components/patternView.js";
-import UIElement from "../components/element.js";
 import UI from "../ui.js";
-import Assets from "../assets.js";
 import App from "../../app.js";
 import Button from "../components/button.js";
 import Y from "../yascal/yascal.js";
 import Panel from "../components/panel.js";
 
 let app_patternPanel = function(){
-    var me = App_panelContainer(80);
+    var me = new App_panelContainer(80);
 
     var i;
     var trackControls = [];
@@ -28,17 +26,15 @@ let app_patternPanel = function(){
 	var currentView = "main";
 	var customPanel;
 
-    var editPanel = EditPanel();
+    var editPanel = new EditPanel();
     me.addChild(editPanel);
 
-    var infoPanel = InfoPanel();
+    var infoPanel = new InfoPanel();
     me.addChild(infoPanel);
 
-    var closeButton = Button(1,1,19,24);
-    closeButton.setProperties({
-        image: Y.getImage("toggleleft"),
-        hoverImage: Y.getImage("toggleleft_active"),
-    });
+    var closeButton = new Button(1,1,19,24);
+    closeButton.image = Y.getImage("toggleleft");
+    closeButton.hoverImage = Y.getImage("toggleleft_active");
     closeButton.tooltip = "Toggle Sidebar";
     closeButton.onClick = function(){
         App.doCommand(COMMAND.toggleSideBar);
@@ -46,11 +42,11 @@ let app_patternPanel = function(){
     me.addChild(closeButton);
 
     for (i=0;i<Tracker.getTrackCount();i++){
-        trackControls[i] = TrackControl();
+        trackControls[i] = new TrackControl();
         me.addChild(trackControls[i]);
     }
 
-    var visualiser = Visualiser();
+    var visualiser = new Visualiser();
     visualiser.connect(Audio.cutOffVolume);
     visualiser.name = "mainAnalyser";
     UI.visualiser = visualiser;
@@ -59,11 +55,14 @@ let app_patternPanel = function(){
     // note: don't attach as child to main panel, this gets attached to main UI
 
 
-    var patternView = App_patternView();
-    patternView.setProperties({
-        name: "patternViewPanel"
-    });
+    var patternView = new App_patternView();
+    patternView.name = "patternViewPanel";
     me.addChild(patternView);
+
+    var multitrackView = new Multitrack();
+    multitrackView.hide();
+    // Added to mainPanel directly (like visualiser) for direct-to-canvas rendering
+    UI.multitrack = multitrackView;
 
 
     me.onPanelResize = function(){
@@ -104,7 +103,7 @@ let app_patternPanel = function(){
         if (expandForSample){
             visualiser.hide();
 			editPanel.hide();
-        }else{
+        } else if (currentView !== "multitrack") {
             visualiser.show();
 			if (Layout.showSideBar) editPanel.show();
         }
@@ -141,19 +140,24 @@ let app_patternPanel = function(){
 				height: patternHeight
 			});
 
-        visualiser.setProperties({
-            left: patternTrackLeft + Layout.mainLeft,
-            top: me.top + Layout.infoPanelHeight + 3,
-            width: patternWidth - Layout.firstTrackOffsetLeft,
-            height: Layout.analyserHeight
-        });
+        visualiser.left = patternTrackLeft + Layout.mainLeft;
+        visualiser.top = me.top + Layout.infoPanelHeight + 3;
+        visualiser.width = patternWidth - Layout.firstTrackOffsetLeft;
+        visualiser.height = Layout.analyserHeight;
 
-        if (customPanel) customPanel.setProperties({
-            left: 0,
-            top: sampleMaximized ? 0 : (expandForSample ? Layout.infoPanelHeight : patternTop),
-            width: me.width,
-            height: sampleMaximized ? me.height : (expandForSample ? me.height - Layout.infoPanelHeight - Layout.defaultMargin - 3 : patternHeight)
-        });
+        if (customPanel) {
+            customPanel.left = 0;
+            customPanel.top = sampleMaximized ? 0 : (expandForSample ? Layout.infoPanelHeight : patternTop);
+            customPanel.width = me.width;
+            customPanel.height = sampleMaximized ? me.height : (expandForSample ? me.height - Layout.infoPanelHeight - Layout.defaultMargin - 3 : patternHeight);
+        }
+
+        // Multitrack view: covers the area below the info panel (replaces visualiser + trackControls + patternView)
+        var multitrackTop = Layout.infoPanelHeight + Layout.defaultMargin;
+        multitrackView.left = patternLeft;
+        multitrackView.top = me.top + multitrackTop;
+        multitrackView.width = patternWidth;
+        multitrackView.height = me.height - multitrackTop - Layout.defaultMargin;
 
         setTrackControlsLayout();
 
@@ -173,53 +177,54 @@ let app_patternPanel = function(){
         for (i = 0;i< trackControls.length;i++){
 
             if ( i>=startTrack && i<endTrack){
-                trackControls[i].setProperties({
-                    track:i,
-                    left: patternTrackLeft + (Layout.trackWidth+Layout.trackMargin)* (i-startTrack),
-                    top: Layout.defaultMargin + Layout.infoPanelHeight + Layout.analyserHeight,
-                    width: Layout.trackWidth,
-                    height:Layout.trackControlHeight,
-                    visible: isVisible
-                });
+                trackControls[i].track = i;
+                trackControls[i].left = patternTrackLeft + (Layout.trackWidth+Layout.trackMargin)* (i-startTrack);
+                trackControls[i].top = Layout.defaultMargin + Layout.infoPanelHeight + Layout.analyserHeight;
+                trackControls[i].width = Layout.trackWidth;
+                trackControls[i].height = Layout.trackControlHeight;
+                trackControls[i].visible = isVisible;
             }else{
-                trackControls[i].setProperties({
-                    track:i,
-                    top: -100,
-                    visible: false
-                });
+                trackControls[i].track = i;
+                trackControls[i].top = -100;
+                trackControls[i].visible = false;
             }
 
         }
     }
 
-    EventBus.on(EVENT.patternChange,function(){
+    me.on(EVENT.patternChange,function(){
         patternView.refresh();
     });
 
-    EventBus.on(EVENT.patternPosChange,function(){
+    me.on(EVENT.patternPosChange,function(){
         patternView.refresh();
     });
-    EventBus.on(EVENT.cursorPositionChange,function(){
+    me.on(EVENT.cursorPositionChange,function(){
         patternView.refresh();
     });
-    EventBus.on(EVENT.recordingChange,function(){
+    me.on(EVENT.recordingChange,function(){
         patternView.refresh();
     });
 
-    EventBus.on(EVENT.trackStateChange,function(state){
+    me.on(EVENT.trackStateChange,function(state){
         // set other tracks to mute if a track is soloed
 
         if(typeof state.track != "undefined"){
+            if (trackControls[state.track]){
+                if (typeof state.solo != "undefined") trackControls[state.track].setSolo(!!state.solo, true);
+                if (typeof state.mute != "undefined") trackControls[state.track].setMute(!!state.mute, true);
+            }
+
             if (state.solo){
                 for (i = 0;i< Tracker.getTrackCount();i++){
-                    if (i != state.track){
-                        trackControls[i].setProperties({mute:true});
+                    if (i !== state.track){
+                        trackControls[i].setMute(true, true);
                     }
                 }
             }else if (state.wasSolo){
                 for (i = 0;i< Tracker.getTrackCount();i++){
-                    if (i != state.track){
-                        trackControls[i].setProperties({mute:false});
+                    if (i !== state.track){
+                        trackControls[i].setMute(false, true);
                     }
                 }
             }
@@ -227,17 +232,15 @@ let app_patternPanel = function(){
 
     });
 
-    EventBus.on(EVENT.trackCountChange,function(trackCount){
+    me.on(EVENT.trackCountChange,function(trackCount){
 
         me.visibleTracks = Math.min(maxVisibleTracks,trackCount);
 
 
         for (i=trackControls.length;i<trackCount;i++){
-            trackControls[i] = TrackControl();
-            trackControls[i].setProperties({
-                track: i,
-                top: -200
-            });
+            trackControls[i] = new TrackControl();
+            trackControls[i].track = i;
+            trackControls[i].top = -200;
             me.addChild(trackControls[i]);
         }
 		setTrackControlsLayout();
@@ -245,18 +248,16 @@ let app_patternPanel = function(){
         //visualiser.connect(Audio.cutOffVolume);
     });
 
-    EventBus.on(EVENT.patternHorizontalScrollChange,function(){
+    me.on(EVENT.patternHorizontalScrollChange,function(){
         // update track Controls ... shouldn't they be part of the patternView?
         setTrackControlsLayout();
     });
 
-	EventBus.on(EVENT.pluginRenderHook,function(hook){
+	me.on(EVENT.pluginRenderHook,function(hook){
 		if (hook.target && hook.target === "pattern"){
 			if (!customPanel){
-				customPanel = Panel(0,0,me.width,me.height);
-				customPanel.setProperties({
-					name: "patternPluginPanel"
-				});
+				customPanel = new Panel(0,0,me.width,me.height);
+        customPanel.name = "patternPluginPanel";
 				me.addChild(customPanel);
 			}else{
 				customPanel.children = [];
@@ -268,12 +269,12 @@ let app_patternPanel = function(){
 		}
 	});
 
-    EventBus.on(EVENT.showView,function(view){
+    me.on(EVENT.showView,function(view){
         switch (view){
             case "sample":
 				if (customPanel) customPanel.show();
                 patternView.hide();
-                //patternSidebar.hide();
+                multitrackView.hide();
 
                 if (Layout.expandSampleViewHeight || Layout.sampleViewMaximized){
                     visualiser.hide();
@@ -284,13 +285,23 @@ let app_patternPanel = function(){
 				me.onPanelResize();
                 me.refresh();
                 break;
+            case "multitrack":
+                if (customPanel) customPanel.hide();
+                patternView.hide();
+                visualiser.hide();
+                for (i = 0; i < trackControls.length; i++) trackControls[i].hide();
+                multitrackView.show();
+                currentView = "multitrack";
+                me.onPanelResize();
+                me.refresh();
+                break;
             case "bottommain":
             case "main":
 				if (customPanel) customPanel.hide();
                 patternView.show();
+                multitrackView.hide();
 				visualiser.show();
                 if (Layout.showSideBar){
-					//patternSidebar.show();
 					editPanel.show();
                 }
 				currentView = "main";
@@ -300,7 +311,7 @@ let app_patternPanel = function(){
         }
     });
 
-	EventBus.on(EVENT.visibleTracksCountChange,function(count){
+  me.on(EVENT.visibleTracksCountChange,function(count){
 	    if (Layout.showSideBar){
             if (currentView === "main"){
 				//patternSidebar.show();

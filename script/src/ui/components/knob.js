@@ -1,172 +1,96 @@
 import UIElement from "./element.js";
 import Y from "../yascal/yascal.js";
+import Font from "../font.js";
 
-let knob = function(initialProperties){
-	var me = UIElement();
-	me.type = "knob";
+export default class Knob extends UIElement {
+    _label = "";
+    _font;
+    _value = 50;
+    _startValue = 50;
+    _img;
+    _imgDisabled;
+    _front;
+    _padding = 16;
 
-	var label = "";
-	var font;
-	var textAlign = "left";
-	var paddingTop = 0;
+    constructor(x, y) {
+        const img     = Y.getImage("knob_back");
+        const padding = 16;
+        super(x || 0, y || 0, img.width + padding * 2, img.height + padding * 2);
+        this.type         = "knob";
+        this._img         = img;
+        this._imgDisabled = Y.getImage("knob_back_inactive");
+        this._front       = Y.getImage("knob_front");
+    }
 
-	var angle = 0;
-	var value = 50;
-	var startValue = value;
+    get label()      { return this._label; }
+    set label(v)     { this._label = v; this.refresh(); }
 
-	var min = -160;
-	var max = 160;
+    get font()       { return this._font; }
+    set font(v)      { this._font = v; this.refresh(); }
 
-	var properties = ["left","top","width","height","name","font","label","textAlign","paddingTop","disabled"];
+    get value()      { return this._value; }
+    set value(v)     { this._value = Math.max(0, Math.min(100, v)); this.refresh(); }
 
-	var img = Y.getImage("knob_back");
-	var imgDisabled = Y.getImage("knob_back_inactive");
-	var front = Y.getImage("knob_front");
-	var padding = 16;
-	me.width = img.width + (padding*2);
-	me.height = img.height + (padding*2);
-	me.setSize(me.width,me.height);
+    get disabled()  { return this._disabled; }
+    set disabled(v) { this._disabled = !!v; this.refresh(); }
 
-	me.setProperties = function(p){
+    toggleDisabled() {
+        this._disabled = !this._disabled;
+        if (this.onToggle) this.onToggle(!this._disabled);
+        this.refresh();
+    }
 
-		properties.forEach(function(key){
-			if (typeof p[key] != "undefined"){
-				// set internal var
-				switch(key){
-					case "label": label=p[key];break;
-					case "font": font=p[key];break;
-					case "textAlign": textAlign=p[key];break;
-					case "paddingTop": paddingTop=parseInt(p[key]);break;
-					case "disabled": me.isDisabled = !!p[key]; break;
-					default:
-						me[key] = p[key];
-				}
-			}
-		});
+    onDragStart() { this._startValue = this._value; }
 
-		me.setSize(me.width,me.height);
-		me.setPosition(me.left,me.top);
+    onDrag(touchData) {
+        if (this._disabled) return;
+        this._value = Math.max(0, Math.min(100, this._startValue - touchData.deltaY));
+        this.refresh();
+        if (this.onChange) this.onChange(this._value);
+    }
 
-	};
+    onClick(e) {
+        if (Math.abs(e.x - e.startX) < 3 && Math.abs(e.y - e.startY) < 3) this.toggleDisabled();
+    }
 
-	me.setFont = function(f){
-		font = f;
-		me.refresh();
-	};
+    render(internal) {
+        if (this.needsRendering) {
+            internal = !!internal;
+            this.clearCanvas();
 
-	me.setLabel = function(text){
-		label = text;
-		me.refresh();
-	};
+            const scale = 0.8;
+            const imgw  = this._img.width  * scale;
+            const imgh  = this._img.height * scale;
+            const w     = imgw / 2;
+            const h     = imgh / 2;
+            const p     = this._padding;
 
-	me.getLabel = function(){
-		return label;
-	};
+            this.ctx.save();
+            this.ctx.translate(p + w, p + h);
+            this.ctx.drawImage(this._disabled ? this._imgDisabled : this._img, -w, -h, imgw, imgh);
 
-	me.setValue = function(newValue){
-		value = Math.max(0, Math.min(100, newValue));
-		me.refresh();
-	};
+            const minAngle  = -230, maxAngle = 50;
+            const maxRange  = Math.abs(minAngle) + maxAngle;
+            const angleValue = minAngle + (this._value / 100) * maxRange;
 
-	me.getValue = function(){
-		return value;
-	}
+            this.ctx.fillStyle = this._disabled ? "rgba(170,170,170,0.5)" : "rgba(130,200,255,0.5)";
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, 30, minAngle * Math.PI / 180, angleValue * Math.PI / 180, false);
+            this.ctx.arc(0, 0, 25, angleValue * Math.PI / 180, minAngle * Math.PI / 180, true);
+            this.ctx.fill();
 
+            const rotAngle = (this._value / 100) * 320 - 160;
+            this.ctx.rotate(rotAngle * Math.PI / 180);
+            this.ctx.drawImage(this._front, -w, -h, imgw, imgh);
+            this.ctx.restore();
 
-	me.render = function(internal){
-		if (me.needsRendering){
-			internal = !!internal;
-
-			me.clearCanvas();
-
-			var scale = 1;
-			scale = 0.8;
-
-			var imgw = img.width * scale;
-			var imgh = img.height * scale;
-
-			var w = imgw / 2;
-			var h = imgh / 2;
-
-			//me.ctx.drawImage(img,0,0);
-
-			me.ctx.save();
-			me.ctx.translate(padding+w,padding+h);
-			me.ctx.drawImage(me.isDisabled ? imgDisabled : img,-w,-h,imgw,imgh);
-
-
-			// value is from 0 to 100;
-			//var value = angle+50;
-
-			var minAngle = -230;
-			var maxAngle = 50;
-
-			var max = Math.abs(minAngle) + maxAngle;
-			var angleValue = minAngle + (value/100)*max;
-
-			var startAngle = minAngle * Math.PI/180;
-			var endAngle = angleValue * Math.PI/180;
-
-			me.ctx.fillStyle = me.isDisabled ? "rgba(170,170,170,0.5)" : "rgba(130,200,255,0.5)";
-			me.ctx.beginPath();
-			me.ctx.arc(0,0,30,startAngle,endAngle, false); // outer (filled)
-			me.ctx.arc(0,0,25,endAngle,startAngle, true); // outer (unfills it)
-			me.ctx.fill();
-
-
-			var angle = (value/100) * 320 - 160;
-			me.ctx.rotate(angle * Math.PI/180);
-			me.ctx.drawImage(front,-w,-h,imgw,imgh);
-
-			me.ctx.restore();
-
-			if (label){
-				var labelX = (me.width - (label.length*6))/2;
-				labelX = padding + w - (label.length*3);
-				fontSmall.write(me.ctx,label,labelX,imgh + padding + 4);
-			}
-
-		}
-		me.needsRendering = false;
-
-		if (internal){
-			return me.canvas;
-		}else{
-			me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-		}
-	};
-
-	me.onDragStart = function(){
-		startValue = value;
-	};
-
-	me.onDrag=function(touchData){
-
-		if (me.isDisabled) return;
-
-			var delta = -touchData.deltaY;
-			value = startValue + delta;
-			value = Math.max(value,0);
-			value = Math.min(value,100);
-			me.refresh();
-
-			if (me.onChange) me.onChange(value);
-	};
-
-	me.onClick = function(e){
-		if (Math.abs(e.x-e.startX)<3 && Math.abs(e.y-e.startY)<3){
-			me.toggleDisabled();
-		}
-	};
-
-	me.toggleDisabled = function(){
-		me.isDisabled = !me.isDisabled;
-		if (me.onToggle) me.onToggle(!me.isDisabled);
-		me.refresh();
-	};
-
-	return me;
-};
-
-export default knob;
-
+            if (this._label && Font.small) {
+                const labelX = p + w - (this._label.length * 3);
+                Font.small.write(this.ctx, this._label, labelX, imgh + p + 4);
+            }
+        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

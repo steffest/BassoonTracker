@@ -27,7 +27,7 @@ var Settings = (function(){
 			showKey: SETTINGS.showKey,
 			showMidi: SETTINGS.showMidi,
 			useTooltip: SETTINGS.useTooltip,
-			dither8bit: SETTINGS.dither8bit,
+			playFrom: SETTINGS.playFrom,
 		};
 		Storage.set("bassoonTrackerSettings",JSON.stringify(settings));
 	};
@@ -71,7 +71,7 @@ var Settings = (function(){
 		SETTINGS.highDPI = false;
 		SETTINGS.showKey = false;
 		SETTINGS.showMidi = false;
-		SETTINGS.dither8bit = false;
+		SETTINGS.playFrom = "start";
 	}
 
 	return me;

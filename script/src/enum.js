@@ -520,4 +520,5 @@ export var SETTINGS = {
 	emulateProtracker1OffsetBug: true,
 	useSampleSwapping: false,
 	loadInitialFile:true,
+	playFrom: "start",
 };

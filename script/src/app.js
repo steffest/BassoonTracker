@@ -74,8 +74,18 @@ var App = (function(){
                     Plugin.load("SampleEditor",function(SampleEditor){
 						if (!SampleEditor) return;
 						SampleEditor.init({
-							EventBus: EventBus,
-							EVENT: EVENT
+              UI: {
+                core: UI,
+                font: UI.font,
+                EventBus: EventBus,
+                EVENT: EVENT,
+                COMMAND: COMMAND,
+                Layout: Layout,
+                Input: Input,
+                Y: Y,
+                Tracker: Tracker,
+                Assets: Assets
+              }
 						});
 						EventBus.trigger(EVENT.showView,"sample");
 					});
@@ -90,14 +100,12 @@ var App = (function(){
                     EventBus.trigger(EVENT.toggleView,"main");
                     break;
                 case COMMAND.showAbout:
-                    var dialog = ModalDialog();
-                    dialog.setProperties({
-                        width: UI.mainPanel.width,
-                        height: UI.mainPanel.height,
-                        top: 0,
-                        left: 0,
-                        ok: true
-                    });
+                    var dialog = new ModalDialog();
+                    dialog.width = UI.mainPanel.width;
+                    dialog.height = UI.mainPanel.height;
+                    dialog.top = 0;
+                    dialog.left = 0;
+                    dialog.ok = true;
                     dialog.onClick = dialog.close;
 
                     var version = Host.getVersionNumber();
@@ -152,24 +160,26 @@ var App = (function(){
 					Plugin.load("Nibbles",function(Nibbles){
 						if (!Nibbles) return;
 						Nibbles.init({
-                            UI:{
-                                element: UIElement,
-                                image: UIImage,
-                                Assets: Assets,
-                                scale9Panel: Scale9Panel,
-                                label: Label,
-                                button: Button,
-                                radioGroup: RadioGroup,
-                                checkbox: Checkbox,
-                                panel: Panel
+              UI: {
+                core: UI,
+                font: UI.font,
+                                element:    (...a) => new UIElement(...a),
+                                image:      (...a) => new UIImage(...a),
+                                Assets:     Assets,
+                                scale9Panel:(...a) => new Scale9Panel(...a),
+                                label:      (...a) => new Label(...a),
+                                button:     (...a) => new Button(...a),
+                                radioGroup: (...a) => new RadioGroup(...a),
+                                checkbox:   (...a) => new Checkbox(...a),
+                panel:      (...a) => new Panel(...a),
+                Input: Input,
+                Y: Y,
+                EventBus: EventBus,
+                EVENT: EVENT,
+                COMMAND: COMMAND,
+                Layout: Layout,
+                Tracker: Tracker
                             },
-                            Input: Input,
-                            Y: Y,
-                            EventBus: EventBus,
-                            EVENT: EVENT,
-                            COMMAND: COMMAND,
-                            Layout: Layout,
-                            Tracker: Tracker
                         });
 					});
 					break;

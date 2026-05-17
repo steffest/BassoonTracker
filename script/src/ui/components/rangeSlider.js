@@ -2,206 +2,153 @@ import Y from "../yascal/yascal.js";
 import UIElement from "./element.js";
 import Scale9Panel from "./scale9.js";
 
-let rangeSlider = function(initialProperties){
-	var me = UIElement();
+export default class RangeSlider extends UIElement {
+    _knob;
+    _knobVert;
+    _back;
+    _vertical = false;
+    _maxHeight = 0;
+    _knobLeft = 0;
+    _knobTop = 0;
+    _startKnobLeft = 0;
+    _startKnobTop = 0;
+    _min = 0;
+    _max = 100;
+    _value = 0;
 
-	me.type = "rangeslider";
-	var properties = ["left","top","width","height","name","onChange"];
+    constructor(x, y, w, h) {
+        super(x, y, w, h);
+        this.type = "rangeslider";
 
-	var knob = Y.getImage("slider_knob");
-	var knobVert = Y.getImage("slider_knob_vert") || knob;
-	var backImage = Y.getImage("slider_back");
-	var backImageVert = Y.getImage("slider_back_vert") || backImage;
-    var vertical = false;
-    var maxHeight = 0;
+        this._knob          = Y.getImage("slider_knob");
+        this._knobVert      = Y.getImage("slider_knob_vert") || this._knob;
+        const backImage     = Y.getImage("slider_back");
 
-	var back = Scale9Panel(0,0,0,0,{
-		img: backImage,
-		left: 4,
-		right: 4,
-		top: 0,
-		bottom: 0,
-		scale: "repeatX"
-	});
-	me.addChild(back);
-	back.ignoreEvents = true;
+        this._back = new Scale9Panel(0, 0, 0, 0, {
+            img: backImage, left: 4, right: 4, top: 0, bottom: 0, scale: "repeatX"
+        });
+        this._back.ignoreEvents = true;
+        this.addChild(this._back);
+    }
 
-	var knobLeft = 0;
-	var knobTop = 0;
-	var startKnobLeft = 0;
-	var startKnobTop = 0;
+    get value() { return this._value; }
+    set value(v) { this._value = v; this.refresh(); }
 
-	var min = 0;
-	var max = 100;
-	var value = 0;
+    get min()  { return this._min; }
+    set min(v) { this._min = v; if (this._value < v) this.setValue(v); }
 
-	me.setProperties = function(p){
-		properties.forEach(function(key){
-			if (typeof p[key] != "undefined") me[key] = p[key];
-		});
+    get max()  { return this._max; }
+    set max(v) { this._max = v; if (this._value > v) this.setValue(v); }
 
-		me.setSize(me.width,me.height);
-		me.setPosition(me.left,me.top);
-
-		if (typeof p.min !== "undefined") min=p.min;
-		if (typeof p.max !== "undefined") max=p.max;
-		if (typeof p.value !== "undefined") me.setValue(p.value,true);
-		if (typeof p.vertical !== "undefined")  {
-			vertical = !!p.vertical;
-
-            back.setProperties({
-                img: backImageVert,
-                imgLeft: 0,
-                imgRight: 0,
-                imgTop: 4,
-                imgBottom: 4,
-                scale: "repeatY"
+    get vertical()  { return this._vertical; }
+    set vertical(v) {
+        this._vertical = !!v;
+        if (v) {
+            this._back.setBase({
+                img: Y.getImage("slider_back_vert") || Y.getImage("slider_back"),
+                imgLeft: 0, imgRight: 0, imgTop: 4, imgBottom: 4, scale: "repeatY"
             });
-
         }
-	};
+        this.refresh();
+    }
 
-	me.getValue = function(){
-		return value;
-	};
+    setValue(v, internal) {
+        if (v > this._max) v = this._max;
+        if (v < this._min) v = this._min;
+        const hasChanged = !internal && this._value !== v;
+        this._value = v;
 
-	me.setValue = function(v,internal){
+        if (this._vertical) {
+            const relMax = this._max - this._min;
+            this._knobTop = this._maxHeight * (1 - (v - this._min) / relMax);
+        } else {
+            this._knobLeft = (this.width - this._knob.width) * v / this._max;
+        }
 
-		if (v>max) v = max;
-		if (v<min) v=min;
+        this.refresh();
+        if (hasChanged && this.onChange) this.onChange(this._value);
+    }
 
-		var hasChanged = !internal && value!==v;
-		value = v;
+    setMax(newMax, skipCheck) {
+        this._max = newMax;
+        if (!skipCheck && this._value > this._max) this.setValue(this._max);
+    }
 
-		if (vertical){
-			var relMax = max - min;
-			knobTop = maxHeight * (1 - (v-min)/relMax);
-		}else{
-			var maxWidth = me.width-knob.width;
-			knobLeft = maxWidth * v/max;
-		}
+    setMin(newMin, skipCheck) {
+        this._min = newMin;
+        if (!skipCheck && this._value < this._min) this.setValue(this._min);
+    }
 
-		me.refresh();
+    onResize() {
+        if (!this._knobVert) return;
+        this._maxHeight = this.height - this._knobVert.height + 3;
+        this._back.setSize(this.width, this.height);
+        this.setValue(this._value, true);
+    }
 
-		if (hasChanged && !internal){
-			if (me.onChange) me.onChange(value);
-		}
-	};
+    onDragStart() {
+        this._startKnobLeft = this._knobLeft;
+        this._startKnobTop  = this._knobTop;
+    }
 
-	me.setMax = function(newMax,skipCheck){
-		max = newMax;
-		if (!skipCheck && value>max) me.setValue(max);
-	};
-    me.setMin = function(newMin,skipCheck){
-        min = newMin;
-        if (!skipCheck && value<min) me.setValue(min);
-    };
+    onDrag(touchData) {
+        if (this._vertical) {
+            this._knobTop = Math.max(0, Math.min(this._maxHeight, this._startKnobTop + touchData.deltaY));
+            if (this._maxHeight > this._knob.height) {
+                const relMax = this._max - this._min;
+                this._value = (this._min + relMax) - Math.round(relMax * this._knobTop / this._maxHeight);
+            } else {
+                this._value = this._max;
+            }
+        } else {
+            const maxWidth = this.width - this._knob.width;
+            this._knobLeft = Math.max(0, Math.min(maxWidth, this._startKnobLeft + touchData.deltaX));
+            this._value = maxWidth > this._knob.width ? Math.round(this._max * this._knobLeft / maxWidth) : 0;
+        }
+        this.refresh();
+        if (this.onChange) this.onChange(this._value);
+    }
 
+    render(internal) {
+        if (this.needsRendering) {
+            internal = !!internal;
+            this.clearCanvas();
 
-	me.render = function(internal){
-		if (me.needsRendering){
-			internal = !!internal;
-			me.clearCanvas();
+            const cx = Math.floor(this.width / 2) + 3;
+            const cw = 6;
+            let ch = this.height;
+            if (this._min < 0) ch = Math.floor(ch / 2);
 
-			var cx = Math.floor(me.width/2) + 3;
-			var cw = 6;
-			var ch = me.height;
-			if (min<0) ch = Math.floor(ch/2);
+            this.ctx.fillStyle = "rgba(255,255,255,0.1)";
+            this.ctx.beginPath();
+            this.ctx.moveTo(cx, ch);
+            this.ctx.lineTo(cx, 2);
+            this.ctx.lineTo(cx + cw, 2);
+            this.ctx.fill();
 
-			me.ctx.fillStyle = "rgba(255,255,255,0.1";
-
-			me.ctx.beginPath();
-			me.ctx.moveTo(cx, ch);
-			me.ctx.lineTo(cx, 2);
-			me.ctx.lineTo(cx+cw, 2);
-			me.ctx.fill();
-
-			if (min<0){
-				me.ctx.beginPath();
-				me.ctx.moveTo(cx-6,ch);
-				me.ctx.lineTo(cx-6, me.height);
-				me.ctx.lineTo(cx-6-cw, me.height);
-				me.ctx.fill();
-			}else{
-				me.ctx.beginPath();
-				me.ctx.moveTo(cx-6,ch);
-				me.ctx.lineTo(cx-6, 2);
-				me.ctx.lineTo(cx-6-cw, 2);
-				me.ctx.fill();
-			}
-
-			back.render();
-			if (vertical){
-                me.ctx.drawImage(knobVert,-1,knobTop,knobVert.width,knobVert.height);
-			}else{
-                me.ctx.drawImage(knob,knobLeft,-1,knob.width,knob.height);
-			}
-		}
-		me.needsRendering = false;
-
-		if (internal){
-			return me.canvas;
-		}else{
-			me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-		}
-	};
-
-	me.onResize = function(){
-
-		if (!knobVert) return;
-		maxHeight = me.height-knobVert.height+3;
-
-		back.setSize(me.width,me.height);
-		me.setValue(value,true);
-	};
-
-	me.onDragStart = function(){
-		startKnobLeft = knobLeft;
-        startKnobTop = knobTop;
-	};
-
-	me.onDrag=function(touchData){
-		if(vertical){
-            var delta =  touchData.deltaY;
-            knobTop = startKnobTop + delta;
-            if (knobTop<0) knobTop=0;
-
-            if (knobTop> maxHeight) knobTop=maxHeight;
-
-            if (maxHeight>knob.height){
-            	var relMax = max - min;
-            	var relValue = relMax - (Math.round(relMax * knobTop/maxHeight));
-                value = relValue + min;
-            }else{
-                value = max;
+            if (this._min < 0) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(cx - 6, ch);
+                this.ctx.lineTo(cx - 6, this.height);
+                this.ctx.lineTo(cx - 6 - cw, this.height);
+                this.ctx.fill();
+            } else {
+                this.ctx.beginPath();
+                this.ctx.moveTo(cx - 6, ch);
+                this.ctx.lineTo(cx - 6, 2);
+                this.ctx.lineTo(cx - 6 - cw, 2);
+                this.ctx.fill();
             }
 
-		}else{
-            delta =  touchData.deltaX;
-            knobLeft = startKnobLeft + delta;
-            if (knobLeft<0) knobLeft=0;
-
-            var maxWidth = me.width-knob.width;
-            if (knobLeft> maxWidth) knobLeft=maxWidth;
-
-            if (maxWidth>knob.width){
-                value = Math.round(max * knobLeft/maxWidth);
-            }else{
-                value = 0;
+            this._back.render();
+            if (this._vertical) {
+                this.ctx.drawImage(this._knobVert, -1, this._knobTop, this._knobVert.width, this._knobVert.height);
+            } else {
+                this.ctx.drawImage(this._knob, this._knobLeft, -1, this._knob.width, this._knob.height);
             }
-		}
-
-		me.refresh();
-		if (me.onChange) me.onChange(value);
-	};
-
-
-	if (initialProperties) me.setProperties(initialProperties);
-
-
-	return me;
-};
-
-export default rangeSlider;
-
-
+        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+}

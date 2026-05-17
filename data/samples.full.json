@@ -2,6 +2,7 @@
   {"title":"AnalogString","url":"https://www.stef.be/amiga/samples/st-01/AnalogString","type": "string","bit": 8},
     {"title":"BassDrum1","url":"https://www.stef.be/amiga/samples/st-01/BassDrum1","type": "drum","bit": 8},
     {"title":"BassDrum2","url":"https://www.stef.be/amiga/samples/st-01/BassDrum2","type": "drum","bit": 8},
+    {"title":"Bass Warmpie","url":"https://www.stef.be/bassoontracker/samples/prophet600/BassWarmpie.xi","type": "bass","bit": 8, "loop": true},
     {"title":"Dangerous","url":"https://www.stef.be/amiga/samples/st-01/Dangerous","type": "synth","bit": 8},
     {"title":"DigDug","url":"https://www.stef.be/amiga/samples/st-01/DigDug","type": "bass","bit": 8},
     {"title":"FilterBass","url":"https://www.stef.be/amiga/samples/st-01/FilterBass","type": "bass","bit": 8},

@@ -1,2 +1,12 @@
 0.5.0.5
     Small changes in playlist parser
+0.5.0.7
+ - some support for .s3m files (buggy)
+ - loop Creator in Sample Editor
+ - maximize sample view
+ - support for .aiff samples
+ - support for .xi instruments
+ - ui updates (zoom sample by resizing scrollbar)
+ - sample browser
+
+

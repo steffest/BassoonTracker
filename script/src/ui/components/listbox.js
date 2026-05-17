@@ -2,378 +2,321 @@ import UIElement from "../components/element.js";
 import Y from '../yascal/yascal.js';
 import Scale9Panel from "./scale9.js";
 import Assets from "../assets.js";
+import Font from "../font.js";
 
-let listbox = function(x,y,w,h){
-    var me = UIElement(x,y,w,h);
-    me.selectedIndex = 0;
-    var previousSelectedIndex = 0;
+export default class ListBox extends UIElement {
+    _items = [];
+    _selectedIndex = 0;
+    _previousSelectedIndex = 0;
+    _visibleIndex = 0;
+    _visibleItems = 0;
+    _lineHeight = 18;
+    _startY = 1;
+    _scrollBarItemOffset = 0;
+    _hoverIndex = undefined;
+    _startDragIndex = 0;
+    _itemCache = [];
+    _font = null;
+    _itemRenderFunction = null;
+    _background;
+    _buttonUp;
+    _buttonDown;
+    _scrollBar;
 
-    var font = window.fontMed;
-    var fontSmall = window.fontSmall;
+    centerSelection = false;
 
-    var items = [];
-    var visibleIndex = 0;
-    var visibleIitems = 0;
-    var lineHeight = 18;
-    var itemRenderFunction;
-    var startY = 1;
-    var scrollBarItemOffset = 0;
-    var hoverIndex;
-    var properties = ["left","top","width","height","name","type","onChange","selectedIndex","selectedIcon","centerSelection","background"];
-    var itemCache = [];
+    constructor(x, y, w, h) {
+        super(x, y, w, h);
+        this.type = "listbox";
 
-    me.setProperties = function(p){
-
-        properties.forEach(function(key){
-            if (typeof p[key] != "undefined") me[key] = p[key];
+        this._background = new Scale9Panel(0, 0, w, h, {
+            img: Y.getImage("panel_dark"), left: 3, top: 3, right: 2, bottom: 2
         });
-        
-        if (typeof p["font"] != "undefined") font = p["font"];
-        if (typeof p["lineHeight"] != "undefined") lineHeight = p["lineHeight"];
-        if (typeof p["itemRenderFunction"] != "undefined") itemRenderFunction = p["itemRenderFunction"];
-        if (p.background === false){
-            background.hide();
-        }
-        
+        this._background.ignoreEvents = true;
+        this.addChild(this._background);
 
-        me.setSize(me.width,me.height);
-        me.setPosition(me.left,me.top);
-        background.setSize(me.width,me.height);
+        this._buttonUp = Assets.generate("button20_20");
+        this._buttonUp.label = "↑";
+        this._buttonUp.onClick = () => this.navigateUp();
+        this.addChild(this._buttonUp);
 
-        setScrollBarPosition();
+        this._buttonDown = Assets.generate("button20_20");
+        this._buttonDown.label = "↓";
+        this._buttonDown.onClick = () => this.navigateDown();
+        this.addChild(this._buttonDown);
 
-        buttonUp.setProperties({
-            left: me.width - 18,
-            top: 2,
-            width: 16,
-            height: 16,
-            label:"↑"
+        this._scrollBar = new Scale9Panel(w - 28, 18, 16, h - 3, {
+            img: Y.getImage("bar"), left: 2, top: 2, right: 3, bottom: 3
         });
-
-        buttonDown.setProperties({
-            left: me.width - 18,
-            top: me.height - 19,
-            width: 16,
-            height: 16,
-            label:"↓"
-        });
-
-        if (me.centerSelection){
-            startY = Math.ceil((me.height - lineHeight)/2);
-        }
-        itemCache = [];
-    };
-
-    me.setSelectedIndex = function(index,internal){
-        me.selectedIndex = index;
-        if (me.centerSelection) visibleIndex = me.selectedIndex;
-		setScrollBarPosition();
-        me.refresh();
-        if (!internal && me.onChange && previousSelectedIndex!==me.selectedIndex) me.onChange();
-        previousSelectedIndex = me.selectedIndex;
-    };
-    me.getSelectedIndex = function(){
-        return me.selectedIndex;
-    };
-
-    var background = Scale9Panel(0,0,me.width,me.height,{
-        img: Y.getImage("panel_dark"),
-        left:3,
-        top:3,
-        right:2,
-        bottom: 2
-    });
-    background.ignoreEvents = true;
-    me.addChild(background);
-
-    var buttonUp = Assets.generate("button20_20");
-    me.addChild(buttonUp);
-    buttonUp.onClick = function(){
-        me.navigateUp();
-    };
-
-    var buttonDown = Assets.generate("button20_20");
-    me.addChild(buttonDown);
-    buttonDown.onClick = function(){
-        me.navigateDown();
-    };
-
-    var scrollBar = Scale9Panel(w-28,18,16,h-3,{
-        img: Y.getImage("bar"),
-        left:2,
-        top:2,
-        right:3,
-        bottom: 3
-    });
-
-    scrollBar.onDragStart=function(){
-       scrollBar.startDragIndex = visibleIndex;
-
-    };
-
-    scrollBar.onDrag=function(touchData){
-        if (items.length>visibleIitems && scrollBarItemOffset){
-            var delta =  touchData.deltaY;
-            visibleIndex = Math.floor(scrollBar.startDragIndex + delta/scrollBarItemOffset);
-            visibleIndex = Math.min(visibleIndex,getMaxIndex());
-            visibleIndex = Math.max(visibleIndex,0);
-
-            if (me.centerSelection) {
-                me.setSelectedIndex(visibleIndex);
-            }else{
-				setScrollBarPosition();
-            }
-        }
-    };
-
-    me.addChild(scrollBar);
-
-    me.navigateUp = function(){
-        if (visibleIndex>0){
-            visibleIndex--;
-            setScrollBarPosition();
-        }
-        if (me.centerSelection) {
-            me.setSelectedIndex(visibleIndex);
-        }else{
-            me.refresh();
-        }
-    };
-
-    me.navigateDown = function(){
-        if (visibleIndex<getMaxIndex()){
-            visibleIndex++;
-            setScrollBarPosition();
-        }
-
-        if (me.centerSelection) {
-            me.setSelectedIndex(visibleIndex);
-        }else{
-            me.refresh();
-        }
-    };
-
-    me.render = function(internal){
-        internal = !!internal;
-        if (!me.isVisible()) return;
-
-        if (this.needsRendering){
-            if (background.isVisible()){
-                background.render();
-            }else{
-                me.clearCanvas();
-            }
-
-            for (var i = 0, len = items.length;i<len;i++){
-                var itemY = startY + ((i-visibleIndex)*lineHeight);
-                if ((itemY>=0) && (itemY<me.height)){
-                    var item = items[i];
-                    var isHover = hoverIndex+visibleIndex === i;
-                    var isSelected = me.selectedIndex === i;
-                    var clip = itemY>=me.height-lineHeight;
-                    var itemCanvas = renderItem(item,i,isHover,isSelected);
-
-                    if (isHover){
-                        me.ctx.fillStyle = 'rgba(110,130,220,0.15)';
-                        me.ctx.fillRect(0,itemY,me.width-2,lineHeight);
-                    }
-                    if (isSelected){
-                        me.ctx.fillStyle = 'rgba(110,130,220,0.25)';
-                        me.ctx.fillRect(0,itemY,me.width-2,lineHeight);
-                    }
-                    if (clip){
-                        me.ctx.drawImage(itemCanvas,0,itemY,me.width-2,me.height-itemY);
-                    }else{
-                        me.ctx.drawImage(itemCanvas,0,itemY);
-                    }
+        this._scrollBar.onDragStart = () => {
+            this._scrollBar.startDragIndex = this._visibleIndex;
+        };
+        this._scrollBar.onDrag = (touchData) => {
+            if (this._items.length > this._visibleItems && this._scrollBarItemOffset) {
+                const delta = touchData.deltaY;
+                this._visibleIndex = Math.floor(this._scrollBar.startDragIndex + delta / this._scrollBarItemOffset);
+                this._visibleIndex = Math.min(this._visibleIndex, this._getMaxIndex());
+                this._visibleIndex = Math.max(this._visibleIndex, 0);
+                if (this.centerSelection) {
+                    this.setSelectedIndex(this._visibleIndex);
+                } else {
+                    this._updateLayout();
+                    this.refresh();
                 }
             }
-
-            scrollBar.render();
-            if (scrollBar.isVisible()){
-                buttonUp.render();
-                buttonDown.render();
-            }
-
-        }
-        this.needsRendering = false;
-
-        if (internal){
-            return me.canvas;
-        }else{
-            me.parentCtx.drawImage(me.canvas,me.left,me.top,me.width,me.height);
-        }
-
-    };
-
-    me.setItems = function(newItems){
-        itemCache = [];
-        items = newItems;
-        visibleIndex = Math.min(visibleIndex,getMaxIndex());
-        setScrollBarPosition();
-        me.refresh();
-    };
-
-    me.clearCache = function(){
-        itemCache = [];
+        };
+        this.addChild(this._scrollBar);
+        this._updateLayout();
     }
 
-    me.getItems = function(){
-        return items;
-    };
+    get selectedIndex()        { return this._selectedIndex; }
+    set selectedIndex(v)       { this._selectedIndex = v; this.refresh(); }
 
+    get lineHeight()           { return this._lineHeight; }
+    set lineHeight(v)          { this._lineHeight = v; this.refresh(); }
 
-    me.getItemAtPosition = function(x,y){
-        y = y-startY;
-        var index = Math.floor(y/lineHeight) + visibleIndex;
-        if (index>=0 && index<items.length){
-            return(items[index]);
-        }else{
-            return undefined;
+    get font()                 { return this._font; }
+    set font(v)                { this._font = v; this._itemCache = []; this.refresh(); }
+
+    get itemRenderFunction()   { return this._itemRenderFunction; }
+    set itemRenderFunction(v)  { this._itemRenderFunction = v; this._itemCache = []; this.refresh(); }
+
+    get items()                { return this._items; }
+    set items(v)               { this.setItems(v); }
+
+    setSize(w, h) {
+        super.setSize(w, h);
+        if (this._background) {
+            this._background.setSize(w, h);
+            this._updateLayout();
         }
-    };
+    }
 
-    me.insertItemAfterIndex = function(newItem,index,indent){
+    setSelectedIndex(index, internal) {
+        if (!this._items.length) return;
+        index = Math.min(index, this._items.length - 1);
+        this._selectedIndex = Math.max(0, index);
+        if (this.centerSelection) this._visibleIndex = this._selectedIndex;
+        this._updateLayout();
+        this.refresh();
+        if (!internal && this.onChange && this._previousSelectedIndex !== this._selectedIndex) {
+            this.onChange();
+        }
+        this._previousSelectedIndex = this._selectedIndex;
+    }
 
-    };
+    getSelectedIndex() { return this._selectedIndex; }
 
-    var lineHor = Y.getImage("line_hor");
+    navigateUp() {
+        if (this._visibleIndex > 0) {
+            this._visibleIndex--;
+            this._updateLayout();
+        }
+        if (this.centerSelection) {
+            this.setSelectedIndex(this._visibleIndex);
+        } else {
+            this.refresh();
+        }
+    }
 
-    function renderItem(item,index,isHover,isSelected){
-        var key = index;
-        if (itemRenderFunction) key += "_"+isHover+"_"+isSelected;
+    navigateDown() {
+        if (this._visibleIndex < this._getMaxIndex()) {
+            this._visibleIndex++;
+            this._updateLayout();
+        }
+        if (this.centerSelection) {
+            this.setSelectedIndex(this._visibleIndex);
+        } else {
+            this.refresh();
+        }
+    }
 
-        var itemCanvas = itemCache[key];
-        if (itemCanvas) return itemCanvas;
+    setItems(newItems) {
+        this._itemCache = [];
+        this._items = newItems || [];
+        this._visibleIndex = Math.min(this._visibleIndex, this._getMaxIndex());
+        this._updateLayout();
+        this.refresh();
+    }
 
-        itemCanvas = document.createElement("canvas");
-        itemCanvas.width = me.width-2;
-        itemCanvas.height = lineHeight;
-        var targetCtx = itemCanvas.getContext("2d");
+    clearCache() { this._itemCache = []; }
+    getItems()   { return this._items; }
 
-        if (itemRenderFunction){
-            itemRenderFunction(targetCtx,item,isHover,isSelected);
-        }else{
-            var textX = 10;
-            var indent = 10;
+    getItemAtPosition(x, y) {
+        const index = Math.floor((y - this._startY) / this._lineHeight) + this._visibleIndex;
+        return (index >= 0 && index < this._items.length) ? this._items[index] : undefined;
+    }
 
-            if (item.level) textX += item.level*indent;
+    insertItemAfterIndex(newItem, index, indent) {}
 
-            if (item.icon){
-                targetCtx.drawImage(item.icon,textX,3);
-                textX += item.icon.width + 4;
+    onMouseWheel(touchData) {
+        if (touchData.mouseWheels[0] > 0) {
+            this.navigateUp();
+        } else {
+            this.navigateDown();
+        }
+    }
+
+    onDragStart(touchData) {
+        this._startDragIndex = this._visibleIndex;
+    }
+
+    onDrag(touchData) {
+        if (this._items.length > this._visibleItems) {
+            const delta = Math.round(touchData.deltaY / this._lineHeight);
+            this._visibleIndex = this._startDragIndex - delta;
+            this._visibleIndex = Math.max(this._visibleIndex, 0);
+            this._visibleIndex = Math.min(this._visibleIndex, this._getMaxIndex());
+            if (this.centerSelection) {
+                this.setSelectedIndex(this._visibleIndex);
+            } else {
+                this._updateLayout();
+                this.refresh();
+            }
+        }
+    }
+
+    onHover() {
+        const index = Math.floor((this.eventY - this._startY) / this._lineHeight);
+        if (index !== this._hoverIndex) {
+            this._hoverIndex = index;
+            this.refresh();
+        }
+    }
+
+    onHoverExit() {
+        if (this._hoverIndex !== undefined) {
+            this._hoverIndex = undefined;
+            this.refresh();
+        }
+    }
+
+    render(internal) {
+        internal = !!internal;
+        if (!this.isVisible()) return;
+        if (this.needsRendering) {
+            if (this._background.isVisible()) {
+                this._background.render();
+            } else {
+                this.clearCanvas();
             }
 
-            var text = item.label;
+            for (let i = 0, len = this._items.length; i < len; i++) {
+                const itemY = this._startY + ((i - this._visibleIndex) * this._lineHeight);
+                if (itemY >= 0 && itemY < this.height) {
+                    const item       = this._items[i];
+                    const isHover    = this._hoverIndex + this._visibleIndex === i;
+                    const isSelected = this._selectedIndex === i;
+                    const clip       = itemY >= this.height - this._lineHeight;
+                    const itemCanvas = this._renderItem(item, i, isHover, isSelected);
 
-            if (font){
-                if (item.info){
-                    var infoLength = (item.info.length*6)+20;
-                    fontSmall.write(targetCtx,item.info,me.width-infoLength,6,0);
-                    text = text.substr(0,Math.floor((me.width-infoLength-textX-26)/font.charWidth));
+                    if (isHover) {
+                        this.ctx.fillStyle = "rgba(110,130,220,0.15)";
+                        this.ctx.fillRect(0, itemY, this.width - 2, this._lineHeight);
+                    }
+                    if (isSelected) {
+                        this.ctx.fillStyle = "rgba(110,130,220,0.25)";
+                        this.ctx.fillRect(0, itemY, this.width - 2, this._lineHeight);
+                    }
+                    if (clip) {
+                        this.ctx.drawImage(itemCanvas, 0, itemY, this.width - 2, this.height - itemY);
+                    } else {
+                        this.ctx.drawImage(itemCanvas, 0, itemY);
+                    }
                 }
-
-                font.write(targetCtx,text,textX,5,0);
             }
 
-            if (lineHor) targetCtx.drawImage(lineHor,0,lineHeight-2,me.width-2,2);
+            this._scrollBar.render();
+            if (this._scrollBar.isVisible()) {
+                this._buttonUp.render();
+                this._buttonDown.render();
+            }
+        }
+        this.needsRendering = false;
+        if (internal) return this.canvas;
+        this.parentCtx.drawImage(this.canvas, this.left, this.top, this.width, this.height);
+    }
+
+    _renderItem(item, index, isHover, isSelected) {
+        const key = this._itemRenderFunction ? `${index}_${isHover}_${isSelected}` : index;
+        if (this._itemCache[key]) return this._itemCache[key];
+
+        const itemCanvas   = document.createElement("canvas");
+        itemCanvas.width   = this.width - 2;
+        itemCanvas.height  = this._lineHeight;
+        const ctx          = itemCanvas.getContext("2d");
+
+        if (this._itemRenderFunction) {
+            this._itemRenderFunction(ctx, item, isHover, isSelected);
+        } else {
+            const font      = this._font || Font.med;
+            const fontSmall = Font.small;
+            let textX       = 10;
+            const indent    = 10;
+
+            if (item.level) textX += item.level * indent;
+            if (item.icon)  { ctx.drawImage(item.icon, textX, 3); textX += item.icon.width + 4; }
+
+            let text = item.label;
+            if (font) {
+                if (item.info) {
+                    const infoLength = (item.info.length * 6) + 20;
+                    if (fontSmall) fontSmall.write(ctx, item.info, this.width - infoLength, 6, 0);
+                    text = text.substr(0, Math.floor((this.width - infoLength - textX - 26) / font.charWidth));
+                }
+                font.write(ctx, text, textX, 5, 0);
+            }
+
+            const lineHor = Y.getImage("line_hor");
+            if (lineHor) ctx.drawImage(lineHor, 0, this._lineHeight - 2, this.width - 2, 2);
         }
 
-        itemCache[key] = itemCanvas;
+        this._itemCache[key] = itemCanvas;
         return itemCanvas;
     }
 
-    function setScrollBarPosition(){
-        var max = items.length;
-        visibleIitems = Math.floor(me.height/lineHeight);
-        if (me.centerSelection){visibleIitems = 1;}
+    _updateLayout() {
+        if (!this._scrollBar) return;
+        const max = this._items.length;
+        this._visibleItems = Math.floor(this.height / this._lineHeight);
+        if (this.centerSelection) this._visibleItems = 1;
 
-        var startTop = 18;
-        var top = startTop;
-        var startHeight = me.height - 4 - 32;
-        var height = startHeight;
-        scrollBarItemOffset = 0;
+        const startTop    = 18;
+        const startHeight = this.height - 4 - 32;
+        let top    = startTop;
+        let height = startHeight;
+        this._scrollBarItemOffset = 0;
 
-        if (max>visibleIitems){
-            height = Math.floor((visibleIitems / max) * startHeight);
-            if (height<12) height = 12;
-
-            scrollBarItemOffset = (startHeight - height) / (max-visibleIitems);
-            scrollBar.show();
-
-        }else{
-            scrollBar.hide();
+        if (max > this._visibleItems) {
+            height = Math.floor((this._visibleItems / max) * startHeight);
+            if (height < 12) height = 12;
+            this._scrollBarItemOffset = (startHeight - height) / (max - this._visibleItems);
+            this._scrollBar.show();
+        } else {
+            this._scrollBar.hide();
         }
 
-        if (visibleIndex && scrollBarItemOffset){
-            top = Math.floor(startTop + scrollBarItemOffset*visibleIndex);
+        if (this._visibleIndex && this._scrollBarItemOffset) {
+            top = Math.floor(startTop + this._scrollBarItemOffset * this._visibleIndex);
         }
 
-        scrollBar.setProperties({
-            left: me.width - 18,
-            top: top,
-            width: 16,
-            height: height
-        });
+        this._scrollBar.setPosition(this.width - 18, top);
+        this._scrollBar.setSize(16, height);
+
+        this._buttonUp.setPosition(this.width - 18, 2);
+        this._buttonUp.setSize(16, 16);
+
+        this._buttonDown.setPosition(this.width - 18, this.height - 19);
+        this._buttonDown.setSize(16, 16);
+
+        if (this.centerSelection) {
+            this._startY = Math.ceil((this.height - this._lineHeight) / 2);
+        }
     }
 
-
-    me.onMouseWheel = function(touchData){
-        if (touchData.mouseWheels[0] > 0){
-            me.navigateUp();
-        }else{
-            me.navigateDown();
-        }
-    };
-
-    me.onDragStart = function(touchData){
-        me.startDragIndex = visibleIndex;
-    };
-
-    me.onDrag = function(touchData){
-        if (items.length>visibleIitems){
-            var delta =  Math.round((touchData.deltaY)/lineHeight);
-            visibleIndex = me.startDragIndex - delta;
-            visibleIndex = Math.max(visibleIndex,0);
-            visibleIndex = Math.min(visibleIndex,getMaxIndex());
-
-            if (me.centerSelection) {
-                me.setSelectedIndex(visibleIndex);
-            }else{
-				setScrollBarPosition();
-            }
-        }
-    };
-
-
-    me.onHover = function(){
-        var index = Math.floor((me.eventY-startY)/lineHeight);
-        if (index !== hoverIndex){
-            hoverIndex = index;
-            me.refresh();
-        }
-    };
-
-    me.onHoverExit = function(){
-        if (hoverIndex !== undefined){
-            hoverIndex = undefined;
-            me.refresh();
-        }
-    };
-
-
-
-
-    function getMaxIndex(){
-        var max = items.length-1;
-        if (!me.centerSelection) {
-            max = items.length-visibleIitems;
-        }
-        if (max<0) max=0;
-        return max;
+    _getMaxIndex() {
+        let max = this._items.length - 1;
+        if (!this.centerSelection) max = this._items.length - this._visibleItems;
+        return Math.max(max, 0);
     }
-
-    return me;
-};
-
-export default listbox;
+}
