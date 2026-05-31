@@ -149,6 +149,7 @@ var server = http.createServer(function (req, res) {
 			
 			break;
 		case "mpl":
+			action = urlParts[1];
 			modulesPL.handleRequest(action,urlParts,res);
 			break;
         case "ma":
