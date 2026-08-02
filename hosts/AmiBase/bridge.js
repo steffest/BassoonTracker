@@ -1,6 +1,7 @@
 import Tracker from "../../script/src/tracker.js";
 import Host from "../../script/src/host.js";
 import {COMMAND} from "../../script/src/enum.js";
+import App from "../../script/src/app.js";
 
 var HostBridge = function(){
     var me = {};
@@ -27,22 +28,43 @@ var HostBridge = function(){
                         case 'setMessageHandler':
                             break;
                         case 'loadFile':
+                            AmiBase.requestFile(true).then(data=>{
+                                var buffer = data.data;
+                                var fileName = data.filename || "file";
+                                console.log("opening file",data);
+                                Tracker.processFile(buffer,fileName,function(isMod){
+                                    if (UI) UI.setStatus("Ready");
+                                });
+                            })
                             break;
-                        case 'openfile':
-                        case 'dropfile':
+                        case 'openFile':
+                        case 'dropFile':
                             Host.useInitialLoad = false;
-                            var buffer = message.data.data;
-                            var fileName = message.data.filename || "file";
-                            console.log("opening file",fileName);
-                            Tracker.processFile(buffer,fileName,function(isMod){
-                                if (UI) UI.setStatus("Ready");
-                            });
+                            if (message.data.data){
+                                // we already have the binary data
+                                var buffer = message.data.data;
+                                var fileName = message.data.filename || "file";
+                                console.log("opening file",fileName);
+                                Tracker.processFile(buffer,fileName,function(isMod){
+                                    if (UI) UI.setStatus("Ready");
+                                });
+                            }else{
+                                // request file content from url?
+                                if (message.data.url){
+                                    Tracker.load(message.data.url,true);
+                                }else{
+                                    console.error("no file data")
+                                }
+                            }
                             AmiBase.focus();
                             break;
                         case 'getFileName':
                             var filename = Tracker.getFileName();
                             break;
                         case 'saveFile':
+                            break;
+                        case 'callback':
+                            AmiBase.callback(message.data.id,message.data.data);
                             break;
                         default:
                             var command = COMMAND[command];
@@ -73,7 +95,7 @@ var HostBridge = function(){
                             },
                             {
                                 label: 'Load Module',
-                                message: 'loadmodule'
+                                message: 'loadFile'
                             },
                             {
                                 label: 'Save Module',
@@ -126,7 +148,7 @@ var HostBridge = function(){
                                 ]
                             },
                             {
-                                label: 'Render Pattner 2 sample',
+                                label: 'Pattern-2-sample',
                                 message: 'bsn_pattern2Sample'
                             },
 
@@ -249,3 +271,5 @@ var HostBridge = function(){
     
     return me;
 }();
+
+window.HostBridge = HostBridge;

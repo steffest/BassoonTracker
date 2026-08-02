@@ -99,3 +99,5 @@ var AmiBase = function(){
 
     return me;
 }();
+
+window.AmiBase = AmiBase;
