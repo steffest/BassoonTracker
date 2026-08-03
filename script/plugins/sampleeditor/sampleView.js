@@ -19,6 +19,7 @@ import Layout from "../../src/ui/app/layout.js";
 import Input from "../../src/ui/input.js";
 import UI from "../../src/ui/ui.js";
 import HissReductionPanel from "./hissReductionPanel.js";
+import ResamplePanel from "./resamplePanel.js";
 
 function setProps(target, props){
 	if (!target || !props) return;
@@ -119,6 +120,7 @@ let SampleView = function(){
 	waveForm.addLoopCreator(loopCreator);
 
 	var hissReductionPanel = HissReductionPanel();
+	var resamplePanel = new ResamplePanel();
 	waveForm.addHissReductionPanel(hissReductionPanel);
 
 	waveForm.onMouseWheel = function(touchData){
@@ -155,14 +157,21 @@ let SampleView = function(){
 		sampleEditorMenu.hide();
 		me.onResize();
 	}
+	function openResamplePanel() {
+		sampleEditorMenu.hide();
+		resamplePanel.onClose = () => sampleEditorMenu.show(true, true);
+		var sample = Tracker.getCurrentInstrument() && Tracker.getCurrentInstrument().sample;
+		resamplePanel.setPosition(Math.floor((me.width - resamplePanel.width) / 2), Math.floor((me.height - resamplePanel.height) / 2));
+		resamplePanel.open(sample && (sample.originalSampleRate || sample.c2spd) || 8363, (targetRate, interpolate) => waveForm.resampleToRate(sample.originalSampleRate || sample.c2spd || 8363, targetRate, interpolate), sample && sample.name, sample);
+	}
 
 	loopCreator.onClose = function() {
-		sampleEditorMenu.show();
+		sampleEditorMenu.show(true, true);
 		me.onResize();
 	};
 
 	hissReductionPanel.onClose = function() {
-		sampleEditorMenu.show();
+		sampleEditorMenu.show(true, true);
 		me.onResize();
 	};
 
@@ -199,9 +208,13 @@ let SampleView = function(){
 		{label: "View", subItems: [
 			{label: "Maximize", onClick: function(){
 				toggleMaximize();
+			}},
+			{label: "Slices", onClick: function(){
+				waveForm.toggleSlices();
 			}}
 		]},
 		{label: "Edit", subItems: [
+			{label: "Resample", onClick: openResamplePanel},
 			{label: "Normalize", onClick: function(){
 				waveForm.adjustVolume("max");
 			}},
@@ -537,10 +550,17 @@ let SampleView = function(){
     me.addChild(vibratoTitleBar);
 
     me.onShow = function(){
+		Layout.sampleViewVisible = true;
     	Input.setFocusElement(me);
 		me.refreshState();
         me.onResize();
     };
+
+	me.onHide = function(){
+		Layout.sampleViewVisible = false;
+		waveForm.stop();
+		Input.clearInputNotes();
+	};
 
 	me.refreshState = function(){
 		EventBus.trigger(EVENT.songPropertyChange,Tracker.getSong());
@@ -551,6 +571,12 @@ let SampleView = function(){
 	me.onKeyDown = function(keyCode,event){
 		if (!me.visible) return;
 		switch (keyCode){
+		case 32: // space
+				if (isMaximized || Layout.sampleViewVisible){
+					waveForm.toggleSelectionPlayback();
+					return true;
+				}
+				break;
 			case 37: // left
 				waveForm.scroll(-1);
 				return true;
@@ -828,6 +854,10 @@ let SampleView = function(){
 		}
 
 	};
+
+	EventBus.on(EVENT.sampleEditorTogglePlayback, function(){
+		if (me.visible) waveForm.toggleSelectionPlayback();
+	});
 
 
 	function toggleMaximize() {

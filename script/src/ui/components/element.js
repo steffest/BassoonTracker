@@ -172,11 +172,8 @@ export default class UIElement {
     refresh(refreshChildren) {
         this.needsRendering = true;
         if (refreshChildren) {
-            let i = this.children.length;
-            while (i) {
-                const child = this.children[i];
-                if (child) child.refresh();
-                i--;
+            for (const child of this.children) {
+                if (child) child.refresh(true);
             }
         }
         if (this.visible && this.parent && this.parent.refresh && !this.parent.needsRendering) this.parent.refresh();

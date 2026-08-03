@@ -97,7 +97,7 @@ let app_menu = function(container){
     me.onPanelResize = function(){
         var menuMin = 250;
         var menuWidth = Math.max(Layout.col2W,menuMin);
-        
+
         if (!Host.showInternalMenu){
             menuBackground.hide();
             menuWidth = 0;

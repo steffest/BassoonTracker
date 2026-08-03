@@ -173,10 +173,12 @@ let DiskOperationSave = function(){
 		fileNameInput.width = innerWidth-6;
 		fileNameInput.top = 4;
 
-		saveButton.left = 2;
-		saveButton.width = innerWidth;
-		saveButton.height = 28;
-		saveButton.top = me.height - 27;
+		saveButton.setDimensions({
+			left: 2,
+			top: me.height - 27,
+			width: innerWidth,
+			height: 28
+		});
 
 		selectionType.left = 4;
 		selectionType.width = innerWidth-4;
@@ -184,6 +186,10 @@ let DiskOperationSave = function(){
 		selectionType.top = 30;
 
 	};
+
+	// DiskOperations resizes child panels through setSize(), which invokes
+	// onResize(). Keep the save panel layout in that same lifecycle.
+	me.onResize = me.setLayout;
 
 	EventBus.on(EVENT.songPropertyChange,function(song){
 		song = song || Tracker.getSong();
@@ -237,4 +243,3 @@ let DiskOperationSave = function(){
 };
 
 export default DiskOperationSave;
-

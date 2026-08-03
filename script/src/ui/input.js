@@ -6,6 +6,7 @@ import Tracker, {FTNotes} from "../tracker.js";
 import Audio from "../audio.js";
 import Editor from "../editor.js";
 import Playlist from "../models/playlist.js";
+import Layout from "./app/layout.js";
 
 let Input = (function(){
 
@@ -29,6 +30,14 @@ let Input = (function(){
 
 	var prevHoverTarget;
 	var prevIndex = 13;
+	var lastClick = {};
+
+	me.isDoubleClick = function(key){
+		var now = Date.now();
+		var previous = lastClick[key];
+		lastClick[key] = now;
+		return previous && now - previous < 400;
+	};
 
 	me.init = function(){
 		
@@ -367,8 +376,16 @@ let Input = (function(){
 				case "Escape":
 					UI.clearSelection();
 					break;
-                case "Space":
-                    Tracker.toggleRecord();
+				case "Space":
+					if (Layout.sampleViewVisible){
+						EventBus.trigger(EVENT.sampleEditorTogglePlayback);
+						return;
+					}
+					if (isMetaKeyDown){
+						Tracker.toggleRecord();
+					}else{
+						Tracker.togglePlay();
+					}
                     return;
                 case "PageUp":
                     var step = Math.floor(Tracker.getPatternLength()/4);
@@ -699,6 +716,11 @@ let Input = (function(){
 
 	me.getCurrentOctave =function(){
 		return currentOctave;
+	};
+	me.getNoteIndexForKeyEvent = function(event){
+		var keyboardNote = KEYBOARDTABLE.main[event.code || event.key];
+		if (typeof keyboardNote !== "number") return -1;
+		return keyboardNote === 0 ? 0 : (currentOctave * 12) + keyboardNote;
 	};
 
 	me.setCurrentOctave =function(value){

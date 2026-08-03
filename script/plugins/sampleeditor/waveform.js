@@ -40,6 +40,7 @@ let WaveForm = function(){
 	var ignoreInstrumentChange;
 	var rangeCache = [];
 	var playingOffset = 0;
+	var slicesVisible = false;
 	var rangeHandleSnapshot = null;
 	var rangeHandleEditAction = null;
 	var rangeHandleDirty = false;
@@ -55,6 +56,12 @@ let WaveForm = function(){
 	var drawEditSnapshot = null;
 	var drawEditFrom = -1;
 	var drawEditTo = -1;
+
+	function snapToSliceBoundary(value){
+		if (!slicesVisible || !sampleLength) return Math.round(value);
+		return Math.round(Math.max(0, Math.min(sampleLength,
+			Math.round(value / (sampleLength / 8)) * (sampleLength / 8))));
+	}
 
 	me.setDrawMode = function(enabled){
 		drawMode = enabled;
@@ -255,7 +262,7 @@ let WaveForm = function(){
 		dragRangeStart = dragRangeEnd = touchData.startX;
 
 		var pixelValue = (currentInstrument.sample.length/me.width)/zoom;
-		rangeStart = rangeEnd = Math.round(zoomStart + (dragRangeStart * pixelValue));
+		rangeStart = rangeEnd = snapToSliceBoundary(zoomStart + (dragRangeStart * pixelValue));
 		rangeLength = 0;
 		EventBus.trigger(EVENT.samplePropertyChange,{
 			rangeLength: rangeLength
@@ -378,6 +385,8 @@ let WaveForm = function(){
 			if (dragMarker === MARKERTYPE.rangeStart){
 				value = Math.min(value,sampleLength-2);
 				value = Math.max(value,0);
+				value = snapToSliceBoundary(value);
+				value = Math.min(value, sampleLength - 2);
 				rangeStart = value;
 
 				if ((rangeStart + rangeLength)>sampleLength){
@@ -386,6 +395,9 @@ let WaveForm = function(){
 			}else{
 				value = Math.max(value,2);
 				value = Math.min(value,sampleLength-rangeStart);
+				value = snapToSliceBoundary(rangeStart + value) - rangeStart;
+				value = Math.max(value, 2);
+				value = Math.min(value, sampleLength - rangeStart);
 				rangeLength = value;
 			}
 
@@ -398,7 +410,7 @@ let WaveForm = function(){
 
 
 		dragRangeEnd = touchData.x;
-		rangeEnd = Math.round(zoomStart + (dragRangeEnd * pixelValue));
+		rangeEnd = snapToSliceBoundary(zoomStart + (dragRangeEnd * pixelValue));
 		rangeEnd = Math.max(rangeEnd,0);
 		rangeLength = rangeEnd - rangeStart;
 
@@ -611,7 +623,6 @@ let WaveForm = function(){
 	};
 
 	me.play = function(period,offset){
-		if (zoom>1) return;
 		offset = offset || 0;
 		
 		playingOffset = offset;
@@ -623,12 +634,27 @@ let WaveForm = function(){
 
 	me.playSection = function(section){
 		if (section === "range"){
-			Input.handleNoteOn(Input.getPrevIndex(),undefined,rangeStart);
+			Input.handleNoteOn(Input.getPrevIndex(),undefined,rangeStart >= 0 ? rangeStart : 0);
 		}
 		if (section === "loop"){
 			Input.handleNoteOn(Input.getPrevIndex(),undefined,currentInstrument.sample.loop.start);
 		}
 
+	};
+
+	me.toggleSlices = function(){
+		slicesVisible = !slicesVisible;
+		me.refresh();
+	};
+
+	me.toggleSelectionPlayback = function(){
+		if (isPlaying){
+			Input.clearInputNotes();
+			Input.handleNoteOff(Input.getPrevIndex());
+			me.stop();
+			return;
+		}
+		me.playSection("range");
 	};
 
 	me.stop = function(){
@@ -888,6 +914,36 @@ let WaveForm = function(){
 			}
 			me.ctx.drawImage(waveformDisplay.canvas, 0, waveTop);
 
+			if (slicesVisible && sampleLength > 0 && zoomLength > 0){
+				var sliceLength = sampleLength / 8;
+				me.ctx.save();
+				me.ctx.beginPath();
+				me.ctx.rect(0, waveTop, me.width, waveH);
+				me.ctx.clip();
+				for (var slice = 0; slice < 8; slice++){
+					var sliceStart = slice * sliceLength;
+					var sliceEnd = (slice + 1) * sliceLength;
+					var left = ((sliceStart - zoomStart) / zoomLength) * me.width;
+					var right = ((sliceEnd - zoomStart) / zoomLength) * me.width;
+					if (slice % 2 === 0){
+						me.ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+						me.ctx.fillRect(left, waveTop, right - left, waveH);
+					}
+					me.ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+					me.ctx.lineWidth = 1;
+					me.ctx.beginPath();
+					me.ctx.moveTo(left + 0.5, waveTop);
+					me.ctx.lineTo(left + 0.5, waveTop + waveH);
+					me.ctx.stroke();
+				}
+				var endX = (((8 * sliceLength) - zoomStart) / zoomLength) * me.width;
+				me.ctx.beginPath();
+				me.ctx.moveTo(endX + 0.5, waveTop);
+				me.ctx.lineTo(endX + 0.5, waveTop + waveH);
+				me.ctx.stroke();
+				me.ctx.restore();
+			}
+
 			if (currentSampleData && zoomLength > 0){
 				var pixPerSample = getPixelsPerSample();
 				if (pixPerSample >= 3){
@@ -912,16 +968,20 @@ let WaveForm = function(){
 				if (currentInstrument.sample.loop.enabled && index>currentInstrument.sample.loop.start){
 					index = currentInstrument.sample.loop.start + ((index-currentInstrument.sample.loop.start)%currentInstrument.sample.loop.length);
 					//isPlaying=false;
-					var pos = (index / sampleLength) * me.width;
-					me.ctx.fillStyle = "rgb(241, 162, 71)";
-					me.ctx.fillRect(pos, waveTop, 1, waveH);
+					var pos = ((index - zoomStart) / zoomLength) * me.width;
+					if (pos >= 0 && pos <= me.width){
+						me.ctx.fillStyle = "rgb(241, 162, 71)";
+						me.ctx.fillRect(pos, waveTop, 1, waveH);
+					}
 				}else{
 					if (index>sampleLength){
 						isPlaying=false;
 					}else{
-						var pos = (index / sampleLength) * me.width;
-						me.ctx.fillStyle = "rgb(241, 162, 71)";
-						me.ctx.fillRect(pos, waveTop, 1, waveH);
+						var pos = ((index - zoomStart) / zoomLength) * me.width;
+						if (pos >= 0 && pos <= me.width){
+							me.ctx.fillStyle = "rgb(241, 162, 71)";
+							me.ctx.fillRect(pos, waveTop, 1, waveH);
+						}
 					}
 				}
 			}
@@ -1276,6 +1336,34 @@ let WaveForm = function(){
 
 
 		joinRange(data);
+	};
+
+	me.resampleToRate = function(sourceRate, targetRate, interpolate){
+		if (!currentInstrument || !currentSampleData || !sourceRate || !targetRate) return false;
+		var oldData = currentSampleData.slice();
+		var newLength = Math.max(1, Math.round(oldData.length * targetRate / sourceRate));
+		var newData = new Array(newLength);
+		for (var i = 0; i < newLength; i++) {
+			var position = i * sourceRate / targetRate;
+			var left = Math.floor(position);
+			var right = Math.min(left + 1, oldData.length - 1);
+			var fraction = position - left;
+			newData[i] = interpolate ? oldData[left] + (oldData[right] - oldData[left]) * fraction : oldData[Math.round(position) < oldData.length ? Math.round(position) : oldData.length - 1];
+		}
+		var action = StateManager.createSampleUndo(SELECTION.REPLACE, 0, oldData.length);
+		action.data = oldData;
+		action.dataTo = newData.slice();
+		action.name = "Resample Sample";
+		StateManager.registerEdit(action);
+		currentSampleData = newData;
+		currentInstrument.sample.data = newData;
+		currentInstrument.sample.length = newData.length;
+		currentInstrument.sample.loop.start = Math.round(currentInstrument.sample.loop.start * targetRate / sourceRate);
+		currentInstrument.sample.loop.length = Math.round(currentInstrument.sample.loop.length * targetRate / sourceRate);
+		me.setInstrument(currentInstrument);
+		waveformDisplay.needsRendering = true;
+		me.refresh(true, true);
+		return true;
 	};
 
 	me.processSelection = function(state){

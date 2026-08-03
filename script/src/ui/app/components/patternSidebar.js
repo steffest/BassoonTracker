@@ -17,6 +17,7 @@ import Y from "../../yascal/yascal.js";
 import Editor from "../../../editor.js";
 import Favorites from "../../../models/favorites.js";
 import Font from "../../font.js";
+import Input from "../../input.js";
 
 export default class PatternSidebar extends Panel {
     _songListBox;
@@ -184,9 +185,10 @@ export default class PatternSidebar extends Panel {
             if (item) {
                 const index = item.listIndex;
                 if (item !== listbox.getSelectedIndex()) listbox.setSelectedIndex(index);
+                const openSampleEditor = type === "samples" && item.url && Input.isDoubleClick(item.url);
                 if (item.url) {
                     if (type === "samples") {
-                        Tracker.load(item.url);
+                        Tracker.load(item.url, false, openSampleEditor ? () => App.doCommand(COMMAND.showSampleEditor) : undefined);
                     } else if (typeof item.index === "number" && type === "songs") {
                         Playlist.play(item.index);
                     } else {

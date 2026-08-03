@@ -38,6 +38,10 @@ export default class InputBox extends UIElement {
 
     get prevValue()   { return this._prevValue; }
 
+    // Compatibility methods used by StateManager value undo actions.
+    getValue()        { return this._value; }
+    getPrevValue()    { return this._prevValue; }
+
     get placeholder() { return this._placeholder; }
     set placeholder(v){ this._placeholder = v; this.refresh(); }
 

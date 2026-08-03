@@ -13,6 +13,7 @@ let Layout = function(){
 
   me.hasSideBar = true;
   me.sampleViewMaximized = false;
+  me.sampleViewVisible = false;
 
   me.setLayout = function(w,h){
   	

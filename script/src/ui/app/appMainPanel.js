@@ -87,8 +87,8 @@ export default class AppMainPanel extends PanelContainer {
             if (item) {
                 Tracker.setCurrentInstrumentIndex(item.data);
                 const now = Date.now();
-                if (item.data === lastInstrumentClickData && now - lastInstrumentClickTime < 400) {
-                    EventBus.trigger(COMMAND.showSampleEditor);
+                if ((item.data === lastInstrumentClickData) && ((now - lastInstrumentClickTime) < 400)) {
+                    EventBus.trigger(EVENT.command, COMMAND.showSampleEditor);
                     lastInstrumentClickData = null;
                 } else {
                     lastInstrumentClickTime = now;

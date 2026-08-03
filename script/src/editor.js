@@ -553,8 +553,12 @@ var Editor = (function(){
         instrument.sample.volume = 64;
         instrument.sample.data = [];
         instrument.sample.name = baseName;
+		instrument.sample.originalSampleRate = 0;
 
         detectSampleType(file,instrument.sample,function(){
+			if (instrument.sample.info && instrument.sample.info.sampleRate) {
+				instrument.sample.originalSampleRate = instrument.sample.info.sampleRate;
+			}
         	// some decoders are async: retrigger event on callback
 			EventBus.trigger(EVENT.instrumentChange,Tracker.getCurrentInstrumentIndex());
 			EventBus.trigger(EVENT.instrumentNameChange,Tracker.getCurrentInstrumentIndex());

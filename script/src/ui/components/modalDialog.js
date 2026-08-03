@@ -27,15 +27,13 @@ export default class ModalDialog extends UIElement {
         this._okButton = Assets.generate("buttonLight");
         this._okButton.name   = "okbutton";
         this._okButton.label  = "OK";
-        this._okButton.width  = 100;
-        this._okButton.height = 28;
+        this._okButton.setSize(100, 28);
         this.addChild(this._okButton);
 
         this._cancelButton = Assets.generate("buttonLight");
         this._cancelButton.name   = "cancelbutton";
         this._cancelButton.label  = "Cancel";
-        this._cancelButton.width  = 100;
-        this._cancelButton.height = 28;
+        this._cancelButton.setSize(100, 28);
         this.addChild(this._cancelButton);
     }
 

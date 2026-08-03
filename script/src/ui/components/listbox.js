@@ -195,10 +195,12 @@ export default class ListBox extends UIElement {
         internal = !!internal;
         if (!this.isVisible()) return;
         if (this.needsRendering) {
+            // The panel background has transparent interior pixels. Clear the
+            // previous rows before repainting, otherwise scrolling leaves
+            // stale item text behind.
+            this.clearCanvas();
             if (this._background.isVisible()) {
                 this._background.render();
-            } else {
-                this.clearCanvas();
             }
 
             for (let i = 0, len = this._items.length; i < len; i++) {
