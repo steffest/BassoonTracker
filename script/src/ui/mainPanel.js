@@ -7,7 +7,7 @@ import App_patternPanel from "./app/patternPanel.js";
 import Pattern_sidebar from "./app/components/patternSidebar.js";
 import App_pianoView from "./app/pianoView.js";
 import Layout from "../ui/app/layout.js";
-import {COMMAND, EVENT} from "../enum.js";
+import {COMMAND, EVENT, SETTINGS} from "../enum.js";
 import UI from "./ui.js";
 import Assets from "./assets.js";
 import Input from "./input.js";
@@ -65,6 +65,7 @@ export default class MainPanel extends Panel {
         this.on(EVENT.toggleView, view => {
                 if (view === "piano") {
                     this._pianoPanel.toggle();
+                    SETTINGS.showPiano = this._pianoPanel.isVisible();
                     let remaining = this.height - this._patternPanel.top;
                     if (this._pianoPanel.isVisible()) {
                         this._pianoPanel.setSize(Layout.mainWidth, Layout.pianoHeight);
@@ -78,16 +79,24 @@ export default class MainPanel extends Panel {
                 }
             });
         this.on(EVENT.showView, view => {
-                if (view === "main" || view === "diskop_load" || view === "options") {
+                if (view === "diskop_load" || view === "options") {
                     if (!this._appPanel.isVisible()) {
                         this._appPanel.show();
                         this.onResize();
                     }
-                }
-                if (view === "diskop_load" || view === "options") {
                     this._toggleButton.hide();
-                }
-                if (view === "topmain" || view === "main") {
+                } else if (view === "main" || view === "multitrack" || view === "topmain") {
+                    if (SETTINGS.showAppPanel === false) {
+                        if (this._appPanel.isVisible()) {
+                            this._appPanel.hide();
+                            this.onResize();
+                        }
+                    } else {
+                        if (!this._appPanel.isVisible()) {
+                            this._appPanel.show();
+                            this.onResize();
+                        }
+                    }
                     this._toggleButton.show();
                 }
 
@@ -120,9 +129,14 @@ export default class MainPanel extends Panel {
                 this._isContextMenuVisible = false;
                 this.refresh();
             });
-        this.on(EVENT.appLayoutChanged, () => { this.onResize(); });
+        this.on(EVENT.appLayoutChanged, () => {
+                this.onResize();
+                this.refresh(true);
+                if (UI && typeof UI.refresh === "function") UI.refresh();
+            });
         this.on(COMMAND.toggleAppPanel, () => {
                 this._appPanel.toggle();
+                SETTINGS.showAppPanel = this._appPanel.isVisible();
                 this.onResize();
             });
 

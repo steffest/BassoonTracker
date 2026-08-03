@@ -140,107 +140,110 @@ let DiskOperations = function(){
     };
 
 	me.onResize = function(){
-		if(me.isVisible()){
-            me.clearCanvas();
+		me.clearCanvas();
 
-			background.left = 0;
-			background.top = 0;
-			background.height = me.height;
-			background.width = me.width;
+		background.setPosition(0, 0);
+		background.setSize(me.width, me.height);
 
-            var startTop = 5;
+		var startTop = 5;
 
-			closeButton.top = startTop-2;
-			closeButton.width = 20;
-			closeButton.heigth = 18;
-			closeButton.left = me.width - 30;
+		closeButton.top = startTop - 2;
+		closeButton.width = 20;
+		closeButton.height = 18;
+		closeButton.left = me.width - 30;
 
-			browseButton.top = closeButton.top+2;
-			browseButton.width = 55;
-			browseButton.height = 18;
-			browseButton.left = closeButton.left - 60;
+		browseButton.top = closeButton.top + 2;
+		browseButton.width = 55;
+		browseButton.height = 18;
+		browseButton.left = closeButton.left - 60;
 
-			
-            if (me.width >= 730){
+		if (me.width >= 730){
+			actionPanel.show();
+			label.show();
+			loadButton.hide();
+			saveButton.hide();
 
-                actionPanel.show();
-                label.show();
-                loadButton.hide();
-                saveButton.hide();
+			actionPanel.setDimensions({
+				left: Layout.col1X,
+				top: startTop,
+				width: Layout.col1W,
+				height: me.height - 10
+			});
+			typePanel.setDimensions({
+				left: Layout.col2X,
+				top: startTop,
+				width: Layout.col1W,
+				height: me.height - 10
+			});
+			targetPanel.setDimensions({
+				left: Layout.col3X,
+				top: startTop,
+				width: Layout.col1W,
+				height: me.height - 10
+			});
 
-												actionPanel.top = startTop;
-												actionPanel.left = Layout.col1X;
-												actionPanel.width = Layout.col1W;
-												actionPanel.height = me.height - 10;
-												typePanel.top = startTop;
-												typePanel.left = Layout.col2X;
-												typePanel.width = Layout.col1W;
-												typePanel.height = me.height - 10;
-												targetPanel.top = startTop;
-												targetPanel.left = Layout.col3X;
-												targetPanel.width = Layout.col1W;
-												targetPanel.height = me.height - 10;
+			label.setDimensions({
+				left: Layout.col4X,
+				top: startTop,
+				width: Layout.col2W,
+				height: 20
+			});
 
-				label.left = Layout.col4X;
-				label.top = startTop;
-				label.height = 20;
-				label.width = Layout.col2W;
+			listbox.setDimensions({
+				left: Layout.col4X,
+				top: startTop + 19,
+				width: Layout.col2W,
+				height: me.height - (19 + startTop) - 5
+			});
+		} else {
+			actionPanel.hide();
+			label.hide();
+			loadButton.show();
+			saveButton.show();
 
+			loadButton.setPosition(Layout.col3X, 5);
+			saveButton.setPosition(Layout.col3X + 50, 5);
 
-				listbox.left = Layout.col4X;
-				listbox.width = Layout.col2W;
-				listbox.top = startTop + 19;
-				listbox.height = me.height - (19+startTop) - 5;
+			typePanel.setDimensions({
+				left: Layout.defaultMargin,
+				top: startTop,
+				width: Layout.col2W,
+				height: (me.height / 2) - startTop - 16
+			});
 
-            }else{
+			targetPanel.setDimensions({
+				left: Layout.defaultMargin,
+				top: me.height / 2 - 16,
+				width: Layout.col2W,
+				height: me.height / 2 + 16
+			});
 
-            	actionPanel.hide();
-                label.hide();
-                loadButton.show();
-                saveButton.show();
-
-				loadButton.top = 5;
-				loadButton.left = Layout.col3X;
-				saveButton.top = 5;
-				saveButton.left = Layout.col3X + 50;
-
-				typePanel.top = startTop;
-				typePanel.left = Layout.defaultMargin;
-				typePanel.width = Layout.col2W;
-				typePanel.height = (me.height / 2) - startTop - 16;
-
-				targetPanel.top = me.height / 2 - 16;
-				targetPanel.left = Layout.defaultMargin;
-				targetPanel.width = Layout.col2W;
-				targetPanel.height = me.height / 2 + 16;
-
-				listbox.left = Layout.col3X;
-				listbox.width = Layout.col3W;
-				listbox.top = startTop + 19;
-				listbox.height = me.height - (19+startTop) - 5;
-
-            }
-
-            if (currentAction === "save"){
-
-				savePanel.left = listbox.left;
-				savePanel.width = listbox.width;
-				savePanel.top = listbox.top;
-				savePanel.height = listbox.height;
-
-                listbox.hide();
-                savePanel.show();
-            }else{
-                listbox.show();
-                savePanel.hide();
-            }
-
-
-			dropzone.left = listbox.left;
-			dropzone.width = listbox.width;
-			dropzone.top = listbox.top;
-			dropzone.height = listbox.height;
+			listbox.setDimensions({
+				left: Layout.col3X,
+				top: startTop + 19,
+				width: Layout.col3W,
+				height: me.height - (19 + startTop) - 5
+			});
+		}	
+		if (currentAction === "save"){
+			savePanel.setPosition(listbox.left, listbox.top);
+			savePanel.setSize(listbox.width, listbox.height);
+			listbox.hide();
+			savePanel.show();
+		} else {
+			listbox.show();
+			savePanel.hide();
 		}
+
+		dropzone.setPosition(listbox.left, listbox.top);
+		dropzone.setSize(listbox.width, listbox.height);
+
+		me.refresh(true);
+	};
+
+	me.onShow = function(){
+		me.onResize();
+		me.refresh(true);
 	};
 
 	me.setView = function(subView){

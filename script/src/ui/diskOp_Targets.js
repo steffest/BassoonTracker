@@ -85,20 +85,15 @@ let DiskOperationTargets = function(){
 
 
 	me.onResize = function(){
-		var innerWidth = me.width-3;
+		var innerWidth = Math.max(1, me.width - 3);
 
-		if (!UI.mainPanel) return;
 		me.clearCanvas();
 
-		background.left = 0;
-		background.top = 0;
-		background.height = me.height;
-		background.width = me.width;
+		background.setPosition(0, 0);
+		background.setSize(me.width, me.height);
 
-		label1.left = 2;
-		label1.top = 1;
-		label1.height = 16;
-		label1.width = innerWidth;
+		label1.setPosition(2, 1);
+		label1.setSize(innerWidth, 16);
 
 		label.left = -1;
 		label.top = 3;
@@ -108,10 +103,9 @@ let DiskOperationTargets = function(){
 		var buttonTop = 18;
 
 		selectionTarget.width = innerWidth;
-		selectionTarget.height = me.height - buttonTop - 2;
+		selectionTarget.height = Math.max(1, me.height - buttonTop - 2);
 		selectionTarget.left = 2;
 		selectionTarget.top = buttonTop;
-
 	};
 
 	me.setLayout = me.onResize;

@@ -522,4 +522,8 @@ export var SETTINGS = {
 	useSampleSwapping: false,
 	loadInitialFile:true,
 	playFrom: "start",
+	showSideBar: true,
+	showAppPanel: true,
+	showPiano: false,
+	patternViewMode: "vertical",
 };

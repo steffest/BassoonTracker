@@ -70,7 +70,7 @@ let app_patternPanel = function(){
 		if (Layout.showSideBar){
 			if (currentView === "main"){
 				//patternSidebar.show();
-				editPanel.show();
+				editPanel.show(true, true);
 			}
 		}else{
 			//patternSidebar.hide();
@@ -105,7 +105,7 @@ let app_patternPanel = function(){
 			editPanel.hide();
         } else if (currentView !== "multitrack") {
             visualiser.show();
-			if (Layout.showSideBar) editPanel.show();
+			if (Layout.showSideBar) editPanel.show(true, true);
         }
 
         if (sampleMaximized){
@@ -160,8 +160,7 @@ let app_patternPanel = function(){
         multitrackView.height = me.height - multitrackTop - Layout.defaultMargin;
 
         setTrackControlsLayout();
-
-
+        me.refresh(true);
     };
     me.onPanelResize();
     

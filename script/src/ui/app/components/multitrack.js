@@ -10,6 +10,9 @@ import UI from "../../ui.js";
 import Layout from "../layout.js";
 import Y from "../../yascal/yascal.js";
 import DAWtrack, {CTRL_WIDTH, clearWaveformCache} from "./dawtrack.js";
+import Note from "../../../models/note.js";
+import StateManager from "../../stateManager.js";
+import Font from "../../font.js";
 
 export default class Multitrack extends Panel {
     _HEADER_HEIGHT = 20;
@@ -171,6 +174,7 @@ export default class Multitrack extends Panel {
         }
 
         this._drawCursor(ctx);
+        this._drawDragGhost(ctx);
         this._updateScrollbars();
         this._scrollBarH.render();
         this._scrollBarV.render();
@@ -224,7 +228,27 @@ export default class Multitrack extends Panel {
             this._dragMode = "seek";
             this._seekToX(lx);
         } else if (lx >= CTRL_WIDTH) {
-            this._dragMode = "timeline";
+            const tc = Tracker.getTrackCount();
+            const th = this._getTrackHeight();
+            const track = Math.floor((this._scrollY + ly - this._HEADER_HEIGHT) / th);
+            const step  = Math.floor((this._scrollX + lx - CTRL_WIDTH) / this._pixelsPerStep);
+
+            let noteBlock = null;
+            if (track >= 0 && track < tc && step >= 0 && step < Tracker.getPatternLength()) {
+                noteBlock = this._getNoteBlockAt(track, step);
+            }
+
+            if (noteBlock) {
+                this._dragMode = "note";
+                this._dragNoteSourceTrack = track;
+                this._dragNoteSourceStep  = noteBlock.startStep;
+                this._dragNoteTargetTrack = track;
+                this._dragNoteTargetStep  = noteBlock.startStep;
+                this._dragNoteOffsetStep  = step - noteBlock.startStep;
+                this._dragNoteBlock       = noteBlock;
+            } else {
+                this._dragMode = "timeline";
+            }
         } else {
             this._dragMode = null;
         }
@@ -243,7 +267,43 @@ export default class Multitrack extends Panel {
             this._applyHorizontalThumbDelta(touchData.x - this._dragStartLocalX, this._dragStartScrollX);
         } else if (this._dragMode === "vscrollbar") {
             this._applyVerticalThumbDelta(touchData.y - this._dragStartLocalY, this._dragStartScrollY);
+        } else if (this._dragMode === "note") {
+            const tc = Tracker.getTrackCount();
+            const th = this._getTrackHeight();
+            const steps = Tracker.getPatternLength();
+
+            let targetTrack = Math.floor((this._scrollY + touchData.y - this._HEADER_HEIGHT) / th);
+            targetTrack = Math.max(0, Math.min(tc - 1, targetTrack));
+
+            let mouseStep = Math.floor((this._scrollX + touchData.x - CTRL_WIDTH) / this._pixelsPerStep);
+            let targetStep = mouseStep - this._dragNoteOffsetStep;
+            targetStep = Math.max(0, Math.min(steps - 1, targetStep));
+
+            if (this._dragNoteTargetTrack !== targetTrack || this._dragNoteTargetStep !== targetStep) {
+                this._dragNoteTargetTrack = targetTrack;
+                this._dragNoteTargetStep  = targetStep;
+                this.refresh();
+            }
         }
+    }
+
+    onTouchUp(touchData) {
+        if (this._dragMode === "note") {
+            const srcTrack = this._dragNoteSourceTrack;
+            const srcStep  = this._dragNoteSourceStep;
+            const dstTrack = this._dragNoteTargetTrack;
+            const dstStep  = this._dragNoteTargetStep;
+
+            if (typeof srcTrack === "number" && typeof srcStep === "number" &&
+                typeof dstTrack === "number" && typeof dstStep === "number") {
+                if (srcTrack !== dstTrack || srcStep !== dstStep) {
+                    this._moveNote(srcTrack, srcStep, dstTrack, dstStep);
+                }
+            }
+        }
+        this._dragMode = null;
+        this._dragNoteBlock = null;
+        this.refresh();
     }
 
     onClick(touchData) {
@@ -473,9 +533,99 @@ export default class Multitrack extends Panel {
         Tracker.setCurrentPatternPos(step);
     }
 
+    _getNoteBlockAt(track, step) {
+        if (this._blocksDirty) this._distributeBlocks();
+        if (!this._perTrackBlocks || !this._perTrackBlocks[track]) return null;
+        const blocks = this._perTrackBlocks[track];
+        for (let i = 0; i < blocks.length; i++) {
+            const b = blocks[i];
+            if (step >= b.startStep && step < b.endStep) {
+                return b;
+            }
+        }
+        return null;
+    }
+
+    _drawDragGhost(ctx) {
+        if (this._dragMode !== "note" || !this._dragNoteBlock) return;
+
+        const th = this._getTrackHeight();
+        const firstTrack = Math.floor(this._scrollY / th);
+        const topClip = this._scrollY % th;
+        const block = this._dragNoteBlock;
+
+        const targetTrack = this._dragNoteTargetTrack;
+        const targetStep  = this._dragNoteTargetStep;
+
+        const blockLengthSteps = block.endStep - block.startStep;
+        const gx = CTRL_WIDTH + targetStep * this._pixelsPerStep - this._scrollX;
+        const gy = this._HEADER_HEIGHT + (targetTrack - firstTrack) * th - topClip;
+        const gw = Math.max(4, blockLengthSteps * this._pixelsPerStep - 2);
+        const gh = Math.max(4, th - 4);
+
+        if (gy + gh < this._HEADER_HEIGHT || gy >= this.height) return;
+        if (gx + gw < CTRL_WIDTH || gx >= this.width) return;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(CTRL_WIDTH, this._HEADER_HEIGHT, this.width - CTRL_WIDTH, this.height - this._HEADER_HEIGHT);
+        ctx.clip();
+
+        ctx.fillStyle = 'rgba(255, 220, 50, 0.45)';
+        ctx.fillRect(gx, gy + 2, gw, gh);
+
+        ctx.strokeStyle = '#ffd232';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(gx, gy + 2, gw, gh);
+
+        const label = block.name || "Note";
+        Font.small.write(ctx, label, gx + 4, gy + 5, 0);
+
+        ctx.restore();
+    }
+
+    _moveNote(srcTrack, srcStep, dstTrack, dstStep) {
+        const patternData = Tracker.getCurrentPatternData();
+        if (!patternData) return;
+
+        const srcNote = patternData[srcStep] && patternData[srcStep][srcTrack];
+        if (!srcNote || (!srcNote.period && !srcNote.index)) return;
+
+        let dstNote = patternData[dstStep] && patternData[dstStep][dstTrack];
+        if (!dstNote) {
+            dstNote = new Note();
+            if (!patternData[dstStep]) patternData[dstStep] = [];
+            patternData[dstStep][dstTrack] = dstNote;
+        }
+
+        const currentPattern = Tracker.getCurrentPattern();
+        const editAction = StateManager.createRangeUndo(currentPattern);
+        editAction.name = "Move Note";
+
+        const srcNoteInfo = StateManager.addNote(editAction, srcTrack, srcStep, srcNote);
+        const dstNoteInfo = StateManager.addNote(editAction, dstTrack, dstStep, dstNote);
+
+        const srcData = srcNote.duplicate();
+        dstNote.populate(srcData);
+        srcNote.clear();
+
+        srcNoteInfo.to = srcNote.duplicate();
+        dstNoteInfo.to = dstNote.duplicate();
+
+        StateManager.registerEdit(editAction);
+
+        Editor.setCurrentTrack(dstTrack);
+        Tracker.setCurrentPatternPos(dstStep);
+
+        this._blocksDirty = true;
+        this._blockCanvasDirty = true;
+        EventBus.trigger(EVENT.patternChange, currentPattern);
+    }
+
     _distributeBlocks() {
         const allBlocks  = this._buildPerTrackBlocks();
         const allEffects = this._buildPerTrackEffects();
+        this._perTrackBlocks = allBlocks;
         this._ensureTrackDaws();
         for (let i = 0; i < allBlocks.length; i++) {
             if (this._trackDaws[i]) {

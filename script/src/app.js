@@ -96,6 +96,7 @@ var App = (function(){
                 case COMMAND.toggleSideBar:
                     console.log("toggle sidebar");
                     Layout.hasSideBar = !Layout.hasSideBar;
+                    SETTINGS.showSideBar = Layout.hasSideBar;
                     EventBus.trigger(EVENT.appLayoutChanged);
                     EventBus.trigger(EVENT.toggleView,"main");
                     break;

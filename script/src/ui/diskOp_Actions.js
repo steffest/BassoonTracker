@@ -43,26 +43,20 @@ let DiskOperationActions = function(){
 
 	me.onResize = function(){
 
-		var innerWidth = me.width-2;
+		var innerWidth = Math.max(1, me.width - 2);
 		var innerHeight = 70;
 
-		if (me.height<100){
-			innerHeight = me.height - 20;
+		if (me.height < 100){
+			innerHeight = Math.max(1, me.height - 20);
 		}
 
-
-		if (!UI.mainPanel) return;
 		me.clearCanvas();
 
-		background.left = 0;
-		background.top = 0;
-		background.height = me.height;
-		background.width = me.width;
+		background.setPosition(0, 0);
+		background.setSize(me.width, me.height);
 
-		label1.left = 1;
-		label1.top = 1;
-		label1.height = 16;
-		label1.width = innerWidth;
+		label1.setPosition(1, 1);
+		label1.setSize(innerWidth, 16);
 
 		labelLoad.left = -1;
 		labelLoad.top = 3;
@@ -70,12 +64,9 @@ let DiskOperationActions = function(){
 		labelLoad.width = innerWidth;
 
 		selectionType.left = 4;
-		selectionType.width = innerWidth-4;
+		selectionType.width = Math.max(1, innerWidth - 4);
 		selectionType.height = innerHeight;
 		selectionType.top = 18;
-
-
-
 	};
 
 	me.setLayout = me.onResize;

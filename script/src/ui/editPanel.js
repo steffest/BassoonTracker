@@ -57,6 +57,13 @@ export default class EditPanel extends UIElement {
         }
     }
 
+    onShow() {
+        this.needsRendering = true;
+        for (let i = 0; i < 6; i++) {
+            if (this._buttonsPattern[i]) this._buttonsPattern[i].needsRendering = true;
+        }
+    }
+
     render(internal) {
         internal = !!internal;
         if (this.needsRendering) {
@@ -66,7 +73,10 @@ export default class EditPanel extends UIElement {
             Font.med.write(this.ctx, "↓Track",   6, 11, 0);
             Font.med.write(this.ctx, "↓Pattern", this._buttonsPattern[1].left + 6, 11, 0);
 
-            for (let i = 0; i < 6; i++) this._buttonsPattern[i].render();
+            for (let i = 0; i < 6; i++) {
+                this._buttonsPattern[i].needsRendering = true;
+                this._buttonsPattern[i].render();
+            }
         }
         this.needsRendering = false;
         if (internal) return this.canvas;
