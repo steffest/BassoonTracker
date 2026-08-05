@@ -231,6 +231,10 @@ let app_patternPanel = function(){
 
     });
 
+    me.getTrackControl = function(index){
+        return trackControls[index];
+    };
+
     me.on(EVENT.trackCountChange,function(trackCount){
 
         me.visibleTracks = Math.min(maxVisibleTracks,trackCount);

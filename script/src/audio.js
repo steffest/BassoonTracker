@@ -28,6 +28,8 @@ var Audio = (function(){
     var highShelfFilter;
     var i;
     var filterChains = [];
+    var trackMuteState = [];
+    var trackSoloState = [];
     var isRecording;
     var recordingAvailable;
     var mediaRecorder;
@@ -140,8 +142,26 @@ var Audio = (function(){
 
         if (!isRendering){
             EventBus.on(EVENT.trackStateChange,function(state){
-                if (typeof state.track != "undefined" && filterChains[state.track]){
-                    filterChains[state.track].volumeValue(state.mute?0:70);
+                if (state && typeof state.track !== "undefined"){
+                    if (typeof state.mute !== "undefined") trackMuteState[state.track] = !!state.mute;
+                    if (typeof state.solo !== "undefined") trackSoloState[state.track] = !!state.solo;
+
+                    if (state.solo){
+                        for (var i = 0; i < filterChains.length; i++){
+                            if (i !== state.track){
+                                trackMuteState[i] = true;
+                                trackSoloState[i] = false;
+                            }
+                        }
+                    } else if (state.wasSolo){
+                        for (var j = 0; j < filterChains.length; j++){
+                            if (j !== state.track){
+                                trackMuteState[j] = false;
+                                trackSoloState[j] = false;
+                            }
+                        }
+                    }
+                    updateTrackVolumes();
                 }
             });
 
@@ -150,6 +170,7 @@ var Audio = (function(){
 				for (i = filterChains.length; i<trackCount;i++)addFilterChain();
 				EventBus.trigger(EVENT.filterChainCountChange,trackCount);
 				me.setStereoSeparation(currentStereoSeparation);
+                updateTrackVolumes();
 			});
 
 			EventBus.on(EVENT.trackerModeChanged,function(mode){
@@ -157,6 +178,27 @@ var Audio = (function(){
 			});
         }
     };
+
+    function updateTrackVolumes() {
+        var count = filterChains.length;
+        var anySolo = false;
+
+        for (var i = 0; i < count; i++) {
+            if (trackSoloState[i]) anySolo = true;
+        }
+
+        for (var j = 0; j < count; j++) {
+            if (filterChains[j]) {
+                var vol = 70;
+                if (anySolo) {
+                    vol = (trackSoloState[j] && !trackMuteState[j]) ? 70 : 0;
+                } else {
+                    vol = trackMuteState[j] ? 0 : 70;
+                }
+                filterChains[j].volumeValue(vol);
+            }
+        }
+    }
 
 
     me.enable = function(){

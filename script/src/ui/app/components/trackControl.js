@@ -56,6 +56,9 @@ export default class TrackControl extends UIElement {
             });
     }
 
+    get isMuted()  { return !!(this._buttons && this._buttons.mute && this._buttons.mute.isActive); }
+    get isSoloed() { return !!(this._buttons && this._buttons.solo && this._buttons.solo.isActive); }
+
     setSolo(isSolo, silent) {
         let changed = false;
         if (isSolo && this._buttons.mute.isActive) { this._buttons.mute.isActive = false; changed = true; }

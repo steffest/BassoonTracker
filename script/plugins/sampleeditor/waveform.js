@@ -633,6 +633,7 @@ let WaveForm = function(){
 	};
 
 	me.playSection = function(section){
+		Input.handleNoteOff(Input.getPrevIndex());
 		if (section === "range"){
 			Input.handleNoteOn(Input.getPrevIndex(),undefined,rangeStart >= 0 ? rangeStart : 0);
 		}
@@ -659,6 +660,7 @@ let WaveForm = function(){
 
 	me.stop = function(){
 		isPlaying = false;
+		Input.handleNoteOff(Input.getPrevIndex());
 		me.refresh();
 	};
 
@@ -976,6 +978,7 @@ let WaveForm = function(){
 				}else{
 					if (index>sampleLength){
 						isPlaying=false;
+						Input.handleNoteOff(Input.getPrevIndex());
 					}else{
 						var pos = ((index - zoomStart) / zoomLength) * me.width;
 						if (pos >= 0 && pos <= me.width){
