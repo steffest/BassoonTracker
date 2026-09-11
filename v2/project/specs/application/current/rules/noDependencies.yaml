@@ -1,0 +1,3 @@
+The full code should be free of dependencies and don't require a build system.
+The full web app MUST run out of the box, directly from the source code.
+External libaries should be avoided as much as possible, if they are necessary, they should be deliberately cherry-picked after thoughtful consideration.

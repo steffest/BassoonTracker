@@ -1,0 +1,4 @@
+# installed only for `npm run build:dist` (esbuild)
+node_modules/
+# release bundle; rebuild with `node v2/build.mjs dist`. app/ (the readable generated app) is committed on purpose.
+dist/

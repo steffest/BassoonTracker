@@ -1,0 +1,107 @@
+[
+  {
+    "name": "button_hover_green",
+    "x": 530,
+    "y": 0,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay",
+    "x": 530,
+    "y": 30,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_active",
+    "x": 530,
+    "y": 60,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_blue",
+    "x": 530,
+    "y": 90,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_blue_active",
+    "x": 530,
+    "y": 120,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_green",
+    "x": 530,
+    "y": 150,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_green_active",
+    "x": 530,
+    "y": 180,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_red",
+    "x": 530,
+    "y": 210,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_red_active",
+    "x": 256,
+    "y": 219,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_red_hover",
+    "x": 327,
+    "y": 219,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "checkbox_off",
+    "x": 437,
+    "y": 219,
+    "width": 14,
+    "height": 14
+  },
+  {
+    "name": "checkbox_on",
+    "x": 451,
+    "y": 219,
+    "width": 14,
+    "height": 14
+  },
+  {
+    "name": "font",
+    "x": 0,
+    "y": 0,
+    "width": 256,
+    "height": 256
+  },
+  {
+    "name": "panel_dark",
+    "x": 256,
+    "y": 0,
+    "width": 274,
+    "height": 219
+  },
+  {
+    "name": "panel_inset_dark",
+    "x": 398,
+    "y": 219,
+    "width": 39,
+    "height": 24
+  }
+]

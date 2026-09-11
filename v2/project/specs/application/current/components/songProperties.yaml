@@ -1,0 +1,5 @@
+name: songProperties
+type: panel
+layout:
+  width: fill
+  resizable: horizontal

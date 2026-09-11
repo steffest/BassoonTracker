@@ -1,0 +1,17 @@
+{
+  "name": "bassoontracker-v2",
+  "private": true,
+  "type": "module",
+  "description": "Scopes ES module resolution to v2/ only. Runtime, compiler, renderers and the authoring service have no dependencies and no build step. esbuild is the single devDependency and is needed only for `npm run build:dist` (the minified, code-split release bundle in dist/); everything else, including the readable generated app in app/, runs from source.",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "serve": "node server.mjs",
+    "generate": "node compiler/generate.js",
+    "build:app": "node build.mjs app",
+    "build:dist": "node build.mjs dist",
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

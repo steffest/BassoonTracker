@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BassoonTracker v2 — workbench</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #1b1b1b; color: #ccc; font: 12px monospace; }
+  #layout { display: flex; height: 100%; }
+  #files { width: 220px; overflow: auto; background: #202020; border-right: 1px solid #333; padding: 6px; box-sizing: border-box; }
+  #files .file { display: block; width: 100%; text-align: left; background: none; border: none; color: #8cf; font: inherit; padding: 2px 4px; cursor: pointer; }
+  #files .file.active { background: #345; color: #fff; }
+  #files .file.dirty::after { content: " •"; color: #e0a030; }
+  #files .dir { color: #888; margin-top: 6px; }
+  #files .mode { color: #666; margin-top: 12px; font-size: 11px; white-space: pre-wrap; }
+  #editor { flex: 1.1; display: flex; flex-direction: column; min-width: 0; border-right: 1px solid #333; }
+  #editorHeader { padding: 4px 8px; background: #222; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  #fileName { flex: 1; }
+  #fileName.dirty::after { content: " (unsaved)"; color: #e0a030; }
+  #stale { color: #e0a030; }
+  #saveButton { font: inherit; padding: 2px 8px; cursor: pointer; }
+  #saveButton:disabled { cursor: default; opacity: 0.5; }
+  #conflict { display: none; padding: 6px 8px; background: #402a10; color: #f0c080; border-bottom: 1px solid #333; }
+  #conflict.visible { display: block; }
+  #conflict button { font: inherit; padding: 1px 6px; cursor: pointer; margin-left: 6px; }
+  #buffer { flex: 1; min-height: 0; overflow: hidden; background: #151515; }
+  #buffer .cm-editor { height: 100%; }
+  #buffer .cm-scroller { overflow: auto; }
+  #editorHeader .fold { font: inherit; padding: 2px 6px; cursor: pointer; }
+  #statusBar { padding: 4px 8px; background: #222; color: #888; font-size: 11px; display: grid; grid-template-columns: max-content 1fr; gap: 2px 8px; }
+  #statusBar .ok { color: #8c8; }
+  #statusBar .warn { color: #e0a030; }
+  #statusBar .error { color: #e06060; }
+  #details { flex: 0.9; overflow: auto; padding: 8px; background: #1e1e1e; border-right: 1px solid #333; }
+  #details h3 { margin: 0 0 4px; font-size: 12px; color: #e0c060; }
+  #details .row { margin-bottom: 10px; }
+  #details button.link { background: none; border: 1px solid #444; color: #8cf; font: inherit; padding: 1px 4px; cursor: pointer; margin: 1px; }
+  #right { flex: 1.4; display: flex; flex-direction: column; min-width: 0; }
+  #preview { flex: 1; border: 0; background: #111; min-height: 0; }
+  #tools { height: 34%; min-height: 140px; display: flex; flex-direction: column; border-top: 1px solid #333; background: #1a1a1a; }
+  #toolTabs { display: flex; gap: 2px; padding: 3px 6px 0; background: #222; }
+  #toolTabs button { font: inherit; padding: 2px 10px; cursor: pointer; background: #2a2a2a; color: #aaa; border: 1px solid #333; border-bottom: none; }
+  #toolTabs button.active { background: #1a1a1a; color: #e0c060; }
+  .toolPanel { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .toolPanel[hidden] { display: none; }
+  .toolbar { display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: #202020; border-bottom: 1px solid #333; flex-wrap: wrap; font-size: 11px; }
+  .toolbar button, .toolbar select { font: inherit; padding: 1px 6px; }
+  .toolbar .kinds label { margin-right: 6px; }
+  .toolbar .status { color: #888; margin-left: auto; }
+  .toolbar .status.paused { color: #e0a030; }
+  .v2-interaction-log .scroller { flex: 1; overflow: auto; }
+  .v2-interaction-log table { border-collapse: collapse; width: 100%; font-size: 11px; }
+  .v2-interaction-log th { text-align: left; color: #888; padding: 2px 6px; position: sticky; top: 0; background: #1a1a1a; }
+  .v2-interaction-log td { padding: 1px 6px; white-space: nowrap; border-top: 1px solid #222; cursor: pointer; }
+  .v2-interaction-log tr.kind-command td { color: #8c8; }
+  .v2-interaction-log tr.kind-state td { color: #bbb; }
+  .v2-interaction-log tr.kind-input td { color: #789; }
+  .v2-interaction-log tr.kind-activation td { color: #e0c060; }
+  .v2-interaction-log tr.kind-value td { color: #9cf; }
+  .v2-interaction-log tr.kind-scroll td { color: #79a; }
+  .v2-interaction-log tr.kind-filedrop td { color: #cf9; }
+  .v2-interaction-log tr.muted td { color: #e07070; }
+  .v2-state-gallery { overflow: auto; padding-bottom: 6px; }
+  .v2-state-gallery .note { color: #888; font-size: 11px; padding: 4px 6px 0; }
+  .v2-state-gallery .row { display: flex; gap: 10px; align-items: center; padding: 4px 6px; flex-wrap: wrap; }
+  .v2-state-gallery figure { margin: 0; text-align: center; }
+  .v2-state-gallery figcaption { font-size: 10px; color: #aaa; max-width: 110px; }
+  .v2-state-gallery canvas { display: block; }
+  .v2-state-gallery .live-canvas { cursor: pointer; }
+  .v2-state-gallery .live-canvas:focus { outline: 1px dotted #ffcc00; }
+  .v2-state-gallery .readout { color: #8a8; font-size: 11px; }
+  .v2-state-gallery .info { padding: 2px 6px; font-size: 11px; color: #aaa; }
+  .v2-state-gallery button.link { background: none; border: 1px solid #444; color: #8cf; font: inherit; padding: 1px 4px; cursor: pointer; margin: 1px; }
+  .v2-state-gallery button.link.warn { color: #e0c060; }
+  #details label.mock { display: inline-flex; align-items: center; gap: 4px; }
+  .v2-skin-editor { overflow: hidden; }
+  .v2-skin-editor .scroller { flex: 1; overflow: auto; }
+  .v2-skin-editor .note { color: #888; font-size: 11px; padding: 4px 6px 2px; }
+  .v2-skin-editor .heading { color: #e0c060; padding: 4px 6px 0; }
+  .v2-skin-editor .description { padding: 1px 6px; color: #ccc; max-width: 900px; }
+  .v2-skin-editor .facts { padding: 1px 6px 4px; color: #8a8; font-size: 11px; }
+  .v2-skin-editor table { border-collapse: collapse; font-size: 11px; margin: 0 6px 6px; }
+  .v2-skin-editor th { text-align: left; color: #888; padding: 2px 6px; font-weight: normal; }
+  .v2-skin-editor td { padding: 1px 6px; border-top: 1px solid #222; vertical-align: middle; }
+  .v2-skin-editor tr.own td:first-child { color: #e0c060; }
+  .v2-skin-editor tr.inherited td:first-child { color: #8cf; }
+  .v2-skin-editor tr.unset td:first-child { color: #666; }
+  .v2-skin-editor tr.current td { background: #232323; }
+  .v2-skin-editor img.png { image-rendering: pixelated; max-width: 84px; max-height: 24px; background: #111; display: block; }
+  .v2-skin-editor canvas { display: block; }
+  .v2-skin-editor select { font: inherit; max-width: 180px; }
+  .v2-skin-editor .usage { padding: 2px 6px 8px; font-size: 11px; color: #aaa; }
+  .v2-skin-editor button.link, .v2-skin-editor .usage button { background: none; border: 1px solid #444; color: #8cf; font: inherit; padding: 1px 4px; cursor: pointer; margin: 1px; }
+  .v2-skin-editor .status.warn { color: #e0a030; }
+  #details .styleRow { color: #ccc; }
+  .v2-component-catalogue { overflow: hidden; }
+  .v2-component-catalogue .scroller { flex: 1; overflow: auto; }
+  .v2-component-catalogue .note { color: #888; font-size: 11px; padding: 4px 6px 2px; }
+  .v2-component-catalogue .heading { color: #e0c060; padding: 4px 6px 0; }
+  .v2-component-catalogue .badge { font-size: 10px; border: 1px solid #444; padding: 0 4px; }
+  .v2-component-catalogue .badge.ok { color: #8c8; }
+  .v2-component-catalogue .badge.planned { color: #e0a030; }
+  .v2-component-catalogue .description { padding: 1px 6px; color: #ccc; max-width: 900px; }
+  .v2-component-catalogue .facts { padding: 1px 6px 4px; color: #8a8; font-size: 11px; }
+  .v2-component-catalogue .row { display: flex; gap: 8px; align-items: center; padding: 2px 6px 6px; flex-wrap: wrap; }
+  .v2-component-catalogue table { border-collapse: collapse; font-size: 11px; margin: 0 6px 6px; }
+  .v2-component-catalogue th { text-align: left; color: #888; padding: 2px 6px; font-weight: normal; }
+  .v2-component-catalogue td { padding: 1px 6px; border-top: 1px solid #222; vertical-align: top; max-width: 520px; }
+  .v2-component-catalogue tr.own td:first-child { color: #e0c060; }
+  .v2-component-catalogue tr.universal td:first-child { color: #789; }
+  .v2-component-catalogue canvas { display: block; }
+  .v2-component-catalogue .usage { padding: 2px 6px 8px; font-size: 11px; color: #aaa; }
+  .v2-component-catalogue button.link { background: none; border: 1px solid #444; color: #8cf; font: inherit; padding: 1px 4px; cursor: pointer; margin: 1px; }
+</style>
+</head>
+<body>
+<div id="layout">
+  <div id="files"><div class="dir">Loading…</div></div>
+  <div id="editor">
+    <div id="editorHeader">
+      <span id="fileName">No file open</span>
+      <span id="stale"></span>
+      <button id="foldAll" type="button" class="fold" title="Fold every collapsible YAML block">Fold all</button>
+      <button id="unfoldAll" type="button" class="fold" title="Unfold everything">Unfold</button>
+      <button id="saveButton" type="button" disabled title="Save the active file to disk, then regenerate the preview (Ctrl/Cmd+S)">Save &amp; Refresh</button>
+    </div>
+    <div id="conflict"></div>
+    <div id="buffer"></div>
+    <div id="statusBar">
+      <span>hover</span><span id="hoverStatus">—</span>
+      <span>save</span><span id="saveStatus">—</span>
+      <span>generation</span><span id="genStatus">—</span>
+    </div>
+  </div>
+  <div id="details"><h3>Selection</h3><div id="detailsBody">Click a component in the preview (Inspect mode) to see its source.</div></div>
+  <div id="right">
+    <iframe id="preview" src="./preview-app.html" title="v2 app.yaml preview"></iframe>
+    <div id="tools">
+      <div id="toolTabs">
+        <button type="button" data-tab="log" class="active">Interaction log</button>
+        <button type="button" data-tab="gallery">State gallery</button>
+        <button type="button" data-tab="skin">Skin</button>
+        <button type="button" data-tab="components">Components</button>
+      </div>
+      <div id="logPanel" class="toolPanel"></div>
+      <div id="galleryPanel" class="toolPanel" hidden></div>
+      <div id="skinPanel" class="toolPanel" hidden></div>
+      <div id="componentsPanel" class="toolPanel" hidden></div>
+    </div>
+  </div>
+</div>
+<script type="module">
+  import { createInteractionLog } from "./workbench/interactionLog.js";
+  import { createStateGallery } from "./workbench/stateGallery.js";
+  import { createSourceEditor } from "./workbench/editor.js";
+  import { createSkinEditor } from "./workbench/skinEditor.js";
+  import { createComponentCatalogue } from "./workbench/componentCatalogue.js";
+
+  // Spec 005 Phases 2-4: split-pane workbench. The preview iframe posts
+  // hover/select/mode events over window.postMessage; this page never reaches
+  // into the iframe's DOM/canvas directly (design.md "iframe message bridge").
+  //
+  // Two hosting modes, detected at startup:
+  //  - live:   served by `node v2/server.mjs`. Files come from /api/files and
+  //            /api/source, the textarea is editable, Save & Refresh (Ctrl/
+  //            Cmd+S) PUTs the active buffer and then POSTs /api/convert.
+  //  - static: any plain static server. Everything is read-only, exactly as
+  //            in Phase 2; the file list comes from app-outline.json.
+  const CURRENT_BASE = "./project/specs/application/current/";
+  const OUTLINE_STATIC = "./project/specs/application/app-outline.json";
+
+  const filesEl = document.getElementById("files");
+  const bufferEl = document.getElementById("buffer");
+  const fileNameEl = document.getElementById("fileName");
+  const staleEl = document.getElementById("stale");
+  const saveButton = document.getElementById("saveButton");
+  const conflictEl = document.getElementById("conflict");
+  const hoverStatus = document.getElementById("hoverStatus");
+  const saveStatus = document.getElementById("saveStatus");
+  const genStatus = document.getElementById("genStatus");
+  const detailsBody = document.getElementById("detailsBody");
+  const previewFrame = document.getElementById("preview");
+
+  // Phase 4 component tools (workbench-only modules; preview-app.html never
+  // loads them). One bounded trace collector receives events from the
+  // preview iframe (renderer "canvas") and the gallery's live example
+  // (renderer "gallery").
+  const interactionLog = createInteractionLog(document.getElementById("logPanel"), {
+    onSelectInstance: (instance, renderer) => {
+      if (renderer === "canvas" && instance) postToPreview({ type: "v2:selectId", nodeId: instance });
+      else if (renderer === "gallery" && instance) { showTool("gallery"); gallery.select(instance.replace(/^gallery:/, "")); }
+    }
+  });
+  const gallery = createStateGallery(document.getElementById("galleryPanel"), {
+    onTrace: entry => interactionLog.record(entry),
+    onOpenSource: location => location && openFile(location.file, location.range),
+    onSelectInPreview: nodeId => postToPreview({ type: "v2:selectId", nodeId })
+  });
+  // Spec 008 Skin tab: reads the compiled skin from the same outline, and
+  // edits artwork by splicing the skin YAML buffer through the existing
+  // buffer/save path - it never writes to disk itself.
+  const skinEditor = createSkinEditor(document.getElementById("skinPanel"), {
+    onOpenSource: location => location && openFile(location.file, location.range),
+    onSelectInPreview: nodeId => postToPreview({ type: "v2:selectId", nodeId }),
+    applyEdit: edit => applySourceEdit(edit),
+    listAssets: async () => {
+      if (!live) return [];
+      const response = await fetch("/api/skin-assets", { cache: "no-store" });
+      return response.ok ? (await response.json()).assets : [];
+    },
+    canEdit: () => live
+  });
+  // Spec 009 Components tab: the component-type catalogue, read from the
+  // registry the compiler and renderer share.
+  const catalogue = createComponentCatalogue(document.getElementById("componentsPanel"), {
+    onSelectInPreview: nodeId => postToPreview({ type: "v2:selectId", nodeId }),
+    onShowSkin: type => { showTool("skin"); skinEditor.selectStyle(type, "default"); },
+    onShowGallery: nodeId => { showTool("gallery"); gallery.select(nodeId); }
+  });
+  const mockDisabled = new Map(); // nodeId -> true while the author has the preview control mock-disabled
+
+  // Spec 006: CodeMirror replaces the plain <textarea>. Read-only until the
+  // live service is detected; Mod-s inside the editor saves; the linter is
+  // the project's own compiler/yaml.js plus this file's compiler warnings.
+  const editor = createSourceEditor(bufferEl, {
+    readOnly: true,
+    filePath: () => currentPath || "buffer.yaml",
+    onChange: text => handleEditorChange(text),
+    onSave: () => { if (live) saveAndRefresh(); }
+  });
+  document.getElementById("foldAll").addEventListener("click", () => editor.foldAll());
+  document.getElementById("unfoldAll").addEventListener("click", () => editor.unfoldAll());
+  // Small automation surface for browser tests and scripting; not used by the page itself.
+  window.v2Workbench = { editor, buffers: () => buffers, currentPath: () => currentPath };
+
+  const TOOL_PANELS = { log: "logPanel", gallery: "galleryPanel", skin: "skinPanel", components: "componentsPanel" };
+
+  function showTool(name) {
+    for (const button of document.querySelectorAll("#toolTabs button")) button.classList.toggle("active", button.dataset.tab === name);
+    for (const [tab, id] of Object.entries(TOOL_PANELS)) document.getElementById(id).hidden = tab !== name;
+  }
+  document.querySelectorAll("#toolTabs button").forEach(button => button.addEventListener("click", () => showTool(button.dataset.tab)));
+
+  let live = false;
+  let token = null;
+  let outline = null;
+  let currentPath = null;
+  let fileButtons = new Map();
+  /**
+   * `text`/`diskText` are LF-normalized (a <textarea> always reports LF, and
+   * compiler/yaml.js computes source offsets on LF-normalized text too, so
+   * the outline's ranges line up with textarea offsets). `eol` remembers the
+   * file's own line ending so a save writes the original convention back
+   * instead of silently rewriting every line of a CRLF file.
+   * @type {Map<string, { text: string, diskText: string, diskHash: string, eol: string, selectionStart: number, selectionEnd: number, conflict: null | { currentText: string, currentHash: string } }>}
+   */
+  const buffers = new Map();
+
+  function detectEol(text) {
+    return text.includes("\r\n") ? "\r\n" : "\n";
+  }
+
+  function normalizeEol(text) {
+    return text.replace(/\r\n/g, "\n");
+  }
+
+  function toDiskText(buffer) {
+    return buffer.eol === "\n" ? buffer.text : buffer.text.replace(/\n/g, buffer.eol);
+  }
+  let selectedNodeId = null;
+  let previewMode = "inspect";
+  let saving = false;
+
+  async function sha256Hex(text) {
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  function setStatus(el, text, level) {
+    el.textContent = text;
+    el.className = level || "";
+  }
+
+  function timeStamp() {
+    return new Date().toLocaleTimeString();
+  }
+
+  // --- file list ---------------------------------------------------------
+
+  function buildFileTree(paths) {
+    filesEl.innerHTML = "";
+    const groups = new Map();
+    for (const path of paths) {
+      const slash = path.lastIndexOf("/");
+      const dir = slash === -1 ? "." : path.slice(0, slash);
+      if (!groups.has(dir)) groups.set(dir, []);
+      groups.get(dir).push(path);
+    }
+    fileButtons = new Map();
+    for (const [dir, dirPaths] of groups) {
+      const heading = document.createElement("div");
+      heading.className = "dir";
+      heading.textContent = dir === "." ? "(root)" : dir;
+      filesEl.appendChild(heading);
+      dirPaths.forEach(path => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "file";
+        button.textContent = path.slice(path.lastIndexOf("/") + 1);
+        button.addEventListener("click", () => openFile(path));
+        filesEl.appendChild(button);
+        fileButtons.set(path, button);
+      });
+    }
+    const modeNote = document.createElement("div");
+    modeNote.className = "mode";
+    modeNote.textContent = live
+      ? "live: node v2/server.mjs\nedits save to disk"
+      : "static host: read-only.\nRun `node v2/server.mjs` and open its URL to edit and save.";
+    filesEl.appendChild(modeNote);
+    refreshFileMarkers();
+  }
+
+  function isDirty(buffer) {
+    return buffer.text !== buffer.diskText;
+  }
+
+  function refreshFileMarkers() {
+    for (const [path, btn] of fileButtons) {
+      btn.classList.toggle("active", path === currentPath);
+      const buffer = buffers.get(path);
+      btn.classList.toggle("dirty", Boolean(buffer && isDirty(buffer)));
+    }
+    const current = currentPath ? buffers.get(currentPath) : null;
+    fileNameEl.classList.toggle("dirty", Boolean(current && isDirty(current)));
+    saveButton.disabled = !live || !current || saving;
+  }
+
+  // --- buffers -----------------------------------------------------------
+
+  async function loadBuffer(path) {
+    if (live) {
+      const response = await fetch(`/api/source?path=${encodeURIComponent(path)}`);
+      if (!response.ok) throw new Error(`failed to load ${path} (${response.status})`);
+      const { text, hash } = await response.json();
+      return { text: normalizeEol(text), diskText: normalizeEol(text), diskHash: hash, eol: detectEol(text), selectionStart: 0, selectionEnd: 0, conflict: null };
+    }
+    const response = await fetch(CURRENT_BASE + path);
+    const text = response.ok ? await response.text() : `# failed to load ${path} (${response.status})`;
+    return { text: normalizeEol(text), diskText: normalizeEol(text), diskHash: await sha256Hex(text), eol: detectEol(text), selectionStart: 0, selectionEnd: 0, conflict: null };
+  }
+
+  function stashActiveBuffer() {
+    if (!currentPath) return;
+    const buffer = buffers.get(currentPath);
+    if (!buffer) return;
+    buffer.text = editor.getText();
+    const selection = editor.getSelection();
+    buffer.selectionStart = selection.from;
+    buffer.selectionEnd = selection.to;
+  }
+
+  async function updateStaleNotice(path, buffer) {
+    // Source ranges in app-outline.json only line up with a buffer whose
+    // text is exactly what the last generation read. Report why they don't.
+    const expectedHash = outline?.sourceFileHashes?.[path];
+    let valid;
+    if (!expectedHash) { staleEl.textContent = ""; valid = true; }
+    else if (isDirty(buffer)) { staleEl.textContent = "unsaved edits: source locations may be stale"; valid = false; }
+    else {
+      valid = buffer.diskHash === expectedHash;
+      staleEl.textContent = valid ? "" : "stale: disk changed since the last generation; Save & Refresh to regenerate";
+    }
+    // The compiler's warnings for this file are shown inline only while
+    // their offsets are trustworthy; YAML syntax lint is always live.
+    if (path === currentPath) editor.setExternalDiagnostics(valid ? (outline?.diagnostics || []).filter(d => d.file === path && d.range) : []);
+    return valid;
+  }
+
+  async function openFile(path, range) {
+    stashActiveBuffer();
+    let buffer = buffers.get(path);
+    if (!buffer) {
+      buffer = await loadBuffer(path);
+      buffers.set(path, buffer);
+    }
+    currentPath = path;
+    fileNameEl.textContent = path;
+    editor.setText(buffer.text, { selection: { from: buffer.selectionStart, to: buffer.selectionEnd } });
+    renderConflict(buffer);
+    refreshFileMarkers();
+    const rangesValid = await updateStaleNotice(path, buffer);
+
+    if (range) {
+      if (rangesValid) {
+        editor.select(range.start.offset, range.end.offset);
+      } else {
+        // design.md: show a stale-location notice instead of selecting
+        // unrelated text.
+        editor.select(buffer.selectionStart, buffer.selectionEnd);
+      }
+    }
+  }
+
+  function lineStartOffset(text, line) {
+    let offset = 0;
+    for (let current = 1; current < line; current += 1) {
+      const next = text.indexOf("\n", offset);
+      if (next === -1) return offset;
+      offset = next + 1;
+    }
+    return offset;
+  }
+
+  /**
+   * Applies a programmatic edit (currently only the Skin tab's artwork
+   * pickers) to a source buffer: the file is loaded if it is not open, the
+   * transform runs on the buffer text, and the result is left *unsaved* with
+   * the changed line selected, so the author reviews it and saves with the
+   * same Ctrl+S as a hand edit. Nothing is written to disk here.
+   */
+  async function applySourceEdit({ file, transform, note }) {
+    if (!live) return;
+    stashActiveBuffer();
+    let buffer = buffers.get(file);
+    if (!buffer) {
+      buffer = await loadBuffer(file);
+      buffers.set(file, buffer);
+    }
+    // Source ranges only describe a buffer that is what the last generation
+    // read. Refuse rather than splice a stale location (the helper checks the
+    // text at the range too, but saying *why* here is more useful).
+    const expectedHash = outline?.sourceFileHashes?.[file];
+    if (expectedHash && (isDirty(buffer) || buffer.diskHash !== expectedHash)) {
+      await openFile(file);
+      setStatus(saveStatus, `not applied (${note}): ${file} has ${isDirty(buffer) ? "unsaved edits" : "changed on disk"} since the last generation. Save & Refresh first.`, "error");
+      return;
+    }
+    let result;
+    try {
+      result = transform(buffer.text);
+    } catch (error) {
+      setStatus(saveStatus, `not applied (${note}): ${error.message}`, "error");
+      return;
+    }
+    if (result.text === buffer.text) {
+      setStatus(saveStatus, `no change needed: ${note}`, "warn");
+      return;
+    }
+    buffer.text = result.text;
+    if (currentPath === file) {
+      editor.setText(buffer.text);
+      refreshFileMarkers();
+      updateStaleNotice(file, buffer);
+    } else {
+      await openFile(file);
+    }
+    if (result.line) {
+      const offset = lineStartOffset(buffer.text, result.line);
+      const end = buffer.text.indexOf("\n", offset);
+      editor.select(offset, end === -1 ? buffer.text.length : end);
+    }
+    setStatus(saveStatus, `applied ${note} (${result.action}, line ${result.line ?? "?"}) - unsaved`, "warn");
+  }
+
+  function handleEditorChange(text) {
+    const buffer = currentPath && buffers.get(currentPath);
+    if (!buffer) return;
+    buffer.text = text;
+    refreshFileMarkers();
+    updateStaleNotice(currentPath, buffer);
+  }
+
+  // Keyboard input inside the editor never reaches the preview iframe (it is
+  // a separate document), but Ctrl/Cmd+S must not fall through to the
+  // browser's "save page" dialog either.
+  document.addEventListener("keydown", event => {
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "s") {
+      if (event.defaultPrevented) return; // CodeMirror's Mod-s binding already ran saveAndRefresh
+      event.preventDefault();
+      event.stopPropagation();
+      if (live) saveAndRefresh();
+    }
+  });
+
+  saveButton.addEventListener("click", () => saveAndRefresh());
+
+  window.addEventListener("beforeunload", event => {
+    if ([...buffers.values()].some(isDirty)) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+  });
+
+  // --- save & refresh ----------------------------------------------------
+
+  function renderConflict(buffer) {
+    conflictEl.innerHTML = "";
+    if (!buffer.conflict) { conflictEl.classList.remove("visible"); return; }
+    conflictEl.classList.add("visible");
+    conflictEl.appendChild(document.createTextNode("This file changed on disk since it was loaded. Your edits were not saved."));
+    const reload = document.createElement("button");
+    reload.type = "button";
+    reload.textContent = "Discard my edits, reload from disk";
+    reload.addEventListener("click", () => {
+      buffer.eol = detectEol(buffer.conflict.currentText);
+      buffer.text = normalizeEol(buffer.conflict.currentText);
+      buffer.diskText = buffer.text;
+      buffer.diskHash = buffer.conflict.currentHash;
+      buffer.conflict = null;
+      editor.setText(buffer.text);
+      renderConflict(buffer);
+      refreshFileMarkers();
+      updateStaleNotice(currentPath, buffer);
+      setStatus(saveStatus, `reloaded ${currentPath} from disk at ${timeStamp()}`, "warn");
+    });
+    const overwrite = document.createElement("button");
+    overwrite.type = "button";
+    overwrite.textContent = "Overwrite disk with my edits";
+    overwrite.addEventListener("click", () => {
+      // Rebase onto the hash the server reported; the next save succeeds
+      // unless the file moved yet again.
+      buffer.diskHash = buffer.conflict.currentHash;
+      buffer.conflict = null;
+      renderConflict(buffer);
+      saveAndRefresh();
+    });
+    conflictEl.append(reload, overwrite);
+  }
+
+  function formatDiagnostic(d) {
+    const location = d.range ? `${d.file}:${d.range.start.line}:${d.range.start.column}` : d.file || "";
+    return `${(d.severity || "error").toUpperCase()} [${d.code}] ${location} ${d.message}`;
+  }
+
+  function printDiagnostics(diagnostics) {
+    if (!diagnostics || diagnostics.length === 0) {
+      console.info("[v2 convert] 0 warnings, 0 errors");
+      return;
+    }
+    console.groupCollapsed(`[v2 convert] ${diagnostics.length} diagnostic(s)`);
+    diagnostics.forEach(d => console[d.severity === "error" ? "error" : "warn"](formatDiagnostic(d)));
+    console.groupEnd();
+  }
+
+  async function saveAndRefresh() {
+    if (!live || !currentPath || saving) return;
+    stashActiveBuffer();
+    const path = currentPath;
+    const buffer = buffers.get(path);
+    saving = true;
+    refreshFileMarkers();
+    setStatus(saveStatus, `saving ${path}…`);
+    try {
+      const response = await fetch("/api/source", {
+        method: "PUT",
+        headers: { "content-type": "application/json", "x-v2-token": token },
+        body: JSON.stringify({ path, text: toDiskText(buffer), baseHash: buffer.diskHash })
+      });
+      const body = await response.json().catch(() => ({}));
+      if (response.status === 409) {
+        buffer.conflict = { currentText: body.currentText, currentHash: body.currentHash };
+        if (currentPath === path) renderConflict(buffer);
+        setStatus(saveStatus, `not saved: ${path} changed on disk (conflict)`, "error");
+        return;
+      }
+      if (response.status === 422) {
+        const first = body.errors?.[0];
+        setStatus(saveStatus, `not saved: invalid YAML${first?.range ? ` at line ${first.range.start.line}` : ""}: ${first?.message || "syntax error"}`, "error");
+        if (first?.range && currentPath === path) editor.select(first.range.start.offset, first.range.end.offset);
+        return;
+      }
+      if (!response.ok) {
+        setStatus(saveStatus, `not saved: ${body.error || response.status}`, "error");
+        return;
+      }
+      buffer.diskText = buffer.text;
+      buffer.diskHash = body.hash;
+      buffer.conflict = null;
+      if (currentPath === path) renderConflict(buffer);
+      setStatus(saveStatus, `saved ${path} at ${timeStamp()}`, "ok");
+      await convertAndReload();
+    } catch (error) {
+      setStatus(saveStatus, `not saved: ${error.message}`, "error");
+    } finally {
+      saving = false;
+      refreshFileMarkers();
+      if (currentPath) updateStaleNotice(currentPath, buffers.get(currentPath));
+    }
+  }
+
+  async function convertAndReload() {
+    setStatus(genStatus, "converting…");
+    const response = await fetch("/api/convert", { method: "POST", headers: { "x-v2-token": token } });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      setStatus(genStatus, `saved; preview stale: convert request failed (${result.error || response.status})`, "error");
+      return;
+    }
+    printDiagnostics(result.diagnostics);
+    const warnings = (result.diagnostics || []).filter(d => d.severity === "warning").length;
+    const errors = (result.diagnostics || []).filter(d => d.severity === "error");
+    if (!result.published) {
+      const first = errors[0];
+      setStatus(genStatus, `saved; preview stale (previous generation kept): ${first ? formatDiagnostic(first) : "conversion did not publish"}`, "error");
+      return;
+    }
+    setStatus(genStatus, `generation ${result.generation} published at ${timeStamp()} (${warnings} warning${warnings === 1 ? "" : "s"}, ${errors.length} error${errors.length === 1 ? "" : "s"})`, warnings || errors.length ? "warn" : "ok");
+    await loadOutline();
+    // Files that were referenced for the first time show up in the tree.
+    buildFileTree(outline.sourceFiles || []);
+    reloadPreview();
+  }
+
+  function reloadPreview() {
+    // The iframe re-fetches app-outline.json (served no-store) and posts
+    // v2:ready; handleReady then restores mode and selection by generated
+    // identity where the node still exists.
+    previewFrame.contentWindow.location.reload();
+  }
+
+  // --- outline & details -------------------------------------------------
+
+  async function loadOutline() {
+    const response = await fetch(live ? "/api/outline" : OUTLINE_STATIC, { cache: "no-store" });
+    if (!response.ok) throw new Error(`failed to load app-outline.json (${response.status}). Run: node v2/compiler/generate.js`);
+    outline = await response.json();
+    await gallery.setOutline(outline);
+    await skinEditor.setOutline(outline);
+    await catalogue.setOutline(outline);
+  }
+
+  function renderNodeLink(label, location) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "link";
+    btn.textContent = label;
+    btn.addEventListener("click", () => openFile(location.file, location.range));
+    return btn;
+  }
+
+  function renderDetails(payload) {
+    detailsBody.innerHTML = "";
+    selectedNodeId = payload.nodeId;
+
+    if (outline && payload.revision && payload.revision !== outline.sourceHash) {
+      const warn = document.createElement("div");
+      warn.style.color = "#e0a030";
+      warn.textContent = "preview/workbench revision mismatch — reload this page.";
+      detailsBody.appendChild(warn);
+    }
+
+    const idRow = document.createElement("div");
+    idRow.className = "row";
+    idRow.textContent = `id: ${payload.nodeId}`;
+    detailsBody.appendChild(idRow);
+
+    if (payload.ancestry?.length > 1) {
+      const ancestryRow = document.createElement("div");
+      ancestryRow.className = "row";
+      ancestryRow.appendChild(document.createTextNode("ancestry: "));
+      payload.ancestry.forEach((id, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "link";
+        btn.textContent = id;
+        btn.disabled = id === payload.nodeId;
+        // Re-selecting an ancestor happens inside the iframe (it owns the
+        // tree/canvas); the iframe will post back "v2:select" for it, which
+        // re-renders these details from that response.
+        btn.addEventListener("click", () => postToPreview({ type: "v2:selectId", nodeId: id }));
+        ancestryRow.appendChild(btn);
+        if (index < payload.ancestry.length - 1) ancestryRow.appendChild(document.createTextNode(" > "));
+      });
+      detailsBody.appendChild(ancestryRow);
+    }
+
+    if (payload.componentType) {
+      const typeRow = document.createElement("div");
+      typeRow.className = "row";
+      typeRow.appendChild(document.createTextNode(`type: ${payload.componentType}`));
+      const typeButton = document.createElement("button");
+      typeButton.type = "button";
+      typeButton.className = "link";
+      typeButton.textContent = "show in Components";
+      typeButton.addEventListener("click", () => { showTool("components"); catalogue.selectType(payload.componentType); });
+      typeRow.append(document.createTextNode(" "), typeButton);
+      detailsBody.appendChild(typeRow);
+    }
+
+    const defRow = document.createElement("div");
+    defRow.className = "row";
+    defRow.appendChild(document.createTextNode("definition: "));
+    defRow.appendChild(renderNodeLink(`${payload.source.file}:${payload.source.range.start.line}`, payload.source));
+    detailsBody.appendChild(defRow);
+
+    if (payload.refSource) {
+      const refRow = document.createElement("div");
+      refRow.className = "row";
+      refRow.appendChild(document.createTextNode("use site: "));
+      refRow.appendChild(renderNodeLink(`${payload.refSource.file}:${payload.refSource.range.start.line}`, payload.refSource));
+      detailsBody.appendChild(refRow);
+    }
+
+    // Spec 008: the link from this component to the graphical representation
+    // that draws it, in both directions - the `style:` line that asked for it
+    // and the skin style it resolved to, with its authored description.
+    if (payload.style) {
+      const style = outline?.skin?.styles?.[payload.style.type]?.[payload.style.variant] || null;
+      const styleRow = document.createElement("div");
+      styleRow.className = "row styleRow";
+      styleRow.appendChild(document.createTextNode(`style: ${payload.style.type}/${payload.style.variant}`));
+      if (payload.style.requested && payload.style.requested !== payload.style.variant) {
+        styleRow.appendChild(document.createTextNode(` (requested "${payload.style.requested}", not defined)`));
+      }
+      if (payload.style.source) {
+        styleRow.appendChild(document.createTextNode(" asked for at "));
+        styleRow.appendChild(renderNodeLink(`${payload.style.source.file}:${payload.style.source.range.start.line}`, payload.style.source));
+      }
+      if (payload.style.definition) {
+        styleRow.appendChild(document.createTextNode(" defined at "));
+        styleRow.appendChild(renderNodeLink(`${payload.style.definition.file}:${payload.style.definition.range.start.line}`, payload.style.definition));
+      }
+      const skinButton = document.createElement("button");
+      skinButton.type = "button";
+      skinButton.className = "link";
+      skinButton.textContent = "show in Skin";
+      skinButton.addEventListener("click", () => { showTool("skin"); skinEditor.selectStyle(payload.style.type, payload.style.variant); });
+      styleRow.append(document.createTextNode(" "), skinButton);
+      if (style && style.description) {
+        const description = document.createElement("div");
+        description.style.color = "#8a8";
+        description.textContent = style.description;
+        styleRow.appendChild(description);
+      }
+      detailsBody.appendChild(styleRow);
+    }
+
+    const rules = (payload.bindings || []).filter(b => b.origin === "rule");
+    if (rules.length > 0) {
+      const rulesRow = document.createElement("div");
+      rulesRow.className = "row";
+      rulesRow.appendChild(document.createTextNode("contributing rules: "));
+      rules.forEach(rule => rulesRow.appendChild(renderNodeLink(rule.code, rule.source)));
+      detailsBody.appendChild(rulesRow);
+    }
+
+    if (payload.interactive) {
+      const mockRow = document.createElement("div");
+      mockRow.className = "row";
+      const label = document.createElement("label");
+      label.className = "mock";
+      const box = document.createElement("input");
+      box.type = "checkbox";
+      box.dataset.role = "mock-disabled";
+      box.checked = Boolean(payload.disabled);
+      box.addEventListener("change", () => {
+        mockDisabled.set(payload.nodeId, box.checked);
+        postToPreview({ type: "v2:setDisabled", nodeId: payload.nodeId, disabled: box.checked });
+      });
+      label.append(box, document.createTextNode("mock: disabled (Interact mode then shows a blocked activation, no command)"));
+      mockRow.appendChild(label);
+      const galleryButton = document.createElement("button");
+      galleryButton.type = "button";
+      galleryButton.className = "link";
+      galleryButton.textContent = "show in State gallery";
+      galleryButton.addEventListener("click", () => { showTool("gallery"); gallery.select(payload.nodeId); });
+      mockRow.append(document.createTextNode(" "), galleryButton);
+      detailsBody.appendChild(mockRow);
+    }
+
+    if (!payload.restored) openFile(payload.source.file, payload.source.range);
+  }
+
+  function postToPreview(message) {
+    previewFrame.contentWindow.postMessage(message, window.location.origin);
+  }
+
+  function handleReady(message) {
+    if (outline && message.revision !== outline.sourceHash) {
+      setStatus(genStatus, "preview loaded a different app-outline.json revision than this workbench — reload.", "error");
+      return;
+    }
+    if (previewMode !== "inspect") postToPreview({ type: "v2:setMode", mode: previewMode });
+    for (const [id, disabled] of mockDisabled) {
+      if (disabled && (message.interactive || []).includes(id)) postToPreview({ type: "v2:setDisabled", nodeId: id, disabled: true });
+    }
+    if (selectedNodeId) {
+      // Restore selection by generated identity; the preview answers with
+      // v2:select (flagged so the editor doesn't jump), or ignores an id that
+      // no longer exists (e.g. the label that named it was edited), in which
+      // case the details panel says so instead of showing stale details.
+      detailsBody.textContent = `restoring selection "${selectedNodeId}"…`;
+      postToPreview({ type: "v2:selectId", nodeId: selectedNodeId, restore: true });
+      const previous = selectedNodeId;
+      setTimeout(() => {
+        if (selectedNodeId === previous && !detailsBody.dataset.restoredFor) {
+          detailsBody.textContent = `previous selection "${previous}" no longer exists in the regenerated preview.`;
+          selectedNodeId = null;
+        }
+        delete detailsBody.dataset.restoredFor;
+      }, 250);
+    }
+  }
+
+  window.addEventListener("message", event => {
+    if (event.source !== previewFrame.contentWindow || event.origin !== window.location.origin) return;
+    const message = event.data;
+    if (!message || typeof message !== "object") return;
+    if (message.type === "v2:hover") {
+      hoverStatus.textContent = message.nodeId || "—";
+    } else if (message.type === "v2:select") {
+      if (message.restored) detailsBody.dataset.restoredFor = message.nodeId;
+      renderDetails(message);
+    } else if (message.type === "v2:mode") {
+      previewMode = message.mode;
+    } else if (message.type === "v2:trace") {
+      const { type, revision, ...entry } = message;
+      interactionLog.record(entry);
+    } else if (message.type === "v2:ready") {
+      handleReady(message);
+    }
+  });
+
+  // --- startup -----------------------------------------------------------
+
+  async function detectLiveService() {
+    try {
+      const response = await fetch("/api/token", { cache: "no-store" });
+      if (!response.ok) return false;
+      const body = await response.json();
+      if (typeof body.token !== "string") return false;
+      token = body.token;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function main() {
+    live = await detectLiveService();
+    editor.setReadOnly(!live);
+    await loadOutline();
+    let paths = outline.sourceFiles || [];
+    if (live) {
+      const response = await fetch("/api/files");
+      if (response.ok) paths = (await response.json()).files;
+      setStatus(saveStatus, "ready", "ok");
+      setStatus(genStatus, `serving generation from disk (${(outline.diagnostics || []).length} diagnostic${(outline.diagnostics || []).length === 1 ? "" : "s"})`);
+    } else {
+      setStatus(saveStatus, "read-only (static host)");
+      setStatus(genStatus, "static app-outline.json; regenerate with node v2/compiler/generate.js");
+    }
+    buildFileTree(paths);
+    if (paths.length) await openFile(paths.includes("app.yaml") ? "app.yaml" : paths[0]);
+  }
+
+  main().catch(error => {
+    console.error(error);
+    filesEl.textContent = "Failed to load workbench:\n" + error.message;
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,4227 @@
+{
+  "outlineSchemaVersion": 3,
+  "compilerVersion": "0.2.0",
+  "sourceHash": "eabb107d7fed137a8b7aa71ffd43da606b43909899d77547d5ab45cb1575aec4",
+  "sourceFiles": [
+    "actions/toggleplay.yaml",
+    "app.yaml",
+    "components/controlBar.yaml",
+    "components/songProperties.yaml",
+    "rules/horizontalResize.yaml",
+    "rules/noDependencies.yaml",
+    "skin/default.yaml"
+  ],
+  "sourceFileHashes": {
+    "actions/toggleplay.yaml": "924368659a6eba103310746d710c8ae8488a2444ba21c4acd976521067ef5b5f",
+    "app.yaml": "b343f0afab42f897f97d544160a76b447e20b8a74090849db6ca659e932b43fe",
+    "components/controlBar.yaml": "effb6d9435834298ba6a56d93cdfa8173b1daa97af65b68ce341869bacc44187",
+    "components/songProperties.yaml": "f587dfce324fd592007a4573df3c6f54127261dfe224bacd6c9fd7315431489a",
+    "rules/horizontalResize.yaml": "6d5e0b70380edb3756cbcb6c3ce89ba2fc89fa748391dc9df1267528bb0baa33",
+    "rules/noDependencies.yaml": "dac79106bb8d86361517a04e3840fd406585871ef36fd0e665147954280d7e91",
+    "skin/default.yaml": "419bbf5e9d96a14b25aa8dc0e85599238bd3f40396e6584dcd8ce09709b63502"
+  },
+  "root": {
+    "type": "panel",
+    "definitionName": "main",
+    "labelVariants": [
+      "main"
+    ],
+    "layout": {
+      "width": {
+        "mode": "auto"
+      },
+      "height": {
+        "mode": "auto"
+      }
+    },
+    "shortKey": null,
+    "color": null,
+    "children": [
+      {
+        "type": "panel",
+        "definitionName": "top",
+        "labelVariants": [
+          "top"
+        ],
+        "layout": {
+          "width": {
+            "mode": "fill"
+          },
+          "height": {
+            "mode": "fixed",
+            "size": 28
+          }
+        },
+        "shortKey": null,
+        "color": null,
+        "children": [
+          {
+            "type": "menu",
+            "definitionName": "menu",
+            "labelVariants": [
+              "menu"
+            ],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "shortKey": null,
+            "color": null,
+            "children": [],
+            "bindings": [],
+            "source": {
+              "file": "app.yaml",
+              "range": {
+                "start": {
+                  "line": 14,
+                  "column": 14,
+                  "offset": 239
+                },
+                "end": {
+                  "line": 19,
+                  "column": 33,
+                  "offset": 398
+                }
+              }
+            },
+            "refSource": null,
+            "supported": false,
+            "id": "main.top.menu"
+          },
+          {
+            "type": "volumemeter",
+            "definitionName": "volume meter",
+            "labelVariants": [
+              "volume meter"
+            ],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "children": [],
+            "bindings": [],
+            "source": {
+              "file": "app.yaml",
+              "range": {
+                "start": {
+                  "line": 20,
+                  "column": 26,
+                  "offset": 425
+                },
+                "end": {
+                  "line": 20,
+                  "column": 37,
+                  "offset": 436
+                }
+              }
+            },
+            "refSource": {
+              "file": "app.yaml",
+              "range": {
+                "start": {
+                  "line": 20,
+                  "column": 26,
+                  "offset": 425
+                },
+                "end": {
+                  "line": 20,
+                  "column": 37,
+                  "offset": 436
+                }
+              }
+            },
+            "supported": false,
+            "id": "main.top.volume meter"
+          },
+          {
+            "type": "panel",
+            "definitionName": "notifications",
+            "labelVariants": [
+              "notifications"
+            ],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "shortKey": null,
+            "color": null,
+            "children": [
+              {
+                "type": "custom:notification light",
+                "definitionName": "notification light",
+                "labelVariants": [
+                  "Key",
+                  "K"
+                ],
+                "layout": {
+                  "width": {
+                    "mode": "auto"
+                  },
+                  "height": {
+                    "mode": "auto"
+                  }
+                },
+                "shortKey": null,
+                "color": "yellow",
+                "children": [],
+                "bindings": [
+                  {
+                    "origin": "rule",
+                    "code": "layout-resize-policy",
+                    "kind": "layout-policy",
+                    "policy": "resize-to-fit",
+                    "source": {
+                      "file": "rules/horizontalResize.yaml",
+                      "range": {
+                        "start": {
+                          "line": 28,
+                          "column": 22,
+                          "offset": 660
+                        },
+                        "end": {
+                          "line": 28,
+                          "column": 38,
+                          "offset": 676
+                        }
+                      }
+                    }
+                  }
+                ],
+                "source": {
+                  "file": "app.yaml",
+                  "range": {
+                    "start": {
+                      "line": 25,
+                      "column": 18,
+                      "offset": 567
+                    },
+                    "end": {
+                      "line": 29,
+                      "column": 136,
+                      "offset": 813
+                    }
+                  }
+                },
+                "refSource": null,
+                "supported": false,
+                "id": "main.top.notifications.notification light#1"
+              },
+              {
+                "type": "custom:notification light",
+                "definitionName": "notification light",
+                "labelVariants": [
+                  "Midi",
+                  "M"
+                ],
+                "layout": {
+                  "width": {
+                    "mode": "auto"
+                  },
+                  "height": {
+                    "mode": "auto"
+                  }
+                },
+                "shortKey": null,
+                "color": "yellow",
+                "children": [],
+                "bindings": [
+                  {
+                    "origin": "rule",
+                    "code": "layout-resize-policy",
+                    "kind": "layout-policy",
+                    "policy": "resize-to-fit",
+                    "source": {
+                      "file": "rules/horizontalResize.yaml",
+                      "range": {
+                        "start": {
+                          "line": 34,
+                          "column": 22,
+                          "offset": 962
+                        },
+                        "end": {
+                          "line": 34,
+                          "column": 38,
+                          "offset": 978
+                        }
+                      }
+                    }
+                  }
+                ],
+                "source": {
+                  "file": "app.yaml",
+                  "range": {
+                    "start": {
+                      "line": 31,
+                      "column": 18,
+                      "offset": 868
+                    },
+                    "end": {
+                      "line": 35,
+                      "column": 110,
+                      "offset": 1089
+                    }
+                  }
+                },
+                "refSource": null,
+                "supported": false,
+                "id": "main.top.notifications.notification light#2"
+              }
+            ],
+            "bindings": [],
+            "source": {
+              "file": "app.yaml",
+              "range": {
+                "start": {
+                  "line": 22,
+                  "column": 14,
+                  "offset": 478
+                },
+                "end": {
+                  "line": 35,
+                  "column": 110,
+                  "offset": 1089
+                }
+              }
+            },
+            "refSource": null,
+            "supported": true,
+            "style": {
+              "type": "panel",
+              "variant": "default",
+              "requested": "default",
+              "source": null,
+              "inheritedFrom": null,
+              "definition": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 21,
+                    "column": 6,
+                    "offset": 632
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 26,
+                    "offset": 778
+                  }
+                }
+              }
+            },
+            "id": "main.top.notifications"
+          }
+        ],
+        "bindings": [],
+        "source": {
+          "file": "app.yaml",
+          "range": {
+            "start": {
+              "line": 9,
+              "column": 12,
+              "offset": 121
+            },
+            "end": {
+              "line": 35,
+              "column": 110,
+              "offset": 1089
+            }
+          }
+        },
+        "refSource": null,
+        "supported": true,
+        "style": {
+          "type": "panel",
+          "variant": "default",
+          "requested": "default",
+          "source": null,
+          "inheritedFrom": null,
+          "definition": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 21,
+                "column": 6,
+                "offset": 632
+              },
+              "end": {
+                "line": 25,
+                "column": 26,
+                "offset": 778
+              }
+            }
+          }
+        },
+        "id": "main.top"
+      },
+      {
+        "type": "panel",
+        "definitionName": "controlBar",
+        "labelVariants": [
+          "controlBar"
+        ],
+        "layout": {
+          "width": {
+            "mode": "fill"
+          },
+          "height": {
+            "mode": "fixed",
+            "size": 28
+          }
+        },
+        "shortKey": null,
+        "color": null,
+        "children": [
+          {
+            "type": "radioGroup",
+            "definitionName": null,
+            "labelVariants": [],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "shortKey": null,
+            "color": null,
+            "children": [
+              {
+                "type": "radioItem",
+                "definitionName": "song",
+                "labelVariants": [
+                  "Song",
+                  "S"
+                ],
+                "layout": {
+                  "width": {
+                    "mode": "auto"
+                  },
+                  "height": {
+                    "mode": "auto"
+                  }
+                },
+                "children": [],
+                "bindings": [],
+                "source": {
+                  "file": "components/controlBar.yaml",
+                  "range": {
+                    "start": {
+                      "line": 9,
+                      "column": 8,
+                      "offset": 116
+                    },
+                    "end": {
+                      "line": 10,
+                      "column": 22,
+                      "offset": 149
+                    }
+                  }
+                },
+                "refSource": null,
+                "supported": true,
+                "style": {
+                  "type": "radioItem",
+                  "variant": "default",
+                  "requested": "default",
+                  "source": null,
+                  "inheritedFrom": "group",
+                  "definition": {
+                    "file": "skin/default.yaml",
+                    "range": {
+                      "start": {
+                        "line": 97,
+                        "column": 6,
+                        "offset": 3055
+                      },
+                      "end": {
+                        "line": 108,
+                        "column": 46,
+                        "offset": 3420
+                      }
+                    }
+                  }
+                },
+                "id": "main.controlBar.radioGroup.song"
+              },
+              {
+                "type": "radioItem",
+                "definitionName": "pattern",
+                "labelVariants": [
+                  "Pattern",
+                  "P"
+                ],
+                "layout": {
+                  "width": {
+                    "mode": "auto"
+                  },
+                  "height": {
+                    "mode": "auto"
+                  }
+                },
+                "children": [],
+                "bindings": [],
+                "source": {
+                  "file": "components/controlBar.yaml",
+                  "range": {
+                    "start": {
+                      "line": 11,
+                      "column": 8,
+                      "offset": 158
+                    },
+                    "end": {
+                      "line": 12,
+                      "column": 25,
+                      "offset": 197
+                    }
+                  }
+                },
+                "refSource": null,
+                "supported": true,
+                "style": {
+                  "type": "radioItem",
+                  "variant": "default",
+                  "requested": "default",
+                  "source": null,
+                  "inheritedFrom": "group",
+                  "definition": {
+                    "file": "skin/default.yaml",
+                    "range": {
+                      "start": {
+                        "line": 97,
+                        "column": 6,
+                        "offset": 3055
+                      },
+                      "end": {
+                        "line": 108,
+                        "column": 46,
+                        "offset": 3420
+                      }
+                    }
+                  }
+                },
+                "id": "main.controlBar.radioGroup.pattern"
+              }
+            ],
+            "bindings": [
+              {
+                "origin": "action",
+                "event": "change",
+                "code": "set-value",
+                "inferredFrom": "set playback type",
+                "kind": "command",
+                "command": "playback-type.set",
+                "mockField": "playback-type.value",
+                "mockValues": [],
+                "source": {
+                  "file": "components/controlBar.yaml",
+                  "range": {
+                    "start": {
+                      "line": 14,
+                      "column": 16,
+                      "offset": 227
+                    },
+                    "end": {
+                      "line": 14,
+                      "column": 31,
+                      "offset": 242
+                    }
+                  }
+                }
+              }
+            ],
+            "source": {
+              "file": "components/controlBar.yaml",
+              "range": {
+                "start": {
+                  "line": 7,
+                  "column": 4,
+                  "offset": 80
+                },
+                "end": {
+                  "line": 14,
+                  "column": 31,
+                  "offset": 242
+                }
+              }
+            },
+            "refSource": null,
+            "supported": true,
+            "style": {
+              "type": "radioGroup",
+              "variant": "default",
+              "requested": "default",
+              "source": null,
+              "inheritedFrom": null,
+              "definition": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 86,
+                    "column": 6,
+                    "offset": 2654
+                  },
+                  "end": {
+                    "line": 88,
+                    "column": 24,
+                    "offset": 2847
+                  }
+                }
+              }
+            },
+            "id": "main.controlBar.radioGroup"
+          },
+          {
+            "type": "button",
+            "definitionName": null,
+            "labelVariants": [
+              "Play"
+            ],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "shortKey": "Enter",
+            "color": null,
+            "children": [],
+            "bindings": [
+              {
+                "origin": "rule",
+                "code": "highlighted-when-active",
+                "kind": "visual-state",
+                "state": "highlighted",
+                "mockField": "playback.status",
+                "activeValue": "playing",
+                "conditionText": "song playback",
+                "source": {
+                  "file": "components/controlBar.yaml",
+                  "range": {
+                    "start": {
+                      "line": 18,
+                      "column": 10,
+                      "offset": 304
+                    },
+                    "end": {
+                      "line": 18,
+                      "column": 50,
+                      "offset": 344
+                    }
+                  }
+                }
+              },
+              {
+                "origin": "action",
+                "event": "click",
+                "code": "toggle-play-state",
+                "kind": "command",
+                "command": "transport.toggle",
+                "mockField": "playback.status",
+                "mockValues": [
+                  "stopped",
+                  "playing"
+                ],
+                "source": {
+                  "file": "actions/toggleplay.yaml",
+                  "range": {
+                    "start": {
+                      "line": 20,
+                      "column": 15,
+                      "offset": 373
+                    },
+                    "end": {
+                      "line": 20,
+                      "column": 25,
+                      "offset": 383
+                    }
+                  }
+                }
+              }
+            ],
+            "source": {
+              "file": "components/controlBar.yaml",
+              "range": {
+                "start": {
+                  "line": 15,
+                  "column": 4,
+                  "offset": 247
+                },
+                "end": {
+                  "line": 21,
+                  "column": 19,
+                  "offset": 403
+                }
+              }
+            },
+            "refSource": null,
+            "supported": true,
+            "style": {
+              "type": "button",
+              "variant": "play",
+              "requested": "play",
+              "source": {
+                "file": "components/controlBar.yaml",
+                "range": {
+                  "start": {
+                    "line": 17,
+                    "column": 13,
+                    "offset": 289
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 17,
+                    "offset": 293
+                  }
+                }
+              },
+              "inheritedFrom": null,
+              "definition": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 44,
+                    "column": 6,
+                    "offset": 1293
+                  },
+                  "end": {
+                    "line": 50,
+                    "column": 43,
+                    "offset": 1619
+                  }
+                }
+              }
+            },
+            "id": "main.controlBar.button.Play"
+          },
+          {
+            "type": "button",
+            "definitionName": null,
+            "labelVariants": [
+              "record"
+            ],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "shortKey": "Space",
+            "color": null,
+            "children": [],
+            "bindings": [
+              {
+                "origin": "rule",
+                "code": "highlighted-when-active",
+                "kind": "visual-state",
+                "state": "highlighted",
+                "mockField": "record.active",
+                "activeValue": true,
+                "conditionText": "recording",
+                "source": {
+                  "file": "components/controlBar.yaml",
+                  "range": {
+                    "start": {
+                      "line": 25,
+                      "column": 10,
+                      "offset": 469
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 46,
+                      "offset": 505
+                    }
+                  }
+                }
+              },
+              {
+                "origin": "action",
+                "event": "click",
+                "code": "toggle-recording",
+                "inferredFrom": "toggle recording",
+                "kind": "command",
+                "command": "record.toggle",
+                "mockField": "record.active",
+                "mockValues": [
+                  false,
+                  true
+                ],
+                "source": {
+                  "file": "components/controlBar.yaml",
+                  "range": {
+                    "start": {
+                      "line": 27,
+                      "column": 15,
+                      "offset": 534
+                    },
+                    "end": {
+                      "line": 27,
+                      "column": 30,
+                      "offset": 549
+                    }
+                  }
+                }
+              }
+            ],
+            "source": {
+              "file": "components/controlBar.yaml",
+              "range": {
+                "start": {
+                  "line": 22,
+                  "column": 4,
+                  "offset": 408
+                },
+                "end": {
+                  "line": 28,
+                  "column": 19,
+                  "offset": 569
+                }
+              }
+            },
+            "refSource": null,
+            "supported": true,
+            "style": {
+              "type": "button",
+              "variant": "record",
+              "requested": "record",
+              "source": {
+                "file": "components/controlBar.yaml",
+                "range": {
+                  "start": {
+                    "line": 24,
+                    "column": 13,
+                    "offset": 452
+                  },
+                  "end": {
+                    "line": 24,
+                    "column": 19,
+                    "offset": 458
+                  }
+                }
+              },
+              "inheritedFrom": null,
+              "definition": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 53,
+                    "column": 6,
+                    "offset": 1639
+                  },
+                  "end": {
+                    "line": 59,
+                    "column": 47,
+                    "offset": 1915
+                  }
+                }
+              }
+            },
+            "id": "main.controlBar.button.record"
+          },
+          {
+            "type": "spinBox",
+            "definitionName": null,
+            "labelVariants": [],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "shortKey": null,
+            "color": null,
+            "children": [],
+            "bindings": [
+              {
+                "origin": "action",
+                "event": "change",
+                "code": "set-value",
+                "inferredFrom": "set number of tracks",
+                "kind": "command",
+                "command": "tracks.set",
+                "mockField": "tracks.value",
+                "mockValues": [],
+                "source": {
+                  "file": "components/controlBar.yaml",
+                  "range": {
+                    "start": {
+                      "line": 32,
+                      "column": 16,
+                      "offset": 634
+                    },
+                    "end": {
+                      "line": 32,
+                      "column": 36,
+                      "offset": 654
+                    }
+                  }
+                }
+              }
+            ],
+            "source": {
+              "file": "components/controlBar.yaml",
+              "range": {
+                "start": {
+                  "line": 29,
+                  "column": 4,
+                  "offset": 574
+                },
+                "end": {
+                  "line": 32,
+                  "column": 36,
+                  "offset": 654
+                }
+              }
+            },
+            "refSource": null,
+            "supported": true,
+            "style": {
+              "type": "spinBox",
+              "variant": "big",
+              "requested": "big",
+              "source": {
+                "file": "components/controlBar.yaml",
+                "range": {
+                  "start": {
+                    "line": 30,
+                    "column": 13,
+                    "offset": 601
+                  },
+                  "end": {
+                    "line": 30,
+                    "column": 16,
+                    "offset": 604
+                  }
+                }
+              },
+              "inheritedFrom": null,
+              "definition": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 141,
+                    "column": 6,
+                    "offset": 4384
+                  },
+                  "end": {
+                    "line": 144,
+                    "column": 16,
+                    "offset": 4531
+                  }
+                }
+              }
+            },
+            "id": "main.controlBar.spinBox"
+          },
+          {
+            "type": "panel",
+            "definitionName": null,
+            "labelVariants": [],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "shortKey": null,
+            "color": null,
+            "children": [
+              {
+                "type": "radioGroup",
+                "definitionName": null,
+                "labelVariants": [
+                  "Mode",
+                  "M"
+                ],
+                "layout": {
+                  "width": {
+                    "mode": "auto"
+                  },
+                  "height": {
+                    "mode": "auto"
+                  }
+                },
+                "shortKey": null,
+                "color": null,
+                "children": [
+                  {
+                    "type": "radioItem",
+                    "definitionName": null,
+                    "labelVariants": [
+                      "mod"
+                    ],
+                    "layout": {
+                      "width": {
+                        "mode": "auto"
+                      },
+                      "height": {
+                        "mode": "auto"
+                      }
+                    },
+                    "children": [],
+                    "bindings": [],
+                    "source": {
+                      "file": "components/controlBar.yaml",
+                      "range": {
+                        "start": {
+                          "line": 39,
+                          "column": 12,
+                          "offset": 784
+                        },
+                        "end": {
+                          "line": 39,
+                          "column": 22,
+                          "offset": 794
+                        }
+                      }
+                    },
+                    "refSource": null,
+                    "supported": true,
+                    "style": {
+                      "type": "radioItem",
+                      "variant": "button",
+                      "requested": "button",
+                      "source": null,
+                      "inheritedFrom": "group",
+                      "definition": {
+                        "file": "skin/default.yaml",
+                        "range": {
+                          "start": {
+                            "line": 111,
+                            "column": 6,
+                            "offset": 3440
+                          },
+                          "end": {
+                            "line": 115,
+                            "column": 47,
+                            "offset": 3683
+                          }
+                        }
+                      }
+                    },
+                    "id": "main.controlBar.panel.radioGroup.Mode.radioItem.mod"
+                  },
+                  {
+                    "type": "radioItem",
+                    "definitionName": null,
+                    "labelVariants": [
+                      "xm"
+                    ],
+                    "layout": {
+                      "width": {
+                        "mode": "auto"
+                      },
+                      "height": {
+                        "mode": "auto"
+                      }
+                    },
+                    "children": [],
+                    "bindings": [],
+                    "source": {
+                      "file": "components/controlBar.yaml",
+                      "range": {
+                        "start": {
+                          "line": 40,
+                          "column": 12,
+                          "offset": 807
+                        },
+                        "end": {
+                          "line": 40,
+                          "column": 21,
+                          "offset": 816
+                        }
+                      }
+                    },
+                    "refSource": null,
+                    "supported": true,
+                    "style": {
+                      "type": "radioItem",
+                      "variant": "button",
+                      "requested": "button",
+                      "source": null,
+                      "inheritedFrom": "group",
+                      "definition": {
+                        "file": "skin/default.yaml",
+                        "range": {
+                          "start": {
+                            "line": 111,
+                            "column": 6,
+                            "offset": 3440
+                          },
+                          "end": {
+                            "line": 115,
+                            "column": 47,
+                            "offset": 3683
+                          }
+                        }
+                      }
+                    },
+                    "id": "main.controlBar.panel.radioGroup.Mode.radioItem.xm"
+                  }
+                ],
+                "bindings": [],
+                "source": {
+                  "file": "components/controlBar.yaml",
+                  "range": {
+                    "start": {
+                      "line": 35,
+                      "column": 8,
+                      "offset": 692
+                    },
+                    "end": {
+                      "line": 40,
+                      "column": 21,
+                      "offset": 816
+                    }
+                  }
+                },
+                "refSource": null,
+                "supported": true,
+                "style": {
+                  "type": "radioGroup",
+                  "variant": "buttons",
+                  "requested": "buttons",
+                  "source": {
+                    "file": "components/controlBar.yaml",
+                    "range": {
+                      "start": {
+                        "line": 37,
+                        "column": 17,
+                        "offset": 749
+                      },
+                      "end": {
+                        "line": 37,
+                        "column": 24,
+                        "offset": 756
+                      }
+                    }
+                  },
+                  "inheritedFrom": null,
+                  "definition": {
+                    "file": "skin/default.yaml",
+                    "range": {
+                      "start": {
+                        "line": 91,
+                        "column": 6,
+                        "offset": 2868
+                      },
+                      "end": {
+                        "line": 93,
+                        "column": 23,
+                        "offset": 3021
+                      }
+                    }
+                  }
+                },
+                "id": "main.controlBar.panel.radioGroup.Mode"
+              },
+              {
+                "type": "radioGroup",
+                "definitionName": null,
+                "labelVariants": [
+                  "Display",
+                  "D"
+                ],
+                "layout": {
+                  "width": {
+                    "mode": "auto"
+                  },
+                  "height": {
+                    "mode": "auto"
+                  }
+                },
+                "shortKey": null,
+                "color": null,
+                "children": [
+                  {
+                    "type": "radioItem",
+                    "definitionName": null,
+                    "labelVariants": [
+                      "4"
+                    ],
+                    "layout": {
+                      "width": {
+                        "mode": "auto"
+                      },
+                      "height": {
+                        "mode": "auto"
+                      }
+                    },
+                    "children": [],
+                    "bindings": [],
+                    "source": {
+                      "file": "components/controlBar.yaml",
+                      "range": {
+                        "start": {
+                          "line": 45,
+                          "column": 12,
+                          "offset": 920
+                        },
+                        "end": {
+                          "line": 45,
+                          "column": 20,
+                          "offset": 928
+                        }
+                      }
+                    },
+                    "refSource": null,
+                    "supported": true,
+                    "style": {
+                      "type": "radioItem",
+                      "variant": "button",
+                      "requested": "button",
+                      "source": null,
+                      "inheritedFrom": "group",
+                      "definition": {
+                        "file": "skin/default.yaml",
+                        "range": {
+                          "start": {
+                            "line": 111,
+                            "column": 6,
+                            "offset": 3440
+                          },
+                          "end": {
+                            "line": 115,
+                            "column": 47,
+                            "offset": 3683
+                          }
+                        }
+                      }
+                    },
+                    "id": "main.controlBar.panel.radioGroup.Display.radioItem.4"
+                  },
+                  {
+                    "type": "radioItem",
+                    "definitionName": null,
+                    "labelVariants": [
+                      "8"
+                    ],
+                    "layout": {
+                      "width": {
+                        "mode": "auto"
+                      },
+                      "height": {
+                        "mode": "auto"
+                      }
+                    },
+                    "children": [],
+                    "bindings": [],
+                    "source": {
+                      "file": "components/controlBar.yaml",
+                      "range": {
+                        "start": {
+                          "line": 46,
+                          "column": 12,
+                          "offset": 941
+                        },
+                        "end": {
+                          "line": 46,
+                          "column": 20,
+                          "offset": 949
+                        }
+                      }
+                    },
+                    "refSource": null,
+                    "supported": true,
+                    "style": {
+                      "type": "radioItem",
+                      "variant": "button",
+                      "requested": "button",
+                      "source": null,
+                      "inheritedFrom": "group",
+                      "definition": {
+                        "file": "skin/default.yaml",
+                        "range": {
+                          "start": {
+                            "line": 111,
+                            "column": 6,
+                            "offset": 3440
+                          },
+                          "end": {
+                            "line": 115,
+                            "column": 47,
+                            "offset": 3683
+                          }
+                        }
+                      }
+                    },
+                    "id": "main.controlBar.panel.radioGroup.Display.radioItem.8"
+                  },
+                  {
+                    "type": "radioItem",
+                    "definitionName": null,
+                    "labelVariants": [
+                      "12"
+                    ],
+                    "layout": {
+                      "width": {
+                        "mode": "auto"
+                      },
+                      "height": {
+                        "mode": "auto"
+                      }
+                    },
+                    "children": [],
+                    "bindings": [],
+                    "source": {
+                      "file": "components/controlBar.yaml",
+                      "range": {
+                        "start": {
+                          "line": 47,
+                          "column": 12,
+                          "offset": 962
+                        },
+                        "end": {
+                          "line": 47,
+                          "column": 21,
+                          "offset": 971
+                        }
+                      }
+                    },
+                    "refSource": null,
+                    "supported": true,
+                    "style": {
+                      "type": "radioItem",
+                      "variant": "button",
+                      "requested": "button",
+                      "source": null,
+                      "inheritedFrom": "group",
+                      "definition": {
+                        "file": "skin/default.yaml",
+                        "range": {
+                          "start": {
+                            "line": 111,
+                            "column": 6,
+                            "offset": 3440
+                          },
+                          "end": {
+                            "line": 115,
+                            "column": 47,
+                            "offset": 3683
+                          }
+                        }
+                      }
+                    },
+                    "id": "main.controlBar.panel.radioGroup.Display.radioItem.12"
+                  },
+                  {
+                    "type": "radioItem",
+                    "definitionName": null,
+                    "labelVariants": [
+                      "16"
+                    ],
+                    "layout": {
+                      "width": {
+                        "mode": "auto"
+                      },
+                      "height": {
+                        "mode": "auto"
+                      }
+                    },
+                    "children": [],
+                    "bindings": [],
+                    "source": {
+                      "file": "components/controlBar.yaml",
+                      "range": {
+                        "start": {
+                          "line": 48,
+                          "column": 12,
+                          "offset": 984
+                        },
+                        "end": {
+                          "line": 48,
+                          "column": 21,
+                          "offset": 993
+                        }
+                      }
+                    },
+                    "refSource": null,
+                    "supported": true,
+                    "style": {
+                      "type": "radioItem",
+                      "variant": "button",
+                      "requested": "button",
+                      "source": null,
+                      "inheritedFrom": "group",
+                      "definition": {
+                        "file": "skin/default.yaml",
+                        "range": {
+                          "start": {
+                            "line": 111,
+                            "column": 6,
+                            "offset": 3440
+                          },
+                          "end": {
+                            "line": 115,
+                            "column": 47,
+                            "offset": 3683
+                          }
+                        }
+                      }
+                    },
+                    "id": "main.controlBar.panel.radioGroup.Display.radioItem.16"
+                  }
+                ],
+                "bindings": [],
+                "source": {
+                  "file": "components/controlBar.yaml",
+                  "range": {
+                    "start": {
+                      "line": 41,
+                      "column": 8,
+                      "offset": 825
+                    },
+                    "end": {
+                      "line": 48,
+                      "column": 21,
+                      "offset": 993
+                    }
+                  }
+                },
+                "refSource": null,
+                "supported": true,
+                "style": {
+                  "type": "radioGroup",
+                  "variant": "buttons",
+                  "requested": "buttons",
+                  "source": {
+                    "file": "components/controlBar.yaml",
+                    "range": {
+                      "start": {
+                        "line": 43,
+                        "column": 17,
+                        "offset": 885
+                      },
+                      "end": {
+                        "line": 43,
+                        "column": 24,
+                        "offset": 892
+                      }
+                    }
+                  },
+                  "inheritedFrom": null,
+                  "definition": {
+                    "file": "skin/default.yaml",
+                    "range": {
+                      "start": {
+                        "line": 91,
+                        "column": 6,
+                        "offset": 2868
+                      },
+                      "end": {
+                        "line": 93,
+                        "column": 23,
+                        "offset": 3021
+                      }
+                    }
+                  }
+                },
+                "id": "main.controlBar.panel.radioGroup.Display"
+              },
+              {
+                "type": "radioGroup",
+                "definitionName": null,
+                "labelVariants": [],
+                "layout": {
+                  "width": {
+                    "mode": "auto"
+                  },
+                  "height": {
+                    "mode": "auto"
+                  }
+                },
+                "shortKey": null,
+                "color": null,
+                "children": [
+                  {
+                    "type": "radioItem",
+                    "definitionName": "vertical",
+                    "labelVariants": [
+                      "vertical"
+                    ],
+                    "layout": {
+                      "width": {
+                        "mode": "auto"
+                      },
+                      "height": {
+                        "mode": "auto"
+                      }
+                    },
+                    "children": [],
+                    "bindings": [],
+                    "source": {
+                      "file": "components/controlBar.yaml",
+                      "range": {
+                        "start": {
+                          "line": 54,
+                          "column": 12,
+                          "offset": 1123
+                        },
+                        "end": {
+                          "line": 54,
+                          "column": 26,
+                          "offset": 1137
+                        }
+                      }
+                    },
+                    "refSource": null,
+                    "supported": true,
+                    "style": {
+                      "type": "radioItem",
+                      "variant": "button",
+                      "requested": "button",
+                      "source": null,
+                      "inheritedFrom": "group",
+                      "definition": {
+                        "file": "skin/default.yaml",
+                        "range": {
+                          "start": {
+                            "line": 111,
+                            "column": 6,
+                            "offset": 3440
+                          },
+                          "end": {
+                            "line": 115,
+                            "column": 47,
+                            "offset": 3683
+                          }
+                        }
+                      }
+                    },
+                    "id": "main.controlBar.panel.radioGroup.vertical"
+                  },
+                  {
+                    "type": "radioItem",
+                    "definitionName": "horizontal",
+                    "labelVariants": [
+                      "horizontal"
+                    ],
+                    "layout": {
+                      "width": {
+                        "mode": "auto"
+                      },
+                      "height": {
+                        "mode": "auto"
+                      }
+                    },
+                    "children": [],
+                    "bindings": [],
+                    "source": {
+                      "file": "components/controlBar.yaml",
+                      "range": {
+                        "start": {
+                          "line": 55,
+                          "column": 12,
+                          "offset": 1150
+                        },
+                        "end": {
+                          "line": 55,
+                          "column": 28,
+                          "offset": 1166
+                        }
+                      }
+                    },
+                    "refSource": null,
+                    "supported": true,
+                    "style": {
+                      "type": "radioItem",
+                      "variant": "button",
+                      "requested": "button",
+                      "source": null,
+                      "inheritedFrom": "group",
+                      "definition": {
+                        "file": "skin/default.yaml",
+                        "range": {
+                          "start": {
+                            "line": 111,
+                            "column": 6,
+                            "offset": 3440
+                          },
+                          "end": {
+                            "line": 115,
+                            "column": 47,
+                            "offset": 3683
+                          }
+                        }
+                      }
+                    },
+                    "id": "main.controlBar.panel.radioGroup.horizontal"
+                  }
+                ],
+                "bindings": [
+                  {
+                    "origin": "action",
+                    "event": "change",
+                    "code": "set-value",
+                    "inferredFrom": "set editor layout",
+                    "kind": "command",
+                    "command": "editor-layout.set",
+                    "mockField": "editor-layout.value",
+                    "mockValues": [],
+                    "source": {
+                      "file": "components/controlBar.yaml",
+                      "range": {
+                        "start": {
+                          "line": 52,
+                          "column": 20,
+                          "offset": 1080
+                        },
+                        "end": {
+                          "line": 52,
+                          "column": 35,
+                          "offset": 1095
+                        }
+                      }
+                    }
+                  }
+                ],
+                "source": {
+                  "file": "components/controlBar.yaml",
+                  "range": {
+                    "start": {
+                      "line": 49,
+                      "column": 8,
+                      "offset": 1002
+                    },
+                    "end": {
+                      "line": 55,
+                      "column": 28,
+                      "offset": 1166
+                    }
+                  }
+                },
+                "refSource": null,
+                "supported": true,
+                "style": {
+                  "type": "radioGroup",
+                  "variant": "buttons",
+                  "requested": "buttons",
+                  "source": {
+                    "file": "components/controlBar.yaml",
+                    "range": {
+                      "start": {
+                        "line": 50,
+                        "column": 17,
+                        "offset": 1036
+                      },
+                      "end": {
+                        "line": 50,
+                        "column": 24,
+                        "offset": 1043
+                      }
+                    }
+                  },
+                  "inheritedFrom": null,
+                  "definition": {
+                    "file": "skin/default.yaml",
+                    "range": {
+                      "start": {
+                        "line": 91,
+                        "column": 6,
+                        "offset": 2868
+                      },
+                      "end": {
+                        "line": 93,
+                        "column": 23,
+                        "offset": 3021
+                      }
+                    }
+                  }
+                },
+                "id": "main.controlBar.panel.radioGroup"
+              }
+            ],
+            "bindings": [],
+            "source": {
+              "file": "components/controlBar.yaml",
+              "range": {
+                "start": {
+                  "line": 33,
+                  "column": 4,
+                  "offset": 659
+                },
+                "end": {
+                  "line": 55,
+                  "column": 28,
+                  "offset": 1166
+                }
+              }
+            },
+            "refSource": null,
+            "supported": true,
+            "style": {
+              "type": "panel",
+              "variant": "default",
+              "requested": "default",
+              "source": null,
+              "inheritedFrom": null,
+              "definition": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 21,
+                    "column": 6,
+                    "offset": 632
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 26,
+                    "offset": 778
+                  }
+                }
+              }
+            },
+            "id": "main.controlBar.panel"
+          }
+        ],
+        "bindings": [],
+        "source": {
+          "file": "components/controlBar.yaml",
+          "range": {
+            "start": {
+              "line": 1,
+              "column": 0,
+              "offset": 0
+            },
+            "end": {
+              "line": 55,
+              "column": 28,
+              "offset": 1166
+            }
+          }
+        },
+        "refSource": {
+          "file": "app.yaml",
+          "range": {
+            "start": {
+              "line": 36,
+              "column": 10,
+              "offset": 1100
+            },
+            "end": {
+              "line": 36,
+              "column": 20,
+              "offset": 1110
+            }
+          }
+        },
+        "supported": true,
+        "style": {
+          "type": "panel",
+          "variant": "default",
+          "requested": "default",
+          "source": null,
+          "inheritedFrom": null,
+          "definition": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 21,
+                "column": 6,
+                "offset": 632
+              },
+              "end": {
+                "line": 25,
+                "column": 26,
+                "offset": 778
+              }
+            }
+          }
+        },
+        "id": "main.controlBar"
+      },
+      {
+        "type": "panel",
+        "definitionName": "statusBar",
+        "labelVariants": [
+          "statusBar"
+        ],
+        "layout": {
+          "width": {
+            "mode": "auto"
+          },
+          "height": {
+            "mode": "auto"
+          }
+        },
+        "shortKey": null,
+        "color": null,
+        "children": [
+          {
+            "type": "label",
+            "definitionName": null,
+            "labelVariants": [
+              "main status"
+            ],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "children": [],
+            "bindings": [],
+            "source": {
+              "file": "app.yaml",
+              "range": {
+                "start": {
+                  "line": 40,
+                  "column": 16,
+                  "offset": 1193
+                },
+                "end": {
+                  "line": 40,
+                  "column": 33,
+                  "offset": 1210
+                }
+              }
+            },
+            "refSource": null,
+            "supported": true,
+            "style": {
+              "type": "label",
+              "variant": "default",
+              "requested": "default",
+              "source": null,
+              "inheritedFrom": null,
+              "definition": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 148,
+                    "column": 6,
+                    "offset": 4561
+                  },
+                  "end": {
+                    "line": 152,
+                    "column": 18,
+                    "offset": 4677
+                  }
+                }
+              }
+            },
+            "id": "main.statusBar.label.main status"
+          },
+          {
+            "type": "label",
+            "definitionName": "song title",
+            "labelVariants": [
+              "song title"
+            ],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "shortKey": null,
+            "color": null,
+            "children": [],
+            "bindings": [],
+            "source": {
+              "file": "app.yaml",
+              "range": {
+                "start": {
+                  "line": 42,
+                  "column": 18,
+                  "offset": 1257
+                },
+                "end": {
+                  "line": 43,
+                  "column": 35,
+                  "offset": 1304
+                }
+              }
+            },
+            "refSource": null,
+            "supported": true,
+            "style": {
+              "type": "label",
+              "variant": "default",
+              "requested": "default",
+              "source": null,
+              "inheritedFrom": null,
+              "definition": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 148,
+                    "column": 6,
+                    "offset": 4561
+                  },
+                  "end": {
+                    "line": 152,
+                    "column": 18,
+                    "offset": 4677
+                  }
+                }
+              }
+            },
+            "field": "song.title",
+            "id": "main.statusBar.song title"
+          },
+          {
+            "type": "label",
+            "definitionName": "playback status",
+            "labelVariants": [
+              "playback status"
+            ],
+            "layout": {
+              "width": {
+                "mode": "auto"
+              },
+              "height": {
+                "mode": "auto"
+              }
+            },
+            "shortKey": null,
+            "color": null,
+            "children": [],
+            "bindings": [],
+            "source": {
+              "file": "app.yaml",
+              "range": {
+                "start": {
+                  "line": 45,
+                  "column": 18,
+                  "offset": 1356
+                },
+                "end": {
+                  "line": 46,
+                  "column": 40,
+                  "offset": 1408
+                }
+              }
+            },
+            "refSource": null,
+            "supported": true,
+            "style": {
+              "type": "label",
+              "variant": "default",
+              "requested": "default",
+              "source": null,
+              "inheritedFrom": null,
+              "definition": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 148,
+                    "column": 6,
+                    "offset": 4561
+                  },
+                  "end": {
+                    "line": 152,
+                    "column": 18,
+                    "offset": 4677
+                  }
+                }
+              }
+            },
+            "field": "playback.status",
+            "id": "main.statusBar.playback status"
+          }
+        ],
+        "bindings": [],
+        "source": {
+          "file": "app.yaml",
+          "range": {
+            "start": {
+              "line": 38,
+              "column": 12,
+              "offset": 1144
+            },
+            "end": {
+              "line": 46,
+              "column": 40,
+              "offset": 1408
+            }
+          }
+        },
+        "refSource": null,
+        "supported": true,
+        "style": {
+          "type": "panel",
+          "variant": "default",
+          "requested": "default",
+          "source": null,
+          "inheritedFrom": null,
+          "definition": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 21,
+                "column": 6,
+                "offset": 632
+              },
+              "end": {
+                "line": 25,
+                "column": 26,
+                "offset": 778
+              }
+            }
+          }
+        },
+        "id": "main.statusBar"
+      },
+      {
+        "type": "panel",
+        "definitionName": "songProperties",
+        "labelVariants": [
+          "songProperties"
+        ],
+        "layout": {
+          "width": {
+            "mode": "fill"
+          },
+          "height": {
+            "mode": "auto"
+          },
+          "resizable": "horizontal"
+        },
+        "shortKey": null,
+        "color": null,
+        "children": [],
+        "bindings": [],
+        "source": {
+          "file": "components/songProperties.yaml",
+          "range": {
+            "start": {
+              "line": 1,
+              "column": 0,
+              "offset": 0
+            },
+            "end": {
+              "line": 5,
+              "column": 23,
+              "offset": 78
+            }
+          }
+        },
+        "refSource": {
+          "file": "app.yaml",
+          "range": {
+            "start": {
+              "line": 47,
+              "column": 10,
+              "offset": 1419
+            },
+            "end": {
+              "line": 47,
+              "column": 24,
+              "offset": 1433
+            }
+          }
+        },
+        "supported": true,
+        "style": {
+          "type": "panel",
+          "variant": "default",
+          "requested": "default",
+          "source": null,
+          "inheritedFrom": null,
+          "definition": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 21,
+                "column": 6,
+                "offset": 632
+              },
+              "end": {
+                "line": 25,
+                "column": 26,
+                "offset": 778
+              }
+            }
+          }
+        },
+        "id": "main.songProperties"
+      }
+    ],
+    "bindings": [],
+    "source": {
+      "file": "app.yaml",
+      "range": {
+        "start": {
+          "line": 6,
+          "column": 6,
+          "offset": 67
+        },
+        "end": {
+          "line": 47,
+          "column": 24,
+          "offset": 1433
+        }
+      }
+    },
+    "refSource": null,
+    "supported": true,
+    "style": {
+      "type": "panel",
+      "variant": "default",
+      "requested": "default",
+      "source": null,
+      "inheritedFrom": null,
+      "definition": {
+        "file": "skin/default.yaml",
+        "range": {
+          "start": {
+            "line": 21,
+            "column": 6,
+            "offset": 632
+          },
+          "end": {
+            "line": 25,
+            "column": 26,
+            "offset": 778
+          }
+        }
+      }
+    },
+    "id": "main"
+  },
+  "skin": {
+    "name": "default",
+    "builtin": false,
+    "mode": "loose",
+    "description": "Default v2 skin. Every state names one asset, and an asset name is the base name of a PNG under v2/assets/skin/src. Development loads those PNGs one by one; the release build packs exactly the ones referenced here into one sheet plus one map.",
+    "source": {
+      "file": "skin/default.yaml",
+      "range": {
+        "start": {
+          "line": 1,
+          "column": 0,
+          "offset": 0
+        },
+        "end": {
+          "line": 152,
+          "column": 18,
+          "offset": 4677
+        }
+      }
+    },
+    "atlas": {
+      "sheet": "generated/atlas.png",
+      "map": "generated/atlas.json"
+    },
+    "assets": [
+      {
+        "name": "button_hover_green",
+        "file": "src/button_hover_green.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 47,
+                "column": 15,
+                "offset": 1474
+              },
+              "end": {
+                "line": 47,
+                "column": 33,
+                "offset": 1492
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "button_inlay",
+        "file": "src/button_inlay.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 38,
+                "column": 16,
+                "offset": 1143
+              },
+              "end": {
+                "line": 38,
+                "column": 28,
+                "offset": 1155
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 105,
+                "column": 16,
+                "offset": 3290
+              },
+              "end": {
+                "line": 105,
+                "column": 28,
+                "offset": 3302
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "button_inlay_active",
+        "file": "src/button_inlay_active.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 39,
+                "column": 17,
+                "offset": 1173
+              },
+              "end": {
+                "line": 39,
+                "column": 36,
+                "offset": 1192
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 50,
+                "column": 24,
+                "offset": 1600
+              },
+              "end": {
+                "line": 50,
+                "column": 43,
+                "offset": 1619
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 106,
+                "column": 17,
+                "offset": 3320
+              },
+              "end": {
+                "line": 106,
+                "column": 36,
+                "offset": 3339
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "button_inlay_blue",
+        "file": "src/button_inlay_blue.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 107,
+                "column": 16,
+                "offset": 3356
+              },
+              "end": {
+                "line": 107,
+                "column": 33,
+                "offset": 3373
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "button_inlay_blue_active",
+        "file": "src/button_inlay_blue_active.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 108,
+                "column": 22,
+                "offset": 3396
+              },
+              "end": {
+                "line": 108,
+                "column": 46,
+                "offset": 3420
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "button_inlay_green",
+        "file": "src/button_inlay_green.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 40,
+                "column": 16,
+                "offset": 1209
+              },
+              "end": {
+                "line": 40,
+                "column": 34,
+                "offset": 1227
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 48,
+                "column": 16,
+                "offset": 1509
+              },
+              "end": {
+                "line": 48,
+                "column": 34,
+                "offset": 1527
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 114,
+                "column": 16,
+                "offset": 3617
+              },
+              "end": {
+                "line": 114,
+                "column": 34,
+                "offset": 3635
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "button_inlay_green_active",
+        "file": "src/button_inlay_green_active.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 41,
+                "column": 22,
+                "offset": 1250
+              },
+              "end": {
+                "line": 41,
+                "column": 47,
+                "offset": 1275
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 49,
+                "column": 22,
+                "offset": 1550
+              },
+              "end": {
+                "line": 49,
+                "column": 47,
+                "offset": 1575
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 115,
+                "column": 22,
+                "offset": 3658
+              },
+              "end": {
+                "line": 115,
+                "column": 47,
+                "offset": 3683
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "button_inlay_red",
+        "file": "src/button_inlay_red.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 57,
+                "column": 16,
+                "offset": 1806
+              },
+              "end": {
+                "line": 57,
+                "column": 32,
+                "offset": 1822
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "button_inlay_red_active",
+        "file": "src/button_inlay_red_active.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 59,
+                "column": 24,
+                "offset": 1892
+              },
+              "end": {
+                "line": 59,
+                "column": 47,
+                "offset": 1915
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "button_inlay_red_hover",
+        "file": "src/button_inlay_red_hover.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 56,
+                "column": 15,
+                "offset": 1767
+              },
+              "end": {
+                "line": 56,
+                "column": 37,
+                "offset": 1789
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 58,
+                "column": 22,
+                "offset": 1845
+              },
+              "end": {
+                "line": 58,
+                "column": 44,
+                "offset": 1867
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "checkbox_off",
+        "file": "src/checkbox_off.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 81,
+                "column": 16,
+                "offset": 2579
+              },
+              "end": {
+                "line": 81,
+                "column": 28,
+                "offset": 2591
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "checkbox_on",
+        "file": "src/checkbox_on.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 82,
+                "column": 16,
+                "offset": 2608
+              },
+              "end": {
+                "line": 82,
+                "column": 27,
+                "offset": 2619
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "font",
+        "file": "src/font.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 7,
+                "column": 11,
+                "offset": 388
+              },
+              "end": {
+                "line": 7,
+                "column": 15,
+                "offset": 392
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "panel_dark",
+        "file": "src/panel_dark.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 25,
+                "column": 16,
+                "offset": 768
+              },
+              "end": {
+                "line": 25,
+                "column": 26,
+                "offset": 778
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 66,
+                "column": 16,
+                "offset": 2110
+              },
+              "end": {
+                "line": 66,
+                "column": 26,
+                "offset": 2120
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "panel_inset_dark",
+        "file": "src/panel_inset_dark.png",
+        "usedBy": [
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 72,
+                "column": 16,
+                "offset": 2280
+              },
+              "end": {
+                "line": 72,
+                "column": 32,
+                "offset": 2296
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 125,
+                "column": 16,
+                "offset": 3973
+              },
+              "end": {
+                "line": 125,
+                "column": 32,
+                "offset": 3989
+              }
+            }
+          },
+          {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 138,
+                "column": 16,
+                "offset": 4351
+              },
+              "end": {
+                "line": 138,
+                "column": 32,
+                "offset": 4367
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "fonts": {
+      "small": {
+        "name": "small",
+        "description": "Compact uppercase 6 by 6 pixel font, the only font v2 draws with so far.",
+        "asset": "font",
+        "offsetX": 1,
+        "offsetY": 1,
+        "charWidth": 6,
+        "charHeight": 6,
+        "spaceWidth": 6,
+        "margin": 0,
+        "lineSpacing": 0,
+        "charsPerLine": 42,
+        "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_#/&@$+^!",
+        "onlyUpperCase": true,
+        "source": {
+          "file": "skin/default.yaml",
+          "range": {
+            "start": {
+              "line": 6,
+              "column": 4,
+              "offset": 291
+            },
+            "end": {
+              "line": 16,
+              "column": 59,
+              "offset": 594
+            }
+          }
+        }
+      }
+    },
+    "styles": {
+      "panel": {
+        "default": {
+          "type": "panel",
+          "variant": "default",
+          "description": "Dark inset panel used as the background of every container.",
+          "extends": null,
+          "insets": {
+            "left": 2,
+            "top": 2,
+            "right": 2,
+            "bottom": 2
+          },
+          "width": null,
+          "height": 28,
+          "focusColor": null,
+          "itemStyle": null,
+          "thumbStyle": null,
+          "label": {
+            "align": "left",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 0,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "panel_dark",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 25,
+                    "column": 16,
+                    "offset": 768
+                  },
+                  "end": {
+                    "line": 25,
+                    "column": 26,
+                    "offset": 778
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 25,
+                "column": 8,
+                "offset": 760
+              },
+              "end": {
+                "line": 25,
+                "column": 26,
+                "offset": 778
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 21,
+                "column": 6,
+                "offset": 632
+              },
+              "end": {
+                "line": 25,
+                "column": 26,
+                "offset": 778
+              }
+            }
+          }
+        }
+      },
+      "button": {
+        "default": {
+          "type": "button",
+          "variant": "default",
+          "description": "Standard dark push button with a centered label. Hover, pressed and disabled have no artwork of their own, so the renderer tints this background instead.",
+          "extends": null,
+          "insets": {
+            "left": 5,
+            "top": 5,
+            "right": 5,
+            "bottom": 5
+          },
+          "width": 80,
+          "height": 24,
+          "focusColor": "#ffcc00",
+          "itemStyle": null,
+          "thumbStyle": null,
+          "label": {
+            "align": "center",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 1,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "button_inlay",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 38,
+                    "column": 16,
+                    "offset": 1143
+                  },
+                  "end": {
+                    "line": 38,
+                    "column": 28,
+                    "offset": 1155
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "pressed": {
+              "asset": "button_inlay_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 39,
+                    "column": 17,
+                    "offset": 1173
+                  },
+                  "end": {
+                    "line": 39,
+                    "column": 36,
+                    "offset": 1192
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "active": {
+              "asset": "button_inlay_green",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 40,
+                    "column": 16,
+                    "offset": 1209
+                  },
+                  "end": {
+                    "line": 40,
+                    "column": 34,
+                    "offset": 1227
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "active_hover": {
+              "asset": "button_inlay_green_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 41,
+                    "column": 22,
+                    "offset": 1250
+                  },
+                  "end": {
+                    "line": 41,
+                    "column": 47,
+                    "offset": 1275
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 38,
+                "column": 8,
+                "offset": 1135
+              },
+              "end": {
+                "line": 41,
+                "column": 47,
+                "offset": 1275
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 29,
+                "column": 6,
+                "offset": 809
+              },
+              "end": {
+                "line": 41,
+                "column": 47,
+                "offset": 1275
+              }
+            }
+          }
+        },
+        "play": {
+          "type": "button",
+          "variant": "play",
+          "description": "Transport play button. Grey while stopped, green while playing, with its own green hover artwork instead of a tint.",
+          "extends": "default",
+          "insets": {
+            "left": 5,
+            "top": 5,
+            "right": 5,
+            "bottom": 5
+          },
+          "width": 80,
+          "height": 24,
+          "focusColor": "#ffcc00",
+          "itemStyle": null,
+          "thumbStyle": null,
+          "label": {
+            "align": "center",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 1,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "button_inlay",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 38,
+                    "column": 16,
+                    "offset": 1143
+                  },
+                  "end": {
+                    "line": 38,
+                    "column": 28,
+                    "offset": 1155
+                  }
+                }
+              },
+              "inherited": true
+            },
+            "pressed": {
+              "asset": "button_inlay_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 39,
+                    "column": 17,
+                    "offset": 1173
+                  },
+                  "end": {
+                    "line": 39,
+                    "column": 36,
+                    "offset": 1192
+                  }
+                }
+              },
+              "inherited": true
+            },
+            "active": {
+              "asset": "button_inlay_green",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 48,
+                    "column": 16,
+                    "offset": 1509
+                  },
+                  "end": {
+                    "line": 48,
+                    "column": 34,
+                    "offset": 1527
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "active_hover": {
+              "asset": "button_inlay_green_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 49,
+                    "column": 22,
+                    "offset": 1550
+                  },
+                  "end": {
+                    "line": 49,
+                    "column": 47,
+                    "offset": 1575
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "hover": {
+              "asset": "button_hover_green",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 47,
+                    "column": 15,
+                    "offset": 1474
+                  },
+                  "end": {
+                    "line": 47,
+                    "column": 33,
+                    "offset": 1492
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "active_pressed": {
+              "asset": "button_inlay_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 50,
+                    "column": 24,
+                    "offset": 1600
+                  },
+                  "end": {
+                    "line": 50,
+                    "column": 43,
+                    "offset": 1619
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 47,
+                "column": 8,
+                "offset": 1467
+              },
+              "end": {
+                "line": 50,
+                "column": 43,
+                "offset": 1619
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 44,
+                "column": 6,
+                "offset": 1293
+              },
+              "end": {
+                "line": 50,
+                "column": 43,
+                "offset": 1619
+              }
+            }
+          }
+        },
+        "record": {
+          "type": "button",
+          "variant": "record",
+          "description": "Record arm button. Red hover artwork, and red while recording.",
+          "extends": "default",
+          "insets": {
+            "left": 5,
+            "top": 5,
+            "right": 5,
+            "bottom": 5
+          },
+          "width": 80,
+          "height": 24,
+          "focusColor": "#ffcc00",
+          "itemStyle": null,
+          "thumbStyle": null,
+          "label": {
+            "align": "center",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 1,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "button_inlay",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 38,
+                    "column": 16,
+                    "offset": 1143
+                  },
+                  "end": {
+                    "line": 38,
+                    "column": 28,
+                    "offset": 1155
+                  }
+                }
+              },
+              "inherited": true
+            },
+            "pressed": {
+              "asset": "button_inlay_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 39,
+                    "column": 17,
+                    "offset": 1173
+                  },
+                  "end": {
+                    "line": 39,
+                    "column": 36,
+                    "offset": 1192
+                  }
+                }
+              },
+              "inherited": true
+            },
+            "active": {
+              "asset": "button_inlay_red",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 57,
+                    "column": 16,
+                    "offset": 1806
+                  },
+                  "end": {
+                    "line": 57,
+                    "column": 32,
+                    "offset": 1822
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "active_hover": {
+              "asset": "button_inlay_red_hover",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 58,
+                    "column": 22,
+                    "offset": 1845
+                  },
+                  "end": {
+                    "line": 58,
+                    "column": 44,
+                    "offset": 1867
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "hover": {
+              "asset": "button_inlay_red_hover",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 56,
+                    "column": 15,
+                    "offset": 1767
+                  },
+                  "end": {
+                    "line": 56,
+                    "column": 37,
+                    "offset": 1789
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "active_pressed": {
+              "asset": "button_inlay_red_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 59,
+                    "column": 24,
+                    "offset": 1892
+                  },
+                  "end": {
+                    "line": 59,
+                    "column": 47,
+                    "offset": 1915
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 56,
+                "column": 8,
+                "offset": 1760
+              },
+              "end": {
+                "line": 59,
+                "column": 47,
+                "offset": 1915
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 53,
+                "column": 6,
+                "offset": 1639
+              },
+              "end": {
+                "line": 59,
+                "column": 47,
+                "offset": 1915
+              }
+            }
+          }
+        }
+      },
+      "viewport": {
+        "default": {
+          "type": "viewport",
+          "variant": "default",
+          "description": "A box that clips and scrolls its content. Drawn as an inset panel, like the containers it sits inside.",
+          "extends": null,
+          "insets": {
+            "left": 2,
+            "top": 2,
+            "right": 2,
+            "bottom": 2
+          },
+          "width": null,
+          "height": null,
+          "focusColor": null,
+          "itemStyle": null,
+          "thumbStyle": null,
+          "label": {
+            "align": "left",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 0,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "panel_dark",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 66,
+                    "column": 16,
+                    "offset": 2110
+                  },
+                  "end": {
+                    "line": 66,
+                    "column": 26,
+                    "offset": 2120
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 66,
+                "column": 8,
+                "offset": 2102
+              },
+              "end": {
+                "line": 66,
+                "column": 26,
+                "offset": 2120
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 63,
+                "column": 6,
+                "offset": 1948
+              },
+              "end": {
+                "line": 66,
+                "column": 26,
+                "offset": 2120
+              }
+            }
+          }
+        },
+        "inset": {
+          "type": "viewport",
+          "variant": "inset",
+          "description": "A more recessed variant for a list or a grid sitting inside another panel.",
+          "extends": "default",
+          "insets": {
+            "left": 2,
+            "top": 2,
+            "right": 2,
+            "bottom": 2
+          },
+          "width": null,
+          "height": null,
+          "focusColor": null,
+          "itemStyle": null,
+          "thumbStyle": null,
+          "label": {
+            "align": "left",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 0,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "panel_inset_dark",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 72,
+                    "column": 16,
+                    "offset": 2280
+                  },
+                  "end": {
+                    "line": 72,
+                    "column": 32,
+                    "offset": 2296
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 72,
+                "column": 8,
+                "offset": 2272
+              },
+              "end": {
+                "line": 72,
+                "column": 32,
+                "offset": 2296
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 69,
+                "column": 6,
+                "offset": 2139
+              },
+              "end": {
+                "line": 72,
+                "column": 32,
+                "offset": 2296
+              }
+            }
+          }
+        }
+      },
+      "checkbox": {
+        "default": {
+          "type": "checkbox",
+          "variant": "default",
+          "description": "An on/off box with its label beside it. The artwork is drawn at its natural size, so the insets do not apply; hover has no artwork of its own and is tinted.",
+          "extends": null,
+          "insets": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "width": null,
+          "height": 20,
+          "focusColor": null,
+          "itemStyle": null,
+          "thumbStyle": null,
+          "label": {
+            "align": "left",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 0,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "checkbox_off",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 81,
+                    "column": 16,
+                    "offset": 2579
+                  },
+                  "end": {
+                    "line": 81,
+                    "column": 28,
+                    "offset": 2591
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "active": {
+              "asset": "checkbox_on",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 82,
+                    "column": 16,
+                    "offset": 2608
+                  },
+                  "end": {
+                    "line": 82,
+                    "column": 27,
+                    "offset": 2619
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 81,
+                "column": 8,
+                "offset": 2571
+              },
+              "end": {
+                "line": 82,
+                "column": 27,
+                "offset": 2619
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 76,
+                "column": 6,
+                "offset": 2329
+              },
+              "end": {
+                "line": 82,
+                "column": 27,
+                "offset": 2619
+              }
+            }
+          }
+        }
+      },
+      "radioGroup": {
+        "default": {
+          "type": "radioGroup",
+          "variant": "default",
+          "description": "Container for mutually exclusive choices. It draws no artwork of its own; itemStyle says which radioItem style its choices are drawn with.",
+          "extends": null,
+          "insets": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "width": null,
+          "height": 24,
+          "focusColor": null,
+          "itemStyle": "default",
+          "thumbStyle": null,
+          "label": {
+            "align": "left",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 0,
+            "font": "small"
+          },
+          "states": {},
+          "statesSource": null,
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 86,
+                "column": 6,
+                "offset": 2654
+              },
+              "end": {
+                "line": 88,
+                "column": 24,
+                "offset": 2847
+              }
+            }
+          }
+        },
+        "buttons": {
+          "type": "radioGroup",
+          "variant": "buttons",
+          "description": "The choices are drawn as a row of ordinary push buttons instead of the default blue-lit ones.",
+          "extends": "default",
+          "insets": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "width": null,
+          "height": 24,
+          "focusColor": null,
+          "itemStyle": "button",
+          "thumbStyle": null,
+          "label": {
+            "align": "left",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 0,
+            "font": "small"
+          },
+          "states": {},
+          "statesSource": null,
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 91,
+                "column": 6,
+                "offset": 2868
+              },
+              "end": {
+                "line": 93,
+                "column": 23,
+                "offset": 3021
+              }
+            }
+          }
+        }
+      },
+      "radioItem": {
+        "default": {
+          "type": "radioItem",
+          "variant": "default",
+          "description": "One choice in a radio group, drawn as a button that stays lit blue while selected.",
+          "extends": null,
+          "insets": {
+            "left": 5,
+            "top": 5,
+            "right": 5,
+            "bottom": 5
+          },
+          "width": 60,
+          "height": 24,
+          "focusColor": null,
+          "itemStyle": null,
+          "thumbStyle": null,
+          "label": {
+            "align": "center",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 1,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "button_inlay",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 105,
+                    "column": 16,
+                    "offset": 3290
+                  },
+                  "end": {
+                    "line": 105,
+                    "column": 28,
+                    "offset": 3302
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "pressed": {
+              "asset": "button_inlay_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 106,
+                    "column": 17,
+                    "offset": 3320
+                  },
+                  "end": {
+                    "line": 106,
+                    "column": 36,
+                    "offset": 3339
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "active": {
+              "asset": "button_inlay_blue",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 107,
+                    "column": 16,
+                    "offset": 3356
+                  },
+                  "end": {
+                    "line": 107,
+                    "column": 33,
+                    "offset": 3373
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "active_hover": {
+              "asset": "button_inlay_blue_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 108,
+                    "column": 22,
+                    "offset": 3396
+                  },
+                  "end": {
+                    "line": 108,
+                    "column": 46,
+                    "offset": 3420
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 105,
+                "column": 8,
+                "offset": 3282
+              },
+              "end": {
+                "line": 108,
+                "column": 46,
+                "offset": 3420
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 97,
+                "column": 6,
+                "offset": 3055
+              },
+              "end": {
+                "line": 108,
+                "column": 46,
+                "offset": 3420
+              }
+            }
+          }
+        },
+        "button": {
+          "type": "radioItem",
+          "variant": "button",
+          "description": "A choice drawn exactly like a push button, lit green while selected. Used by the radioGroup \"buttons\" variant.",
+          "extends": "default",
+          "insets": {
+            "left": 5,
+            "top": 5,
+            "right": 5,
+            "bottom": 5
+          },
+          "width": 60,
+          "height": 24,
+          "focusColor": null,
+          "itemStyle": null,
+          "thumbStyle": null,
+          "label": {
+            "align": "center",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 1,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "button_inlay",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 105,
+                    "column": 16,
+                    "offset": 3290
+                  },
+                  "end": {
+                    "line": 105,
+                    "column": 28,
+                    "offset": 3302
+                  }
+                }
+              },
+              "inherited": true
+            },
+            "pressed": {
+              "asset": "button_inlay_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 106,
+                    "column": 17,
+                    "offset": 3320
+                  },
+                  "end": {
+                    "line": 106,
+                    "column": 36,
+                    "offset": 3339
+                  }
+                }
+              },
+              "inherited": true
+            },
+            "active": {
+              "asset": "button_inlay_green",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 114,
+                    "column": 16,
+                    "offset": 3617
+                  },
+                  "end": {
+                    "line": 114,
+                    "column": 34,
+                    "offset": 3635
+                  }
+                }
+              },
+              "inherited": false
+            },
+            "active_hover": {
+              "asset": "button_inlay_green_active",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 115,
+                    "column": 22,
+                    "offset": 3658
+                  },
+                  "end": {
+                    "line": 115,
+                    "column": 47,
+                    "offset": 3683
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 114,
+                "column": 8,
+                "offset": 3609
+              },
+              "end": {
+                "line": 115,
+                "column": 47,
+                "offset": 3683
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 111,
+                "column": 6,
+                "offset": 3440
+              },
+              "end": {
+                "line": 115,
+                "column": 47,
+                "offset": 3683
+              }
+            }
+          }
+        }
+      },
+      "slider": {
+        "default": {
+          "type": "slider",
+          "variant": "default",
+          "description": "A horizontal track with a draggable thumb. The track is a recessed panel; thumbStyle names the button style the thumb itself is drawn with.",
+          "extends": null,
+          "insets": {
+            "left": 2,
+            "top": 2,
+            "right": 2,
+            "bottom": 2
+          },
+          "width": 120,
+          "height": 20,
+          "focusColor": null,
+          "itemStyle": null,
+          "thumbStyle": "default",
+          "label": {
+            "align": "left",
+            "offsetX": 0,
+            "offsetY": 0,
+            "pressedOffset": 0,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "panel_inset_dark",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 125,
+                    "column": 16,
+                    "offset": 3973
+                  },
+                  "end": {
+                    "line": 125,
+                    "column": 32,
+                    "offset": 3989
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 125,
+                "column": 8,
+                "offset": 3965
+              },
+              "end": {
+                "line": 125,
+                "column": 32,
+                "offset": 3989
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 119,
+                "column": 6,
+                "offset": 3714
+              },
+              "end": {
+                "line": 125,
+                "column": 32,
+                "offset": 3989
+              }
+            }
+          }
+        }
+      },
+      "spinBox": {
+        "default": {
+          "type": "spinBox",
+          "variant": "default",
+          "description": "A numeric readout with a stepper column on its right. The readout is a recessed panel; thumbStyle names the button style the two stepper halves are drawn with.",
+          "extends": null,
+          "insets": {
+            "left": 2,
+            "top": 2,
+            "right": 2,
+            "bottom": 2
+          },
+          "width": 60,
+          "height": 24,
+          "focusColor": null,
+          "itemStyle": null,
+          "thumbStyle": "default",
+          "label": {
+            "align": "left",
+            "offsetX": 4,
+            "offsetY": 0,
+            "pressedOffset": 0,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "panel_inset_dark",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 138,
+                    "column": 16,
+                    "offset": 4351
+                  },
+                  "end": {
+                    "line": 138,
+                    "column": 32,
+                    "offset": 4367
+                  }
+                }
+              },
+              "inherited": false
+            }
+          },
+          "statesSource": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 138,
+                "column": 8,
+                "offset": 4343
+              },
+              "end": {
+                "line": 138,
+                "column": 32,
+                "offset": 4367
+              }
+            }
+          },
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 129,
+                "column": 6,
+                "offset": 4021
+              },
+              "end": {
+                "line": 138,
+                "column": 32,
+                "offset": 4367
+              }
+            }
+          }
+        },
+        "big": {
+          "type": "spinBox",
+          "variant": "big",
+          "description": "A wider readout for a value that needs the room, such as the number of tracks.",
+          "extends": "default",
+          "insets": {
+            "left": 2,
+            "top": 2,
+            "right": 2,
+            "bottom": 2
+          },
+          "width": 90,
+          "height": 28,
+          "focusColor": null,
+          "itemStyle": null,
+          "thumbStyle": "default",
+          "label": {
+            "align": "left",
+            "offsetX": 4,
+            "offsetY": 0,
+            "pressedOffset": 0,
+            "font": "small"
+          },
+          "states": {
+            "normal": {
+              "asset": "panel_inset_dark",
+              "source": {
+                "file": "skin/default.yaml",
+                "range": {
+                  "start": {
+                    "line": 138,
+                    "column": 16,
+                    "offset": 4351
+                  },
+                  "end": {
+                    "line": 138,
+                    "column": 32,
+                    "offset": 4367
+                  }
+                }
+              },
+              "inherited": true
+            }
+          },
+          "statesSource": null,
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 141,
+                "column": 6,
+                "offset": 4384
+              },
+              "end": {
+                "line": 144,
+                "column": 16,
+                "offset": 4531
+              }
+            }
+          }
+        }
+      },
+      "label": {
+        "default": {
+          "type": "label",
+          "variant": "default",
+          "description": "Plain text, no background artwork.",
+          "extends": null,
+          "insets": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0
+          },
+          "width": null,
+          "height": 20,
+          "focusColor": null,
+          "itemStyle": null,
+          "thumbStyle": null,
+          "label": {
+            "align": "left",
+            "offsetX": 2,
+            "offsetY": 0,
+            "pressedOffset": 0,
+            "font": "small"
+          },
+          "states": {},
+          "statesSource": null,
+          "source": {
+            "file": "skin/default.yaml",
+            "range": {
+              "start": {
+                "line": 148,
+                "column": 6,
+                "offset": 4561
+              },
+              "end": {
+                "line": 152,
+                "column": 18,
+                "offset": 4677
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "code": "unresolved-action-reference",
+      "message": "unresolved action reference \"action1\": there is no actions/action1.yaml, and \"action1\" matches no action recipe",
+      "file": "app.yaml",
+      "range": {
+        "start": {
+          "line": 17,
+          "column": 26,
+          "offset": 327
+        },
+        "end": {
+          "line": 17,
+          "column": 33,
+          "offset": 334
+        }
+      },
+      "nodeId": "main.top.menu"
+    },
+    {
+      "severity": "warning",
+      "code": "unresolved-action-reference",
+      "message": "unresolved action reference \"action2\": there is no actions/action2.yaml, and \"action2\" matches no action recipe",
+      "file": "app.yaml",
+      "range": {
+        "start": {
+          "line": 19,
+          "column": 26,
+          "offset": 391
+        },
+        "end": {
+          "line": 19,
+          "column": 33,
+          "offset": 398
+        }
+      },
+      "nodeId": "main.top.menu"
+    },
+    {
+      "severity": "warning",
+      "code": "unsupported-component",
+      "message": "component type \"menu\" is declared but not rendered yet; showing a placeholder",
+      "file": "app.yaml",
+      "range": {
+        "start": {
+          "line": 14,
+          "column": 14,
+          "offset": 239
+        },
+        "end": {
+          "line": 19,
+          "column": 33,
+          "offset": 398
+        }
+      },
+      "nodeId": "main.top.menu"
+    },
+    {
+      "severity": "warning",
+      "code": "unresolved-component-reference",
+      "message": "unresolved component reference \"volumemeter\" (referenced as \"volume meter\")",
+      "file": "app.yaml",
+      "range": {
+        "start": {
+          "line": 20,
+          "column": 26,
+          "offset": 425
+        },
+        "end": {
+          "line": 20,
+          "column": 37,
+          "offset": 436
+        }
+      },
+      "nodeId": null
+    },
+    {
+      "severity": "warning",
+      "code": "unresolved-rule",
+      "message": "unresolved rule interpretation: \"visible when \"show key input\" option is active, lights when key is pressed that result in a sample audio playback.\"",
+      "file": "app.yaml",
+      "range": {
+        "start": {
+          "line": 29,
+          "column": 22,
+          "offset": 699
+        },
+        "end": {
+          "line": 29,
+          "column": 136,
+          "offset": 813
+        }
+      },
+      "nodeId": "main.top.notifications.notification light#1"
+    },
+    {
+      "severity": "warning",
+      "code": "unsupported-component",
+      "message": "node \"notification light\" has no declared type; showing a placeholder",
+      "file": "app.yaml",
+      "range": {
+        "start": {
+          "line": 25,
+          "column": 18,
+          "offset": 567
+        },
+        "end": {
+          "line": 29,
+          "column": 136,
+          "offset": 813
+        }
+      },
+      "nodeId": "main.top.notifications.notification light#1"
+    },
+    {
+      "severity": "warning",
+      "code": "unresolved-rule",
+      "message": "unresolved rule interpretation: \"visible when \"show midi input\" option is active, lights when a midi command is received.\"",
+      "file": "app.yaml",
+      "range": {
+        "start": {
+          "line": 35,
+          "column": 22,
+          "offset": 1001
+        },
+        "end": {
+          "line": 35,
+          "column": 110,
+          "offset": 1089
+        }
+      },
+      "nodeId": "main.top.notifications.notification light#2"
+    },
+    {
+      "severity": "warning",
+      "code": "unsupported-component",
+      "message": "node \"notification light\" has no declared type; showing a placeholder",
+      "file": "app.yaml",
+      "range": {
+        "start": {
+          "line": 31,
+          "column": 18,
+          "offset": 868
+        },
+        "end": {
+          "line": 35,
+          "column": 110,
+          "offset": 1089
+        }
+      },
+      "nodeId": "main.top.notifications.notification light#2"
+    },
+    {
+      "severity": "warning",
+      "code": "ambiguous-duplicate-name",
+      "message": "2 nodes resolved to the same identity \"main.top.notifications.notification light\"; suffixed with #1..\"#2\"",
+      "file": "app.yaml",
+      "range": {
+        "start": {
+          "line": 25,
+          "column": 18,
+          "offset": 567
+        },
+        "end": {
+          "line": 29,
+          "column": 136,
+          "offset": 813
+        }
+      },
+      "nodeId": "main.top.notifications.notification light"
+    }
+  ]
+}

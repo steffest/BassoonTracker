@@ -1,0 +1,6 @@
+{
+  "description": "A generic button component. Longer description goes here, it describes the functionality and rendering options in natural language. This component can be used to trigger actions or events within the user interface, and its appearance and behavior can be customized through various properties.",
+  "type": "button",
+  "label": "Button",
+  "action": "none"
+}

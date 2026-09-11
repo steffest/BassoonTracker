@@ -1,0 +1,3 @@
+description: Ensures that the UI components adjust properly when the window is resized, maintaining usability and layout integrity.
+             When the UI resizes, make sure that all components fit in the container, switching to the small UI representation if needed.
+             Text labels can be shortened if necessary to fit within the available space.

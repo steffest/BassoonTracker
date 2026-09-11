@@ -1,0 +1,47 @@
+app:
+  rules: noDependencies
+  skin: default
+  ui:
+    main:
+      type: panel
+      content:
+        - top:
+            type: panel
+            layout:
+              width: fill
+              height: fixed
+            menu:
+              type: menu
+              items:
+                - name: item1
+                  action: action1
+                - name: item2
+                  action: action2
+            volume meter: volumemeter
+            notifications:
+              type: panel
+              content:
+              - notification light:
+                  label: Key, K
+                  color: yellow
+                  rules:
+                    - horizontalResize
+                    - visible when "show key input" option is active, lights when key is pressed that result in a sample audio playback.
+              - notification light:
+                  label: Midi, M
+                  color: yellow
+                  rules:
+                    - horizontalResize
+                    - visible when "show midi input" option is active, lights when a midi command is received.
+        - controlBar
+        - statusBar:
+            type: panel
+            content:
+              - text: main status
+              - song title:
+                  type: label
+                  field: song.title
+              - playback status:
+                  type: label
+                  field: playback.status
+        - songProperties

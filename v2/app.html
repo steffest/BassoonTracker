@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BassoonTracker v2</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #111; color: #ccc; font: 12px monospace; }
+  #app { position: absolute; inset: 0; }
+  #status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; text-align: center; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<div id="status">Loading…</div>
+<div id="app"></div>
+<script type="module">
+  // The user-facing application: the generated project/specs/application/
+  // app-outline.json rendered with no authoring chrome at all (no Inspect/
+  // Interact toolbar, breadcrumbs or diagnostics panel; generation warnings
+  // go to the console only). Runs from any static host; needs neither the
+  // Node service nor the compiler. preview-app.html is the same app with
+  // the authoring tools switched on, and workbench.html embeds that one.
+  import { mountGenericRenderer } from "./renderers/canvas/mountGeneric.js";
+
+  const statusEl = document.getElementById("status");
+  const appEl = document.getElementById("app");
+
+  async function main() {
+    const response = await fetch("./project/specs/application/app-outline.json");
+    if (!response.ok) {
+      throw new Error(`failed to load app-outline.json (${response.status}). Run: node v2/compiler/generate.js`);
+    }
+    const outline = await response.json();
+    await mountGenericRenderer(appEl, outline, { tools: false });
+    statusEl.remove();
+  }
+
+  main().catch(error => {
+    console.error(error);
+    statusEl.textContent = "Failed to load the application:\n" + error.message;
+  });
+</script>
+</body>
+</html>

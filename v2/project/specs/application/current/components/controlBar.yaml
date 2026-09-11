@@ -1,0 +1,55 @@
+name: controlBar
+type: panel
+layout:
+  width: fill
+  height: fixed
+content:
+  - type: radioGroup
+    items:
+      - name: song
+        label: Song, S
+      - name: pattern
+        label: Pattern, P
+    actions:
+      - change: setPlaybackType
+  - type: button
+    label: Play
+    variant: play
+    rule: highlighted when song playback is active
+    actions:
+      - click: toggleplay
+    shortKey: Enter
+  - type: button
+    label: record
+    variant: record
+    rule: highlighted when recording is active
+    actions:
+      - click: toggleRecording
+    shortKey: Space
+  - type: spinBox
+    variant: big
+    actions:
+      - change: set number of tracks
+  - type: panel
+    content:
+      - type: radioGroup
+        label: Mode, M
+        variant: buttons
+        items:
+          - label: mod
+          - label: xm
+      - type: radioGroup
+        label: Display, D
+        variant: buttons
+        items:
+          - label: 4
+          - label: 8
+          - label: 12
+          - label: 16
+      - type: radioGroup
+        variant: buttons
+        action:
+          - change: setEditorLayout
+        items:
+          - name: vertical
+          - name: horizontal 

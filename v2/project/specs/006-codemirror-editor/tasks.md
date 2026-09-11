@@ -1,0 +1,13 @@
+# 006 — Implementation
+
+Status: implemented and verified 2026-09-10.
+
+- [x] Vendor CodeMirror 6 with provenance. (`v2/vendor/codemirror/{codemirror.bundle.js,entry.source.js,LICENSE,README.md}`; codemirror 6.0.2, @codemirror/lang-yaml 6.1.3, @codemirror/lint 6.9.7, @codemirror/theme-one-dark 6.1.3 and dependencies, all MIT, bundled with esbuild 0.28.2; the README lists every package/version and the exact command.)
+- [x] Wrap the editor behind a small host API. (`v2/workbench/editor.js`: highlighting via `@codemirror/lang-yaml`, fold gutter, lint gutter, one-dark theme, `Mod-s` → save, read-only compartment, host-driven vs. notifying `setText`.)
+- [x] Validate with the project's own parser and overlay compiler diagnostics. (Lint source = `compiler/yaml.js` errors as `error`, plus the outline's diagnostics for the open file as `warning`/`error` only while `updateStaleNotice` reports trustworthy offsets.)
+- [x] Swap the textarea in `workbench.html` without changing the buffer model or save protocol. (Every `bufferEl.value`/`setSelectionRange` use replaced by the editor API; Fold all / Unfold buttons added; `window.v2Workbench` exposes `editor` for automation.)
+- [x] Re-verify the whole loop in a browser.
+
+Verification (headless Chrome over the DevTools protocol against `node v2/server.mjs`, same scripts as spec 005 updated for the editor API): Phase 3 scenario 50/50 including the eight new editor checks (CodeMirror mounted and the textarea gone; >5 highlighted token spans on `controlBar.yaml`; fold gutter present; Fold all produced 2 placeholders on `controlBar.yaml` and Unfold restored 0; the file's two `unresolved-rule` compiler warnings shown as lint warnings; editing the label withdrew the overlay; appending `bad: [oops` underlined a live syntax error before any save and the 422 path still selected the error range); read-only static host 8/8 (editor read-only, Save disabled, Ctrl+S inert); Phase 4 Interact/log/gallery 36/36; Phase 5 resize and standalone preview 10/10, with the standalone preview requesting neither `workbench/` modules nor `vendor/`. Screenshots of the highlighted, folded and lint-underlined editor were reviewed. Unit suite unchanged: 85 passing. Edited YAML files were reverted through the workbench and are byte-identical to their originals.
+
+Known limits: the lint reflects `compiler/yaml.js`'s deliberately small YAML subset (no flow collections, anchors/aliases, block scalars, inline comments), which is exactly what the server also rejects; there is no completion of component/action/rule names; the one-dark theme's colours are not tuned to the tracker skin.

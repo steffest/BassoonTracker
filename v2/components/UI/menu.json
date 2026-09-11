@@ -1,0 +1,4 @@
+{
+  "type": "menu",
+  "description": "A generic menu component. This component can be used to display a list of options or actions that the user can select from. The appearance and behavior of the menu can be customized through various properties."
+}

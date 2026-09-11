@@ -1,0 +1,1 @@
+description: when a file is loaded, toggle play state, it emits an event.
