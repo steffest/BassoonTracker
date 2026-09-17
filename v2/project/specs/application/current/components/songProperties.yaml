@@ -2,4 +2,165 @@ name: songProperties
 type: panel
 layout:
   width: fill
+  height: 220
+  direction: column
   resizable: horizontal
+content:
+  - name: songPropertiesDefault
+    type: viewport
+    # Spec 071: v1's own appMainPanel.js never stacks all of this content in
+    # one column - at normal widths it spreads the four groups below across
+    # four side-by-side columns (script/src/ui/app/appMainPanel.js:383-396),
+    # collapsing to a single stacked column only below its own real 620px
+    # threshold (script/src/ui/app/layout.js:111-113, `Layout.prefered =
+    # "col3"`). This panel's own reserved height stays the fixed 220px
+    # design.md already committed to either way, so a `viewport` (spec 013's
+    # scrolling clip box, its first real use in any compiled component tree)
+    # replaces the plain panel it used to be: at the wide breakpoint,
+    # everything already fits and nothing ever scrolls; at the narrow one,
+    # four stacked groups do not fit in 220px, and this is what the user
+    # asked for over v1's own real behavior (a hidden tab switch between the
+    # four groups, script/src/ui/app/appMainPanel.js:363-376) - scrolling,
+    # not tab-switching, is the fallback.
+    field: scroll.main.normalMainView.songProperties.songPropertiesDefault
+    layout:
+      width: fill
+      height: fill
+    visibleWhen:
+      field: song-properties-view.value
+      oneOf:
+        - ""
+    content:
+      - name: songPropertiesLayout
+        type: panel
+        layout:
+          width: fill
+          direction: row
+        # Matches v1's own real, single width threshold (see this node's
+        # parent's own comment) rather than inventing a new one.
+        breakpoints:
+          - maxWidth: 620
+            layout:
+              direction: column
+        content:
+          # v1's own left-to-right column order (appMainPanel.js:383-396):
+          # song/pattern list, the two three-spinbox columns, then logo/
+          # tracker + mod-name + instrument list.
+          - name: songPatternGroup
+            type: panel
+            layout:
+              width: fill
+            content:
+              - songPatternList
+          - name: spinBoxGroupA
+            type: panel
+            layout:
+              width: fill
+              direction: column
+            content:
+              - name: bpmSpinBox
+                type: spinBox
+                field: song.bpm
+                min: 1
+                max: 400
+                step: 1
+                actions:
+                  - change: setBPM
+              - name: songLengthSpinBox
+                type: spinBox
+                field: song-length.value
+                min: 1
+                max: 200
+                step: 1
+                actions:
+                  - change: setSongLength
+              - name: songRepeatSpinBox
+                type: spinBox
+                field: song-repeat.value
+                min: 1
+                max: 200
+                step: 1
+                actions:
+                  - change: setSongRepeat
+          - name: spinBoxGroupB
+            type: panel
+            layout:
+              width: fill
+              direction: column
+            content:
+              - name: patternSpinBox
+                type: spinBox
+                field: current-pattern.value
+                min: 0
+                max: 100
+                step: 1
+                actions:
+                  - change: setCurrentPatternNumber
+              - name: patternLengthSpinBox
+                type: spinBox
+                field: pattern-length.value
+                min: 1
+                max: 128
+                step: 1
+                actions:
+                  - change: setPatternLength
+              - name: songInstrumentSpinBox
+                type: spinBox
+                field: instrument-index.value
+                min: 1
+                max: 128
+                step: 1
+                actions:
+                  - change: setInstrumentIndex
+          - name: instrumentGroup
+            type: panel
+            layout:
+              width: fill
+              direction: column
+            content:
+              - name: bannerRow
+                type: panel
+                layout:
+                  direction: row
+                content:
+                  - name: logoBanner
+                    type: button
+                    # No label: v1's own logo button has no text on it at all
+                    # - the artwork alone is the whole control. Authored
+                    # explicitly empty rather than left unset, since an
+                    # unset label falls back to the node's own authored name
+                    # ("logoBanner"), which every other bare-label node in
+                    # this application relies on but this one specifically
+                    # must not.
+                    label: ""
+                    # The skin's own "logo" button variant already declares
+                    # width/height (matching v1's own real 70x50 logo) - but
+                    # that is style metadata, not a layout default for
+                    # anything but each type's own "default" variant, so it
+                    # is repeated here explicitly (confirmed empirically:
+                    # without this, the button rendered at the ordinary
+                    # button default size, 80x24, clipping the real 70x50
+                    # artwork almost entirely).
+                    layout:
+                      width: 70
+                      height: 50
+                    variant: logo
+                    rule: "highlighted when logo is active"
+                    actions:
+                      - click: toggleLogo
+                  - name: cornerDeco
+                    type: image
+                    src: togglecorner
+                  - name: trackerBanner
+                    type: image
+                    src: tracker
+              - name: modNameInput
+                type: inputbox
+                field: song.title
+                placeholder: "(untitled)"
+                actions:
+                  - change: setSongTitle
+              - instrumentList
+  - fileOperationsPanel
+  - optionsPanel
+  - nibblesPanel

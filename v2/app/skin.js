@@ -66,12 +66,28 @@ export const SKIN = {
             "file": "src/font.png"
         },
         {
+            "name": "logo_colour_70",
+            "file": "src/logo_colour_70.png"
+        },
+        {
+            "name": "logo_grey_70",
+            "file": "src/logo_grey_70.png"
+        },
+        {
             "name": "panel_dark",
             "file": "src/panel_dark.png"
         },
         {
             "name": "panel_inset_dark",
             "file": "src/panel_inset_dark.png"
+        },
+        {
+            "name": "togglecorner",
+            "file": "src/togglecorner.png"
+        },
+        {
+            "name": "tracker",
+            "file": "src/tracker.png"
         }
     ],
     "fonts": {
@@ -264,6 +280,48 @@ export const SKIN = {
                     "active_pressed": {
                         "asset": "button_inlay_red_active",
                         "inherited": false
+                    }
+                }
+            },
+            "logo": {
+                "type": "button",
+                "variant": "logo",
+                "description": "The song-properties section's own BASSOON wordmark toggle (spec 071) - grey normally, colour while \"active\" (a purely cosmetic, permanently mocked local toggle - see that spec's requirements.md). No label; the artwork alone is the whole control.",
+                "extends": "default",
+                "insets": {
+                    "left": 5,
+                    "top": 5,
+                    "right": 5,
+                    "bottom": 5
+                },
+                "width": 70,
+                "height": 50,
+                "focusColor": "#ffcc00",
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 1,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "logo_grey_70",
+                        "inherited": false
+                    },
+                    "pressed": {
+                        "asset": "button_inlay_active",
+                        "inherited": true
+                    },
+                    "active": {
+                        "asset": "logo_colour_70",
+                        "inherited": false
+                    },
+                    "active_hover": {
+                        "asset": "button_inlay_green_active",
+                        "inherited": true
                     }
                 }
             }
@@ -623,6 +681,105 @@ export const SKIN = {
                     "font": "small"
                 },
                 "states": {}
+            }
+        },
+        "rangeSlider": {
+            "default": {
+                "type": "rangeSlider",
+                "variant": "default",
+                "description": "Like slider, but the same style also draws a vertical instance when the node says vertical.",
+                "extends": null,
+                "insets": {
+                    "left": 2,
+                    "top": 2,
+                    "right": 2,
+                    "bottom": 2
+                },
+                "width": 120,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": "default",
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark",
+                        "inherited": false
+                    }
+                },
+                "builtin": true
+            }
+        },
+        "inputbox": {
+            "default": {
+                "type": "inputbox",
+                "variant": "default",
+                "description": "One line of editable text with a caret and a selection (spec 015).",
+                "extends": null,
+                "insets": {
+                    "left": 2,
+                    "top": 2,
+                    "right": 2,
+                    "bottom": 2
+                },
+                "width": 140,
+                "height": 24,
+                "focusColor": "#ffcc00",
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 4,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark",
+                        "inherited": false
+                    }
+                },
+                "builtin": true
+            }
+        },
+        "dropdown": {
+            "default": {
+                "type": "dropdown",
+                "variant": "default",
+                "description": "A closed control that opens a popup list of its items (spec 020).",
+                "extends": null,
+                "insets": {
+                    "left": 2,
+                    "top": 2,
+                    "right": 2,
+                    "bottom": 2
+                },
+                "width": 140,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 4,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark",
+                        "inherited": false
+                    }
+                },
+                "builtin": true
             }
         }
     }

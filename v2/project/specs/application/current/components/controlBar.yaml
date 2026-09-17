@@ -3,7 +3,35 @@ type: panel
 layout:
   width: fill
   height: fixed
+breakpoints:
+  - maxWidth: 650
+    layout:
+      direction: column
+      height: 160
 content:
+  - name: topViewButtons
+    type: buttonGroup
+    layout:
+      direction: row
+    items:
+      - name: fileOperationsButton
+        type: button
+        label: File Operations
+        rule: highlighted when file operations view is active
+        actions:
+          - click: toggleFileOperationsView
+      - name: optionsButton
+        type: button
+        label: Options
+        rule: highlighted when options view is active
+        actions:
+          - click: toggleOptionsView
+      - name: sampleEditButton
+        type: button
+        label: Sample Edit
+        rule: highlighted when sample edit panel is active
+        actions:
+          - click: toggleSampleEditPanel
   - type: radioGroup
     items:
       - name: song
@@ -46,10 +74,18 @@ content:
           - label: 8
           - label: 12
           - label: 16
+      - name: patternViewGroup
+        type: radioGroup
+        variant: buttons
+        items:
+          - label: "Column view"
+          - label: "Row view"
+        actions:
+          - change: setPatternView
       - type: radioGroup
         variant: buttons
         action:
           - change: setEditorLayout
         items:
           - name: vertical
-          - name: horizontal 
+          - name: horizontal

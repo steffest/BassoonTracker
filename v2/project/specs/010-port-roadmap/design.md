@@ -34,9 +34,9 @@ Declares every component type once, with its property contract, container shape,
 
 **Acceptance.** A list scrolls and clips, a modal traps input and releases it, a dropdown opens above its trigger when it would overflow, hit-testing agrees with what is visible after scroll and resize, and the current application renders unchanged.
 
-## P4 — Interaction: drag, wheel, text, double-click, shortcuts [pointer half done, spec 014]
+## P4 — Interaction: drag, wheel, text, double-click, shortcuts [done, specs 014 + 015]
 
-**Split in two when it was started.** The pointer work and the keyboard work share nothing but the renderer they land in, so each became its own spec and each could be verified on its own. Spec [014](../014-pointer-interaction/requirements.md) delivered capture, drag, wheel, viewport scrolling, double and secondary click, declared behaviors and cursors, the `slider` type, a working `spinBox`, and file drag-and-drop. Spec 015 owes the focus model, text entry, the shortcut table, tooltips, dialog keys and command enablement. The package is complete when both are.
+**Split in two when it was started.** The pointer work and the keyboard work share nothing but the renderer they land in, so each became its own spec and each could be verified on its own. Spec [014](../014-pointer-interaction/requirements.md) delivered capture, drag, wheel, viewport scrolling, double and secondary click, declared behaviors and cursors, the `slider` type, a working `spinBox`, and file drag-and-drop. Spec [015](../015-keyboard-interaction/requirements.md) delivered the focus model, text entry (the `inputbox` type), the shortcut table, tooltips, dialog keys and command enablement (`disabledWhen`). The package completed 2026-09-11.
 
 **Also rebuilds command enablement.** Spec 003's `runtime/commands.js`, retired by spec 011, was the only implementation v2 has had of a command registry that answers whether a command *can* run: the renderer drew a disabled control from it and the dispatcher refused to run one. The current pipeline dispatches through action bindings with no such gate. Rebuilding it belongs here, because a disabled control is an interaction state, and P6 then makes it depend on the document.
 
@@ -50,17 +50,21 @@ Declares every component type once, with its property contract, container shape,
 
 **Acceptance.** A slider drags to a value, a list wheel-scrolls, an input box edits text with a caret, Enter and Escape work in a dialog, a double-click opens something, an authored shortcut fires its command, and every one of those still produces a trace in the Interaction log.
 
-## P5 — The rest of the component catalogue [after P3 and P4]
+## P5 — The rest of the component catalogue [after P3 and P4; declaration step done, spec 016]
 
 **Goal.** Every non-specialized v1 screen is authored in YAML from registered types.
 
 **Depends on.** P3, P4.
 
-**Design sketch.** Declare all of v1's types in the registry first, with contracts and `implemented: false`, so the catalogue documents the target before the work starts. Then implement roughly in dependency order: icon, image, inputbox, numberdisplay, spinBox, rangeSlider and sliderBox, knob, scrollbar, listbox, dropdown, menu and submenu, modalDialog, tabPanel, tooltip, collapsePanel, animsprite, buttonGroup. Each brings a draw kind only if it looks like nothing that exists, skin styles for its states, a catalogue entry, State gallery fixtures and tests. The screens then follow: the menu bar, the control panel, the options panel, the info bar, the edit pad and the song and pattern lists.
+**Design sketch.** Declare all of v1's types in the registry first, with contracts and `implemented: false`, so the catalogue documents the target before the work starts. Spec [016](../016-catalogue-declarations/requirements.md) did exactly that step on 2026-09-11: `icon`, `image`, `numberDisplay`, `rangeSlider`, `knob`, `scrollbar`, `listbox`, `dropdown`, `submenu`, `modalDialog`, `tabPanel`, `tooltip`, `collapsePanel`, `animSprite` and `buttonGroup` are all registered, `implemented: false`, with a contract and, for several, an open question its implementing spec still has to answer (recorded in 016's design.md rather than settled there). `inputbox` and `spinBox`, also on the roadmap's original list, were already promoted to implemented by specs 015 and 014. `checkboxbutton` was found to be the same shape as the already-implemented `checkbox` and was not added as a separate entry. Then implement roughly in dependency order: icon, image, numberDisplay, animSprite (simple leaves, no new mechanism), rangeSlider, knob, scrollbar (value-like controls), listbox (the first real container-with-selection), dropdown, submenu, modalDialog (build on the overlay/modal mechanism specs 013 and 015 already shipped), tabPanel, collapsePanel, buttonGroup (composition). Each brings a draw kind only if it looks like nothing that exists, skin styles for its states, a catalogue entry, State gallery fixtures and tests. The screens then follow: the menu bar, the control panel, the options panel, the info bar, the edit pad and the song and pattern lists.
+
+Spec [017](../017-leaf-types/requirements.md) implemented the first three of those on 2026-09-11: `icon` and `image` share one draw kind (both are "draw a named asset", under two property names); `animSprite` needed the one real new mechanism this package's leaves required, `runtime/animationClock.js`, a pure per-frame clock driven off the node's bound `field` exactly the way a slider's value already is, gated by a new registry flag (`animated: true`) independent of `interactive`. `numberDisplay` turned out not to be a leaf - it is a real bounded, editable control with its controller reuse still an open question - and was moved to its own spec rather than implemented under the "simple" label spec 016 first put it under.
+
+Spec [018](../018-value-controls/requirements.md) implemented `rangeSlider` and `knob` next, also on 2026-09-11: both reuse `runtime/valueController.js` completely unchanged (`rangeSlider` is `slider`'s own absolute mode, `knob` is `spinBox`'s own relative mode), so the only new mechanism was one generic per-node axis override (`node.vertical`) for `rangeSlider`'s vertical instances. `scrollbar` was left declared-only on purpose, per its own contract's note that it is more likely P7/P11 territory (a waveform or arrangement view's own track) than something worth implementing with no real consumer.
 
 **Acceptance.** Each type appears in the catalogue with its contract and in the gallery with its states. The options and disk-operation screens are authored YAML with no coordinates. The compiler reports any authored property that is not in a contract.
 
-**Rough size.** Twenty types; v1 spends about 3,400 lines on them, and the ported versions should be smaller because layout, skinning and state come from the system.
+**Rough size.** Twenty types; v1 spends about 3,400 lines on them, and the ported versions should be smaller because layout, skinning and state come from the system. Open decision 1 resolved: a smaller authored skin, not v1's full 10 fonts and ~113 sprites, so this package's artwork scope is reduced from the "exact fidelity" assumption it was originally sized under.
 
 ## P6 — The document model, undo and selection [after P2]
 
@@ -94,19 +98,23 @@ Declares every component type once, with its property contract, container shape,
 
 **Acceptance.** The canvas goes idle after interaction. A grid scroll with playback holds the budget. No perpetual redraw loop.
 
-## P9 — Persistence, providers and file operations [after P4, P5]
+## P9 — Persistence, providers and file operations [after P4, P5; first slice started, spec 033]
 
 **Goal.** The application remembers, and can load and save from where v1 does.
 
-**Design sketch.** A settings capability over local storage with v1's thirteen keys, applied at startup without v1's fifty-millisecond race against widget construction. Favorites. The five providers (own API, ModArchive, modules.pl, HippoPlayer, Dropbox) behind one interface, keeping the existing `api/` endpoints. The disk-operation screens authored in YAML. The format write path completed here if P4 did not need it: MOD and XM out, XI, WAV, the playlist formats, and the container formats.
+**Design sketch.** A settings capability over local storage with v1's thirteen keys, applied at startup without v1's fifty-millisecond race against widget construction. Favorites. The five providers (own API, ModArchive, modules.pl, HippoPlayer, Dropbox) behind one interface, keeping the existing `api/` endpoints (open decision 4, resolved: kept as is). The disk-operation screens authored in YAML. The format write path completed here if P4 did not need it: MOD and XM out, XI, WAV, the playlist formats, and the container formats. MP3 export is in scope (open decision 5, resolved: a vendored, no-CDN encoder is accepted).
+
+Spec [033](../033-settings-and-favorites/requirements.md) took the first slice on 2026-09-11 (specified, not yet implemented): the settings capability and favorites, since neither needs a provider interface, a disk-operation screen or a format writer, and twelve of the controls they back are already authored and sitting as `GENERATED MOCK` commands. It corrected this design sketch's own count — v1 persists fourteen keys, not thirteen — and found that the options panel's "Frequency table" control, which looks like a fifteenth persisted setting, is actually live per-song engine state (`Tracker.useLinearFrequency`, set by the format loader) that v1 itself never saves; it stays with a playback/song-format capability instead. The providers, the disk-operation screens and the format write path (including MP3 export, and the discovery that v1's own "export" already round-trips through a server-side `lame.exe` rather than a vendored encoder) remain unallocated.
 
 **Acceptance.** Settings survive a reload. A module loads from each provider. Save and export produce files v1 can read.
 
+**Amendment, 2026-09-15**: open decision 5's own "a vendored encoder is accepted" call, above, is reversed by open decisions 8 and 9 (requirements.md) - MP3/WAV whole-song export and Dropbox as a save/load target are both permanently out of scope, at the user's own direction, not merely deferred. The acceptance line above is amended to drop its own "including MP3 via the vendored encoder" clause accordingly. P9's real remaining scope, after specs 033-038, 063-067, is exactly one piece: the Bassoon/Hippo disk-operations screen's own playlist listboxes (browsing/loading a *saved* playlist, as distinct from the already-real `randomPlayList`/`play-list.random`).
+
 ## P10 — Features and the plugin path [after P5]
 
-**Goal.** The lazy feature registry the roadmap has always wanted, with the sample editor as its first tenant.
+**Goal.** The lazy feature registry the roadmap has always wanted, with the sample editor and Nibbles as its tenants.
 
-**Design sketch.** Metadata-only registry, dynamic import, explicit idle, loading, ready and failed states, request deduplication, retry, and disposal separate from module caching. v1's three plugins each receive a differently shaped hand-built dependency bag; v2 gives one documented host interface instead. The sample editor is the first feature and is built on P7's specialized-component contract.
+**Design sketch.** Metadata-only registry, dynamic import, explicit idle, loading, ready and failed states, request deduplication, retry, and disposal separate from module caching. v1's three plugins each receive a differently shaped hand-built dependency bag; v2 gives one documented host interface instead. The sample editor and Nibbles port (open decision 3, resolved); the generator does not, for now. The sample editor is the first feature and is built on P7's specialized-component contract.
 
 **Acceptance.** A cold trace shows no feature code or assets before first open. Opening repeatedly during load creates one instance. Closing during load leaves it closed. A failure can be retried.
 
@@ -116,7 +124,7 @@ The multitrack arrangement view, the waveform editor, the piano, the envelope ed
 
 ## P12 — DOM renderer and accessibility [optional, after P5]
 
-Only if open decision 2 says yes. It proves the interchangeable-renderer claim, and it buys no parity: v1 is one canvas and a twenty-one-element HTML shell.
+Open decision 2 resolved: deferred until after editing parity (P6/P7), then reconsidered — not built now. It proves the interchangeable-renderer claim, and it buys no parity: v1 is one canvas and a twenty-one-element HTML shell.
 
 It does, however, carry the accessibility story, and that story currently does not exist. Spec 003's renderer put a real `<button>` over every control and got focus, accessible names, native activation and disabled state from the platform; spec 011 retired it, and `mountGeneric.js` has only a single focusable canvas. Whether the semantic layer waits for this package or arrives earlier as its own small piece of work is worth deciding on its own merits, not as a side effect of the DOM-renderer question.
 

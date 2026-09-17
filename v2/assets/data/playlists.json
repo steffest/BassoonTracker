@@ -1,0 +1,39 @@
+{
+  "modules": [
+    {
+      "title": "DemoScene 2023",
+      "url": "data/playlists/demoscene2023.json",
+      "info": "92 tracks"
+    },
+    {
+      "title": "DemoScene 2024",
+      "url": "data/playlists/demoscene2024.json",
+      "info": "55 tracks"
+    },
+    {
+      "title": "DemoScene 2025",
+      "url": "data/playlists/demoscene2025.json",
+      "info": "63 tracks"
+    },
+    {
+      "title": "DemoScene 2026",
+      "url": "data/playlists/demoscene2026.json",
+      "info": "77 tracks"
+    },
+    {
+      "title": "DSR 2024",
+      "url": "data/playlists/dsr2024.json",
+      "info": "15 tracks"
+    },
+    {
+      "title": "Chippies",
+      "url": "data/playlists/chippies.json",
+      "info": "1 track"
+    },
+    {
+      "title": "RAW diskmag",
+      "url": "data/playlists/raw_diskmag.json",
+      "info": "36 tracks"
+    }
+  ]
+}

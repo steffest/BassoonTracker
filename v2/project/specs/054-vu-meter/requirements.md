@@ -1,0 +1,44 @@
+# 054 — The VU meter
+
+Date: 2026-09-15. Kind: feature. Status: specified. Continues package **P11** (the remaining specialized surfaces) of the [port roadmap](../010-port-roadmap/requirements.md), following the multitrack arrangement view's own three-part arc (specs 051/052/053). The port's seventh specialized-component leaf, after `patternGrid`, `fileBrowser`, `waveformView`, `loopCreatorView`, `nibblesGrid` and `multitrackView`.
+
+## Purpose
+
+`script/src/ui/app/components/vumeter.js` (135 lines, read in full for this spec) is a small, self-contained stereo level meter: two `AnalyserNode`s tapped off the mix's own final output, drawn as a strip of LED-style dots per channel. Unlike every prior specialized leaf, it is genuinely passive - no click, no drag, no keyboard input in v1 at all - so this spec builds engine, leaf and placement together in one pass, the same "small enough for one spec" call Nibbles' own engine+leaf spec (047) already made, rather than splitting into the three-part arc the multitrack view needed.
+
+This spec also closes a real, already-recorded gap rather than opening new territory: `app.yaml`'s own `top.menu` map has carried a bare scalar reference, `volume meter: volumemeter`, since the application shell was first authored - `compiler/generate.js` has reported it as `unresolved-component-reference "volumemeter"` in every run since (one of this build's own 16 standing warnings). `convertReference()` resolves a bare scalar as a *component file* lookup (`components/<name>.yaml`), not a type-name lookup - the file itself has simply never existed. This spec creates it.
+
+## What v1 actually does, and what this narrows out (read from source, not assumed)
+
+`VUMeter` taps `Audio.cutOffVolume` (`menu.js:76` - the master chain's own final gain node, just before the real audio destination, not any per-track signal) through a `ChannelSplitter(2)`, feeding one `AnalyserNode` per channel (`fftSize: 32`, `minDecibels: -90`, `maxDecibels: -10`, `smoothingTimeConstant: 0.85`). Every `EVENT.screenRender`, `_getDynamicRange` finds the byte time-domain buffer's own min/max and returns `(max-min)/255` - not RMS, not a true VU ballistics curve, just an instantaneous peak-to-peak spread scaled by a fixed fudge factor (`Math.E - 1`, applied once in `_renderVU`, not inside `_getDynamicRange` itself) before being used as a 0-1 fraction of the strip's own width. The strip itself is `Math.floor(width / (dotWidth + margin))` discrete dots, the first third green, the next roughly-sixth yellow (`i >= dots/1.5`), the rest red - each dot's own "lit" and "unlit" appearance pre-rendered once into two off-screen canvases (`_base`/`_baseActive`) from skin-atlas sprite images (`vu_green`/`vu_yellow`/`vu_red`, each with an `_active` variant), then composited per frame by drawing a clipped slice of the active canvas over the base one, left to right, up to the current level's own pixel width.
+
+## Decisions and assumptions
+
+- **A new `domain/playback/index.js#getMasterScopeData()`**, not a per-track mechanism - this taps the single, already-existing master chain (`Audio.cutOffVolume`), the same real node v1 itself taps, not any of spec 052's own per-track analysers (a different signal entirely: the whole mix, post-effects, not one track's own pre-mix signal). Lazily creates one `ChannelSplitter(2)` and two analysers on first call, connects them once, and is idempotent on every call after - the same "grow/connect once, on demand" shape spec 052's own `getTrackScopeData` already established, here with nothing to grow (always exactly two channels).
+- **Dots are drawn as flat-colored rectangles, not pre-rendered skin-atlas sprites.** `Y.getImage("vu_green"/"vu_yellow"/"vu_red", each with an "_active" variant)` is skin-atlas-specific asset plumbing this spec does not need to prove - a flat, lit/unlit fill by zone color is the same simplification `nibblesGrid`'s own flat cells and `multitrackView`'s own flat blocks already made, and it is the *only* real visual detail this leaf has (there is no waveform, no text, no name label to simplify away this time).
+- **The dynamic-range math and the dot-zone/lit-count math are pure, in a new `renderers/canvas/vuMeterGeometry.js`** - both are plain arithmetic over a byte buffer and two counts, the same "shared by drawing and (here, trivial) hit-testing" role every other specialized leaf's own geometry module already has, kept separate from the draw kind so the math is directly, numerically testable without a canvas at all.
+- **The leaf is registered `interactive: true` with a minimal controller anyway**, even though v1's own component has no gesture vocabulary at all - `ticks: true` (needed so the renderer's own tick clock keeps calling `markNeedsDraw()` every frame while mounted, the same reason `nibblesGrid`/`multitrackView` need it) only takes effect for a node with a controller (`behaviorOf()` returns null, and no controller is ever created, for a non-interactive type - confirmed by reading `runtime/componentTypes.js#behaviorOf`), so a controller has to exist regardless of whether it has anything real to do. Its own `handle()` only tracks `hover`/`focused`/`disabled`, the smallest useful shape, matching `nibblesController`'s own precedent of a controller existing mainly to host `onFrame`.
+- **The already-authored placement is trusted, not redesigned.** `components/volumemeter.yaml` (new) is created to match the *existing* `volume meter: volumemeter` reference in `app.yaml` exactly - the file name (`volumemeter.yaml`, matching the bare-scalar lookup), the type inside it, and a `layout: {width: fixed, height: fixed}` (both axes sized from `measure()`, the same shape `editPad.yaml`'s own `height: fixed` already relies on) are this spec's only placement decisions; the surrounding `top.menu` row itself is untouched.
+- **The exact strip width/height are a reasonable default, not v1's own 500x16px.** v1's own `_vuWidth = 500` assumes a full-width desktop meter with room to spare beside its own menu bar; nothing in the roadmap or the surrounding `top.menu` row's own current width has been measured to confirm that fits without crowding the menu and notifications already there. `measure()` returns a smaller, still-recognizable `{width: 160, height: 16}` - a cosmetic choice, recorded as such, easily revisited once this sits in a real browser.
+
+## User stories and acceptance
+
+- **VU-001 — `getMasterScopeData` taps the real master chain, lazily, once, and returns live channel data every call.** Acceptance: a unit test against a real loaded fixture and a real (silent-context) audio graph, confirming the connection is made exactly once across repeated calls and that both channels return the expected buffer length.
+- **VU-002 — The dynamic-range and dot-zone math match v1's own formulas exactly.** `dynamicRange(buffer)` reproduces `_getDynamicRange` for hand-built buffers (silence, full-scale, one-sided); `zoneFor(index, totalDots)`/`litDotCount(range, totalDots)` reproduce v1's own `dots/3`/`dots/1.5` boundaries and the `Math.E - 1` scaling. Acceptance: pure unit tests with hand-computed expected values.
+- **VU-003 — The draw kind never throws, before and after a connection exists, and colors dots by zone.** Acceptance: a fake-canvas-context test mirroring `nibblesGridView.test.js`'s/`multitrackView.test.js`'s own convention.
+- **VU-004 — `volumemeter` resolves.** `node compiler/generate.js` no longer reports `unresolved-component-reference "volumemeter"` - one fewer of this build's own 16 standing warnings, confirmed by a before/after diff, not just a fresh zero-error run.
+- **VU-005 — No regressions.** Full unit suite passes; `node build.mjs app` succeeds, loose ends unaffected beyond the one warning VU-004 already accounts for.
+
+## Non-functional requirements
+
+- Headless verification only (no browser-automation dependency in this environment, the same recorded reason every spec since 019 has given).
+
+## Scope boundaries
+
+In scope: `domain/playback/index.js#getMasterScopeData`, `renderers/canvas/vuMeterGeometry.js` (new, pure), `runtime/vuMeterController.js` (new, minimal), `runtime/behaviors.js`/`runtime/componentTypes.js`/`renderers/canvas/drawKinds.js` registrations, `project/specs/application/current/components/volumemeter.yaml` (new), and tests for all of the above.
+
+Out of scope, recorded rather than silently dropped:
+
+- **Skin-atlas sprite dots** - a flat-fill simplification, see Decisions and assumptions.
+- **v1's own exact 500x16px size** - a smaller, cosmetic default; easily revisited once a browser is available to check against the real `top.menu` row's own remaining width.
+- **True VU ballistics** (attack/release smoothing beyond the analyser's own `smoothingTimeConstant`) - v1 itself has none either; `_getDynamicRange`'s instantaneous peak-to-peak spread is ported exactly, not improved on.

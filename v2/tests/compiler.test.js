@@ -44,12 +44,18 @@ test("compiles the real app.yaml graph into a supported tree with source-located
     const messages = result.diagnostics.map(d => d.message);
     assert.ok(!counts["yaml-syntax-error"], "no syntax errors expected from the current source tree");
     assert.ok(!counts["missing-skin"], "app.yaml names a skin document that exists");
-    assert.ok(counts["unresolved-action-reference"] >= 2, "action1/action2 have no action file");
-    assert.ok(messages.some(m => m.includes('"action1"')) && messages.some(m => m.includes('"action2"')));
-    assert.equal(counts["unresolved-component-reference"], 1, "volumemeter has no component file");
-    assert.ok(messages.some(m => m.includes('"volumemeter"')));
-    assert.ok(counts["unsupported-component"] >= 3, "menu and both notification lights are not yet rendered");
-    assert.ok(messages.some(m => m.includes('type "menu"')), "the menu is reported by type");
+    // The real menu bar (spec 023's prerequisite work made this authorable)
+    // has plenty of commands no recipe covers yet ("new file", "show
+    // options", ...); this only pins that they are reported, not which ones.
+    // Spec 063 resolved three of these (randomSong/randomSongXM/randomPlayList
+    // via a new "random" verb-action verb), lowering the threshold here from
+    // 10 - a real, expected drop, not a regression.
+    assert.ok(counts["unresolved-action-reference"] >= 7, "the menu bar's own commands have no action file or matching recipe yet");
+    assert.ok(messages.some(m => m.includes('"newFile"')) && messages.some(m => m.includes('"undo"')));
+    // Spec 054: components/volumemeter.yaml now exists, resolving what was
+    // this suite's own one standing unresolved-component-reference.
+    assert.ok(!counts["unresolved-component-reference"], "volumemeter now has a component file (spec 054)");
+    assert.ok(counts["unsupported-component"] >= 2, "both notification lights are not yet rendered");
     assert.ok(counts["unresolved-rule"] >= 2, "both notification prose rules are unresolved");
     assert.equal(counts["ambiguous-duplicate-name"], 1, "both notification lights share the same authored key");
 
@@ -102,7 +108,7 @@ test("compiles the real app.yaml graph into a supported tree with source-located
     assert.equal(byId.get("main.controlBar.button.Play").style.source.file, "components/controlBar.yaml");
     assert.equal(byId.get("main.controlBar.button.record").style.variant, "record");
     assert.equal(byId.get("main").style.variant, "default");
-    assert.equal(byId.get("main.statusBar.label.main status").style.type, "label");
+    assert.equal(byId.get("main.normalMainView.patternSection.patternSectionDefault.infoBar.song title").style.type, "label");
     for (const node of nodes) {
         if (node.supported === false) continue;
         if (node.type === "radioGroup" || ["panel", "button", "radioItem", "label"].includes(node.type)) {
@@ -111,17 +117,59 @@ test("compiles the real app.yaml graph into a supported tree with source-located
         }
     }
     // Every asset the skin references exists as a source PNG, and the state
-    // that names it keeps its source range.
+    // that names it keeps its source range. Spec 071: an image/icon node's
+    // own src/icon (compiler/convert.js's own registerImageAssetUses) is
+    // also a real "use," authored in whichever component file the node
+    // itself lives in - not skin/default.yaml, the only file every use
+    // could come from before any image/icon node was ever placed.
     for (const asset of result.skin.assets) {
         assert.match(asset.file, /^src\/.+\.png$/);
         assert.ok(asset.usedBy.length >= 1);
-        assert.ok(asset.usedBy.every(use => use.file === "skin/default.yaml" && use.range));
+        assert.ok(asset.usedBy.every(use => /\.yaml$/.test(use.file) && use.range));
     }
 
-    assert.equal(byId.get("main.top.menu").supported, false);
-    assert.equal(byId.get("main.top.volume meter").supported, false);
-    assert.equal(byId.get("main.statusBar.label.main status").labelVariants.join(" "), "main status");
-    assert.equal(byId.get("main.songProperties").layout.resizable, "horizontal");
+    assert.equal(byId.get("main.top.menu").supported, true, "menu is implemented as of spec 023");
+    assert.equal(byId.get("main.top.menu.submenu.File").type, "submenu", "a menu item authored as type: submenu compiles as a real child node");
+    // Spec 024: the real menu bar, read from script/src/ui/app/menu.js -
+    // File/Edit/View/Help, with Edit's own "Clear" nested a level deeper.
+    for (const label of ["File", "Edit", "View", "Help"]) {
+        assert.equal(byId.get(`main.top.menu.submenu.${label}`).type, "submenu", label);
+    }
+    const clear = byId.get("main.top.menu.submenu.Edit.submenu.Clear");
+    assert.equal(clear.type, "submenu", "Clear is itself a nested submenu, two levels under the menu bar");
+    assert.deepEqual(clear.children.map(c => c.bindings[0].command), ["track.clear", "pattern.clear", "song.clear", "instruments.clear"]);
+    // Clear Track/Pattern share the exact command names editPad.yaml's own
+    // buttons already use (spec 022), so both authored places run the same
+    // generated action module, not two parallel ones.
+    assert.equal(byId.get("main.top.menu.submenu.Edit.submenu.Clear.label.Clear Track").bindings[0].command, "track.clear");
+    // Spec 054: components/volumemeter.yaml now exists, so this resolves to
+    // a real node - under its own authored name, not the "volume meter"
+    // slot key it is referenced by.
+    assert.equal(byId.get("main.top.volumemeter").supported, true);
+    assert.equal(byId.get("main.normalMainView.patternSection.patternSectionDefault.infoBar.button.More info").labelVariants.join(" "), "More info");
+    assert.equal(byId.get("main.normalMainView.songProperties").layout.resizable, "horizontal");
+
+    // Spec 025's two control-panel prerequisites, put to real use for the
+    // first time: controlBar's own breakpoint (a declared, not hand-written,
+    // cascade) and the song-properties switch/optionsPanel's visibleWhen
+    // pair (the generalized replacement for v1's EVENT.showView). Spec
+    // 070's own UI-alignment pass (step 6) replaced the original single,
+    // mutually-exclusive topViewGroup radioGroup with three independent
+    // toggle buttons, matching v1's own real three-Checkboxbutton shape
+    // (confirmed live: File Operations and Sample Edit can both be open at
+    // once, which one shared radioGroup command could never express).
+    assert.deepEqual(byId.get("main.controlBar").breakpoints, [{ maxWidth: 650, layout: { height: { mode: "fixed", size: 160 }, direction: "column" } }]);
+    const commandOf = node => node.bindings.find(b => b.kind === "command");
+    const fileOperationsButton = byId.get("main.controlBar.topViewButtons.fileOperationsButton");
+    assert.equal(commandOf(fileOperationsButton).command, "file-operations-view.toggle");
+    const optionsButton = byId.get("main.controlBar.topViewButtons.optionsButton");
+    assert.equal(commandOf(optionsButton).command, "options-view.toggle");
+    const sampleEditButton = byId.get("main.controlBar.topViewButtons.sampleEditButton");
+    assert.equal(commandOf(sampleEditButton).command, "sample-edit-panel.toggle");
+    assert.deepEqual(byId.get("main.normalMainView.songProperties.optionsPanel").visibleWhen, { field: "song-properties-view.value", oneOf: ["Options"] }, "shown only when explicitly chosen - not by default (fixed for real visual parity with v1, which opens with no control-panel section shown at all)");
+    assert.deepEqual(byId.get("main.normalMainView.songProperties.fileOperationsPanel").visibleWhen, { field: "song-properties-view.value", oneOf: ["File Operations"] });
+    assert.deepEqual(byId.get("main.normalMainView.songProperties.nibblesPanel").visibleWhen, { field: "song-properties-view.value", oneOf: ["Nibbles"] });
+    assert.deepEqual(byId.get("main.normalMainView.patternSection.sampleEditPanel").visibleWhen, { field: "pattern-section-view.value", oneOf: ["Sample Edit"] });
 
     // Both notification lights collide on the same authored key and get a
     // deterministic occurrence suffix rather than being silently merged.
@@ -206,10 +254,12 @@ test("a container's other keys stay named child slots", () => {
 });
 
 test("a declared type reads differently from an unregistered one", () => {
-    // `menu` is the standing example of a type whose contract is recorded
+    // `tooltip` (the component type, not spec 015's plain-text hover
+    // mechanism) is a standing example of a type whose contract is recorded
     // before it can be drawn; `slider` is implemented, and carries its own
     // declared property. Both are read from the registry, so the only thing
-    // this test pins is the *rule*, not which types happen to be finished.
+    // this test pins is the *rule*, not which types happen to be finished -
+    // `menu` was this example before spec 023 promoted it.
     const files = {
         "app.yaml": [
             "app:",
@@ -217,7 +267,7 @@ test("a declared type reads differently from an unregistered one", () => {
             "    main:",
             "      type: panel",
             "      content:",
-            "        - type: menu",
+            "        - type: tooltip",
             "        - type: slider",
             "          min: 1",
             "        - type: doesNotExist",
@@ -231,11 +281,104 @@ test("a declared type reads differently from an unregistered one", () => {
     assert.equal(implemented.supported, true);
     assert.equal(unknown.supported, false);
     const messages = result.diagnostics.filter(d => d.code === "unsupported-component").map(d => d.message);
-    assert.ok(messages.some(m => /"menu" is declared but not rendered yet/.test(m)));
+    assert.ok(messages.some(m => /"tooltip" is declared but not rendered yet/.test(m)));
     assert.ok(messages.some(m => /"doesNotExist" is not a registered component type/.test(m)));
     assert.ok(!result.diagnostics.some(d => d.code === "unknown-component-property"), "min is part of the slider's declared contract");
     assert.equal(implemented.min, 1, "and it reaches the node");
     assert.equal(declared.style, undefined, "artwork is not resolved for a type that is not drawn");
+});
+
+test("spec 016: a declared-but-not-drawn type still checks its contract, not only menu", () => {
+    // CAT-002: the unknown-property diagnostic has to work for one of the
+    // still-placeholder types (spec 027 promoted numberDisplay to
+    // implemented, so this now uses scrollbar, proving the mechanism is
+    // general rather than something that happens to be wired up for one
+    // particular type.
+    const files = {
+        "app.yaml": [
+            "app:",
+            "  ui:",
+            "    main:",
+            "      type: panel",
+            "      content:",
+            "        - type: scrollbar",
+            "          field: sample.name",
+            "          selectedIndex: 0",
+            ""
+        ].join("\n")
+    };
+    const result = compileApplication("app.yaml", memoryReadFile(files));
+    const scrollbar = result.root.children[0];
+    assert.equal(scrollbar.supported, false, "declared but not implemented");
+    assert.equal(scrollbar.field, "sample.name", "the declared property still reaches the node");
+    const warnings = result.diagnostics.filter(d => d.code === "unknown-component-property");
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0].message, /"scrollbar" has no property "selectedIndex"/);
+    assert.match(warnings[0].message, /it accepts .*field/, "the message lists scrollbar's actual contract");
+});
+
+test("spec 020: submenu's items compile as real child nodes with their own bindings, unlike menu's item-actions-only shape", () => {
+    const files = {
+        "app.yaml": [
+            "app:",
+            "  ui:",
+            "    main:",
+            "      type: panel",
+            "      content:",
+            "        - type: submenu",
+            "          items:",
+            "            - type: label",
+            "              label: Open",
+            "              actions:",
+            "                - click: toggleplay",
+            "            - type: label",
+            "              label: Quit",
+            ""
+        ].join("\n")
+    };
+    const result = compileApplication("app.yaml", memoryReadFile(files));
+    const submenu = result.root.children[0];
+    assert.equal(submenu.supported, true, "implemented as of spec 020");
+    assert.equal(submenu.children.length, 2, "items are real children, not merged into the submenu's own bindings");
+    assert.equal(submenu.children[0].labelVariants[0], "Open");
+    assert.equal(submenu.bindings.length, 0, "unlike menu's placeholder shape, the container itself carries no item bindings");
+    // The item's own `actions:` is resolved against *its own* node, proving
+    // it is a real per-item node rather than menu's collapsed-onto-the-
+    // parent shape - "toggleplay" has no supporting actions/ file in this
+    // minimal fixture, so it stays unresolved, but the diagnostic still
+    // names the item's own id, not the submenu's.
+    const unresolved = result.diagnostics.find(d => d.code === "unresolved-action-reference");
+    assert.ok(unresolved, "the item's actions: was actually looked at");
+    assert.equal(unresolved.nodeId, submenu.children[0].id, "attributed to the item, not the submenu container");
+});
+
+test("spec 021: buttonGroup's items are independent, full-treatment nodes, unlike radioGroup's forced-childType shape", () => {
+    const files = {
+        "app.yaml": [
+            "app:",
+            "  ui:",
+            "    main:",
+            "      type: panel",
+            "      content:",
+            "        - type: buttonGroup",
+            "          items:",
+            "            - type: button",
+            "              label: Play",
+            "              actions:",
+            "                - click: toggleplay",
+            "            - type: button",
+            "              label: Stop",
+            ""
+        ].join("\n")
+    };
+    const result = compileApplication("app.yaml", memoryReadFile(files));
+    const group = result.root.children[0];
+    assert.equal(group.supported, true, "implemented as of spec 021");
+    assert.equal(group.children.length, 2, "items are real children");
+    assert.equal(group.children[0].type, "button", "each item keeps whatever type it was authored as, unlike radioGroup forcing radioItem");
+    assert.equal(group.bindings.length, 0, "the group itself carries no item bindings");
+    const unresolved = result.diagnostics.find(d => d.code === "unresolved-action-reference");
+    assert.equal(unresolved.nodeId, group.children[0].id, "the item's own actions: is attributed to the item, not the group");
 });
 
 test("a type registered by spec 009 compiles with no compiler change", () => {

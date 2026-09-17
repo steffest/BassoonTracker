@@ -1,0 +1,103 @@
+<h2>Sample rates, periods and resampling</h2>
+<div class="padded">
+    A sample in a module has no pitch of its own. It is just a list of bytes.<br>
+    The <i>note</i> you put in a pattern tells the player how fast to read those bytes, and <b>how fast</b> depends on the tracker mode you are in.<br>
+    ProTracker (.mod) and FastTracker (.xm) do not agree on this, and inside .xm there are two frequency tables that also differ in how they get there.<br>
+    <br>
+    This matters the moment you <b>resample</b> a sample to a target note, because the target byte rate is a different number in each mode.<br>
+    If you resample in one mode and save in the other, everything will play slightly too fast or too slow.<br>
+</div>
+
+<h3>ProTracker: Amiga periods</h3>
+<div class="padded">
+    On the Amiga, the Paula chip is told a <i>period</i>: the number of clock ticks between two sample bytes.<br>
+    A lower period means a higher pitch.<br>
+    <br>
+    <code>rate = 7093789.2 / (2 &times; period)</code> &nbsp; (PAL Amiga clock, BassoonTracker uses 7093790)<br>
+    <br>
+    ProTracker knows 36 periods (3 octaves, 856 down to 113) plus a finetune table per sample in steps of 1/8 semitone.<br>
+    That is all a .mod file can express: the note picks a period, the finetune picks one of 16 variants of that period.<br>
+    <br>
+    An NTSC Amiga runs its clock at 7159090.5 Hz, so the same module plays 0.92% higher there. ProTracker itself doesn't care, it just writes periods.<br>
+</div>
+
+<h3>FastTracker: "Amiga frequency table"</h3>
+<div class="padded">
+    FastTracker 2 is a PC program, but its default frequency table imitates the Amiga: notes map to the same period numbers (428 for C-4, 214 for C-5 in FT2 naming).<br>
+    The difference is the clock it divides by:<br>
+    <br>
+    <code>rate = 7158728 / (2 &times; period)</code><br>
+    <br>
+    That constant comes from the NTSC Amiga clock, and it is why C-4 in FastTracker is the famous <b>8363 Hz</b>.<br>
+    The same period on a PAL Amiga (and in ProTracker mode) gives 8287 Hz.<br>
+    <br>
+    The ratio between the two is 7158728 / 7093790 = <b>1.0092</b>, or about <b>16 cents</b>.<br>
+    FastTracker also has 8 octaves instead of 3, and a per-sample <i>relative note</i> on top of finetune, so a sample can be shifted by whole semitones without touching its data.<br>
+</div>
+
+<h3>FastTracker: "Linear frequency table"</h3>
+<div class="padded">
+    With the linear table switched on, FastTracker stops using Amiga periods altogether.<br>
+    A "period" is now just a number on a straight line where every semitone is 64 units and every octave is 768:<br>
+    <br>
+    <code>period = 7680 - 64 &times; (note - 1)</code> &nbsp; (note 1 = C-0, note 49 = C-4)<br>
+    <code>rate = 8363 &times; 2<sup>(4608 - period) / 768</sup></code><br>
+    <br>
+    C-4 gives period 4608 and, by construction, exactly 8363 Hz again. C-5 gives 3840 and 16726 Hz.<br>
+    So the <b>base rates of the notes are identical</b> to the Amiga table. What changes is everything that <i>moves</i> a note:<br>
+    <br>
+    <table border="0">
+        <tr><td class="blue">Amiga table</td><td>Slides, portamento and vibrato add to the period. One unit of slide is a bigger pitch step on high notes than on low notes, exactly like real Amiga hardware.</td></tr>
+        <tr><td class="blue">Linear table</td><td>Slides add to the linear period. One unit is always 1/64 semitone, on any note. Slides sound the same in every octave.</td></tr>
+    </table>
+</div>
+
+<h3>Quick reference</h3>
+<div class="padded">
+    The same period, and what it means in each mode. Note that ProTracker and FastTracker also <i>name</i> the same period two octaves apart.<br>
+    <br>
+    <table border="0">
+        <tr><td class="blue top">period</td><td class="blue top">ProTracker name</td><td class="blue top">FastTracker name</td><td class="blue top">.mod rate (PAL)</td><td class="blue top">.xm rate (both tables)</td></tr>
+        <tr><td>856</td><td>C-1</td><td>C-3</td><td>4144 Hz</td><td>4182 Hz</td></tr>
+        <tr><td>428</td><td>C-2</td><td>C-4</td><td>8287 Hz</td><td>8363 Hz</td></tr>
+        <tr><td>214</td><td>C-3</td><td>C-5</td><td>16574 Hz</td><td>16726 Hz</td></tr>
+        <tr><td>113</td><td>B-3</td><td>B-5</td><td>31388 Hz</td><td>31676 Hz</td></tr>
+    </table>
+    <br>
+    The .xm column is 0.92% (16 cents) higher all the way down.<br>
+</div>
+
+<h3>What this means for resampling</h3>
+<div class="padded">
+    The <b>Resample</b> function in the sample editor converts a sample so that it plays back at its original pitch and speed when triggered on the note you press.<br>
+    To do that it needs the byte rate of that note, and it takes it from the <i>current</i> tracker mode. The panel shows you the number.<br>
+    <br>
+    <table border="0">
+        <tr><td class="blue top">you press</td><td class="blue top">in ProTracker mode</td><td class="blue top">in FastTracker mode</td></tr>
+        <tr><td>the key for period 428</td><td>8287 Hz</td><td>8363 Hz</td></tr>
+        <tr><td>the key for period 214</td><td>16574 Hz</td><td>16726 Hz</td></tr>
+    </table>
+    <br>
+    Consequences:<br>
+    <br>
+    <b>Resample in .xm mode, then save as .mod</b><br>
+    Every sample now plays 0.92% too slow and 16 cents flat. All samples shift together, so the song is still in tune with itself, only a little low.<br>
+    The real problem is timing: a drum loop that you cut to exactly 2 beats is now 0.92% longer than 2 beats.<br>
+    At 141 BPM, speed 6, two beats is 8 rows = 0.851 s. That is 14106 bytes at 16574 Hz but 14235 bytes at 16726 Hz.<br>
+    The player reaches the next row before the loop is finished and cuts it 129 bytes (8 ms) early. If the sample does not fade out by itself, that is a click on every retrigger.<br>
+    <br>
+    <b>Resample in .mod mode, then save as .xm</b><br>
+    The other way round: 0.92% too fast, 16 cents sharp, and a short gap of silence before every retrigger.<br>
+    <br>
+    <b>Mixing samples that were resampled in different modes</b><br>
+    They are now 16 cents apart from each other. Finetune (12.5 cents per step) gets you close but not exact.<br>
+    <br>
+    <b>Rule of thumb</b><br>
+    Switch to the mode of the format you are going to save <i>before</i> you resample.<br>
+    If you convert a finished song from one format to the other and want it to sound identical, resample every sample by the ratio 7093790 / 7158728 = 0.99093 (going to .mod) or its inverse 1.00915 (going to .xm).<br>
+    BassoonTracker does not do this for you when you switch modes.<br>
+    <br>
+    <b>Which one is "right"?</b><br>
+    Neither. A PAL Amiga plays .mod files the ProTracker way, FastTracker 2 plays .xm files the 8363 way, and every serious player (OpenMPT, ...) follows the same split.<br>
+    As long as a sample is resampled for the format it ends up in, it plays correctly everywhere.<br>
+</div>

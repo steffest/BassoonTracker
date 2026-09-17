@@ -1,0 +1,26 @@
+# 025 — control panel prerequisites
+
+Date: 2026-09-11. Kind: feature. Status: specified. Implements the prerequisites spec 022 named for the control panel, the last of P5's six named screens: "needs a declared breakpoint mechanism (spec 013's design sketch named this, deferred it to 'the screens', and spec 022 is the one that found it still does not exist) and a view-routing concept nothing in v2 has yet (v1's `EVENT.showView`)." This spec builds both mechanisms; the control panel screen itself is later work, once both exist - the same two-step split spec 023/024 already used for the menu bar.
+
+## Purpose
+
+Both mechanisms were researched from v1 source before any design decision, not assumed:
+
+- **The breakpoint cascade** lives entirely in one function, `Layout.setLayout(w, h)` (`script/src/ui/app/layout.js:18-142`), called on every window resize. It recomputes a bag of properties from the current width at six thresholds (945, 820, 725, 650, 620, 512px) and two height thresholds - `maxVisibleTracks` narrows in three steps, `controlPanelButtonLayout` moves through `full`→`condensed`→`2row`, `prefered` switches the whole app between a 5-column and 3-column grid, the sidebar's visibility threshold. Every other file only *reads* the properties this one function computes; nothing else contains a breakpoint number.
+- **`EVENT.showView`** is not one router: (at least) four independent listeners each own a region and interpret the same shared vocabulary of view-name strings differently - `appMainPanel.js` owns the top area (main/topmain vs. options vs. diskop_*, mutually exclusive), `patternPanel.js` owns the bottom area (main/bottommain vs. multitrack vs. sample, mutually exclusive), `mainPanel.js` toggles the whole chrome's visibility, and `settings.js` persists a view choice as a side effect. `"main"` resets both regions; `"topmain"`/`"bottommain"` reset only one - two independent per-region state machines sharing one vocabulary, not a single global switch.
+
+## User stories and acceptance
+
+- **PREREQ-001 — A node's layout can vary by viewport width, declaratively:** As an author, `breakpoints: [{ maxWidth: 650, layout: { direction: column } }]` on any node overrides just the layout fields it names, once the viewport is at or under that width; the narrowest matching threshold wins, mirroring v1's own narrowing cascade. Acceptance: verified directly against `computeGenericLayout` (no coordinates invented anywhere in the renderer - the same viewport width the layout pass already receives).
+- **PREREQ-002 — A node's presence in the tree can depend on a state field's value:** As an author, `visibleWhen: { field: view.top, oneOf: [main, topmain] }` makes a node (and its subtree) absent from layout, drawing and hit-testing entirely unless the field currently holds one of the listed values - the same effect a closed overlay or a collapsed container's content already has. Acceptance: two nodes gated on the same field show independently by their own `oneOf`; two nodes gated on *different* fields compose independently (v1's own top/bottom region split), verified directly.
+- **PREREQ-003 — No regressions:** Acceptance: the unit suite passes; every tree with no `breakpoints`/`visibleWhen` at all lays out exactly as it did before this spec (verified by the existing suite passing unchanged, plus a dedicated test for each).
+
+## Non-functional requirements
+
+Both are plain data, resolved inside the existing pure `runtime/genericLayout.js` pass - no new component type, no new behavior, nothing renderer-specific. `breakpoints`/`visibleWhen` are declared `UNIVERSAL_PROPERTIES` (spec 009's own vocabulary), so any type may carry either without becoming an "unknown property" warning, and the compiler validates their shape the same way it validates every other structured property.
+
+## Scope boundaries
+
+In scope: `breakpoints:`/`visibleWhen:` parsing (`compiler/convert.js`), the layout-pass mechanism (`runtime/genericLayout.js`), state-field seeding for `visibleWhen.field` (`compiler/emit.js`), and wiring the renderer's own state store into both (`renderers/canvas/mountGeneric.js`).
+
+Out of scope, deliberately: the control panel screen itself (authoring it is the next spec, once both mechanisms exist - the same split spec 023 made from spec 024); replicating v1's *entire* breakpoint cascade (six thresholds' worth of specific property changes - `maxVisibleTracks`, `prefered`, the sidebar threshold, and so on - are the control panel/pattern-grid/song-list screens' own authoring job once they exist, not this mechanism spec's); an authoring vocabulary for *writing* a `visibleWhen` field from a command (an ordinary `actions:` binding with a matching `mockField` already does this generically - nothing new is needed, and no screen wires one yet); height-based breakpoints (v1 has two; `maxWidth` is what this spec builds, since every v1 threshold that matters to the control panel is width-based - a `maxHeight` companion would be a trivial, symmetric addition once something actually needs it). Browser verification: not performed, for the same reason specs 019-024 recorded none - this environment still has no Playwright/Chromium install (checked again for this spec).

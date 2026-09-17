@@ -115,8 +115,16 @@ export const BUILTIN_SKIN = Object.freeze({
         radioItem: { default: builtinStyle("radioItem", { insets: 5, width: 80, height: 24, focusColor: "#ffcc00", label: { align: "center", pressedOffset: 1 }, states: { normal: "button_inlay", pressed: "button_inlay_active", active: "button_inlay_green" } }) },
         label: { default: builtinStyle("label", { height: 20, label: { align: "left", offsetX: 2 } }) },
         slider: { default: builtinStyle("slider", { insets: 2, width: 120, height: 20, thumbStyle: "default", states: { normal: "panel_dark" }, description: "A track with a draggable thumb; thumbStyle says which button style draws the thumb." }) },
+        // No fixed `height`, unlike slider/spinBox: the same style draws both
+        // a horizontal and a vertical instance (node.vertical), and one style
+        // cannot give two different fixed lengths for two different travel
+        // axes. The draw kind's own RANGE_SLIDER_LENGTH constant is the
+        // length along whichever axis is in play (spec 018).
+        rangeSlider: { default: builtinStyle("rangeSlider", { insets: 2, width: 120, thumbStyle: "default", states: { normal: "panel_dark" }, description: "Like slider, but the same style also draws a vertical instance when the node says vertical." }) },
         spinBox: { default: builtinStyle("spinBox", { insets: 2, width: 60, height: 24, thumbStyle: "default", label: { align: "left", offsetX: 4 }, states: { normal: "panel_dark" }, description: "A numeric readout with a stepper column drawn from thumbStyle." }) },
-        checkbox: { default: builtinStyle("checkbox", { height: 20, focusColor: "#ffcc00", label: { align: "left" }, states: { normal: "checkbox_off", active: "checkbox_on" } }) }
+        checkbox: { default: builtinStyle("checkbox", { height: 20, focusColor: "#ffcc00", label: { align: "left" }, states: { normal: "checkbox_off", active: "checkbox_on" } }) },
+        inputbox: { default: builtinStyle("inputbox", { insets: 2, width: 140, height: 24, focusColor: "#ffcc00", label: { align: "left", offsetX: 4 }, states: { normal: "panel_dark" }, description: "One line of editable text with a caret and a selection (spec 015)." }) },
+        dropdown: { default: builtinStyle("dropdown", { insets: 2, width: 140, height: 24, label: { align: "left", offsetX: 4 }, states: { normal: "panel_dark" }, description: "A closed control that opens a popup list of its items (spec 020)." }) }
     }
 });
 

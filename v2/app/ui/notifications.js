@@ -2,13 +2,13 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * notifications — UI structure generated from app.yaml:22.
+ * notifications — UI structure generated from app.yaml:137.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function notifications() {
     return component("panel", { id: "main.top.notifications", name: "notifications" }, [
-        // custom:notification light "Key" (app.yaml:25) is not rendered: unsupported component. See LOOSE-ENDS.md.
-        // custom:notification light "Midi" (app.yaml:31) is not rendered: unsupported component. See LOOSE-ENDS.md.
+        // custom:notification light "Key" (app.yaml:140) is not rendered: unsupported component. See LOOSE-ENDS.md.
+        // custom:notification light "Midi" (app.yaml:146) is not rendered: unsupported component. See LOOSE-ENDS.md.
     ]);
 }

@@ -1,0 +1,44 @@
+name: songPatternList
+type: panel
+layout:
+  width: fill
+  height: fill
+  direction: row
+content:
+  # Spec 071: real, live rows (one per song-position entry, "<step>:<pattern>")
+  # published from the actual song.patternTable - previously four hardcoded
+  # placeholder strings, never wired to any real data. Authored as
+  # fileBrowser, not listbox, for the same reason components/instrumentList.yaml
+  # is (see that file's own comment) - the only mechanism here that supports
+  # a variable-length, data-bound row list.
+  - name: list
+    type: fileBrowser
+    layout:
+      width: fill
+      height: fill
+    actions:
+      - change: setSongPatternRow
+  - type: panel
+    layout:
+      direction: column
+    content:
+      - type: button
+        label: "↑"
+        tooltip: Step the highlighted pattern up
+        actions:
+          - click: incrementPattern
+      - type: button
+        label: "↓"
+        tooltip: Step the highlighted pattern down
+        actions:
+          - click: decrementPattern
+      - type: button
+        label: Ins
+        tooltip: Insert a pattern here
+        actions:
+          - click: insertPattern
+      - type: button
+        label: Del
+        tooltip: Delete this pattern step
+        actions:
+          - click: deletePattern

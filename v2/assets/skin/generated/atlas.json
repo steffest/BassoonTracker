@@ -1,85 +1,85 @@
 [
   {
     "name": "button_hover_green",
-    "x": 530,
-    "y": 0,
+    "x": 462,
+    "y": 219,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay",
-    "x": 530,
-    "y": 30,
+    "x": 462,
+    "y": 249,
     "width": 71,
     "height": 30
   },
   {
     "name": "button_inlay_active",
-    "x": 530,
-    "y": 60,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_blue",
-    "x": 530,
-    "y": 90,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_blue_active",
-    "x": 530,
-    "y": 120,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_green",
-    "x": 530,
-    "y": 150,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_green_active",
-    "x": 530,
-    "y": 180,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_red",
-    "x": 530,
-    "y": 210,
-    "width": 71,
-    "height": 30
-  },
-  {
-    "name": "button_inlay_red_active",
     "x": 256,
     "y": 219,
     "width": 71,
     "height": 30
   },
   {
+    "name": "button_inlay_blue",
+    "x": 339,
+    "y": 259,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_blue_active",
+    "x": 410,
+    "y": 279,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_green",
+    "x": 339,
+    "y": 289,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_green_active",
+    "x": 410,
+    "y": 309,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_red",
+    "x": 339,
+    "y": 319,
+    "width": 71,
+    "height": 30
+  },
+  {
+    "name": "button_inlay_red_active",
+    "x": 410,
+    "y": 339,
+    "width": 71,
+    "height": 30
+  },
+  {
     "name": "button_inlay_red_hover",
-    "x": 327,
-    "y": 219,
+    "x": 339,
+    "y": 349,
     "width": 71,
     "height": 30
   },
   {
     "name": "checkbox_off",
-    "x": 437,
-    "y": 219,
+    "x": 520,
+    "y": 279,
     "width": 14,
     "height": 14
   },
   {
     "name": "checkbox_on",
-    "x": 451,
-    "y": 219,
+    "x": 520,
+    "y": 293,
     "width": 14,
     "height": 14
   },
@@ -91,6 +91,20 @@
     "height": 256
   },
   {
+    "name": "logo_colour_70",
+    "x": 0,
+    "y": 256,
+    "width": 339,
+    "height": 70
+  },
+  {
+    "name": "logo_grey_70",
+    "x": 0,
+    "y": 326,
+    "width": 339,
+    "height": 70
+  },
+  {
     "name": "panel_dark",
     "x": 256,
     "y": 0,
@@ -99,9 +113,23 @@
   },
   {
     "name": "panel_inset_dark",
-    "x": 398,
-    "y": 219,
+    "x": 481,
+    "y": 279,
     "width": 39,
     "height": 24
+  },
+  {
+    "name": "togglecorner",
+    "x": 410,
+    "y": 259,
+    "width": 22,
+    "height": 19
+  },
+  {
+    "name": "tracker",
+    "x": 339,
+    "y": 219,
+    "width": 123,
+    "height": 40
   }
 ]

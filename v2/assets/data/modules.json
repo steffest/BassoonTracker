@@ -1,0 +1,12 @@
+{
+  "modules": [
+    {"title": "Wizball", "url": "demo/wizballalt.mod", "icon": "mod", "info": "already bundled"},
+    {"title": "Enigma", "url": "https://www.stef.be/amiga/mod/enigma.mod", "icon": "mod", "info": "183k"},
+    {"title": "Elek Funk !", "url": "https://www.stef.be/amiga/mod/elekfunk.mod", "icon": "mod", "info": "220k"},
+    {"title": "Guitar Slinger", "url": "https://www.stef.be/amiga/mod/gslinger.mod", "icon": "mod", "info": "397k"},
+    {"title": "Haste", "url": "https://www.stef.be/amiga/mod/woutervl_haste.mod", "icon": "mod", "info": "119k"},
+    {"title": "Scrambled Mind", "url": "https://www.stef.be/amiga/mod/scrambld.mod", "icon": "mod", "info": "160k"},
+    {"title": "Space Song", "url": "https://www.stef.be/amiga/mod/space-song.mod", "icon": "mod", "info": "100k"},
+    {"title": "Street Jungle", "url": "https://www.stef.be/amiga/mod/street_j.mod", "icon": "mod", "info": "136k"}
+  ]
+}

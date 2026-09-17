@@ -1,0 +1,699 @@
+{
+  "title": "DemoScene 2026",
+  "modules": [
+    {
+      "title": "rsync 2026"
+    },
+    {
+      "title": "Gerp 2026",
+      "icon": "icons/gerp.png"
+    },
+    {
+      "title": "Render in Place",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/renderinplace.zip",
+      "author": "Alpa",
+      "group": "iNSANE",
+      "link": "https://demozoo.org/music/385532/",
+      "info": "1st @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "What Hides Inside",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/zabutom-whathidesinside.zip",
+      "author": "zabutom",
+      "group": "Razor 1911^Up Rough",
+      "link": "https://demozoo.org/music/385533/",
+      "info": "2nd @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "One Love",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/onelove.zip",
+      "author": "Mygg",
+      "group": "",
+      "link": "https://demozoo.org/music/385529/",
+      "info": "3rd @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Mikrovågswave",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/kfk-mikro.zip",
+      "author": "KEFKA",
+      "group": "Traktor^iNSANE",
+      "link": "https://demozoo.org/music/385526/",
+      "info": "4th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Tracht",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/tracht.zip",
+      "author": "Banjo Guy Ollie",
+      "group": "Numpties",
+      "link": "https://demozoo.org/music/385524/",
+      "info": "5th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Procrastination",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/procrastination.zip",
+      "author": "G-Gnu",
+      "group": "Struts",
+      "link": "https://demozoo.org/music/385525/",
+      "info": "6th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Drum'n'Gerp",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/drumngerp.mod",
+      "author": "LokasNT",
+      "group": "",
+      "link": "https://demozoo.org/music/385530/",
+      "info": "7th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Sunrise Lemons",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/maze-0xx-sunriselemons.zip",
+      "author": "mAZE",
+      "group": "",
+      "link": "https://demozoo.org/music/385520/",
+      "info": "8th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Sludder og Pulsewave",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/sludder-og-pulsewave.zip",
+      "author": "Cheetah",
+      "group": "Ephidrena",
+      "link": "https://demozoo.org/music/385534/",
+      "info": "9th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Imago",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/radiant-imago.zip",
+      "author": "Radiant",
+      "group": "",
+      "link": "https://demozoo.org/music/385523/",
+      "info": "10th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Valentino on the Dancefloor",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/eightbm-tomarkus-valentino.zip",
+      "author": "e!ghtbm",
+      "group": "Joker",
+      "link": "https://demozoo.org/music/385522/",
+      "info": "12th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Thank God It's Friday",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/thankgoditsfriday.zip",
+      "author": "Goto80",
+      "group": "Hack n&#x27; Trade^Razor 1911^Up Rough",
+      "link": "https://demozoo.org/music/385521/",
+      "info": "13th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Tanz Der MangoMussolini",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/thypyroo-manngomuss.zip",
+      "author": "Thy Pyroo",
+      "group": "The Spantobi Family",
+      "link": "https://demozoo.org/music/385531/",
+      "info": "14th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Pixel Drama",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/pixel-drama.zip",
+      "author": "MaV",
+      "group": ".dot^Damage^Hokuto Force^MoonShine^Resistance^TheMadCodecs",
+      "link": "https://demozoo.org/music/385527/",
+      "info": "15th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Power",
+      "url": "https://files.scene.org/get/parties/2026/gerp26/amiga_4_channel_music/power.zip",
+      "author": "Saiibot",
+      "group": "Nukleus",
+      "link": "https://demozoo.org/music/385519/",
+      "info": "16th @ Gerp 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "DiHalt 2026 Winter"
+    },
+    {
+      "title": "арпеджирование (arpedzhirovaniye)",
+      "url": "https://events.retroscene.org/files/dh2026winter/tracker/arpedzhirovanie__arpedzhirovaniye_.zip",
+      "author": "Filippp",
+      "group": ".dot^Damage^Hokuto Force^MoonShine^Resistance",
+      "link": "https://demozoo.org/music/384684/",
+      "info": "2nd @ DiHalt 2026 Winter",
+      "format": "XM",
+      "channels": 32
+    },
+    {
+      "title": "Hrapcore",
+      "url": "https://events.retroscene.org/files/dh2026winter/tracker/hrapcore.zip",
+      "author": "artёmka",
+      "group": "",
+      "link": "https://demozoo.org/music/384689/",
+      "info": "4th @ DiHalt 2026 Winter",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Meaty2",
+      "url": "https://events.retroscene.org/files/dh2026winter/tracker/meaty2.zip",
+      "author": "litchh",
+      "group": "",
+      "link": "https://demozoo.org/music/384688/",
+      "info": "6th @ DiHalt 2026 Winter",
+      "format": "XM"
+    },
+    {
+      "title": "Yellow Bricks",
+      "url": "https://events.retroscene.org/files/dh2026winter/tracker/yellow_bricks.zip",
+      "author": "krotan",
+      "group": "",
+      "link": "https://demozoo.org/music/384690/",
+      "info": "9th @ DiHalt 2026 Winter",
+      "format": "S3M"
+    },
+    {
+      "title": "Sunny Bunny",
+      "url": "https://events.retroscene.org/files/dh2026winter/tracker/sunny_bunny.zip",
+      "author": "krotan",
+      "group": "",
+      "link": "https://demozoo.org/music/384686/",
+      "info": "10th @ DiHalt 2026 Winter",
+      "format": "S3M"
+    },
+    {
+      "title": "Amiga Rave-Craze II"
+    },
+    {
+      "title": "Wafflez of Terror",
+      "url": "https://files.scene.org/get/music/compos/amiga_rave_craze_ii/jet_wafflez-of-terror.mod",
+      "author": "Jet Punch",
+      "group": "",
+      "link": "https://demozoo.org/music/385185/",
+      "info": "1st @ Amiga Rave-Craze II",
+      "format": "MOD"
+    },
+    {
+      "title": "Dot Dot Fire",
+      "url": "https://files.scene.org/get/music/compos/amiga_rave_craze_ii/esm_dotdotfire.mod",
+      "author": "Eggstra Spunk Michelle",
+      "group": "",
+      "link": "https://demozoo.org/music/385184/",
+      "info": "2nd @ Amiga Rave-Craze II",
+      "format": "MOD"
+    },
+    {
+      "title": "The Truth",
+      "url": "https://files.scene.org/get/music/compos/amiga_rave_craze_ii/varin0x_the-truth.mod",
+      "author": "Varin0x",
+      "group": "Up Rough",
+      "link": "https://demozoo.org/music/385183/",
+      "info": "3rd @ Amiga Rave-Craze II",
+      "format": "MOD"
+    },
+    {
+      "title": "DMA Overload",
+      "url": "https://files.scene.org/get/music/compos/amiga_rave_craze_ii/teo_-_dma_overload.mod",
+      "author": "Teo",
+      "group": "Focus Design^Pattern Syndicate^Rebels",
+      "link": "https://demozoo.org/music/385187/",
+      "info": "4th @ Amiga Rave-Craze II",
+      "format": "MOD"
+    },
+    {
+      "title": "Bricks 'n Springs",
+      "url": "https://files.scene.org/get/music/compos/amiga_rave_craze_ii/xsm-bricks_n_springs.mod",
+      "author": "XSM",
+      "group": "Up Rough",
+      "link": "https://demozoo.org/music/385181/",
+      "info": "5th @ Amiga Rave-Craze II",
+      "format": "MOD"
+    },
+    {
+      "title": "Marauder",
+      "url": "https://files.scene.org/get/music/compos/amiga_rave_craze_ii/filippp_marauder.mod",
+      "author": "Filippp",
+      "group": "Great Red",
+      "link": "https://demozoo.org/music/385180/",
+      "info": "5th @ Amiga Rave-Craze II",
+      "format": "MOD"
+    },
+    {
+      "title": "Rave Stravaganza",
+      "url": "https://files.scene.org/get/music/compos/amiga_rave_craze_ii/vandahlia_rave-stravaganza.mod",
+      "author": "Vandahlia",
+      "group": "",
+      "link": "https://demozoo.org/music/385182/",
+      "info": "6th @ Amiga Rave-Craze II",
+      "format": "MOD"
+    },
+    {
+      "title": "Hellraising Gabber",
+      "url": "https://lowfreekwenzeeozzillation.nekoweb.org/modules/MOD/hellgabber.mod",
+      "author": "lfo",
+      "group": "Hokuto Force^Ream RIC^Resistance^TEAM VyRaL^The Kingdom^\\n",
+      "link": "https://demozoo.org/music/385188/",
+      "info": "7th @ Amiga Rave-Craze II",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Krazed Up",
+      "url": "https://files.scene.org/get/music/compos/amiga_rave_craze_ii/chlumpie_krazedup.mod",
+      "author": "chlumpie",
+      "group": "",
+      "link": "https://demozoo.org/music/385189/",
+      "info": "8th @ Amiga Rave-Craze II",
+      "format": "MOD"
+    },
+    {
+      "title": "Judgement Day",
+      "url": "https://files.scene.org/get/music/compos/amiga_rave_craze_ii/lex-rafter_judgementday.mod",
+      "author": "Lex Rafter",
+      "group": "",
+      "link": "https://demozoo.org/music/385179/",
+      "info": "8th @ Amiga Rave-Craze II",
+      "format": "MOD"
+    },
+    {
+      "title": "I Wanna Get High",
+      "url": "https://files.scene.org/get/music/compos/amiga_rave_craze_ii/anakirob_i-wanna-get-high.mod",
+      "author": "Anaki Rob",
+      "group": "",
+      "link": "https://demozoo.org/music/385186/",
+      "info": "9th @ Amiga Rave-Craze II",
+      "format": "MOD"
+    },
+    {
+      "title": "AmiParty 2026 (35)"
+    },
+    {
+      "title": "MarxBlues",
+      "url": "http://dakti.ppa.pl/dakti/music/mod_current/mp3/Dakti_MarxBlues.mp3",
+      "author": "Dakti",
+      "group": "",
+      "link": "https://demozoo.org/music/389018/",
+      "info": "1st @ AmiParty 2026 (35)",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Exodigenesis 2.3-74",
+      "url": "https://files.scene.org/get/parties/2026/amiparty35/protracker/e%21ghtbm_exodigenesis2.3-74.zip",
+      "author": "e!ghtbm",
+      "group": "",
+      "link": "https://demozoo.org/music/389019/",
+      "info": "2nd @ AmiParty 2026 (35)",
+      "format": "MOD"
+    },
+    {
+      "title": "On the Road",
+      "url": "https://files.scene.org/get/parties/2026/amiparty35/protracker/magneticfox_ontheroad.zip",
+      "author": "Magnetic-Fox",
+      "group": "",
+      "link": "https://demozoo.org/music/389020/",
+      "info": "3rd @ AmiParty 2026 (35)",
+      "format": "MOD"
+    },
+    {
+      "title": "Electro AmiParty 26",
+      "url": "https://files.scene.org/get/parties/2026/amiparty35/protracker/djmetalo_electroamiparty26.zip",
+      "author": "DJ Metalo",
+      "group": "",
+      "link": "https://demozoo.org/music/389021/",
+      "info": "4th @ AmiParty 2026 (35)",
+      "format": "MOD"
+    },
+    {
+      "title": "Vol Full is Empty",
+      "url": "https://files.scene.org/get/parties/2026/amiparty35/protracker/v0yager_volfullisempty.zip",
+      "author": "V0yager",
+      "group": "",
+      "link": "https://demozoo.org/music/389022/",
+      "info": "5th @ AmiParty 2026 (35)",
+      "format": "MOD"
+    },
+    {
+      "title": "Revision 2026",
+      "icon": "icons/revision.png"
+    },
+    {
+      "title": "Dawn",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/h0ffman_-_dawn.zip",
+      "author": "H0ffman",
+      "group": "",
+      "link": "https://demozoo.org/music/389674/",
+      "info": "1st @ Revision 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Endfield",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/endfield.mod",
+      "author": "Jazz",
+      "group": "Haujobb^Konsumer",
+      "link": "https://demozoo.org/music/389669/",
+      "info": "2nd @ Revision 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Tanglewood",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/cs-jay_tanglewood-v2.mod",
+      "author": "CS-Jay",
+      "group": "Demostue Allst★rs^Desire^Fnuque",
+      "link": "https://demozoo.org/music/389664/",
+      "info": "3rd @ Revision 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "8 Bites Of Ceasar",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/8-bites-of-ceasar--.mod",
+      "author": "W.O.T.W.",
+      "group": "Tristar and Red Sector Inc.",
+      "link": "https://demozoo.org/music/389663/",
+      "info": "4th @ Revision 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Skies To Stare At",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/subi-skies_to_stare_at.zip",
+      "author": "Subi",
+      "group": "Desire^SceneSat",
+      "link": "https://demozoo.org/music/389666/",
+      "info": "7th @ Revision 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Jekyll'n'Hyde",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/jos-jekyll%27n%27hyde.zip",
+      "author": "JosSs",
+      "group": "Mania^Software Failure",
+      "link": "https://demozoo.org/music/389671/",
+      "info": "8th @ Revision 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Brave New Twins",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/teo_-_brave_new_twins.mod",
+      "author": "Teo",
+      "group": "Focus Design^Rebels",
+      "link": "https://demozoo.org/music/389659/",
+      "info": "10th @ Revision 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "La-La-Ley-La",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/manwe-lalaleyla.zip",
+      "author": "Manwe",
+      "group": "SandS",
+      "link": "https://demozoo.org/music/389673/",
+      "info": "11th @ Revision 2026",
+      "format": "S3M",
+      "channels": 8
+    },
+    {
+      "title": "All In A Days Work",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/all_in_a_days_work.zip",
+      "author": "Curt Cool",
+      "group": "Depth^Nah-Kolor",
+      "link": "https://demozoo.org/music/389660/",
+      "info": "12th @ Revision 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Valvelift Symphony",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/lemonade_-_valvelift_symphony.zip",
+      "author": "lemonade",
+      "group": "Brain Wave",
+      "link": "https://demozoo.org/music/389662/",
+      "info": "14th @ Revision 2026",
+      "format": "XM"
+    },
+    {
+      "title": "The Skies Are Yours",
+      "url": "https://files.scene.org/get/parties/2026/revision26/tracked-music/skiesareyours.xm",
+      "author": "Darkleaf the Dragon",
+      "group": "",
+      "link": "https://demozoo.org/music/389668/",
+      "info": "15th @ Revision 2026",
+      "format": "XM"
+    },
+    {
+      "title": "Nova 2026"
+    },
+    {
+      "title": "Turn Back",
+      "url": "https://files.scene.org/get/parties/2026/nova26/oldschool_music/subi_-_turn_back.zip",
+      "author": "Subi",
+      "group": "Desire^SceneSat",
+      "link": "https://demozoo.org/music/392716/",
+      "info": "1st @ Nova 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "I Want to Speak to the Manager",
+      "url": "https://files.scene.org/get/parties/2026/nova26/oldschool_music/h0ffman_-_i_want_to_speak_to_the_manager.zip",
+      "author": "H0ffman",
+      "group": "Logicoma^Pattern Syndicate^The Black Lotus^The Twitch Elite",
+      "link": "https://demozoo.org/music/392713/",
+      "info": "2nd @ Nova 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Cold Sweat",
+      "url": "https://files.scene.org/get/parties/2026/nova26/oldschool_music/virtua-point-zero_-_cold_sweat.zip",
+      "author": "Virtua Point Zero",
+      "group": "Rift",
+      "link": "https://demozoo.org/music/392718/",
+      "info": "=4th @ Nova 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Insect Force Alpha",
+      "url": "https://files.scene.org/get/parties/2026/nova26/oldschool_music/mrs_beanbag_-_insect_force_alpha.zip",
+      "author": "Mrs Beanbag",
+      "group": "Rift^Slipstream",
+      "link": "https://demozoo.org/music/392719/",
+      "info": "7th @ Nova 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Bonfire",
+      "url": "https://files.scene.org/get/parties/2026/nova26/oldschool_music/paulahaunt_-_old-school-music-entry-mod-v3.zip",
+      "author": "Paula Haunt",
+      "group": "",
+      "link": "https://demozoo.org/music/392707/",
+      "info": "9th @ Nova 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Eddie Arises",
+      "url": "https://files.scene.org/get/parties/2026/nova26/oldschool_music/syness_-_eddi_arises..mod.zip",
+      "author": "Syness",
+      "group": "Defekt^Rift",
+      "link": "https://demozoo.org/music/392705/",
+      "info": "11th @ Nova 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Coming in Heavy",
+      "url": "https://files.scene.org/get/parties/2026/nova26/oldschool_music/teo_-_coming_in_heavy.zip",
+      "author": "Teo",
+      "group": "Rebels",
+      "link": "https://demozoo.org/music/392709/",
+      "info": "13th @ Nova 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Bestine",
+      "url": "https://files.scene.org/get/parties/2026/nova26/oldschool_music/bgollie_-_bestine.zip",
+      "author": "Banjo Guy Ollie",
+      "group": "Numpties",
+      "link": "https://demozoo.org/music/392717/",
+      "info": "14th @ Nova 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "BL33D1NG 0U7 W17H Y0U~!",
+      "url": "https://lowfreekwenzeeozzillation.nekoweb.org/modules/MOD/bl33d1ng.mod",
+      "author": "Miscellaneous White Cat",
+      "group": "Hokuto Force^Resistance^TEAM VyRaL",
+      "link": "https://demozoo.org/music/392704/",
+      "info": "16th @ Nova 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "ROMA.EXE 2026"
+    },
+    {
+      "title": "IDKFA",
+      "url": "https://archive.org/download/dubmood-all-xm-modules/IDKFA.xm",
+      "author": "MASTER BOOT RECORD",
+      "group": "Razor 1911",
+      "link": "https://demozoo.org/music/392971/",
+      "info": "1st @ ROMA.EXE 2026",
+      "format": "XM"
+    },
+    {
+      "title": "SUPERHUMAN",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/sk_superhuman.zip",
+      "author": "Dustbin",
+      "group": "Spinning Kids",
+      "link": "https://demozoo.org/music/392965/",
+      "info": "2nd @ ROMA.EXE 2026",
+      "format": "XM",
+      "channels": 8
+    },
+    {
+      "title": "BRESAOLA.EXE",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/soda7_bresaola-exe.zip",
+      "author": "SoDa7",
+      "group": "Darkage",
+      "link": "https://demozoo.org/music/392972/",
+      "info": "3rd @ ROMA.EXE 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Yoshimaru Mechaschism",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/yoshimaru_mechaschism.zip",
+      "author": "e!ghtbm",
+      "group": "Altair^BOOM!^Futuris^Joker",
+      "link": "https://demozoo.org/music/392969/",
+      "info": "=4th @ ROMA.EXE 2026",
+      "format": "XM",
+      "channels": 4
+    },
+    {
+      "title": "White and Black",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/bartesek_white_and_black.zip",
+      "author": "Bartesek",
+      "group": "Casyopea",
+      "link": "https://demozoo.org/music/392959/",
+      "info": "=4th @ ROMA.EXE 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "The Arrival",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/the_arrival.zip",
+      "author": "W.O.T.W.",
+      "group": "Tristar and Red Sector Inc.",
+      "link": "https://demozoo.org/music/392962/",
+      "info": "6th @ ROMA.EXE 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Rastereye",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/m4v_rastereye.zip",
+      "author": "MaV",
+      "group": ".dot^Damage^MoonShine^Prateritum^TEAM VyRaL^TheMadCodecs",
+      "link": "https://demozoo.org/music/392963/",
+      "info": "7th @ ROMA.EXE 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Emerald Coast",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/emerald_coast.zip",
+      "author": "Banjo Guy Ollie",
+      "group": "",
+      "link": "https://demozoo.org/music/392967/",
+      "info": "8th @ ROMA.EXE 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "y2k-keygen",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/y2k_keygen.zip",
+      "author": "fence",
+      "group": "UwU-Space",
+      "link": "https://demozoo.org/music/392970/",
+      "info": "9th @ ROMA.EXE 2026",
+      "format": "XM"
+    },
+    {
+      "title": "I Felt Like I Could",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/dxn_iflic.zip",
+      "author": "Dixan",
+      "group": "Shitfaced Clowns^Spinning Kids^mfx",
+      "link": "https://demozoo.org/music/392964/",
+      "info": "10th @ ROMA.EXE 2026",
+      "format": "XM"
+    },
+    {
+      "title": "Red41 - The Quarry",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/red41_quarry_romadotexe.zip",
+      "author": "JMD",
+      "group": "",
+      "link": "https://demozoo.org/music/392956/",
+      "info": "11th @ ROMA.EXE 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Footworks (Compo Cut)",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/teo_footworks_compo.zip",
+      "author": "Teo",
+      "group": "Rebels",
+      "link": "https://demozoo.org/music/392961/",
+      "info": "12th @ ROMA.EXE 2026",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Fratello Sinistro",
+      "url": "https://files.scene.org/get/parties/2026/roma.exe26/tracked-music/gecco_fratello_sinistro.zip",
+      "author": "Gecco",
+      "group": "Fortezza Delle Scienze^Yello Fan Club",
+      "link": "https://demozoo.org/music/392968/",
+      "info": "15th @ ROMA.EXE 2026",
+      "format": "XM",
+      "channels": 4
+    }
+  ]
+}

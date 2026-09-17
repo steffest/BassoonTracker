@@ -1,0 +1,743 @@
+{
+  "title": "DemoScene 2023",
+  "modules": [
+    {
+      "title": "Gerp 2023",
+      "icon": "icons/gerp.png"
+    },
+    {
+      "title": "Str8 Outta Skövde",
+      "url": "https://files.scene.org/get/parties/2023/gerp23/4ch_music/ma2e_triace-str8_outta_skovde.zip",
+      "author": "mAZE",
+      "group": "Desire",
+      "link": "https://demozoo.org/music/318184/",
+      "info": "1st @ Gerp 2023"
+    },
+    {
+      "title": "Turn It Up!",
+      "url": "https://files.scene.org/get/parties/2023/gerp23/4ch_music/turn_it_up_.mod",
+      "author": "Mygg",
+      "group": "",
+      "link": "https://demozoo.org/music/318185/",
+      "info": "2nd @ Gerp 2023"
+    },
+    {
+      "title": "Amazing Grejs",
+      "url": "https://files.scene.org/get/parties/2023/gerp23/4ch_music/kfk-amazinggrejs.mod",
+      "author": "KEFKA",
+      "group": "iNSANE",
+      "link": "https://demozoo.org/music/318183/",
+      "info": "3rd @ Gerp 2023"
+    },
+    {
+      "title": "What The Goat",
+      "url": "https://files.scene.org/get/parties/2023/gerp23/4ch_music/what_the_goat.mod",
+      "author": "hyperunknown",
+      "group": "Noice",
+      "link": "https://demozoo.org/music/318177/",
+      "info": "=4th @ Gerp 2023"
+    },
+    {
+      "title": "Postfix Innuendo",
+      "url": "https://files.scene.org/get/parties/2023/gerp23/4ch_music/postfix_innuendo.mod",
+      "author": "Teo",
+      "group": "",
+      "link": "https://demozoo.org/music/318178/",
+      "info": "=4th @ Gerp 2023"
+    },
+    {
+      "title": "Irregular",
+      "url": "https://files.scene.org/get/parties/2023/gerp23/4ch_music/mod._irregular",
+      "author": "Tecon",
+      "group": "Desire^Planet Jazz",
+      "link": "https://demozoo.org/music/318186/",
+      "info": "6th @ Gerp 2023"
+    },
+    {
+      "title": "Jenka med Klovnesko",
+      "url": "https://amp.dascene.net/downmod.php?index=167822",
+      "author": "Nerve",
+      "group": "",
+      "link": "https://demozoo.org/music/318182/",
+      "info": "7th @ Gerp 2023"
+    },
+    {
+      "title": "Grodan",
+      "url": "https://files.scene.org/get/parties/2023/gerp23/4ch_music/mod.gouafhg_grodan",
+      "author": "Gouafhg",
+      "group": "The Gang",
+      "link": "https://demozoo.org/music/318181/",
+      "info": "8th @ Gerp 2023"
+    },
+    {
+      "title": "Rögar i 2023",
+      "url": "https://files.scene.org/get/parties/2023/gerp23/4ch_music/mod.r0gar_i_2023.mod",
+      "author": "Dj Cat",
+      "group": "Keso",
+      "link": "https://demozoo.org/music/318175/",
+      "info": "9th @ Gerp 2023"
+    },
+    {
+      "title": "Older Than Time",
+      "url": "https://files.scene.org/get/parties/2023/gerp23/4ch_music/mod.older_than_time",
+      "author": "DeeJay Jones",
+      "group": "",
+      "link": "https://demozoo.org/music/318176/",
+      "info": "=10th @ Gerp 2023"
+    },
+    {
+      "title": "Quasi Ostinato",
+      "url": "https://files.scene.org/get/parties/2023/gerp23/4ch_music/morbid-quasiostinato.mod",
+      "author": "Morbid",
+      "group": "Five Finger Punch",
+      "link": "https://demozoo.org/music/318180/",
+      "info": "=10th @ Gerp 2023"
+    },
+    {
+      "title": "Jungski 2.0",
+      "url": "https://files.scene.org/get/parties/2023/fjalldata23/music/jungski_2.0.zip",
+      "author": "XSM",
+      "group": "Up Rough",
+      "link": "https://demozoo.org/music/318179/",
+      "info": "disq.th @ Gerp 2023"
+    },
+    {
+      "title": "Revision 2023",
+      "icon": "icons/revision.png"
+    },
+    {
+      "title": "Crossfader Persuader",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Subi/x-fader_persuader.mod",
+      "author": "Subi",
+      "group": "Desire^Polarity^SceneSat",
+      "info": "2nd @ Revision 2023",
+      "link": "https://demozoo.org/music/322241/"
+    },
+    {
+      "title": "Keep It Tight",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Virtua%20Point%20Zero/keep_it_tight.mod",
+      "author": "Virtua Point Zero",
+      "info": "3rd @ Revision 2023"
+    },
+    {
+      "title": "The Clockwork City",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/JazzCat/the%20clockwork%20city.mod",
+      "author": "JazzCat",
+      "group": "Ghostown",
+      "info": "4th @ Revision 2023"
+    },
+    {
+      "title": "Anthem",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Juice/anthem.mod",
+      "author": "Juice",
+      "group": "Reality^iNSANE",
+      "info": "5th @ Revision 2023",
+      "link": "https://demozoo.org/music/322243/"
+    },
+    {
+      "title": "TrackerMasters Showdown",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/AceMan/trackermasters.mod",
+      "author": "AceMan",
+      "group": "Agenda^Dreamweb^Resistance",
+      "info": "6th @ Revision 2023",
+      "link": "https://demozoo.org/music/322249/"
+    },
+    {
+      "title": "Trackday Wheelerz!",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Dascon/trackday%20wheelerz.mod",
+      "author": "Dascon",
+      "group": "Haujobb^The Deadliners",
+      "info": "7th @ Revision 2023",
+      "link": "https://demozoo.org/music/322252/"
+    },
+    {
+      "title": "Captain Snerg ",
+      "url": "https://ftp.modland.com/pub/modules/Fasttracker%202/Eightbm/cpt%20snerg!rebellion.xm",
+      "author": "e!ghtbm",
+      "info": "8th @ Revision 2023",
+      "link": "https://demozoo.org/music/322253/"
+    },
+    {
+      "title": "Caughing Around Me!",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Josss/caughing%20around%20me.mod",
+      "author": "JosSs",
+      "info": "9th @ Revision 2023",
+      "link": "https://demozoo.org/music/322247/"
+    },
+    {
+      "title": "Cool Star",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Mrs%20Beanbag/cool%20star.mod",
+      "author": "Mrs Beanbag",
+      "info": "11th @ Revision 2023",
+      "link": "https://demozoo.org/music/322246/"
+    },
+    {
+      "title": "They Drew First Blood Orangeade",
+      "url": "https://ftp.modland.com/pub/modules/Fasttracker%202/rawArgon/1st%20blood%20orangeade.xm",
+      "author": "rawArgon",
+      "info": "12th @ Revision 2023",
+      "link": "https://demozoo.org/music/322242/"
+    },
+    {
+      "title": "t3chno Dyslexia",
+      "url": "https://ftp.modland.com/pub/modules/Fasttracker%202/Krdn/t3cno%20dyslexia.xm",
+      "author": "Krdn",
+      "group": "Defiance",
+      "info": "13th @ Revision 2023",
+      "link": "https://demozoo.org/music/322250/"
+    },
+    {
+      "title": "Disturbed By Chaos",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Voicer/disturbed%20by%20chaos.mod",
+      "author": "Voicer",
+      "group": "Nah-Kolor",
+      "info": "15th @ Revision 2023",
+      "link": "https://demozoo.org/music/322245/"
+    },
+    {
+      "title": "SESSIONS in C4"
+    },
+    {
+      "title": "Starship",
+      "url": "https://files.scene.org/get/parties/2023/sessions23/music/virtua-point-zero---starship.zip",
+      "author": "Virtua Point Zero",
+      "group": "",
+      "link": "https://demozoo.org/music/323483/",
+      "info": "1st @ SESSIONS in C4 LAN 2023 SPRING"
+    },
+    {
+      "title": "Party in Sparks",
+      "url": "https://files.scene.org/get/parties/2023/sessions23/music/partyinsparks.mod",
+      "author": "jaezu",
+      "group": "MoonShine",
+      "link": "https://demozoo.org/music/323479/",
+      "info": "6th @ SESSIONS in C4 LAN 2023 SPRING"
+    },
+    {
+      "title": "Falso Siddo",
+      "url": "https://files.scene.org/get/parties/2023/sessions23/music/falso_siddo.mod",
+      "author": "TheDuccinator",
+      "group": "MoonShine",
+      "link": "https://demozoo.org/music/323477/",
+      "info": "7th @ SESSIONS in C4 LAN 2023 SPRING"
+    },
+    {
+      "title": "Sol de Invierno",
+      "url": "https://files.scene.org/get/parties/2023/sessions23/music/los-pat-moritas---sol-de-invierno.zip",
+      "author": "Los Pat Moritas",
+      "group": "Pungas De Villa Martelli",
+      "link": "https://demozoo.org/music/323476/",
+      "info": "8th @ SESSIONS in C4 LAN 2023 SPRING"
+    },
+    {
+      "title": "68k Inside"
+    },
+    {
+      "title": "Talking About SFX",
+      "url": "https://files.scene.org/get/parties/2023/68kinside23/combined-music/talking-about-sfx_by_tero-risti.mod",
+      "author": "Tero Risti",
+      "group": "",
+      "link": "https://demozoo.org/music/323837/",
+      "info": "1st @ 68k Inside 2023"
+    },
+    {
+      "title": "68000 Tons of Death",
+      "url": "https://files.scene.org/get/parties/2023/68kinside23/combined-music/68000-tons-of-death_by_maydayhedelmae.mod",
+      "author": "Mayday",
+      "group": "Hedelmae",
+      "link": "https://demozoo.org/music/323838/",
+      "info": "2nd @ 68k Inside 2023"
+    },
+    {
+      "title": "Hassuakosyonviilia!",
+      "url": "https://files.scene.org/get/parties/2023/68kinside23/combined-music/hassuakosyonviilia_by_beathawk.mod",
+      "author": "Beathawk",
+      "group": "",
+      "link": "https://demozoo.org/music/323839/",
+      "info": "3rd @ 68k Inside 2023"
+    },
+    {
+      "title": "Sixty Aight UK",
+      "url": "https://files.scene.org/get/parties/2023/68kinside23/combined-music/sixty-aight-uk_by_jean9jmlmc.mod",
+      "author": "Jean9",
+      "group": "Jumalauta^Matt Current",
+      "link": "https://demozoo.org/music/323841/",
+      "info": "4th @ 68k Inside 2023"
+    },
+    {
+      "title": "TODO Funk",
+      "url": "https://files.scene.org/get/parties/2023/68kinside23/combined-music/todo-funk_by_greippi.mod",
+      "author": "Greippi",
+      "group": "Finity Games^Zymosis",
+      "link": "https://demozoo.org/music/323843/",
+      "info": "6th @ 68k Inside 2023"
+    },
+    {
+      "title": "Electric Love Affair",
+      "url": "https://files.scene.org/get/parties/2023/68kinside23/combined-music/electric-love-affair_by_1337-h4x0r-jumalauta.mod",
+      "author": "1337 h4x0r",
+      "group": "Jumalauta",
+      "link": "https://demozoo.org/music/323844/",
+      "info": "7th @ 68k Inside 2023"
+    },
+    {
+      "title": "Spring is on Me",
+      "url": "https://files.scene.org/get/parties/2023/68kinside23/combined-music/spring-is-on-me_by_curt-cool-depth-nah-kolor.zip",
+      "author": "Curt Cool",
+      "group": "Depth^Nah-Kolor",
+      "link": "https://demozoo.org/music/323846/",
+      "info": "9th @ 68k Inside 2023"
+    },
+    {
+      "title": "QBParty 2023"
+    },
+    {
+      "title": "Hungary",
+      "url": "https://files.scene.org/get/parties/2023/qbparty23/combined_music/2023_05_13_14_57_11_los-pat-moritas---hungary.zip",
+      "author": "Los Pat Moritas",
+      "group": "Pungas De Villa Martelli",
+      "link": "https://demozoo.org/music/324018/",
+      "info": "=1th @ QBParty 2023"
+    },
+    {
+      "title": "Tranced at 3AM",
+      "url": "https://files.scene.org/get/parties/2023/qbparty23/combined_music/tranced-at-3am_by-teo.zip",
+      "author": "Teo",
+      "group": "",
+      "link": "https://demozoo.org/music/324022/",
+      "info": "4th @ QBParty 2023"
+    },
+    {
+      "title": "Birdie"
+    },
+    {
+      "title": "Knulfur",
+      "url": "https://files.scene.org/get/parties/2023/birdie23/tracked_music/zpiff---knulfur.xm",
+      "author": "ZPIFF",
+      "group": "",
+      "link": "https://demozoo.org/music/324482/",
+      "info": "1st @ Birdie 2023 (33)",
+      "format": "XM",
+      "channels": 16
+    },
+    {
+      "title": "tumultet på lådbilsgatan",
+      "url": "https://files.scene.org/get/parties/2023/birdie23/tracked_music/edvind---tumultet-p--l-dbilsgatan.xm",
+      "author": "edvind",
+      "group": "",
+      "link": "https://demozoo.org/music/324483/",
+      "info": "2nd @ Birdie 2023 (33)",
+      "format": "XM",
+      "channels": 4
+    },
+    {
+      "title": "Rex Lacerta",
+      "url": "https://files.scene.org/get/parties/2023/birdie23/tracked_music/slaze-defiance-desire---rex-lacerta.xm",
+      "author": "Slaze",
+      "group": "Defiance^Desire",
+      "link": "https://demozoo.org/music/324484/",
+      "info": "3rd @ Birdie 2023 (33)"
+    },
+    {
+      "title": "Aladdins Dojjor",
+      "url": "https://files.scene.org/get/parties/2023/birdie23/tracked_music/archangel---aladdins-dojjor.xm",
+      "author": "ArchAngel",
+      "group": "",
+      "link": "https://demozoo.org/music/324485/",
+      "info": "4th @ Birdie 2023 (33)"
+    },
+    {
+      "title": "Track00",
+      "url": "https://files.scene.org/get/parties/2023/birdie23/tracked_music/fsfreak---track00.xm",
+      "author": "fsFreak",
+      "group": "",
+      "link": "https://demozoo.org/music/324486/",
+      "info": "5th @ Birdie 2023 (33)"
+    },
+    {
+      "title": "Är det där snor eller är det vaniljsås?",
+      "url": "https://files.scene.org/get/parties/2023/birdie23/tracked_music/michan---r-det-d-r-snor-eller--r-det-vaniljs-s.xm",
+      "author": "Michan",
+      "group": "",
+      "link": "https://demozoo.org/music/324488/",
+      "info": "6th @ Birdie 2023 (33)"
+    },
+    {
+      "title": "gryl",
+      "url": "https://files.scene.org/get/parties/2023/birdie23/tracked_music/xinux---gryl.xm",
+      "author": "xinux",
+      "group": "",
+      "link": "https://demozoo.org/music/324489/",
+      "info": "7th @ Birdie 2023 (33)"
+    },
+    {
+      "title": "AmiParty"
+    },
+    {
+      "title": "Another Worlds",
+      "url": "https://files.scene.org/get/parties/2023/amiparty23/music/dakti-another_worlds.zip",
+      "author": "Dakti",
+      "group": "",
+      "link": "https://demozoo.org/music/324593/",
+      "info": "1st @ AmiParty 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Gotcha!",
+      "url": "https://files.scene.org/get/parties/2023/amiparty23/music/magnetic-fox-gotcha_.zip",
+      "author": "Magnetic-Fox",
+      "group": "Resistance",
+      "link": "https://demozoo.org/music/324594/",
+      "info": "2nd @ AmiParty 2023 ",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Flight to Wakanda",
+      "url": "https://files.scene.org/get/parties/2023/amiparty23/music/virago-flight_to_wakanda.zip",
+      "author": "Virago",
+      "group": "",
+      "link": "https://demozoo.org/music/324595/",
+      "info": "3rd @ AmiParty 2023 ",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Twin Bodies",
+      "url": "https://files.scene.org/get/parties/2023/amiparty23/music/aceman-twin_bodies.zip",
+      "author": "AceMan",
+      "group": "Agenda^Dreamweb^Resistance",
+      "link": "https://demozoo.org/music/324596/",
+      "info": "4th @ AmiParty 2023 ",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "ailussion",
+      "url": "https://files.scene.org/get/parties/2023/amiparty23/music/adkd-ailussion.zip",
+      "author": "adkd",
+      "group": "",
+      "link": "https://demozoo.org/music/324597/",
+      "info": "5th @ AmiParty 2023 ",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Cadillac del presidente",
+      "url": "https://files.scene.org/get/parties/2023/amiparty23/music/e_ghtbm-cadillac_del_presidente.zip",
+      "author": "e!ghtbm",
+      "group": "",
+      "link": "https://demozoo.org/music/324598/",
+      "info": "6th @ AmiParty 2023 ",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "TECHNO2",
+      "url": "https://files.scene.org/get/parties/2023/amiparty23/music/smola___techno2.zip",
+      "author": "Smola",
+      "group": "",
+      "link": "https://demozoo.org/music/324599/",
+      "info": "7th @ AmiParty 2023 ",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "IT WILL NEVER BE MORE READY",
+      "url": "https://files.scene.org/get/parties/2023/amiparty23/music/hali-it_will_never_be_more_ready.zip",
+      "author": "Hali",
+      "group": "",
+      "link": "https://demozoo.org/music/324600/",
+      "info": "8th @ AmiParty 2023 ",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Decrunch 2023"
+    },
+    {
+      "title": "Polymemoria",
+      "url": "https://files.scene.org/get/parties/2023/decrunch23/msx_amiga_tracked/aceman__polymemoria.zip",
+      "author": "AceMan",
+      "group": "Agenda^Dreamweb^Resistance",
+      "link": "https://demozoo.org/music/325432/",
+      "info": "1st @ Decrunch 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Tabular Ravers",
+      "url": "https://files.scene.org/get/parties/2023/decrunch23/msx_amiga_tracked/grogon__tabular_ravers.zip",
+      "author": "Grogon",
+      "group": "",
+      "link": "https://demozoo.org/music/325431/",
+      "info": "2nd @ Decrunch 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Pressure",
+      "url": "https://files.scene.org/get/parties/2023/decrunch23/msx_amiga_tracked/tomarkus__pressure.zip",
+      "author": "Tomarkus",
+      "group": "",
+      "link": "https://demozoo.org/music/325430/",
+      "info": "4th @ Decrunch 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Nova 2023"
+    },
+    {
+      "title": "Overload",
+      "url": "https://files.scene.org/get/parties/2023/nova23/old_school_music/virtua-point-zero---overload.zip",
+      "author": "Virtua Point Zero",
+      "group": "",
+      "link": "https://demozoo.org/music/325395/",
+      "info": "1st @ Nova 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Shipping Forecast",
+      "url": "https://files.scene.org/get/parties/2023/nova23/old_school_music/h0ffman_shipping_forecast.zip",
+      "author": "H0ffman",
+      "group": "Logicoma^The Black Lotus",
+      "link": "https://demozoo.org/music/325397/",
+      "info": "2nd @ Nova 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Super Waterworld",
+      "url": "https://files.scene.org/get/parties/2023/nova23/old_school_music/mrs_beanbag_-_super_waterworld.zip",
+      "author": "Mrs Beanbag",
+      "group": "",
+      "link": "https://demozoo.org/music/325394/",
+      "info": "4th @ Nova 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Constellation A1",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Synesthesia/constellation%20a1.mod",
+      "author": "Ash",
+      "group": "Defekt^Rift",
+      "link": "https://demozoo.org/music/325393/",
+      "info": "6th @ Nova 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Frozen Deities",
+      "url": "https://files.scene.org/get/parties/2023/nova23/old_school_music/pallaspalace_-_frozen_deities.zip",
+      "author": "PallasPalace",
+      "group": "",
+      "link": "https://demozoo.org/music/325392/",
+      "info": "7th @ Nova 2023",
+      "format": "XM"
+    },
+    {
+      "title": "Posadas 2023"
+    },
+    {
+      "title": "Was That Music?",
+      "url": "https://files.scene.org/get/parties/2023/posadas23/tracked_music/fireb0y-was_that_music.zip",
+      "author": "Fireboy",
+      "group": "Custom Real Amigas Never Emulated^Obsolete",
+      "link": "https://demozoo.org/music/325617/",
+      "info": "1st @ Posadas 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "There is Still Hope",
+      "url": "https://files.scene.org/get/parties/2023/posadas23/tracked_music/estrayk--there-is-still-hope.zip",
+      "author": "Estrayk",
+      "group": "Capsule^Scoopex",
+      "link": "https://demozoo.org/music/325619/",
+      "info": "2nd @ Posadas 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "In the Cave",
+      "url": "https://files.scene.org/get/parties/2023/posadas23/tracked_music/inthecave---dj-uno-bg.zip",
+      "author": "DJ Uno",
+      "group": "Batman Group",
+      "link": "https://demozoo.org/music/325622/",
+      "info": "3rd @ Posadas 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Melody of Devotion",
+      "url": "https://files.scene.org/get/parties/2023/posadas23/tracked_music/fermix--melody-of-devotion.zip",
+      "author": "Fermix",
+      "group": "",
+      "link": "https://demozoo.org/music/325621/",
+      "info": "4th @ Posadas 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Jar Jar Funks",
+      "url": "https://files.scene.org/get/parties/2023/posadas23/tracked_music/greippi--jar-jar-funks.zip",
+      "author": "Greippi",
+      "group": "Finity Games^Zymosis",
+      "link": "https://demozoo.org/music/325623/",
+      "info": "6th @ Posadas 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Pagadata 2023"
+    },
+    {
+      "title": "X61",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Slaze/x61.mod",
+      "author": "Slaze",
+      "group": "Defiance^Desire",
+      "link": "https://demozoo.org/music/325600/",
+      "info": "1st @ Pagadata 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "015",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Esau/015.mod",
+      "author": "Esau",
+      "group": "Traktor",
+      "link": "https://demozoo.org/music/325604/",
+      "info": "2nd @ Pagadata 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Pixel Bounce",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Maze/pixel%20bounce.mod",
+      "author": "mAZE",
+      "group": "Desire",
+      "link": "https://demozoo.org/music/325602/",
+      "info": "3rd @ Pagadata 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Summer Flowers II",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Okeanos/coop-Slash/summer_flowers_2.mod",
+      "author": "Slash",
+      "group": "The Electronic Knights",
+      "link": "https://demozoo.org/music/325601/",
+      "info": "4th @ Pagadata 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Derpaderpachipchip",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Wolk/derpaderpachipchip.mod",
+      "author": "Wolk",
+      "group": "Software of Sweden",
+      "link": "https://demozoo.org/music/325599/",
+      "info": "5th @ Pagadata 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Black Valley 2023"
+    },
+    {
+      "title": "Hands Off Toot Toot",
+      "url": "https://files.scene.org/get/parties/2023/blackvalley23/oldskool_music/hands_off_toot_toot.zip",
+      "author": "Skuggemannen",
+      "group": "",
+      "link": "https://demozoo.org/music/326123/",
+      "info": "=3th @ Black Valley 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Retrogroove Revival",
+      "url": "https://files.scene.org/get/parties/2023/blackvalley23/oldskool_music/ma2e-retrogroove_revival.zip",
+      "author": "mAZE",
+      "group": "Desire",
+      "link": "https://demozoo.org/music/326109/",
+      "info": "=3th @ Black Valley 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Glitterbug",
+      "url": "https://files.scene.org/get/parties/2023/blackvalley23/oldskool_music/caramel-glitterbug_%28oldskool_music_compo_entry%29.zip",
+      "author": "Caramel",
+      "group": "Proxima",
+      "link": "https://demozoo.org/music/326110/",
+      "info": "6th @ Black Valley 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Infinite Organ",
+      "url": "https://files.scene.org/get/parties/2023/blackvalley23/oldskool_music/sinatra-infinite_organ.zip",
+      "author": "Sinatra",
+      "group": "Brainstorm",
+      "link": "https://demozoo.org/music/326111/",
+      "info": "8th @ Black Valley 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Checker Ball",
+      "url": "https://files.scene.org/get/parties/2023/blackvalley23/oldskool_music/chkrball.zip",
+      "author": "Keygenism",
+      "group": "MoonShine",
+      "link": "https://demozoo.org/music/326107/",
+      "info": "9th @ Black Valley 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Vantablack (Valley)",
+      "url": "https://files.scene.org/get/parties/2023/blackvalley23/oldskool_music/pallaspalace-vantablack_valley.zip",
+      "author": "PallasPalace",
+      "group": "",
+      "link": "https://demozoo.org/music/326112/",
+      "info": "10th @ Black Valley 2023",
+      "format": "XM"
+    },
+    {
+      "title": "Evoke 2023"
+    },
+    {
+      "title": "Hallo Sunshine",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/CTrix/hallo%20sunshine!.mod",
+      "author": "cTrix",
+      "group": "Disaster Area",
+      "link": "https://demozoo.org/music/326809/",
+      "info": "2nd @ Evoke 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Loadertune 2023",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Selecta Novel/loadertune2023.mod",
+      "author": "Novel",
+      "group": "Moods Plateau",
+      "link": "https://demozoo.org/music/326805/",
+      "info": "3rd @ Evoke 2023",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Booty Bay 9",
+      "url": "https://files.scene.org/get/parties/2023/evoke23/mmul/bootybay9.zip",
+      "author": "K-OZ",
+      "group": "",
+      "link": "https://demozoo.org/music/326807/",
+      "info": "5th @ Evoke 2023",
+      "format": "MOD",
+      "channels": 4
+    }
+  ]
+}

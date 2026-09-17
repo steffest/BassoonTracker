@@ -1,0 +1,54 @@
+name: editPad
+type: panel
+layout:
+  width: fill
+  direction: row
+content:
+  - name: trackColumn
+    type: panel
+    layout:
+      direction: column
+    content:
+      - text: Track
+      - name: trackClear
+        type: button
+        label: Clear
+        tooltip: Clear the current track
+        actions:
+          - click: clearTrack
+      - name: trackCopy
+        type: button
+        label: Copy
+        tooltip: Copy the current track
+        actions:
+          - click: copyTrack
+      - name: trackPaste
+        type: button
+        label: Paste
+        tooltip: Paste the current track
+        actions:
+          - click: pasteTrack
+  - name: patternColumn
+    type: panel
+    layout:
+      direction: column
+    content:
+      - text: Pattern
+      - name: patternClear
+        type: button
+        label: Clear
+        tooltip: Clear the current pattern
+        actions:
+          - click: clearPattern
+      - name: patternCopy
+        type: button
+        label: Copy
+        tooltip: Copy the current pattern
+        actions:
+          - click: copyPattern
+      - name: patternPaste
+        type: button
+        label: Paste
+        tooltip: Paste the current pattern
+        actions:
+          - click: pastePattern

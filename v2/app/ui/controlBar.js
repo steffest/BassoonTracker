@@ -3,13 +3,42 @@ import { component } from "../../runtime/components.js";
 import { mainControlBarPanel } from "./mainControlBarPanel.js";
 
 /**
- * controlBar — UI structure generated from components/controlBar.yaml:1. Referenced from app.yaml:36.
+ * controlBar — UI structure generated from components/controlBar.yaml:1. Referenced from app.yaml:151.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function controlBar() {
-    return component("panel", { id: "main.controlBar", name: "controlBar", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 28 } } }, [
-        // action (components/controlBar.yaml:14) on change -> playback-type.set, lazy feature actions/playbackTypeSet.js (generated mock)
+    return component("panel", { id: "main.controlBar", name: "controlBar", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 28 } }, breakpoints: [{"maxWidth":650,"layout":{"height":{"mode":"fixed","size":160},"direction":"column"}}] }, [
+        component("buttonGroup", { id: "main.controlBar.topViewButtons", name: "topViewButtons", layout: { direction: "row" } }, [
+            // rule (components/controlBar.yaml:20) "highlighted when file operations view is active" -> highlighted while song-properties-view.value === "File Operations"
+            // action (components/controlBar.yaml:22) on click -> file-operations-view.toggle, lazy feature actions/fileOperationsViewToggle.js
+            component("button", {
+                id: "main.controlBar.topViewButtons.fileOperationsButton",
+                name: "fileOperationsButton",
+                label: "File Operations",
+                highlightedWhen: state => state.get("song-properties-view.value") === "File Operations",
+                on: { "click": (app, detail) => app.feature(() => import("../actions/fileOperationsViewToggle.js"), m => m.fileOperationsViewToggle(app, detail)) }
+            }),
+            // rule (components/controlBar.yaml:26) "highlighted when options view is active" -> highlighted while song-properties-view.value === "Options"
+            // action (components/controlBar.yaml:28) on click -> options-view.toggle, lazy feature actions/optionsViewToggle.js
+            component("button", {
+                id: "main.controlBar.topViewButtons.optionsButton",
+                name: "optionsButton",
+                label: "Options",
+                highlightedWhen: state => state.get("song-properties-view.value") === "Options",
+                on: { "click": (app, detail) => app.feature(() => import("../actions/optionsViewToggle.js"), m => m.optionsViewToggle(app, detail)) }
+            }),
+            // rule (components/controlBar.yaml:32) "highlighted when sample edit panel is active" -> highlighted while pattern-section-view.value === "Sample Edit"
+            // action (components/controlBar.yaml:34) on click -> sample-edit-panel.toggle, lazy feature actions/sampleEditPanelToggle.js
+            component("button", {
+                id: "main.controlBar.topViewButtons.sampleEditButton",
+                name: "sampleEditButton",
+                label: "Sample Edit",
+                highlightedWhen: state => state.get("pattern-section-view.value") === "Sample Edit",
+                on: { "click": (app, detail) => app.feature(() => import("../actions/sampleEditPanelToggle.js"), m => m.sampleEditPanelToggle(app, detail)) }
+            })
+        ]),
+        // action (components/controlBar.yaml:42) on change -> playback-type.set, lazy feature actions/playbackTypeSet.js (generated mock)
         component("radioGroup", { id: "main.controlBar.radioGroup", on: { "change": (app, detail) => app.feature(() => import("../actions/playbackTypeSet.js"), m => m.playbackTypeSet(app, detail)) } }, [
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.controlBar.radioGroup.song", name: "song", label: "Song, S" }),
@@ -17,8 +46,8 @@ export function controlBar() {
             component("radioItem", { id: "main.controlBar.radioGroup.pattern", name: "pattern", label: "Pattern, P" })
         ]),
         // style -> button/play (skin/default.yaml:44)
-        // rule (components/controlBar.yaml:18) "highlighted when song playback is active" -> highlighted while playback.status === "playing"
-        // action (actions/toggleplay.yaml:20) on click -> transport.toggle, lazy feature actions/transportToggle.js
+        // rule (components/controlBar.yaml:46) "highlighted when song playback is active" -> highlighted while playback.status === "playing"
+        // action (actions/toggleplay.yaml:48) on click -> transport.toggle, lazy feature actions/transportToggle.js
         component("button", {
             id: "main.controlBar.button.Play",
             label: "Play",
@@ -28,8 +57,8 @@ export function controlBar() {
             on: { "click": (app, detail) => app.feature(() => import("../actions/transportToggle.js"), m => m.transportToggle(app, detail)) }
         }),
         // style -> button/record (skin/default.yaml:53)
-        // rule (components/controlBar.yaml:25) "highlighted when recording is active" -> highlighted while record.active === true
-        // action (components/controlBar.yaml:27) on click -> record.toggle, lazy feature actions/recordToggle.js (generated mock)
+        // rule (components/controlBar.yaml:53) "highlighted when recording is active" -> highlighted while record.active === true
+        // action (components/controlBar.yaml:55) on click -> record.toggle, lazy feature actions/recordToggle.js
         component("button", {
             id: "main.controlBar.button.record",
             label: "record",
@@ -38,8 +67,8 @@ export function controlBar() {
             highlightedWhen: state => state.get("record.active") === true,
             on: { "click": (app, detail) => app.feature(() => import("../actions/recordToggle.js"), m => m.recordToggle(app, detail)) }
         }),
-        // style -> spinBox/big (skin/default.yaml:141)
-        // action (components/controlBar.yaml:32) on change -> tracks.set, lazy feature actions/tracksSet.js (generated mock)
+        // style -> spinBox/big (skin/default.yaml:150)
+        // action (components/controlBar.yaml:60) on change -> tracks.set, lazy feature actions/tracksSet.js (generated mock)
         component("spinBox", { id: "main.controlBar.spinBox", style: "big", on: { "change": (app, detail) => app.feature(() => import("../actions/tracksSet.js"), m => m.tracksSet(app, detail)) } }),
         mainControlBarPanel()
     ]);

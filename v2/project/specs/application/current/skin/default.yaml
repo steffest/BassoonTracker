@@ -58,6 +58,15 @@ styles:
         active_hover: button_inlay_red_hover
         active_pressed: button_inlay_red_active
 
+    logo:
+      extends: default
+      description: The song-properties section's own BASSOON wordmark toggle (spec 071) - grey normally, colour while "active" (a purely cosmetic, permanently mocked local toggle - see that spec's requirements.md). No label; the artwork alone is the whole control.
+      width: 70
+      height: 50
+      states:
+        normal: logo_grey_70
+        active: logo_colour_70
+
   viewport:
     default:
       description: A box that clips and scrolls its content. Drawn as an inset panel, like the containers it sits inside.

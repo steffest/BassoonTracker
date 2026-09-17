@@ -16,6 +16,8 @@
 import { COMPILER_VERSION } from "./convert.js";
 import { ownsModule, isContainer, selectionModeOf, behaviorOf, componentType } from "../runtime/componentTypes.js";
 import { boundsOf, valueFieldOf } from "../runtime/valueController.js";
+import { scrollFieldOf } from "../runtime/listController.js";
+import { rowsFieldOf } from "../runtime/fileBrowserController.js";
 
 /** A manifest key with this prefix is a host hook, not an authored command. */
 const HOST_PREFIX = "host.";
@@ -66,6 +68,7 @@ function layoutLiteral(layout) {
     const parts = [];
     if (layout.width && layout.width.mode !== "auto") parts.push(`width: ${obj(layout.width)}`);
     if (layout.height && layout.height.mode !== "auto") parts.push(`height: ${obj(layout.height)}`);
+    if (layout.direction) parts.push(`direction: ${js(layout.direction)}`);
     if (layout.resizable) parts.push(`resizable: ${js(layout.resizable)}`);
     return parts.length ? `layout: { ${parts.join(", ")} }` : null;
 }
@@ -138,8 +141,88 @@ export function emitApplication(compiled, options = {}) {
             if (field && !stateFields.has(field)) stateFields.set(field, boundsOf(node).min);
         } else if (behavior === "scroll") {
             if (node.field && !stateFields.has(node.field)) stateFields.set(node.field, 0);
+        } else if (behavior === "list") {
+            // Two fields (spec 019): the selection, resolved exactly as a
+            // value control's is, and the scroll offset, which is never
+            // authored - only the derived name exists, so scrolling a list
+            // can never disturb its selection.
+            const field = valueFieldOf(node);
+            if (field && !stateFields.has(field)) stateFields.set(field, 0);
+            const scrollField = scrollFieldOf(node);
+            if (scrollField && !stateFields.has(scrollField)) stateFields.set(scrollField, 0);
+        } else if (behavior === "rowList") {
+            // A fileBrowser's own rows are never authored (spec 035) - a
+            // domain capability publishes them at runtime the way a value
+            // control's field is written, so nothing seeds them without this
+            // case. Confirmed missing: neither "rows.<id>" nor its own
+            // scroll field (reusing listController.js's scrollFieldOf
+            // unchanged, exactly as runtime/fileBrowserController.js's own
+            // header comment already documents) was ever registered here,
+            // so every domain/diskOperations#publish() call has been
+            // throwing "store: unknown field" in the real generated
+            // application since this type was first built (spec 035/036) -
+            // invisible until now because every existing test's own fake
+            // app.state stands in for the store with no field validation at
+            // all, unlike the real one (runtime/store.js#set/subscribe).
+            const rowsField = rowsFieldOf(node);
+            if (rowsField && !stateFields.has(rowsField)) stateFields.set(rowsField, []);
+            const scrollField = scrollFieldOf(node);
+            if (scrollField && !stateFields.has(scrollField)) stateFields.set(scrollField, 0);
+            // Spec 071: a fileBrowser with no `change` action at all (none
+            // exist yet, but nothing forbids one) would still read its own
+            // selection through valueFieldOf()'s id-derived fallback
+            // ("value.<id>"), same as "list"'s selection a few cases up -
+            // declared here so that case is not a second, quieter version of
+            // the rows/scroll gap just above. This is *not* what fixes a
+            // fileBrowser that does have a `change` action bound (every real
+            // one so far does): see the field-prop emission below, which is
+            // the actual fix for the live bug this spec found. Seeded to -1
+            // ("no row selected"), not 0 as "list" seeds its own field - a
+            // fileBrowser's rows start empty and are populated later by a
+            // capability, unlike a listbox's fixed, always-non-empty,
+            // YAML-authored items.
+            const field = valueFieldOf(node);
+            if (field && !stateFields.has(field)) stateFields.set(field, -1);
+        } else if (behavior === "disclose") {
+            // A dropdown's own field holds a numeric index, exactly like a
+            // listbox's (spec 020). Its popup's own field is the *same* name
+            // (runtime/overlaySynthesis.js sets both explicitly), so seeding
+            // this one covers both; the popup's own scroll field is a
+            // mount-time-only concern (the popup itself is synthesized, never
+            // compiled) and is not declared here - a generated application's
+            // popup scrolling falls back to the same undeclared-field
+            // tolerance setField() already has, and is recorded as a known
+            // gap in design.md.
+            const field = valueFieldOf(node);
+            if (field && !stateFields.has(field)) stateFields.set(field, 0);
+        } else if (behavior === "tabs") {
+            // A tabPanel's own field holds the active index, resolved exactly
+            // as listbox's selection is (spec 021).
+            const field = valueFieldOf(node);
+            if (field && !stateFields.has(field)) stateFields.set(field, 0);
+        } else if (behavior === "collapsible") {
+            // A collapsePanel's own field is boolean, not numeric (spec 021):
+            // truthy hides its content, so an unwritten field reads as
+            // "not collapsed", matching v1's own always-showing behaviour.
+            const field = valueFieldOf(node);
+            if (field && !stateFields.has(field)) stateFields.set(field, false);
+        } else if (behavior === "digitEntry") {
+            // numberDisplay's own field holds a plain number, seeded to its
+            // own minimum bound exactly as a slider's is (spec 027) - never
+            // snapped to a step grid, since nothing about this control's own
+            // editing is.
+            const field = valueFieldOf(node);
+            if (field && !stateFields.has(field)) stateFields.set(field, boundsOf(node).min);
         } else if (node.field && !stateFields.has(node.field)) {
             stateFields.set(node.field, "");
+        }
+        // Spec 025: a `visibleWhen.field` is shared by however many nodes
+        // gate their own visibility on it, so no single one of them owns its
+        // starting value - seeded to "", matching a plain field-bound
+        // label's own default (spec 012), so nothing matches until an
+        // authored action (or a generated app's own code) writes it.
+        if (node.visibleWhen && node.visibleWhen.field && !stateFields.has(node.visibleWhen.field)) {
+            stateFields.set(node.visibleWhen.field, "");
         }
         for (const binding of node.bindings || []) {
             if (binding.origin === "action" && binding.kind === "command") {
@@ -218,7 +301,24 @@ export function emitApplication(compiled, options = {}) {
         const comments = [];
         const props = [`id: ${js(node.id)}`];
         if (node.definitionName) props.push(`name: ${js(node.definitionName)}`);
-        if (node.labelVariants.length && !(node.definitionName && node.labelVariants.length === 1 && node.labelVariants[0] === node.definitionName)) props.push(`label: ${labelLiteral(node)}`);
+        if (node.labelVariants.length && !(node.definitionName && node.labelVariants.length === 1 && node.labelVariants[0] === node.definitionName)) {
+            props.push(`label: ${labelLiteral(node)}`);
+        } else if (!node.labelVariants.length && node.definitionName) {
+            // Spec 071: labelVariants is empty here *only* because `label: ""`
+            // was authored explicitly - compiler/convert.js#applyLabel already
+            // falls back to the node's own name for "no label authored at
+            // all," baking that into a non-empty labelVariants at compile
+            // time, so an empty array reaching this point with a real name
+            // can only mean a deliberate, explicit override. Without emitting
+            // `label: []` here, runtime/components.js#component()'s own
+            // `props.label` would be `undefined` (the prop omitted entirely),
+            // and its own labelVariants(undefined, props.name) falls back to
+            // props.name regardless - silently overriding the compiler's own
+            // decision (found placing this application's first image-only
+            // button, logoBanner - v1's own logo has no text on it at all,
+            // but its own bare authored name rendered on top of the artwork).
+            props.push("label: []");
+        }
         const layout = layoutLiteral(node.layout || {});
         if (layout) props.push(layout);
         if (node.style && node.style.variant && node.style.variant !== "default") {
@@ -226,15 +326,50 @@ export function emitApplication(compiled, options = {}) {
             comments.push(`style -> ${node.style.type}/${node.style.variant} (${at})`);
             props.push(`style: ${js(node.style.variant)}`);
         }
-        if (node.field) props.push(`field: ${js(node.field)}`);
+        if (node.field) {
+            props.push(`field: ${js(node.field)}`);
+        } else if (behaviorOf(node.type) === "rowList") {
+            // Spec 071: valueFieldOf(node) (runtime/valueController.js) is
+            // supposed to be one function both compile time and runtime
+            // agree on, but its second resolution step - a `change` action's
+            // own recipe-derived mockField - reads node.bindings, which this
+            // very function's own node carries at compile time but
+            // runtime/components.js#component() never puts on the tree it
+            // builds from generated code. So a fileBrowser authored with a
+            // `change` action but no explicit `field:` (instrumentList,
+            // songPatternList's list) compiled its state field as e.g.
+            // "instrument-row.value" (found via the binding) while
+            // mountGeneric.js's own valueFieldOf(runtimeNode) call - same
+            // function, no bindings to find - fell through to step three,
+            // "value.<id>", a field nothing ever declared. Every real
+            // pointerup on such a row threw "state field ... is not
+            // declared" and silently dropped the write (caught live
+            // double-clicking spec 071's instrument list; no existing test
+            // caught it because a domain test dispatches its capability
+            // directly with an explicit `detail.value`, never touching
+            // mountGeneric.js's own store write at all). Emitting the
+            // compile-time-resolved name explicitly as `field` is what every
+            // other authored value control already does implicitly, once it
+            // has *any* explicit `field:` of its own; a fileBrowser relying
+            // solely on its `change` action's derived name was the one
+            // case that never got one.
+            const derivedField = valueFieldOf(node);
+            if (derivedField) props.push(`field: ${js(derivedField)}`);
+        }
         if (node.shortKey) props.push(`shortKey: ${js(node.shortKey)}`);
+        if (node.tooltip) props.push(`tooltip: ${js(node.tooltip)}`);
         if (node.color) props.push(`color: ${js(node.color)}`);
+        // Spec 025: both are plain data, so the same JSON literal the compiler
+        // itself built for `runtime/genericLayout.js` reaches the generated
+        // application's own tree unchanged.
+        if (node.breakpoints) props.push(`breakpoints: ${js(node.breakpoints)}`);
+        if (node.visibleWhen) props.push(`visibleWhen: ${js(node.visibleWhen)}`);
         // Every other property the type declares, carried through generically
         // so registering a property is enough to author *and* generate it
         // (spec 014: a slider's min/max/step arrived this way).
         const declared = componentType(node.type);
         for (const property of Object.keys(declared ? declared.properties : {})) {
-            if (["field", "shortKey", "color"].includes(property)) continue;
+            if (["field", "shortKey", "tooltip", "color"].includes(property)) continue;
             if (node[property] === undefined || node[property] === null) continue;
             props.push(`${property}: ${js(node[property])}`);
         }
@@ -245,6 +380,13 @@ export function emitApplication(compiled, options = {}) {
             if (binding.kind === "visual-state" && binding.state === "highlighted") {
                 comments.push(`rule (${binding.source.file}:${binding.source.range?.start.line ?? "?"}) "${binding.conditionText ? `highlighted when ${binding.conditionText} is active` : binding.code}" -> highlighted while ${binding.mockField} === ${js(binding.activeValue)}`);
                 props.push(`highlightedWhen: state => state.get(${js(binding.mockField)}) === ${js(binding.activeValue)}`);
+            } else if (binding.kind === "visual-state" && binding.state === "disabled") {
+                // Spec 050: the first compiler path to disabledWhen (spec
+                // 015's own runtime mechanism, synced generically wherever
+                // highlightedWhen already is - nothing here or in the
+                // renderer needed to change, only this generation).
+                comments.push(`rule (${binding.source.file}:${binding.source.range?.start.line ?? "?"}) "disabled unless ${binding.conditionText} is active" -> disabled unless ${binding.mockField} === ${js(binding.activeValue)}`);
+                props.push(`disabledWhen: state => state.get(${js(binding.mockField)}) !== ${js(binding.activeValue)}`);
             } else if (binding.kind === "layout-policy") {
                 comments.push(`rule "${binding.code}": layout policy ${binding.policy} (expressed by the layout fields above)`);
             } else if (binding.origin === "action" && binding.kind === "command") {
@@ -301,8 +443,34 @@ export function emitApplication(compiled, options = {}) {
         if (node.definitionName) props.push(`name: ${js(node.definitionName)}`);
         const layout = layoutLiteral(node.layout || {});
         if (layout) props.push(layout);
+        // Spec 025: a module's own root is a node like any other - it can
+        // author breakpoints or visibleWhen exactly as controlBar.yaml's own
+        // top-level panel now does, so both reach the generated application
+        // here too, not only on an inline child (see nodeExpression() above).
+        if (node.breakpoints) props.push(`breakpoints: ${js(node.breakpoints)}`);
+        if (node.visibleWhen) props.push(`visibleWhen: ${js(node.visibleWhen)}`);
+        // Spec 050: the identical gap spec 025 already found and fixed for
+        // breakpoints/visibleWhen above, recurring for a different pair of
+        // properties - a rule's own highlightedWhen/disabledWhen (generated
+        // by nodeExpression() below for an inline child) was never carried
+        // through *this* path at all, invisible until this spec put a rule
+        // directly on a module-owning container (ftOnlyRow) for the first
+        // time. Fixed the same way spec 025 fixed its own pair: duplicated
+        // here rather than unifying the two node-construction paths.
+        for (const binding of node.bindings || []) {
+            if (binding.kind === "visual-state" && binding.state === "highlighted") {
+                props.push(`highlightedWhen: state => state.get(${js(binding.mockField)}) === ${js(binding.activeValue)}`);
+            } else if (binding.kind === "visual-state" && binding.state === "disabled") {
+                props.push(`disabledWhen: state => state.get(${js(binding.mockField)}) !== ${js(binding.activeValue)}`);
+            }
+        }
         const rendered = node.children.map(child => nodeExpression(child, 1, 2, moduleImports));
-        const ruleNotes = (node.bindings || []).map(b => b.kind === "layout-policy" ? ` * Rule "${b.code}": ${b.policy} (${b.source.file}).` : null).filter(Boolean);
+        const ruleNotes = (node.bindings || []).map(b => {
+            if (b.kind === "layout-policy") return ` * Rule "${b.code}": ${b.policy} (${b.source.file}).`;
+            if (b.kind === "visual-state" && b.state === "highlighted") return ` * Rule (${b.source.file}:${b.source.range?.start.line ?? "?"}) "highlighted when ${b.conditionText} is active" -> highlighted while ${b.mockField} === ${js(b.activeValue)}.`;
+            if (b.kind === "visual-state" && b.state === "disabled") return ` * Rule (${b.source.file}:${b.source.range?.start.line ?? "?"}) "disabled unless ${b.conditionText} is active" -> disabled unless ${b.mockField} === ${js(b.activeValue)}.`;
+            return null;
+        }).filter(Boolean);
         const source = `${node.source.file}${node.source.range ? `:${node.source.range.start.line}` : ""}`;
         const useSite = node.refSource ? ` Referenced from ${node.refSource.file}:${node.refSource.range?.start.line ?? "?"}.` : "";
         const text = `// ${GENERATED_HEADER}

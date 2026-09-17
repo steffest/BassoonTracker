@@ -1,0 +1,43 @@
+# 015 — Keyboard interaction: focus, text entry, shortcuts, tooltips, dialog keys
+
+Date: 2026-09-11. Kind: feature. Status: specified. Implements the keyboard half of package **P4** of spec [010](../010-port-roadmap/requirements.md), the port roadmap, completing the package spec [014](../014-pointer-interaction/requirements.md) started.
+
+## Purpose
+
+Keyboard input today is the minimum spec 005 shipped and spec 014 did not touch: Tab cycles focus, Enter and Space activate whatever is focused. Everything else v1 attaches at the keyboard is missing:
+
+- **Every text field is a caret, a selection and an edit.** v1's `InputBox` tracks a cursor position and edits in place; nothing in v2 can be typed into.
+- **v1 wires roughly fifty keyboard cases in one switch**, mixing generic UI (Tab, Enter, Escape, copy/paste/undo/redo) with tracker-specific note entry (piano keys, hex digit entry). Only the generic half belongs here; the roadmap already scopes note entry to the pattern grid (P7).
+- **A command with a shortcut only runs if you click it.** `button.shortKey` has been a declared, recorded property since spec 009 and has never fired anything.
+- **A disabled control is manual.** `setDisabled` exists and every controller already blocks activation on it, but nothing in the current pipeline ever calls it from the application's own state; it is only reachable today from the workbench's debug panel.
+- **Nothing hovers into a tooltip**, and no modal has a way to confirm or cancel from the keyboard, because no modal exists yet — spec 013 built the mechanism (`layer: "overlay"`, `modal: true`) and left the keys to whoever needed them next.
+
+Package P4 is complete when this spec and spec 014 both are.
+
+## Scope decision
+
+`modalDialog`, `tooltip`, `dropdown` and `menu` are still P5's component types, per spec 013's design.md. This spec builds the *mechanisms* those types will need — a focused control that sees keys first, a declared shortcut table, an escape/enter route to whatever modal overlay is present, a hover-delay tooltip driven by a plain `tooltip:` property — without inventing a component type that has no authored home yet, exactly as spec 013 built clipping and the overlay layer before any type used them. Where a mechanism needs a shipped example, this spec promotes `inputbox` from undeclared to implemented, the same move spec 014 made for `spinBox`, because "an input box edits text with a caret" is one of the roadmap's own acceptance lines and nothing else in the catalogue exercises the focus/typing path.
+
+Tracker-specific keyboard behaviour is explicitly out: note-key entry, the octave/instrument F-keys, and hex/decimal step values belong to the pattern grid and the document model (P6, P7), because they need song data this spec's state store still does not hold.
+
+## User stories and acceptance
+
+- **INT-011 — The focused control sees keys first:** As a user, once something is focused, typing goes to it before anything else reacts. Acceptance: every keydown and keyup reaches the focused node's controller before the shortcut table is consulted; a controller reports `handled` per key, exactly as it already does for pointer input; an unhandled key falls through; nothing is forwarded when Interact mode is off or nothing is focused.
+- **INT-012 — Tab stays inside an open dialog:** As a user, tabbing through a modal dialog's controls never lands on something behind it. Acceptance: with a `modal: true` overlay present, Tab and Shift+Tab cycle only its interactive descendants; with none present, the existing whole-tree cycle is unchanged.
+- **INT-013 — An input box edits text with a caret:** As a user, clicking a text field lets me type, and the caret and my selection are always visible and correct. Acceptance: click focuses it and places the caret at the clicked character; typing a printable character inserts it and advances the caret; Backspace and Delete remove a character or, if a selection exists, the selection; Left/Right move the caret, Home/End jump to the ends, Shift with any of those extends a selection, and dragging the pointer across the text selects it; every keystroke writes the bound field, exactly as a slider's drag writes its field.
+- **INT-014 — Escape and Enter carry meaning:** As a user, Escape always gets me out of what I am doing and Enter confirms it. Acceptance: Escape on a focused text field restores the value it had when focus arrived and un-focuses it; Escape while any modal overlay is present also fires that overlay's `escape` event, whether or not something inside it was focused; Enter that a focused control's own controller does not otherwise consume, and Enter that commits a focused text field, both fire the modal's `enter` event when one is present; a focused button's own Enter/Space activation is never doubled by this.
+- **INT-015 — An authored shortcut fires its command:** As an author, `shortKey: "Ctrl+S"` on any interactive component makes that key combination activate it from anywhere, whether or not it is focused. Acceptance: the modifiers (Ctrl, Shift, Alt, Meta) are matched independently rather than folded into one flag; a shortcut on a disabled control is reported as blocked and does not run; a shortcut is not consulted when a focused control's own controller has already handled the key (so typing "s" into a focused text field cannot also trigger a `"S"` shortcut elsewhere).
+- **INT-016 — Command enablement drives the disabled state automatically:** As an author, giving a component a `disabledWhen(state)` hook keeps its disabled visual and its blocked activation in sync with the application's own state, with no manual `setDisabled` call. Acceptance: `disabledWhen` is evaluated after every state change, exactly where `highlightedWhen` already is; a control it disables blocks pointer, keyboard and shortcut activation alike, through the one `disabled` flag every controller already understands; a type with no `disabledWhen` behaves exactly as today.
+- **INT-017 — Hovering shows a tooltip after a delay:** As a user, resting the pointer on something with a `tooltip:` property shows its text after a short pause, not instantly and not while merely passing over it. Acceptance: moving across several nodes inside the delay window shows nothing; stopping on one past the delay shows its text; moving away or pressing anywhere hides it immediately; a node with no `tooltip:` shows nothing.
+- **INT-018 — Every gesture from this spec is traceable:** As an author, the Interaction log shows keyboard activity the same way it already shows pointer activity. Acceptance: a shortcut firing, a text edit, a caret/selection change, a submit, a revert, and a tooltip showing or hiding each produce a trace entry; the log's kind filter lists whatever new kind this spec adds, so nothing is emitted invisibly (spec 014's own finding, re-checked here).
+- **INT-019 — No regressions:** Acceptance: the unit suite passes; every existing control's plain click, drag, wheel and Tab/Enter/Space behaviour from spec 014 is unchanged; the compiled outline's existing nodes do not change shape; every earlier browser scenario still passes.
+
+## Non-functional requirements
+
+Shortcut parsing/matching and the text edit itself are pure and DOM-free, in `runtime/`, so they are unit-testable without a browser, matching pointerRouter's precedent. The renderer stays the only DOM consumer: it resolves fonts for caret placement, carries the in-app clipboard string, and owns the tooltip's timer and drawing, none of which belongs in a pure module. No component type is named outside the registry. No new dependency.
+
+## Scope boundaries
+
+In scope: focused-first key routing, modal-scoped Tab, the `inputbox` type and its text/caret/selection controller with an in-app clipboard (cut/copy/paste inside the application), Escape/Enter dialog routing against the existing `modal: true` mechanism, the declared shortcut table reading `shortKey`, the `disabledWhen` hook and its automatic sync, a `tooltip:` universal property with hover-delay drawing, and the traces for all of it.
+
+Out of scope and left to later packages: `modalDialog`, `tooltip` and `dropdown` as authored component types with artwork and a catalogue entry (P5); tracker note entry, the octave/F-key handling, and hex/decimal step values (P7); a compiler vocabulary for authoring `disabledWhen` from YAML, which needs the document model to have something worth disabling on (P6); OS clipboard integration (tried, does not reach a plain canvas — see design.md — and dropped rather than kept as dead code); mouse selection dragging a scrollbar-style handle inside a longer document (there is no long text document yet); undo/redo (P6).

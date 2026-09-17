@@ -294,3 +294,40 @@ export function compileSkin({ name, file, root, addDiagnostic, listAssets }) {
         styles
     };
 }
+
+/**
+ * Registers one more asset use discovered *after* `compileSkin` already
+ * returned (spec 071) - an `image`/`icon` node's own `src`/`icon` property,
+ * read directly off the compiled app tree, not off the skin document
+ * `compileSkin` only ever sees. Without this, an authored `image`/`icon`
+ * node's own asset is never packed into the atlas at all (confirmed
+ * empirically: `type: image, src: togglecorner` compiled and rendered fine
+ * in the dev tree, but `node build.mjs dist`'s own atlas packer silently
+ * omitted it, since nothing had ever told the skin compiler this asset was
+ * in use - every `image`/`icon` node in the whole application until this
+ * spec was still unplaced, so this gap was real but never yet triggered).
+ * Mutates `skin.assets` in place and re-sorts it, matching `compileSkin`'s
+ * own name-sorted contract.
+ * @param {object} skin compileSkin's own return value
+ * @param {string} assetName
+ * @param {string} file the component file the reference was authored in
+ * @param {object|null} range
+ * @param {string} context a short label for the "unknown-skin-asset" warning
+ * @param {(severity: string, code: string, message: string, file: string, range: object|null) => void} addDiagnostic
+ * @param {(() => string[])|undefined} [listAssets]
+ */
+export function registerAssetUse(skin, assetName, file, range, context, addDiagnostic, listAssets) {
+    if (!assetName || !skin || !Array.isArray(skin.assets)) return;
+    const available = typeof listAssets === "function" ? new Set(listAssets()) : null;
+    let entry = skin.assets.find(a => a.name === assetName);
+    if (!entry) {
+        entry = { name: assetName, file: `${ASSET_DIR}/${assetName}.png`, usedBy: [] };
+        skin.assets.push(entry);
+        skin.assets.sort((a, b) => a.name.localeCompare(b.name));
+        if (available && !available.has(assetName)) {
+            addDiagnostic("warning", "unknown-skin-asset", `skin asset "${assetName}" (${context}) has no source file at assets/skin/${ASSET_DIR}/${assetName}.png`, file, range);
+            entry.missing = true;
+        }
+    }
+    entry.usedBy.push({ file, range: range || null });
+}

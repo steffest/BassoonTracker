@@ -1,0 +1,198 @@
+name: optionsPanel
+type: panel
+layout:
+  width: fill
+  height: fill
+  direction: column
+visibleWhen:
+  field: song-properties-view.value
+  oneOf:
+    - Options
+content:
+  - text: "Options:"
+  - name: optionsGrid
+    type: panel
+    layout:
+      width: fill
+      direction: row
+    content:
+      - name: vuBarsColumn
+        type: panel
+        layout:
+          width: fill
+          direction: column
+        content:
+          - type: label
+            label: VU bars
+          - type: radioGroup
+            variant: buttons
+            layout:
+              direction: column
+            items:
+              - label: None
+              - label: Amiga
+              - label: Transparent
+            actions:
+              - change: setVuBars
+      - name: stereoColumn
+        type: panel
+        layout:
+          width: fill
+          direction: column
+        content:
+          - type: label
+            label: Stereo
+          - type: radioGroup
+            variant: buttons
+            layout:
+              direction: column
+            items:
+              - label: "Hard: Amiga"
+              - label: Balanced
+              - label: "None: mono"
+            actions:
+              - change: setStereoSeparation
+      - name: screenRefreshColumn
+        type: panel
+        layout:
+          width: fill
+          direction: column
+        content:
+          - type: label
+            label: Screen refresh
+          - type: radioGroup
+            variant: buttons
+            layout:
+              direction: column
+            items:
+              - label: Smooth
+              - label: Normal
+              - label: Economical
+              - label: Low CPU
+            actions:
+              - change: setScreenRefresh
+      - name: frequencyTableColumn
+        type: panel
+        layout:
+          width: fill
+          direction: column
+        content:
+          - type: label
+            label: Frequency table
+          - type: radioGroup
+            variant: buttons
+            layout:
+              direction: column
+            items:
+              - label: Linear
+              - label: Amiga periods
+            actions:
+              - change: setFrequencyTable
+      - name: dropboxColumn
+        type: panel
+        layout:
+          width: fill
+          direction: column
+        content:
+          - type: label
+            label: "Dropbox: existing file"
+          - type: radioGroup
+            variant: buttons
+            layout:
+              direction: column
+            items:
+              - label: Rename
+              - label: Overwrite
+            actions:
+              - change: setDropboxMode
+      - name: midiInputColumn
+        type: panel
+        layout:
+          width: fill
+          direction: column
+        content:
+          - type: label
+            label: Midi-in
+          - type: radioGroup
+            variant: buttons
+            layout:
+              direction: column
+            items:
+              - label: Disabled
+              - label: Enabled Note
+              - label: Enabled Note-Volume
+            actions:
+              - change: setMidiInput
+      # Not part of v1's own real 6-column grid - confirmed live, at every
+      # tested width, that v1's optionsPanel.js only ever renders six
+      # columns, even though its own optionDefs array authors a seventh
+      # ("Play from") - a real, pre-existing quirk/limitation of v1 itself,
+      # not something this port should reproduce by hiding a real, already-
+      # working v2 control. Kept as a genuine seventh column instead of
+      # deleting real functionality.
+      - name: playFromColumn
+        type: panel
+        layout:
+          width: fill
+          direction: column
+        content:
+          - type: label
+            label: Play from
+          - type: radioGroup
+            variant: buttons
+            layout:
+              direction: column
+            items:
+              - label: Pattern start
+              - label: Current pos
+            actions:
+              - change: setPlayFrom
+  # v1's own checkboxes are not part of each column's own vertical stack -
+  # they are pinned to one fixed row at the bottom of the whole panel
+  # (optionsPanel.js's own onResize: `checkBox.top = this.height - bHeight
+  # - 7`, independent of that column's own button-stack height), each
+  # still positioned under its own column. A `width: fill` spacer stands in
+  # for every column that authors no checkbox, so the row's own even
+  # distribution still lines each real checkbox up under the right column.
+  - name: optionsCheckboxRow
+    type: panel
+    layout:
+      width: fill
+      direction: row
+    content:
+      - type: checkbox
+        label: Show Help Bubbles
+        layout:
+          width: fill
+        actions:
+          - click: toggleHelpBubbles
+      - type: checkbox
+        label: Show Key Input
+        layout:
+          width: fill
+        actions:
+          - click: toggleShowKeyInput
+      - type: checkbox
+        label: Optimize High DPI
+        layout:
+          width: fill
+        actions:
+          - click: toggleHighDpi
+      - name: frequencyTableCheckboxSpacer
+        type: panel
+        layout:
+          width: fill
+      - name: dropboxCheckboxSpacer
+        type: panel
+        layout:
+          width: fill
+      - type: checkbox
+        label: Show Midi Input
+        layout:
+          width: fill
+        actions:
+          - click: toggleShowMidiInput
+      - name: playFromCheckboxSpacer
+        type: panel
+        layout:
+          width: fill

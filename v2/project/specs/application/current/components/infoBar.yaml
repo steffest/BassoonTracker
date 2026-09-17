@@ -1,0 +1,14 @@
+name: infoBar
+type: panel
+layout:
+  width: fill
+  height: fixed
+content:
+  - song title:
+      type: label
+      field: song.title
+  - playback status:
+      type: label
+      field: playback.status
+  - type: button
+    label: More info

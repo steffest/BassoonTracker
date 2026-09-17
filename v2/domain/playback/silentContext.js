@@ -73,6 +73,10 @@ class StubNode {
     setPeriodicWave() {}
     addEventListener() {}
     removeEventListener() {}
+    /** spec 052: enough of a real AnalyserNode for getTrackScopeData to be testable headlessly - silence, matching Web Audio's own time-domain convention (128 = zero signal). */
+    getByteTimeDomainData(array) {
+        if (array && typeof array.fill === "function") array.fill(128);
+    }
 }
 
 class StubBuffer {

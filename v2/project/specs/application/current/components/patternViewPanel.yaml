@@ -1,0 +1,43 @@
+name: patternViewPanel
+type: panel
+layout:
+  width: fill
+  height: fill
+  direction: column
+content:
+  - name: scopes
+    type: scopesView
+    layout:
+      width: fill
+      height: 80
+  - name: patternGridPanel
+    type: panel
+    layout:
+      width: fill
+      height: fill
+    visibleWhen:
+      field: pattern-view.value
+      oneOf:
+        - ""
+        - "Column view"
+    content:
+      - name: patternGrid
+        type: patternGrid
+        layout:
+          width: fill
+          height: fill
+  - name: multitrackViewPanel
+    type: panel
+    layout:
+      width: fill
+      height: fill
+    visibleWhen:
+      field: pattern-view.value
+      oneOf:
+        - "Row view"
+    content:
+      - name: multitrackView
+        type: multitrackView
+        layout:
+          width: fill
+          height: fill

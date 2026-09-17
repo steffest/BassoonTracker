@@ -1,0 +1,15 @@
+# Spec 071: the song-properties section's own instrument listbox
+# (appMainPanel.js:84-110). Authored as fileBrowser, not listbox - the only
+# mechanism in this codebase that supports a variable-length, data-bound row
+# list (listbox's own items are fixed, YAML-authored child nodes; see that
+# spec's own requirements.md for the full reasoning). The type name says
+# "file"; the mechanism itself is a generic row list with no file-specific
+# behavior of its own.
+name: instrumentList
+type: fileBrowser
+layout:
+  width: fill
+  height: fill
+actions:
+  - change: setInstrumentRow
+  - doubleClick: openInstrumentInSampleEditor

@@ -2,43 +2,53 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * mainControlBarPanel — UI structure generated from components/controlBar.yaml:33.
+ * mainControlBarPanel — UI structure generated from components/controlBar.yaml:61.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function mainControlBarPanel() {
     return component("panel", { id: "main.controlBar.panel" }, [
-        // style -> radioGroup/buttons (skin/default.yaml:91)
+        // style -> radioGroup/buttons (skin/default.yaml:100)
         component("radioGroup", { id: "main.controlBar.panel.radioGroup.Mode", label: "Mode, M", style: "buttons" }, [
-            // style -> radioItem/button (skin/default.yaml:111)
+            // style -> radioItem/button (skin/default.yaml:120)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.controlBar.panel.radioGroup.Mode.radioItem.mod", label: "mod", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:111)
+            // style -> radioItem/button (skin/default.yaml:120)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.controlBar.panel.radioGroup.Mode.radioItem.xm", label: "xm", style: "button" })
         ]),
-        // style -> radioGroup/buttons (skin/default.yaml:91)
+        // style -> radioGroup/buttons (skin/default.yaml:100)
         component("radioGroup", { id: "main.controlBar.panel.radioGroup.Display", label: "Display, D", style: "buttons" }, [
-            // style -> radioItem/button (skin/default.yaml:111)
+            // style -> radioItem/button (skin/default.yaml:120)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.controlBar.panel.radioGroup.Display.radioItem.4", label: "4", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:111)
+            // style -> radioItem/button (skin/default.yaml:120)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.controlBar.panel.radioGroup.Display.radioItem.8", label: "8", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:111)
+            // style -> radioItem/button (skin/default.yaml:120)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.controlBar.panel.radioGroup.Display.radioItem.12", label: "12", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:111)
+            // style -> radioItem/button (skin/default.yaml:120)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.controlBar.panel.radioGroup.Display.radioItem.16", label: "16", style: "button" })
         ]),
-        // style -> radioGroup/buttons (skin/default.yaml:91)
-        // action (components/controlBar.yaml:52) on change -> editor-layout.set, lazy feature actions/editorLayoutSet.js (generated mock)
+        // style -> radioGroup/buttons (skin/default.yaml:100)
+        // action (components/controlBar.yaml:84) on change -> pattern-view.set, lazy feature actions/patternViewSet.js (generated mock)
+        component("radioGroup", { id: "main.controlBar.panel.patternViewGroup", name: "patternViewGroup", style: "buttons", on: { "change": (app, detail) => app.feature(() => import("../actions/patternViewSet.js"), m => m.patternViewSet(app, detail)) } }, [
+            // style -> radioItem/button (skin/default.yaml:120)
+            // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
+            component("radioItem", { id: "main.controlBar.panel.patternViewGroup.radioItem.Column view", label: "Column view", style: "button" }),
+            // style -> radioItem/button (skin/default.yaml:120)
+            // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
+            component("radioItem", { id: "main.controlBar.panel.patternViewGroup.radioItem.Row view", label: "Row view", style: "button" })
+        ]),
+        // style -> radioGroup/buttons (skin/default.yaml:100)
+        // action (components/controlBar.yaml:88) on change -> editor-layout.set, lazy feature actions/editorLayoutSet.js
         component("radioGroup", { id: "main.controlBar.panel.radioGroup", style: "buttons", on: { "change": (app, detail) => app.feature(() => import("../actions/editorLayoutSet.js"), m => m.editorLayoutSet(app, detail)) } }, [
-            // style -> radioItem/button (skin/default.yaml:111)
+            // style -> radioItem/button (skin/default.yaml:120)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.controlBar.panel.radioGroup.vertical", name: "vertical", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:111)
+            // style -> radioItem/button (skin/default.yaml:120)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.controlBar.panel.radioGroup.horizontal", name: "horizontal", style: "button" })
         ])

@@ -6,9 +6,12 @@
 // in the shape renderers/canvas/mountGeneric.js already understands, plus
 // the function-valued hooks the outline cannot express:
 //   highlightedWhen(state) -> boolean   drives the "highlighted" visual state
+//   disabledWhen(state) -> boolean      drives the disabled state automatically,
+//                                       synced after every state change (spec 015)
 //   onActivate(app)                     runs when the control is activated
-//   on: { click, change, doubleClick, secondaryClick }
-//                                       one hook per gesture (spec 014);
+//   on: { click, change, doubleClick, secondaryClick, submit, escape, enter }
+//                                       one hook per gesture (spec 014, extended
+//                                       by spec 015's submit/escape/enter);
 //                                       `onActivate` is the click alias
 // `style` names a skin variant for the node's own component type (spec 008);
 // the renderer resolves it against the loaded skin and falls back to the
@@ -43,8 +46,9 @@ export function component(type, props = {}, children = []) {
         type,
         definitionName: props.name ?? null,
         labelVariants: labelVariants(props.label, props.name),
-        layout: props.layout ? { width: props.layout.width || AUTO, height: props.layout.height || AUTO, ...(props.layout.resizable ? { resizable: props.layout.resizable } : {}) } : { width: AUTO, height: AUTO },
+        layout: props.layout ? { width: props.layout.width || AUTO, height: props.layout.height || AUTO, ...(props.layout.direction ? { direction: props.layout.direction } : {}), ...(props.layout.resizable ? { resizable: props.layout.resizable } : {}) } : { width: AUTO, height: AUTO },
         shortKey: props.shortKey ?? null,
+        tooltip: props.tooltip ?? null,
         field: props.field ?? null,
         color: props.color ?? null,
         children,
@@ -63,9 +67,20 @@ export function component(type, props = {}, children = []) {
         out[property] = props[property];
     }
     if (typeof props.highlightedWhen === "function") out.highlightedWhen = props.highlightedWhen;
+    // Command enablement (spec 015): the mechanism spec 011 flagged as owed.
+    // Not authorable from YAML yet — there is no document state worth
+    // disabling a control on until P6 — but available to hand-written trees
+    // and generated-app glue, exactly where highlightedWhen started.
+    if (typeof props.disabledWhen === "function") out.disabledWhen = props.disabledWhen;
     if (typeof props.onActivate === "function") out.onActivate = props.onActivate;
     if (props.on && typeof props.on === "object") out.on = props.on;
     if (props.doc) out.doc = String(props.doc);
+    // Spec 025: both are universal properties, present only when authored,
+    // exactly as the compiler's own output carries them - so a generated
+    // application's hand-written glue can use either the same way authored
+    // YAML does.
+    if (props.breakpoints) out.breakpoints = props.breakpoints;
+    if (props.visibleWhen) out.visibleWhen = props.visibleWhen;
     return out;
 }
 

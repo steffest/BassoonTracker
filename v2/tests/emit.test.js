@@ -47,7 +47,7 @@ test("emits one UI module per authored container, one action per command, state,
     // rather than exhaustive: authoring a new container adds a module.
     const paths = [...emitted.files.keys()].sort();
     const uiPaths = paths.filter(p => p.startsWith("ui/"));
-    for (const required of ["ui/controlBar.js", "ui/main.js", "ui/notifications.js", "ui/songProperties.js", "ui/statusBar.js", "ui/top.js"]) assert.ok(uiPaths.includes(required), required);
+    for (const required of ["ui/controlBar.js", "ui/main.js", "ui/notifications.js", "ui/songProperties.js", "ui/infoBar.js", "ui/editPad.js", "ui/optionsPanel.js", "ui/songPatternList.js", "ui/top.js"]) assert.ok(uiPaths.includes(required), required);
     const panels = flatten(compiled.root).filter(n => n.type === "panel" && n.supported !== false);
     assert.equal(uiPaths.length, panels.length, "one UI module per supported authored panel");
     const actionPaths = paths.filter(p => p.startsWith("actions/"));
@@ -63,7 +63,8 @@ test("generated UI builds the same tree as the outline minus unsupported nodes, 
     const ids = flatten(root).map(n => n.id);
     const outlineSupported = flatten(compiled.root).filter(n => n.supported !== false).map(n => n.id);
     assert.deepEqual(ids, outlineSupported, "same ids in the same order, unsupported nodes omitted");
-    assert.ok(!ids.some(id => /menu|volume meter|notification light/.test(id)), "placeholders are gone");
+    assert.ok(!ids.some(id => /volume meter|notification light/.test(id)), "placeholders are gone");
+    assert.ok(ids.some(id => id === "main.top.menu"), "menu is implemented as of spec 023, so it is rendered now");
     const play = flatten(root).find(n => n.id === "main.controlBar.button.Play");
     assert.equal(typeof play.highlightedWhen, "function");
     // Spec 014: one hook per authored event, so a `change` action can no
@@ -84,7 +85,45 @@ test("generated UI builds the same tree as the outline minus unsupported nodes, 
     assert.ok(tracks, "the authored spin box is rendered now that it is implemented");
     const controlBar = flatten(root).find(n => n.id === "main.controlBar");
     assert.deepEqual(controlBar.layout, { width: { mode: "fill" }, height: { mode: "fixed", size: 28 } });
-    assert.deepEqual(flatten(root).find(n => n.id === "main.songProperties").layout, { width: { mode: "fill" }, height: { mode: "auto" }, resizable: "horizontal" });
+    assert.deepEqual(flatten(root).find(n => n.id === "main.normalMainView.songProperties").layout, { width: { mode: "fill" }, height: { mode: "fixed", size: 220 }, direction: "column", resizable: "horizontal" });
+    // Spec 025: controlBar owns its own UI module (a panel with children),
+    // and its breakpoints must survive that path too, not only an inline
+    // child's (emit.js has two separate node-building code paths).
+    assert.deepEqual(controlBar.breakpoints, [{ maxWidth: 650, layout: { height: { mode: "fixed", size: 160 }, direction: "column" } }]);
+    const optionsPanel = flatten(root).find(n => n.id === "main.normalMainView.songProperties.optionsPanel");
+    assert.deepEqual(optionsPanel.visibleWhen, { field: "song-properties-view.value", oneOf: ["Options"] });
+});
+
+test("disabledWhen is generated from a real rule on an inline child (spec 050)", async () => {
+    const { main } = await import(pathToFileURL(join(OUT, "ui/main.js")).href);
+    const root = main();
+    const finetune = flatten(root).find(n => n.id === "main.normalMainView.patternSection.sampleEditPanel.sampleEditNormalView.ftOnlyRow.finetuneSlider");
+    assert.equal(typeof finetune.disabledWhen, "function");
+    assert.equal(finetune.disabledWhen({ get: () => true }), false, "enabled while ft-mode.active is true");
+    assert.equal(finetune.disabledWhen({ get: () => false }), true, "disabled otherwise (a .mod fixture's own protracker mode)");
+});
+
+test("disabledWhen is also generated for a module-owning container's own root, not only an inline child (spec 050)", () => {
+    // A module-owning container (a plain panel, container.ownModule: true)
+    // is not itself interactive and gets no controller, so authoring a rule
+    // there alone has no runtime effect (confirmed empirically - see
+    // design.md; sampleEditPanel.yaml's own real ftOnlyRow therefore
+    // carries the rule on each interactive child instead, not on itself).
+    // But the *generated code* for that shape must still be correct - spec
+    // 025 already found and fixed the identical gap once for
+    // breakpoints/visibleWhen ("two separate node-building code paths");
+    // this is the same fix for highlightedWhen/disabledWhen, exercised here
+    // directly against a hand-built tree since the real YAML no longer puts
+    // a rule on a module-owning container's own root.
+    const rootNode = {
+        id: "root", type: "panel", definitionName: "root", labelVariants: ["root"],
+        layout: {}, children: [], bindings: [{ kind: "visual-state", state: "disabled", mockField: "ft-mode.active", activeValue: true, conditionText: "ft mode", source: { file: "test.yaml", range: null } }],
+        supported: true, source: { file: "test.yaml", range: null }, refSource: null
+    };
+    const compiled = { root: rootNode, skin: { styles: {}, source: null }, diagnostics: [], hardFailure: false, sourceFiles: [] };
+    const emitted = emitApplication(compiled, { libraryBase: "..", capabilities: {} });
+    const text = emitted.files.get("ui/main.js");
+    assert.match(text, /disabledWhen: state => state\.get\("ft-mode\.active"\) !== true/);
 });
 
 test("generated state seeds command fields from the command's first mock value, not the visual-state fallback", async () => {
@@ -144,8 +183,12 @@ test("a reserved host hook is wired into the app context, not into an action mod
     assert.match(main, /m\.openFiles\(app, \.\.\.args\)/);
     assert.match(main, /@property \{\(\.\.\.args: any\[\]\) => Promise<any>\} openFiles/, "and it is documented on the app context");
     // A host hook is not an authored command, so it gets no action module and
-    // is never a loose end.
-    assert.ok(![...withHost.files.keys()].some(path => /^actions\/.*[Oo]pen/.test(path)), "no action module for a host hook");
+    // is never a loose end. Compared against the baseline action-file set
+    // rather than matched by name, since an authored command's own derived
+    // name (e.g. "loop-creator.open" -> "loopCreatorOpen.js") can coincide
+    // with a host hook's name by accident.
+    const actionFiles = files => [...files.keys()].filter(p => p.startsWith("actions/")).sort();
+    assert.deepEqual(actionFiles(withHost.files), actionFiles(emitted.files), "a host hook adds no action module");
     assert.ok(!withHost.looseEnds.some(end => /host\./.test(end.subject || "")));
 
     const without = emitApplication(compiled, { libraryBase: ".." });
@@ -168,7 +211,7 @@ test("loose ends cover every warning once and say what the build did", () => {
     // Counts are lower bounds: the authored application grows, the mapping
     // from a warning to a loose-end kind is what this pins down.
     const kinds = emitted.looseEnds.map(e => e.kind);
-    assert.ok(kinds.filter(k => k === "unsupported-node").length >= 4, "menu, volume meter, two lights");
+    assert.ok(kinds.filter(k => k === "unsupported-node").length >= 2, "the two notification lights (menu is implemented as of spec 023, volume meter as of spec 054)");
     assert.ok(kinds.filter(k => k === "mocked-command").length >= 1);
     assert.ok(kinds.filter(k => k === "inert-control").length >= 2);
     assert.ok(kinds.filter(k => k === "unresolved-rule").length >= 2);

@@ -1774,6 +1774,21 @@ var Tracker = (function(){
 		return patternLength;
 	};
 
+	// Spec 038: two getters for state this engine already privately tracks
+	// (bpm/ticksPerStep) but never exposed - player/src never needed to read
+	// them back out, only script/src/tracker.js did (getBPM/getAmigaSpeed,
+	// ported verbatim, one line each). Not a behavioral divergence - nothing
+	// player/src does is different - just a new accessor for a new consumer
+	// (domain/moduleExport's own XM writer, which has to write the song's
+	// current tempo/speed into the file header). See domain/playback/README.md.
+	me.getBPM = function(){
+		return bpm;
+	};
+
+	me.getAmigaSpeed = function(){
+		return ticksPerStep;
+	};
+
 	me.setPatternLength = function(value){
 		patternLength = value;
 

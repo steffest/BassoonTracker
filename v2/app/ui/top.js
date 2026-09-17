@@ -9,8 +9,64 @@ import { notifications } from "./notifications.js";
  */
 export function top() {
     return component("panel", { id: "main.top", name: "top", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 28 } } }, [
-        // menu "menu" (app.yaml:14) is not rendered: unsupported component. See LOOSE-ENDS.md.
-        // volumemeter "volume meter" (app.yaml:20) is not rendered: unsupported component. See LOOSE-ENDS.md.
+        component("menu", { id: "main.top.menu", name: "menu" }, [
+            component("submenu", { id: "main.top.menu.submenu.File", label: "File" }, [
+                component("label", { id: "main.top.menu.submenu.File.label.New", label: "New" }),
+                // action (app.yaml:26) on click -> file.open, lazy feature actions/fileOpen.js (generated mock)
+                component("label", { id: "main.top.menu.submenu.File.label.Load File", label: "Load File", on: { "click": (app, detail) => app.feature(() => import("../actions/fileOpen.js"), m => m.fileOpen(app, detail)) } }),
+                // action (app.yaml:30) on click -> file.save, lazy feature actions/fileSave.js
+                component("label", { id: "main.top.menu.submenu.File.label.Save File", label: "Save File", on: { "click": (app, detail) => app.feature(() => import("../actions/fileSave.js"), m => m.fileSave(app, detail)) } }),
+                // action (app.yaml:34) on click -> song.random, lazy feature actions/songRandom.js
+                component("label", { id: "main.top.menu.submenu.File.label.Open Random MOD Song", label: "Open Random MOD Song", on: { "click": (app, detail) => app.feature(() => import("../actions/songRandom.js"), m => m.songRandom(app, detail)) } }),
+                // action (app.yaml:38) on click -> song-xm.random, lazy feature actions/songXmRandom.js
+                component("label", { id: "main.top.menu.submenu.File.label.Open Random XM Song", label: "Open Random XM Song", on: { "click": (app, detail) => app.feature(() => import("../actions/songXmRandom.js"), m => m.songXmRandom(app, detail)) } }),
+                // action (app.yaml:42) on click -> play-list.random, lazy feature actions/playListRandom.js
+                component("label", { id: "main.top.menu.submenu.File.label.Open Random Playlist", label: "Open Random Playlist", on: { "click": (app, detail) => app.feature(() => import("../actions/playListRandom.js"), m => m.playListRandom(app, detail)) } })
+            ]),
+            component("submenu", { id: "main.top.menu.submenu.Edit", label: "Edit" }, [
+                component("label", { id: "main.top.menu.submenu.Edit.label.Undo", label: "Undo" }),
+                component("label", { id: "main.top.menu.submenu.Edit.label.Redo", label: "Redo" }),
+                component("label", { id: "main.top.menu.submenu.Edit.label.Cut", label: "Cut" }),
+                component("label", { id: "main.top.menu.submenu.Edit.label.Copy", label: "Copy" }),
+                component("submenu", { id: "main.top.menu.submenu.Edit.submenu.Clear", label: "Clear" }, [
+                    // action (app.yaml:68) on click -> track.clear, lazy feature actions/trackClear.js (generated mock)
+                    component("label", { id: "main.top.menu.submenu.Edit.submenu.Clear.label.Clear Track", label: "Clear Track", on: { "click": (app, detail) => app.feature(() => import("../actions/trackClear.js"), m => m.trackClear(app, detail)) } }),
+                    // action (app.yaml:72) on click -> pattern.clear, lazy feature actions/patternClear.js (generated mock)
+                    component("label", { id: "main.top.menu.submenu.Edit.submenu.Clear.label.Clear Pattern", label: "Clear Pattern", on: { "click": (app, detail) => app.feature(() => import("../actions/patternClear.js"), m => m.patternClear(app, detail)) } }),
+                    // action (app.yaml:76) on click -> song.clear, lazy feature actions/songClear.js (generated mock)
+                    component("label", { id: "main.top.menu.submenu.Edit.submenu.Clear.label.Clear Song", label: "Clear Song", on: { "click": (app, detail) => app.feature(() => import("../actions/songClear.js"), m => m.songClear(app, detail)) } }),
+                    // action (app.yaml:80) on click -> instruments.clear, lazy feature actions/instrumentsClear.js (generated mock)
+                    component("label", { id: "main.top.menu.submenu.Edit.submenu.Clear.label.Clear Instruments", label: "Clear Instruments", on: { "click": (app, detail) => app.feature(() => import("../actions/instrumentsClear.js"), m => m.instrumentsClear(app, detail)) } })
+                ]),
+                component("label", { id: "main.top.menu.submenu.Edit.label.Paste", label: "Paste" }),
+                component("label", { id: "main.top.menu.submenu.Edit.label.Render Pattern 2 Sample", label: "Render Pattern 2 Sample" })
+            ]),
+            component("submenu", { id: "main.top.menu.submenu.View", label: "View" }, [
+                // action (app.yaml:95) on click -> main.show, lazy feature actions/mainShow.js
+                component("label", { id: "main.top.menu.submenu.View.label.Main", label: "Main", on: { "click": (app, detail) => app.feature(() => import("../actions/mainShow.js"), m => m.mainShow(app, detail)) } }),
+                // action (app.yaml:99) on click -> options.show, lazy feature actions/optionsShow.js (generated mock)
+                component("label", { id: "main.top.menu.submenu.View.label.Options", label: "Options", on: { "click": (app, detail) => app.feature(() => import("../actions/optionsShow.js"), m => m.optionsShow(app, detail)) } }),
+                // action (app.yaml:103) on click -> file-operations.show, lazy feature actions/fileOperationsShow.js (generated mock)
+                component("label", { id: "main.top.menu.submenu.View.label.File Operations", label: "File Operations", on: { "click": (app, detail) => app.feature(() => import("../actions/fileOperationsShow.js"), m => m.fileOperationsShow(app, detail)) } }),
+                // action (app.yaml:107) on click -> sample-editor.show, lazy feature actions/sampleEditorShow.js (generated mock)
+                component("label", { id: "main.top.menu.submenu.View.label.Sample Editor", label: "Sample Editor", on: { "click": (app, detail) => app.feature(() => import("../actions/sampleEditorShow.js"), m => m.sampleEditorShow(app, detail)) } }),
+                // action (app.yaml:111) on click -> piano.toggle, lazy feature actions/pianoToggle.js
+                component("label", { id: "main.top.menu.submenu.View.label.Piano", label: "Piano", on: { "click": (app, detail) => app.feature(() => import("../actions/pianoToggle.js"), m => m.pianoToggle(app, detail)) } }),
+                // action (app.yaml:115) on click -> nibbles.open, lazy feature actions/nibblesOpen.js
+                component("label", { id: "main.top.menu.submenu.View.label.Nibbles", label: "Nibbles", on: { "click": (app, detail) => app.feature(() => import("../actions/nibblesOpen.js"), m => m.nibblesOpen(app, detail)) } }),
+                // action (app.yaml:119) on click -> stats.show, lazy feature actions/statsShow.js (generated mock)
+                component("label", { id: "main.top.menu.submenu.View.label.Performance stats", label: "Performance stats", on: { "click": (app, detail) => app.feature(() => import("../actions/statsShow.js"), m => m.statsShow(app, detail)) } })
+            ]),
+            component("submenu", { id: "main.top.menu.submenu.Help", label: "Help" }, [
+                // action (app.yaml:126) on click -> about.show, lazy feature actions/aboutShow.js (generated mock)
+                component("label", { id: "main.top.menu.submenu.Help.label.About", label: "About", on: { "click": (app, detail) => app.feature(() => import("../actions/aboutShow.js"), m => m.aboutShow(app, detail)) } }),
+                // action (app.yaml:130) on click -> help.show, lazy feature actions/helpShow.js (generated mock)
+                component("label", { id: "main.top.menu.submenu.Help.label.Documentation", label: "Documentation", on: { "click": (app, detail) => app.feature(() => import("../actions/helpShow.js"), m => m.helpShow(app, detail)) } }),
+                // action (app.yaml:134) on click -> github.show, lazy feature actions/githubShow.js (generated mock)
+                component("label", { id: "main.top.menu.submenu.Help.label.Sourcecode on Github", label: "Sourcecode on Github", on: { "click": (app, detail) => app.feature(() => import("../actions/githubShow.js"), m => m.githubShow(app, detail)) } })
+            ])
+        ]),
+        component("volumeMeter", { id: "main.top.volumemeter", name: "volumemeter", layout: { width: { mode: "fixed", size: 160 }, height: { mode: "fixed", size: 16 } } }),
         notifications()
     ]);
 }

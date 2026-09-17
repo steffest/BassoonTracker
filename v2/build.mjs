@@ -216,11 +216,27 @@ export async function buildDist({ appDir = DEFAULT_APP_DIR, distDir = DEFAULT_DI
         copyFileSync(from, join(distDir, "assets", "skin", name));
     }
 
-    // Non-skin media a capability loads at runtime (spec 012: the demo module).
-    const mediaDir = join(V2, "assets", "demo");
-    const mediaAssets = existsSync(mediaDir) ? readdirSync(mediaDir).filter(name => !name.startsWith(".")) : [];
-    if (mediaAssets.length) mkdirSync(join(distDir, "assets", "demo"), { recursive: true });
-    for (const name of mediaAssets) copyFileSync(join(mediaDir, name), join(distDir, "assets", "demo", name));
+    // Non-skin media a capability loads at runtime (spec 012's demo module;
+    // spec 036 adds "data", the disk-operation screen's local module list;
+    // spec 069 adds "data/playlists", the curated per-playlist snapshot
+    // files the same screen's own "Playlists" target loads on demand - one
+    // level of subdirectory nesting under "data", not a third top-level
+    // media kind, so this list stays a flat array of relative paths rather
+    // than growing a recursive-copy mechanism nothing else needs yet).
+    const mediaSubdirs = ["demo", "data", "data/playlists"];
+    const mediaAssets = [];
+    for (const subdir of mediaSubdirs) {
+        const mediaDir = join(V2, "assets", subdir);
+        // "data" now also contains the "playlists" subdirectory itself (its
+        // own entry in this same list, copied separately) - skip
+        // directories here rather than trying to copyFileSync one.
+        const names = existsSync(mediaDir)
+            ? readdirSync(mediaDir).filter(name => !name.startsWith(".") && !statSync(join(mediaDir, name)).isDirectory())
+            : [];
+        if (names.length) mkdirSync(join(distDir, "assets", subdir), { recursive: true });
+        for (const name of names) copyFileSync(join(mediaDir, name), join(distDir, "assets", subdir, name));
+        mediaAssets.push(...names.map(name => `assets/${subdir}/${name}`));
+    }
 
     // esbuild's metafile also reports dynamically imported modules as
     // "entryPoint"s of their chunks, so the real entry is the one for main.js.
@@ -236,7 +252,7 @@ export async function buildDist({ appDir = DEFAULT_APP_DIR, distDir = DEFAULT_DI
     const manifest = {
         entry: entry.path,
         chunks: outputs.filter(o => o !== entry && o.path.endsWith(".js")).map(o => o.path),
-        assets: [...skinAssets.map(name => `assets/skin/${name}`), ...mediaAssets.map(name => `assets/demo/${name}`)],
+        assets: [...skinAssets.map(name => `assets/skin/${name}`), ...mediaAssets],
         bytes: Object.fromEntries(outputs.map(o => [o.path, o.bytes])),
         sourceHash: compile().sourceHash
     };

@@ -1,0 +1,525 @@
+name: sampleEditPanel
+type: panel
+layout:
+  width: fill
+  height: fill
+  direction: column
+visibleWhen:
+  field: pattern-section-view.value
+  oneOf:
+    - Sample Edit
+content:
+  - name: sampleEditNormalView
+    type: panel
+    layout:
+      direction: column
+    visibleWhen:
+      field: sample-edit-view.value
+      oneOf:
+        - ""
+    content:
+      - name: instrumentRow
+        type: panel
+        layout:
+          direction: row
+        content:
+          - type: label
+            label: Instrument
+          - name: instrumentIndex
+            type: spinBox
+            field: instrument-index.value
+            min: 1
+            max: 128
+            step: 1
+            actions:
+              - change: setInstrumentIndex
+          - type: inputbox
+            field: instrument-name.value
+            placeholder: "(unnamed)"
+            actions:
+              - change: setInstrumentName
+      - name: waveform
+        type: waveformView
+        layout:
+          width: fill
+          height: fill
+      - name: sampleControlsRow
+        type: panel
+        layout:
+          direction: row
+        content:
+          - type: label
+            label: Volume
+          - type: slider
+            field: sample-volume.value
+            min: 0
+            max: 64
+            step: 1
+            actions:
+              - change: setSampleVolume
+          - type: checkbox
+            label: Loop enabled
+            rule: highlighted when loop enabled is active
+            actions:
+              - click: toggleLoopEnabled
+          - type: label
+            label: Start
+          - name: loopStart
+            type: spinBox
+            field: loop-start.value
+            min: 0
+            max: 65535
+            step: 1
+            actions:
+              - change: setLoopStart
+          - type: label
+            label: Length
+          - name: loopLength
+            type: spinBox
+            field: loop-length.value
+            min: 0
+            max: 65535
+            step: 1
+            actions:
+              - change: setLoopLength
+      - name: sampleEditButtons
+        type: buttonGroup
+        layout:
+          direction: row
+        items:
+          - type: button
+            label: Normalize
+            actions:
+              - click: normalizeSample
+          - type: button
+            label: Fade In
+            actions:
+              - click: fadeInSample
+          - type: button
+            label: Fade Out
+            actions:
+              - click: fadeOutSample
+          - type: button
+            label: Trim
+            actions:
+              - click: trimSample
+          - type: button
+            label: Reverse
+            actions:
+              - click: reverseSample
+          - type: button
+            label: Invert
+            actions:
+              - click: invertSample
+          - type: button
+            label: Create Loop
+            actions:
+              - click: openLoopCreator
+          - type: button
+            label: Resample
+            actions:
+              - click: openResample
+      - name: ftOnlyRow
+        type: panel
+        layout:
+          direction: row
+        content:
+          - type: label
+            label: Finetune
+          - name: finetuneSlider
+            type: slider
+            field: finetune.value
+            min: -128
+            max: 127
+            step: 1
+            rule: disabled unless ft mode is active
+            actions:
+              - change: setFinetune
+          - type: label
+            label: Panning
+          - name: panningSlider
+            type: slider
+            field: panning.value
+            min: -127
+            max: 127
+            step: 1
+            rule: disabled unless ft mode is active
+            actions:
+              - change: setPanning
+          - type: label
+            label: Fadeout
+          - name: fadeoutSpinBox
+            type: spinBox
+            field: fadeout.value
+            min: 0
+            max: 4095
+            step: 1
+            rule: disabled unless ft mode is active
+            actions:
+              - change: setFadeout
+          - type: label
+            label: "Relative Note"
+          - name: relativeNoteSpinBox
+            type: spinBox
+            field: relative-note.value
+            min: -127
+            max: 128
+            step: 1
+            rule: disabled unless ft mode is active
+            actions:
+              - change: setRelativeNote
+          - type: label
+            label: "Vib Speed"
+          - name: vibratoSpeedSpinBox
+            type: spinBox
+            field: vibrato-speed.value
+            min: 0
+            max: 63
+            step: 1
+            rule: disabled unless ft mode is active
+            actions:
+              - change: setVibratoSpeed
+          - type: label
+            label: "Vib Depth"
+          - name: vibratoDepthSpinBox
+            type: spinBox
+            field: vibrato-depth.value
+            min: 0
+            max: 15
+            step: 1
+            rule: disabled unless ft mode is active
+            actions:
+              - change: setVibratoDepth
+          - type: label
+            label: "Vib Sweep"
+          - name: vibratoSweepSpinBox
+            type: spinBox
+            field: vibrato-sweep.value
+            min: 0
+            max: 255
+            step: 1
+            rule: disabled unless ft mode is active
+            actions:
+              - change: setVibratoSweep
+          - name: vibratoWaveGroup
+            type: radioGroup
+            variant: buttons
+            items:
+              # radioGroup itself is not interactive (no controller of its
+              # own - runtime/componentTypes.js), so disabledWhen has no
+              # effect there (syncDisabled skips any node with none); each
+              # radioItem carries the same rule instead, matching the
+              # per-leaf fallback design.md already recorded.
+              - label: Sine
+                rule: disabled unless ft mode is active
+              - label: Square
+                rule: disabled unless ft mode is active
+              - label: Saw
+                rule: disabled unless ft mode is active
+              - label: "Saw Inverse"
+                rule: disabled unless ft mode is active
+            actions:
+              - change: setVibratoWave
+      - name: envelopeRow
+        type: panel
+        layout:
+          direction: row
+        content:
+          - name: volumeEnvelopePanel
+            type: panel
+            layout:
+              direction: column
+            content:
+              - name: volumeEnvelopeHeader
+                type: panel
+                layout:
+                  direction: row
+                content:
+                  - type: checkbox
+                    label: "Volume Envelope"
+                    rule:
+                      - highlighted when volume envelope enabled is active
+                      - disabled unless ft mode is active
+                    actions:
+                      - click: setVolumeEnvelopeEnabled
+                  - type: button
+                    label: "+"
+                    rule: disabled unless ft mode is active
+                    actions:
+                      - click: addVolumeEnvelopePoint
+                  - type: button
+                    label: "-"
+                    rule: disabled unless ft mode is active
+                    actions:
+                      - click: removeVolumeEnvelopePoint
+              - name: volumeEnvelopeBody
+                type: panel
+                layout:
+                  direction: row
+                content:
+                  - name: volumeEnvelopeGraph
+                    type: envelopeView
+                    envelopeType: volume
+                    layout:
+                      width: fill
+                      height: fill
+                    rule: disabled unless ft mode is active
+                  - name: volumeEnvelopeControls
+                    type: panel
+                    layout:
+                      direction: column
+                    content:
+                      - type: checkbox
+                        label: Sustain
+                        rule:
+                          - highlighted when volume envelope sustain is active
+                          - disabled unless ft mode is active
+                        actions:
+                          - click: setVolumeEnvelopeSustain
+                      - name: volumeEnvelopeSustainPoint
+                        type: spinBox
+                        field: volume-envelope-sustain-point.value
+                        min: 0
+                        max: 100
+                        step: 1
+                        rule: disabled unless ft mode is active
+                        actions:
+                          - change: setVolumeEnvelopeSustainPoint
+                      - type: checkbox
+                        label: Loop
+                        rule:
+                          - highlighted when volume envelope loop is active
+                          - disabled unless ft mode is active
+                        actions:
+                          - click: setVolumeEnvelopeLoop
+                      - type: label
+                        label: From
+                      - name: volumeEnvelopeLoopStart
+                        type: spinBox
+                        field: volume-envelope-loop-start.value
+                        min: 0
+                        max: 100
+                        step: 1
+                        rule: disabled unless ft mode is active
+                        actions:
+                          - change: setVolumeEnvelopeLoopStart
+                      - type: label
+                        label: To
+                      - name: volumeEnvelopeLoopEnd
+                        type: spinBox
+                        field: volume-envelope-loop-end.value
+                        min: 0
+                        max: 100
+                        step: 1
+                        rule: disabled unless ft mode is active
+                        actions:
+                          - change: setVolumeEnvelopeLoopEnd
+          - name: panningEnvelopePanel
+            type: panel
+            layout:
+              direction: column
+            content:
+              - name: panningEnvelopeHeader
+                type: panel
+                layout:
+                  direction: row
+                content:
+                  - type: checkbox
+                    label: "Panning Envelope"
+                    rule:
+                      - highlighted when panning envelope enabled is active
+                      - disabled unless ft mode is active
+                    actions:
+                      - click: setPanningEnvelopeEnabled
+                  - type: button
+                    label: "+"
+                    rule: disabled unless ft mode is active
+                    actions:
+                      - click: addPanningEnvelopePoint
+                  - type: button
+                    label: "-"
+                    rule: disabled unless ft mode is active
+                    actions:
+                      - click: removePanningEnvelopePoint
+              - name: panningEnvelopeBody
+                type: panel
+                layout:
+                  direction: row
+                content:
+                  - name: panningEnvelopeGraph
+                    type: envelopeView
+                    envelopeType: panning
+                    layout:
+                      width: fill
+                      height: fill
+                    rule: disabled unless ft mode is active
+                  - name: panningEnvelopeControls
+                    type: panel
+                    layout:
+                      direction: column
+                    content:
+                      - type: checkbox
+                        label: Sustain
+                        rule:
+                          - highlighted when panning envelope sustain is active
+                          - disabled unless ft mode is active
+                        actions:
+                          - click: setPanningEnvelopeSustain
+                      - name: panningEnvelopeSustainPoint
+                        type: spinBox
+                        field: panning-envelope-sustain-point.value
+                        min: 0
+                        max: 100
+                        step: 1
+                        rule: disabled unless ft mode is active
+                        actions:
+                          - change: setPanningEnvelopeSustainPoint
+                      - type: checkbox
+                        label: Loop
+                        rule:
+                          - highlighted when panning envelope loop is active
+                          - disabled unless ft mode is active
+                        actions:
+                          - click: setPanningEnvelopeLoop
+                      - type: label
+                        label: From
+                      - name: panningEnvelopeLoopStart
+                        type: spinBox
+                        field: panning-envelope-loop-start.value
+                        min: 0
+                        max: 100
+                        step: 1
+                        rule: disabled unless ft mode is active
+                        actions:
+                          - change: setPanningEnvelopeLoopStart
+                      - type: label
+                        label: To
+                      - name: panningEnvelopeLoopEnd
+                        type: spinBox
+                        field: panning-envelope-loop-end.value
+                        min: 0
+                        max: 100
+                        step: 1
+                        rule: disabled unless ft mode is active
+                        actions:
+                          - change: setPanningEnvelopeLoopEnd
+  - name: loopCreatorPanel
+    type: panel
+    layout:
+      direction: column
+    visibleWhen:
+      field: sample-edit-view.value
+      oneOf:
+        - loop-creator
+    content:
+      - name: loopCreatorMenuBar
+        type: panel
+        layout:
+          direction: row
+        content:
+          - type: label
+            label: Create Loop
+          - type: button
+            label: Apply
+            actions:
+              - click: saveLoopCreator
+          - type: button
+            label: Cancel
+            actions:
+              - click: cancelLoopCreator
+          - type: checkbox
+            label: Snap to zero
+            rule: highlighted when snap to zero is active
+            actions:
+              - click: toggleSnapToZero
+          - name: loopPresets
+            type: radioGroup
+            variant: buttons
+            items:
+              - label: Select
+              - label: Fade in Head
+              - label: Fade out Tail
+              - label: Cross Fade
+            actions:
+              - change: setLoopPreset
+      - name: loopCreatorWave
+        type: loopCreatorView
+        layout:
+          width: fill
+          height: fill
+  - name: resamplePanel
+    type: panel
+    layout:
+      direction: column
+    visibleWhen:
+      field: sample-edit-view.value
+      oneOf:
+        - resample
+    content:
+      - name: resampleMenuBar
+        type: panel
+        layout:
+          direction: row
+        content:
+          - type: label
+            label: Resample
+          - type: button
+            label: Apply
+            actions:
+              - click: saveResample
+          - type: button
+            label: Cancel
+            actions:
+              - click: cancelResample
+          - type: checkbox
+            label: Interpolate
+            rule: highlighted when resample interpolate is active
+            actions:
+              - click: toggleResampleInterpolate
+      - name: resampleSourceRow
+        type: panel
+        layout:
+          direction: row
+        content:
+          - type: label
+            label: "Source:"
+          - type: label
+            label: ORIGINAL
+          - name: resampleSourceRate
+            type: label
+            field: resample-source-rate.value
+          - type: label
+            label: Hz
+          - name: resampleSourceSize
+            type: label
+            field: resample-source-size.value
+          - type: label
+            label: B
+      - name: resampleTargetRow
+        type: panel
+        layout:
+          direction: row
+        content:
+          - type: label
+            label: "Target:"
+          - name: resampleTargetIndex
+            type: spinBox
+            field: resample-target-index.value
+            min: 1
+            max: 96
+            step: 1
+            actions:
+              - change: setResampleTargetIndex
+          - name: resampleTargetNote
+            type: label
+            field: resample-target-note.value
+          - name: resampleTargetRate
+            type: label
+            field: resample-target-rate.value
+          - type: label
+            label: Hz
+          - name: resampleTargetSize
+            type: label
+            field: resample-target-size.value
+          - type: label
+            label: B

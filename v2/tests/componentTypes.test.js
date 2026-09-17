@@ -60,12 +60,13 @@ test("an implemented type is drawable and, when styled, has a fallback style", (
 
 test("lookups answer what the compiler and the renderer ask", () => {
     assert.equal(isKnownType("button"), true);
-    assert.equal(isKnownType("menu"), true, "a declared type is known even though it is not rendered");
+    assert.equal(isKnownType("tooltip"), true, "a declared type is known even though it is not rendered");
     assert.equal(isKnownType("nonesuch"), false);
     assert.equal(isKnownType(null), false);
 
     assert.equal(isImplemented("button"), true);
-    assert.equal(isImplemented("menu"), false);
+    assert.equal(isImplemented("menu"), true, "promoted by spec 023");
+    assert.equal(isImplemented("tooltip"), false);
     assert.equal(isImplemented("nonesuch"), false);
 
     assert.equal(isContainer("panel"), true);
@@ -89,14 +90,15 @@ test("lookups answer what the compiler and the renderer ask", () => {
     assert.deepEqual(interactive, typeEntries().filter(([, e]) => e.interactive && e.implemented).map(([t]) => t).sort());
     assert.ok(interactive.includes("button") && interactive.includes("radioItem") && interactive.includes("checkbox"));
     assert.equal(isInteractiveType("panel"), false);
-    assert.equal(isInteractiveType("menu"), false, "a declared type gets no controller until it is rendered");
+    assert.equal(isInteractiveType("menu"), false, "menu itself draws nothing and has no controller; its synthesized menuTrigger children do (spec 023)");
 
     // Spec 014: a behavior and a cursor per type, both read by the renderer.
     assert.equal(behaviorOf("button"), "button", "an interactive type that names no behavior gets the button one");
     assert.equal(behaviorOf("slider"), "value");
     assert.equal(behaviorOf("viewport"), "scroll");
     assert.equal(behaviorOf("panel"), null);
-    assert.equal(behaviorOf("menu"), null, "a type that is not rendered gets no controller");
+    assert.equal(behaviorOf("menu"), null, "menu itself has no controller, only its synthesized menuTrigger children (spec 023)");
+    assert.equal(behaviorOf("menuTrigger"), "disclose");
     assert.deepEqual(behaviorOptionsOf("spinBox"), { mode: "relative", axis: "y", stepper: true });
     assert.deepEqual(behaviorOptionsOf("button"), {});
     assert.equal(cursorOf("slider"), "ew-resize");
@@ -109,7 +111,9 @@ test("lookups answer what the compiler and the renderer ask", () => {
 
 test("property classification separates a property, a child slot and a mistake", () => {
     assert.deepEqual(knownProperty("button", "label"), { known: true, where: "universal" });
-    assert.deepEqual(knownProperty("button", "shortKey"), { known: true, where: "type" });
+    // shortKey moved to a universal property in spec 015, so any interactive
+    // type can carry one, not only button.
+    assert.deepEqual(knownProperty("button", "shortKey"), { known: true, where: "universal" });
     assert.deepEqual(knownProperty("panel", "content"), { known: true, where: "childSlot" });
     assert.deepEqual(knownProperty("button", "content"), { known: false, where: null }, "content is not a button property");
     assert.deepEqual(knownProperty("button", "labell"), { known: false, where: null });
@@ -212,4 +216,25 @@ test("the lists the registry replaced stay gone", () => {
             assert.ok(!pattern.test(text), `${relative(V2, file)} still declares ${pattern}`);
         }
     }
+});
+
+test("spec 016/017/018/019/020/021/027: package P5's remaining declared-not-drawn types are all present and inert", () => {
+    // icon, image and animSprite were promoted to implemented by spec 017;
+    // rangeSlider and knob by spec 018; listbox by spec 019; dropdown,
+    // submenu and modalDialog by spec 020; tabPanel, collapsePanel and
+    // buttonGroup by spec 021; numberDisplay by spec 027. The other two spec
+    // 016 declared are still placeholders, scrollbar deliberately among them
+    // (spec 018 left it declared-only; see its requirements.md).
+    const declared = ["scrollbar", "tooltip"];
+    for (const type of declared) {
+        assert.ok(Object.prototype.hasOwnProperty.call(COMPONENT_TYPES, type), `${type} is registered`);
+        assert.equal(isImplemented(type), false, `${type} is not implemented yet`);
+        assert.equal(drawKindOf(type), "placeholder", `${type} draws the placeholder box`);
+        assert.equal(isStyledType(type), false, `${type} has no artwork to resolve while unimplemented`);
+        assert.equal(behaviorOf(type), null, `${type} has no controller while unimplemented`);
+    }
+    // checkboxbutton is a documented decision, not an oversight: it is the
+    // same shape as the already-implemented checkbox and is not carried
+    // forward as a second entry (see 016's requirements.md/design.md).
+    assert.ok(!Object.prototype.hasOwnProperty.call(COMPONENT_TYPES, "checkboxbutton"));
 });

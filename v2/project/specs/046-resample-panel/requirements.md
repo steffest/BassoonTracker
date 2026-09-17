@@ -1,0 +1,50 @@
+# 046 — The resample panel
+
+Date: 2026-09-14. Kind: feature. Status: specified. Continues package **P10** (features and the plugin path) of the [port roadmap](../010-port-roadmap/requirements.md), following spec 040 (sample processing), spec 041 (the waveform view), spec 043/044 (the loop creator) and spec 045 (the loop creator's own screen wiring). Allocates the second of P10's three separable sample-editor sub-features spec 040 recorded (`loopCreator.js`/`resamplePanel.js`/`hissReductionPanel.js`) - the hiss-reduction panel is deliberately left for a later spec, per user direction.
+
+## Purpose
+
+`resamplePanel.js` (116 lines, read in full for this spec) is v1's own modal dialog for changing a sample's playback rate to hit a specific target note, with an optional linear-interpolation choice - opened from the sample-editor menu's "Edit > Resample" item. Unlike the loop creator, it needs no specialized-component leaf: it is a small, static dialog (a handful of labels, a checkbox, two buttons, and one number - the target note) with no drag surfaces or freehand drawing, so it is authored directly from the existing catalogue.
+
+## What v1 actually does, and what this narrows out (read from source, not assumed)
+
+`resamplePanel.js`'s own `open(sourceRate, apply, sampleName, sample)` (86-114) shows source note ("ORIGINAL", static)/rate/size next to target note/rate/size, both computed from a `targetIndex` (1-96, an FTNotes-table index, default 37 - `resamplePanel.js:69`) that the user changes by **pressing a physical note key** (`onKeyDown`, 70-75, `Input.getNoteIndexForKeyEvent`) - there is no drag or type entry for it in v1 either. An "Interpolate" checkbox and Apply/Cancel buttons complete the dialog. Apply calls the caller-supplied `apply(targetRate, interpolate)` callback, which `sampleView.js:165` binds to `waveForm.resampleToRate(...)` - the actual DSP, in `waveform.js:1344-1370`: a whole-sample linear (or nearest-sample) resample to a new rate, scaling the loop's own start/length by the same ratio, one undo entry, no range-selection involvement at all (this operates on the *whole* sample regardless of any waveform-view selection). Cancel simply closes the dialog - nothing was mutated before Apply, so there is nothing to restore.
+
+This spec narrows one interaction and defers two adjacent, separately-named v1 actions:
+
+- **The target note is set by an authored `spinBox` (1-96, `field:` bound), not a captured physical key press.** v1's own "press a note key" gesture needs the full 27-key piano table (`domain/song/keyboardNotes.js`) wired to a plain dialog with no such input model today; a spinBox is exactly what this port already used in the same situation for the closest analogous control (spec 042's own instrument-index spinBox) and costs nothing new. Recorded as a deliberate interaction substitution, the same class of call spec 042 made for FT-only fields and spec 045 made for the presets dropdown-vs-radioGroup choice - not an oversight.
+- **`waveform.js`'s own `resample("up"/"down")`** (1299-1342, the Edit menu's separate "Upsample"/"DownSample" items, a 2x/0.5x doubling of the current *selection* by literal repeat/decimate, not a rate-targeted resample) **is a different, separately-named v1 action from `resamplePanel.js`/`resampleToRate` and is out of scope for this spec**, which exists to close the `resamplePanel.js` gap spec 040 specifically named. Recorded, not silently dropped - a real, small, later addition if ever needed (same shape as spec 042's own six operation buttons: a thin wrapper around a range-transform already provable against `tests/sampleEditor.test.js`'s own conventions).
+- **The hiss-reduction panel** (`hissReductionPanel.js`, spec 040's third named sub-feature) is explicitly deferred past this spec, per user direction.
+
+## Decisions and assumptions
+
+- **No open/session state machine is needed, unlike the loop creator.** The loop creator previews its edit live while open (so Cancel must restore data, and Apply must commit whatever the live preview already shows). The resample panel mutates nothing until Apply is clicked (`resamplePanel.js`'s own `updateTarget()`, 85, only recomputes display labels; the sample data is untouched until `this.apply(...)` runs, 112) - so Cancel here is simply "switch the panel back," with no data to restore. `domain/sampleEditor/resample.js` (new sibling module, mirroring `loopCreator.js`'s own precedent of a directly-testable sibling) still needs a small amount of open-time state (the source rate/size captured once at open, and the live target index), but not a live-preview snapshot.
+- **`getSampleRateForPeriod` is exposed from `domain/playback/index.js`, not `domain/song/index.js`.** It is pure playback-engine math (`engine/audio.js#getSampleRateForPeriod`, no song-document concern), so it belongs with `domain/playback`'s existing role of exposing generic audio math (mirroring how that module already owns `Audio` internally) rather than growing `domain/song`'s own surface for something unrelated to editing. `domain/sampleEditor/resample.js` therefore imports from both `domain/song/index.js` (the current instrument, undo registration) and `domain/playback/index.js` (this one function) - two ordinary inter-module dependencies, neither a new documented exception (the "one documented exception" language in both READMEs is specifically about reaching into `engine/` directly, which neither import does).
+- **Target note name/period resolution is exposed from `domain/song/index.js`**, alongside the existing `formatNoteName` (which already has the same job for a different caller) - a new `getNoteForResampleIndex(index)` ports `resamplePanel.js`'s own `modeNote`/`noteName`/`targetPeriod` (77-84) as one pure function, including the FT-mode-with-linear-frequency period formula those three methods only compute correctly together.
+- **The "Snap to zero"-style alias problem recurs a third time.** `resample interpolate` needs a `CONDITION_FIELD_ALIASES` entry for the exact same reason `loop enabled` (spec 042) and `snap to zero` (spec 045) did - confirmed empirically before writing any YAML (`interpretRule` derives `resample.interpolate`, which does not match `toggle-generic`'s own `resample-interpolate.active`).
+- **No new `verb-action` verbs.** `open`/`save`/`cancel` (spec 045) and `set-value`/`toggle-generic` (existing) cover every one of this screen's five actions - confirmed empirically (see design.md).
+
+## User stories and acceptance
+
+- **RSP-001 — "Resample" opens the panel over the current instrument.** Clicking it calls `domain/sampleEditor/index.js#openResample`, which opens a session for the current instrument (source rate from `sample.originalSampleRate || sample.c2spd || 8363`, source size in bytes, target index reset to 37) and switches the shared `sample-edit-view.value` field (see design.md's "Found while doing it") to `"resample"`. A no-sample instrument leaves the field untouched (mirrors spec 045's own `openLoopCreator` guard). Acceptance: a capability unit test against a real loaded fixture; a compiled-outline read-back.
+- **RSP-002 — Dragging/typing the target-index spinBox updates every displayed target field.** Clamped to `[1, 96]`; recomputes and republishes target note name, target rate and target size on every change. Acceptance: a unit test asserting all three fields after changing the index, including a FT-mode-with-linear-frequency case (a different period formula) and a ProTracker-mode case.
+- **RSP-003 — "Interpolate" toggles and reflects real state**, via the same `CONDITION_FIELD_ALIASES` seam as "Loop enabled"/"Snap to zero". Acceptance: a compiler-recipe unit test plus a capability unit test.
+- **RSP-004 — Apply resamples the whole current instrument's sample to the target rate**, scaling the loop's own start/length by the same ratio, registering one undoable edit, and returning to the normal view. Interpolated vs. nearest-sample modes both produce the length v1's own formula predicts. Acceptance: a capability unit test against the real fixture, undo/redo round trip, both interpolation modes.
+- **RSP-005 — Cancel returns to the normal view without mutating anything.** Acceptance: a capability unit test confirming the sample data is byte-identical before and after.
+- **RSP-006 — No regressions.** Full unit suite passes; `node build.mjs app` succeeds with every new command mapped in `capabilities.js` (none left as a generated mock); `node build.mjs dist` still blocked only by the pre-existing `esbuild` mismatch.
+
+## Non-functional requirements
+
+- Headless verification only (no browser-automation dependency in this environment, the same recorded reason every spec since 019 has given).
+- No new component type and no new specialized-component leaf - authored entirely from the existing catalogue (`panel`, `label`, `spinBox`, `checkbox`, `button`), the same `visibleWhen`-gated panel-switch mechanism spec 045 already used for the loop creator.
+
+## Scope boundaries
+
+In scope: `domain/sampleEditor/resample.js` (new), five new `domain/sampleEditor/index.js` capability wrappers, `domain/song/index.js#getNoteForResampleIndex`, `domain/playback/index.js#getSampleRateForPeriod`, `compiler/recipes.js`'s one new `CONDITION_FIELD_ALIASES` entry, five new `capabilities.js` mappings, `project/specs/application/current/components/sampleEditPanel.yaml` (a third `visibleWhen`-gated child alongside `sampleEditNormalView`/`loopCreatorPanel`), and tests for all of the above.
+
+Out of scope, recorded rather than silently dropped:
+
+- **Keyboard-driven target-note entry** - see Decisions and assumptions; a spinBox is used instead.
+- **`resample("up"/"down")`** (the Edit menu's separate Upsample/DownSample quick actions) - a different, separately-named v1 action; see Decisions and assumptions.
+- **The hiss-reduction panel** - the third of spec 040's named sub-features, left for a later spec per user direction.
+- **8/16-bit conversion, playback preview** - already out of scope since specs 040/041/042.

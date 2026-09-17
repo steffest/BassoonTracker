@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import Scheduler from "../domain/playback/scheduler.js";
+import Scheduler, { setDefaultOnMissedDeadline } from "../domain/playback/scheduler.js";
 
 // Spec 012: the lookahead clock that replaced the vendored WAAClock bundle.
 // The sequencer uses exactly four things from it, so these tests pin those
@@ -149,4 +149,48 @@ test("due events fire in deadline order", () => {
     context.advance(0.5);
     clock.tick();
     assert.deepEqual(fired, ["early", "late"]);
+});
+
+// --- spec 032: the frame loop's own default missed-deadline handler -------
+
+test("setDefaultOnMissedDeadline supplies a handler to a Scheduler built with no explicit one", () => {
+    const late = [];
+    setDefaultOnMissedDeadline(by => late.push(by));
+    try {
+        const context = fakeContext();
+        const clock = new Scheduler(context);
+        clock.setTimeout(() => {}, 0.1);
+        context.advance(0.5);
+        clock.tick();
+        assert.equal(late.length, 1);
+        assert.ok(late[0] > 0.3);
+    } finally {
+        setDefaultOnMissedDeadline(null);
+    }
+});
+
+test("an explicit per-instance onMissedDeadline option overrides the registered default", () => {
+    const viaDefault = [];
+    const viaOption = [];
+    setDefaultOnMissedDeadline(by => viaDefault.push(by));
+    try {
+        const context = fakeContext();
+        const clock = new Scheduler(context, { onMissedDeadline: by => viaOption.push(by) });
+        clock.setTimeout(() => {}, 0.1);
+        context.advance(0.5);
+        clock.tick();
+        assert.equal(viaOption.length, 1);
+        assert.equal(viaDefault.length, 0, "the instance's own option wins; the default is never consulted");
+    } finally {
+        setDefaultOnMissedDeadline(null);
+    }
+});
+
+test("a Scheduler built with no default registered at all does not throw on a missed deadline", () => {
+    setDefaultOnMissedDeadline(null);
+    const context = fakeContext();
+    const clock = new Scheduler(context);
+    clock.setTimeout(() => {}, 0.1);
+    context.advance(0.5);
+    assert.doesNotThrow(() => clock.tick());
 });

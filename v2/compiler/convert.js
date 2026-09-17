@@ -9,8 +9,8 @@ import { splitLabel } from "./labels.js";
 import { resolveLayoutFields } from "./layoutFields.js";
 import { interpretRule, interpretAction, actionNameAsProse } from "./recipes.js";
 import { assignInstanceIds } from "./identity.js";
-import { compileSkin, lookupStyle, styleLayoutDefaults, BUILTIN_SKIN } from "./skin.js";
-import { componentType, isImplemented, isStyledType, childSlot, knownProperty, acceptedKeys, isAnyKnownKey } from "../runtime/componentTypes.js";
+import { compileSkin, registerAssetUse, lookupStyle, styleLayoutDefaults, BUILTIN_SKIN } from "./skin.js";
+import { componentType, isImplemented, isStyledType, childSlot, knownProperty, acceptedKeys, isAnyKnownKey, assetPropertyOf } from "../runtime/componentTypes.js";
 
 // 0.2.0 (spec 008): the outline gained the compiled `skin` and a `style` on
 // every styled node, and source offsets now include each line's indentation
@@ -235,12 +235,67 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
         const { layout, warnings: layoutWarnings } = resolveLayoutFields(explicitType || mappingKey || "node", rawLayout, definitionName || mappingKey || "node", layoutDefaults);
         layoutWarnings.forEach(w => addDiagnostic("warning", "layout-default-fallback", w, file, (layoutNode || mapNode).range, null));
 
+        // Spec 025: a declared breakpoint mechanism, replacing v1's
+        // hand-written per-pixel cascade (script/src/ui/app/layout.js). Each
+        // entry is a *partial* layout override, so only the fields the
+        // author actually wrote under it are kept - `resolveLayoutFields`
+        // itself always returns a complete, defaulted layout, which would
+        // otherwise silently reset every field a breakpoint did not mention.
+        const nodeLabel = definitionName || mappingKey || "node";
+        const breakpointsNode = mapGet(mapNode, "breakpoints");
+        let breakpoints;
+        if (breakpointsNode && breakpointsNode.kind === "seq") {
+            breakpoints = breakpointsNode.items.map(item => {
+                const maxWidthNode = mapGet(item, "maxWidth");
+                const maxWidth = Number(scalarValue(maxWidthNode));
+                if (!maxWidthNode || !Number.isFinite(maxWidth)) {
+                    addDiagnostic("warning", "invalid-breakpoint", `a breakpoint on ${nodeLabel} needs a numeric maxWidth`, file, item.range, null);
+                    return null;
+                }
+                const bpLayoutNode = mapGet(item, "layout");
+                const rawBpLayout = bpLayoutNode
+                    ? {
+                        width: scalarValue(mapGet(bpLayoutNode, "width")),
+                        height: scalarValue(mapGet(bpLayoutNode, "height")),
+                        direction: scalarValue(mapGet(bpLayoutNode, "direction")),
+                        resizable: scalarValue(mapGet(bpLayoutNode, "resizable"))
+                    }
+                    : {};
+                const { layout: resolvedBpLayout, warnings: bpWarnings } = resolveLayoutFields(
+                    explicitType || mappingKey || "node", rawBpLayout, `${nodeLabel} breakpoint ${maxWidth}`, layoutDefaults
+                );
+                bpWarnings.forEach(w => addDiagnostic("warning", "layout-default-fallback", w, file, (bpLayoutNode || item).range, null));
+                const partial = {};
+                if (rawBpLayout.width !== undefined && rawBpLayout.width !== null) partial.width = resolvedBpLayout.width;
+                if (rawBpLayout.height !== undefined && rawBpLayout.height !== null) partial.height = resolvedBpLayout.height;
+                if (resolvedBpLayout.direction !== undefined) partial.direction = resolvedBpLayout.direction;
+                if (resolvedBpLayout.resizable !== undefined) partial.resizable = resolvedBpLayout.resizable;
+                return { maxWidth, layout: partial };
+            }).filter(Boolean);
+        }
+
+        // Spec 025: the mechanism v1's EVENT.showView view-routing needs,
+        // generalized to any node - visible only while a named state field
+        // holds one of a declared set of values.
+        const visibleWhenNode = mapGet(mapNode, "visibleWhen");
+        let visibleWhen;
+        if (visibleWhenNode && visibleWhenNode.kind === "map") {
+            const field = scalarValue(mapGet(visibleWhenNode, "field"));
+            const oneOfNode = mapGet(visibleWhenNode, "oneOf");
+            let oneOf = [];
+            if (oneOfNode && oneOfNode.kind === "seq") oneOf = oneOfNode.items.map(scalarValue).filter(v => v !== null);
+            else if (oneOfNode) { const v = scalarValue(oneOfNode); if (v !== null) oneOf = [v]; }
+            if (field && oneOf.length) visibleWhen = { field, oneOf };
+            else addDiagnostic("warning", "invalid-visible-when", `visibleWhen on ${nodeLabel} needs both a field and oneOf`, file, visibleWhenNode.range, null);
+        }
+
         const node = {
             type,
             definitionName,
             labelVariants: applyLabel(mapNode, "label", file, definitionName),
             layout,
             shortKey: scalarValue(mapGet(mapNode, "shortKey")),
+            tooltip: scalarValue(mapGet(mapNode, "tooltip")),
             color: scalarValue(mapGet(mapNode, "color")),
             children: [],
             bindings: [],
@@ -248,12 +303,15 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
             refSource: refSource || null,
             supported: isImplemented(explicitType)
         };
+        if (breakpoints && breakpoints.length) node.breakpoints = breakpoints;
+        if (visibleWhen) node.visibleWhen = visibleWhen;
         attachStyle(node, explicitType, variantNode(mapNode), file, null);
 
         // Spec 009/012: a type's own declared properties are carried onto the
         // node generically, so declaring a property is enough to author it.
-        // `shortKey` and `color` are already in the literal above and keep
-        // their place there, so the outline's shape does not shift.
+        // `shortKey`, `tooltip` and `color` are universal properties already
+        // in the literal above (spec 015 added `tooltip`) and keep their
+        // place there, so the outline's shape does not shift.
         const typeEntry = componentType(explicitType);
         for (const property of Object.keys(typeEntry ? typeEntry.properties : {})) {
             if (property in node) continue;
@@ -446,6 +504,29 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
     }
 
     const root = convertComponentMap(mainNode, appYamlPath, "main", null);
+
+    // Spec 071: an image/icon node's own asset-naming property (declared
+    // generically as assetPropertyOf(type), never branched on by type name -
+    // see tests/componentTypes.test.js's own "no module outside the
+    // registry branches on a component type name") also names a skin asset,
+    // but compileSkin() above never sees the app tree at all - only
+    // skin.yaml itself - so nothing before this point ever registered that
+    // use. See registerAssetUse()'s own doc comment for why this is a real
+    // gap, not a redundant check. Skipped entirely when skin compilation
+    // itself failed (skin === BUILTIN_SKIN, the shared, frozen fallback
+    // singleton) - mutating that would leak across every later compilation
+    // in the process, not just this one.
+    if (skin !== BUILTIN_SKIN) {
+        (function registerImageAssetUses(node) {
+            if (!node) return;
+            const assetProperty = assetPropertyOf(node.type);
+            const assetName = assetProperty ? node[assetProperty] : null;
+            if (assetName) {
+                registerAssetUse(skin, assetName, node.source?.file, node.source?.range, `${node.type} "${node.definitionName || "?"}"`, (severity, code, message, file, range) => addDiagnostic(severity, code, message, file, range, node), dependencies.listAssets);
+            }
+            (node.children || []).forEach(registerImageAssetUses);
+        })(root);
+    }
 
     const appRules = mapGet(appNode, "rules");
     if (appRules) {

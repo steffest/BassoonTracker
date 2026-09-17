@@ -1,0 +1,181 @@
+name: fileOperationsPanel
+type: panel
+layout:
+  width: fill
+  height: fill
+  direction: column
+visibleWhen:
+  field: song-properties-view.value
+  oneOf:
+    - File Operations
+content:
+  - name: diskOperationsGrid
+    type: panel
+    layout:
+      width: fill
+      height: fill
+      direction: row
+    content:
+      - name: actionColumn
+        type: panel
+        layout:
+          direction: column
+        content:
+          - type: label
+            label: Action
+          - type: radioGroup
+            variant: buttons
+            layout:
+              direction: column
+            items:
+              - label: Load
+              - label: Save
+            actions:
+              - change: setDiskAction
+      - name: targetColumn
+        type: panel
+        layout:
+          direction: column
+        content:
+          - name: fromLabel
+            type: label
+            label: "From"
+            visibleWhen:
+              field: disk-action.value
+              oneOf:
+                - ""
+                - Load
+          - name: targetGroup
+            type: radioGroup
+            variant: buttons
+            layout:
+              direction: column
+            visibleWhen:
+              field: disk-action.value
+              oneOf:
+                - ""
+                - Load
+            items:
+              - label: Bassoon
+              - label: ModArchive
+              - label: Modules.pl
+              - label: Playlists
+              - label: Hippo
+            actions:
+              - change: setDiskTarget
+          - name: saveTypeLabel
+            type: label
+            label: "Save"
+            visibleWhen:
+              field: disk-action.value
+              oneOf:
+                - Save
+          - name: saveTypeGroup
+            type: radioGroup
+            variant: buttons
+            layout:
+              direction: column
+            visibleWhen:
+              field: disk-action.value
+              oneOf:
+                - Save
+            items:
+              - label: Module
+              - label: Sample
+              - label: Playlist
+            actions:
+              - change: setSaveType
+      - name: contentColumn
+        type: panel
+        layout:
+          width: fill
+          height: fill
+          direction: column
+        content:
+          - name: loadContent
+            type: panel
+            layout:
+              width: fill
+              height: fill
+              direction: column
+            visibleWhen:
+              field: disk-action.value
+              oneOf:
+                - ""
+                - Load
+            content:
+              - type: label
+                label: "Load module:"
+              - name: browser
+                type: fileBrowser
+                layout:
+                  width: fill
+                  height: fill
+                actions:
+                  - change: setBrowserRow
+          - name: saveContent
+            type: panel
+            layout:
+              width: fill
+              height: fill
+              direction: column
+            visibleWhen:
+              field: disk-action.value
+              oneOf:
+                - Save
+            content:
+              - name: saveModulePanel
+                type: panel
+                visibleWhen:
+                  field: save-type.value
+                  oneOf:
+                    - ""
+                    - Module
+                content:
+                  - type: button
+                    label: "Export Module"
+                    actions:
+                      - click: saveFile
+              - name: saveSamplePanel
+                type: panel
+                layout:
+                  direction: column
+                visibleWhen:
+                  field: save-type.value
+                  oneOf:
+                    - Sample
+                content:
+                  - type: radioGroup
+                    variant: buttons
+                    items:
+                      - label: "WAV 8-bit"
+                      - label: "WAV 16-bit"
+                      - label: "RAW 8-bit"
+                      - label: XI
+                    actions:
+                      - change: setSampleFormat
+                  - type: button
+                    label: "Export Sample"
+                    actions:
+                      - click: exportSample
+              - name: savePlaylistPanel
+                type: panel
+                layout:
+                  direction: column
+                visibleWhen:
+                  field: save-type.value
+                  oneOf:
+                    - Playlist
+                content:
+                  - type: radioGroup
+                    variant: buttons
+                    items:
+                      - label: PLS
+                      - label: M3U
+                      - label: JSON
+                    actions:
+                      - change: setPlaylistFormat
+                  - type: button
+                    label: "Export Playlist"
+                    actions:
+                      - click: exportPlayList

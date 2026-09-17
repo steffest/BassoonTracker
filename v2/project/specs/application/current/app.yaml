@@ -13,10 +13,125 @@ app:
             menu:
               type: menu
               items:
-                - name: item1
-                  action: action1
-                - name: item2
-                  action: action2
+                - label: File
+                  type: submenu
+                  items:
+                    - type: label
+                      label: New
+                      actions:
+                        - click: newFile
+                    - type: label
+                      label: Load File
+                      actions:
+                        - click: openFile
+                    - type: label
+                      label: Save File
+                      actions:
+                        - click: saveFile
+                    - type: label
+                      label: Open Random MOD Song
+                      actions:
+                        - click: randomSong
+                    - type: label
+                      label: Open Random XM Song
+                      actions:
+                        - click: randomSongXM
+                    - type: label
+                      label: Open Random Playlist
+                      actions:
+                        - click: randomPlayList
+                - label: Edit
+                  type: submenu
+                  items:
+                    - type: label
+                      label: Undo
+                      actions:
+                        - click: undo
+                    - type: label
+                      label: Redo
+                      actions:
+                        - click: redo
+                    - type: label
+                      label: Cut
+                      actions:
+                        - click: cut
+                    - type: label
+                      label: Copy
+                      actions:
+                        - click: copy
+                    - label: Clear
+                      type: submenu
+                      items:
+                        - type: label
+                          label: Clear Track
+                          actions:
+                            - click: clearTrack
+                        - type: label
+                          label: Clear Pattern
+                          actions:
+                            - click: clearPattern
+                        - type: label
+                          label: Clear Song
+                          actions:
+                            - click: clearSong
+                        - type: label
+                          label: Clear Instruments
+                          actions:
+                            - click: clearInstruments
+                    - type: label
+                      label: Paste
+                      actions:
+                        - click: paste
+                    - type: label
+                      label: Render Pattern 2 Sample
+                      actions:
+                        - click: pattern2Sample
+                - label: View
+                  type: submenu
+                  items:
+                    - type: label
+                      label: Main
+                      actions:
+                        - click: showMain
+                    - type: label
+                      label: Options
+                      actions:
+                        - click: showOptions
+                    - type: label
+                      label: File Operations
+                      actions:
+                        - click: showFileOperations
+                    - type: label
+                      label: Sample Editor
+                      actions:
+                        - click: showSampleEditor
+                    - type: label
+                      label: Piano
+                      actions:
+                        - click: togglePiano
+                    - type: label
+                      label: Nibbles
+                      actions:
+                        - click: openNibbles
+                    - type: label
+                      label: Performance stats
+                      actions:
+                        - click: showStats
+                - label: Help
+                  type: submenu
+                  items:
+                    - type: label
+                      label: About
+                      actions:
+                        - click: showAbout
+                    - type: label
+                      label: Documentation
+                      actions:
+                        - click: showHelp
+                    - type: label
+                      label: Sourcecode on Github
+                      actions:
+                        - click: showGithub
             volume meter: volumemeter
             notifications:
               type: panel
@@ -34,14 +149,34 @@ app:
                     - horizontalResize
                     - visible when "show midi input" option is active, lights when a midi command is received.
         - controlBar
-        - statusBar:
-            type: panel
-            content:
-              - text: main status
-              - song title:
-                  type: label
-                  field: song.title
-              - playback status:
-                  type: label
-                  field: playback.status
-        - songProperties
+        - name: normalMainView
+          type: panel
+          layout:
+            width: fill
+            height: fill
+            direction: column
+          content:
+            - name: patternSection
+              type: panel
+              layout:
+                width: fill
+                height: fill
+                direction: column
+              content:
+                - name: patternSectionDefault
+                  type: panel
+                  layout:
+                    width: fill
+                    height: fill
+                    direction: column
+                  visibleWhen:
+                    field: pattern-section-view.value
+                    oneOf:
+                      - ""
+                  content:
+                    - editPad
+                    - infoBar
+                    - patternViewPanel
+                - sampleEditPanel
+            - songProperties
+        - pianoPanel

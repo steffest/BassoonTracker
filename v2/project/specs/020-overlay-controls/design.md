@@ -1,0 +1,68 @@
+# 020 — Design
+
+## The one new mechanism: an overlay's presence becomes a runtime fact
+
+Spec 013's `computeGenericLayout` decides which nodes are overlays purely from the registry (`layer: "overlay"`); every overlay found in the tree is laid out, every step of the way, with no way to say "not right now." That was correct for what it verified - a hand-built tree standing in for a type that does not exist yet - but a real dropdown popup or dialog needs to be absent most of the time.
+
+`computeGenericLayout(root, viewport, measureLeaf, options)` gains `options.overlayOpen(node) => boolean`, defaulting to `() => true`. In `layoutNode()`, where a child is recognised as an overlay and queued for the second pass, it is now queued only if `context.overlayOpen(child)` is also true; if not, neither it nor its subtree gets a rect, a clip, or an entry in `overlays`. This is the same shape as `options.scrollOffset` (a pure callback the caller supplies, resolved against whatever state the caller owns) and it changes nothing for the existing spec 013/015 tests or scenarios, all of which never pass it and so keep the default.
+
+`renderers/canvas/mountGeneric.js` owns the truth this callback reads: a `Map<id, boolean>` populated once, at mount time, with every overlay-type node in the tree defaulted to **closed**. Three functions manage it and are exposed on the mounted instance's public API (alongside `setMode`/`selectNode`, spec 003/014's own precedent for a small renderer-owned API surface):
+
+```
+openOverlay(id, { anchorTo, edge } = {})   // sets open=true; if anchorTo is given, sets node.anchor
+closeOverlay(id)                            // sets open=false
+toggleOverlay(id, opts)
+```
+
+Opening or closing calls `relayout()` (a state change that can move things, exactly as spec 013's redraw-without-relayout bug already taught this file not to skip). `anchorTo`/`edge` let a caller (the dropdown's own activation handler, or a test) point a popup at whichever node opened it without the popup needing to know that at synthesis time.
+
+## Anchored positioning
+
+`layoutOverlay()` centres a node in the viewport unless it carries `node.anchor = { targetId, edge }`, `edge` one of `"below"`, `"above"`, `"right"`, `"left"`. The target's rect is read from `context.rects`, which already holds it: the target is always a flow node, laid out in the first pass, and overlays are only laid out in the second, after the queue drains. Anchoring:
+
+- `below`/`above`: `x` starts at the target's own `x`, clamped so the overlay never runs past either edge of the viewport; `y` is the target's bottom (`below`) or `y - overlay.height` (`above`), flipped to the other edge if the preferred one would put any part of the overlay outside the viewport, then clamped the same way `x` is.
+- `right`/`left`: the same, with the axes swapped.
+
+A node with no `anchor` keeps spec 013's exact centred behaviour, so every existing test and the throwaway-type scenarios in `layoutFoundations.test.js` are untouched.
+
+## Overlay synthesis
+
+`runtime/overlaySynthesis.js` exports `synthesizeOverlayChildren(root)`, a pure function called once in `mountGenericRenderer` right after `ensureIds(root)` (so it runs identically for the authoring preview and a generated application, since both share this file). It walks the tree and, for every node of a synthesizing type, restructures it:
+
+- **`dropdown`**: its authored `items` (already ordinary children, `container: { childrenIn: "items" }`, unchanged from spec 016) are lifted off the dropdown node and become the children of one new `dropdownPopup` node, which becomes the dropdown's sole child. The popup gets `field: dropdownNode.field || valueFieldOf(dropdownNode)` set explicitly to the *same* value on both nodes, so the closed control and the open popup always agree on which item is selected without either having to look the other up by id. `anchor` is not set here (set at open time, see above) but the popup is given `layer: "overlay"`/`modal: true` through its own registry entry, not per-instance.
+- **`modalDialog`**: for each of `ok`/`cancel`/`input` that the node declares, one synthetic child is appended - a `button` carrying a plain data property `dialogResult: "ok"` or `"ok": "cancel"` (not a hook; nothing here is a closure, so this survives being serialized the same way any other node property does), or an `inputbox` with no special property at all, its value read back generically. Order matches v1's own layout (message, then OK/Cancel side by side or centred, then the input field above them) - `renderers/canvas/drawKinds.js`'s `modalDialog` kind positions them, not the synthesis step, which only decides *whether* they exist.
+
+Synthesis runs once per mount; it is not idempotent by design (running it twice would duplicate the synthetic children), exactly as `ensureIds` itself is only ever called once per tree.
+
+## Generic activation rules, not per-type cases
+
+Three small, registry-fact-gated additions in `renderers/canvas/mountGeneric.js` cover all three types with no type-name check anywhere:
+
+1. **A `"dropdown"`-behavior activation toggles its popup instead of dispatching a command.** `dropdown` is declared `behavior: "dropdown"`, a second registry key pointing at the exact same `createButtonController` factory `button` uses (`runtime/behaviors.js`) - no new controller code, since a dropdown's *closed* control is a plain press/release/Enter/Space target. `feed()`'s existing `else if (result.activated) dispatch(id, "click")` branch is generalized to: if the node's behavior is `"dropdown"`, `toggleOverlay(node.children[0].id, { anchorTo: id, edge: "below" })` instead of dispatching a command (a dropdown has nothing to dispatch to on its own click; selecting an item is what dispatches, via its own `change`).
+2. **Selecting inside a modal overlay, or activating an item inside one, closes it.** After `feed()` resolves an input (a value change, a scroll, an activation), if `componentType(node.type).modal` is true, `closeOverlay(node.id)` runs. This is the one line that makes both `dropdownPopup` (behavior `"list"`, closes after its selection `change`s the shared field) and `submenu` (behavior `"submenu"`, closes after executing an item) behave correctly, with no submenu- or dropdown-specific code in `feed()` beyond the one `.modal` check.
+3. **An activating controller may name which child it activated.** `submenuController.handle()` resolves the hovered item by index (`input.itemIndex`, supplied by `mountGeneric.js`'s existing `itemIndexAt()` - unchanged from spec 019) and returns `{ activated: true, itemIndex }`; `feed()`'s activation branch dispatches on `node.children[itemIndex].id` when `itemIndex` is present, and on `id` itself otherwise (every pre-020 controller). A submenu item's own `actions:` binding (an ordinary node property, since items are plain child nodes exactly as spec 019 already treats a listbox's) then fires through the unmodified, existing `dispatch()` path.
+
+Escape and Enter both already cascade to `modalOverlay()` (spec 015); this spec makes that cascade actually close what it reaches. `handleEscape()` now closes whatever `modalOverlay()` found, after dispatching `"escape"` to it (so an authored `on.escape` still runs first, if one exists); the existing "Enter with nothing focused reaches the modal" branch in `handleKeyDown()` closes it the same way after dispatching `"enter"`. Both are gated on `componentType(node.type).modal`, already true of every overlay this spec's mechanism can open, so nothing here is aware that `modalDialog` exists by name.
+
+## Compiler contract changes since spec 016
+
+- **`submenu`'s container shape drops `itemActions: true`.** That flag exists so `compiler/convert.js` can validate and report a *placeholder* type's item actions without inventing real child nodes for a type nothing draws (this is still exactly what `menu` needs, and `menu` keeps it). Implemented and drawn, a submenu's items need to be real nodes - each with its own label, its own optional `actions:` binding, its own optional `disabledWhen` - so `submenu` now uses the same bare `{ childrenIn: "items" }` shape `listbox` already has, and its items go through the same `convertContentItem()` path a listbox's do. Spec 016 already flagged this contract as provisional ("a later implementing spec is expected to extend it"); this is that extension, and it costs nothing today, since nothing in `app.yaml` authors a submenu.
+- **`dropdown`'s contract is unchanged** (`{ childrenIn: "items" }`, already bare, already exactly what this spec needs).
+- **`modalDialog`'s contract is unchanged** (`text`, `ok`, `cancel`, `input`); its synthesized children are added at mount time, not by the compiler, so authoring one still only means those four properties.
+
+## Draw kinds
+
+- **`dropdown`** (closed control): the style's background (reusing `drawStyledBackground`, so it takes a real skin variant if one is ever authored, and the built-in fallback style otherwise, exactly like `spinBox`), the selected item's label - resolved from the popup child's own item at the shared field's index, so the closed control always shows what the popup would show selected - and a small triangle, matching v1's own affordance.
+- **`dropdownPopup`**: visually identical to `listbox`'s own kind (a dark backing, the selected row's tint, a scrollbar thumb via the already-shared `drawScrollThumb()`) - reusing that function directly rather than re-deriving it, since the only difference between a listbox and a dropdown's popup is *where* the box is laid out, which the layout pass already handles.
+- **`submenu`**: a plain canvas list, matching v1's own rendering closely (a row per item, a translucent hover tint on the preselected row read from the controller's state, a dividing line between rows, `>` after any item that authors a `subItems`-shaped array even though nothing opens it yet - drawn so the affordance is visible and testable even though nested opening is out of scope - and a dimmed fill over a disabled item, resolved the same way `isHighlighted()`/`disabledWhen` already resolve any other node's state).
+- **`modalDialog`**: a translucent full-viewport backdrop fill, a centred panel background (plain canvas, `styled: false`, matching `knob`/`listbox`'s own precedent of "no artwork exists for this yet") sized and positioned exactly as v1's `_layout()` computes it (half the dialog's own width, clamped to a minimum, height clamped to a maximum), and the message text, word-broken on `"/"` exactly as v1's own `_text.split("/")` convention, with a leading `"*"` on a line selecting the larger font - both kept unchanged from v1 since nothing about that convention is renderer-specific. The synthesized OK/Cancel/input children draw themselves through the ordinary per-node draw pass, which already draws an overlay's own children after itself (spec 013) - this draw kind does not draw them.
+
+All four are `styled: false` except `dropdown` (styled: true, a real control that should look like one even before any skin authors it a variant): `dropdownPopup`, `submenu` and `modalDialog` draw with plain canvas primitives, the same choice spec 018 made for `knob` and spec 019 made for `listbox`, for the same reason - no artwork exists in the current skin for any of them, and inventing some here would be authoring art, not implementing a mechanism.
+
+## What this deliberately does not do
+
+- **No compiler-side vocabulary for opening a `modalDialog` from YAML.** An application shows one by calling the mounted renderer's `openOverlay(id)` directly (from `appContext`-provided code, or from a hand-built tree's own glue), exactly as nothing yet authors `listbox`'s `reorderable`. P6's document model is where "an action opens a dialog" would get real authoring support.
+- **No nested submenus.** The anchor mechanism generalizes to one submenu opening another with no change, but there is no trigger to open one against outside a hand-built tree, and `menu` itself is not promoted here.
+- **No keyboard operation of an open dropdown or submenu** beyond what every interactive node already has (Tab moves focus within an open modal per spec 015; Escape closes it). Arrow-key preselection and Enter-to-choose are not built, matching `listbox`'s own already-recorded gap for exactly the same reason - nothing here has a text caret or a font-independent geometry query to build one against yet.
+- **A generated application's popup/dialog scroll and input fields are not declared by the compiler.** `compiler/emit.js` seeds a dropdown's own selection field (its `behavior: "disclose"`, resolved the same way a listbox's is), but the popup's *scroll* field and a dialog's synthesized *input* field are named from ids the compiler never sees - both nodes are synthesized at mount time, in the browser, not compiled. In the authoring preview (a plain `Map`) this is invisible; in a generated application (`runtime/appState.js`'s real store) writing one falls back to `setField()`'s existing "the host store does not declare this field" tolerance (spec 014), so a popup that needs to scroll past its first page, or a dialog whose input needs to persist across redraws, will not fully work in a *generated* application until a later spec gives it a real, compiler-declared field. Consequence-free today, since nothing in `app.yaml` authors any of the three.
+- **No real usage in `app.yaml`.** Nothing currently authors a dropdown, a submenu or a modal dialog; this cluster is verified against hand-built trees and the unit suite, exactly as spec 013/015 verified the mechanism it builds on.

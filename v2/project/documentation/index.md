@@ -1,5 +1,7 @@
 # Documentation index
 
+- [Native C generation idea](../../projects/ideas/native-c-generation.md): sharing the application specification across browser and native targets, and the runtime and capability implementations that would be needed.
+
 - [Release build](../specs/007-release-build/design.md): YAML → readable generated app (`v2/app/`) → minified code-split bundle (`v2/dist/`); loose ends report; capability manifest.
 - [Interactive workbench](interactive-workbench.md): source editor is vendored CodeMirror 6 (spec [006](../specs/006-codemirror-editor/requirements.md); highlighting, folding, compiler-backed lint); YAML beside canvas, hover inspection, source selection, Node-backed Save & Refresh (`node v2/server.mjs`), Interact-mode tracing with Interaction log and State gallery; spec 005 complete, with a Reference section (startup URL, recipe vocabulary, diagnostic codes, save semantics, known limits).
 
@@ -18,4 +20,3 @@
 - [Specification workflow](specification-workflow.md): adopted SDD structure, research outcomes, application revisions and generation pipeline.
 - [Design proposal](../../README.md): runtime architecture exploration.
 - [Implementation roadmap](../../IMPLEMENTATION-PLAN.md): first runtime milestones.
-

@@ -1,0 +1,582 @@
+{
+  "title": "DemoScene 2025",
+  "modules": [
+    {
+      "title": "Gerp 2025",
+      "icon": "icons/gerp.png"
+    },
+    {
+      "title": "Jungle",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Hoffman/jungle-compocut.mod",
+      "author": "H0ffman",
+      "group": "",
+      "link": "https://demozoo.org/music/366622/",
+      "info": "1st @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Surfing with the Älgen",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/kfk-surfaelg.lha",
+      "author": "KEFKA",
+      "group": "iNSANE",
+      "link": "https://demozoo.org/music/366610/",
+      "info": "2nd @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "M1s for the M8s",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/m1s_for_the_m8s.zip",
+      "author": "Mygg",
+      "group": "",
+      "link": "https://demozoo.org/music/366615/",
+      "info": "3rd @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "On the Crack of 17",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/virgill-on_the_crack_of_17.zip",
+      "author": "Virgill",
+      "group": "Alcatraz^Haujobb^Maniacs of Noise",
+      "link": "https://demozoo.org/music/366624/",
+      "info": "4th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Skwash 25",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/skwash_25.zip",
+      "author": "Goto80",
+      "group": "Divine Stylers^Up Rough",
+      "link": "https://demozoo.org/music/366614/",
+      "info": "5th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Rush",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/nb_rush.zip",
+      "author": "NightBeat",
+      "group": "Outbreak",
+      "link": "https://demozoo.org/music/366618/",
+      "info": "6th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Among the Clouds",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/maze_0xx-among_the_clouds.zip",
+      "author": "mAZE",
+      "group": "",
+      "link": "https://demozoo.org/music/366620/",
+      "info": "7th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Sura Hallon Shots",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/teo_-_sura_hallon_shots.zip",
+      "author": "Teo",
+      "group": "Focus Design^Pattern Syndicate^Rebels",
+      "link": "https://demozoo.org/music/366616/",
+      "info": "8th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "To Goa",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/wasp-to_goa.lha",
+      "author": "wasp",
+      "group": "PACiF!C^Powerline",
+      "link": "https://demozoo.org/music/366611/",
+      "info": "9th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "1979 Was Now",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/1979-was_now.mod",
+      "author": "AiO",
+      "group": "Genesis Project^T.O.Y.S.",
+      "link": "https://demozoo.org/music/366612/",
+      "info": "10th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Void",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/void.zip",
+      "author": "Filippp",
+      "group": "Damage",
+      "link": "https://demozoo.org/music/366606/",
+      "info": "11th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "No Endless Time",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/no_endless_time.zip",
+      "author": "G-Gnu",
+      "group": "Struts",
+      "link": "https://demozoo.org/music/366619/",
+      "info": "12th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Tango di Gerpo",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/ok3anos-tango_di_gerpo.zip",
+      "author": "ok3anos",
+      "group": "The Electronic Knights",
+      "link": "https://demozoo.org/music/366608/",
+      "info": "13th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Singing Whores",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/mod.thy_pyroo_franke",
+      "author": "Thy Pyroo",
+      "group": "",
+      "link": "https://demozoo.org/music/366609/",
+      "info": "14th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Rumpism",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/rumpism.lha",
+      "author": "Curt Cool",
+      "group": "Depth^Nah-Kolor",
+      "link": "https://demozoo.org/music/366613/",
+      "info": "15th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Megamixx",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/megamixx.lha",
+      "author": "Tecon",
+      "group": "Desire^Planet Jazz",
+      "link": "https://demozoo.org/music/366623/",
+      "info": "=16th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Faery Spirit",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/faery_spirit.zip",
+      "author": "Beathawk",
+      "group": "Funktion",
+      "link": "https://demozoo.org/music/366621/",
+      "info": "=16th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Milk of Human Kindness",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/milk_of_human_kindness.lha",
+      "author": "Optic",
+      "group": "Planet Jazz",
+      "link": "https://demozoo.org/music/366617/",
+      "info": "18th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Robohop",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/robohop.zip",
+      "author": "Caramel",
+      "group": "Proxima",
+      "link": "https://demozoo.org/music/366607/",
+      "info": "19th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Fahrenheitdrive87",
+      "url": "https://files.scene.org/get/parties/2025/gerp25/amiga_4_channel_music/gerp25_4chmsx_8bm_fahrenheitdrive87.zip",
+      "author": "e!ghtbm",
+      "group": "Futuris",
+      "link": "https://demozoo.org/music/366605/",
+      "info": "20th @ Gerp 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Revision 2025",
+      "icon": "icons/revision.png"
+    },
+    {
+      "title": "E1M777",
+      "url": "https://ftp.modland.com/pub/modules/Fasttracker%202/Dubmood/coop-MBR/e1m777%20(compo%20edit).xm",
+      "author": "Master Boot Record",
+      "group": "Razor 1911",
+      "link": "https://demozoo.org/music/370939/",
+      "info": "1st @ Revision 2025",
+      "format": "XM"
+    },
+    {
+      "title": "Hyperburner",
+      "url": "https://ftp.modland.com/pub/modules/Fasttracker%202/Zabutom/hyperburner.xm",
+      "author": "zabutom",
+      "group": "Razor 1911^Up Rough",
+      "link": "https://demozoo.org/music/370931/",
+      "info": "2nd @ Revision 2025",
+      "format": "XM"
+    },
+    {
+      "title": "Break Out",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Virtua%20Point%20Zero/break%20out.mod",
+      "author": "Virtua Point Zero",
+      "group": "Rift",
+      "link": "https://demozoo.org/music/370940/",
+      "info": "3rd @ Revision 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Daemon Dismemberment",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Mibri/daemon%20dismemberment.mod",
+      "author": "Mibri",
+      "group": "Atlantis^MultiStyle Labs^Proxima",
+      "link": "https://demozoo.org/music/370942/",
+      "info": "5th @ Revision 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Samsara",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/WOTW/samsara.mod",
+      "author": "W.O.T.W.",
+      "group": "",
+      "link": "https://demozoo.org/music/370935/",
+      "info": "7th @ Revision 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "One Thing",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Subi/one_thing.mod",
+      "author": "Subi",
+      "group": "Desire^SceneSat",
+      "link": "https://demozoo.org/music/370936/",
+      "info": "=8th @ Revision 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Zauberwald",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Slash%20(RU)/zauberwald.mod",
+      "author": "Slash",
+      "group": "Atomic Destruction^Russian Prestige",
+      "link": "https://demozoo.org/music/370933/",
+      "info": "=8th @ Revision 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Notes!",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Josss/notes.mod",
+      "author": "JosSs",
+      "group": "Software Failure",
+      "link": "https://demozoo.org/music/370929/",
+      "info": "10th @ Revision 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Retroing All Down",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Jesusito/retroing_all_down.mod",
+      "author": "Jesusito",
+      "group": "",
+      "link": "https://demozoo.org/music/370930/",
+      "info": "11th @ Revision 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "I Dream With A Machine Compo-Spec",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Samplemind/i%20dream%20with%20a.mod",
+      "author": "Samplemind",
+      "group": "Amiga Skool",
+      "link": "https://demozoo.org/music/370927/",
+      "info": "12th @ Revision 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Positive Mind",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Alex%20Menchi/positive%20mind.mod",
+      "author": "Alex Menchi",
+      "group": "Agima",
+      "link": "https://demozoo.org/music/370938/",
+      "info": "13th @ Revision 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Summer",
+      "url": "https://ftp.modland.com/pub/modules/Fasttracker%202/DDL%20Blue/summer.xm",
+      "author": "DDL Blue",
+      "group": "",
+      "link": "https://demozoo.org/music/370928/",
+      "info": "15th @ Revision 2025",
+      "format": "XM"
+    },
+    {
+      "title": "Get Up Da Bass",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Filippp/get%20up%20da%20bass.mod",
+      "author": "Filippp",
+      "group": "Damage^MoonShine",
+      "link": "https://demozoo.org/music/370934/",
+      "info": "16th @ Revision 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Fioniadata 2025"
+    },
+    {
+      "title": "Time capsule",
+      "url": "https://files.scene.org/get/parties/2025/fioniadata25/music/time_capsule.zip",
+      "author": "Jogeir Liljedahl",
+      "group": "",
+      "link": "https://demozoo.org/music/370110/",
+      "info": "1st @ Fioniadata 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "RAM#3"
+    },
+    {
+      "title": "68k Inside 2025"
+    },
+    {
+      "title": "Aulanko by Night",
+      "url": "https://files.scene.org/get/parties/2025/68kinside25/music/proton_of_complex_-_finnish_gold-aulanko_by_night.mod",
+      "author": "Proton",
+      "group": "Complex^Finnish Gold",
+      "link": "https://demozoo.org/music/372590/",
+      "info": "1st @ 68k Inside 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Marcus Grönholm",
+      "url": "https://files.scene.org/get/parties/2025/68kinside25/music/jope-marcus_gronholm.mod",
+      "author": "Jope",
+      "group": "Extend",
+      "link": "https://demozoo.org/music/372589/",
+      "info": "2nd @ 68k Inside 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Paula's Electro Eck",
+      "url": "https://files.scene.org/get/parties/2025/68kinside25/music/break_-_mfx-paula-s_electro_eck.zip",
+      "author": "Break",
+      "group": "mfx",
+      "link": "https://demozoo.org/music/372585/",
+      "info": "4th @ 68k Inside 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Kaikkea Sitae",
+      "url": "https://files.scene.org/get/parties/2025/68kinside25/music/beathawk-kaikkea_sitae.mod",
+      "author": "Beathawk",
+      "group": "Funktion",
+      "link": "https://demozoo.org/music/372587/",
+      "info": "6th @ 68k Inside 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Hot Tub Chipmachine",
+      "url": "https://files.scene.org/get/parties/2025/68kinside25/music/daddy_freddy-hot_tub_chipmachine.mod",
+      "author": "Daddy Freddy",
+      "group": "",
+      "link": "https://demozoo.org/music/372583/",
+      "info": "8th @ 68k Inside 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Chipnation",
+      "url": "https://files.scene.org/get/parties/2025/68kinside25/music/filippp_-_damage_-_ms-chipnation.mod",
+      "author": "Filippp",
+      "group": "Damage^MoonShine",
+      "link": "https://demozoo.org/music/372584/",
+      "info": "9th @ 68k Inside 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Hawaijinporkkana",
+      "url": "https://files.scene.org/get/parties/2025/68kinside25/music/mankeli_-_extend-hawaijinporkkana.hawaijinporkkana",
+      "author": "Mankeli",
+      "group": "Extend",
+      "link": "https://demozoo.org/music/372588/",
+      "info": "10th @ 68k Inside 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Amiga Baller",
+      "url": "https://files.scene.org/get/parties/2025/68kinside25/music/naetti_tytto_-_jumalauta_-amiga_baller.mod",
+      "author": "Nätti Tyttö",
+      "group": "Jumalauta",
+      "link": "https://demozoo.org/music/372591/",
+      "info": "11th @ 68k Inside 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Evoke 2025"
+    },
+    {
+      "title": "Funky Carlos 95",
+      "url": "https://files.scene.org/get/parties/2025/evoke25/mmul_jazz/funky_carlos95.mod",
+      "author": "Jazz",
+      "group": "Haujobb",
+      "link": "https://demozoo.org/music/376591/",
+      "info": "2nd @ Evoke 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "It's been a while",
+      "url": "https://files.scene.org/get/parties/2025/evoke25/mmul_jazz/a_while.xm",
+      "author": "Velvet",
+      "group": "",
+      "link": "https://demozoo.org/music/376592/",
+      "info": "5th @ Evoke 2025",
+      "format": "XM",
+      "channels": 16
+    },
+    {
+      "title": "Lightened Mind",
+      "url": "https://dma-sc.atari.org/tmp/dma-sc-lightened_mind.xm",
+      "author": "Dma-Sc",
+      "group": "Sector One",
+      "link": "https://demozoo.org/music/376590/",
+      "info": "6th @ Evoke 2025",
+      "format": "XM"
+    },
+    {
+      "title": "Fuse_Jazz",
+      "url": "https://files.scene.org/get/parties/2025/evoke25/mmul_jazz/jazz-03.xm",
+      "author": "iLow",
+      "group": "ThoRam",
+      "link": "https://demozoo.org/music/376587/",
+      "info": "7th @ Evoke 2025",
+      "format": "XM"
+    },
+    {
+      "title": "Just Chippin'",
+      "url": "https://files.scene.org/get/parties/2025/evoke25/mmul_jazz/just_chippin.mod",
+      "author": "Novel",
+      "group": "Moods Plateau",
+      "link": "https://demozoo.org/music/376586/",
+      "info": "8th @ Evoke 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "m1dn1t3",
+      "url": "https://files.scene.org/get/parties/2025/evoke25/mmul_jazz/mod.cyke-m1dn1t3.mod",
+      "author": "Cyber-K",
+      "group": "",
+      "link": "https://demozoo.org/music/376589/",
+      "info": "9th @ Evoke 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Gladbeck Syndrome Live On Air",
+      "url": "https://files.scene.org/get/parties/2025/evoke25/mmul_jazz/gladbecksyndromebig.mod",
+      "author": "Greippi",
+      "group": "FiNitY",
+      "link": "https://demozoo.org/music/376588/",
+      "info": "11th @ Evoke 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Deadline 2025"
+    },
+    {
+      "title": "Love Like This",
+      "url": "https://files.scene.org/get/parties/2025/deadline25/tracked_music/h0ffman_-_love_like_this.zip",
+      "author": "H0ffman",
+      "group": "Logicoma^Pattern Syndicate^The Black Lotus^The Twitch Elite",
+      "link": "https://demozoo.org/music/378226/",
+      "info": "1st @ Deadline 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Superthruster",
+      "url": "https://files.scene.org/get/parties/2025/deadline25/tracked_music/virtua-point-zero---superthruster.rar",
+      "author": "Virtua Point Zero",
+      "group": "Rift",
+      "link": "https://demozoo.org/music/378232/",
+      "info": "3rd @ Deadline 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Italo Discoline",
+      "url": "https://files.scene.org/get/parties/2025/deadline25/tracked_music/danko_-_italo_discoline.mod",
+      "author": "Danko",
+      "group": "Fairlight",
+      "link": "https://demozoo.org/music/378227/",
+      "info": "4th @ Deadline 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Journey Into The Mys II",
+      "url": "https://files.scene.org/get/parties/2025/deadline25/tracked_music/filippp_-_journey_into_the_mys_ii_deadline25.zip",
+      "author": "Filippp",
+      "group": ".dot^Damage^MoonShine",
+      "link": "https://demozoo.org/music/378228/",
+      "info": "5th @ Deadline 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Zoom Zoom Zoom",
+      "url": "https://files.scene.org/get/parties/2025/deadline25/tracked_music/teo---zoom-zoom-zoom.mod",
+      "author": "Teo",
+      "group": "",
+      "link": "https://demozoo.org/music/378225/",
+      "info": "7th @ Deadline 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Amigazone",
+      "url": "https://files.scene.org/get/parties/2025/deadline25/tracked_music/amigazone.mod",
+      "author": "MonoToni",
+      "group": "NoGapNoBacteria",
+      "link": "https://demozoo.org/music/378231/",
+      "info": "8th @ Deadline 2025",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "burn(t)out",
+      "url": "https://files.scene.org/get/parties/2025/deadline25/tracked_music/marbl-cheesecake---burn-t-out.xm",
+      "author": "cheesecake",
+      "group": "",
+      "link": "https://demozoo.org/music/378230/",
+      "info": "10th @ Deadline 2025",
+      "format": "XM"
+    }
+  ]
+}

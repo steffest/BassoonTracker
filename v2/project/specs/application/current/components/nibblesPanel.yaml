@@ -1,0 +1,152 @@
+name: nibblesPanel
+type: panel
+layout:
+  width: fill
+  height: fill
+  direction: column
+visibleWhen:
+  field: song-properties-view.value
+  oneOf:
+    - Nibbles
+content:
+  - name: nibblesGameView
+    type: panel
+    layout:
+      width: fill
+      height: fill
+      direction: column
+    visibleWhen:
+      field: nibbles-view.value
+      oneOf:
+        - game
+    content:
+      - name: nibblesTopRow
+        type: panel
+        layout:
+          width: fill
+          height: fill
+          direction: row
+        content:
+          - name: nibblesGrid
+            type: nibblesGrid
+            layout:
+              width: fill
+              height: fill
+          - name: nibblesScoreboard
+            type: panel
+            layout:
+              width: 160
+              direction: column
+            content:
+              - type: label
+                label: Score
+              - name: nibblesScoreValue
+                type: label
+                field: nibbles-score.value
+              - type: label
+                label: Lives
+              - name: nibblesLivesValue
+                type: label
+                field: nibbles-lives.value
+              - type: label
+                label: Level
+              - name: nibblesLevelValue
+                type: label
+                field: nibbles-level.value
+              - type: label
+                label: Difficulty
+              - name: nibblesDifficulty
+                type: radioGroup
+                variant: buttons
+                layout:
+                  direction: column
+                items:
+                  - label: Novice
+                  - label: Average
+                  - label: Pro
+                  - label: Triton
+                actions:
+                  - change: setDifficulty
+              - type: checkbox
+                label: Wrap
+                rule: highlighted when wrap is active
+                actions:
+                  - click: toggleWrap
+              - type: checkbox
+                label: Grid
+                rule: highlighted when grid is active
+                actions:
+                  - click: toggleGrid
+              - type: button
+                label: HighScore
+                actions:
+                  - click: toggleHighScoreView
+              - type: button
+                label: Exit
+                actions:
+                  - click: showMain
+      - name: nibblesInfoPanel
+        type: panel
+        layout:
+          width: fill
+          direction: row
+        visibleWhen:
+          field: nibbles-info-visible.value
+          oneOf:
+            - true
+        content:
+          - name: nibblesStatusText
+            type: label
+            field: nibbles-status-text.value
+          - name: nibblesPrimaryButton
+            type: button
+            field: nibbles-button-label.value
+            actions:
+              - click: startNibbles
+  - name: nibblesHighScoreView
+    type: panel
+    layout:
+      width: fill
+      height: fill
+      direction: column
+    visibleWhen:
+      field: nibbles-view.value
+      oneOf:
+        - highscore
+    content:
+      - type: label
+        label: "Nibbles Highscore List of Fame"
+      - name: nibblesHighscoreRow1
+        type: label
+        field: nibbles-highscore-row-1.value
+      - name: nibblesHighscoreRow2
+        type: label
+        field: nibbles-highscore-row-2.value
+      - name: nibblesHighscoreRow3
+        type: label
+        field: nibbles-highscore-row-3.value
+      - name: nibblesHighscoreRow4
+        type: label
+        field: nibbles-highscore-row-4.value
+      - name: nibblesHighscoreRow5
+        type: label
+        field: nibbles-highscore-row-5.value
+      - name: nibblesHighscoreRow6
+        type: label
+        field: nibbles-highscore-row-6.value
+      - name: nibblesHighscoreRow7
+        type: label
+        field: nibbles-highscore-row-7.value
+      - name: nibblesHighscoreRow8
+        type: label
+        field: nibbles-highscore-row-8.value
+      - name: nibblesHighscoreRow9
+        type: label
+        field: nibbles-highscore-row-9.value
+      - name: nibblesHighscoreRow10
+        type: label
+        field: nibbles-highscore-row-10.value
+      - type: button
+        label: Back
+        actions:
+          - click: toggleHighScoreView

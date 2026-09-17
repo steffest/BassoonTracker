@@ -2,7 +2,7 @@
 import { transportToggle as implementation } from "../../domain/playback/index.js";
 
 /**
- * transport.toggle — generated from actions/toggleplay.yaml:20: "toggle-play-state".
+ * transport.toggle — generated from actions/toggleplay.yaml:48: "toggle-play-state".
  * Implemented by ./domain/playback/index.js#transportToggle (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

@@ -1,0 +1,443 @@
+{
+  "title": "DemoScene 2024",
+  "modules": [
+    {
+      "title": "Revision 2024",
+      "icon": "icons/revision.png"
+    },
+    {
+      "title": "Surveillance",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Hoffman/coop-Daytripper/surveillance.mod",
+      "author": "H0ffman",
+      "group": "",
+      "link": "https://demozoo.org/music/342097/",
+      "info": "1st @ Revision 2024"
+    },
+    {
+      "title": "Track Tracking",
+      "url": "https://ftp.modland.com/pub/modules/Fasttracker%202/Dubmood/coop-Zabutom/track%20tracking%20compo%20edit.xm",
+      "author": "zabutom",
+      "group": "Razor 1911",
+      "link": "https://demozoo.org/music/342096/",
+      "info": "2nd @ Revision 2024"
+    },
+    {
+      "title": "Roguecraft",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Jogeir%20Liljedahl/roguecraft.mod",
+      "author": "Jogeir Liljedahl",
+      "group": "Maniacs of Noise",
+      "link": "https://demozoo.org/music/342086/",
+      "info": "3rd @ Revision 2024"
+    },
+    {
+      "title": "Space Is The Place",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Subi/space_is_the_place.mod",
+      "author": "Subi",
+      "group": "Desire",
+      "link": "https://demozoo.org/music/342092/",
+      "info": "=4th @ Revision 2024"
+    },
+    {
+      "title": "夜の声 （Ｙｏｒｕ　ｎｏ　Ｋｏｅ）",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/AceMan/yoru%20no%20koe.mod",
+      "author": "AceMan",
+      "group": "Agenda^Dreamweb^Resistance",
+      "link": "https://demozoo.org/music/342093/",
+      "info": "6th @ Revision 2024"
+    },
+    {
+      "title": "Can Your AI Do This",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Virtua%20Point%20Zero/can%20your%20ai%20do%20this.mod",
+      "author": "Virtua Point Zero",
+      "group": "",
+      "link": "https://demozoo.org/music/342098/",
+      "info": "7th @ Revision 2024"
+    },
+    {
+      "title": "Groove Operator",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Triace/groove%20operator.mod",
+      "author": "Triace",
+      "group": "Desire^Retroguru^iNSANE",
+      "link": "https://demozoo.org/music/342084/",
+      "info": "8th @ Revision 2024"
+    },
+    {
+      "title": "Ode To Amiga",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/LMan/ode-to-amiga.mod",
+      "author": "LMan",
+      "group": "",
+      "link": "https://demozoo.org/music/342085/",
+      "info": "10th @ Revision 2024"
+    },
+    {
+      "title": "The Flow",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Teo/the%20flow.mod",
+      "author": "Teo",
+      "group": "Focus Design^Rebels",
+      "link": "https://demozoo.org/music/342083/",
+      "info": "11th @ Revision 2024"
+    },
+    {
+      "title": "Saint Lager",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Laamaa/saint%20lager.mod",
+      "author": "Laamaa",
+      "group": "",
+      "link": "https://demozoo.org/music/342095/",
+      "info": "12th @ Revision 2024"
+    },
+    {
+      "title": "Fireworks",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Alex%20Menchi/fireworks.mod",
+      "author": "Alex Menchi",
+      "group": "Fanatic2k",
+      "link": "https://demozoo.org/music/342088/",
+      "info": "13th @ Revision 2024"
+    },
+    {
+      "title": "Coffee At Morning",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Soda7/coffee%20at%20morning.mod",
+      "author": "SoDa7",
+      "group": "Darkage",
+      "link": "https://demozoo.org/music/342087/",
+      "info": "13th @ Revision 2024"
+    },
+    {
+      "title": "Crypt'o Dolory",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Doh/coop-Gandbox/crypt%20o%20dolory.mod",
+      "author": "Gandbox",
+      "group": "",
+      "link": "https://demozoo.org/music/342094/",
+      "info": "14th @ Revision 2024"
+    },
+    {
+      "title": "prod.e.u.s.mechafx#4001",
+      "url": "https://ftp.modland.com/pub/modules/Fasttracker%202/Eightbm/prod.e.u.s.mechafx.xm",
+      "author": "e!ghtbm",
+      "group": "Futuris^Joker",
+      "link": "https://demozoo.org/music/342091/",
+      "info": "15th @ Revision 2024"
+    },
+    {
+      "title": "Assembly Summer 2024"
+    },
+    {
+      "title": "SID & Bass",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/Jarskie_-_SID_BASS.xm",
+      "author": "Jarskie",
+      "group": "",
+      "info": "2nd @ Assembly Summer 2024",
+      "link": "https://demozoo.org/music/354167/"
+    },
+    {
+      "title": "Summers of Ivalo",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/summersofivalo.mod",
+      "author": "Beathawk",
+      "group": "",
+      "link": "https://demozoo.org/music/354165/"
+    },
+    {
+      "title": "ATTACK!",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/_ATTACK_SonjayBeats_with_Prototype.xm",
+      "author": "Sonjay Beats",
+      "group": "",
+      "link": "https://demozoo.org/music/354166/"
+    },
+    {
+      "title": "Two Minutes Of Musical Mayhem (8bit Version)",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/mayhem.mod",
+      "author": "Mayday",
+      "group": "Hedelmae",
+      "link": "https://demozoo.org/music/354163/"
+    },
+    {
+      "title": "Nyarlatho-Teppo's Dorsal Sauna",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/nyarlatho-teppo.xm",
+      "author": "rawArgon",
+      "group": "",
+      "link": "https://demozoo.org/music/354156/"
+    },
+    {
+      "title": "Time is against us",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/lemonade_-_time_is_against_us.xm",
+      "author": "lemonade",
+      "group": "#cubernicus^Nectarine^Sitruslapset",
+      "link": "https://demozoo.org/music/354159/"
+    },
+    {
+      "title": "A Walk in the Park",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/a-walk-in-the-park_by_vurpo.xm",
+      "author": "vurpo",
+      "group": "",
+      "link": "https://demozoo.org/music/354164/"
+    },
+    {
+      "title": "Hit Meter",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/hitmeter.mod",
+      "author": "Deetsay",
+      "group": "",
+      "link": "https://demozoo.org/music/354154/"
+    },
+    {
+      "title": "We love chiptunez",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/we love chiptunez XM.xm",
+      "author": "Defilus",
+      "group": "",
+      "link": "https://demozoo.org/music/354157/"
+    },
+    {
+      "title": "Belzer's Law",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/belzerslaw.mod",
+      "author": "Daddy Freddy",
+      "group": "",
+      "link": "https://demozoo.org/music/354160/"
+    },
+    {
+      "title": "Marbles",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/marbles.mod",
+      "author": "Hirvih",
+      "group": "dA JoRMaS",
+      "link": "https://demozoo.org/music/354152/"
+    },
+    {
+      "title": "Seasided",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/spew-seasided.xm",
+      "author": "Spew",
+      "group": "",
+      "link": "https://demozoo.org/music/354162/"
+    },
+    {
+      "title": "Time Capsules v2.3d",
+      "url": "https://www.stef.be/bassoontracker/mods/Assembly/2024/timecapsulesv2.3d.mod",
+      "author": "Don-Cato",
+      "group": "Arctic Robots^Talent",
+      "link": "https://demozoo.org/music/354155/"
+    },
+    {
+      "title": "Evoke 2024"
+    },
+    {
+      "title": "Inna Evoke Style",
+      "url": "https://www.stef.be/bassoontracker/mods/Evoke/2024/danko_-_inna_evoke_style.mod",
+      "author": "Danko",
+      "group": "Fairlight",
+      "link": "https://demozoo.org/music/355258/",
+      "info": "2nd @ Evoke 2024"
+    },
+    {
+      "title": "Punked & Amplified",
+      "url": "https://www.stef.be/bassoontracker/mods/Evoke/2024/Punked-and-Amplified_compo.mod",
+      "author": "Triace",
+      "group": "",
+      "link": "https://demozoo.org/music/355265/",
+      "info": "3rd @ Evoke 2024"
+    },
+    {
+      "title": "Sunshine",
+      "url": "https://www.stef.be/bassoontracker/mods/Evoke/2024/teo_-_sunshine.mod",
+      "author": "Teo",
+      "group": "Focus Design",
+      "link": "https://demozoo.org/music/355264/",
+      "info": "5th @ Evoke 2024"
+    },
+    {
+      "title": "Döner'n'Bass kebab",
+      "url": "https://www.stef.be/bassoontracker/mods/Evoke/2024/mod.donernbass_kebab.mod",
+      "author": "ok3anos",
+      "group": "The Electronic Knights",
+      "link": "https://demozoo.org/music/355261/",
+      "info": "7th @ Evoke 2024"
+    },
+    {
+      "title": "Subtract",
+      "url": "https://www.stef.be/bassoontracker/mods/Evoke/2024/subtract.mod",
+      "author": "Ash",
+      "group": "Defekt^Rift",
+      "link": "https://demozoo.org/music/355259/",
+      "info": "9th @ Evoke 2024"
+    },
+    {
+      "title": "Mama Don't Scratch",
+      "url": "https://www.stef.be/bassoontracker/mods/Evoke/2024/potcfdk_-_mama_dont_scratch.xm",
+      "author": "PotcFdk",
+      "group": "",
+      "link": "https://demozoo.org/music/355263/",
+      "info": "10th @ Evoke 2024"
+    },
+    {
+      "title": "Gerp 2024"
+    },
+    {
+      "title": "Dan Dan Dada",
+      "url": "https://files.scene.org/get/parties/2024/gerp24/amiga_4_channel_music/dan_dan_dada.mod",
+      "author": "Mygg",
+      "group": "",
+      "link": "https://demozoo.org/music/336600/",
+      "info": "1st @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Peace Droid",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Interphace/peace droid.mod",
+      "author": "Interphace",
+      "group": "Andromeda",
+      "link": "https://demozoo.org/music/336601/",
+      "info": "2nd @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Brink It Back To Me",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Maze/coop-No-XS-Dya/brink%20it%20back%20to%20me.mod",
+      "author": "mAZE",
+      "group": "Desire",
+      "link": "https://demozoo.org/music/336602/",
+      "info": "3rd @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "The Atersmallare",
+      "url": "https://files.scene.org/get/parties/2024/gerp24/amiga_4_channel_music/kfk-ater.mod",
+      "author": "KEFKA",
+      "group": "iNSANE",
+      "link": "https://demozoo.org/music/336595/",
+      "info": "4th @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Spiceballs",
+      "url": "https://files.scene.org/get/parties/2024/gerp24/amiga_4_channel_music/mod._spiceballs",
+      "author": "Tecon",
+      "group": "Planet Jazz",
+      "link": "https://demozoo.org/music/336599/",
+      "info": "5th @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Hobgoblins' Hob-nob",
+      "url": "https://files.scene.org/get/parties/2024/gerp24/amiga_4_channel_music/hobgoblinshobnob.mod",
+      "author": "Beathawk",
+      "group": "",
+      "link": "https://demozoo.org/music/336593/",
+      "info": "6th @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "New Song",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/Facet/newsong.mod",
+      "author": "Facet",
+      "group": "Lemon.",
+      "link": "https://demozoo.org/music/336590/",
+      "info": "8th @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Pseudochronism",
+      "url": "https://ftp.modland.com/pub/modules/Protracker/G-Gnu/pseudochronism.mod",
+      "author": "G-Gnu",
+      "group": "Struts",
+      "link": "https://demozoo.org/music/336596/",
+      "info": "9th @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Skinny Jeans",
+      "url": "https://files.scene.org/get/parties/2024/gerp24/amiga_4_channel_music/skinnyjeans.mod",
+      "author": "Caramel",
+      "group": "Proxima",
+      "link": "https://demozoo.org/music/336597/",
+      "info": "10th @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Bring The Memories Back",
+      "url": "https://files.scene.org/get/parties/2024/gerp24/amiga_4_channel_music/eightbm_4chmusic_compo_gerp2024.zip",
+      "author": "e!ghtbm",
+      "group": "Futuris^Joker",
+      "link": "https://demozoo.org/music/336594/",
+      "info": "11th @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Out Of Shadow",
+      "url": "https://files.scene.org/get/parties/2024/gerp24/amiga_4_channel_music/out_of_shadow.mod",
+      "author": "Filippp",
+      "group": "Golden Trancers",
+      "link": "https://demozoo.org/music/336589/",
+      "info": "13th @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Locrian Pocrian",
+      "url": "https://files.scene.org/get/parties/2024/gerp24/amiga_4_channel_music/locrian_pocrian.mod",
+      "author": "Morbid",
+      "group": "Five Finger Punch",
+      "link": "https://demozoo.org/music/336591/",
+      "info": "14th @ Gerp 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Xenium 2024"
+    },
+    {
+      "title": "Verne's Disturbia",
+      "url": "https://files.scene.org/get/parties/2024/xenium24/msx_tracked/eightbm_tomarkus_trackedcompo.zip",
+      "author": "e!ghtbm",
+      "group": "Futuris^Joker",
+      "link": "https://demozoo.org/music/356193/",
+      "info": "4th @ Xenium 2024",
+      "format": "XM",
+      "channels": 4
+    },
+    {
+      "title": "Huascaran 2024",
+      "url": "https://files.scene.org/get/parties/2024/xenium24/msx_tracked/huascaran_2024_____.mod",
+      "author": "Kalosz",
+      "group": "Joker^Suspect",
+      "link": "https://demozoo.org/music/356197/",
+      "info": "5th @ Xenium 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Stamps Back, Norby!",
+      "url": "https://files.scene.org/get/parties/2024/xenium24/msx_tracked/tracked_msx_bartesek-stamps_back__norby_.zip",
+      "author": "Bartesek",
+      "group": "Casyopea",
+      "link": "https://demozoo.org/music/356206/",
+      "info": "6th @ Xenium 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Core Tech",
+      "url": "https://files.scene.org/get/parties/2024/xenium24/msx_tracked/trackedmsx_teo_-_core_tech_xen_edit.zip",
+      "author": "Teo",
+      "group": "Focus Design^Rebels",
+      "link": "https://demozoo.org/music/356191/",
+      "info": "=9th @ Xenium 2024",
+      "format": "MOD",
+      "channels": 4
+    },
+    {
+      "title": "Fat Nuggets",
+      "url": "https://files.scene.org/get/parties/2024/xenium24/msx_tracked/trackedmsx_xcopy_fat-nuggets.zip",
+      "author": "XCOPY",
+      "group": "",
+      "link": "https://demozoo.org/music/356194/",
+      "info": "11th @ Xenium 2024",
+      "format": "MOD",
+      "channels": 4
+    }
+  ]
+}

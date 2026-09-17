@@ -27,8 +27,14 @@ const ACTION_RECIPES = [
         bind: () => ({ kind: "command", command: "record.toggle", mockField: "record.active", mockValues: [false, true] })
     },
     {
+        // "on click" was originally required so this could not accidentally
+        // swallow an inline sentence meant for another recipe; matched last
+        // among the toggle recipes, an optional suffix is enough for that,
+        // and it is what lets a bare authored name (`toggleHelpBubbles`
+        // becomes "toggle help bubbles", spec 022) resolve without an author
+        // having to write the "on click" a real sentence would carry.
         code: "toggle-generic",
-        pattern: /toggle\s+([a-z][a-z ]*?)\s+on\s+click/i,
+        pattern: /^toggle\s+([a-z][a-z ]*?)(?:\s+on\s+click)?$/i,
         bind: match => {
             const subject = match[1].trim().replace(/\s+/g, "-");
             return { kind: "command", command: `${subject}.toggle`, mockField: `${subject}.active`, mockValues: [false, true] };
@@ -44,6 +50,49 @@ const ACTION_RECIPES = [
             const subject = match[1].trim().replace(/\s+/g, "-").toLowerCase();
             return { kind: "command", command: `${subject}.set`, mockField: `${subject}.value`, mockValues: [] };
         }
+    },
+    {
+        // Spec 022: the screens' one-shot commands (clear a track, copy a
+        // pattern, insert a song step) - no value to cycle and no on/off
+        // state, just "this ran", so `mockField` is null: `dispatch()`
+        // already treats that as a fire-and-forget activation with nothing
+        // to write, exactly like a plain click with no bound field at all.
+        // Spec 037 adds "save" to the verb list (the File menu's own
+        // `saveFile`, "save file" -> file.save) - the first genuinely new
+        // authoring vocabulary any P9 spec has needed, since nothing existing
+        // could express a one-shot save command. Spec 042 adds the sample
+        // editor's own six zero-argument operations ("normalize", "trim",
+        // "reverse", "invert", "fade in", "fade out" - the last two the
+        // first multi-word verbs this recipe has matched, so the verb itself
+        // is hyphenated the same way a multi-word subject already is,
+        // keeping every generated field/command name space-free). Spec 045
+        // adds "open"/"cancel" for the loop creator's own "Create Loop" and
+        // "Cancel" buttons. Spec 048 adds "show" for the View menu's own
+        // "showMain" (resolving it for the first time) - as a side effect,
+        // the same menu's own already-authored, still-unmapped
+        // showOptions/showFileOperations/showSampleEditor now resolve too
+        // (each becomes a mocked-command loose end instead of an
+        // unresolved-action-reference one); mapping those three is not this
+        // spec's own concern - see its requirements.md. Spec 049 adds
+        // "start" for the Nibbles screen's own single, state-dependent
+        // primary button (Start/Resume/Try Again/REMATCH). Spec 057 adds
+        // "add"/"remove" for the envelope screen's own +/- point buttons.
+        // Spec 063 adds "random" for the File menu's own "Open Random MOD/XM
+        // Song" ("randomSong"/"randomSongXM" have no leading verb at all in
+        // v1's own action names, unlike every prior tenant - "random song"/
+        // "random song xm" -> song.random/song-xm.random). Spec 067 adds
+        // "export" for the save/export screen's own Sample/Playlist buttons
+        // ("exportSample" -> "export sample" -> sample.export; "exportPlayList"
+        // -> "export play list" -> play-list.export, keeping the same
+        // "play-list" noun spec 063's own randomPlayList already established
+        // rather than a second, inconsistent "playlist" spelling).
+        code: "verb-action",
+        pattern: /^(clear|copy|paste|insert|delete|increment|decrement|save|normalize|trim|reverse|invert|fade in|fade out|open|cancel|show|start|add|remove|random|export)\s+(?:the\s+)?([a-z][a-z0-9 ]*)$/i,
+        bind: match => {
+            const verb = match[1].trim().replace(/\s+/g, "-").toLowerCase();
+            const subject = match[2].trim().replace(/\s+/g, "-").toLowerCase();
+            return { kind: "command", command: `${subject}.${verb}`, mockField: null, mockValues: [] };
+        }
     }
 ];
 
@@ -58,7 +107,51 @@ const ACTION_RECIPES = [
 // driven by any command until a recipe for it exists.
 const CONDITION_FIELD_ALIASES = [
     { pattern: /\bplay/i, mockField: "playback.status", activeValue: "playing" },
-    { pattern: /\brecord/i, mockField: "record.active", activeValue: true }
+    { pattern: /\brecord/i, mockField: "record.active", activeValue: true },
+    // Spec 042: the sample editor's loop-enabled toggle control is the
+    // first authored rule to actually need this alias list for something
+    // other than transport state - deriveMockFieldName's own dot-joining
+    // would otherwise never agree with toggle-generic's hyphen-joined
+    // "-active" field for a multi-word subject.
+    { pattern: /\bloop enabled\b/i, mockField: "loop-enabled.active", activeValue: true },
+    // Spec 045: the loop creator's own "Snap to zero" toggle control needs
+    // the same seam.
+    { pattern: /\bsnap to zero\b/i, mockField: "snap-to-zero.active", activeValue: true },
+    // Spec 046: the resample panel's own "Interpolate" toggle control needs
+    // the same seam a third time.
+    { pattern: /\bresample interpolate\b/i, mockField: "resample-interpolate.active", activeValue: true },
+    // Spec 057: the envelope screen's own enable/sustain/loop toggle
+    // controls need the same seam, twice (volume and panning) - six entries, since
+    // deriveMockFieldName's own dot-joining would otherwise never agree
+    // with toggle-generic's hyphen-joined "-active" field for any of them,
+    // the identical mismatch "loop enabled" already needed fixing above.
+    { pattern: /\bvolume envelope enabled\b/i, mockField: "volume-envelope-enabled.active", activeValue: true },
+    { pattern: /\bvolume envelope sustain\b/i, mockField: "volume-envelope-sustain.active", activeValue: true },
+    { pattern: /\bvolume envelope loop\b/i, mockField: "volume-envelope-loop.active", activeValue: true },
+    { pattern: /\bpanning envelope enabled\b/i, mockField: "panning-envelope-enabled.active", activeValue: true },
+    { pattern: /\bpanning envelope sustain\b/i, mockField: "panning-envelope-sustain.active", activeValue: true },
+    { pattern: /\bpanning envelope loop\b/i, mockField: "panning-envelope-loop.active", activeValue: true },
+    // Spec 049: the Nibbles screen's own Wrap/Grid toggle controls need the
+    // same seam - confirmed empirically (as every prior addition to this list
+    // was) that a rule's own derived field for a bare, single-word subject
+    // ("wrap"/"grid", no ".active" suffix at all) never agrees with
+    // toggle-generic's own field either, the same as every multi-word
+    // subject already in this list.
+    { pattern: /^wrap$/i, mockField: "wrap.active", activeValue: true },
+    { pattern: /^grid$/i, mockField: "grid.active", activeValue: true },
+    // Spec 050: the FT-only side panel's own "disabled unless ft mode is
+    // active" rule needs the same seam.
+    { pattern: /\bft mode\b/i, mockField: "ft-mode.active", activeValue: true },
+    // Spec 070's own UI-alignment pass (step 6): the control bar's own File
+    // Operations/Options/Sample Edit buttons highlight based on which
+    // *string value* their own section's shared field currently holds, not
+    // a boolean ".active" flag - deriveMockFieldName's own dot-joining
+    // would produce a stray, unrelated field name here regardless (the same
+    // reason every entry above this one exists), so both the field name and
+    // the value being compared against need spelling out explicitly.
+    { pattern: /\bfile operations view\b/i, mockField: "song-properties-view.value", activeValue: "File Operations" },
+    { pattern: /\boptions view\b/i, mockField: "song-properties-view.value", activeValue: "Options" },
+    { pattern: /\bsample edit panel\b/i, mockField: "pattern-section-view.value", activeValue: "Sample Edit" }
 ];
 
 const RULE_RECIPES = [
@@ -71,6 +164,29 @@ const RULE_RECIPES = [
             return {
                 kind: "visual-state",
                 state: "highlighted",
+                mockField: alias ? alias.mockField : deriveMockFieldName(subject),
+                activeValue: alias ? alias.activeValue : true,
+                conditionText: subject
+            };
+        }
+    },
+    /**
+     * Spec 050: the first compiler path to `disabledWhen` (spec 015's own
+     * runtime mechanism, never authorable from YAML until now). Mirrors
+     * "highlighted-when-active" exactly, except the generated check is
+     * negated - "disabled unless X is active" reads more naturally for a
+     * condition shaped like sampleView.js's own `disabled = !inFTMode()`
+     * than a double-negative "disabled when not X".
+     */
+    {
+        code: "disabled-unless-active",
+        pattern: /disabled\s+unless\s+(.+?)\s+is\s+active/i,
+        bind: match => {
+            const subject = match[1].trim();
+            const alias = CONDITION_FIELD_ALIASES.find(a => a.pattern.test(subject));
+            return {
+                kind: "visual-state",
+                state: "disabled",
                 mockField: alias ? alias.mockField : deriveMockFieldName(subject),
                 activeValue: alias ? alias.activeValue : true,
                 conditionText: subject

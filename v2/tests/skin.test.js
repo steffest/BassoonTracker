@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compileSkin } from "../compiler/skin.js";
+import { compileSkin, registerAssetUse } from "../compiler/skin.js";
 import { compileApplication } from "../compiler/convert.js";
 import { parseYamlDocument } from "../compiler/yaml.js";
 import { BUILTIN_SKIN, lookupStyle, resolveStateAsset, styleStateName, styleLayoutDefaults, STYLE_STATES } from "../runtime/skinModel.js";
@@ -311,4 +311,59 @@ styles:
     assert.equal(group.children[1].style.variant, "default", "an item may still name its own variant");
     assert.equal(group.children[1].style.inheritedFrom, null);
     assert.ok(!result.diagnostics.some(d => d.code === "unknown-style-variant"));
+});
+
+// --- spec 071: registerAssetUse - an image/icon node's own asset use,
+// discovered after compileSkin() already returned ---------------------------
+
+test("registerAssetUse: adds a new asset entry and marks it missing if no source file exists", () => {
+    const { skin } = compile(MINIMAL, { listAssets: () => ["font", "button_inlay"] });
+    const diagnostics = [];
+    registerAssetUse(skin, "togglecorner", "app.yaml", { start: { line: 1, column: 1 } }, "image \"cornerDeco\"", (severity, code, message, file, range) => diagnostics.push({ severity, code, message, file, range }), () => ["font", "button_inlay"]);
+    const entry = skin.assets.find(a => a.name === "togglecorner");
+    assert.ok(entry, "a new entry was added");
+    assert.equal(entry.file, "src/togglecorner.png");
+    assert.deepEqual(entry.usedBy, [{ file: "app.yaml", range: { start: { line: 1, column: 1 } } }]);
+    assert.equal(entry.missing, true);
+    assert.ok(diagnostics.some(d => d.code === "unknown-skin-asset"));
+});
+
+test("registerAssetUse: a second use of an already-known asset just appends to usedBy, no duplicate entry", () => {
+    const { skin } = compile(MINIMAL, { listAssets: () => ["font", "button_inlay"] });
+    const before = skin.assets.length;
+    registerAssetUse(skin, "button_inlay", "components/x.yaml", null, "image \"x\"", () => {}, () => ["font", "button_inlay"]);
+    assert.equal(skin.assets.length, before, "no new entry - button_inlay is already used by the skin's own default button style");
+    const entry = skin.assets.find(a => a.name === "button_inlay");
+    assert.ok(entry.usedBy.some(u => u.file === "components/x.yaml"));
+});
+
+test("registerAssetUse: does nothing for a falsy asset name or a skin with no assets array", () => {
+    const { skin } = compile(MINIMAL);
+    const before = skin.assets.length;
+    registerAssetUse(skin, "", "app.yaml", null, "image", () => {});
+    registerAssetUse(skin, null, "app.yaml", null, "image", () => {});
+    registerAssetUse(undefined, "togglecorner", "app.yaml", null, "image", () => {});
+    assert.equal(skin.assets.length, before);
+});
+
+test("compileApplication: an authored image node's own src is a real asset use, not silently dropped (the real gap this closed - togglecorner/tracker were compiled and rendered fine but never packed into the atlas, since nothing before this registered the use at all)", () => {
+    const files = {
+        "app.yaml": `app:
+  skin: default
+  ui:
+    main:
+      type: panel
+      content:
+        - name: cornerDeco
+          type: image
+          src: togglecorner
+`,
+        "skin/default.yaml": MINIMAL
+    };
+    const result = compileApplication("app.yaml", path => (Object.prototype.hasOwnProperty.call(files, path) ? files[path] : null), { listAssets: () => ["font", "button_inlay"] });
+    assert.equal(result.hardFailure, false);
+    const entry = result.skin.assets.find(a => a.name === "togglecorner");
+    assert.ok(entry, "togglecorner is registered as a used asset");
+    assert.ok(entry.usedBy.some(u => u.file === "app.yaml"), "used-by points at the component file the image node was authored in, not skin/default.yaml");
+    assert.ok(result.diagnostics.some(d => d.code === "unknown-skin-asset" && d.message.includes("togglecorner")), "warns, the same as any other unknown skin asset, since the fixture's own listAssets does not include it");
 });

@@ -55,17 +55,32 @@ class ScheduledEvent {
     }
 }
 
+// The frame loop's own hook (spec 032): `engine/tracker.js:278`'s
+// `clock = clock || new WAAClock(Audio.context)` passes no options and is
+// v1-ported code this package keeps byte-identical (domain/playback/
+// README.md's "nothing else" divergence rule), so a per-call option cannot
+// be threaded through that call site. A module-level default fills the same
+// role: registered once (domain/playback/index.js's `ensureEngine`), read by
+// every `Scheduler` built afterward that does not pass its own option.
+let defaultOnMissedDeadline = null;
+
+/** @param {((lateBy: number) => void)|null} fn */
+export function setDefaultOnMissedDeadline(fn) {
+    defaultOnMissedDeadline = fn;
+}
+
 export default class Scheduler {
     /**
      * @param {BaseAudioContext} context the clock everything is measured against
      * @param {{ tickMs?: number, onMissedDeadline?: (lateBy: number) => void }} [options]
      *   `onMissedDeadline` replaces v1's global `clockEventExpired` event, so the
-     *   decision to throttle belongs to whoever owns the frame loop.
+     *   decision to throttle belongs to whoever owns the frame loop. Falls back
+     *   to `setDefaultOnMissedDeadline`'s own registration when omitted.
      */
     constructor(context, options = {}) {
         this.context = context;
         this.tickMs = options.tickMs || DEFAULT_TICK_MS;
-        this.onMissedDeadline = options.onMissedDeadline || null;
+        this.onMissedDeadline = options.onMissedDeadline || defaultOnMissedDeadline;
         this.events = [];
         this.timer = null;
         this.running = false;

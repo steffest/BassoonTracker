@@ -1,0 +1,45 @@
+# 057 — The envelope screen
+
+Date: 2026-09-15. Kind: feature. Status: specified. Closes the envelope editor's own three-part arc within package **P11** (the remaining specialized surfaces) of the [port roadmap](../010-port-roadmap/requirements.md), following spec 055 (the headless engine) and spec 056 (the interactive leaf). Places `envelopeView` for the first time, twice - the same "mechanism, then interactive leaf, then screen" pattern loop creator (043/044/045) and the multitrack arrangement view (051/052/053) already completed.
+
+## Purpose
+
+Specs 055/056 built everything `envelopeView` needs - point editing, add/remove, enable/sustain/loop - but nothing places it. This spec places it, twice (volume and panning), inside the sample-editor screen `components/sampleEditPanel.yaml` already authors (spec 042/045/046/050).
+
+## What v1 actually does, and what this narrows out (read from source, not assumed)
+
+**A real correction to this spec's own first assumption, caught by grepping the wrong directory first**: `script/src/ui/envelope.js`/`envelopePanel.js` looked, at first, like dead code - nothing under `script/src/ui/` imports either file. They are not dead: `script/plugins/sampleeditor/sampleView.js` (the *real*, currently-live sample editor this whole port's own P10 work has been ported from throughout specs 040-046/050) imports `EnvelopePanel` from exactly that path and instantiates it twice, `EnvelopePanel("volume")`/`EnvelopePanel("panning")` (`sampleView.js:245,248`). Confirmed by re-reading `sampleView.js` directly before writing anything else.
+
+**Where v1 actually shows them, and why this spec narrows it**: `sampleView.js`'s own layout code (`onPanelResize`, 640-728) shows both envelope panels side by side only when the screen is in neither of two other view modes - `isMaximized` (the waveform view expanded to fill the whole screen) nor `moreExpanded` (a second row of sample-display/select/volume panels shown instead). **Neither of those two modes exists anywhere in v2** - spec 041/042 already recorded "no expand/collapse" as a deliberate scope decision when the waveform view and the sample-editor screen were first built, and nothing since has revisited it. Replicating v1's own three-way toggle here, just to decide when the envelope panels show, would mean building two entire screen modes this port has never needed for anything else they would also affect - out of proportion to what this spec is actually for. Instead, both envelope panels are shown **always** (no toggle at all), the same way spec 050's own FT-only side panel is always *shown*, only ever *disabled*, rather than hidden, when not in FastTracker mode - see Decisions below for why that is also the more honest choice for an envelope's own audible meaning.
+
+**The panel's own structure** (`envelopePanel.js`, read in full for spec 055, re-read here for the surrounding controls): a title bar (a clickable label toggling the enable checkbox beside it), `+`/`-` buttons that call `addPoint`/`removePoint` directly, the graph itself (`envelopeView`, spec 056), and a narrower side column with a sustain checkbox + spinbox and a loop checkbox + two spinboxes (from/to) - all already fully specified by spec 055's own domain functions.
+
+## Decisions and assumptions
+
+- **Both envelope panels are always shown, gated by `disabled unless ft mode is active` on every interactive control inside them**, not a `visibleWhen` toggle - the same fallback shape spec 050's own `ftOnlyRow` already established (a `panel`/`radioGroup`/`checkbox`-group-of-controls has no controller of its own for `disabledWhen` to reach, so the rule is authored on each interactive leaf individually), and a real design justification beyond just reusing a pattern: an envelope has no audible effect at all outside FastTracker mode (ProTracker has no envelope concept - `Tracker.inFTMode()` gates the engine's own envelope scheduling, `models/instrument.js:42,49`), so disabling rather than hiding is the more honest choice even though v1 itself never explicitly ties the panel's own visibility to tracker mode (v1's own gate is `isMaximized`/`moreExpanded`, a different, unrelated axis - see above).
+- **Placed as a new `envelopeRow`, one more sibling after `ftOnlyRow`** inside `sampleEditNormalView` (spec 042/045/046/050's own content list) - the same conceptual slot v1's own layout puts them in (directly below the waveform/buttons area), without chasing v1's own exact pixel columns (`Layout.col2X`/`col4X`), the same "reasonable, not pixel-exact" placement choice specs 045/049/053 each already made once real v1 layout numbers stopped mattering more than a working, testable tree.
+- **Sixteen small capability wrappers** (eight operations - enable, add point, remove point, sustain toggle, sustain-point spinbox, loop toggle, loop-start spinbox, loop-end spinbox - times two envelope types), added to `domain/sampleEditor/index.js`, generated from one small internal factory rather than written out twice by hand - the same real duplication a factory is meant to remove, not a premature one (`domain/sampleEditor/index.js` already has eight *different*, non-duplicated capabilities for the FT-only panel, spec 050; this is the first time this file needs the identical eight operations twice for two variants of one concept, mirroring spec 056's own `envelopeType` finding at the domain layer instead of the controller layer).
+- **Twelve new `STATE_FIELDS`, six per type** (`enabled`, `sustain`, `sustainPoint`, `loop`, `loopStartPoint`, `loopEndPoint`) - the surrounding checkboxes/spinboxes are ordinary scalar controls, publishing/reading through `app.state` exactly like every other instrument-property control this screen already has (spec 050's own precedent); only the envelope's own *points* stay outside the store, read directly by `envelopeView`'s own controller/draw kind (spec 056's own contract, unchanged).
+- **Every mutation republishes all six of its own type's fields, not just the one that changed** - `addPoint`/`removePoint` can silently re-clamp `sustainPoint`/`loopStartPoint`/`loopEndPoint` (spec 055's own `clampIndices`), so a stale, unpublished value after either button would show something the domain no longer agrees with; republishing the whole small set after any of the eight operations is simpler and safer than tracking which one specific operation can and cannot affect the other three fields.
+
+## User stories and acceptance
+
+- **SCREEN-001 — Both envelope panels render, in place, inside the sample editor's own normal view.** `computeGenericLayout()` against the real, compiled `app.yaml` places both `envelopeView` nodes (and their own surrounding checkboxes/spinboxes) with a non-zero rect whenever `sampleEditNormalView` itself is visible. Acceptance: a layout-integration test mirroring spec 048/053's own `computeGenericLayout()` convention.
+- **SCREEN-002 — Every authored command resolves to a real capability, confirmed empirically before writing any test.** Each of the sixteen actions' own derived command name is read back from the compiled outline and matches the mapped `domain/sampleEditor/index.js` export exactly - the same "interpretAction/interpretRule first" discipline every prior spec in this roadmap has followed.
+- **SCREEN-003 — The three checkbox pairs (enabled, sustain, loop) each highlight when their own field is true, for both types independently.** Acceptance: unit tests for all six against `domain/sampleEditor/envelope.js`'s own real state, through `publishInstrumentFields`'s own extension.
+- **SCREEN-004 — No regressions.** Full unit suite passes; `node compiler/generate.js` shows no new warnings; `node build.mjs app` succeeds, with every one of the sixteen new commands appearing as a real mapped capability, not a `mocked-command`.
+
+## Non-functional requirements
+
+- Headless verification only (no browser-automation dependency in this environment, the same recorded reason every spec since 019 has given).
+
+## Scope boundaries
+
+In scope: `domain/sampleEditor/index.js`'s twelve new `STATE_FIELDS`, its extended `publishInstrumentFields`, and its sixteen new capability exports; `capabilities.js`'s sixteen new mappings; `project/specs/application/current/components/sampleEditPanel.yaml`'s new `envelopeRow` (two panels, each wrapping an `envelopeView` and its own surrounding controls); and tests for all of the above.
+
+Out of scope, recorded rather than silently dropped:
+
+- **`isMaximized`/`moreExpanded`** - neither exists anywhere in v2 (recorded absence since specs 041/042); both envelope panels are always shown instead, disabled outside FastTracker mode rather than hidden by either toggle - see Decisions.
+- **v1's own exact column positions** (`Layout.col2X`/`col4X`/`col2W`) - a reasonable, not pixel-exact, placement inside the existing content list, the same simplification specs 045/049/053 each already made.
+- **The scopes and the piano** - P11's remaining two surfaces, later specs' own.
+- **The classic pattern grid's own screen** - the still-open P7 gap recorded again in spec 053, unrelated to this spec.

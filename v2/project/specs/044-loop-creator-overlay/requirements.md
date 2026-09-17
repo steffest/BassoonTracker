@@ -1,0 +1,45 @@
+# 044 — The interactive loop-creator overlay
+
+Date: 2026-09-14. Kind: feature. Status: specified. Continues package **P10** (features and the plugin path) of the [port roadmap](../010-port-roadmap/requirements.md), following spec 043 (the loop creator's own state model and DSP). Gives that mechanism its interactive front end - the port's fourth specialized-component leaf, after `patternGrid` (030), `fileBrowser` (035) and `waveformView` (041).
+
+## Purpose
+
+Spec 043 built the loop creator's entire state model and DSP headlessly, on purpose - every setter a later drag controller would need was already there, with the interaction itself deliberately deferred. This spec is that interaction: `script/plugins/sampleeditor/loopCreator.js`'s own `waveDisplay` (119-274, 379-537) is a single canvas overlay with eleven independent drag targets (two loop markers, three blend-size handles, three blend-volume lines, three "original volume" lines) and its own multi-branch hit-testing and drawing. Matching the same split spec 041 already established for the plain waveform view, this spec builds the mechanism only - the controller and draw kind - not the menu-bar controls (title, Apply/Cancel, snap checkbox, presets dropdown) or the screen wiring that reaches it from the sample-editor panel, both deferred to a later spec.
+
+## What v1 actually does, and what this narrows out (read from source, not assumed)
+
+`hitTarget(x, y, W, waveH)` (132-190) checks, in priority order: the three "orig-blend" triangles (x-range plus a 6px y-proximity to their own center line), the three blend-size handles (only within a 32px-tall handle bar, 4px x-tolerance), the three blend-volume center lines (same x-range/y-proximity shape as the orig triangles), then the two loop markers (6px x-tolerance, full height) - each of the eleven checks distinct from the others by construction (no two ever both match the same point, since the priority order is exactly what resolves any overlap). `onDragStart`/`onDrag` capture a start value per target kind (a loop bound for the two markers, a region size for the three handles, a blend value for the six blend/orig lines) and update it from the drag's own delta - horizontal for markers/handles, vertical (inverted) for blend/orig lines - each already clamped by the exact domain setter spec 043 built (`setLoopStart`/`setTailSize`/`setBlendTail`/etc.), so no new clamping logic is needed here at all. `drawWave` (379-479) draws the loop-region tint, marker triangles, the three colored blend-layer waveform shapes (`drawLayer`, plotting `tailLayer`/`loopEndLayer`/`headModLayer` each over its own limited sample range), the blend-volume/orig-volume lines as small filled triangles, the three size handles, and a small color-key legend - notably, v1's own loop creator never draws the sample's overall waveform shape at all; it is purely a diagram of the loop's own boundary and blend regions, not an audio-waveform plot the way the main `waveformView` (spec 041) is.
+
+Marker dragging is the one place `snapToZero` has a live effect - only here (Purpose's own note in spec 043's requirements.md), never through the plain setters. `domain/sampleEditor/loopCreator.js#nearestZeroCrossing` (private since spec 043, since nothing needed it yet) and the three blend-layer arrays (`headModLayer`/`loopEndLayer`/`tailLayer`, also private) are the only two things spec 043 did not expose that this spec's own controller/draw kind genuinely need - both gained a small, additive export (see design.md), the same kind of "the mechanism already planted a seam" moment spec 043 itself called out (`snapToZero`: "read by a later drag controller only" - this is that controller).
+
+## Decisions and assumptions
+
+- **Its own independent zoom, not synced with the plain waveform view.** v1's own loop creator receives its zoom window from the main `waveForm`'s own `onZoomChange` callback (`sampleView.js:134-136`), kept in lock-step with whatever the user is looking at in the ordinary waveform view. Wiring two separate specialized leaves' own controllers together would be a new, real coupling this port has never needed anywhere else; every specialized leaf built so far owns its own zoom/scroll state independently (`patternGrid`'s own `startTrack`, `waveformView`'s own `zoomStart`/`zoomLength`). This spec's own controller owns its own zoom window the same way, reusing `renderers/canvas/waveformGeometry.js`'s already-pure `clampZoom`/`pixelToSampleIndex`/`sampleIndexToPixel` directly rather than duplicating them - the math is identical regardless of which specialized leaf is panning/zooming.
+- **No dynamic cursor hinting.** v1's own `cursorForTarget`/`UI.setCursor` changes the pointer's own cursor by hover target (`ns-resize` over a blend line, `ew-resize` elsewhere). `waveformView` (spec 041) already left this out for its own edge-resize cursor, without calling it out by name; this spec keeps the same, now-explicit, omission for consistency - a later spec covering dynamic cursor hinting generically (if one is ever allocated) is the right place to add both at once, not each specialized leaf inventing its own.
+- **Marker drags honor `snapToZero`; every other drag target's own domain setter is called directly with no extra logic**, since spec 043's own setters (`setTailSize`/`setHeadSize`/`setLoopEndSize`/`setBlendTail`/`setBlendHead`/`setBlendLoopEnd`/`setOrigBlendTail`/`setOrigBlendHead`/`setOrigBlendLoopEnd`) already clamp exactly as v1's own inline drag math does - this spec's controller computes the candidate value and calls the matching setter, nothing more.
+- **The draw kind reads `domain/sampleEditor/loopCreator.js` directly**, the same contract every specialized leaf's own draw kind already has (`patternGrid`/`fileBrowser`/`waveformView`) - no bound field, no `visualStateOf` branch in `mountGeneric.js`.
+
+## User stories and acceptance
+
+- **OVERLAY-001 — Each of the eleven drag targets is hit-testable and none shadows another.** `hitLoopTarget` resolves the same point to the same single target v1's own priority order would, for every target kind, including the "no hit" case. Acceptance: pure unit tests covering all eleven targets plus a miss, mirroring `waveformGeometry.test.js`'s own convention.
+- **OVERLAY-002 — Dragging a loop marker moves it, honoring snap-to-zero only here.** A plain marker drag moves the loop bound by exactly the pointer's own delta, clamped by the matching domain setter; with `snapToZero` on, the dragged value is first resolved to its nearest zero crossing before being handed to the setter. Acceptance: a controller unit test per marker, with and without snapping, against a real loaded fixture (`domain/sampleEditor/loopCreator.js` needs a real instrument's own sample data for zero-crossing search to mean anything).
+- **OVERLAY-003 — Dragging a size handle or a blend/orig line calls the exact matching domain setter with the delta-adjusted candidate value.** Acceptance: a controller unit test per one of the nine remaining targets.
+- **OVERLAY-004 — Wheel pans/zooms this leaf's own independent window, exactly as `waveformView`'s controller does.** Acceptance: unit tests mirroring `waveformController.test.js`'s own wheel tests.
+- **OVERLAY-005 — The draw kind never throws, plots the three blend layers in their own color, and draws the loop-region tint, markers and size handles.** Acceptance: a fake-canvas-context test mirroring `waveformView.test.js`'s own convention.
+- **OVERLAY-006 — No regressions.** Full unit suite passes; `node build.mjs app`/`dist` unaffected (no YAML/compiler/capabilities.js change - nothing authors this type yet, matching spec 041's own "no screen yet" precedent).
+
+## Non-functional requirements
+
+- Headless verification only (no browser-automation dependency in this environment, the same recorded reason every spec since 019 has given).
+- No new authoring mechanism, no YAML - this type is registered but not yet placed in any component tree, exactly as `waveformView` was between specs 041 and 042.
+
+## Scope boundaries
+
+In scope: `renderers/canvas/loopCreatorGeometry.js` (new, pure), two small additive exports from `domain/sampleEditor/loopCreator.js` (`nearestZeroCrossing`, `getLoopCreatorLayers`), `runtime/loopCreatorController.js` (new), `runtime/behaviors.js`/`runtime/componentTypes.js`/`renderers/canvas/drawKinds.js`/`renderers/canvas/mountGeneric.js` registrations, and tests for all of the above.
+
+Out of scope, recorded rather than silently dropped:
+
+- **The menu-bar controls** (title label, Apply/Cancel buttons, "Snap to zero" checkbox, the presets dropdown) and **the screen wiring** into the sample-editor panel (spec 042) - a later spec's own, the same way spec 042 was `waveformView`'s own later screen.
+- **Dynamic cursor hinting** - see Decisions and assumptions.
+- **Zoom sync with the plain waveform view** - this leaf owns its own independent zoom window.
+- **The color-key legend text** - purely decorative; drawn only if it costs nothing once the rest of the draw kind exists, otherwise recorded as a cheap, cosmetic later addition.

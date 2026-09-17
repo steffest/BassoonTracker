@@ -371,6 +371,33 @@ var Audio = (function(){
     };
 
 
+    // Spec 051: a parameterized port of this module's own former inline
+    // updateTrackVolumes() logic (v1's audio.js:182-201). v2 never ported
+    // the EVENT.trackStateChange listener that used to drive it - nothing
+    // triggered it before this spec, and domain/arrangement/index.js is now
+    // the single owner of mute/solo bookkeeping (v1 kept three duplicated
+    // copies of the same interaction rule - see that spec's requirements.md),
+    // so this takes the two flag arrays as parameters instead of this file
+    // keeping its own, now-redundant, second copy of the same state.
+    me.setTrackVolumes = function(muteFlags, soloFlags){
+        var count = filterChains.length;
+        var anySolo = false;
+        for (var i = 0; i < count; i++){
+            if (soloFlags[i]) anySolo = true;
+        }
+        for (var j = 0; j < count; j++){
+            if (filterChains[j]){
+                var vol;
+                if (anySolo){
+                    vol = (soloFlags[j] && !muteFlags[j]) ? 70 : 0;
+                }else{
+                    vol = muteFlags[j] ? 0 : 70;
+                }
+                filterChains[j].volumeValue(vol);
+            }
+        }
+    };
+
     me.setStereoSeparation = function(value){
 
         var panAmount;

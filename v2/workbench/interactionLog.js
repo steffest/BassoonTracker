@@ -8,10 +8,11 @@ import { createTraceCollector } from "../runtime/traceCollector.js";
 // reported explicitly so "nothing shown" is never ambiguous.
 
 // Spec 014 added three kinds: a value control's number changing, a
-// viewport's applied scroll offset, and a file drop. They are listed here
-// because the filter set starts as exactly these kinds, so a kind that is
-// missing from this list is silently hidden rather than merely uncoloured.
-const KINDS = ["input", "state", "activation", "command", "value", "scroll", "filedrop"];
+// viewport's applied scroll offset, and a file drop. Spec 015 added a fourth,
+// a tooltip showing or hiding. They are listed here because the filter set
+// starts as exactly these kinds, so a kind that is missing from this list is
+// silently hidden rather than merely uncoloured (spec 014's own finding).
+const KINDS = ["input", "state", "activation", "command", "value", "scroll", "filedrop", "tooltip"];
 
 function formatDetail(entry) {
     switch (entry.kind) {
@@ -26,6 +27,7 @@ function formatDetail(entry) {
         case "value": return `${entry.field}: ${String(entry.from)} → ${String(entry.to)}`;
         case "scroll": return `${entry.field}: ${String(entry.from)} → ${String(entry.to)} px`;
         case "filedrop": return `${entry.files.length} file(s): ${entry.files.join(", ")}  (${entry.bytes} bytes)`;
+        case "tooltip": return `${entry.shown ? "shown" : "hidden"}${entry.text ? `  "${entry.text}"` : ""}`;
         default: return JSON.stringify(entry);
     }
 }

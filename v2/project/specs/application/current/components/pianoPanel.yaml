@@ -1,0 +1,35 @@
+name: pianoPanel
+type: panel
+layout:
+  width: fill
+  height: 200
+  direction: column
+visibleWhen:
+  field: piano.active
+  oneOf:
+    - true
+content:
+  - name: pianoHeaderRow
+    type: panel
+    layout:
+      width: fill
+      direction: row
+    content:
+      - name: pianoOctaveSpinBox
+        type: spinBox
+        field: current-octave.value
+        min: 0
+        max: 7
+        step: 1
+        actions:
+          - change: setCurrentOctave
+      - name: pianoCloseButton
+        type: button
+        label: Close
+        actions:
+          - click: togglePiano
+  - name: pianoKeys
+    type: pianoView
+    layout:
+      width: fill
+      height: fill
