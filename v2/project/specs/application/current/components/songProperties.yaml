@@ -1,13 +1,15 @@
 name: songProperties
 type: panel
+variant: mainStripLayered
 layout:
   width: fill
-  height: 220
+  height: 160
   direction: column
   resizable: horizontal
 content:
   - name: songPropertiesDefault
     type: viewport
+    variant: transparent
     # Spec 071: v1's own appMainPanel.js never stacks all of this content in
     # one column - at normal widths it spreads the four groups below across
     # four side-by-side columns (script/src/ui/app/appMainPanel.js:383-396),
@@ -33,13 +35,14 @@ content:
     content:
       - name: songPropertiesLayout
         type: panel
+        variant: transparent
         layout:
           width: fill
           direction: row
         # Matches v1's own real, single width threshold (see this node's
         # parent's own comment) rather than inventing a new one.
         breakpoints:
-          - maxWidth: 620
+          - maxWidth: 619
             layout:
               direction: column
         content:
@@ -49,17 +52,41 @@ content:
           - name: songPatternGroup
             type: panel
             layout:
-              width: fill
+              width: col1Minus5
             content:
               - songPatternList
           - name: spinBoxGroupA
             type: panel
+            variant: transparent
             layout:
-              width: fill
+              width: col1
+              height: 84
+              offsetY: 49
+              widthOffset: -2
               direction: column
+              padding: 0
+              gap: 0
             content:
+              - name: spinBoxPanelA
+                type: panel
+                variant: songPropertyInset
+                layout:
+                  position: absolute
+                  left: 0
+                  top: -3
+                  width: fill
+                  widthOffset: 2
+                  height: 94
               - name: bpmSpinBox
                 type: spinBox
+                label: BPM
+                variant: songPropertyBpm
+                stepperWidth: 20
+                stepperDirection: horizontal
+                padLength: 4
+                layout:
+                  width: fill
+                  height: 28
                 field: song.bpm
                 min: 1
                 max: 400
@@ -68,6 +95,14 @@ content:
                   - change: setBPM
               - name: songLengthSpinBox
                 type: spinBox
+                label: Song length, Song len, Length, Len.
+                variant: songPropertySongLength
+                stepperWidth: 20
+                stepperDirection: horizontal
+                padLength: 4
+                layout:
+                  width: fill
+                  height: 28
                 field: song-length.value
                 min: 1
                 max: 200
@@ -76,6 +111,14 @@ content:
                   - change: setSongLength
               - name: songRepeatSpinBox
                 type: spinBox
+                label: Song repeat, Song rep, Repeat, Rep.
+                variant: songPropertySongRepeat
+                stepperWidth: 20
+                stepperDirection: horizontal
+                padLength: 4
+                layout:
+                  width: fill
+                  height: 28
                 field: song-repeat.value
                 min: 1
                 max: 200
@@ -84,12 +127,36 @@ content:
                   - change: setSongRepeat
           - name: spinBoxGroupB
             type: panel
+            variant: transparent
             layout:
-              width: fill
+              width: col1
+              height: 84
+              offsetY: 49
+              widthOffset: -2
               direction: column
+              padding: 0
+              gap: 0
             content:
+              - name: spinBoxPanelB
+                type: panel
+                variant: songPropertyInset
+                layout:
+                  position: absolute
+                  left: 0
+                  top: -3
+                  width: fill
+                  widthOffset: 2
+                  height: 94
               - name: patternSpinBox
                 type: spinBox
+                label: Pattern, Pat.
+                variant: songPropertyPattern
+                stepperWidth: 20
+                stepperDirection: horizontal
+                padLength: 4
+                layout:
+                  width: fill
+                  height: 28
                 field: current-pattern.value
                 min: 0
                 max: 100
@@ -98,6 +165,14 @@ content:
                   - change: setCurrentPatternNumber
               - name: patternLengthSpinBox
                 type: spinBox
+                label: Pattern length, Pattern len, Pat len, Plen
+                variant: songPropertyPatternLength
+                stepperWidth: 20
+                stepperDirection: horizontal
+                padLength: 4
+                layout:
+                  width: fill
+                  height: 28
                 field: pattern-length.value
                 min: 1
                 max: 128
@@ -106,6 +181,14 @@ content:
                   - change: setPatternLength
               - name: songInstrumentSpinBox
                 type: spinBox
+                label: Instrument, Instr, Ins.
+                variant: songPropertyInstrument
+                stepperWidth: 20
+                stepperDirection: horizontal
+                padLength: 4
+                layout:
+                  width: fill
+                  height: 28
                 field: instrument-index.value
                 min: 1
                 max: 128
@@ -114,53 +197,80 @@ content:
                   - change: setInstrumentIndex
           - name: instrumentGroup
             type: panel
+            variant: transparent
             layout:
               width: fill
+              widthOffset: 5
+              height: 148
+              offsetY: -8
               direction: column
+              padding: 0
+              gap: 4
             content:
-              - name: bannerRow
-                type: panel
-                layout:
-                  direction: row
-                content:
-                  - name: logoBanner
-                    type: button
-                    # No label: v1's own logo button has no text on it at all
-                    # - the artwork alone is the whole control. Authored
-                    # explicitly empty rather than left unset, since an
-                    # unset label falls back to the node's own authored name
-                    # ("logoBanner"), which every other bare-label node in
-                    # this application relies on but this one specifically
-                    # must not.
-                    label: ""
-                    # The skin's own "logo" button variant already declares
-                    # width/height (matching v1's own real 70x50 logo) - but
-                    # that is style metadata, not a layout default for
-                    # anything but each type's own "default" variant, so it
-                    # is repeated here explicitly (confirmed empirically:
-                    # without this, the button rendered at the ordinary
-                    # button default size, 80x24, clipping the real 70x50
-                    # artwork almost entirely).
-                    layout:
-                      width: 70
-                      height: 50
-                    variant: logo
-                    rule: "highlighted when logo is active"
-                    actions:
-                      - click: toggleLogo
-                  - name: cornerDeco
-                    type: image
-                    src: togglecorner
-                  - name: trackerBanner
-                    type: image
-                    src: tracker
               - name: modNameInput
                 type: inputbox
                 field: song.title
                 placeholder: "(untitled)"
+                layout:
+                  width: fill
+                  height: 20
                 actions:
                   - change: setSongTitle
-              - instrumentList
+              - name: instrumentList
+                type: fileBrowser
+                layout:
+                  width: fill
+                  height: 124
+                actions:
+                  - change: setInstrumentRow
+                  - doubleClick: openInstrumentInSampleEditor
+  # V1's banners occupy the first three columns above the three lower
+  # property groups. They are siblings of the default viewport so their
+  # coordinates are relative to the real 160px AppMainPanel, not to the
+  # right-hand instrument column.
+  - name: logoBanner
+    type: button
+    label: ""
+    variant: logo
+    layout:
+      position: absolute
+      left: columnMargin
+      top: 4
+      width: col2Exact
+      height: 50
+    visibleWhen:
+      field: song-properties-view.value
+      oneOf:
+        - ""
+    rule: "highlighted when logo is active"
+    actions:
+      - click: toggleLogo
+  - name: cornerDeco
+    type: image
+    src: togglecorner
+    layout:
+      position: absolute
+      left: 1
+      top: 1
+      width: 22
+      height: 19
+    visibleWhen:
+      field: song-properties-view.value
+      oneOf:
+        - ""
+  - name: trackerBanner
+    type: image
+    src: tracker
+    layout:
+      position: absolute
+      left: col3Left
+      top: 4
+      width: col1
+      height: 50
+    visibleWhen:
+      field: song-properties-view.value
+      oneOf:
+        - ""
   - fileOperationsPanel
   - optionsPanel
   - nibblesPanel

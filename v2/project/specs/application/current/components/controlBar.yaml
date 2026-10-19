@@ -1,48 +1,97 @@
 name: controlBar
 type: panel
+variant: mainStrip
 layout:
   width: fill
-  height: fixed
+  height: 40
 breakpoints:
-  - maxWidth: 650
+  - maxWidth: 649
     layout:
-      direction: column
-      height: 160
+      height: 80
 content:
   - name: topViewButtons
     type: buttonGroup
     layout:
+      position: absolute
+      left: controlButtonsLeft
+      top: 4
+      width: col2
+      height: 32
       direction: row
+      padding: 0
+      gap: 0
+    breakpoints:
+      - maxWidth: 819
+        layout:
+          width: col1
+      - maxWidth: 649
+        layout:
+          left: columnMargin
+          top: 42
+          width: col5
+          height: 34
     items:
       - name: fileOperationsButton
         type: button
-        label: File Operations
+        variant: controlView
+        layout:
+          width: controlViewButton
+        label: File
         rule: highlighted when file operations view is active
         actions:
           - click: toggleFileOperationsView
       - name: optionsButton
         type: button
+        variant: controlView
+        layout:
+          width: controlViewButton
         label: Options
         rule: highlighted when options view is active
         actions:
           - click: toggleOptionsView
       - name: sampleEditButton
         type: button
-        label: Sample Edit
+        variant: controlView
+        layout:
+          width: controlViewButton
+        label: Sample Edit, Sample
         rule: highlighted when sample edit panel is active
         actions:
           - click: toggleSampleEditPanel
-  - type: radioGroup
+  - name: playSequenceSelector
+    type: radioGroup
+    variant: playSequence
+    layout:
+      position: absolute
+      left: columnMargin
+      top: 4
+      width: col1Third
+      height: 32
+      direction: column
+      padding: 0
+      gap: 0
     items:
       - name: song
-        label: Song, S
+        label: Song
       - name: pattern
-        label: Pattern, P
+        label: Pattern, P, Pat
     actions:
       - change: setPlaybackType
   - type: button
     label: Play
     variant: play
+    layout:
+      position: absolute
+      left: columnMargin
+      top: 4
+      offsetX: selfWidth
+      width: col1Third
+      height: 32
+    breakpoints:
+      - maxWidth: 649
+        layout:
+          width: col2HalfThird
+          height: 34
     rule: highlighted when song playback is active
     actions:
       - click: toggleplay
@@ -50,36 +99,154 @@ content:
   - type: button
     label: record
     variant: record
+    layout:
+      position: absolute
+      left: columnMargin
+      top: 4
+      offsetX: 2selfWidth
+      width: col1Third
+      height: 32
+    breakpoints:
+      - maxWidth: 649
+        layout:
+          width: col2HalfThird
+          height: 34
     rule: highlighted when recording is active
     actions:
       - click: toggleRecording
     shortKey: Space
   - type: spinBox
-    variant: big
+    variant: channelCount
+    field: tracks.value
+    min: 2
+    max: 32
+    step: 1
+    padLength: 2
+    stepperWidth: 20
+    layout:
+      position: absolute
+      left: modeButtonsLeft
+      top: 4
+      width: 60
+      height: 32
+    breakpoints:
+      - maxWidth: 649
+        layout:
+          height: 34
     actions:
       - change: set number of tracks
-  - type: panel
+  - name: modeDisplayButtons
+    type: panel
+    variant: transparent
+    layout:
+      position: absolute
+      left: modeButtonsLeft
+      offsetX: 60
+      top: 4
+      width: modeDisplay
+      height: 37
     content:
+      - name: modeCaption
+        type: label
+        label: Mode, M, Md
+        variant: modeDisplayCaption
+        layout:
+          position: absolute
+          left: 0
+          right: 94
+          top: 1
+          height: 20
+      - name: displayCaption
+        type: label
+        label: Display, t, tr, trck
+        variant: modeDisplayCaption
+        layout:
+          position: absolute
+          left: 0
+          right: 94
+          top: 17
+          height: 20
       - type: radioGroup
-        label: Mode, M
-        variant: buttons
+        name: modeSelector
+        variant: modeButtons
+        layout:
+          position: absolute
+          right: 0
+          top: 0
+          width: 101
+          height: 16
+          padding: 0
+          gap: -1
         items:
           - label: mod
+            layout:
+              width: 51
+              height: 16
           - label: xm
+            layout:
+              width: 51
+              height: 16
       - type: radioGroup
-        label: Display, D
-        variant: buttons
+        name: displaySelector
+        variant: displayButtons
+        layout:
+          position: absolute
+          right: 0
+          top: 16
+          width: 101
+          height: 16
+          padding: 0
+          gap: -1
         items:
           - label: 4
+            layout:
+              width: 26
+              height: 16
           - label: 8
+            layout:
+              width: 26
+              height: 16
           - label: 12
+            disabledBelowWidth: 725
+            layout:
+              width: 26
+              height: 16
           - label: 16
+            disabledBelowWidth: 945
+            layout:
+              width: 26
+              height: 16
+  - type: panel
+    variant: transparent
+    layout:
+      position: absolute
+      left: modeAuxButtonsLeft
+      top: 4
+      right: columnMargin
+      height: 32
+      direction: row
+      padding: 0
+      gap: 4
+    content:
       - name: patternViewGroup
         type: radioGroup
-        variant: buttons
+        variant: patternViewButtons
+        layout:
+          width: 63
+          height: 32
+          padding: 0
+          gap: -1
         items:
           - label: "Column view"
+            variant: patternViewColumns
+            layout:
+              width: 32
+              height: 32
           - label: "Row view"
+            variant: patternViewRows
+            layout:
+              width: 32
+              height: 32
         actions:
           - change: setPatternView
       - type: radioGroup

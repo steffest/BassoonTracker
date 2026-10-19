@@ -1,5 +1,7 @@
 # Documentation index
 
+- [Component pixel parity](pixel-parity.md): v1 source mappings, reproducible multi-size reference captures, exact v2 pixel/geometry diffs, and two reusable skills with a fast, risk-based testing loop (spec 084).
+
 - [Native C generation idea](../../projects/ideas/native-c-generation.md): sharing the application specification across browser and native targets, and the runtime and capability implementations that would be needed.
 
 - [Release build](../specs/007-release-build/design.md): YAML → readable generated app (`v2/app/`) → minified code-split bundle (`v2/dist/`); loose ends report; capability manifest.

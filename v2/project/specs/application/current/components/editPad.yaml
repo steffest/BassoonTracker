@@ -1,54 +1,125 @@
 name: editPad
 type: panel
+variant: transparent
 layout:
   width: fill
+  height: 90
   direction: row
+  offsetY: 4
+  padding: 2
+  gap: 0
 content:
   - name: trackColumn
     type: panel
+    variant: transparent
     layout:
+      width: fill
+      height: 63
       direction: column
+      offsetY: 23
+      padding: 0
+      gap: 0
     content:
-      - text: Track
+      - type: label
+        label: ↓Track
+        variant: editPadHeader
+        layout:
+          position: absolute
+          left: 4
+          top: -14
+          width: fill
+          height: 8
       - name: trackClear
         type: button
+        variant: editPad
         label: Clear
+        layout:
+          width: fill
+          height: 21
         tooltip: Clear the current track
         actions:
           - click: clearTrack
       - name: trackCopy
         type: button
+        variant: editPad
         label: Copy
+        layout:
+          width: fill
+          height: 21
         tooltip: Copy the current track
         actions:
           - click: copyTrack
       - name: trackPaste
         type: button
+        variant: editPad
         label: Paste
+        layout:
+          width: fill
+          height: 21
         tooltip: Paste the current track
         actions:
           - click: pasteTrack
   - name: patternColumn
     type: panel
+    variant: transparent
     layout:
+      width: fill
+      height: 63
       direction: column
+      offsetY: 23
+      padding: 0
+      gap: 0
     content:
-      - text: Pattern
+      - type: label
+        label: ↓Pattern
+        variant: editPadHeader
+        layout:
+          position: absolute
+          left: 6
+          top: -14
+          width: fill
+          height: 8
       - name: patternClear
         type: button
+        variant: editPad
         label: Clear
+        layout:
+          width: fill
+          height: 21
         tooltip: Clear the current pattern
         actions:
           - click: clearPattern
       - name: patternCopy
         type: button
+        variant: editPad
         label: Copy
+        layout:
+          width: fill
+          height: 21
         tooltip: Copy the current pattern
         actions:
           - click: copyPattern
       - name: patternPaste
         type: button
+        variant: editPad
         label: Paste
+        layout:
+          width: fill
+          height: 21
         tooltip: Paste the current pattern
         actions:
           - click: pastePattern
+  # V1's PatternPanel sidebar toggle is a sibling drawn after EditPanel, so
+  # its 19x24 toggleleft sprite overlays the EditPanel's top-right crop (and
+  # at narrow widths overlays the end of the Pattern heading). Keep it last
+  # for the same paint order. Sidebar-collapse behavior remains owned
+  # outside this screenshot-defined component.
+  - name: sidebarToggleDeco
+    type: image
+    src: toggleleft
+    layout:
+      position: absolute
+      right: -4
+      top: -3
+      width: 19
+      height: 24

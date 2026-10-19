@@ -1,9 +1,15 @@
 name: songPatternList
 type: panel
+variant: songIndexFrame
 layout:
-  width: fill
-  height: fill
+  position: absolute
+  left: -5
+  top: 46
+  width: col1
+  height: 94
   direction: row
+  padding: 0
+  gap: 0
 content:
   # Spec 071: real, live rows (one per song-position entry, "<step>:<pattern>")
   # published from the actual song.patternTable - previously four hardcoded
@@ -13,32 +19,73 @@ content:
   # a variable-length, data-bound row list.
   - name: list
     type: fileBrowser
+    variant: songIndex
+    centerSelection: true
+    rowHeight: 18
     layout:
+      position: absolute
+      left: 0
+      right: 42
       width: fill
       height: fill
     actions:
       - change: setSongPatternRow
   - type: panel
+    variant: transparent
     layout:
-      direction: column
+      position: absolute
+      right: 2
+      top: 0
+      width: 40
+      height: fill
+      padding: 0
+      gap: 0
     content:
       - type: button
         label: "↑"
+        variant: songIndexButton
+        layout:
+          position: absolute
+          left: 0
+          top: 37
+          width: 20
+          height: 20
         tooltip: Step the highlighted pattern up
         actions:
           - click: incrementPattern
       - type: button
         label: "↓"
+        variant: songIndexButton
+        layout:
+          position: absolute
+          left: 20
+          top: 37
+          width: 20
+          height: 20
         tooltip: Step the highlighted pattern down
         actions:
           - click: decrementPattern
       - type: button
         label: Ins
+        variant: songIndexButton
+        layout:
+          position: absolute
+          left: 0
+          top: 15
+          width: 40
+          height: 20
         tooltip: Insert a pattern here
         actions:
           - click: insertPattern
       - type: button
         label: Del
+        variant: songIndexButton
+        layout:
+          position: absolute
+          left: 0
+          top: 59
+          width: 40
+          height: 20
         tooltip: Delete this pattern step
         actions:
           - click: deletePattern

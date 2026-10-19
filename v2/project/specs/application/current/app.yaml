@@ -4,165 +4,277 @@ app:
   ui:
     main:
       type: panel
+      variant: appRoot
+      layout:
+        padding: 0
+        gap: 0
       content:
         - top:
             type: panel
+            variant: mainStrip
             layout:
               width: fill
-              height: fixed
-            menu:
-              type: menu
-              items:
-                - label: File
-                  type: submenu
-                  items:
-                    - type: label
-                      label: New
-                      actions:
-                        - click: newFile
-                    - type: label
-                      label: Load File
-                      actions:
-                        - click: openFile
-                    - type: label
-                      label: Save File
-                      actions:
-                        - click: saveFile
-                    - type: label
-                      label: Open Random MOD Song
-                      actions:
-                        - click: randomSong
-                    - type: label
-                      label: Open Random XM Song
-                      actions:
-                        - click: randomSongXM
-                    - type: label
-                      label: Open Random Playlist
-                      actions:
-                        - click: randomPlayList
-                - label: Edit
-                  type: submenu
-                  items:
-                    - type: label
-                      label: Undo
-                      actions:
-                        - click: undo
-                    - type: label
-                      label: Redo
-                      actions:
-                        - click: redo
-                    - type: label
-                      label: Cut
-                      actions:
-                        - click: cut
-                    - type: label
-                      label: Copy
-                      actions:
-                        - click: copy
-                    - label: Clear
-                      type: submenu
-                      items:
-                        - type: label
-                          label: Clear Track
-                          actions:
-                            - click: clearTrack
-                        - type: label
-                          label: Clear Pattern
-                          actions:
-                            - click: clearPattern
-                        - type: label
-                          label: Clear Song
-                          actions:
-                            - click: clearSong
-                        - type: label
-                          label: Clear Instruments
-                          actions:
-                            - click: clearInstruments
-                    - type: label
-                      label: Paste
-                      actions:
-                        - click: paste
-                    - type: label
-                      label: Render Pattern 2 Sample
-                      actions:
-                        - click: pattern2Sample
-                - label: View
-                  type: submenu
-                  items:
-                    - type: label
-                      label: Main
-                      actions:
-                        - click: showMain
-                    - type: label
-                      label: Options
-                      actions:
-                        - click: showOptions
-                    - type: label
-                      label: File Operations
-                      actions:
-                        - click: showFileOperations
-                    - type: label
-                      label: Sample Editor
-                      actions:
-                        - click: showSampleEditor
-                    - type: label
-                      label: Piano
-                      actions:
-                        - click: togglePiano
-                    - type: label
-                      label: Nibbles
-                      actions:
-                        - click: openNibbles
-                    - type: label
-                      label: Performance stats
-                      actions:
-                        - click: showStats
-                - label: Help
-                  type: submenu
-                  items:
-                    - type: label
-                      label: About
-                      actions:
-                        - click: showAbout
-                    - type: label
-                      label: Documentation
-                      actions:
-                        - click: showHelp
-                    - type: label
-                      label: Sourcecode on Github
-                      actions:
-                        - click: showGithub
-            volume meter: volumemeter
-            notifications:
+              height: 32
+              padding: 0
+            stripContent:
               type: panel
-              content:
-              - notification light:
-                  label: Key, K
-                  color: yellow
-                  rules:
-                    - horizontalResize
-                    - visible when "show key input" option is active, lights when key is pressed that result in a sample audio playback.
-              - notification light:
-                  label: Midi, M
-                  color: yellow
-                  rules:
-                    - horizontalResize
-                    - visible when "show midi input" option is active, lights when a midi command is received.
+              variant: transparent
+              layout:
+                position: absolute
+                left: columnMargin
+                top: 0
+                width: col5
+                widthOffset: 4
+                height: 32
+                direction: row
+                padding: 0
+                gap: 0
+              menu area:
+                type: panel
+                variant: transparent
+                layout:
+                  width: fill
+                  height: 26
+                  direction: row
+                  padding: 0
+                  gap: 4
+                menu bar:
+                  type: panel
+                  variant: menuBar
+                  layout:
+                    width: col2
+                    height: 26
+                    padding: 0
+                  menu:
+                    type: menu
+                    layout:
+                      position: viewport
+                      left: 5
+                      top: 0
+                      width: 250
+                      height: 26
+                      padding: 0
+                      gap: 0
+                    items:
+                      - label: File
+                        type: submenu
+                        items:
+                          - type: label
+                            variant: menuItem
+                            label: New
+                            actions:
+                              - click: newFile
+                          - type: label
+                            variant: menuItem
+                            label: Load File
+                            actions:
+                              - click: openFile
+                          - type: label
+                            variant: menuItem
+                            label: Save File
+                            actions:
+                              - click: saveFile
+                          - type: label
+                            variant: menuItem
+                            label: Open Random MOD Song
+                            actions:
+                              - click: randomSong
+                          - type: label
+                            variant: menuItem
+                            label: Open Random XM Song
+                            actions:
+                              - click: randomSongXM
+                          - type: label
+                            variant: menuItem
+                            label: Open Random Playlist
+                            actions:
+                              - click: randomPlayList
+                      - label: Edit
+                        type: submenu
+                        items:
+                          - type: label
+                            variant: menuItem
+                            label: Undo
+                            actions:
+                              - click: undo
+                          - type: label
+                            variant: menuItem
+                            label: Redo
+                            actions:
+                              - click: redo
+                          - type: label
+                            variant: menuItem
+                            label: Cut
+                            actions:
+                              - click: cut
+                          - type: label
+                            variant: menuItem
+                            label: Copy
+                            actions:
+                              - click: copy
+                          - label: Clear
+                            type: submenu
+                            items:
+                              - type: label
+                                variant: menuItem
+                                label: Clear Track
+                                actions:
+                                  - click: clearTrack
+                              - type: label
+                                variant: menuItem
+                                label: Clear Pattern
+                                actions:
+                                  - click: clearPattern
+                              - type: label
+                                variant: menuItem
+                                label: Clear Song
+                                actions:
+                                  - click: clearSong
+                              - type: label
+                                variant: menuItem
+                                label: Clear Instruments
+                                actions:
+                                  - click: clearInstruments
+                          - type: label
+                            variant: menuItem
+                            label: Paste
+                            actions:
+                              - click: paste
+                          - type: label
+                            variant: menuItem
+                            label: Render Pattern 2 Sample
+                            actions:
+                              - click: pattern2Sample
+                      - label: View
+                        type: submenu
+                        items:
+                          - type: label
+                            variant: menuItem
+                            label: Main
+                            actions:
+                              - click: showMain
+                          - type: label
+                            variant: menuItem
+                            label: Options
+                            actions:
+                              - click: showOptions
+                          - type: label
+                            variant: menuItem
+                            label: File Operations
+                            actions:
+                              - click: showFileOperations
+                          - type: label
+                            variant: menuItem
+                            label: Sample Editor
+                            actions:
+                              - click: showSampleEditor
+                          - type: label
+                            variant: menuItem
+                            label: Piano
+                            actions:
+                              - click: togglePiano
+                          - type: label
+                            variant: menuItem
+                            label: Nibbles
+                            actions:
+                              - click: openNibbles
+                          - type: label
+                            variant: menuItem
+                            label: Performance stats
+                            actions:
+                              - click: showStats
+                      - label: Help
+                        type: submenu
+                        items:
+                          - type: label
+                            variant: menuItem
+                            label: About
+                            actions:
+                              - click: showAbout
+                          - type: label
+                            variant: menuItem
+                            label: Documentation
+                            actions:
+                              - click: showHelp
+                          - type: label
+                            variant: menuItem
+                            label: Sourcecode on Github
+                            actions:
+                              - click: showGithub
+                volume meter: volumemeter
+              notifications:
+                type: panel
+                variant: transparent
+                layout:
+                  width: 50
+                  height: 32
+                  padding: 0
+                  collapseEmpty: true
+                content:
+                - type: notificationLight
+                  label: Key
+                  signal: keyPreview
+                  layout:
+                    position: viewport
+                    right: 7
+                    top: 4
+                    width: 49
+                    height: 13
+                  visibleWhen:
+                    field: show-key-input.active
+                    oneOf:
+                      - "true"
+                - type: notificationLight
+                  variant: midi
+                  label: Midi
+                  signal: midiIn
+                  layout:
+                    position: viewport
+                    right: 7
+                    top: 16
+                    width: 49
+                    height: 13
+                  visibleWhen:
+                    field: show-midi-input.active
+                    oneOf:
+                      - "true"
+        - songProperties
         - controlBar
         - name: normalMainView
           type: panel
+          variant: mainStrip
           layout:
             width: fill
             height: fill
             direction: column
+            padding: 0
+            gap: 0
           content:
             - name: patternSection
               type: panel
+              variant: transparent
               layout:
-                width: fill
+                position: absolute
+                left: columnMargin
+                top: 0
+                width: col5
                 height: fill
-                direction: column
+                direction: row
+                padding: 0
+                gap: 4
               content:
+                - name: patternLeftColumn
+                  type: panel
+                  variant: transparent
+                  layout:
+                    width: col1
+                    height: fill
+                    direction: column
+                    padding: 0
+                    gap: 0
+                  content:
+                    - editPad
+                    - patternSidebar
                 - name: patternSectionDefault
                   type: panel
                   layout:
@@ -174,9 +286,7 @@ app:
                     oneOf:
                       - ""
                   content:
-                    - editPad
                     - infoBar
                     - patternViewPanel
                 - sampleEditPanel
-            - songProperties
         - pianoPanel

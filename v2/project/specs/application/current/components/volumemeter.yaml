@@ -1,5 +1,6 @@
 name: volumemeter
 type: volumeMeter
 layout:
-  width: 160
+  width: fill
   height: 16
+  offsetY: 9

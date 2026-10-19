@@ -1,126 +1,380 @@
 name: optionsPanel
 type: panel
+# Spec 098: the panel is v1's own OptionsPanel, a full-band child of
+# AppMainPanel sized to it exactly (script/src/ui/app/appMainPanel.js:400,
+# `this._optionsPanel.setSize(this.width, this.height)`), drawing its own
+# copy of the same Assets.panelMainScale9 background the band behind it
+# already draws (optionsPanel.js:27) - so `mainStrip` twice, on purpose,
+# not once.
+variant: mainStripLayered
+# Absolute against the band rather than a flow child of it: v1 sizes this
+# panel to the whole band, with none of the 4px inset the generic column
+# would give a stacked child.
 layout:
+  position: absolute
+  left: 0
+  top: 0
   width: fill
   height: fill
-  direction: column
 visibleWhen:
   field: song-properties-view.value
   oneOf:
     - Options
 content:
-  - text: "Options:"
+  # v1: `new Label(5, 9, 200, 18)` with Font.med (optionsPanel.js:31-34).
+  - type: label
+    label: "Options:"
+    variant: optionsHeader
+    layout:
+      position: absolute
+      left: 5
+      top: 9
+      width: 200
+      height: 18
+  # v1: `_closeButton.setDimensions({top: 5, left: this.width - 30, width: 20,
+  # height: 20})` (optionsPanel.js:257) - i.e. a fixed 10px inset from the
+  # panel's own right edge.
+  - name: closeButton
+    type: button
+    label: x
+    variant: panelClose
+    # v1 authors a "Close" tooltip here, but v1 only ever shows a tooltip
+    # while SETTINGS.useTooltip is on - which is exactly what this panel's
+    # own "Show Help Bubbles" checkbox toggles. v2's hover tooltip (spec 015)
+    # is not gated on that setting at all, so authoring the text here would
+    # pop a tooltip v1 never shows. Left unauthored until the setting really
+    # drives it; recorded in the spec rather than silently dropped.
+    layout:
+      position: absolute
+      right: 10
+      top: 5
+      width: 20
+      height: 20
+    actions:
+      - click: showMain
+  # v1 lays the columns out at optionTops[0] = 27 with Layout.defaultMargin
+  # (4) between them and at both ends, and sizes each one
+  # `Math.floor((width - margin * (cols + 1)) / cols)` (optionsPanel.js:276-
+  # 282). That is exactly a row with padding 4, gap 4 and `distribute: floor`
+  # - including v1's own leftover pixels past the last column, which the
+  # generic exact-fraction split would otherwise hand out. The margin is
+  # horizontal only in v1, so the row itself starts 4px above the first
+  # column's own top and is 8px taller than the columns it holds.
   - name: optionsGrid
     type: panel
+    variant: transparent
     layout:
+      position: absolute
+      left: 0
+      top: 23
       width: fill
+      height: 114
       direction: row
+      padding: 4
+      gap: 4
+      distribute: floor
     content:
       - name: vuBarsColumn
         type: panel
+        variant: transparent
         layout:
           width: fill
+          height: fill
           direction: column
+          padding: 0
+          gap: 0
         content:
-          - type: label
-            label: VU bars
+          - name: captionBox
+            type: panel
+            variant: optionCaption
+            layout:
+              width: fill
+              height: 20
+              direction: column
+              padding: 0
+              gap: 0
+            content:
+              # v1 offsets the caption text box two pixels right of, and three
+              # pixels below, its own backing box while keeping the box's full
+              # width, so the centred text is off-centre by those two pixels
+              # (optionsPanel.js:283).
+              - type: label
+                label: VU bars
+                variant: optionCaption
+                layout:
+                  width: fill
+                  height: 20
+                  offsetX: 2
+                  offsetY: 3
           - type: radioGroup
-            variant: buttons
+            variant: optionButtons
             layout:
               direction: column
+              width: fill
+              height: fill
+              padding: 0
+              gap: 0
             items:
-              - label: None
-              - label: Amiga
-              - label: Transparent
+              - name: None
+                label: None
+                rule: highlighted when vu-bars.value is "None"
+              - name: Amiga
+                label: COLOURS: AMIGA, AMIGA
+                labelMinWidths: 110,56
+                rule: highlighted when vu-bars.value is "Amiga"
+              - name: Transparent
+                label: Transparent
+                rule: highlighted when vu-bars.value is "Transparent"
             actions:
               - change: setVuBars
       - name: stereoColumn
         type: panel
+        variant: transparent
         layout:
           width: fill
+          height: fill
           direction: column
+          padding: 0
+          gap: 0
         content:
-          - type: label
-            label: Stereo
+          - name: captionBox
+            type: panel
+            variant: optionCaption
+            layout:
+              width: fill
+              height: 20
+              direction: column
+              padding: 0
+              gap: 0
+            content:
+              - type: label
+                label: Stereo
+                variant: optionCaption
+                layout:
+                  width: fill
+                  height: 20
+                  offsetX: 2
+                  offsetY: 3
           - type: radioGroup
-            variant: buttons
+            variant: optionButtons
             layout:
               direction: column
+              width: fill
+              height: fill
+              padding: 0
+              gap: 0
             items:
-              - label: "Hard: Amiga"
-              - label: Balanced
-              - label: "None: mono"
+              - name: "Hard: Amiga"
+                label: "Hard: Amiga"
+                rule: highlighted when stereo-separation.value is "Hard: Amiga"
+              - name: Balanced
+                label: Balanced
+                rule: highlighted when stereo-separation.value is "Balanced"
+              - name: "None: mono"
+                label: "None: mono"
+                rule: highlighted when stereo-separation.value is "None: mono"
             actions:
               - change: setStereoSeparation
       - name: screenRefreshColumn
         type: panel
+        variant: transparent
         layout:
           width: fill
+          height: fill
           direction: column
+          padding: 0
+          gap: 0
         content:
-          - type: label
-            label: Screen refresh
+          - name: captionBox
+            type: panel
+            variant: optionCaption
+            layout:
+              width: fill
+              height: 20
+              direction: column
+              padding: 0
+              gap: 0
+            content:
+              - type: label
+                label: Screen refresh, Screen
+                labelMinWidths: 100,56
+                variant: optionCaption
+                layout:
+                  width: fill
+                  height: 20
+                  offsetX: 2
+                  offsetY: 3
+          # domain/playback#setScreenRefresh stores the chosen label's own
+          # index, not the label, so these rules compare against that index.
           - type: radioGroup
-            variant: buttons
+            variant: optionButtons
             layout:
               direction: column
+              width: fill
+              height: fill
+              padding: 0
+              gap: 0
             items:
-              - label: Smooth
-              - label: Normal
-              - label: Economical
-              - label: Low CPU
+              - name: Smooth
+                label: Smooth
+                rule: highlighted when screen-refresh.value is "0"
+              - name: Normal
+                label: Normal
+                rule: highlighted when screen-refresh.value is "1"
+              - name: Economical
+                label: Economical
+                rule: highlighted when screen-refresh.value is "2"
+              - name: Low CPU
+                label: Low CPU
+                rule: highlighted when screen-refresh.value is "3"
             actions:
               - change: setScreenRefresh
       - name: frequencyTableColumn
         type: panel
+        variant: transparent
         layout:
           width: fill
+          height: fill
           direction: column
+          padding: 0
+          gap: 0
         content:
-          - type: label
-            label: Frequency table
+          - name: captionBox
+            type: panel
+            variant: optionCaption
+            layout:
+              width: fill
+              height: 20
+              direction: column
+              padding: 0
+              gap: 0
+            content:
+              - type: label
+                label: Frequency table, Frequency
+                labelMinWidths: 110,56
+                variant: optionCaption
+                layout:
+                  width: fill
+                  height: 20
+                  offsetX: 2
+                  offsetY: 3
           - type: radioGroup
-            variant: buttons
+            variant: optionButtons
             layout:
               direction: column
+              width: fill
+              height: fill
+              padding: 0
+              gap: 0
             items:
-              - label: Linear
-              - label: Amiga periods
+              - name: Linear
+                label: Linear
+                rule: highlighted when frequency-table.value is "Linear"
+              - name: Amiga periods
+                label: Amiga periods, AMIGA
+                labelMinWidths: 110,56
+                rule: highlighted when frequency-table.value is "Amiga periods"
             actions:
               - change: setFrequencyTable
       - name: dropboxColumn
         type: panel
+        variant: transparent
         layout:
           width: fill
+          height: fill
           direction: column
+          padding: 0
+          gap: 0
         content:
-          - type: label
-            label: "Dropbox: existing file"
+          - name: captionBox
+            type: panel
+            variant: optionCaption
+            layout:
+              width: fill
+              height: 20
+              direction: column
+              padding: 0
+              gap: 0
+            content:
+              # v1's own setLabels list drops the colon its constructor label
+              # carries, and that constructor label is what it falls back to
+              # below the narrowest threshold - so it is authored last, with
+              # no threshold of its own.
+              - type: label
+                label: Dropbox existing file, Dropbox save, Dropbox, "Dropbox: existing file"
+                labelMinWidths: 160,80,20
+                variant: optionCaption
+                layout:
+                  width: fill
+                  height: 20
+                  offsetX: 2
+                  offsetY: 3
           - type: radioGroup
-            variant: buttons
+            variant: optionButtons
             layout:
               direction: column
+              width: fill
+              height: fill
+              padding: 0
+              gap: 0
             items:
-              - label: Rename
-              - label: Overwrite
+              - name: Rename
+                label: Rename
+                rule: highlighted when dropbox-mode.value is "Rename"
+              - name: Overwrite
+                label: Overwrite
+                rule: highlighted when dropbox-mode.value is "Overwrite"
             actions:
               - change: setDropboxMode
       - name: midiInputColumn
         type: panel
+        variant: transparent
         layout:
           width: fill
+          height: fill
           direction: column
+          padding: 0
+          gap: 0
         content:
-          - type: label
-            label: Midi-in
+          - name: captionBox
+            type: panel
+            variant: optionCaption
+            layout:
+              width: fill
+              height: 20
+              direction: column
+              padding: 0
+              gap: 0
+            content:
+              - type: label
+                label: Midi-in, Midi
+                labelMinWidths: 80,20
+                variant: optionCaption
+                layout:
+                  width: fill
+                  height: 20
+                  offsetX: 2
+                  offsetY: 3
           - type: radioGroup
-            variant: buttons
+            variant: optionButtons
             layout:
               direction: column
+              width: fill
+              height: fill
+              padding: 0
+              gap: 0
             items:
-              - label: Disabled
-              - label: Enabled Note
-              - label: Enabled Note-Volume
+              - name: Disabled
+                label: Disabled
+                rule: highlighted when midi-input.value is "Disabled"
+              - name: Enabled Note
+                label: Enabled Note, Note
+                labelMinWidths: 150,80
+                rule: highlighted when midi-input.value is "Enabled Note"
+              - name: Enabled Note-Volume
+                label: Enabled Note-Volume, Note-Volume
+                labelMinWidths: 150,80
+                rule: highlighted when midi-input.value is "Enabled Note-Volume"
             actions:
               - change: setMidiInput
       # Not part of v1's own real 6-column grid - confirmed live, at every
@@ -130,21 +384,54 @@ content:
       # not something this port should reproduce by hiding a real, already-
       # working v2 control. Kept as a genuine seventh column instead of
       # deleting real functionality.
+      #
+      # Spec 098 correction: measured live against v1 at 600/650/820/1000/
+      # 1440px, and v1 does lay out and draw all seven columns - the note
+      # above was wrong. The column stays, and is now the seventh of seven
+      # on both sides.
       - name: playFromColumn
         type: panel
+        variant: transparent
         layout:
           width: fill
+          height: fill
           direction: column
+          padding: 0
+          gap: 0
         content:
-          - type: label
-            label: Play from
+          - name: captionBox
+            type: panel
+            variant: optionCaption
+            layout:
+              width: fill
+              height: 20
+              direction: column
+              padding: 0
+              gap: 0
+            content:
+              - type: label
+                label: Play from
+                variant: optionCaption
+                layout:
+                  width: fill
+                  height: 20
+                  offsetX: 2
+                  offsetY: 3
           - type: radioGroup
-            variant: buttons
+            variant: optionButtons
             layout:
               direction: column
+              width: fill
+              height: fill
+              padding: 0
+              gap: 0
             items:
-              - label: Pattern start
-              - label: Current pos
+              - name: Pattern start
+                label: Pattern start
+                rule: highlighted when play-from.value is "Pattern start"
+              - name: Current pos
+                label: Current pos
+                rule: highlighted when play-from.value is "Current pos"
             actions:
               - change: setPlayFrom
   # v1's own checkboxes are not part of each column's own vertical stack -
@@ -154,45 +441,75 @@ content:
   # still positioned under its own column. A `width: fill` spacer stands in
   # for every column that authors no checkbox, so the row's own even
   # distribution still lines each real checkbox up under the right column.
+  # The row repeats optionsGrid's own padding/gap/floor split so the columns
+  # agree to the pixel; 160 - 20 - 7 = 133 is where v1 puts the checkboxes,
+  # and the row sits 4px above that for the same padding reason.
   - name: optionsCheckboxRow
     type: panel
+    variant: transparent
     layout:
+      position: absolute
+      left: 0
+      top: 129
       width: fill
+      height: 32
       direction: row
+      padding: 4
+      gap: 4
+      distribute: floor
     content:
       - type: checkbox
-        label: Show Help Bubbles
+        variant: optionCheckbox
+        label: Show Help Bubbles, Show Help, Help
+        labelMinWidths: 150,100,60
+        rule: highlighted when help-bubbles.active is "true"
         layout:
           width: fill
+          height: 24
         actions:
           - click: toggleHelpBubbles
       - type: checkbox
-        label: Show Key Input
+        variant: optionCheckbox
+        label: Show Key Input, Show Key, Show
+        labelMinWidths: 150,100,60
+        rule: highlighted when show-key-input.active is "true"
         layout:
           width: fill
+          height: 24
         actions:
           - click: toggleShowKeyInput
       - type: checkbox
-        label: Optimize High DPI
+        variant: optionCheckbox
+        label: Optimize High DPI, High DPI, H-DPI
+        labelMinWidths: 155,100,60
+        rule: highlighted when high-dpi.active is "true"
         layout:
           width: fill
+          height: 24
         actions:
           - click: toggleHighDpi
       - name: frequencyTableCheckboxSpacer
         type: panel
+        variant: transparent
         layout:
           width: fill
       - name: dropboxCheckboxSpacer
         type: panel
+        variant: transparent
         layout:
           width: fill
       - type: checkbox
-        label: Show Midi Input
+        variant: optionCheckbox
+        label: Show Midi Input, Show Midi, Show
+        labelMinWidths: 150,100,60
+        rule: highlighted when show-midi-input.active is "true"
         layout:
           width: fill
+          height: 24
         actions:
           - click: toggleShowMidiInput
       - name: playFromCheckboxSpacer
         type: panel
+        variant: transparent
         layout:
           width: fill

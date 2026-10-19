@@ -3,7 +3,7 @@ description: Default v2 skin. Every state names one asset, and an asset name is 
 
 fonts:
   small:
-    description: Compact uppercase 6 by 6 pixel font, the only font v2 draws with so far.
+    description: Compact uppercase 6 by 6 pixel font.
     asset: font
     offsetX: 1
     offsetY: 1
@@ -15,8 +15,167 @@ fonts:
     onlyUpperCase: true
     chars: ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_#/&@$+^!
 
+  smallDark:
+    description: Same cells as small, one row further down the sheet (a darker-inked variant used on light backgrounds).
+    asset: font
+    offsetX: 1
+    offsetY: 13
+    charWidth: 6
+    charHeight: 6
+    spaceWidth: 6
+    margin: 0
+    charsPerLine: 42
+    onlyUpperCase: true
+    chars: ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_#/&@$+^!
+
+  med:
+    description: 8 by 8 uppercase font used for section headers such as Track/Pattern.
+    asset: font
+    offsetX: 1
+    offsetY: 110
+    charWidth: 8
+    charHeight: 8
+    spaceWidth: 8
+    margin: 1
+    lineSpacing: 1
+    charsPerLine: 26
+    onlyUpperCase: true
+    chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789↑↓-#:.!©_?;()=/+<>&[]{}\*%$'"`°,"
+
+  big:
+    description: 11 by 11 chunky uppercase font, the largest header font.
+    asset: font
+    offsetX: 1
+    offsetY: 27
+    charWidth: 11
+    charHeight: 11
+    spaceWidth: 11
+    margin: 1
+    lineSpacing: 3
+    charsPerLine: 20
+    onlyUpperCase: true
+    chars: ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_
+
+  ft:
+    description: Proportional upper and lowercase font used for most buttons, dialogs and info text.
+    asset: font
+    offsetX: 1
+    offsetY: 145
+    charHeight: 12
+    spaceWidth: 4
+    margin: 1
+    charsPerLine:
+      - 26
+      - 26
+      - 40
+    onlyUpperCase: false
+    chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890#©_-&"'()!.,?+=*$/\;:[]{}"
+    charWidth: "888888883888998888888899987777757735739777757578987777777777778868864553348767888435555"
+
+  condensed:
+    description: Proportional condensed upper and lowercase font.
+    asset: font
+    offsetX: 1
+    offsetY: 184
+    charHeight: 10
+    spaceWidth: 5
+    margin: 0
+    charsPerLine:
+      - 26
+      - 26
+      - 10
+    onlyUpperCase: false
+    chars: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+    charWidth: "6666556625656666666666666655555455245365555454566555"
+
+  superCondensed:
+    description: Tiny 4 by 8 uppercase font used for the pattern grid's own note/hex text.
+    asset: font
+    offsetX: 2
+    offsetY: 208
+    charWidth: 4
+    charHeight: 8
+    spaceWidth: 4
+    margin: 0
+    charsPerLine:
+      - 45
+    onlyUpperCase: true
+    chars: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_.-#+><↑↓
+
+  led:
+    description: LED-digit style font used for numeric displays such as BPM/speed.
+    asset: font
+    offsetX: 107
+    offsetY: 68
+    charWidth: 8
+    charHeight: 13
+    spaceWidth: 8
+    margin: 0
+    charsPerLine: 20
+    chars: " 0123456789-"
+
+  ledBig:
+    description: Larger LED-digit style font.
+    asset: font
+    offsetX: 9
+    offsetY: 82
+    charWidth: 14
+    charHeight: 22
+    spaceWidth: 8
+    margin: 0
+    charsPerLine: 11
+    chars: " 0123456789"
+
+  dark:
+    description: Dark-inked uppercase font used on light backgrounds.
+    asset: font
+    offsetX: 1
+    offsetY: 216
+    charHeight: 9
+    spaceWidth: 5
+    margin: 0
+    charsPerLine:
+      - 40
+    onlyUpperCase: true
+    chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890():-"
+    charWidth: "7777667736768777877778887746666666664434"
+
 styles:
   panel:
+    appRoot:
+      description: V1 main canvas backing color beneath semi-transparent panel edges.
+      fill: "#071028"
+
+    transparent:
+      description: Structural grouping without background artwork.
+
+    patternSidebar:
+      description: Transparent legacy PatternSidebar component canvas.
+      metrics:
+        isolateComponentLayer: 1
+
+    patternSidebarTabContent:
+      description: Transparent legacy active-tab Panel component canvas.
+      metrics:
+        isolateComponentLayer: 1
+    mainStrip:
+      insets:
+        left: 2
+        top: 2
+        right: 3
+        bottom: 3
+      states:
+        normal: background
+      metrics:
+        isolateScale9Source: 1
+        isolateScale9Layer: 1
+
+    mainStripLayered:
+      extends: mainStrip
+      description: The same band background, drawn into its own offscreen layer along with everything nested inside it, which is v1's own per-component canvas (script/src/ui/components/element.js composites a component into its *parent's* canvas, not into the root). Only needed where two semi-transparent copies of this artwork stack - the Options panel draws its own over the song-properties band's - because that is the only place the extra rounding step is visible. The stretched edges are smoothed because v1's own Scale9Panel canvas never turns image smoothing off (only the root canvas does, script/src/ui/ui.js:87), so its semi-transparent bottom/right edges bleed out of the corner for a few dozen pixels.
+      metrics:
+        isolateComponentLayer: 1
+        scale9LayerSmoothing: 1
     default:
       description: Dark inset panel used as the background of every container.
       insets: 2
@@ -24,9 +183,71 @@ styles:
       states:
         normal: panel_dark
 
+    songPropertyInset:
+      description: The v1 inset backing panel behind one song-property spinbox column.
+      insets: 2
+      states:
+        normal: panel_inset
+
+    songIndexFrame:
+      description: Exact v1 SongPatternList inset frame behind its list and four edit buttons.
+      metrics:
+        suppressEffects: 1
+
+    optionCaption:
+      description: Exact v1 caption box above one Options column - the Scale9Panel optionsPanel.js:176 puts behind each column's own caption text (Assets.panelDarkGreyScale9). Its insets are v1's own panelDarkGreyScale9 values, which are not symmetric.
+      insets:
+        left: 3
+        top: 3
+        right: 3
+        bottom: 2
+      height: 20
+      states:
+        normal: panel_dark_greyish
+      metrics:
+        isolateScale9Source: 1
+
+    diskSelector:
+      description: V1 File Operations Action/Type/From selector frame.
+      insets: 2
+      states:
+        normal: panel_dark
+      metrics:
+        isolateComponentLayer: 1
+        isolateScale9Source: 1
+        isolateScale9Layer: 1
+        scale9LayerSmoothing: 1
+
+    diskSelectorCaption:
+      description: V1 selector caption strip used by Action and Type.
+      insets:
+        left: 3
+        top: 3
+        right: 3
+        bottom: 2
+      states:
+        normal: panel_dark_greyish
+      metrics:
+        isolateScale9Source: 1
+
+    diskSelectorCaptionTarget:
+      extends: diskSelectorCaption
+      description: The same caption artwork at the target panel's one-pixel-different authored geometry.
+
+    menuBar:
+      description: The top menu bar's own real background (spec 083) - a separate panel behind the menu itself, not the menu's own style, matching v1's own real structure (a Scale9Panel sibling drawn before the Menu component, script/src/ui/app/menu.js:20-27). The wide right inset matches the artwork's own diagonal-cut right edge (script/src/ui/app/menu.js's own Scale9Panel config: left:4, top:0, right:40, bottom:0).
+      insets:
+        left: 4
+        top: 0
+        right: 40
+        bottom: 0
+      height: 26
+      states:
+        normal: menu
+
   button:
     default:
-      description: Standard dark push button with a centered label. Hover, pressed and disabled have no artwork of their own, so the renderer tints this background instead.
+      description: Standard dark push button with a centered label. Hover, pressed and disabled have no artwork of their own, so the renderer tints this background instead. Font "ft" matches v1's own real default button font (script/src/ui/components/checkboxbutton.js:14) - the single most common one across this application's own real buttons (File Operations/Options/Sample Edit, PREV/PLAY/NEXT/SHUFFLE, MOD/XM/PLAYLIST, Piano/Nibbles, and every other ordinary button that does not name a more specific variant below).
       insets: 5
       width: 80
       height: 24
@@ -34,38 +255,335 @@ styles:
       label:
         align: center
         pressedOffset: 1
+        font: ft
       states:
         normal: button_inlay
         pressed: button_inlay_active
         active: button_inlay_green
         active_hover: button_inlay_green_active
 
+    compact:
+      extends: default
+      description: v1's own real editPad buttons (Track/Pattern Clear/Copy/Paste) override the generic button font to "small" (script/src/ui/editPanel.js:19) - a real, deliberate per-context difference from the generic default above, not an oversight.
+      label:
+        font: small
+
+    editPad:
+      extends: default
+      description: Exact v1 EditPanel button: dark 5px-inset scale-9 normally, blue active scale-9 while hovered or held, with a centered small-font label one pixel below the ordinary vertical center.
+      insets: 5
+      label:
+        align: center
+        offsetY: 1
+        pressedOffset: 0
+        font: small
+      metrics:
+        suppressEffects: 1
+        hideFocus: 1
+        isolateScale9Source: 1
+        isolateScale9Layer: 1
+        scale9LayerSmoothing: 1
+        isolateControlLayer: 1
+      states:
+        normal: button_inlay
+        hover: button_inlay_blue_active
+        pressed: button_inlay_blue_active
+
+    controlView:
+      description: Exact v1 File, Options and Sample Edit Checkboxbutton treatment from the control bar.
+      insets: 5
+      label:
+        align: left
+        offsetX: 30
+        font: ft
+        pressedOffset: 0
+        activeOffsetY: 0
+      metrics:
+        suppressEffects: 1
+        hideFocus: 1
+        isolateScale9Source: 1
+        isolateScale9Layer: 1
+        scale9LayerSmoothing: 1
+        isolateReadoutSource: 1
+        isolateControlLayer: 1
+        iconLeftInset: 8
+        compactLabelBelowWidth: 820
+      artwork:
+        iconNormal: radio_inactive
+        iconHover: radio_inactive
+        iconPressed: radio_inactive
+        iconActive: radio_active
+        iconActiveHover: radio_active
+        iconActivePressed: radio_active
+      states:
+        normal: button_inlay_blue
+        hover: button_inlay_blue_active
+        pressed: button_inlay_blue_active
+        active: button_inlay_blue_active
+        active_hover: button_inlay_blue_active
+        active_pressed: button_inlay_blue_active
+
     play:
       extends: default
-      description: Transport play button. Grey while stopped, green while playing, with its own green hover artwork instead of a tint.
+      description: Main transport Play button: captured v1 scale-9 backgrounds plus a natural-size, centered and clipped state icon.
+      insets: 5
+      metrics:
+        iconOnly: 1
+      artwork:
+        iconNormal: play_green
+        iconHover: play_green_hover
+        iconActive: play_active_red
+        iconActiveHover: play_active_red
       states:
+        normal: button_inlay_green
         hover: button_hover_green
-        active: button_inlay_green
-        active_hover: button_inlay_green_active
-        active_pressed: button_inlay_active
+        active: button_inlay_red_active
+        active_hover: button_inlay_red_active
 
     record:
       extends: default
-      description: Record arm button. Red hover artwork, and red while recording.
+      description: Main transport Record button: captured v1 scale-9 backgrounds plus a natural-size, centered and clipped state icon.
+      insets: 5
+      metrics:
+        iconOnly: 1
+        isolateScale9Source: 1
+      artwork:
+        iconNormal: record
+        iconHover: record_hover
+        iconActive: record_active
+        iconActiveHover: record_active
       states:
+        normal: button_inlay_red
         hover: button_inlay_red_hover
-        active: button_inlay_red
-        active_hover: button_inlay_red_hover
-        active_pressed: button_inlay_red_active
+        active: button_inlay_red_active
+        active_hover: button_inlay_red_active
+
+    channelStepper:
+      description: The main channel-count spinbox's stacked v1 arrow button.
+      insets:
+        left: 3
+        top: 3
+        right: 3
+        bottom: 2
+      metrics:
+        isolateScale9Source: 1
+        isolateScale9Layer: 1
+        hideFocus: 1
+        layerHoverOverNormal: 1
+      label:
+        align: center
+        font: med
+      states:
+        normal: bar
+        hover: bar_hover
+        pressed: bar_hover
+
+    songPropertyStepper:
+      extends: channelStepper
+      description: The v1 medium spinbox arrow button; hover replaces rather than accumulates over the normal frame.
+      metrics:
+        layerHoverOverNormal: 0
+
+    songIndexButton:
+      description: Exact v1 20px/40px SongPatternList buttons generated by Assets.button20_20.
+      insets:
+        left: 3
+        top: 3
+        right: 3
+        bottom: 2
+      label:
+        align: center
+        offsetY: 2
+        pressedOffset: 0
+        font: med
+      metrics:
+        suppressEffects: 1
+        hideFocus: 1
+        skipDraw: 1
+        isolateScale9Source: 1
+        isolateScale9Layer: 1
+        scale9LayerSmoothing: 1
+        isolateControlLayer: 1
+        fixedLabelCellWidth: 8
+      states:
+        normal: bar
+        hover: bar_hover
+        pressed: bar_hover
 
     logo:
       extends: default
       description: The song-properties section's own BASSOON wordmark toggle (spec 071) - grey normally, colour while "active" (a purely cosmetic, permanently mocked local toggle - see that spec's requirements.md). No label; the artwork alone is the whole control.
-      width: 70
+      insets: 2
       height: 50
+      metrics:
+        iconOnly: 1
+        suppressEffects: 1
+        isolateScale9Source: 1
+        isolateScale9Layer: 1
+      artwork:
+        iconNormal: logo_grey_70
+        iconActive: logo_colour_70
       states:
-        normal: logo_grey_70
-        active: logo_colour_70
+        normal: panel_inset
+        active: bar
+
+    panelClose:
+      description: Exact v1 20x20 panel close button - Assets.generate("button20_20"), a Button whose background is the "bar" sprite and whose hover background is "bar_hover" (script/src/ui/assets.js:217-230), with a centered medium-font label and v1's own paddingTop of 2. Used by the Options panel's own close control.
+      insets:
+        left: 3
+        top: 3
+        right: 3
+        bottom: 2
+      width: 20
+      height: 20
+      label:
+        align: center
+        font: med
+        offsetY: 2
+        pressedOffset: 0
+      metrics:
+        isolateControlLayer: 1
+        isolateScale9Source: 1
+        suppressEffects: 1
+        hideFocus: 1
+        # v1's Button measures a fixed-width font as length * charWidth and
+        # never adds the per-character margin its own getTextWidth would
+        # (script/src/ui/components/button.js:180-190).
+        fixedLabelCellWidth: 8
+        # "bar"/"bar_hover" fade out down their right column and along their
+        # bottom row, and v1's Button never clears its own canvas when it
+        # has a background - so its hover artwork lands on top of the normal
+        # artwork it drew first, not on nothing.
+        stateOverNormal: 1
+      states:
+        normal: bar
+        hover: bar_hover
+        pressed: bar_hover
+
+    hitTarget:
+      description: Transparent interaction proxy used where a parent paints one indivisible legacy composite.
+      metrics:
+        suppressEffects: 1
+        hideFocus: 1
+
+  tabPanel:
+    default:
+      description: Generic procedural tab panel.
+
+    patternSidebar:
+      description: Exact v1 overlapping Songs/Samples/Playlists tab frame and Songs-only footer.
+      insets:
+        left: 8
+        top: 9
+        right: 8
+        bottom: 9
+      label:
+        font: dark
+      metrics:
+        legacyTabs: 1
+        backgroundY: 30
+        backgroundHeightOffset: -32
+        tabY: 12
+        tabHeight: 18
+        tabOverlap: 12
+        tab0Width: 70
+        tab1Width: 80
+        tab2Width: 90
+        labelOffsetX: 10
+        labelOffsetY: 1
+        footerTopOffset: -70
+        footerHeight: 68
+      artwork:
+        corner: tab_panel_corner
+        tab: tab
+        activeBorder: tab_border
+        footer: tab_panel_bottom
+        divider: line_hor
+        previous: iprev
+        play: iplay
+        next: inext
+        shuffle: ishuffle
+        shuffleState: checkbox_off
+        randomButton: button_inlay_blue
+      states:
+        normal: tab_panel
+
+  fileBrowser:
+    default:
+      description: Generic runtime-data row list; its established procedural background and scrollbar remain unchanged.
+      label:
+        font: med
+
+    songIndex:
+      description: V1 centered-selection song-index listbox, including its inset, dividers and internal scrollbar controls.
+      insets:
+        left: 3
+        top: 3
+        right: 2
+        bottom: 2
+      label:
+        font: med
+      metrics:
+        compositeExtraWidth: 42
+        textOffsetX: 10
+        textOffsetY: 5
+        selectedAlpha: 0.25
+        hoverAlpha: 0.15
+        scrollButtonSize: 16
+        scrollRight: 2
+        scrollTop: 2
+        scrollBottom: 3
+        scrollTrackTop: 18
+        scrollTrackBottom: 18
+        scrollThumbMin: 12
+      artwork:
+        outerFrame: panel_inset
+        divider: line_hor
+        scrollNormal: bar
+        scrollHover: bar_hover
+      states:
+        normal: panel_dark
+
+    patternSidebarSongs:
+      description: V1 PatternSidebar 32px song rows with generated module icons and internal scrollbar.
+      label:
+        font: med
+      metrics:
+        legacySidebarRows: 1
+        richSidebarRows: 1
+        defaultSelectedIndex: 0
+      artwork:
+        divider: line_hor
+        scrollNormal: bar
+        modIcon: modbig
+        xmIcon: xmbig
+        awardGold: gold
+
+    patternSidebarSamples:
+      description: V1 PatternSidebar 20px grouped sample rows.
+      label:
+        font: ft
+      metrics:
+        legacySidebarRows: 1
+        sampleSidebarRows: 1
+        defaultSelectedIndex: 0
+      artwork:
+        divider: line_hor
+        diskIcon: disk
+
+    patternSidebarPlaylists:
+      description: V1 PatternSidebar 32px playlist rows with generated icons.
+      label:
+        font: med
+      metrics:
+        legacySidebarRows: 1
+        richSidebarRows: 1
+        playlistSidebarRows: 1
+        defaultSelectedIndex: 0
+      artwork:
+        divider: line_hor
+        modIcon: modbig
+        favoriteIcon: favbig
 
   viewport:
     default:
@@ -80,6 +598,38 @@ styles:
       states:
         normal: panel_inset_dark
 
+    transparent:
+      description: A clipping viewport with no background artwork.
+
+  inputbox:
+    default:
+      description: One line of editable text with a caret and a selection (spec 015). Not previously declared here at all - every inputbox in this application fell back to runtime/skinModel.js's own built-in fallback style until this entry existed. Font "med" matches v1's own real inputbox (script/src/ui/components/inputbox.js:141-145).
+      insets: 2
+      width: 140
+      height: 24
+      focusColor: "#ffcc00"
+      label:
+        align: left
+        offsetX: 4
+        font: med
+      states:
+        normal: panel_dark
+
+    patternSidebarSearch:
+      description: Exact v1 20px sample-search input.
+      insets:
+        left: 3
+        top: 3
+        right: 2
+        bottom: 2
+      label:
+        font: med
+        offsetX: 10
+      metrics:
+        placeholderAlpha: 0.35
+      states:
+        normal: panel_dark
+
   checkbox:
     default:
       description: An on/off box with its label beside it. The artwork is drawn at its natural size, so the insets do not apply; hover has no artwork of its own and is tinted.
@@ -89,6 +639,33 @@ styles:
       states:
         normal: checkbox_off
         active: checkbox_on
+
+    optionCheckbox:
+      description: Exact v1 Options-panel checkbox - a CheckboxButton (script/src/ui/components/checkboxbutton.js) whose background is Assets.panelDarkInsetScale9, whose hover background is Assets.panelInsetScale9 and whose active background is the dark one again, with the checkbox glyph drawn at its natural size 8px from the left edge and the label at v1's own paddingLeft of 30 in the "ft" font. The glyph is an artwork layer rather than the state artwork, which is what tells the spriteLabel draw kind to compose a background behind it.
+      insets: 2
+      height: 24
+      label:
+        align: left
+        font: ft
+        offsetX: 30
+        offsetY: 0
+        pressedOffset: 0
+      metrics:
+        iconLeftInset: 8
+        iconOffsetY: 0
+        isolateControlLayer: 1
+        isolateScale9Source: 1
+        suppressEffects: 1
+        hideFocus: 1
+      artwork:
+        iconNormal: checkbox_off
+        iconActive: checkbox_on
+      states:
+        normal: panel_dark
+        hover: panel_inset
+        pressed: panel_inset
+        active: panel_dark
+        active_hover: panel_dark
 
   radioGroup:
     default:
@@ -101,15 +678,49 @@ styles:
       description: The choices are drawn as a row of ordinary push buttons instead of the default blue-lit ones.
       itemStyle: button
 
+    diskSelector:
+      extends: default
+      description: V1 File Operations RadioGroup; its children author the native row treatment.
+      itemStyle: diskSelector
+      metrics:
+        isolateComponentLayer: 1
+
+    playSequence:
+      extends: default
+      description: The compact two-row Song/Pattern selector from v1's control bar.
+      itemStyle: playSequence
+      fill: "#223155"
+
+    modeButtons:
+      extends: default
+      description: The exact overlapping 51px MOD/XM row from v1's control bar.
+      itemStyle: modeButton
+
+    displayButtons:
+      extends: default
+      description: The exact overlapping 26px 4/8/12/16 row from v1's control bar.
+      itemStyle: displayButton
+
+    optionButtons:
+      extends: default
+      description: One Options-panel column's own stack of v1 "buttonKey" choices.
+      itemStyle: optionButton
+
+    patternViewButtons:
+      extends: default
+      description: The exact overlapping 32px Column/Row icon buttons from v1's control bar; each item authors its own procedural-glyph-derived artwork variant.
+      itemStyle: patternViewButton
+
   radioItem:
     default:
-      description: One choice in a radio group, drawn as a button that stays lit blue while selected.
+      description: One choice in a radio group, drawn as a button that stays lit blue while selected. Font "small" matches v1's own real plain RadioGroup default (script/src/ui/components/radiogroup.js:81).
       insets: 5
       width: 60
       height: 24
       label:
         align: center
         pressedOffset: 1
+        font: small
       states:
         normal: button_inlay
         pressed: button_inlay_active
@@ -118,10 +729,140 @@ styles:
 
     button:
       extends: default
-      description: A choice drawn exactly like a push button, lit green while selected. Used by the radioGroup "buttons" variant.
+      description: A choice drawn exactly like a push button, lit green while selected. Used by the radioGroup "buttons" variant. Font "dark" matches v1's own real "buttonKey"-styled toggle groups (Mode/Display/Column-Row/Vertical-Horizontal - script/src/ui/app/controlPanel.js:75).
+      label:
+        font: dark
       states:
         active: button_inlay_green
         active_hover: button_inlay_green_active
+
+    modeButton:
+      extends: default
+      description: Captured v1 key-button artwork and label metrics for the 51x16 mode choices.
+      insets: 5
+      label:
+        align: center
+        font: dark
+        activeOffsetY: 1
+      metrics:
+        suppressEffects: 1
+        hideFocus: 1
+        disabledOverlayR: 34
+        disabledOverlayG: 49
+        disabledOverlayB: 85
+        disabledOverlayAlpha: 0.6
+      states:
+        normal: keybutton
+        hover: keybutton_hover
+        pressed: keybutton_hover
+        disabled: keybutton
+        active: keybutton_highlight3
+        active_hover: keybutton_highlight3
+        active_pressed: keybutton_highlight3
+
+    displayButton:
+      extends: modeButton
+      description: The same captured v1 key-button pixels at the narrower Display-choice geometry.
+
+    patternViewButton:
+      extends: modeButton
+      description: Captured v1 key-button states for the 32px pattern-view choices, with text suppressed in favor of an authored procedural bar glyph.
+      metrics:
+        iconOnly: 1
+
+    patternViewColumns:
+      extends: patternViewButton
+      description: Four vertical bars using controlPanel.js's exact renderInternal geometry and RGBA fill.
+      barGlyph:
+        orientation: vertical
+        color: "rgba(60,40,20,0.85)"
+        count: 4
+        thickness: 2
+        gap: 4
+        startRatio: 0.2
+        extentRatio: 0.6
+
+    patternViewRows:
+      extends: patternViewButton
+      description: Four horizontal bars using controlPanel.js's exact renderInternal geometry and RGBA fill.
+      barGlyph:
+        orientation: horizontal
+        color: "rgba(60,40,20,0.85)"
+        count: 4
+        thickness: 2
+        gap: 4
+        startRatio: 0.2
+        extentRatio: 0.6
+
+    optionButton:
+      extends: modeButton
+      description: One Options-panel choice. Identical captured v1 "buttonKey" artwork and state precedence to the Mode/Display choices, at this panel's own 20px row height, and without their own one-pixel active label offset - Assets.generate("buttonKey") leaves paddingTopActive at zero, and only controlPanel.js sets it.
+      height: 20
+      label:
+        align: center
+        font: dark
+        activeOffsetY: 0
+        pressedOffset: 0
+      metrics:
+        isolateControlLayer: 1
+        isolateScale9Source: 1
+        suppressEffects: 1
+        hideFocus: 1
+        disabledOverlayR: 34
+        disabledOverlayG: 49
+        disabledOverlayB: 85
+        disabledOverlayAlpha: 0.6
+
+    playSequence:
+      description: A v1 radio choice with a right-aligned native 10x10 state glyph and bitmap-font label.
+      width: 60
+      height: 16
+      label:
+        align: right
+        offsetX: 19
+        font: small
+      metrics:
+        intrinsicHeight: 16
+        fitLabelRightInset: 19
+        iconRightInset: 5
+        iconOffsetY: -1
+        suppressEffects: 1
+        hideFocus: 1
+      artwork:
+        iconNormal: radio_inactive
+        iconActive: radio_active
+
+    diskSelector:
+      description: V1 medium right-aligned selector row with its selected wash and 11px radio glyph.
+      label:
+        align: right
+        offsetX: 24
+        font: med
+        pressedOffset: 0
+      metrics:
+        suppressEffects: 1
+        hideFocus: 1
+        iconRightInset: 9
+        iconReferenceHeight: 8
+        iconOffsetY: -2
+        iconAfterLabel: 1
+        activeOverlayR: 100
+        activeOverlayG: 100
+        activeOverlayB: 255
+        activeOverlayAlpha: 0.1
+        activeOverlayRightInset: 2
+      artwork:
+        iconNormal: radio_big_inactive
+        iconActive: radio_big_active
+
+    diskSelectorDivider:
+      extends: diskSelector
+      description: A selector row after the first, with v1's stretched 2px top divider.
+      metrics:
+        dividerHeight: 2
+        isolateDividerSource: 1
+      artwork:
+        divider: line_hor
 
   slider:
     default:
@@ -135,7 +876,7 @@ styles:
 
   spinBox:
     default:
-      description: A numeric readout with a stepper column on its right. The readout is a recessed panel; thumbStyle names the button style the two stepper halves are drawn with.
+      description: A numeric readout with a stepper column on its right. The readout is a recessed panel; thumbStyle names the button style the two stepper halves are drawn with. Font "led" matches v1's own real NumberDisplay default (script/src/ui/components/numberdisplay.js:37) - SpinBox extends it, so the readout itself is drawn in the same LED-digit style, not the small caption font v1 also overlays on the same control (spec 077's own preceding label already carries that font instead - see label/caption below).
       insets: 2
       width: 60
       height: 24
@@ -143,6 +884,7 @@ styles:
       label:
         align: left
         offsetX: 4
+        font: led
       states:
         normal: panel_inset_dark
 
@@ -152,6 +894,110 @@ styles:
       width: 90
       height: 28
 
+    channelCount:
+      description: Exact v1 main control-bar channel-count readout and stacked stepper.
+      width: 60
+      height: 32
+      fill: "#223155"
+      thumbStyle: channelStepper
+      label:
+        align: left
+        offsetX: 7
+        offsetY: 5
+        font: ledBig
+      metrics:
+        readoutX: 2
+        readoutY: -1
+        readoutWidth: 38
+        readoutHeightOffset: 2
+        stepperWidth: 20
+        stepperGlyphOffsetX: 1
+        stepperGlyphOffsetY: 2
+        cursorOffsetX: -2
+        cursorWidth: 2
+        cursorHeight: 22
+        cursorColorR: 255
+        cursorColorG: 201
+        cursorColorB: 65
+        cursorAlpha: 0.7
+      artwork:
+        readoutNormal: panel_inset_dark_inactive
+        readoutFocused: panel_inset_dark_active
+
+    songProperty:
+      description: Exact v1 medium song-property spinbox with an integrated FT caption, four-digit LED readout and horizontal arrow buttons.
+      width: 116
+      height: 28
+      thumbStyle: songPropertyStepper
+      label:
+        align: left
+        offsetX: 6
+        offsetY: 7
+        font: led
+      metrics:
+        readoutRightInset: 86
+        readoutY: 0
+        readoutWidth: 45
+        readoutHeightOffset: 0
+        stepperWidth: 20
+        stepperOffsetY: 3
+        stepperHeight: 20
+        stepperGlyphOffsetX: 1
+        stepperGlyphOffsetY: 2
+        captionOffsetX: 6
+        captionOffsetY: 11
+        isolateControlLayer: 1
+        cursorOffsetX: 0
+        cursorWidth: 2
+        cursorHeight: 13
+        cursorColorR: 255
+        cursorColorG: 201
+        cursorColorB: 65
+        cursorAlpha: 0.7
+      artwork:
+        readoutNormal: panel_inset_dark_inactive
+        readoutFocused: panel_inset_dark_active
+
+    songPropertyBpm:
+      extends: songProperty
+
+    songPropertySongLength:
+      extends: songProperty
+      metrics:
+        captionVariant0MinWidth: 178
+        captionVariant1MinWidth: 156
+        captionVariant2MinWidth: 138
+        captionVariant3MinWidth: 10
+
+    songPropertySongRepeat:
+      extends: songProperty
+      metrics:
+        captionVariant0MinWidth: 178
+        captionVariant1MinWidth: 156
+        captionVariant2MinWidth: 138
+        captionVariant3MinWidth: 10
+
+    songPropertyPattern:
+      extends: songProperty
+      metrics:
+        captionVariant0MinWidth: 140
+        captionVariant1MinWidth: 10
+
+    songPropertyPatternLength:
+      extends: songProperty
+      metrics:
+        captionVariant0MinWidth: 188
+        captionVariant1MinWidth: 166
+        captionVariant2MinWidth: 138
+        captionVariant3MinWidth: 10
+
+    songPropertyInstrument:
+      extends: songProperty
+      metrics:
+        captionVariant0MinWidth: 160
+        captionVariant1MinWidth: 123
+        captionVariant2MinWidth: 10
+
   label:
     default:
       description: Plain text, no background artwork.
@@ -159,3 +1005,137 @@ styles:
       label:
         align: left
         offsetX: 2
+
+    sectionHeader:
+      extends: default
+      description: A small section caption above a group of controls (e.g. editPad's own "Track"/"Pattern" headers). Font "med" matches v1's own real equivalent (script/src/ui/editPanel.js:73-74).
+      label:
+        font: med
+
+    editPadHeader:
+      extends: default
+      description: Exact v1 EditPanel heading: medium bitmap font at an explicitly authored top-left coordinate, with no generic two-pixel label inset.
+      height: 8
+      label:
+        align: left
+        offsetX: 0
+        offsetY: 0
+        font: med
+
+    caption:
+      extends: default
+      description: A spinbox's own preceding caption label (spec 077 - a real, deliberate simplification of v1's own in-control caption). Font "ft" matches v1's own real spinbBoxFont (script/src/ui/app/appMainPanel.js:54).
+      label:
+        font: ft
+
+    optionCaption:
+      extends: default
+      description: One Options column's own caption text. v1 draws it with a Label, which centres the "small" font horizontally and places it vertically against a hard-coded 10-pixel line height rather than the font's own 6 (script/src/ui/components/label.js#render).
+      label:
+        align: center
+        offsetX: 0
+        offsetY: 0
+        font: small
+      metrics:
+        verticalAlignHeight: 10
+
+    diskSelectorCaption:
+      extends: default
+      description: V1 small left-aligned Action/Type/From/To caption label.
+      label:
+        align: left
+        offsetX: 10
+        offsetY: 0
+        font: small
+      metrics:
+        verticalAlignHeight: 10
+
+    optionsHeader:
+      extends: default
+      description: The Options panel's own "Options:" heading. Same v1 Label, left-aligned, whose left-aligned branch uses a hard-coded textX of 10 and the same 10-pixel line height.
+      label:
+        align: left
+        offsetX: 10
+        offsetY: 0
+        font: med
+      metrics:
+        verticalAlignHeight: 10
+
+    menuItem:
+      extends: default
+      description: A leaf menu/submenu item (a plain command, not itself a nested submenu - those become menuTrigger instead). Font "ft" matches v1's own real submenu item label (script/src/ui/components/submenu.js:184-185); offsetX 9 matches its own real left text inset (submenu.js's own _paddingLeft).
+      label:
+        font: ft
+        offsetX: 9
+
+    modeDisplayCaption:
+      extends: default
+      description: V1's right-aligned responsive MODE/DISPLAY captions.
+      label:
+        align: right
+        offsetX: 10
+        font: small
+      metrics:
+        fitLabelRightInset: 76
+        hideLabelWhenNoFit: 1
+        verticalAlignHeight: 10
+
+  menuTrigger:
+    default:
+      label:
+        font: med
+        offsetX: 10
+        offsetY: 1
+      metrics:
+        widthPadding: 24
+        height: 26
+    nested:
+      label:
+        font: ft
+        offsetX: 9
+      metrics:
+        widthPadding: 20
+        height: 26
+
+  volumeMeter:
+    default:
+      fill: "#253352"
+      metrics:
+        dotWidth: 10
+        dotGap: 2
+        rowHeight: 6
+        rowGap: 4
+      artwork:
+        green: vu_green
+        yellow: vu_yellow
+        red: vu_red
+        greenActive: vu_green_active
+        yellowActive: vu_yellow_active
+        redActive: vu_red_active
+
+  scopesView:
+    default:
+      description: Native v1 oscilloscope grid, stretched independently into every track cell before the live trace is drawn.
+      fill: "#223155"
+      metrics:
+        isolateSource: 1
+      states:
+        normal: oscilloscope
+
+  notificationLight:
+    default:
+      label:
+        font: small
+        offsetX: 10
+        offsetY: 5
+      metrics:
+        boxSize: 13
+        tintWidth: 50
+      artwork:
+        off: checkbox_off
+        on: checkbox_on
+    midi:
+      extends: default
+      label:
+        offsetY: 3
+      tint: "rgba(34,49,85,0.5)"

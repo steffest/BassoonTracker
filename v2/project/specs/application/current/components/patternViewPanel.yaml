@@ -7,9 +7,12 @@ layout:
 content:
   - name: scopes
     type: scopesView
+    variant: default
     layout:
       width: fill
-      height: 80
+      height: 66
+      offsetY: -21
+      horizontalFrame: patternTracks
   - name: patternGridPanel
     type: panel
     layout:
@@ -21,6 +24,11 @@ content:
         - ""
         - "Column view"
     content:
+      - name: trackControl
+        type: trackControl
+        layout:
+          width: fill
+          height: 32
       - name: patternGrid
         type: patternGrid
         layout:

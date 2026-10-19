@@ -1,9 +1,12 @@
 name: fileOperationsPanel
 type: panel
+variant: mainStripLayered
 layout:
+  position: absolute
+  left: 0
+  top: 0
   width: fill
   height: fill
-  direction: column
 visibleWhen:
   field: song-properties-view.value
   oneOf:
@@ -11,86 +14,372 @@ visibleWhen:
 content:
   - name: diskOperationsGrid
     type: panel
+    variant: transparent
     layout:
+      position: absolute
+      left: 0
+      top: 0
       width: fill
       height: fill
-      direction: row
     content:
       - name: actionColumn
         type: panel
+        variant: diskSelector
         layout:
-          direction: column
+          position: absolute
+          left: columnMargin
+          top: 5
+          width: col1
+          height: 150
         content:
+          - name: captionBox
+            type: panel
+            variant: diskSelectorCaption
+            layout:
+              position: absolute
+              left: 1
+              right: 1
+              top: 1
+              height: 16
           - type: label
             label: Action
-          - type: radioGroup
-            variant: buttons
+            variant: diskSelectorCaption
             layout:
+              position: absolute
+              left: -1
+              right: 3
+              top: 3
+              height: 16
+          - name: actionGroup
+            type: radioGroup
+            variant: diskSelector
+            layout:
+              position: absolute
+              left: 4
+              right: 2
+              top: 18
+              height: 70
               direction: column
+              padding: 0
+              gap: 0
+              distribute: floor
             items:
-              - label: Load
-              - label: Save
+              - name: Load
+                label: Load
+                variant: diskSelector
+                layout:
+                  height: fill
+                rule: highlighted when disk-action.value is "Load"
+              - name: Save
+                label: Save
+                variant: diskSelectorDivider
+                layout:
+                  height: fill
+                rule: highlighted when disk-action.value is "Save"
             actions:
               - change: setDiskAction
+      - name: typeColumn
+        type: panel
+        variant: diskSelector
+        layout:
+          position: absolute
+          left: col2Left
+          top: 5
+          width: col1
+          height: 150
+        content:
+          - name: captionBox
+            type: panel
+            variant: diskSelectorCaption
+            layout:
+              position: absolute
+              left: 1
+              right: 1
+              top: 1
+              height: 16
+          - type: label
+            label: Type
+            variant: diskSelectorCaption
+            layout:
+              position: absolute
+              left: -1
+              right: 3
+              top: 3
+              height: 16
+          - name: typeGroup
+            type: radioGroup
+            variant: diskSelector
+            layout:
+              position: absolute
+              left: 4
+              right: 2
+              top: 18
+              height: 130
+              direction: column
+              padding: 0
+              gap: 0
+              distribute: floor
+            items:
+              - name: Module
+                label: Module
+                variant: diskSelector
+                layout:
+                  height: fill
+                rule: highlighted when disk-type.value is "Module"
+              - name: Sample
+                label: Sample
+                variant: diskSelectorDivider
+                layout:
+                  height: fill
+                rule: highlighted when disk-type.value is "Sample"
+              - name: Playlist
+                label: Playlist
+                variant: diskSelectorDivider
+                layout:
+                  height: fill
+                rule: highlighted when disk-type.value is "Playlist"
+            actions:
+              - change: setDiskType
       - name: targetColumn
         type: panel
+        variant: diskSelector
         layout:
-          direction: column
+          position: absolute
+          left: col3Left
+          top: 5
+          width: col1
+          height: 150
         content:
+          - name: captionBox
+            type: panel
+            variant: diskSelectorCaptionTarget
+            layout:
+              position: absolute
+              left: 2
+              right: 1
+              top: 1
+              height: 16
           - name: fromLabel
             type: label
-            label: "From"
-            visibleWhen:
-              field: disk-action.value
-              oneOf:
-                - ""
-                - Load
-          - name: targetGroup
-            type: radioGroup
-            variant: buttons
+            label: From
+            variant: diskSelectorCaption
             layout:
-              direction: column
+              position: absolute
+              left: -1
+              right: 4
+              top: 3
+              height: 16
             visibleWhen:
               field: disk-action.value
               oneOf:
                 - ""
                 - Load
+          - name: toLabel
+            type: label
+            label: To
+            variant: diskSelectorCaption
+            layout:
+              position: absolute
+              left: -1
+              right: 4
+              top: 3
+              height: 16
+            visibleWhen:
+              field: disk-action.value
+              oneOf:
+                - Save
+          - name: loadTargets
+            type: panel
+            variant: transparent
+            layout:
+              position: absolute
+              left: 0
+              top: 0
+              width: fill
+              height: fill
+            visibleWhen:
+              field: disk-action.value
+              oneOf:
+                - ""
+                - Load
+            content:
+              - name: moduleTargets
+                type: radioGroup
+                variant: diskSelector
+                layout:
+                  position: absolute
+                  left: 2
+                  right: 1
+                  top: 18
+                  height: 130
+                  direction: column
+                  padding: 0
+                  gap: 0
+                  distribute: floor
+                visibleWhen:
+                  field: disk-type.value
+                  oneOf:
+                    - ""
+                    - Module
+                items:
+                  - name: Bassoon
+                    label: "Bassoon:"
+                    variant: diskSelector
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "Bassoon"
+                  - name: ModArchive
+                    label: "ModArchive:"
+                    variant: diskSelectorDivider
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "ModArchive"
+                  - name: Modules.pl
+                    label: "Modules.pl:"
+                    variant: diskSelectorDivider
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "Modules.pl"
+                  - name: Dropbox
+                    label: "Dropbox:"
+                    variant: diskSelectorDivider
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "Dropbox"
+                  - name: local
+                    label: "local:"
+                    variant: diskSelectorDivider
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "local"
+                actions:
+                  - change: setDiskTarget
+              - name: sampleTargets
+                type: radioGroup
+                variant: diskSelector
+                layout:
+                  position: absolute
+                  left: 2
+                  right: 1
+                  top: 18
+                  height: 130
+                  direction: column
+                  padding: 0
+                  gap: 0
+                  distribute: floor
+                visibleWhen:
+                  field: disk-type.value
+                  oneOf:
+                    - Sample
+                items:
+                  - name: Bassoon
+                    label: "Bassoon:"
+                    variant: diskSelector
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "Bassoon"
+                  - name: Dropbox
+                    label: "Dropbox:"
+                    variant: diskSelectorDivider
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "Dropbox"
+                  - name: local
+                    label: "local:"
+                    variant: diskSelectorDivider
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "local"
+                actions:
+                  - change: setDiskTarget
+              - name: playlistTargets
+                type: radioGroup
+                variant: diskSelector
+                layout:
+                  position: absolute
+                  left: 2
+                  right: 1
+                  top: 18
+                  height: 130
+                  direction: column
+                  padding: 0
+                  gap: 0
+                  distribute: floor
+                visibleWhen:
+                  field: disk-type.value
+                  oneOf:
+                    - Playlist
+                items:
+                  - name: Bassoon
+                    label: "Bassoon:"
+                    variant: diskSelector
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "Bassoon"
+                  - name: HippoPlayer.se
+                    label: "HippoPlayer.se:"
+                    variant: diskSelectorDivider
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "HippoPlayer.se"
+                  - name: Dropbox
+                    label: "Dropbox:"
+                    variant: diskSelectorDivider
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "Dropbox"
+                  - name: local
+                    label: "local:"
+                    variant: diskSelectorDivider
+                    layout:
+                      height: fill
+                    rule: highlighted when disk-target.value is "local"
+                actions:
+                  - change: setDiskTarget
+          - name: saveTargets
+            type: radioGroup
+            variant: diskSelector
+            layout:
+              position: absolute
+              left: 2
+              right: 1
+              top: 18
+              height: 130
+              direction: column
+              padding: 0
+              gap: 0
+              distribute: floor
+            visibleWhen:
+              field: disk-action.value
+              oneOf:
+                - Save
             items:
-              - label: Bassoon
-              - label: ModArchive
-              - label: Modules.pl
-              - label: Playlists
-              - label: Hippo
+              - name: local
+                label: "local:"
+                variant: diskSelector
+                layout:
+                  height: fill
+                rule: highlighted when disk-target.value is "local"
+              - name: Dropbox
+                label: "Dropbox:"
+                variant: diskSelectorDivider
+                layout:
+                  height: fill
+                rule: highlighted when disk-target.value is "Dropbox"
             actions:
               - change: setDiskTarget
-          - name: saveTypeLabel
-            type: label
-            label: "Save"
-            visibleWhen:
-              field: disk-action.value
-              oneOf:
-                - Save
-          - name: saveTypeGroup
-            type: radioGroup
-            variant: buttons
-            layout:
-              direction: column
-            visibleWhen:
-              field: disk-action.value
-              oneOf:
-                - Save
-            items:
-              - label: Module
-              - label: Sample
-              - label: Playlist
-            actions:
-              - change: setSaveType
       - name: contentColumn
         type: panel
+        variant: transparent
         layout:
-          width: fill
-          height: fill
+          position: absolute
+          left: col4Left
+          top: 5
+          width: col2Exact
+          height: 150
           direction: column
+          padding: 0
+          gap: 0
         content:
           - name: loadContent
             type: panel

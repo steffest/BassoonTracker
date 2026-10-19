@@ -4,6 +4,17 @@ layout:
   width: fill
   height: 200
   direction: column
+# Spec 075: v1's own real height cascade (script/src/ui/app/layout.js's own
+# `if (me.height<800) me.pianoHeight = 150;` / `if (me.height<650) ... 100;`),
+# using the maxHeight side of the breakpoints mechanism spec 025 built for
+# width alone - the visual-parity plan's own last remaining item.
+breakpoints:
+  - maxHeight: 800
+    layout:
+      height: 150
+  - maxHeight: 650
+    layout:
+      height: 100
 visibleWhen:
   field: piano.active
   oneOf:
