@@ -21,6 +21,8 @@
   // + outline.json, untouched by this file). No workbench/editor code is
   // loaded here.
   import { mountGenericRenderer } from "./renderers/canvas/mountGeneric.js";
+  import { createAppState } from "./app/state.js";
+  import { MEDIA_BASE } from "./app/config.js";
 
   const statusEl = document.getElementById("status");
   const appEl = document.getElementById("app");
@@ -31,8 +33,14 @@
       throw new Error(`failed to load app-outline.json (${response.status}). Run: node v2/compiler/generate.js`);
     }
     const outline = await response.json();
-    await mountGenericRenderer(appEl, outline);
+    const state = createAppState();
+    const app = { state, media: MEDIA_BASE };
+    await mountGenericRenderer(appEl, outline, { state });
     statusEl.remove();
+    // Same boot-time demo module as the generated app (app/main.js): loads
+    // (but does not play) a real song so this outline-driven preview isn't
+    // blank on first paint either.
+    import("./domain/playback/index.js").then(m => m.loadModule(app, "demomods/Tinytune.mod")).catch(error => console.error("[app] failed to load default module", error));
   }
 
   main().catch(error => {

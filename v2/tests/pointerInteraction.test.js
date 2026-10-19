@@ -196,6 +196,39 @@ test("a stepper press moves one step, up in the top half and down in the bottom"
     assert.ok(inStepper);
 });
 
+test("a spinbox can author a wider stepper and exposes its hovered half", () => {
+    const control = createValueController({ mode: "relative", axis: "y", stepper: true });
+    const rect = { x: 0, y: 0, width: 60, height: 32 };
+    const common = { value: 4, bounds: { min: 2, max: 32, step: 1 }, rect, stepperWidth: 20 };
+    assert.equal(control.handle({ ...common, type: "pointermove", local: { x: 41, y: 4 } }).transitions[0].to, "up");
+    assert.equal(control.state.hoverPart, "up");
+    assert.equal(control.handle({ ...common, type: "pointerdown", local: { x: 41, y: 28 } }).value, 3);
+    control.handle({ ...common, type: "pointerleave", local: null });
+    assert.equal(control.state.hoverPart, null);
+});
+
+test("a horizontal spinbox stepper exposes up on the left and down on the right", () => {
+    const controller = createValueController({ mode: "relative", axis: "y", stepper: true });
+    const common = { value: 4, bounds: { min: 2, max: 32, step: 1 }, rect: { width: 100, height: 28 }, stepperWidth: 20, stepperDirection: "horizontal" };
+    const up = controller.handle({ type: "pointermove", local: { x: 70, y: 14 }, ...common });
+    assert.equal(controller.state.hoverPart, "up");
+    const down = controller.handle({ type: "pointerdown", local: { x: 90, y: 14 }, ...common });
+    assert.equal(controller.state.hoverPart, "up");
+    assert.equal(down.value, 3);
+});
+
+test("a focused value control blinks its cursor on the v1 300ms cadence", () => {
+    const control = createValueController({ mode: "relative", axis: "y", stepper: true });
+    control.handle({ type: "focus", value: 4 });
+    assert.equal(control.state.cursorVisible, true);
+    control.onFrame(299);
+    assert.equal(control.state.cursorVisible, true);
+    control.onFrame(1);
+    assert.equal(control.state.cursorVisible, false);
+    control.handle({ type: "blur", value: 4 });
+    assert.equal(control.state.cursorVisible, false);
+});
+
 test("the wheel moves a value one step per notch, up increasing", () => {
     const control = createValueController({});
     const bounds = { min: 0, max: 10, step: 2 };

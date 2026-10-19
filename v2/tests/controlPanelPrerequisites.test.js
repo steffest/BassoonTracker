@@ -73,6 +73,54 @@ test("a node with no breakpoints: at all carries no breakpoints property, exactl
     assert.equal(result.root.breakpoints, undefined);
 });
 
+test("breakpoints retain authored positional fields instead of only dimensions and direction", () => {
+    const files = {
+        "app.yaml": [
+            "app:",
+            "  ui:",
+            "    main:",
+            "      type: panel",
+            "      breakpoints:",
+            "        - maxWidth: 649",
+            "          layout:",
+            "            left: columnMargin",
+            "            top: 42",
+            "            gap: -1",
+            ""
+        ].join("\n")
+    };
+    const result = compileApplication("app.yaml", memoryReadFile(files));
+    assert.deepEqual(result.root.breakpoints, [{
+        maxWidth: 649,
+        layout: { left: "columnMargin", top: 42, gap: -1 }
+    }]);
+});
+
+test("implicit item children retain authored layout and registered numeric properties", () => {
+    const files = {
+        "app.yaml": [
+            "app:",
+            "  ui:",
+            "    main:",
+            "      type: radioGroup",
+            "      items:",
+            "        - label: 12",
+            "          disabledBelowWidth: 725",
+            "          layout:",
+            "            width: 26",
+            "            height: 16",
+            ""
+        ].join("\n")
+    };
+    const result = compileApplication("app.yaml", memoryReadFile(files));
+    const item = result.root.children[0];
+    assert.deepEqual(item.layout, {
+        width: { mode: "fixed", size: 26 },
+        height: { mode: "fixed", size: 16 }
+    });
+    assert.equal(item.disabledBelowWidth, 725);
+});
+
 test("visibleWhen: compiles to { field, oneOf }, oneOf accepting either a sequence or a bare scalar", () => {
     const files = {
         "app.yaml": [

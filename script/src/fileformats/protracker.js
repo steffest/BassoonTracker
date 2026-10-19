@@ -5,6 +5,7 @@ import Note from "../models/note.js";
 import EventBus from "../eventBus.js";
 import UI from "../ui/ui.js";
 import {BinaryStream} from "../filesystem.js";
+import {formatInstrumentIndex} from "../lib/util.js";
 
 var ProTracker = function(){
 	var me = {};
@@ -191,7 +192,7 @@ var ProTracker = function(){
 					}
 				}
 
-				instrumentContainer.push({label: i + " " + instrument.name, data: i});
+				instrumentContainer.push({label: formatInstrumentIndex(i) + " " + instrument.name, data: i, name: instrument.name});
 			}
 		}
         EventBus.trigger(EVENT.instrumentListChange,instrumentContainer);

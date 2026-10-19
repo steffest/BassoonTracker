@@ -2,7 +2,7 @@
 import { setPlaylistExportFormat as implementation } from "../../domain/playlist/index.js";
 
 /**
- * playlist-format.set — generated from components/fileOperationsPanel.yaml:177: "set-value".
+ * playlist-format.set — generated from components/fileOperationsPanel.yaml:466: "set-value".
  * Implemented by ./domain/playlist/index.js#setPlaylistExportFormat (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

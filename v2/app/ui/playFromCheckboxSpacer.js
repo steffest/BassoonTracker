@@ -2,12 +2,12 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * playFromCheckboxSpacer — UI structure generated from components/optionsPanel.yaml:195.
+ * playFromCheckboxSpacer — UI structure generated from components/optionsPanel.yaml:511.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function playFromCheckboxSpacer() {
-    return component("panel", { id: "main.normalMainView.songProperties.optionsPanel.optionsCheckboxRow.playFromCheckboxSpacer", name: "playFromCheckboxSpacer", layout: { width: { mode: "fill" } } }, [
+    return component("panel", { id: "main.songProperties.optionsPanel.optionsCheckboxRow.playFromCheckboxSpacer", name: "playFromCheckboxSpacer", layout: { width: { mode: "fill" } }, style: "transparent" }, [
 
     ]);
 }

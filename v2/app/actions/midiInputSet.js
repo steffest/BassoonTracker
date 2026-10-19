@@ -2,7 +2,7 @@
 import { setMidiInput as implementation } from "../../domain/settings/index.js";
 
 /**
- * midi-input.set — generated from components/optionsPanel.yaml:125: "set-value".
+ * midi-input.set — generated from components/optionsPanel.yaml:379: "set-value".
  * Implemented by ./domain/settings/index.js#setMidiInput (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

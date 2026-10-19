@@ -20,6 +20,10 @@ import RadioGroup from "../components/radiogroup.js";
 import Panel from "../components/panel.js";
 import UIImage from "../components/image.js";
 import Font from "../font.js";
+import {formatInstrumentIndex} from "../../lib/util.js";
+
+const INSTRUMENT_ROW_HEIGHT = 24;
+const INSTRUMENT_DRAG_HANDLE = {x: 2, y: 2, width: 22, height: 20};
 
 export default class AppMainPanel extends PanelContainer {
     _currentView    = "";
@@ -95,6 +99,13 @@ export default class AppMainPanel extends PanelContainer {
                     lastInstrumentClickData = item.data;
                 }
             }
+        };
+        this._listbox.lineHeight       = INSTRUMENT_ROW_HEIGHT;
+        this._listbox.reorderable      = true;
+        this._listbox.dragHandleArea   = INSTRUMENT_DRAG_HANDLE;
+        this._listbox.itemRenderFunction = (ctx, item) => this._renderInstrumentItem(ctx, item, this._listbox.width);
+        this._listbox.onReorder = (fromIndex, toIndex) => {
+            Tracker.moveInstrument(fromIndex + 1, toIndex + 1);
         };
         this.addChild(this._listbox);
 
@@ -221,7 +232,8 @@ export default class AppMainPanel extends PanelContainer {
                     const instruments = this._listbox.getItems();
                     for (let i = 0, len = instruments.length; i < len; i++) {
                         if (instruments[i].data == instrumentIndex) {
-                            instruments[i].label = instrumentIndex + " " + instrument.name;
+                            instruments[i].label = formatInstrumentIndex(instrumentIndex) + " " + instrument.name;
+                            instruments[i].name  = instrument.name;
                             EventBus.trigger(EVENT.instrumentListChange, instruments);
                             break;
                         }
@@ -402,6 +414,30 @@ export default class AppMainPanel extends PanelContainer {
         Font.small.write(imgCtx, version, 44, 4);
         Font.small.write(imgCtx, "By", 44, 13);
         return img;
+    }
+
+    _renderInstrumentItem(ctx, item, width) {
+        const font   = Font.med;
+        const number = item.data.toString(16).toUpperCase();
+        const name   = item.name !== undefined ? item.name : (item.label || "").substr(3);
+        const handle = INSTRUMENT_DRAG_HANDLE;
+
+        if (!this._instrumentButtonBg) {
+            this._instrumentButtonBg = new Scale9Panel(0, 0, handle.width, handle.height, {
+                img: Y.getImage("bar"), left: 2, top: 2, right: 3, bottom: 3
+            });
+        }
+        // the drag handle is drawn as a button-styled background behind the
+        // instrument number, using the same scale9 asset as the scrollbar
+        ctx.drawImage(this._instrumentButtonBg.render(true), handle.x, handle.y);
+
+        const labelY    = 8;
+        const numberX   = handle.x + handle.width - 2 - font.getTextWidth(number, 0);
+        font.write(ctx, number, numberX, labelY, 0);
+        font.write(ctx, name, handle.x + handle.width + 6, labelY, 0);
+
+        const lineHor = Y.getImage("line_hor");
+        if (lineHor) ctx.drawImage(lineHor, 0, INSTRUMENT_ROW_HEIGHT - 2, width - 2, 2);
     }
 
     _initSmallScreenUI() {

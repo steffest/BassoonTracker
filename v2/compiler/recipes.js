@@ -85,9 +85,14 @@ const ACTION_RECIPES = [
         // ("exportSample" -> "export sample" -> sample.export; "exportPlayList"
         // -> "export play list" -> play-list.export, keeping the same
         // "play-list" noun spec 063's own randomPlayList already established
-        // rather than a second, inconsistent "playlist" spelling).
+        // rather than a second, inconsistent "playlist" spelling). Spec 072
+        // adds "play" for the pattern sidebar's own transport row
+        // ("playPreviousTrack"/"playNextTrack" -> "play previous track"/
+        // "play next track" -> previous-track.play/next-track.play) - the
+        // Play/Stop button itself keeps using the pre-existing named action
+        // file `actions/toggleplay.yaml`, unaffected by this addition.
         code: "verb-action",
-        pattern: /^(clear|copy|paste|insert|delete|increment|decrement|save|normalize|trim|reverse|invert|fade in|fade out|open|cancel|show|start|add|remove|random|export)\s+(?:the\s+)?([a-z][a-z0-9 ]*)$/i,
+        pattern: /^(clear|copy|paste|insert|delete|increment|decrement|save|normalize|trim|reverse|invert|fade in|fade out|open|cancel|show|start|add|remove|random|export|play)\s+(?:the\s+)?([a-z][a-z0-9 ]*)$/i,
         bind: match => {
             const verb = match[1].trim().replace(/\s+/g, "-").toLowerCase();
             const subject = match[2].trim().replace(/\s+/g, "-").toLowerCase();
@@ -151,10 +156,43 @@ const CONDITION_FIELD_ALIASES = [
     // the value being compared against need spelling out explicitly.
     { pattern: /\bfile operations view\b/i, mockField: "song-properties-view.value", activeValue: "File Operations" },
     { pattern: /\boptions view\b/i, mockField: "song-properties-view.value", activeValue: "Options" },
-    { pattern: /\bsample edit panel\b/i, mockField: "pattern-section-view.value", activeValue: "Sample Edit" }
+    { pattern: /\bsample edit panel\b/i, mockField: "pattern-section-view.value", activeValue: "Sample Edit" },
+    // Spec 072: the pattern sidebar's own Shuffle button needs the same
+    // bare-single-word seam wrap/grid already needed (spec 049) -
+    // deriveMockFieldName("shuffle") produces the bare field "shuffle", but
+    // toggleShuffle's own toggle-generic binding writes "shuffle.active".
+    { pattern: /^shuffle$/i, mockField: "shuffle.active", activeValue: true }
 ];
 
 const RULE_RECIPES = [
+    /**
+     * Spec 098: v1's option groups light whichever choice currently matches
+     * a value, not a boolean "is active" flag (script/src/ui/optionsPanel.js
+     * sets `button.isActive = (b === option.def.getValue())` on every
+     * resize). "highlighted when active" cannot express that, and the
+     * CONDITION_FIELD_ALIASES list above cannot scale to one entry per
+     * choice of every group. This recipe names the field and the value it
+     * must hold outright - no derivation, no alias - and is the only rule
+     * form that can say "this one of several". A bare integer is compared
+     * as a number and "true"/"false" as booleans, because a domain module
+     * that stores an index (domain/playback#setScreenRefresh) or a flag
+     * (domain/settings#applyToggle) stores a real number or boolean, and
+     * the runtime's own highlight check is a strict comparison.
+     */
+    {
+        code: "highlighted-when-field-equals",
+        pattern: /^highlighted\s+when\s+([a-z0-9][a-z0-9-]*(?:\.[a-z0-9-]+)+)\s+is\s+"([^"]*)"$/i,
+        bind: match => ({
+            kind: "visual-state",
+            state: "highlighted",
+            mockField: match[1],
+            activeValue: /^-?\d+$/.test(match[2]) ? Number(match[2])
+                : match[2] === "true" ? true
+                : match[2] === "false" ? false
+                : match[2],
+            conditionText: `${match[1]} is "${match[2]}"`
+        })
+    },
     {
         code: "highlighted-when-active",
         pattern: /highlighted\s+when\s+(.+?)\s+is\s+active/i,

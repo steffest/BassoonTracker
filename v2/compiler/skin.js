@@ -16,11 +16,13 @@ import { STYLE_STATES, BUILTIN_SKIN, normalizeInsets, ATLAS_FILES } from "../run
 // to find them.
 export { STYLE_STATES, STATE_CHAINS, BUILTIN_SKIN, ATLAS_FILES, lookupStyle, styleLayoutDefaults, resolveStateAsset, styleStateName } from "../runtime/skinModel.js";
 
-const STYLE_PROPERTIES = new Set(["description", "extends", "insets", "width", "height", "label", "focusColor", "states", "itemStyle", "thumbStyle"]);
-const LABEL_PROPERTIES = new Set(["align", "offsetX", "offsetY", "pressedOffset", "font"]);
+const STYLE_PROPERTIES = new Set(["description", "extends", "insets", "width", "height", "label", "focusColor", "states", "itemStyle", "thumbStyle", "metrics", "artwork", "barGlyph", "fill", "tint"]);
+const LABEL_PROPERTIES = new Set(["align", "offsetX", "offsetY", "pressedOffset", "activeOffsetY", "font"]);
 const FONT_PROPERTIES = new Set(["description", "asset", "offsetX", "offsetY", "charWidth", "charHeight", "spaceWidth", "margin", "lineSpacing", "charsPerLine", "chars", "onlyUpperCase"]);
 const LABEL_ALIGNMENTS = new Set(["left", "center", "right"]);
 const INSET_SIDES = ["left", "top", "right", "bottom"];
+const BAR_GLYPH_PROPERTIES = new Set(["orientation", "color", "count", "thickness", "gap", "startRatio", "extentRatio"]);
+const BAR_GLYPH_ORIENTATIONS = new Set(["vertical", "horizontal"]);
 
 const ASSET_DIR = "src";
 
@@ -39,6 +41,44 @@ function booleanOr(node, fallback) {
     const text = scalarValue(node);
     if (text === null) return fallback;
     return /^(true|yes|on)$/i.test(text.trim());
+}
+
+/**
+ * A font's own `charWidth` (spec 076) is either one fixed number (every
+ * other v1 font: `script/src/ui/font.js`'s own `small`/`med`/`big`/
+ * `superCondensed`/`led`/`ledBig`) or a per-character digit string, one
+ * digit per character in `chars`, for a proportional font (`ft`/
+ * `condensed`/`dark`) - `runtime/bitmapFont.js#generate` (a faithful port of
+ * v1's own `BitmapFont.generate`) already branches on `typeof this._charWidth
+ * === "string"` to tell the two apart, but v1's own object-literal source
+ * carries that distinction as a real JS type, which compiler/yaml.js's own
+ * scalars never do (every scalar compiles to a string, coerced by whichever
+ * consumer needs a different type - the same reason `resolveDimension`
+ * checks for "fill" as text before ever trying `Number(...)`). Disambiguated
+ * here the only way that's actually reliable: a per-character width string
+ * is exactly as long as the font's own `chars` string (built that way by
+ * construction, one digit per character); a fixed numeric width never is.
+ */
+function charWidthOr(node, chars, fallback) {
+    const text = scalarValue(node);
+    if (text === null) return fallback;
+    if (text.length > 1 && text.length === (chars || "").length && /^\d+$/.test(text)) return text;
+    const value = Number(text);
+    return Number.isFinite(value) ? value : fallback;
+}
+
+/**
+ * A font's own `charsPerLine` (spec 076) is either one number (a fixed-width
+ * font, one row) or a sequence of numbers, one per row (a proportional
+ * font's own multi-row sheet layout - `ft`'s own `[26, 26, 40]`).
+ */
+function charsPerLineOr(node, fallback) {
+    if (!node) return fallback;
+    if (node.kind === "seq") {
+        const values = node.items.map(item => Number(scalarValue(item))).filter(Number.isFinite);
+        return values.length ? values : fallback;
+    }
+    return numberOr(node, fallback);
 }
 
 /**
@@ -89,19 +129,20 @@ export function compileSkin({ name, file, root, addDiagnostic, listAssets }) {
                 if (!FONT_PROPERTIES.has(prop.key)) warn("unknown-style-property", `unknown font property "${prop.key}" on font "${entry.key}"`, prop.keyRange);
             }
             const assetNode = mapGet(fontNode, "asset");
+            const chars = scalarValue(mapGet(fontNode, "chars")) || BUILTIN_SKIN.fonts.small.chars;
             const font = {
                 name: entry.key,
                 description: scalarValue(mapGet(fontNode, "description")),
                 asset: useAsset(scalarValue(assetNode), assetNode ? assetNode.range : fontNode.range, `font ${entry.key}`),
                 offsetX: numberOr(mapGet(fontNode, "offsetX"), 0),
                 offsetY: numberOr(mapGet(fontNode, "offsetY"), 0),
-                charWidth: numberOr(mapGet(fontNode, "charWidth"), 6),
+                charWidth: charWidthOr(mapGet(fontNode, "charWidth"), chars, 6),
                 charHeight: numberOr(mapGet(fontNode, "charHeight"), 6),
                 spaceWidth: numberOr(mapGet(fontNode, "spaceWidth"), 6),
                 margin: numberOr(mapGet(fontNode, "margin"), 0),
                 lineSpacing: numberOr(mapGet(fontNode, "lineSpacing"), 0),
-                charsPerLine: numberOr(mapGet(fontNode, "charsPerLine"), 42),
-                chars: scalarValue(mapGet(fontNode, "chars")) || BUILTIN_SKIN.fonts.small.chars,
+                charsPerLine: charsPerLineOr(mapGet(fontNode, "charsPerLine"), 42),
+                chars,
                 onlyUpperCase: booleanOr(mapGet(fontNode, "onlyUpperCase"), false),
                 source: { file, range: fontNode.range }
             };
@@ -173,6 +214,7 @@ export function compileSkin({ name, file, root, addDiagnostic, listAssets }) {
             if (mapGet(labelNode, "offsetX")) label.offsetX = numberOr(mapGet(labelNode, "offsetX"), 0);
             if (mapGet(labelNode, "offsetY")) label.offsetY = numberOr(mapGet(labelNode, "offsetY"), 0);
             if (mapGet(labelNode, "pressedOffset")) label.pressedOffset = numberOr(mapGet(labelNode, "pressedOffset"), 0);
+            if (mapGet(labelNode, "activeOffsetY")) label.activeOffsetY = numberOr(mapGet(labelNode, "activeOffsetY"), 0);
             const font = scalarValue(mapGet(labelNode, "font"));
             if (font) {
                 if (!fonts[font]) warn("unknown-style-property", `label.font "${font}" on ${type}/${variant} is not defined in fonts`, mapGet(labelNode, "font").range);
@@ -182,6 +224,36 @@ export function compileSkin({ name, file, root, addDiagnostic, listAssets }) {
             warn("unknown-style-property", `label on ${type}/${variant} is not a mapping`, labelNode.range);
         }
 
+        const metrics = {}, artwork = {};
+        const metricsNode = mapGet(node, "metrics"), artworkNode = mapGet(node, "artwork");
+        for (const entry of metricsNode?.entries || []) metrics[entry.key] = numberOr(entry.valueNode, 0, text => warn("unknown-style-property", `invalid metric ${entry.key}: ${text}`, entry.valueNode.range));
+        for (const entry of artworkNode?.entries || []) {
+            const asset = scalarValue(entry.valueNode);
+            if (asset) { artwork[entry.key] = asset; useAsset(asset, entry.valueNode.range, `${type}/${variant} artwork.${entry.key}`); }
+        }
+        const barGlyphNode = mapGet(node, "barGlyph");
+        let barGlyph = null;
+        if (barGlyphNode && barGlyphNode.kind === "map") {
+            for (const prop of barGlyphNode.entries) {
+                if (!BAR_GLYPH_PROPERTIES.has(prop.key)) warn("unknown-style-property", `unknown barGlyph property "${prop.key}" on ${type}/${variant}`, prop.keyRange);
+            }
+            const orientation = scalarValue(mapGet(barGlyphNode, "orientation"));
+            if (!BAR_GLYPH_ORIENTATIONS.has(orientation)) {
+                warn("unknown-style-property", `barGlyph.orientation on ${type}/${variant} must be vertical or horizontal`, barGlyphNode.range);
+            } else {
+                barGlyph = {
+                    orientation,
+                    color: scalarValue(mapGet(barGlyphNode, "color")) || "rgba(0,0,0,1)",
+                    count: numberOr(mapGet(barGlyphNode, "count"), 4),
+                    thickness: numberOr(mapGet(barGlyphNode, "thickness"), 2),
+                    gap: numberOr(mapGet(barGlyphNode, "gap"), 4),
+                    startRatio: numberOr(mapGet(barGlyphNode, "startRatio"), 0.2),
+                    extentRatio: numberOr(mapGet(barGlyphNode, "extentRatio"), 0.6)
+                };
+            }
+        } else if (barGlyphNode) {
+            warn("unknown-style-property", `barGlyph on ${type}/${variant} is not a mapping`, barGlyphNode.range);
+        }
         const statesNode = mapGet(node, "states");
         const states = {};
         if (statesNode && statesNode.kind === "map") {
@@ -205,6 +277,7 @@ export function compileSkin({ name, file, root, addDiagnostic, listAssets }) {
         }
 
         return {
+            metrics, artwork, barGlyph, fill: scalarValue(mapGet(node, "fill")), tint: scalarValue(mapGet(node, "tint")),
             description: scalarValue(mapGet(node, "description")),
             extends: scalarValue(mapGet(node, "extends")),
             itemStyle: scalarValue(mapGet(node, "itemStyle")),
@@ -247,6 +320,11 @@ export function compileSkin({ name, file, root, addDiagnostic, listAssets }) {
         for (const [state, value] of Object.entries(parsed.states)) states[state] = value;
 
         const style = {
+            metrics: { ...base?.metrics, ...parsed.metrics },
+            artwork: { ...base?.artwork, ...parsed.artwork },
+            barGlyph: parsed.barGlyph ?? base?.barGlyph ?? null,
+            fill: parsed.fill ?? base?.fill ?? null,
+            tint: parsed.tint ?? base?.tint ?? null,
             type,
             variant,
             description: parsed.description ?? (base ? base.description : null),
@@ -257,7 +335,7 @@ export function compileSkin({ name, file, root, addDiagnostic, listAssets }) {
             focusColor: parsed.focusColor ?? (base ? base.focusColor : null),
             itemStyle: parsed.itemStyle ?? (base ? base.itemStyle : null),
             thumbStyle: parsed.thumbStyle ?? (base ? base.thumbStyle : null),
-            label: { align: "left", offsetX: 0, offsetY: 0, pressedOffset: 0, font: Object.keys(fonts)[0], ...(base ? base.label : {}), ...(parsed.label || {}) },
+            label: { align: "left", offsetX: 0, offsetY: 0, pressedOffset: 0, activeOffsetY: 0, font: Object.keys(fonts)[0], ...(base ? base.label : {}), ...(parsed.label || {}) },
             states,
             statesSource: parsed.statesRange,
             source: parsed.source

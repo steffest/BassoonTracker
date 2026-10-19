@@ -73,6 +73,21 @@ test("with pattern-view.value = \"Column view\" (the explicit label, not just th
     assert.equal(rects.get("main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.multitrackViewPanel"), undefined);
 });
 
+// Spec 074: the classic grid's own per-track Solo/Mute/FX header sits only
+// inside patternGridPanel (multitrackView already has its own equivalent
+// control strip built in, spec 052).
+test("trackControl sits above patternGrid inside patternGridPanel only, not multitrackViewPanel", () => {
+    const { rects } = layoutWith("");
+    const trackControlRect = rects.get("main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.patternGridPanel.trackControl");
+    const gridRect = rects.get("main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.patternGridPanel.patternGrid");
+    assert.ok(trackControlRect, "trackControl has a rect");
+    assert.ok(trackControlRect.width > 0 && trackControlRect.height > 0);
+    assert.ok(trackControlRect.y < gridRect.y, "trackControl sits above patternGrid");
+
+    const { rects: rowRects } = layoutWith("Row view");
+    assert.equal(rowRects.get("main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.multitrackViewPanel.trackControl"), undefined, "not duplicated inside multitrackViewPanel");
+});
+
 test("with pattern-view.value = \"Row view\", multitrackView is present and sized non-zero; patternGrid is absent", () => {
     const { rects } = layoutWith("Row view");
     const panelRect = rects.get("main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.multitrackViewPanel");
@@ -129,18 +144,22 @@ test("scopesView is present and sits above whichever sub-view is showing, on bot
 // added one more level, patternSectionDefault, as sampleEditPanel's own
 // sibling inside patternSection. Step 5 then gave songProperties its own
 // real, bounded 160px wrapper and moved songPatternList inside it as
-// default content, one level deeper still. The ordering claim itself (top
-// to bottom: editPad, then patternViewPanel, then the song/pattern list) is
-// unaffected by any of that extra nesting.
-test("patternViewPanel sits between editPad and songPatternList, and neither of those two lost their own rect", () => {
+// default content, one level deeper still.
+// Spec 076's own deep-parity-audit item 1 promoted "songProperties" out of
+// normalMainView entirely, to a top-level sibling above controlBar/
+// patternSection - matching v1's own real stacking order (menu -> appPanel
+// [[song-properties]] -> controlPanel -> patternPanel). songPatternList is
+// now above editPad/patternViewPanel, the reverse of this test's own
+// previous (now-outdated) claim.
+test("songPatternList sits above editPad and patternViewPanel, and neither of those two lost their own rect", () => {
     const { rects } = layoutWith("");
-    assert.ok(rects.get("main.normalMainView.patternSection.patternSectionDefault.editPad"));
-    assert.ok(rects.get("main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList"));
-    assert.ok(rects.get("main.normalMainView.songProperties"));
+    assert.ok(rects.get("main.normalMainView.patternSection.patternLeftColumn.editPad"));
+    assert.ok(rects.get("main.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList"));
+    assert.ok(rects.get("main.songProperties"));
 
-    const editPadTop = rects.get("main.normalMainView.patternSection.patternSectionDefault.editPad").y;
+    const editPadTop = rects.get("main.normalMainView.patternSection.patternLeftColumn.editPad").y;
     const patternViewTop = rects.get("main.normalMainView.patternSection.patternSectionDefault.patternViewPanel").y;
-    const songListTop = rects.get("main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList").y;
+    const songListTop = rects.get("main.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList").y;
     assert.ok(editPadTop <= patternViewTop, "editPad is above (or level with) patternViewPanel");
-    assert.ok(patternViewTop < songListTop, "patternViewPanel is above songPatternList");
+    assert.ok(songListTop < patternViewTop, "songPatternList is above patternViewPanel");
 });

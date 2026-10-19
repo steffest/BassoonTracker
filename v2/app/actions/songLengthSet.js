@@ -2,7 +2,7 @@
 import { setSongLength as implementation } from "../../domain/song/index.js";
 
 /**
- * song-length.set — generated from components/songProperties.yaml:76: "set-value".
+ * song-length.set — generated from components/songProperties.yaml:111: "set-value".
  * Implemented by ./domain/song/index.js#setSongLength (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

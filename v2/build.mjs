@@ -223,7 +223,12 @@ export async function buildDist({ appDir = DEFAULT_APP_DIR, distDir = DEFAULT_DI
     // level of subdirectory nesting under "data", not a third top-level
     // media kind, so this list stays a flat array of relative paths rather
     // than growing a recursive-copy mechanism nothing else needs yet).
-    const mediaSubdirs = ["demo", "data", "data/playlists"];
+    // spec 081 adds "demomods", the real files the sidebar's own
+    // boot-populated Songs tab (assets/data/demosongs.json) references -
+    // this list is the one place a new asset subdirectory has to be named
+    // or a release build silently 404s on it (dev serves the whole assets/
+    // tree unfiltered, so this gap is invisible there).
+    const mediaSubdirs = ["demo", "demomods", "data", "data/playlists"];
     const mediaAssets = [];
     for (const subdir of mediaSubdirs) {
         const mediaDir = join(V2, "assets", subdir);

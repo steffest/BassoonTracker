@@ -2,16 +2,16 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * loadContent — UI structure generated from components/fileOperationsPanel.yaml:95.
+ * loadContent — UI structure generated from components/fileOperationsPanel.yaml:384.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function loadContent() {
-    return component("panel", { id: "main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent", name: "loadContent", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" }, visibleWhen: {"field":"disk-action.value","oneOf":["","Load"]} }, [
-        component("label", { id: "main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.label.Load module:", label: "Load module:" }),
-        // action (components/fileOperationsPanel.yaml:115) on change -> browser-row.set, lazy feature actions/browserRowSet.js
+    return component("panel", { id: "main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent", name: "loadContent", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" }, visibleWhen: {"field":"disk-action.value","oneOf":["","Load"]} }, [
+        component("label", { id: "main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.label.Load module:", label: "Load module:" }),
+        // action (components/fileOperationsPanel.yaml:404) on change -> browser-row.set, lazy feature actions/browserRowSet.js
         component("fileBrowser", {
-            id: "main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser",
+            id: "main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser",
             name: "browser",
             layout: { width: { mode: "fill" }, height: { mode: "fill" } },
             field: "browser-row.value",

@@ -36,6 +36,7 @@ import { createSelectionState, normalizeRange } from "./selection.js";
 import { keyboardNoteFor, resolveNote, resolveColumnValue } from "./keyboardNotes.js";
 import { formatInstrumentIndex } from "./format.js";
 import { rowsFieldOf } from "../../runtime/fileBrowserController.js";
+import { importRawSample, importXIInstrument } from "./sampleImport.js";
 
 export { EDITACTION };
 
@@ -166,8 +167,8 @@ export function decrementPatternTableEntry(index) {
 // under the new songPropertiesLayout wrapper and its songPatternGroup/
 // instrumentGroup columns (the 4-column-vs-stacked responsive rework) - the
 // ids below match the current components/songProperties.yaml exactly.
-const SONG_PATTERN_ROWS_FIELD = rowsFieldOf({ id: "main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList.list" });
-const INSTRUMENT_ROWS_FIELD = rowsFieldOf({ id: "main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.instrumentGroup.instrumentList" });
+const SONG_PATTERN_ROWS_FIELD = rowsFieldOf({ id: "main.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList.list" });
+const INSTRUMENT_ROWS_FIELD = rowsFieldOf({ id: "main.songProperties.songPropertiesDefault.songPropertiesLayout.instrumentGroup.instrumentList" });
 
 function pad2(n) {
     const s = String(n);
@@ -198,6 +199,18 @@ export function publishInstrumentRows(app) {
         rows.push({ title: `${formatInstrumentIndex(i)} ${name}` });
     }
     app.state.set(INSTRUMENT_ROWS_FIELD, rows);
+}
+
+/**
+ * The pattern sidebar's own Samples tab, leaf-click/double-click capability
+ * (spec 073) - dispatches by extension, matching v1's own FileDetector split
+ * (.xi vs. everything else, which this port only needs raw PCM for; see
+ * requirements.md for why WAV/MP3/FLAC/OGG/AIFF/8SVX are out of scope).
+ */
+export function importSampleFile(app, name, bytes) {
+    const ok = String(name).toLowerCase().endsWith(".xi") ? importXIInstrument(name, bytes) : importRawSample(name, bytes);
+    if (ok) publishInstrumentRows(app);
+    return ok;
 }
 
 // --- the song-properties section's own six spinbox capabilities (spec 071) ---

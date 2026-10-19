@@ -2,7 +2,7 @@
 import { togglePiano as implementation } from "../../domain/settings/index.js";
 
 /**
- * piano.toggle — generated from app.yaml:111: "toggle-generic".
+ * piano.toggle — generated from app.yaml:175: "toggle-generic".
  * Implemented by ./domain/settings/index.js#togglePiano (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

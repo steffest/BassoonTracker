@@ -99,10 +99,10 @@ export function ftOnlyRow() {
             disabledWhen: state => state.get("ft-mode.active") !== true,
             on: { "change": (app, detail) => app.feature(() => import("../actions/vibratoSweepSet.js"), m => m.vibratoSweepSet(app, detail)) }
         }),
-        // style -> radioGroup/buttons (skin/default.yaml:100)
+        // style -> radioGroup/buttons (skin/default.yaml:677)
         // action (components/sampleEditPanel.yaml:222) on change -> vibrato-wave.set, lazy feature actions/vibratoWaveSet.js
         component("radioGroup", { id: "main.normalMainView.patternSection.sampleEditPanel.sampleEditNormalView.ftOnlyRow.vibratoWaveGroup", name: "vibratoWaveGroup", style: "buttons", on: { "change": (app, detail) => app.feature(() => import("../actions/vibratoWaveSet.js"), m => m.vibratoWaveSet(app, detail)) } }, [
-            // style -> radioItem/button (skin/default.yaml:120)
+            // style -> radioItem/button (skin/default.yaml:731)
             // rule (components/sampleEditPanel.yaml:214) "disabled unless ft mode is active" -> disabled unless ft-mode.active === true
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", {
@@ -111,7 +111,7 @@ export function ftOnlyRow() {
                 style: "button",
                 disabledWhen: state => state.get("ft-mode.active") !== true
             }),
-            // style -> radioItem/button (skin/default.yaml:120)
+            // style -> radioItem/button (skin/default.yaml:731)
             // rule (components/sampleEditPanel.yaml:216) "disabled unless ft mode is active" -> disabled unless ft-mode.active === true
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", {
@@ -120,7 +120,7 @@ export function ftOnlyRow() {
                 style: "button",
                 disabledWhen: state => state.get("ft-mode.active") !== true
             }),
-            // style -> radioItem/button (skin/default.yaml:120)
+            // style -> radioItem/button (skin/default.yaml:731)
             // rule (components/sampleEditPanel.yaml:218) "disabled unless ft mode is active" -> disabled unless ft-mode.active === true
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", {
@@ -129,7 +129,7 @@ export function ftOnlyRow() {
                 style: "button",
                 disabledWhen: state => state.get("ft-mode.active") !== true
             }),
-            // style -> radioItem/button (skin/default.yaml:120)
+            // style -> radioItem/button (skin/default.yaml:731)
             // rule (components/sampleEditPanel.yaml:220) "disabled unless ft mode is active" -> disabled unless ft-mode.active === true
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", {

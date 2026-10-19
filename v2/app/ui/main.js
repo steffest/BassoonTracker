@@ -3,6 +3,7 @@ import { component } from "../../runtime/components.js";
 import { controlBar } from "./controlBar.js";
 import { normalMainView } from "./normalMainView.js";
 import { pianoPanel } from "./pianoPanel.js";
+import { songProperties } from "./songProperties.js";
 import { top } from "./top.js";
 
 /**
@@ -11,8 +12,9 @@ import { top } from "./top.js";
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function main() {
-    return component("panel", { id: "main", name: "main" }, [
+    return component("panel", { id: "main", name: "main", layout: { padding: 0, gap: 0 }, style: "appRoot" }, [
         top(),
+        songProperties(),
         controlBar(),
         normalMainView(),
         pianoPanel()

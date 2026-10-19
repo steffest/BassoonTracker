@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { componentType, behaviorOf, cursorOf, drawKindOf, isStyledType } from "../runtime/componentTypes.js";
 import { createFileBrowserController, rowsFieldOf } from "../runtime/fileBrowserController.js";
 import { drawKind } from "../renderers/canvas/drawKinds.js";
-import { ROW_HEIGHT } from "../renderers/canvas/fileBrowserGeometry.js";
+import { ROW_HEIGHT, RICH_ROW_HEIGHT } from "../renderers/canvas/fileBrowserGeometry.js";
 
 // Spec 035: fileBrowser, the specialized-component contract's second leaf
 // after patternGrid - a scrollable, hierarchical list whose rows are runtime
@@ -18,13 +18,14 @@ test("fileBrowser is a specialized leaf with its own behavior and draw kind", ()
     const entry = componentType("fileBrowser");
     assert.equal(entry.implemented, true);
     assert.equal(entry.container, null, "a leaf: no children slot at all");
-    assert.equal(entry.styled, false);
+    assert.equal(entry.styled, true);
     assert.notEqual(entry.clips, true, "opts out of genericLayout's child-based extent, like patternGrid");
     assert.equal(behaviorOf("fileBrowser"), "rowList");
     assert.equal(drawKindOf("fileBrowser"), "fileBrowser");
     assert.equal(cursorOf("fileBrowser"), "default");
-    assert.equal(isStyledType("fileBrowser"), false);
-    assert.deepEqual(Object.keys(entry.properties), ["field"]);
+    assert.equal(isStyledType("fileBrowser"), true);
+    // Spec 080: richRows (deep-parity-audit item 7 - two-line rows with a subtitle and format chip).
+    assert.deepEqual(Object.keys(entry.properties), ["field", "richRows", "centerSelection", "rowHeight"]);
 });
 
 test("rowsFieldOf derives a name that cannot collide with the selection field", () => {
@@ -51,6 +52,25 @@ test("clicking the second visible row selects index 1, not 0", () => {
     controller.handle({ type: "pointerdown", point: { x: 5, y: ROW_HEIGHT + 2 }, rect: RECT, rows: ROWS, offset: 0 });
     const result = controller.handle({ type: "pointerup", dragged: false });
     assert.equal(result.value, 1);
+});
+
+// Spec 080: a richRows fileBrowser passes its own taller rowHeight through
+// mountGeneric.js's own context, so a click has to land on the right row
+// under the taller spacing, not the plain ROW_HEIGHT the controller
+// defaults to when nothing is passed.
+test("an explicit rowHeight (a richRows fileBrowser) changes which row a click resolves to", () => {
+    const richRect = { x: 0, y: 0, width: 100, height: 4 * RICH_ROW_HEIGHT };
+    const controller = createFileBrowserController();
+    controller.handle({ type: "pointerdown", point: { x: 5, y: RICH_ROW_HEIGHT + 2 }, rect: richRect, rows: ROWS, offset: 0, rowHeight: RICH_ROW_HEIGHT });
+    const result = controller.handle({ type: "pointerup", dragged: false });
+    assert.equal(result.value, 1, "row 1 under RICH_ROW_HEIGHT spacing");
+
+    // The same point, with no rowHeight given at all, resolves under the
+    // plain ROW_HEIGHT default instead - a different row entirely.
+    const controllerDefault = createFileBrowserController();
+    controllerDefault.handle({ type: "pointerdown", point: { x: 5, y: RICH_ROW_HEIGHT + 2 }, rect: richRect, rows: ROWS, offset: 0 });
+    const defaultResult = controllerDefault.handle({ type: "pointerup", dragged: false });
+    assert.notEqual(defaultResult.value, 1);
 });
 
 test("a drag scrolls instead of selecting, and never reports a value", () => {
@@ -157,6 +177,48 @@ test("fileBrowser indents by level and skips the icon when its asset does not re
     assert.equal(ctx.calls.some(c => c[0] === "drawImage"), false, "no asset resolved, so nothing is blitted");
     assert.equal(assets.font.writes.length, 2);
     assert.ok(assets.font.writes[1].x > assets.font.writes[0].x, "the deeper row's title starts further right, by level and by its own reserved icon column");
+});
+
+// Spec 080 (deep-parity-audit item 7): a richRows node draws two lines plus
+// a colored format chip - v1's own real Songs/Samples/Playlists rows.
+test("a richRows node draws a taller row (fewer fit the same rect), a dimmed subtitle line, and a format chip", () => {
+    const plainAssets = fakeAssets();
+    drawKind("fileBrowser").draw(fakeCtx(), plainAssets, null, RECT, "", {
+        rows: Array.from({ length: 10 }, (_, i) => ({ title: `row ${i}` })), offset: 0, selectedIndex: -1
+    });
+    const plainVisibleCount = plainAssets.font.writes.length;
+
+    const richAssets = fakeAssets();
+    const richCtx = fakeCtx();
+    const rows = [{ title: "Stardust Memories", subtitle: "Jester · 1992", format: "mod" }];
+    assert.doesNotThrow(() => drawKind("fileBrowser").draw(richCtx, richAssets, null, RECT, "", { rows, offset: 0, selectedIndex: -1 }, { richRows: true }));
+
+    // Fewer rich rows fit the same rect than plain rows do (RICH_ROW_HEIGHT > ROW_HEIGHT).
+    const richAssetsFull = fakeAssets();
+    drawKind("fileBrowser").draw(fakeCtx(), richAssetsFull, null, RECT, "", {
+        rows: Array.from({ length: 10 }, (_, i) => ({ title: `row ${i}` })), offset: 0, selectedIndex: -1
+    }, { richRows: true });
+    assert.ok(richAssetsFull.font.writes.length < plainVisibleCount, "fewer rich rows fit the same rect height");
+
+    // The chip's own text, the title and the subtitle are all written.
+    assert.equal(richAssets.font.writes.length, 3, "chip text ('MOD') + title + dimmed subtitle");
+    const chipWrite = richAssets.font.writes.find(w => w.text === "MOD");
+    const titleWrite = richAssets.font.writes.find(w => w.text === "Stardust Memories");
+    const subtitleWrite = richAssets.font.writes.find(w => w.text === "Jester · 1992");
+    assert.ok(chipWrite && titleWrite && subtitleWrite, "all three pieces of text are drawn");
+    assert.ok(subtitleWrite.y > titleWrite.y, "the subtitle sits on a lower line than the title");
+
+    // The format chip is a colored fillRect, drawn before the title/subtitle text.
+    assert.ok(richCtx.calls.some(c => c[0] === "fillStyle" && c[1] === "#4a9eff"), "mod's own chip color is used");
+    assert.ok(richCtx.calls.some(c => c[0] === "fillRect"), "the chip itself is a filled rect");
+});
+
+test("a plain (non-richRows) node ignores subtitle/format on a row - only title/info are drawn", () => {
+    const assets = fakeAssets();
+    const rows = [{ title: "Stardust Memories", subtitle: "Jester · 1992", format: "mod" }];
+    drawKind("fileBrowser").draw(fakeCtx(), assets, null, RECT, "", { rows, offset: 0, selectedIndex: -1 });
+    assert.equal(assets.font.writes.length, 1, "no subtitle line without richRows");
+    assert.equal(assets.font.writes[0].text, "Stardust Memories");
 });
 
 test("fileBrowser highlights the selected row and tolerates an out-of-range selectedIndex", () => {

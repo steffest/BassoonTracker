@@ -2,34 +2,49 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * patternColumn — UI structure generated from components/editPad.yaml:31.
+ * patternColumn — UI structure generated from components/editPad.yaml:62.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function patternColumn() {
-    return component("panel", { id: "main.normalMainView.patternSection.patternSectionDefault.editPad.patternColumn", name: "patternColumn", layout: { direction: "column" } }, [
-        component("label", { id: "main.normalMainView.patternSection.patternSectionDefault.editPad.patternColumn.label.Pattern", label: "Pattern" }),
-        // action (components/editPad.yaml:42) on click -> pattern.clear, lazy feature actions/patternClear.js (generated mock)
+    return component("panel", { id: "main.normalMainView.patternSection.patternLeftColumn.editPad.patternColumn", name: "patternColumn", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 63 }, direction: "column", padding: 0, gap: 0, offsetY: 23 }, style: "transparent" }, [
+        // style -> label/editPadHeader (skin/default.yaml:1016)
+        component("label", {
+            id: "main.normalMainView.patternSection.patternLeftColumn.editPad.patternColumn.label.↓Pattern",
+            label: "↓Pattern",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 8 }, position: "absolute", left: 6, top: -14 },
+            style: "editPadHeader"
+        }),
+        // style -> button/editPad (skin/default.yaml:272)
+        // action (components/editPad.yaml:91) on click -> pattern.clear, lazy feature actions/patternClear.js (generated mock)
         component("button", {
-            id: "main.normalMainView.patternSection.patternSectionDefault.editPad.patternColumn.patternClear",
+            id: "main.normalMainView.patternSection.patternLeftColumn.editPad.patternColumn.patternClear",
             name: "patternClear",
             label: "Clear",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 21 } },
+            style: "editPad",
             tooltip: "Clear the current pattern",
             on: { "click": (app, detail) => app.feature(() => import("../actions/patternClear.js"), m => m.patternClear(app, detail)) }
         }),
-        // action (components/editPad.yaml:48) on click -> pattern.copy, lazy feature actions/patternCopy.js (generated mock)
+        // style -> button/editPad (skin/default.yaml:272)
+        // action (components/editPad.yaml:101) on click -> pattern.copy, lazy feature actions/patternCopy.js (generated mock)
         component("button", {
-            id: "main.normalMainView.patternSection.patternSectionDefault.editPad.patternColumn.patternCopy",
+            id: "main.normalMainView.patternSection.patternLeftColumn.editPad.patternColumn.patternCopy",
             name: "patternCopy",
             label: "Copy",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 21 } },
+            style: "editPad",
             tooltip: "Copy the current pattern",
             on: { "click": (app, detail) => app.feature(() => import("../actions/patternCopy.js"), m => m.patternCopy(app, detail)) }
         }),
-        // action (components/editPad.yaml:54) on click -> pattern.paste, lazy feature actions/patternPaste.js (generated mock)
+        // style -> button/editPad (skin/default.yaml:272)
+        // action (components/editPad.yaml:111) on click -> pattern.paste, lazy feature actions/patternPaste.js (generated mock)
         component("button", {
-            id: "main.normalMainView.patternSection.patternSectionDefault.editPad.patternColumn.patternPaste",
+            id: "main.normalMainView.patternSection.patternLeftColumn.editPad.patternColumn.patternPaste",
             name: "patternPaste",
             label: "Paste",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 21 } },
+            style: "editPad",
             tooltip: "Paste the current pattern",
             on: { "click": (app, detail) => app.feature(() => import("../actions/patternPaste.js"), m => m.patternPaste(app, detail)) }
         })

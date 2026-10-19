@@ -43,11 +43,10 @@ function readRIFFsample(file,sample,next){
 
 import {BinaryStream} from "../filesystem.js";
 
-export function encodeRIFFsample(sampleData, bits){
+export function encodeRIFFsample(sampleData, bits, sampleRate = 8000){
 
 	var length = sampleData.length;
 
-	var sampleRate = 8000; // how can we know this from raw samples?
 	var byteRate = sampleRate;
 
 	if (bits === 16){

@@ -2,7 +2,7 @@
 import { toggleHelpBubbles as implementation } from "../../domain/settings/index.js";
 
 /**
- * help-bubbles.toggle — generated from components/optionsPanel.yaml:168: "toggle-generic".
+ * help-bubbles.toggle — generated from components/optionsPanel.yaml:470: "toggle-generic".
  * Implemented by ./domain/settings/index.js#toggleHelpBubbles (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

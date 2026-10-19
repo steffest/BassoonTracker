@@ -3,12 +3,12 @@ import { component } from "../../runtime/components.js";
 import { diskOperationsGrid } from "./diskOperationsGrid.js";
 
 /**
- * fileOperationsPanel — UI structure generated from components/fileOperationsPanel.yaml:1. Referenced from components/songProperties.yaml:164.
+ * fileOperationsPanel — UI structure generated from components/fileOperationsPanel.yaml:1. Referenced from components/songProperties.yaml:274.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function fileOperationsPanel() {
-    return component("panel", { id: "main.normalMainView.songProperties.fileOperationsPanel", name: "fileOperationsPanel", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" }, visibleWhen: {"field":"song-properties-view.value","oneOf":["File Operations"]} }, [
+    return component("panel", { id: "main.songProperties.fileOperationsPanel", name: "fileOperationsPanel", layout: { width: { mode: "fill" }, height: { mode: "fill" }, position: "absolute", left: 0, top: 0 }, style: "mainStripLayered", visibleWhen: {"field":"song-properties-view.value","oneOf":["File Operations"]} }, [
         diskOperationsGrid()
     ]);
 }

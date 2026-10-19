@@ -2,7 +2,7 @@
 import { showMain as implementation } from "../../domain/nibbles/index.js";
 
 /**
- * main.show — generated from app.yaml:95: "verb-action".
+ * main.show — generated from app.yaml:155: "verb-action".
  * Implemented by ./domain/nibbles/index.js#showMain (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

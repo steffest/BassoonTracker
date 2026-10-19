@@ -2,7 +2,7 @@
 import { exportPlaylistSelection as implementation } from "../../domain/playlist/index.js";
 
 /**
- * play-list.export — generated from components/fileOperationsPanel.yaml:181: "verb-action".
+ * play-list.export — generated from components/fileOperationsPanel.yaml:470: "verb-action".
  * Implemented by ./domain/playlist/index.js#exportPlaylistSelection (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

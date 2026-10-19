@@ -312,3 +312,35 @@ test("exportPlayList resolves to play-list.export, the same noun spec 063's rand
     assert.equal(result.supported, true);
     assert.equal(result.binding.command, "play-list.export");
 });
+
+// Spec 072: the pattern sidebar's transport row needs a new verb-action
+// verb, "play" (confirmed unsupported before this spec - "play previous
+// track"/"play next track" matched none of the three recipes).
+test("verb-action's spec-072 addition (play) resolves playPreviousTrack/playNextTrack", () => {
+    const prev = interpretAction(actionNameAsProse("playPreviousTrack"));
+    assert.equal(prev.supported, true);
+    assert.equal(prev.binding.command, "previous-track.play");
+    assert.equal(prev.binding.mockField, null);
+
+    const next = interpretAction(actionNameAsProse("playNextTrack"));
+    assert.equal(next.supported, true);
+    assert.equal(next.binding.command, "next-track.play");
+});
+
+test("toggleShuffle resolves via toggle-generic as-is, no new verb needed", () => {
+    const result = interpretAction(actionNameAsProse("toggleShuffle"));
+    assert.equal(result.supported, true);
+    assert.equal(result.binding.command, "shuffle.toggle");
+    assert.deepEqual(result.binding.mockValues, [false, true]);
+});
+
+// Spec 072: the Shuffle button's own highlight rule needs the same
+// bare-single-word CONDITION_FIELD_ALIASES seam wrap/grid already needed
+// (spec 049) - deriveMockFieldName("shuffle") produces the bare field
+// "shuffle", but toggleShuffle's own binding above writes "shuffle.active".
+test("the shuffle alias agrees with what toggleShuffle actually writes", () => {
+    const rule = interpretRule(null, "highlighted when shuffle is active");
+    assert.equal(rule.supported, true);
+    assert.equal(rule.binding.mockField, "shuffle.active");
+    assert.equal(rule.binding.activeValue, true);
+});

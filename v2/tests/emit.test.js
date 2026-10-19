@@ -64,7 +64,10 @@ test("generated UI builds the same tree as the outline minus unsupported nodes, 
     const outlineSupported = flatten(compiled.root).filter(n => n.supported !== false).map(n => n.id);
     assert.deepEqual(ids, outlineSupported, "same ids in the same order, unsupported nodes omitted");
     assert.ok(!ids.some(id => /volume meter|notification light/.test(id)), "placeholders are gone");
-    assert.ok(ids.some(id => id === "main.top.menu"), "menu is implemented as of spec 023, so it is rendered now");
+    // Spec 083: the menu now sits inside its own real background panel
+    // ("menu bar"), matching v1's own real structure - a separate element,
+    // not the menu's own style.
+    assert.ok(ids.some(id => id === "main.top.menu bar.menu"), "menu is implemented as of spec 023, so it is rendered now");
     const play = flatten(root).find(n => n.id === "main.controlBar.button.Play");
     assert.equal(typeof play.highlightedWhen, "function");
     // Spec 014: one hook per authored event, so a `change` action can no
@@ -84,13 +87,20 @@ test("generated UI builds the same tree as the outline minus unsupported nodes, 
     const tracks = flatten(root).find(n => n.type === "spinBox");
     assert.ok(tracks, "the authored spin box is rendered now that it is implemented");
     const controlBar = flatten(root).find(n => n.id === "main.controlBar");
-    assert.deepEqual(controlBar.layout, { width: { mode: "fill" }, height: { mode: "fixed", size: 28 } });
-    assert.deepEqual(flatten(root).find(n => n.id === "main.normalMainView.songProperties").layout, { width: { mode: "fill" }, height: { mode: "fixed", size: 220 }, direction: "column", resizable: "horizontal" });
+    // Spec 078: bumped to v1's own real controlPanelHeight (40), giving
+    // Play/Record real room to be bigger than an ordinary button.
+    assert.deepEqual(controlBar.layout, { width: { mode: "fill" }, height: { mode: "fixed", size: 40 } });
+    const songProperties = flatten(root).find(n => n.id === "main.songProperties");
+    assert.deepEqual(songProperties.layout, { width: { mode: "fill" }, height: { mode: "fixed", size: 160 }, direction: "column", resizable: "horizontal" });
+    const logo = flatten(root).find(n => n.id === "main.songProperties.logoBanner");
+    const trackerBanner = flatten(root).find(n => n.id === "main.songProperties.trackerBanner");
+    assert.deepEqual(logo.layout, { width: { mode: "col2Exact" }, height: { mode: "fixed", size: 50 }, position: "absolute", left: "columnMargin", top: 4 });
+    assert.deepEqual(trackerBanner.layout, { width: { mode: "col1" }, height: { mode: "fixed", size: 50 }, position: "absolute", left: "col3Left", top: 4 });
     // Spec 025: controlBar owns its own UI module (a panel with children),
     // and its breakpoints must survive that path too, not only an inline
     // child's (emit.js has two separate node-building code paths).
     assert.deepEqual(controlBar.breakpoints, [{ maxWidth: 650, layout: { height: { mode: "fixed", size: 160 }, direction: "column" } }]);
-    const optionsPanel = flatten(root).find(n => n.id === "main.normalMainView.songProperties.optionsPanel");
+    const optionsPanel = flatten(root).find(n => n.id === "main.songProperties.optionsPanel");
     assert.deepEqual(optionsPanel.visibleWhen, { field: "song-properties-view.value", oneOf: ["Options"] });
 });
 
@@ -124,6 +134,119 @@ test("disabledWhen is also generated for a module-owning container's own root, n
     const emitted = emitApplication(compiled, { libraryBase: "..", capabilities: {} });
     const text = emitted.files.get("ui/main.js");
     assert.match(text, /disabledWhen: state => state\.get\("ft-mode\.active"\) !== true/);
+});
+
+test("label is also generated for a module-owning container's own root, not only an inline child (spec 073)", async () => {
+    // The identical gap spec 025 (breakpoints/visibleWhen) and spec 050
+    // (highlightedWhen/disabledWhen) each already found and fixed once for
+    // this same "two separate node-construction paths" reason, recurring
+    // for label/labelVariants - patternSidebar.yaml's own three tabPanel
+    // items (songsTab/samplesTab/playlistsTab, each a module-owning panel)
+    // each carry an authored `label:`, and every one of them rendered its
+    // own raw node name ("SONGSTAB") instead until this fix, confirmed live
+    // in a real browser.
+    const { main } = await import(pathToFileURL(join(OUT, "ui/main.js")).href);
+    const root = main();
+    const nodes = flatten(root);
+    assert.deepEqual(nodes.find(n => n.id.endsWith(".songsTab")).labelVariants, ["Songs"]);
+    assert.deepEqual(nodes.find(n => n.id.endsWith(".samplesTab")).labelVariants, ["Samples"]);
+    assert.deepEqual(nodes.find(n => n.id.endsWith(".playlistsTab")).labelVariants, ["Playlists"]);
+});
+
+test("label emission for a module-owning root matches nodeExpression()'s own logic exactly, including the empty-label case (spec 073)", () => {
+    const rootNode = {
+        id: "root", type: "panel", definitionName: "myPanel", labelVariants: ["Custom Label"],
+        layout: {}, children: [], bindings: [],
+        supported: true, source: { file: "test.yaml", range: null }, refSource: null
+    };
+    const compiled = { root: rootNode, skin: { styles: {}, source: null }, diagnostics: [], hardFailure: false, sourceFiles: [] };
+    const emitted = emitApplication(compiled, { libraryBase: "..", capabilities: {} });
+    assert.match(emitted.files.get("ui/main.js"), /label: "Custom Label"/);
+
+    const emptyLabelNode = {
+        id: "root", type: "panel", definitionName: "myPanel", labelVariants: [],
+        layout: {}, children: [], bindings: [],
+        supported: true, source: { file: "test.yaml", range: null }, refSource: null
+    };
+    const compiledEmpty = { root: emptyLabelNode, skin: { styles: {}, source: null }, diagnostics: [], hardFailure: false, sourceFiles: [] };
+    const emittedEmpty = emitApplication(compiledEmpty, { libraryBase: "..", capabilities: {} });
+    assert.match(emittedEmpty.files.get("ui/main.js"), /label: \[\]/);
+});
+
+test("style is also generated for a module-owning container's own root, not only an inline child (spec 083's own pixel-parity follow-up)", () => {
+    // The identical gap spec 025 (breakpoints/visibleWhen), spec 050
+    // (highlightedWhen/disabledWhen) and spec 073 (label/labelVariants) each
+    // already found and fixed once for this same "two separate
+    // node-construction paths" reason, recurring for a fourth property -
+    // app.yaml's own "menu bar" panel (the first module-owning panel to
+    // ever author a non-default `variant:`) rendered with the generic
+    // default panel style/asset instead, with no diagonal-cut menu artwork
+    // at all - confirmed live in a real browser.
+    const rootNode = {
+        id: "root", type: "panel", definitionName: "menu bar", labelVariants: ["menu bar"],
+        layout: {}, children: [], bindings: [],
+        style: { type: "panel", variant: "menuBar", requested: "menuBar", source: null, inheritedFrom: null, definition: null },
+        supported: true, source: { file: "test.yaml", range: null }, refSource: null
+    };
+    const compiled = { root: rootNode, skin: { styles: {}, source: null }, diagnostics: [], hardFailure: false, sourceFiles: [] };
+    const emitted = emitApplication(compiled, { libraryBase: "..", capabilities: {} });
+    assert.match(emitted.files.get("ui/main.js"), /style: "menuBar"/);
+});
+
+test("the real menu bar panel carries its own \"menuBar\" style at runtime, not just at compile time (spec 083's own pixel-parity follow-up)", async () => {
+    const { main } = await import(pathToFileURL(join(OUT, "ui/main.js")).href);
+    const root = main();
+    const menuBar = flatten(root).find(n => n.id === "main.top.menu bar");
+    assert.equal(menuBar.style.variant, "menuBar");
+});
+
+test("the real menu bar panel's own width is v1's real viewport-relative \"col2\" formula, not a fixed approximation (spec 083's own pixel-parity follow-up)", async () => {
+    // A flat pixel constant was tried first and rejected once it was
+    // measured against v1's own real, viewport-relative
+    // `Math.max(Layout.col2W, 250)` and found not to actually be pixel
+    // parity at any window width other than the one it was eyeballed
+    // against - see runtime/genericLayout.js's own col2Width().
+    const { main } = await import(pathToFileURL(join(OUT, "ui/main.js")).href);
+    const root = main();
+    const menuBar = flatten(root).find(n => n.id === "main.top.menu bar");
+    assert.equal(menuBar.layout.width.mode, "col2");
+});
+
+test("the real Play button emits its exact responsive formula and icon-only skin variant", async () => {
+    const { main } = await import(pathToFileURL(join(OUT, "ui/main.js")).href);
+    const root = main();
+    const play = flatten(root).find(n => n.id === "main.controlBar.button.Play");
+    assert.equal(play.style.variant, "play");
+    assert.equal(play.layout.position, "absolute");
+    assert.equal(play.layout.left, "columnMargin");
+    assert.equal(play.layout.offsetX, "selfWidth");
+    assert.equal(play.layout.width.mode, "col1Third");
+    assert.deepEqual(play.breakpoints, [{ maxWidth: 649, layout: { width: { mode: "col2HalfThird" }, height: { mode: "fixed", size: 34 } } }]);
+});
+
+test("the real Record button emits its exact responsive formula and icon-only skin variant", async () => {
+    const { main } = await import(pathToFileURL(join(OUT, "ui/main.js")).href);
+    const root = main();
+    const record = flatten(root).find(n => n.id === "main.controlBar.button.record");
+    assert.equal(record.style.variant, "record");
+    assert.equal(record.layout.position, "absolute");
+    assert.equal(record.layout.left, "columnMargin");
+    assert.equal(record.layout.offsetX, "2selfWidth");
+    assert.equal(record.layout.width.mode, "col1Third");
+    assert.deepEqual(record.breakpoints, [{ maxWidth: 649, layout: { width: { mode: "col2HalfThird" }, height: { mode: "fixed", size: 34 } } }]);
+});
+
+test("an inputbox authored with a change action but no explicit field also gets its compile-time-resolved field emitted (spec 073, the third confirmed instance of the same gap)", async () => {
+    // patternSidebar.yaml's own sample-search box: no explicit `field:`,
+    // relying on setSampleSearch's own recipe-derived "sample-search.value" -
+    // without this fix the runtime node's own field was undefined, so
+    // mountGeneric.js's own textOf() fell back to labelText(node) (the bare
+    // node name, "sampleSearchBox") instead of ever reading the bound field,
+    // and the draw kind's own placeholder branch was never reached (found
+    // live: the search box showed "SAMPLESEARCHBOX" instead of "Search").
+    const { main } = await import(pathToFileURL(join(OUT, "ui/main.js")).href);
+    const searchBox = flatten(main()).find(n => n.id.endsWith(".sampleSearchBox"));
+    assert.equal(searchBox.field, "sample-search.value");
 });
 
 test("generated state seeds command fields from the command's first mock value, not the visual-state fallback", async () => {
@@ -211,14 +334,25 @@ test("loose ends cover every warning once and say what the build did", () => {
     // Counts are lower bounds: the authored application grows, the mapping
     // from a warning to a loose-end kind is what this pins down.
     const kinds = emitted.looseEnds.map(e => e.kind);
-    assert.ok(kinds.filter(k => k === "unsupported-node").length >= 2, "the two notification lights (menu is implemented as of spec 023, volume meter as of spec 054)");
+    // Spec 083 implemented the last two placeholders this application ever
+    // had (the notification lights) - zero unsupported nodes remain
+    // anywhere in the real app.yaml tree, a real, expected drop from the
+    // "menu"/"volumemeter" examples this assertion's own history cites.
+    assert.equal(kinds.filter(k => k === "unsupported-node").length, 0, "no unsupported nodes remain anywhere in the app");
     assert.ok(kinds.filter(k => k === "mocked-command").length >= 1);
     assert.ok(kinds.filter(k => k === "inert-control").length >= 2);
-    assert.ok(kinds.filter(k => k === "unresolved-rule").length >= 2);
+    // Spec 083 also removed the last two unresolved-rule warnings in the
+    // whole app (the notification lights' own freeform "lights when..."
+    // prose, replaced by a real visibleWhen plus the notificationLight
+    // type's own signal-polling draw kind).
+    assert.equal(kinds.filter(k => k === "unresolved-rule").length, 0, "no unresolved rules remain anywhere in the app");
     assert.ok(kinds.filter(k => k === "unresolved-action-reference").length >= 2);
     assert.equal(kinds.filter(k => k === "unsupported-component").length, 0, "covered by the omitted-node entries");
     assert.equal(kinds.filter(k => k === "unresolved-component-reference").length, 0, "covered by the omitted-node entries");
-    assert.ok(kinds.filter(k => k === "empty-container").length >= 1, "notifications lost both children");
+    // Spec 083: "notifications" no longer loses both children - they're
+    // real, supported nodes now, not unsupported placeholders - so no
+    // empty-container loose end remains anywhere in the app either.
+    assert.equal(kinds.filter(k => k === "empty-container").length, 0, "no empty containers remain anywhere in the app");
     for (const e of emitted.looseEnds) {
         assert.match(e.where, /\.yaml:\d+$/, "every loose end points at a source line");
         assert.ok(e.did.length > 0);

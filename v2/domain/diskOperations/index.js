@@ -30,12 +30,14 @@ import { setPlaylist, openPlaylistUrl } from "../playlist/index.js";
 // only one, so one hardcoded id is simpler and no less correct than a
 // lookup nothing else would use (contrast domain/playback's STATE_FIELDS,
 // shared by several read/write sites).
-const BROWSER_ROWS_FIELD = rowsFieldOf({ id: "main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser" });
+const BROWSER_ROWS_FIELD = rowsFieldOf({ id: "main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser" });
 // Derived by compiler/recipes.js's "set-value" recipe from the authored
 // action name `setDiskTarget` ("set disk target" -> "disk-target.set"/
 // ".value"), the same way every other radioGroup's own field already is -
 // see domain/settings/index.js's own SETTINGS_FIELDS table for the precedent.
 const DISK_TARGET_FIELD = "disk-target.value";
+const DISK_ACTION_FIELD = "disk-action.value";
+const DISK_TYPE_FIELD = "disk-type.value";
 
 const MODULES_JSON_PATH = "data/modules.json";
 const PLAYLISTS_JSON_PATH = "data/playlists.json";
@@ -132,16 +134,34 @@ function publish(app) {
  * The target radioGroup's `change` capability. Switches which cached tree
  * the fileBrowser shows, fetching the local snapshot on its first use.
  */
-const TARGETS = ["Bassoon", "ModArchive", "Modules.pl", "Playlists", "Hippo"];
+const TARGETS = ["Bassoon", "ModArchive", "Modules.pl", "HippoPlayer.se", "Dropbox", "local", "Playlists", "Hippo"];
+
+export async function setDiskAction(app, detail) {
+    const action = detail && detail.value;
+    if (!app?.state || !["Load", "Save"].includes(action)) return;
+    app.state.set(DISK_ACTION_FIELD, action);
+    await setDiskTarget(app, { value: action === "Save" ? "local" : "Bassoon" });
+}
+
+export async function setDiskType(app, detail) {
+    const type = detail && detail.value;
+    if (!app?.state || !["Module", "Sample", "Playlist"].includes(type)) return;
+    app.state.set(DISK_TYPE_FIELD, type);
+    await setDiskTarget(app, { value: app.state.get(DISK_ACTION_FIELD) === "Save" ? "local" : "Bassoon" });
+}
 
 export async function setDiskTarget(app, detail) {
-    const target = detail && detail.value;
-    if (!TARGETS.includes(target)) return;
+    const authoredTarget = detail && detail.value;
+    if (!TARGETS.includes(authoredTarget)) return;
+    const type = app?.state?.get(DISK_TYPE_FIELD) || "Module";
+    const target = authoredTarget === "HippoPlayer.se" ? "Hippo"
+        : type === "Playlist" && authoredTarget === "Bassoon" ? "Playlists"
+        : authoredTarget;
     currentTarget = target;
     await rootFor(app, target);
-    if (app && app.state) app.state.set(DISK_TARGET_FIELD, target);
+    if (app && app.state) app.state.set(DISK_TARGET_FIELD, authoredTarget);
     publish(app);
-    if (app && app.log) app.log("disk-target.set", { [DISK_TARGET_FIELD]: target });
+    if (app && app.log) app.log("disk-target.set", { [DISK_TARGET_FIELD]: authoredTarget });
 }
 
 /**
@@ -189,7 +209,7 @@ export async function setBrowserRow(app, detail) {
     }
     if (currentTarget === "Hippo") {
         const data = await browseHippo(`playlist/${node.url}`);
-        if (data && Array.isArray(data.modules)) setPlaylist(data);
+        if (data && Array.isArray(data.modules)) setPlaylist(data, app);
         return;
     }
 

@@ -50,6 +50,14 @@ export function loadCanvasAssets(skinModel, skinBase) {
                     chars: config.chars,
                     onlyUpperCase: config.onlyUpperCase
                 });
+                if (name === "small") {
+                    font.generateColor("blue", "rgba(15,118,122,0.7)");
+                    font.generateColor("orange", "rgba(161, 82, 0,0.9)");
+                    font.generateColor("green", "rgba(80, 140, 0,0.9)");
+                } else if (name === "med" || name === "superCondensed") {
+                    font.generateColor("green", "rgba(80, 140, 0,0.9)");
+                    font.generateColor("orange", "rgba(161, 82, 0,0.9)");
+                }
                 fonts[name] = font;
             }
             const defaultFontName = Object.keys(fonts)[0];

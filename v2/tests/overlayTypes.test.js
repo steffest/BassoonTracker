@@ -119,10 +119,20 @@ test("dropdownPopup measures its width like listbox, but its height to the item 
     assert.ok(few.height < many.height);
 });
 
-test("submenu draws a hover tint, a disabled dim, and a \">\" for a subItems-bearing row, without throwing", () => {
+test("submenu draws a hover tint, a disabled dim, and a \">\" for a nested menuTrigger row, without throwing", () => {
     const rect = { x: 0, y: 0, width: 120, height: 78 };
-    const node = { children: [{ id: "a" }, { id: "b", subItems: [{}] }, { id: "c" }] };
-    const state = { hoverItemRect: { x: 0, y: 26, width: 120, height: 26 }, itemDisabled: [false, false, true] };
+    // "b" is a nested submenu's own synthesized trigger (spec 023's
+    // synthesizeMenuTriggers, popupEdge "right") - the real shape the
+    // compiled tree gives this draw kind, not the never-set `subItems` this
+    // test used to fake (spec 083's own pixel-parity follow-up: that check
+    // never matched anything real, so the arrow never drew for any item).
+    const node = { children: [{ id: "a" }, { id: "b", type: "menuTrigger", popupEdge: "right" }, { id: "c" }] };
+    const itemRects = [
+        { x: 0, y: 0, width: 120, height: 26 },
+        { x: 0, y: 26, width: 120, height: 26 },
+        { x: 0, y: 52, width: 120, height: 26 }
+    ];
+    const state = { hoverItemRect: itemRects[1], itemDisabled: [false, false, true], itemRects };
     assert.doesNotThrow(() => drawKind("submenu").draw(fakeCtx(), fakeAssets(), null, rect, "", state, node));
     const ctx = fakeCtx();
     drawKind("submenu").draw(ctx, fakeAssets(), null, rect, "", state, node);

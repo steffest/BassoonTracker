@@ -53,6 +53,8 @@ export default {
 
     // Spec 036: the disk-operation screen's own fileBrowser (spec 035) and
     // its target radioGroup, backed by domain/diskOperations/index.js.
+    "disk-action.set": { module: "./domain/diskOperations/index.js", export: "setDiskAction" },
+    "disk-type.set": { module: "./domain/diskOperations/index.js", export: "setDiskType" },
     "disk-target.set": { module: "./domain/diskOperations/index.js", export: "setDiskTarget" },
     "browser-row.set": { module: "./domain/diskOperations/index.js", export: "setBrowserRow" },
 
@@ -63,6 +65,22 @@ export default {
     "song.random": { module: "./domain/randomSong/index.js", export: "openRandomSong" },
     "song-xm.random": { module: "./domain/randomSong/index.js", export: "openRandomSongXM" },
     "play-list.random": { module: "./domain/playlist/index.js", export: "openGeneratedPlaylist" },
+
+    // Spec 072: the pattern sidebar's own Songs/Playlists tabs and transport
+    // row. "sidebar-collapse.toggle" (the sidebar's own show/hide button)
+    // is deliberately left unmapped - pure UI state, the generated mock's
+    // own field-cycling behavior is the whole, correct implementation.
+    "sidebar-song.set": { module: "./domain/playlist/index.js", export: "setSidebarSongRow" },
+    "sidebar-tab.set": { module: "./domain/playlist/index.js", export: "activateSidebarTab" },
+    "sidebar-playlist.set": { module: "./domain/playlist/index.js", export: "setSidebarPlaylistRow" },
+    "previous-track.play": { module: "./domain/playlist/index.js", export: "previousTrack" },
+    "next-track.play": { module: "./domain/playlist/index.js", export: "nextTrack" },
+    "shuffle.toggle": { module: "./domain/playlist/index.js", export: "toggleShuffle" },
+
+    // Spec 073: the pattern sidebar's own Samples tab.
+    "sample-search.set": { module: "./domain/sampleCatalog/index.js", export: "setSampleCatalogSearch" },
+    "sample-row.set": { module: "./domain/sampleCatalog/index.js", export: "setSampleCatalogRow" },
+    "sample-row-in-editor.open": { module: "./domain/sampleCatalog/index.js", export: "openSampleCatalogRowInEditor" },
 
     // Spec 070's own UI-alignment pass (step 6, correcting step 4's own
     // mistaken assumption): v1's control bar has three genuinely
@@ -81,8 +99,9 @@ export default {
 
     // Spec 067: the save/export screen - the sample/playlist format
     // radioGroups and their own "Export Sample"/"Export Playlist" buttons.
-    // "save-type.set"/"disk-action.set" are deliberately left mocked (pure
-    // UI state, the same as pattern-view.set).
+    // "save-type.set" remains pure generated UI state. Disk action/type are
+    // now capability-backed because their combination selects v1's distinct
+    // target lists (spec 099).
     "sample-format.set": { module: "./domain/moduleExport/index.js", export: "setSampleExportFormat" },
     "sample.export": { module: "./domain/moduleExport/index.js", export: "exportSampleSelection" },
     "playlist-format.set": { module: "./domain/playlist/index.js", export: "setPlaylistExportFormat" },

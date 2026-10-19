@@ -3,6 +3,7 @@ import Y from '../yascal/yascal.js';
 import Scale9Panel from "./scale9.js";
 import Assets from "../assets.js";
 import Font from "../font.js";
+import UI from "../ui.js";
 
 export default class ListBox extends UIElement {
     _items = [];
@@ -24,6 +25,16 @@ export default class ListBox extends UIElement {
     _scrollBar;
 
     centerSelection = false;
+
+    // drag-to-reorder: when set, a mouse-down inside dragHandleArea (row-local
+    // {x,y,width,height}) moves the item instead of scrolling the list; onReorder
+    // is called once with the final (fromIndex, toIndex) when the drag ends.
+    reorderable      = false;
+    dragHandleArea   = null;
+    onReorder        = null;
+    _isReordering    = false;
+    _reorderFromIndex = -1;
+    _reorderIndex    = -1;
 
     constructor(x, y, w, h) {
         super(x, y, w, h);
@@ -142,9 +153,14 @@ export default class ListBox extends UIElement {
     clearCache() { this._itemCache = []; }
     getItems()   { return this._items; }
 
-    getItemAtPosition(x, y) {
+    getIndexAtPosition(x, y) {
         const index = Math.floor((y - this._startY) / this._lineHeight) + this._visibleIndex;
-        return (index >= 0 && index < this._items.length) ? this._items[index] : undefined;
+        return (index >= 0 && index < this._items.length) ? index : undefined;
+    }
+
+    getItemAtPosition(x, y) {
+        const index = this.getIndexAtPosition(x, y);
+        return index === undefined ? undefined : this._items[index];
     }
 
     insertItemAfterIndex(newItem, index, indent) {}
@@ -159,9 +175,43 @@ export default class ListBox extends UIElement {
 
     onDragStart(touchData) {
         this._startDragIndex = this._visibleIndex;
+        this._isReordering   = false;
+
+        if (this.reorderable && this.dragHandleArea) {
+            const index = this.getIndexAtPosition(touchData.startX, touchData.startY);
+            if (index !== undefined) {
+                const area   = this.dragHandleArea;
+                const rowY   = (touchData.startY - this._startY) - ((index - this._visibleIndex) * this._lineHeight);
+                if (touchData.startX >= area.x && touchData.startX <= area.x + area.width &&
+                    rowY >= area.y && rowY <= area.y + area.height) {
+                    this._isReordering     = true;
+                    this._reorderFromIndex = index;
+                    this._reorderIndex     = index;
+                    this.setSelectedIndex(index, true);
+                    UI.setCursor("move");
+                }
+            }
+        }
     }
 
     onDrag(touchData) {
+        if (this._isReordering) {
+            let index = this.getIndexAtPosition(touchData.x, touchData.y);
+            if (index === undefined) {
+                const rawIndex = Math.floor((touchData.y - this._startY) / this._lineHeight) + this._visibleIndex;
+                index = Math.max(0, Math.min(this._items.length - 1, rawIndex));
+            }
+            if (index !== this._reorderIndex) {
+                const [moved] = this._items.splice(this._reorderIndex, 1);
+                this._items.splice(index, 0, moved);
+                this._reorderIndex  = index;
+                this._selectedIndex = index;
+                this._itemCache     = [];
+                this.refresh();
+            }
+            return;
+        }
+
         if (this._items.length > this._visibleItems) {
             const delta = Math.round(touchData.deltaY / this._lineHeight);
             this._visibleIndex = this._startDragIndex - delta;
@@ -176,11 +226,33 @@ export default class ListBox extends UIElement {
         }
     }
 
+    onTouchUp() {
+        if (this._isReordering) {
+            this._isReordering = false;
+            const fromIndex = this._reorderFromIndex;
+            const toIndex   = this._reorderIndex;
+            this._reorderFromIndex = -1;
+            this._reorderIndex     = -1;
+            UI.setCursor("default");
+            if (toIndex !== fromIndex && this.onReorder) {
+                this.onReorder(fromIndex, toIndex);
+            }
+        }
+    }
+
     onHover() {
         const index = Math.floor((this.eventY - this._startY) / this._lineHeight);
         if (index !== this._hoverIndex) {
             this._hoverIndex = index;
             this.refresh();
+        }
+
+        if (this.reorderable && this.dragHandleArea && !this._isReordering) {
+            const area  = this.dragHandleArea;
+            const rowY  = (this.eventY - this._startY) - (index * this._lineHeight);
+            const overHandle = this.eventX >= area.x && this.eventX <= area.x + area.width &&
+                                rowY >= area.y && rowY <= area.y + area.height;
+            UI.setCursor(overHandle ? "move" : "default");
         }
     }
 
@@ -188,6 +260,9 @@ export default class ListBox extends UIElement {
         if (this._hoverIndex !== undefined) {
             this._hoverIndex = undefined;
             this.refresh();
+        }
+        if (this.reorderable && this.dragHandleArea && !this._isReordering) {
+            UI.setCursor("default");
         }
     }
 

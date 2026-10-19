@@ -54,16 +54,16 @@ test("with the real seeded defaults, normalMainView, the pattern section's defau
     const { rects } = layout({});
     assert.ok(rects.get("main.normalMainView"), "always present now - no visibleWhen of its own any more");
     for (const id of [
-        "main.normalMainView.patternSection.patternSectionDefault.editPad",
-        "main.normalMainView.songProperties",
-        "main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList"
+        "main.normalMainView.patternSection.patternLeftColumn.editPad",
+        "main.songProperties",
+        "main.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList"
     ]) {
         assert.ok(rects.get(id), `${id} has a rect`);
     }
     for (const id of [
-        "main.normalMainView.songProperties.optionsPanel",
-        "main.normalMainView.songProperties.fileOperationsPanel",
-        "main.normalMainView.songProperties.nibblesPanel"
+        "main.songProperties.optionsPanel",
+        "main.songProperties.fileOperationsPanel",
+        "main.songProperties.nibblesPanel"
     ]) {
         assert.equal(rects.get(id), undefined, `${id} is not shown by default`);
     }
@@ -71,17 +71,17 @@ test("with the real seeded defaults, normalMainView, the pattern section's defau
 
 test("song-properties-view.value selects exactly one of File Operations/Options/Nibbles, mutually exclusive - the three share v1's own single appMainPanel slot", () => {
     for (const [value, expectedId] of [
-        ["File Operations", "main.normalMainView.songProperties.fileOperationsPanel"],
-        ["Options", "main.normalMainView.songProperties.optionsPanel"],
-        ["Nibbles", "main.normalMainView.songProperties.nibblesPanel"]
+        ["File Operations", "main.songProperties.fileOperationsPanel"],
+        ["Options", "main.songProperties.optionsPanel"],
+        ["Nibbles", "main.songProperties.nibblesPanel"]
     ]) {
         const { rects } = layout({ "song-properties-view.value": value });
         assert.ok(rects.get(expectedId), `${expectedId} shown for song-properties-view.value=${value}`);
-        assert.equal(rects.get("main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList"), undefined, `songPatternList hidden while ${value} is showing`);
+        assert.equal(rects.get("main.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList"), undefined, `songPatternList hidden while ${value} is showing`);
         for (const [otherValue, otherId] of [
-            ["File Operations", "main.normalMainView.songProperties.fileOperationsPanel"],
-            ["Options", "main.normalMainView.songProperties.optionsPanel"],
-            ["Nibbles", "main.normalMainView.songProperties.nibblesPanel"]
+            ["File Operations", "main.songProperties.fileOperationsPanel"],
+            ["Options", "main.songProperties.optionsPanel"],
+            ["Nibbles", "main.songProperties.nibblesPanel"]
         ]) {
             if (otherValue === value) continue;
             assert.equal(rects.get(otherId), undefined, `${otherId} absent while ${value} is showing`);
@@ -96,9 +96,17 @@ test("song-properties-view.value selects exactly one of File Operations/Options/
 // instead of File Operations does not touch Sample Edit either.
 test("song-properties-view.value and pattern-section-view.value are independent - File Operations and Sample Edit can both be open at the same time", () => {
     const { rects } = layout({ "song-properties-view.value": "File Operations", "pattern-section-view.value": "Sample Edit" });
-    assert.ok(rects.get("main.normalMainView.songProperties.fileOperationsPanel"), "File Operations still shows");
+    assert.ok(rects.get("main.songProperties.fileOperationsPanel"), "File Operations still shows");
     assert.ok(rects.get("main.normalMainView.patternSection.sampleEditPanel"), "Sample Edit still shows too");
-    assert.equal(rects.get("main.normalMainView.patternSection.patternSectionDefault.editPad"), undefined, "the pattern section's own default content is what Sample Edit itself replaces");
+    // Spec 076's own deep-parity-audit item 2 moved editPad out of
+    // patternSectionDefault into patternLeftColumn (nested above
+    // patternSidebar, matching v1's own real narrow left column) - Sample
+    // Edit only ever replaced patternSectionDefault's own content
+    // (infoBar/patternViewPanel), never the sidebar column, so editPad no
+    // longer disappears when Sample Edit opens (confirmed against v1's own
+    // real behavior: its editPanel column stays in place regardless of
+    // which pattern-section view is active).
+    assert.ok(rects.get("main.normalMainView.patternSection.patternLeftColumn.editPad"), "editPad is unaffected by Sample Edit - it lives in the sidebar column now, not patternSectionDefault");
 });
 
 // The real, corrected finding this step made, replacing this same test's own
@@ -111,9 +119,9 @@ test("song-properties-view.value and pattern-section-view.value are independent 
 // v1's own single "main" showView broadcast) has any effect there.
 test("Nibbles showing in the song-properties section leaves the pattern section's own default content (editPad/infoBar/patternViewPanel) fully visible", () => {
     const { rects } = layout({ "song-properties-view.value": "Nibbles" });
-    assert.ok(rects.get("main.normalMainView.songProperties.nibblesPanel"), "Nibbles itself shows");
+    assert.ok(rects.get("main.songProperties.nibblesPanel"), "Nibbles itself shows");
     for (const id of [
-        "main.normalMainView.patternSection.patternSectionDefault.editPad",
+        "main.normalMainView.patternSection.patternLeftColumn.editPad",
         "main.normalMainView.patternSection.patternSectionDefault.infoBar",
         "main.normalMainView.patternSection.patternSectionDefault.patternViewPanel"
     ]) {
@@ -129,8 +137,8 @@ test("Nibbles showing in the song-properties section leaves the pattern section'
 // full viewport" rather than pinning the exact v1 pixel count.
 test("nibblesPanel's own game grid is genuinely bounded to the song-properties section's own fixed height, not the full viewport - matching v1's own real, confirmed behavior", () => {
     const { rects } = layout({ "song-properties-view.value": "Nibbles", "nibbles-view.value": "game" });
-    const panel = rects.get("main.normalMainView.songProperties.nibblesPanel");
-    const grid = rects.get("main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesGrid");
+    const panel = rects.get("main.songProperties.nibblesPanel");
+    const grid = rects.get("main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesGrid");
     assert.ok(panel && grid);
     assert.ok(panel.height < 300, "bounded to the song-properties section's own fixed height, not left to grow");
     assert.ok(grid.width > 0 && grid.height > 0);
@@ -172,7 +180,7 @@ test("normalMainView behaves as a plain, unsurprising column wrapper - not a spe
     const { rects } = layout({});
     const controlBar = rects.get("main.controlBar"); // one level under main, for comparison
     const normalMainView = rects.get("main.normalMainView"); // also one level under main
-    const editPad = rects.get("main.normalMainView.patternSection.patternSectionDefault.editPad"); // four levels under main
+    const editPad = rects.get("main.normalMainView.patternSection.patternLeftColumn.editPad"); // four levels under main
     const volumemeter = rects.get("main.top.volumemeter"); // two levels under main, still height: fixed
 
     assert.equal(normalMainView.width, controlBar.width, "normalMainView is exactly as wide as any other direct child of main");

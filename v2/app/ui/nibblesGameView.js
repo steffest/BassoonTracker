@@ -9,7 +9,7 @@ import { nibblesTopRow } from "./nibblesTopRow.js";
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function nibblesGameView() {
-    return component("panel", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView", name: "nibblesGameView", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" }, visibleWhen: {"field":"nibbles-view.value","oneOf":["game"]} }, [
+    return component("panel", { id: "main.songProperties.nibblesPanel.nibblesGameView", name: "nibblesGameView", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" }, visibleWhen: {"field":"nibbles-view.value","oneOf":["game"]} }, [
         nibblesTopRow(),
         nibblesInfoPanel()
     ]);

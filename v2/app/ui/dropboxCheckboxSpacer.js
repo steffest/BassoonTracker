@@ -2,12 +2,12 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * dropboxCheckboxSpacer — UI structure generated from components/optionsPanel.yaml:185.
+ * dropboxCheckboxSpacer — UI structure generated from components/optionsPanel.yaml:496.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function dropboxCheckboxSpacer() {
-    return component("panel", { id: "main.normalMainView.songProperties.optionsPanel.optionsCheckboxRow.dropboxCheckboxSpacer", name: "dropboxCheckboxSpacer", layout: { width: { mode: "fill" } } }, [
+    return component("panel", { id: "main.songProperties.optionsPanel.optionsCheckboxRow.dropboxCheckboxSpacer", name: "dropboxCheckboxSpacer", layout: { width: { mode: "fill" } }, style: "transparent" }, [
 
     ]);
 }

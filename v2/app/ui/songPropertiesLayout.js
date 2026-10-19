@@ -6,12 +6,12 @@ import { spinBoxGroupA } from "./spinBoxGroupA.js";
 import { spinBoxGroupB } from "./spinBoxGroupB.js";
 
 /**
- * songPropertiesLayout — UI structure generated from components/songProperties.yaml:34.
+ * songPropertiesLayout — UI structure generated from components/songProperties.yaml:36.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function songPropertiesLayout() {
-    return component("panel", { id: "main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout", name: "songPropertiesLayout", layout: { width: { mode: "fill" }, direction: "row" }, breakpoints: [{"maxWidth":620,"layout":{"direction":"column"}}] }, [
+    return component("panel", { id: "main.songProperties.songPropertiesDefault.songPropertiesLayout", name: "songPropertiesLayout", layout: { width: { mode: "fill" }, direction: "row" }, style: "transparent", breakpoints: [{"maxWidth":619,"layout":{"direction":"column"}}] }, [
         songPatternGroup(),
         spinBoxGroupA(),
         spinBoxGroupB(),

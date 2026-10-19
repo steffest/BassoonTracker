@@ -62,13 +62,59 @@ test("compiles styles, expands extends and marks inherited states", () => {
     assert.equal(play.extends, "default");
     assert.equal(play.width, 80, "unspecified properties come from the base");
     assert.deepEqual(play.insets, { left: 5, top: 5, right: 5, bottom: 5 });
-    assert.deepEqual(play.label, { align: "center", offsetX: 0, offsetY: 0, pressedOffset: 1, font: "small" });
+    assert.deepEqual(play.label, { align: "center", offsetX: 0, offsetY: 0, pressedOffset: 1, activeOffsetY: 0, font: "small" });
     assert.equal(play.states.normal.asset, "button_inlay");
     assert.equal(play.states.normal.inherited, true, "inherited from the base");
     assert.equal(play.states.hover.asset, "button_hover_green");
     assert.equal(play.states.hover.inherited, false, "authored on this variant");
     assert.equal(play.states.hover.source.file, "skin/default.yaml");
     assert.ok(play.states.hover.source.range.start.line > 0);
+});
+
+test("an authored active label offset compiles and inherits like other label metrics", () => {
+    const { skin, diagnostics } = compile(`name: default
+fonts:
+  small:
+    asset: font
+styles:
+  radioItem:
+    default:
+      label:
+        activeOffsetY: 1
+    display:
+      extends: default
+`);
+    assert.deepEqual(diagnostics, []);
+    assert.equal(skin.styles.radioItem.default.label.activeOffsetY, 1);
+    assert.equal(skin.styles.radioItem.display.label.activeOffsetY, 1);
+});
+
+test("an authored bar glyph compiles, inherits and validates its orientation", () => {
+    const { skin, diagnostics } = compile(`name: default
+styles:
+  radioItem:
+    default:
+      barGlyph:
+        orientation: vertical
+        color: rgba(60,40,20,0.85)
+        count: 4
+        thickness: 2
+        gap: 4
+        startRatio: 0.2
+        extentRatio: 0.6
+    inherited:
+      extends: default
+    invalid:
+      barGlyph:
+        orientation: diagonal
+`);
+    assert.deepEqual(skin.styles.radioItem.default.barGlyph, {
+        orientation: "vertical", color: "rgba(60,40,20,0.85)", count: 4,
+        thickness: 2, gap: 4, startRatio: 0.2, extentRatio: 0.6
+    });
+    assert.deepEqual(skin.styles.radioItem.inherited.barGlyph, skin.styles.radioItem.default.barGlyph);
+    assert.equal(skin.styles.radioItem.invalid.barGlyph, null);
+    assert.ok(diagnostics.some(d => d.code === "unknown-style-property" && d.message.includes("vertical or horizontal")));
 });
 
 test("an asset name traces to one source PNG and to every line that referenced it", () => {
@@ -80,6 +126,34 @@ test("an asset name traces to one source PNG and to every line that referenced i
     assert.ok(inlay.usedBy[0].range.start.line > 0);
     assert.deepEqual(skin.assets.map(a => a.name).sort(), ["button_hover_green", "button_inlay", "button_inlay_active", "button_inlay_green", "font"]);
     for (const asset of skin.assets) assert.match(asset.file, /^src\/[a-z0-9_]+\.png$/i);
+});
+
+test("generic artwork layers and numeric metrics compile, inherit and register their PNGs", () => {
+    const { skin, diagnostics } = compile(`name: default
+fonts:
+  small:
+    asset: font
+styles:
+  button:
+    default:
+      states:
+        normal: button_inlay
+    play:
+      extends: default
+      metrics:
+        iconOnly: 1
+        iconOffsetX: -2
+      artwork:
+        iconNormal: play_green
+        iconActive: play_active_red
+      states:
+        active: button_inlay_red_active
+`);
+    assert.deepEqual(diagnostics, []);
+    const play = skin.styles.button.play;
+    assert.deepEqual(play.metrics, { iconOnly: 1, iconOffsetX: -2 });
+    assert.deepEqual(play.artwork, { iconNormal: "play_green", iconActive: "play_active_red" });
+    assert.deepEqual(skin.assets.map(a => a.name), ["button_inlay", "button_inlay_red_active", "font", "play_active_red", "play_green"]);
 });
 
 test("reports artwork with no source file without failing", () => {
@@ -366,4 +440,87 @@ test("compileApplication: an authored image node's own src is a real asset use, 
     assert.ok(entry, "togglecorner is registered as a used asset");
     assert.ok(entry.usedBy.some(u => u.file === "app.yaml"), "used-by points at the component file the image node was authored in, not skin/default.yaml");
     assert.ok(result.diagnostics.some(d => d.code === "unknown-skin-asset" && d.message.includes("togglecorner")), "warns, the same as any other unknown skin asset, since the fixture's own listAssets does not include it");
+});
+
+// Spec 076: v1's proportional fonts (`ft`/`condensed`/`dark`) declare a
+// per-character digit string for charWidth (one digit per character in
+// `chars`) and/or a multi-row `charsPerLine` sequence - both need real YAML
+// authoring support, not just a wider runtime (runtime/bitmapFont.js already
+// handled both shapes before this).
+test("a font's charWidth may be a per-character digit string, disambiguated from a fixed number by its length matching chars", () => {
+    const { skin, diagnostics } = compile(`name: default
+fonts:
+  ft:
+    asset: font
+    charHeight: 12
+    chars: ABC
+    charWidth: "689"
+styles:
+  button:
+    default:
+      description: Base button.
+      states:
+        normal: button_inlay
+`, { listAssets: () => ["font", "button_inlay"] });
+    assert.deepEqual(diagnostics, []);
+    assert.equal(skin.fonts.ft.charWidth, "689", "kept as a string, one digit per character");
+    assert.equal(skin.fonts.ft.chars, "ABC");
+});
+
+test("a font's charWidth stays a fixed number when it isn't the same length as chars", () => {
+    const { skin } = compile(`name: default
+fonts:
+  small:
+    asset: font
+    charWidth: 6
+    chars: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+styles:
+  button:
+    default:
+      description: Base button.
+      states:
+        normal: button_inlay
+`, { listAssets: () => ["font", "button_inlay"] });
+    assert.equal(skin.fonts.small.charWidth, 6);
+});
+
+test("a font's charsPerLine may be a block sequence (one entry per sheet row), not just one number", () => {
+    const { skin, diagnostics } = compile(`name: default
+fonts:
+  ft:
+    asset: font
+    charHeight: 12
+    chars: ABC
+    charsPerLine:
+      - 26
+      - 26
+      - 40
+styles:
+  button:
+    default:
+      description: Base button.
+      states:
+        normal: button_inlay
+`, { listAssets: () => ["font", "button_inlay"] });
+    assert.deepEqual(diagnostics, []);
+    assert.deepEqual(skin.fonts.ft.charsPerLine, [26, 26, 40]);
+});
+
+test("a font's chars may contain literal flow-indicator characters ([, ], {, }) when quoted, since a quoted scalar can't be mistaken for flow syntax", () => {
+    const { skin, diagnostics } = compile(`name: default
+fonts:
+  med:
+    asset: font
+    charWidth: 8
+    charHeight: 8
+    chars: "AB[]{}"
+styles:
+  button:
+    default:
+      description: Base button.
+      states:
+        normal: button_inlay
+`, { listAssets: () => ["font", "button_inlay"] });
+    assert.deepEqual(diagnostics, []);
+    assert.equal(skin.fonts.med.chars, "AB[]{}");
 });

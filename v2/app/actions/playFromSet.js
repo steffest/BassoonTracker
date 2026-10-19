@@ -2,7 +2,7 @@
 import { setPlayFrom as implementation } from "../../domain/settings/index.js";
 
 /**
- * play-from.set — generated from components/optionsPanel.yaml:149: "set-value".
+ * play-from.set — generated from components/optionsPanel.yaml:436: "set-value".
  * Implemented by ./domain/settings/index.js#setPlayFrom (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

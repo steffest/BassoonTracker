@@ -2,6 +2,7 @@ import Tracker from "../tracker.js";
 import {EVENT, LOOPTYPE, TRACKERMODE} from "../enum.js";
 import Instrument from "../models/instrument.js";
 import EventBus from "../eventBus.js";
+import {formatInstrumentIndex} from "../lib/util.js";
 
 var SoundTracker = function(){
 	var me = {};
@@ -121,7 +122,7 @@ var SoundTracker = function(){
 					instrument.sample.data.push(b / 127)
 				}
 
-				instrumentContainer.push({label: i + " " + instrument.name, data: i});
+				instrumentContainer.push({label: formatInstrumentIndex(i) + " " + instrument.name, data: i, name: instrument.name});
 			}
 		}
         EventBus.trigger(EVENT.instrumentListChange,instrumentContainer);

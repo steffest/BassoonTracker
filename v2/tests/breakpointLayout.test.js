@@ -83,3 +83,50 @@ test("a breakpoint's own direction override is what a viewport-width-dependent r
     const narrow = computeGenericLayout(tree, { width: 600, height: 100 }, measure);
     assert.notEqual(narrow.rects.get("a").y, narrow.rects.get("b").y, "column at/under it");
 });
+
+// Spec 075: maxHeight alongside maxWidth - v1's own hand-written cascade
+// mixes both kinds of threshold freely (the piano section's own real
+// `me.height<800`/`me.height<650`), so the mechanism needed a second
+// dimension, not a second mechanism.
+
+test("a breakpoint's own maxHeight threshold works the same way maxWidth does, keyed off the viewport's own height", () => {
+    const tree = node("panel", "root", { height: { mode: "fill" } }, [
+        node("panel", "piano", { height: { mode: "fixed", size: 200 } }, [], {
+            breakpoints: [{ maxHeight: 800, layout: { height: { mode: "fixed", size: 150 } } }]
+        })
+    ]);
+    const tall = computeGenericLayout(tree, { width: 900, height: 900 }, measure);
+    assert.equal(tall.rects.get("piano").height, 200, "above the threshold, unchanged");
+    const short = computeGenericLayout(tree, { width: 900, height: 800 }, measure);
+    assert.equal(short.rects.get("piano").height, 150, "at or under maxHeight, the override wins - width is irrelevant here");
+});
+
+test("v1's own real two-step piano cascade (800 then 650) narrows further exactly like a maxWidth cascade does", () => {
+    const tree = node("panel", "root", { height: { mode: "fill" } }, [
+        node("panel", "piano", { height: { mode: "fixed", size: 200 } }, [], {
+            breakpoints: [
+                { maxHeight: 800, layout: { height: { mode: "fixed", size: 150 } } },
+                { maxHeight: 650, layout: { height: { mode: "fixed", size: 100 } } }
+            ]
+        })
+    ]);
+    assert.equal(computeGenericLayout(tree, { width: 900, height: 900 }, measure).rects.get("piano").height, 200, "taller than every breakpoint");
+    assert.equal(computeGenericLayout(tree, { width: 900, height: 700 }, measure).rects.get("piano").height, 150, "only the 800 one matches");
+    assert.equal(computeGenericLayout(tree, { width: 900, height: 600 }, measure).rects.get("piano").height, 100, "both match; 650 is the more specific one and wins");
+});
+
+test("maxWidth and maxHeight on two different breakpoint entries for the same node combine independently", () => {
+    const tree = node("panel", "root", { height: { mode: "fill" } }, [
+        node("panel", "bar", { height: { mode: "fixed", size: 40 }, direction: "row" }, [], {
+            breakpoints: [
+                { maxWidth: 650, layout: { direction: "column" } },
+                { maxHeight: 300, layout: { height: { mode: "fixed", size: 20 } } }
+            ]
+        })
+    ]);
+    const wideShort = computeGenericLayout(tree, { width: 900, height: 200 }, measure);
+    assert.equal(wideShort.rects.get("bar").height, 20, "the maxHeight breakpoint applies regardless of width");
+    const narrowTall = computeGenericLayout(tree, { width: 600, height: 900 }, measure);
+    // direction isn't independently assertable from a rect alone here, but confirms neither breakpoint crashes/interferes with the other's own unrelated field.
+    assert.equal(narrowTall.rects.get("bar").height, 40, "the maxWidth breakpoint (direction only) leaves height alone");
+});

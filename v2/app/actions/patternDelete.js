@@ -2,7 +2,7 @@
 import { deleteSelectedPatternRow as implementation } from "../../domain/song/index.js";
 
 /**
- * pattern.delete — generated from components/songPatternList.yaml:44: "verb-action".
+ * pattern.delete — generated from components/songPatternList.yaml:91: "verb-action".
  * Implemented by ./domain/song/index.js#deleteSelectedPatternRow (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

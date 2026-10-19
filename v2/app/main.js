@@ -36,10 +36,23 @@ export async function start(container) {
         // Imported on first use, so nothing it pulls in is in the entry chunk.
         openFiles: (...args) => import("../domain/playback/index.js").then(m => m.openFiles(app, ...args))
     };
-    return mountGenericRenderer(container, { root: main(), diagnostics: [], skin: SKIN }, {
+    const result = await mountGenericRenderer(container, { root: main(), diagnostics: [], skin: SKIN }, {
         tools: false,
         state,
         appContext: app,
         assetBase: ASSET_BASE
     });
+    // Boot-time default content (spec 081, deep-parity-audit item 8): matches
+    // v1's own real `script/src/editor.js#loadInitialFile`, which populates
+    // the sidebar's Songs tab with a curated demo list immediately on load.
+    // Lazy-imported the same way every host hook above is, so nothing it
+    // pulls in enters the entry chunk; fire-and-forget after mounting, not
+    // awaited, so a slow/failed fetch never delays the app's own first paint.
+    import("../domain/playlist/index.js").then(m => m.loadDefaultSongs(app)).catch(error => console.error("[app] failed to load default songs", error));
+    // Boot-time default module: loads (but does not play) the same curated
+    // demo tune v1 loads on startup (script/src/editor.js#loadInitialFile's
+    // real default, "demomods/Tinytune.mod"), so the tracker isn't empty on
+    // first paint. Fire-and-forget, same pattern as loadDefaultSongs above.
+    import("../domain/playback/index.js").then(m => m.loadModule(app, "demomods/Tinytune.mod")).catch(error => console.error("[app] failed to load default module", error));
+    return result;
 }

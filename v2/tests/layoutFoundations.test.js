@@ -205,3 +205,39 @@ test("the layout result is complete for every node, so no caller walks ancestors
         assert.ok(clips.get(id), `${id} has a clip`);
     }
 });
+
+test("the mode/display block follows v1's exact responsive control-bar formulas", () => {
+    const cases = [
+        [640, 416, 146],
+        [650, 389, 188],
+        [820, 553, 194],
+        [1000, 661, 266],
+        [1440, 925, 442]
+    ];
+    for (const [width, x, componentWidth] of cases) {
+        const block = node("panel", "modeDisplay", {
+            position: "absolute", left: "modeButtonsLeft", offsetX: 60,
+            width: { mode: "modeDisplay" }, height: { mode: "fixed", size: 37 }
+        });
+        const auxiliary = node("panel", "aux", {
+            position: "absolute", left: "modeAuxButtonsLeft",
+            width: { mode: "fixed", size: 10 }, height: { mode: "fixed", size: 32 }
+        });
+        const result = computeGenericLayout(node("panel", "root", { height: { mode: "fill" } }, [block, auxiliary]), { width, height: 240 }, measure);
+        assert.deepEqual(result.rects.get("modeDisplay"), { x, y: 0, width: componentWidth, height: 37 });
+        assert.equal(result.rects.get("aux").x, x + componentWidth + 3, `${width}px follows v1's exact pattern-view-button edge`);
+    }
+});
+
+test("the three control-view buttons use v1's floored thirds without gaps", () => {
+    const cases = [[640, 208], [650, 41], [820, 106], [1000, 130], [1440, 189]];
+    for (const [width, itemWidth] of cases) {
+        const groupWidth = width < 650 ? { mode: "col5" } : width < 820 ? { mode: "col1" } : { mode: "col2" };
+        const items = ["file", "options", "sample"].map(id => node("button", id, { width: { mode: "controlViewButton" } }));
+        const group = node("buttonGroup", "views", { width: groupWidth, height: { mode: "fixed", size: width < 650 ? 34 : 32 }, direction: "row", padding: 0, gap: 0 }, items);
+        const result = computeGenericLayout(group, { width, height: 40 }, measure);
+        assert.equal(result.rects.get("file").width, itemWidth);
+        assert.equal(result.rects.get("options").x, itemWidth);
+        assert.equal(result.rects.get("sample").x, itemWidth * 2);
+    }
+});

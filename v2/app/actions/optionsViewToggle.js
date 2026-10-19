@@ -2,7 +2,7 @@
 import { toggleOptionsView as implementation } from "../../domain/appView/index.js";
 
 /**
- * options-view.toggle — generated from components/controlBar.yaml:28: "toggle-generic".
+ * options-view.toggle — generated from components/controlBar.yaml:51: "toggle-generic".
  * Implemented by ./domain/appView/index.js#toggleOptionsView (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

@@ -55,9 +55,14 @@ test("compiles the real app.yaml graph into a supported tree with source-located
     // Spec 054: components/volumemeter.yaml now exists, resolving what was
     // this suite's own one standing unresolved-component-reference.
     assert.ok(!counts["unresolved-component-reference"], "volumemeter now has a component file (spec 054)");
-    assert.ok(counts["unsupported-component"] >= 2, "both notification lights are not yet rendered");
-    assert.ok(counts["unresolved-rule"] >= 2, "both notification prose rules are unresolved");
-    assert.equal(counts["ambiguous-duplicate-name"], 1, "both notification lights share the same authored key");
+    // Spec 083: the notification lights are now a real, implemented type
+    // (notificationLight) with an explicit visibleWhen each, not a
+    // type-less placeholder with an unresolved prose rule and a shared,
+    // colliding authored key - the three assertions this replaces (an
+    // unsupported-component count, an unresolved-rule count, and one
+    // ambiguous-duplicate-name) are all real, expected drops, not a
+    // regression.
+    assert.ok(!counts["ambiguous-duplicate-name"], "the two lights now have distinct authored labels (\"Key, K\"/\"Midi, M\"), not a shared key");
 
     for (const diagnostic of result.diagnostics) {
         assert.equal(typeof diagnostic.severity, "string");
@@ -107,8 +112,61 @@ test("compiles the real app.yaml graph into a supported tree with source-located
     assert.equal(byId.get("main.controlBar.button.Play").style.variant, "play");
     assert.equal(byId.get("main.controlBar.button.Play").style.source.file, "components/controlBar.yaml");
     assert.equal(byId.get("main.controlBar.button.record").style.variant, "record");
-    assert.equal(byId.get("main").style.variant, "default");
+    assert.equal(byId.get("main").style.variant, "appRoot");
     assert.equal(byId.get("main.normalMainView.patternSection.patternSectionDefault.infoBar.song title").style.type, "label");
+
+    // Spec 082: each real style's own font matches v1's own real
+    // per-component choice (see skin/default.yaml's own inline citations for
+    // the exact v1 source line each one is ported from).
+    assert.equal(result.skin.styles.button.default.label.font, "ft");
+    assert.equal(result.skin.styles.button.compact.label.font, "small");
+    assert.equal(result.skin.styles.radioItem.default.label.font, "small");
+    assert.equal(result.skin.styles.radioItem.button.label.font, "dark");
+    assert.equal(result.skin.styles.spinBox.default.label.font, "led");
+    assert.equal(result.skin.styles.inputbox.default.label.font, "med");
+    assert.equal(result.skin.styles.label.sectionHeader.label.font, "med");
+    assert.equal(result.skin.styles.label.caption.label.font, "ft");
+    assert.equal(result.skin.styles.label.menuItem.label.font, "ft");
+    // editPad's own Track/Pattern headers and Clear/Copy/Paste buttons, and
+    // songProperties' own spinboxes carry their captions in the exact v1
+    // integrated-control variants (not as detached label nodes).
+    // (not just declare them unused).
+    const editPad = byId.get("main.normalMainView.patternSection.patternLeftColumn.editPad");
+    const editPadHeading = byId.get("main.normalMainView.patternSection.patternLeftColumn.editPad.trackColumn.label.↓Track");
+    const editPadButton = byId.get("main.normalMainView.patternSection.patternLeftColumn.editPad.trackColumn.trackClear");
+    const editPadToggle = byId.get("main.normalMainView.patternSection.patternLeftColumn.editPad.sidebarToggleDeco");
+    assert.equal(editPad.layout.height.size, 90);
+    assert.equal(editPad.layout.offsetY, 4);
+    assert.equal(editPadHeading.style.variant, "editPadHeader");
+    assert.equal(editPadButton.style.variant, "editPad");
+    assert.equal(editPadButton.layout.height.size, 21);
+    assert.equal(editPadToggle.src, "toggleleft");
+    assert.deepEqual(editPadToggle.layout, {
+        width: { mode: "fixed", size: 19 },
+        height: { mode: "fixed", size: 24 },
+        position: "absolute",
+        right: -4,
+        top: -3
+    });
+    assert.equal(result.skin.styles.button.editPad.label.font, "small");
+    assert.equal(result.skin.styles.button.editPad.states.normal.asset, "button_inlay");
+    assert.equal(result.skin.styles.button.editPad.states.hover.asset, "button_inlay_blue_active");
+    const bpmSpinBox = byId.get("main.songProperties.songPropertiesDefault.songPropertiesLayout.spinBoxGroupA.bpmSpinBox");
+    assert.equal(bpmSpinBox.style.variant, "songPropertyBpm");
+    assert.deepEqual(bpmSpinBox.labelVariants, ["BPM"]);
+    assert.equal(bpmSpinBox.stepperDirection, "horizontal");
+    const scopes = byId.get("main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.scopes");
+    assert.equal(scopes.style.variant, "default");
+    assert.equal(scopes.layout.height.size, 66);
+    assert.equal(scopes.layout.offsetY, -21);
+    assert.equal(scopes.layout.horizontalFrame, "patternTracks");
+    assert.equal(result.skin.styles.scopesView.default.states.normal.asset, "oscilloscope");
+    // The File menu's own leaf items (plain commands, not nested submenus)
+    // use label/menuItem; a nested submenu's own trigger ("Clear") does not
+    // - it is a synthesized menuTrigger instead, unstyled by design (see
+    // componentTypes.js's own menuTrigger entry).
+    assert.equal(byId.get("main.top.stripContent.menu area.menu bar.menu.submenu.File.label.New").style.variant, "menuItem");
+
     for (const node of nodes) {
         if (node.supported === false) continue;
         if (node.type === "radioGroup" || ["panel", "button", "radioItem", "label"].includes(node.type)) {
@@ -128,26 +186,26 @@ test("compiles the real app.yaml graph into a supported tree with source-located
         assert.ok(asset.usedBy.every(use => /\.yaml$/.test(use.file) && use.range));
     }
 
-    assert.equal(byId.get("main.top.menu").supported, true, "menu is implemented as of spec 023");
-    assert.equal(byId.get("main.top.menu.submenu.File").type, "submenu", "a menu item authored as type: submenu compiles as a real child node");
+    assert.equal(byId.get("main.top.stripContent.menu area.menu bar.menu").supported, true, "menu is implemented as of spec 023");
+    assert.equal(byId.get("main.top.stripContent.menu area.menu bar.menu.submenu.File").type, "submenu", "a menu item authored as type: submenu compiles as a real child node");
     // Spec 024: the real menu bar, read from script/src/ui/app/menu.js -
     // File/Edit/View/Help, with Edit's own "Clear" nested a level deeper.
     for (const label of ["File", "Edit", "View", "Help"]) {
-        assert.equal(byId.get(`main.top.menu.submenu.${label}`).type, "submenu", label);
+        assert.equal(byId.get(`main.top.stripContent.menu area.menu bar.menu.submenu.${label}`).type, "submenu", label);
     }
-    const clear = byId.get("main.top.menu.submenu.Edit.submenu.Clear");
+    const clear = byId.get("main.top.stripContent.menu area.menu bar.menu.submenu.Edit.submenu.Clear");
     assert.equal(clear.type, "submenu", "Clear is itself a nested submenu, two levels under the menu bar");
     assert.deepEqual(clear.children.map(c => c.bindings[0].command), ["track.clear", "pattern.clear", "song.clear", "instruments.clear"]);
     // Clear Track/Pattern share the exact command names editPad.yaml's own
     // buttons already use (spec 022), so both authored places run the same
     // generated action module, not two parallel ones.
-    assert.equal(byId.get("main.top.menu.submenu.Edit.submenu.Clear.label.Clear Track").bindings[0].command, "track.clear");
+    assert.equal(byId.get("main.top.stripContent.menu area.menu bar.menu.submenu.Edit.submenu.Clear.label.Clear Track").bindings[0].command, "track.clear");
     // Spec 054: components/volumemeter.yaml now exists, so this resolves to
     // a real node - under its own authored name, not the "volume meter"
     // slot key it is referenced by.
-    assert.equal(byId.get("main.top.volumemeter").supported, true);
+    assert.equal(byId.get("main.top.stripContent.menu area.volumemeter").supported, true);
     assert.equal(byId.get("main.normalMainView.patternSection.patternSectionDefault.infoBar.button.More info").labelVariants.join(" "), "More info");
-    assert.equal(byId.get("main.normalMainView.songProperties").layout.resizable, "horizontal");
+    assert.equal(byId.get("main.songProperties").layout.resizable, "horizontal");
 
     // Spec 025's two control-panel prerequisites, put to real use for the
     // first time: controlBar's own breakpoint (a declared, not hand-written,
@@ -158,7 +216,13 @@ test("compiles the real app.yaml graph into a supported tree with source-located
     // toggle buttons, matching v1's own real three-Checkboxbutton shape
     // (confirmed live: File Operations and Sample Edit can both be open at
     // once, which one shared radioGroup command could never express).
-    assert.deepEqual(byId.get("main.controlBar").breakpoints, [{ maxWidth: 650, layout: { height: { mode: "fixed", size: 160 }, direction: "column" } }]);
+    assert.deepEqual(byId.get("main.controlBar").breakpoints, [{ maxWidth: 649, layout: { height: { mode: "fixed", size: 80 } } }]);
+    // Spec 075: maxHeight alongside maxWidth, put to real use for the first
+    // time - pianoPanel's own real v1 cascade (`me.height<800`/`<650`).
+    assert.deepEqual(byId.get("main.pianoPanel").breakpoints, [
+        { maxHeight: 800, layout: { height: { mode: "fixed", size: 150 } } },
+        { maxHeight: 650, layout: { height: { mode: "fixed", size: 100 } } }
+    ]);
     const commandOf = node => node.bindings.find(b => b.kind === "command");
     const fileOperationsButton = byId.get("main.controlBar.topViewButtons.fileOperationsButton");
     assert.equal(commandOf(fileOperationsButton).command, "file-operations-view.toggle");
@@ -166,17 +230,19 @@ test("compiles the real app.yaml graph into a supported tree with source-located
     assert.equal(commandOf(optionsButton).command, "options-view.toggle");
     const sampleEditButton = byId.get("main.controlBar.topViewButtons.sampleEditButton");
     assert.equal(commandOf(sampleEditButton).command, "sample-edit-panel.toggle");
-    assert.deepEqual(byId.get("main.normalMainView.songProperties.optionsPanel").visibleWhen, { field: "song-properties-view.value", oneOf: ["Options"] }, "shown only when explicitly chosen - not by default (fixed for real visual parity with v1, which opens with no control-panel section shown at all)");
-    assert.deepEqual(byId.get("main.normalMainView.songProperties.fileOperationsPanel").visibleWhen, { field: "song-properties-view.value", oneOf: ["File Operations"] });
-    assert.deepEqual(byId.get("main.normalMainView.songProperties.nibblesPanel").visibleWhen, { field: "song-properties-view.value", oneOf: ["Nibbles"] });
+    assert.deepEqual(byId.get("main.songProperties.optionsPanel").visibleWhen, { field: "song-properties-view.value", oneOf: ["Options"] }, "shown only when explicitly chosen - not by default (fixed for real visual parity with v1, which opens with no control-panel section shown at all)");
+    assert.deepEqual(byId.get("main.songProperties.fileOperationsPanel").visibleWhen, { field: "song-properties-view.value", oneOf: ["File Operations"] });
+    assert.deepEqual(byId.get("main.songProperties.nibblesPanel").visibleWhen, { field: "song-properties-view.value", oneOf: ["Nibbles"] });
     assert.deepEqual(byId.get("main.normalMainView.patternSection.sampleEditPanel").visibleWhen, { field: "pattern-section-view.value", oneOf: ["Sample Edit"] });
 
-    // Both notification lights collide on the same authored key and get a
-    // deterministic occurrence suffix rather than being silently merged.
-    const notificationIds = [...byId.keys()].filter(id => id.includes("notification light"));
+    // Spec 083: the two notification lights now have distinct authored
+    // labels ("Key, K"/"Midi, M"), so they get distinct ids on their own,
+    // not a deterministic occurrence suffix (the old "notification light"
+    // placeholder's own shared key needed).
+    const notificationIds = [...byId.keys()].filter(id => id.startsWith("main.top.stripContent.notifications.notificationLight."));
     assert.deepEqual(notificationIds.sort(), [
-        "main.top.notifications.notification light#1",
-        "main.top.notifications.notification light#2"
+        "main.top.stripContent.notifications.notificationLight.Key",
+        "main.top.stripContent.notifications.notificationLight.Midi"
     ]);
 });
 

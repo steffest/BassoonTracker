@@ -5,7 +5,7 @@ import { resamplePanel } from "./resamplePanel.js";
 import { sampleEditNormalView } from "./sampleEditNormalView.js";
 
 /**
- * sampleEditPanel — UI structure generated from components/sampleEditPanel.yaml:1. Referenced from app.yaml:180.
+ * sampleEditPanel — UI structure generated from components/sampleEditPanel.yaml:1. Referenced from app.yaml:291.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */

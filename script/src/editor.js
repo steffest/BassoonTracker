@@ -1,7 +1,7 @@
 import EventBus from './eventBus.js';
 import {COMMAND, EVENT, FILETYPE, MODULETYPE, SETTINGS, TRACKERMODE} from "./enum.js";
 import Tracker, {periodNoteTable, nameNoteTable, FTNotes} from './tracker.js';
-import {getUrlParameter} from "./lib/util.js";
+import {getUrlParameter, formatInstrumentIndex} from "./lib/util.js";
 import Host from "./host.js";
 import Audio from "./audio.js";
 import StateManager from "./ui/stateManager.js";
@@ -167,6 +167,36 @@ var Editor = (function(){
 			}
 		}
 		StateManager.registerEdit(editAction);
+		EventBus.trigger(EVENT.patternChange,currentPattern);
+	};
+	// One-based console track number; include patterns outside the song order too.
+	me.clearTrackInSong = function(trackNumber, notesOnly){
+		if (!Number.isInteger(trackNumber) || trackNumber < 1 || trackNumber > 32){
+			throw new RangeError("Track number must be an integer between 1 and 32.");
+		}
+		var track = trackNumber - 1;
+		var song = Tracker.getSong();
+		if (!song) throw new Error("No song is loaded.");
+		song.patterns.forEach(function(pattern, patternIndex){
+			if (!pattern) return;
+			var editAction = StateManager.createTrackUndo(patternIndex);
+			editAction.name = "Clear Track " + trackNumber + (notesOnly ? " Notes" : "");
+			pattern.forEach(function(row, rowIndex){
+				var note = row && row[track];
+				if (note && (note.period || note.index || note.instrument || (!notesOnly && (note.effect || note.param || note.volumeEffect)))){
+					var editNote = StateManager.addNote(editAction,track,rowIndex,note);
+					if (notesOnly){
+						note.period = 0;
+						note.index = 0;
+						note.instrument = 0;
+						editNote.to = note.duplicate();
+					}else{
+						note.clear();
+					}
+				}
+			});
+			if (editAction.data.length) StateManager.registerEdit(editAction);
+		});
 		EventBus.trigger(EVENT.patternChange,currentPattern);
 	};
 	me.clearPattern = function(){
@@ -532,7 +562,7 @@ var Editor = (function(){
 
         var instrumentContainer = [];
         Tracker.getInstruments().forEach(function(inst, i){
-            if (inst) instrumentContainer.push({label: i + " " + inst.name, data: i});
+            if (inst) instrumentContainer.push({label: formatInstrumentIndex(i) + " " + inst.name, data: i, name: inst.name});
         });
         EventBus.trigger(EVENT.instrumentListChange, instrumentContainer);
         EventBus.trigger(EVENT.instrumentChange, index);

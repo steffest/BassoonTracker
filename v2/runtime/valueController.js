@@ -13,7 +13,7 @@ export const STEPPER_WIDTH = 12;
 /** Logical pixels of movement per step in relative mode. */
 export const PIXELS_PER_STEP = 4;
 
-export const VALUE_STATE_FIELDS = ["hover", "pressed", "focused", "disabled", "dragging"];
+export const VALUE_STATE_FIELDS = ["hover", "hoverPart", "pressed", "focused", "disabled", "dragging", "cursorVisible"];
 
 const DEFAULT_BOUNDS = { min: 0, max: 100, step: 1 };
 
@@ -87,7 +87,8 @@ export function createValueController(options = {}) {
     const stepper = Boolean(options.stepper);
     const pixelsPerStep = options.pixelsPerStep || PIXELS_PER_STEP;
 
-    const state = { hover: false, pressed: false, focused: false, disabled: Boolean(options.disabled), dragging: false };
+    const state = { hover: false, hoverPart: null, pressed: false, focused: false, disabled: Boolean(options.disabled), dragging: false, cursorVisible: false };
+    let cursorElapsed = 0;
     let dragFrom = null; // the value the current drag started from
 
     function set(field, value, transitions) {
@@ -96,10 +97,15 @@ export function createValueController(options = {}) {
         state[field] = value;
     }
 
-    /** Which half of the stepper column a point is in, or null if it is not in it. */
+    /** Which stepper button a point is in, or null if it is not in one. */
     function stepperHit(input) {
         if (!stepper || !input.local || !input.rect) return null;
-        if (input.local.x < input.rect.width - STEPPER_WIDTH) return null;
+        const width = Number.isFinite(Number(input.stepperWidth)) ? Number(input.stepperWidth) : STEPPER_WIDTH;
+        if (input.stepperDirection === "horizontal") {
+            if (input.local.x < input.rect.width - width * 2) return null;
+            return input.local.x < input.rect.width - width ? 1 : -1;
+        }
+        if (input.local.x < input.rect.width - width) return null;
         return input.local.y < input.rect.height / 2 ? 1 : -1;
     }
 
@@ -121,16 +127,24 @@ export function createValueController(options = {}) {
         switch (input.type) {
             case "pointerenter":
                 set("hover", true, transitions);
+                set("hoverPart", stepperHit(input) === 1 ? "up" : stepperHit(input) === -1 ? "down" : null, transitions);
+                break;
+            case "pointermove":
+                set("hoverPart", stepperHit(input) === 1 ? "up" : stepperHit(input) === -1 ? "down" : null, transitions);
                 break;
             case "pointerleave":
                 set("hover", false, transitions);
+                set("hoverPart", null, transitions);
                 set("pressed", false, transitions);
                 break;
             case "focus":
                 set("focused", true, transitions);
+                set("cursorVisible", true, transitions);
+                cursorElapsed = 0;
                 break;
             case "blur":
                 set("focused", false, transitions);
+                set("cursorVisible", false, transitions);
                 set("pressed", false, transitions);
                 set("dragging", false, transitions);
                 break;
@@ -203,8 +217,17 @@ export function createValueController(options = {}) {
         return transitions;
     }
 
+    function onFrame(deltaMs) {
+        if (!state.focused) return;
+        cursorElapsed += deltaMs;
+        if (cursorElapsed < 300) return;
+        cursorElapsed %= 300;
+        state.cursorVisible = !state.cursorVisible;
+    }
+
     return {
         handle,
+        onFrame,
         setDisabled,
         get state() { return { ...state }; }
     };

@@ -2,7 +2,7 @@
 import { insertAtSelectedPatternRow as implementation } from "../../domain/song/index.js";
 
 /**
- * pattern.insert — generated from components/songPatternList.yaml:39: "verb-action".
+ * pattern.insert — generated from components/songPatternList.yaml:79: "verb-action".
  * Implemented by ./domain/song/index.js#insertAtSelectedPatternRow (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

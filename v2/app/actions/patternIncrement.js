@@ -2,7 +2,7 @@
 import { incrementSelectedPatternRow as implementation } from "../../domain/song/index.js";
 
 /**
- * pattern.increment — generated from components/songPatternList.yaml:29: "verb-action".
+ * pattern.increment — generated from components/songPatternList.yaml:55: "verb-action".
  * Implemented by ./domain/song/index.js#incrementSelectedPatternRow (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

@@ -2,7 +2,7 @@
 import { exportSampleSelection as implementation } from "../../domain/moduleExport/index.js";
 
 /**
- * sample.export — generated from components/fileOperationsPanel.yaml:160: "verb-action".
+ * sample.export — generated from components/fileOperationsPanel.yaml:449: "verb-action".
  * Implemented by ./domain/moduleExport/index.js#exportSampleSelection (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

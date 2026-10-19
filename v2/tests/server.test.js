@@ -106,6 +106,7 @@ test("GET /api/files lists only yaml files, relative and sorted", async () => {
         "components/instrumentList.yaml",
         "components/nibblesPanel.yaml",
         "components/optionsPanel.yaml",
+        "components/patternSidebar.yaml",
         "components/patternViewPanel.yaml",
         "components/pianoPanel.yaml",
         "components/sampleEditPanel.yaml",
@@ -247,8 +248,12 @@ test("a save followed by convert is reflected in the published outline", async (
     const convert = await (await api("/api/convert", { method: "POST" })).json();
     assert.equal(convert.published, true);
     const outline = JSON.parse(readFileSync(outlinePath, "utf8"));
-    assert.ok(JSON.stringify(outline.root).includes('"Start"'));
-    assert.ok(!JSON.stringify(outline.root).includes('"Play"'));
+    // Spec 072 gave the pattern sidebar's own transport row a "Play" button
+    // too, so a bare label-substring check would now find a real, unrelated
+    // "Play" elsewhere in the tree - asserting on controlBar's own Play
+    // button's specific compiled id is what this test actually means.
+    assert.ok(JSON.stringify(outline.root).includes('"main.controlBar.button.Start"'));
+    assert.ok(!JSON.stringify(outline.root).includes('"main.controlBar.button.Play"'));
     assert.equal(outline.sourceFileHashes["components/controlBar.yaml"], fileHash(edited));
     // restore
     await api("/api/source", { method: "PUT", body: { path: "components/controlBar.yaml", text, baseHash: (await save.json()).hash } });

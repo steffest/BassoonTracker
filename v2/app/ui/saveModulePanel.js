@@ -2,13 +2,13 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * saveModulePanel — UI structure generated from components/fileOperationsPanel.yaml:127.
+ * saveModulePanel — UI structure generated from components/fileOperationsPanel.yaml:416.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function saveModulePanel() {
-    return component("panel", { id: "main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.saveContent.saveModulePanel", name: "saveModulePanel", visibleWhen: {"field":"save-type.value","oneOf":["","Module"]} }, [
-        // action (components/fileOperationsPanel.yaml:138) on click -> file.save, lazy feature actions/fileSave.js
-        component("button", { id: "main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.saveContent.saveModulePanel.button.Export Module", label: "Export Module", on: { "click": (app, detail) => app.feature(() => import("../actions/fileSave.js"), m => m.fileSave(app, detail)) } })
+    return component("panel", { id: "main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.saveContent.saveModulePanel", name: "saveModulePanel", visibleWhen: {"field":"save-type.value","oneOf":["","Module"]} }, [
+        // action (components/fileOperationsPanel.yaml:427) on click -> file.save, lazy feature actions/fileSave.js
+        component("button", { id: "main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.saveContent.saveModulePanel.button.Export Module", label: "Export Module", on: { "click": (app, detail) => app.feature(() => import("../actions/fileSave.js"), m => m.fileSave(app, detail)) } })
     ]);
 }

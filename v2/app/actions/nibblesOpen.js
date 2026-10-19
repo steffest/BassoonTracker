@@ -2,7 +2,7 @@
 import { openNibblesView as implementation } from "../../domain/nibbles/index.js";
 
 /**
- * nibbles.open — generated from app.yaml:115: "verb-action".
+ * nibbles.open — generated from app.yaml:180: "verb-action".
  * Implemented by ./domain/nibbles/index.js#openNibblesView (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

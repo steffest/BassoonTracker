@@ -2,7 +2,7 @@
 import { setDiskTarget as implementation } from "../../domain/diskOperations/index.js";
 
 /**
- * disk-target.set — generated from components/fileOperationsPanel.yaml:65: "set-value".
+ * disk-target.set — generated from components/fileOperationsPanel.yaml:256: "set-value".
  * Implemented by ./domain/diskOperations/index.js#setDiskTarget (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

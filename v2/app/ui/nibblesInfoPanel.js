@@ -7,11 +7,11 @@ import { component } from "../../runtime/components.js";
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function nibblesInfoPanel() {
-    return component("panel", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesInfoPanel", name: "nibblesInfoPanel", layout: { width: { mode: "fill" }, direction: "row" }, visibleWhen: {"field":"nibbles-info-visible.value","oneOf":["true"]} }, [
-        component("label", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesInfoPanel.nibblesStatusText", name: "nibblesStatusText", field: "nibbles-status-text.value" }),
+    return component("panel", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesInfoPanel", name: "nibblesInfoPanel", layout: { width: { mode: "fill" }, direction: "row" }, visibleWhen: {"field":"nibbles-info-visible.value","oneOf":["true"]} }, [
+        component("label", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesInfoPanel.nibblesStatusText", name: "nibblesStatusText", field: "nibbles-status-text.value" }),
         // action (components/nibblesPanel.yaml:105) on click -> nibbles.start, lazy feature actions/nibblesStart.js
         component("button", {
-            id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesInfoPanel.nibblesPrimaryButton",
+            id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesInfoPanel.nibblesPrimaryButton",
             name: "nibblesPrimaryButton",
             field: "nibbles-button-label.value",
             on: { "click": (app, detail) => app.feature(() => import("../actions/nibblesStart.js"), m => m.nibblesStart(app, detail)) }

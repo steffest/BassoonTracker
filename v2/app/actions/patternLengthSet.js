@@ -2,7 +2,7 @@
 import { setPatternLength as implementation } from "../../domain/song/index.js";
 
 /**
- * pattern-length.set — generated from components/songProperties.yaml:106: "set-value".
+ * pattern-length.set — generated from components/songProperties.yaml:181: "set-value".
  * Implemented by ./domain/song/index.js#setPatternLength (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

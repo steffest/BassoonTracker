@@ -9,6 +9,11 @@
 
 import { loadModule, onSongEnd, setAutoPlay, transportStop } from "../playback/index.js";
 import { fetchGeneratedPlayList, fetchModuleUrl } from "../providers/index.js";
+import { rowsFieldOf } from "../../runtime/fileBrowserController.js";
+// Spec 073: an ordinary inter-module dependency (the same shape
+// domain/diskOperations reaching domain/playlist already is), not a new
+// documented exception - see activateSidebarTab's own comment below.
+import * as sampleCatalog from "../sampleCatalog/index.js";
 
 let currentPlaylist = null;
 let currentIndex = 0;
@@ -24,11 +29,88 @@ function setPlayOrder() {
     if (isShuffle) playOrder.sort(() => 0.5 - Math.random());
 }
 
-/** Ported from playlist.js#set (14-25), minus the EventBus trigger (no listener exists in v2 yet). */
-export function setPlaylist(data) {
+// Spec 072: the pattern sidebar's own Songs tab (components/patternSidebar.yaml)
+// - a fileBrowser bound to whatever playlist is currently set. Only
+// setPlaylist needs to publish: it is the one place the row *content*
+// (which songs exist) changes; playTrack/nextTrack/previousTrack change
+// which track is current, not the list, and the fileBrowser draws its own
+// selection highlight locally once clicked, the same as instrumentList
+// (spec 071).
+const SIDEBAR_SONGS_ROWS_FIELD = rowsFieldOf({ id: "main.normalMainView.patternSection.patternLeftColumn.patternSidebar.tabPanel.songsTab.songsList" });
+
+/**
+ * A playlist entry's own subtitle (spec 080, deep-parity-audit item 7 -
+ * v1's own real rows show a colored "author/year" line under the title,
+ * `script/src/ui/app/components/patternSidebar.js`'s own `item.info`/
+ * `item.infoExtra`) and format ("mod"/"xm", from the entry's own real file
+ * extension - v1 draws this as a small colored icon overlay, `icon.js`'s
+ * own `modbig`/`xmbig`; v2 has neither that sprite nor a colored-bitmap-font
+ * mechanism yet, so `richRows` draws a small colored *chip* instead, a
+ * documented, reasonably-faithful simplification, not the genuine gap those
+ * two are). Shared by the Songs tab (below) and the Playlists tab.
+ */
+function sidebarRowFrom(item) {
+    const row = { title: item.title };
+    const subtitle = [item.author, item.info].filter(Boolean).join(" · ");
+    if (subtitle) row.subtitle = subtitle;
+    const ext = String(item.url || "").split(".").pop().toLowerCase();
+    if (ext === "mod" || ext === "xm") row.format = ext;
+    return row;
+}
+
+function publishSidebarSongs(app) {
+    const rows = (currentPlaylist && Array.isArray(currentPlaylist.modules) ? currentPlaylist.modules : [])
+        .map(sidebarRowFrom);
+    if (app && app.state) app.state.set(SIDEBAR_SONGS_ROWS_FIELD, rows);
+}
+
+/**
+ * Ported from playlist.js#set (14-25), minus the EventBus trigger (no
+ * listener exists in v2 yet). `app` is optional (existing callers that
+ * predate spec 072 pass none) - when given, also republishes the pattern
+ * sidebar's own Songs tab (spec 072).
+ */
+export function setPlaylist(data, app) {
     currentPlaylist = data;
     currentIndex = 0;
     setPlayOrder();
+    publishSidebarSongs(app);
+}
+
+/**
+ * Populates the sidebar's own Songs tab with a curated demo list immediately
+ * on boot (spec 081, deep-parity-audit item 8) - matching v1's own real
+ * `script/src/editor.js#loadInitialFile` (loads a default demo module, then
+ * *also* loads `playlists/demosongs.json`, without playing it, purely to
+ * populate this same list). Only the population half is ported - v2 does
+ * not auto-load/auto-play a default module on boot (a separate, existing,
+ * deliberately lazy pattern - `transportToggle` loads one on first Play, not
+ * before), and the audit's own item 8 is specifically about the Songs tab
+ * starting empty, not about autoplay. Called once, unconditionally, from
+ * the generated `app/main.js`'s own `start()` (`compiler/emit.js` - the
+ * closest v2 equivalent of v1's own hand-written boot sequence, since
+ * `app/main.js` is itself generated, not hand-authored). `data/demosongs.json`
+ * and the `assets/demomods/*` files it references are v2's own copy of v1's
+ * real curated list and real files (`playlists/demosongs.json`,
+ * `demomods/*`) - not fetched from any external host. A failed fetch (no
+ * network, a stripped deployment without this asset) just leaves the Songs
+ * tab empty, exactly as before this spec - never a startup failure.
+ */
+export async function loadDefaultSongs(app) {
+    try {
+        const response = await fetch(assetUrl(app, "data/demosongs.json"));
+        if (!response.ok) return;
+        setPlaylist(await response.json(), app);
+    } catch {
+        // Best-effort only - see doc comment above.
+    }
+}
+
+/** The Songs tab's own `change` capability (spec 072) - selecting a row plays that track. */
+export async function setSidebarSongRow(app, detail) {
+    const index = detail && detail.value;
+    if (typeof index !== "number") return;
+    await playTrack(app, index);
 }
 
 export function getPlaylist() { return currentPlaylist; }
@@ -180,7 +262,7 @@ export async function openPlaylistUrl(app, url) {
         const name = url.split("/").pop().split("?")[0] || "playlist";
         const data = parsePlaylistFile(text, name);
         if (!data || !Array.isArray(data.modules)) return false;
-        setPlaylist(data);
+        setPlaylist(data, app);
         if (app && app.log) app.log("play-list.open", { name, count: data.modules.length });
         return true;
     } catch {
@@ -303,8 +385,64 @@ export async function openGeneratedPlaylist(app) {
         if (app && app.log) app.log("play-list.random", { error: "could not contact the API" });
         return false;
     }
-    setPlaylist(data);
+    setPlaylist(data, app);
     return playTrack(app, 0);
+}
+
+// Spec 072: the pattern sidebar's own Playlists tab - a curated snapshot of
+// assets/data/playlists.json (the same file domain/diskOperations already
+// fetches for its own "Playlists" disk-op target), fetched once and cached
+// here, separately from diskOperations's own copy - the two screens are
+// conceptually distinct ("open a file" vs. "browse while a song plays"), so
+// this is its own small fetch rather than a shared abstraction between them.
+const SIDEBAR_PLAYLISTS_ROWS_FIELD = rowsFieldOf({ id: "main.normalMainView.patternSection.patternLeftColumn.patternSidebar.tabPanel.playlistsTab.playlistsList" });
+let sidebarPlaylistsRoot = null;
+
+function assetUrl(app, path) {
+    const base = app && app.media ? app.media : new URL("../../assets/", import.meta.url);
+    return new URL(path, base).href;
+}
+
+async function loadSidebarPlaylistsRoot(app) {
+    if (sidebarPlaylistsRoot) return sidebarPlaylistsRoot;
+    const response = await fetch(assetUrl(app, "data/playlists.json"));
+    const data = response.ok ? await response.json() : null;
+    sidebarPlaylistsRoot = Array.isArray(data && data.modules) ? data.modules : [];
+    return sidebarPlaylistsRoot;
+}
+
+/** Test-only: clears the cached Playlists-tab root so each test can mock its own fetch. */
+export function resetSidebarPlaylistsCache() {
+    sidebarPlaylistsRoot = null;
+}
+
+/**
+ * The sidebar's own `tabPanel`'s `change` capability - lazily fetches the
+ * Playlists tab's own rows the first time it becomes active (items[2] -
+ * Songs/Samples/Playlists, v1's own real tab order, spec 073's own
+ * insertion of the Samples tab moved this from 1 to 2), mirroring v1's own
+ * `panel.onShow` lazy-fetch shape (script/src/ui/app/components/
+ * patternSidebar.js:241-250) since v2 has no generic "on tab activate"
+ * hook. Also fans out to domain/sampleCatalog's own identical hook for the
+ * Samples tab (index 1) - one authored `change:` action on the tabPanel,
+ * since there is no precedent anywhere in this app's YAML for two bindings
+ * on the same (node, event) pair; sampleCatalog's own function self-guards
+ * on its own index, so calling it unconditionally here is safe.
+ */
+export async function activateSidebarTab(app, detail) {
+    await sampleCatalog.activateSamplesTab(app, detail);
+    if (!detail || detail.value !== 2) return;
+    const rows = (await loadSidebarPlaylistsRoot(app)).map(sidebarRowFrom);
+    if (app && app.state) app.state.set(SIDEBAR_PLAYLISTS_ROWS_FIELD, rows);
+}
+
+/** The Playlists tab's own `change` capability - selecting a row loads that playlist. */
+export async function setSidebarPlaylistRow(app, detail) {
+    const index = detail && detail.value;
+    const root = await loadSidebarPlaylistsRoot(app);
+    const item = typeof index === "number" ? root[index] : null;
+    if (!item || !item.url) return;
+    await openPlaylistUrl(app, assetUrl(app, item.url));
 }
 
 function sleep(ms) {

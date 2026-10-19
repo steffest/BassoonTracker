@@ -2,13 +2,27 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * notifications — UI structure generated from app.yaml:137.
+ * notifications — UI structure generated from app.yaml:206.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function notifications() {
-    return component("panel", { id: "main.top.notifications", name: "notifications" }, [
-        // custom:notification light "Key" (app.yaml:140) is not rendered: unsupported component. See LOOSE-ENDS.md.
-        // custom:notification light "Midi" (app.yaml:146) is not rendered: unsupported component. See LOOSE-ENDS.md.
+    return component("panel", { id: "main.top.stripContent.notifications", name: "notifications", layout: { width: { mode: "fixed", size: 50 }, height: { mode: "fixed", size: 32 }, padding: 0, collapseEmpty: true }, style: "transparent" }, [
+        component("notificationLight", {
+            id: "main.top.stripContent.notifications.notificationLight.Key",
+            label: "Key",
+            layout: { width: { mode: "fixed", size: 49 }, height: { mode: "fixed", size: 13 }, position: "viewport", right: 7, top: 4 },
+            visibleWhen: {"field":"show-key-input.active","oneOf":["true"]},
+            signal: "keyPreview"
+        }),
+        // style -> notificationLight/midi (skin/default.yaml:1138)
+        component("notificationLight", {
+            id: "main.top.stripContent.notifications.notificationLight.Midi",
+            label: "Midi",
+            layout: { width: { mode: "fixed", size: 49 }, height: { mode: "fixed", size: 13 }, position: "viewport", right: 7, top: 16 },
+            style: "midi",
+            visibleWhen: {"field":"show-midi-input.active","oneOf":["true"]},
+            signal: "midiIn"
+        })
     ]);
 }

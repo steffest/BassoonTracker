@@ -2,7 +2,7 @@
 import { setInstrumentIndex as implementation } from "../../domain/sampleEditor/index.js";
 
 /**
- * instrument-index.set — generated from components/sampleEditPanel.yaml:35: "set-value".
+ * instrument-index.set — generated from components/songProperties.yaml:197: "set-value".
  * Implemented by ./domain/sampleEditor/index.js#setInstrumentIndex (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

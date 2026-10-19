@@ -29,7 +29,10 @@ export const SETTINGS_FIELDS = {
     "help-bubbles.active": ["useTooltip", true],
     "stereo-separation.value": ["stereoSeparation", "Balanced"],
     "show-key-input.active": ["showKey", false],
-    "screen-refresh.value": ["skipFrame", 1],
+    // Spec 098: v1's own default is 0 - `var skipRenderSteps = 0`
+    // (script/src/ui/ui.js:39), which is the "Smooth" choice, and the
+    // Options panel lights it on a fresh profile. 1 lit "Normal" instead.
+    "screen-refresh.value": ["skipFrame", 0],
     "high-dpi.active": ["highDPI", false],
     "dropbox-mode.value": ["dropboxMode", "Rename"],
     "midi-input.value": ["midi", "Disabled"],

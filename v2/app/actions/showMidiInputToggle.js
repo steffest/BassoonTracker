@@ -2,7 +2,7 @@
 import { toggleShowMidiInput as implementation } from "../../domain/settings/index.js";
 
 /**
- * show-midi-input.toggle — generated from components/optionsPanel.yaml:194: "toggle-generic".
+ * show-midi-input.toggle — generated from components/optionsPanel.yaml:510: "toggle-generic".
  * Implemented by ./domain/settings/index.js#toggleShowMidiInput (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

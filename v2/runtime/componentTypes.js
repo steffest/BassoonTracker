@@ -32,6 +32,7 @@ export const UNIVERSAL_PROPERTIES = {
     description: { kind: "prose", description: "Prose documentation for this component. Not rendered." },
     shortKey: { kind: "key", description: "Keyboard shortcut, e.g. \"Ctrl+S\". Activates this component from anywhere, respecting disabled (spec 015)." },
     tooltip: { kind: "text", description: "Text shown after hovering this component for a delay (spec 015). No component declares the tooltip type itself yet (P5); this is a plain property any type can carry." },
+    labelMinWidths: { kind: "text", description: "Comma-separated minimum component widths, one per `label:` alternative in the same order (longest first). The first alternative whose width the component's own rect reaches is drawn; below the last threshold the longest one is kept. This is v1's own per-instance setLabels contract (script/src/ui/components/button.js#setLabels), which is instance data rather than skin data - two choices in the same group carry different thresholds." },
     breakpoints: { kind: "map", description: "A declared breakpoint mechanism (spec 025): a sequence of { maxWidth, layout }, each a partial layout override applied when the viewport is at most maxWidth wide. The narrowest matching one wins, replacing v1's hand-written per-pixel cascade (script/src/ui/app/layout.js)." },
     visibleWhen: { kind: "map", description: "{ field, oneOf }: this node (and its subtree) is absent from layout, drawing and hit-testing entirely unless the named state field's current value is one of oneOf (spec 025) - the mechanism v1's EVENT.showView view-routing needs, generalized to any node rather than a fixed set of named regions." }
 };
@@ -173,7 +174,7 @@ export const COMPONENT_TYPES = {
         selection: null,
         direction: "row",
         cursor: "default",
-        draw: "none",
+        draw: "background",
         authoredIn: null,
         properties: {}
     },
@@ -190,7 +191,9 @@ export const COMPONENT_TYPES = {
         cursor: "pointer",
         draw: "backgroundLabel",
         authoredIn: "radioGroup.items",
-        properties: {}
+        properties: {
+            disabledBelowWidth: { kind: "number", description: "Disable this choice while the viewport is narrower than this CSS-pixel width." }
+        }
     },
 
     checkbox: {
@@ -212,7 +215,7 @@ export const COMPONENT_TYPES = {
         description: "A row of top-level items, each opening a submenu of commands (spec 023). Draws nothing of its own - each item is a synthesized menuTrigger, exactly as a dropdown's popup is synthesized, so a menu is composition of already-implemented mechanism (specs 013/015/020) rather than a new one. An item authored as type: submenu becomes a trigger that opens it; any other item (a plain button, say) stays exactly as authored and dispatches its own command normally.",
         implemented: true,
         container: { childrenIn: "items" },
-        styled: false,
+        styled: true,
         interactive: false,
         wrapsFlyoutItems: true,
         exclusiveOverlayChildren: true,
@@ -228,7 +231,7 @@ export const COMPONENT_TYPES = {
         description: "The clickable top-level item a menu or a submenu wraps around a nested submenu (spec 023) - synthesized at mount time, never authored, from any item whose own type is submenu. A second use of dropdown's own \"disclose\" behavior: its click opens/closes its synthesized child (the original authored submenu), anchored per its own popupEdge instance property (\"below\" for a menu's own top-level items, \"right\" for one nested inside an already-open submenu) rather than dropdown's fixed \"below\".",
         implemented: true,
         container: null,
-        styled: false,
+        styled: true,
         interactive: true,
         behavior: "disclose",
         selection: null,
@@ -268,6 +271,7 @@ export const COMPONENT_TYPES = {
         interactive: true,
         behavior: "value",
         behaviorOptions: { mode: "relative", axis: "y", stepper: true },
+        ticks: true,
         selection: null,
         direction: null,
         cursor: "ns-resize",
@@ -277,7 +281,10 @@ export const COMPONENT_TYPES = {
             field: { kind: "reference", description: "The state field holding the value. Written on every change and read back as the authority for what the control shows." },
             min: { kind: "number", description: "Lowest value. Defaults to 0." },
             max: { kind: "number", description: "Highest value. Defaults to 100." },
-            step: { kind: "number", description: "Increment per press of the stepper and per wheel notch. Defaults to 1." }
+            step: { kind: "number", description: "Increment per press of the stepper and per wheel notch. Defaults to 1." },
+            stepperWidth: { kind: "number", description: "Width of each stepper button. Defaults to 12." },
+            stepperDirection: { kind: "text", description: "Stepper arrangement: horizontal places up/down side by side; the default is stacked." },
+            padLength: { kind: "number", description: "Minimum digit count, padded on the left with spaces." }
         }
     },
 
@@ -444,7 +451,7 @@ export const COMPONENT_TYPES = {
         description: "A scrollable, hierarchical list whose rows are runtime data (spec 035), not authored children - the port's second specialized-component leaf after patternGrid, for the same reason: an unbounded, dynamically-changing row count (a remote catalog listing, lazily expanded) cannot be authored YAML. Its own controller (behavior \"rowList\", named apart from this type so a type-name branch stays mechanically detectable) and draw kind read a bound row array instead of domain/song, so unlike patternGrid it is data-source-agnostic - any capability may publish rows to it. A row's own meaning (branch vs. leaf) is entirely opaque to this type: a bound change command decides what a click on a row means, the same as any other value-like control.",
         implemented: true,
         container: null,
-        styled: false,
+        styled: true,
         interactive: true,
         behavior: "rowList",
         selection: null,
@@ -453,7 +460,10 @@ export const COMPONENT_TYPES = {
         draw: "fileBrowser",
         authoredIn: null,
         properties: {
-            field: { kind: "reference", description: "The state field holding the selected row's index into the current row array. A change dispatches { value: index }; a capability decides what that row means." }
+            field: { kind: "reference", description: "The state field holding the selected row's index into the current row array. A change dispatches { value: index }; a capability decides what that row means." },
+            richRows: { kind: "flag", description: "Draws two lines per row (a title, then a dimmed subtitle) and a small colored format chip, instead of one plain line (spec 080, deep-parity-audit item 7 - matching v1's own real Songs/Samples/Playlists row rendering, patternSidebar.js's own itemRenderFunction). A row may carry `subtitle` and/or `format` (\"mod\"/\"xm\") alongside the plain shape's `title`/`level`/`icon`/`info`. Taller rows (renderers/canvas/fileBrowserGeometry.js's RICH_ROW_HEIGHT vs. ROW_HEIGHT) - the same field a plain fileBrowser publishes, just drawn and hit-tested against a different row height." },
+            centerSelection: { kind: "flag", description: "Keeps the selected row vertically centered, matching v1's SongPatternList listbox mode." },
+            rowHeight: { kind: "number", description: "Optional authored row height; defaults to the ordinary or rich-row height." }
         }
     },
 
@@ -556,7 +566,7 @@ export const COMPONENT_TYPES = {
         description: "The live per-track oscilloscope grid (spec 058) - the port's ninth specialized-component leaf, after patternGrid, fileBrowser, waveformView, loopCreatorView, nibblesGrid, multitrackView, volumeMeter and envelopeView. Its own controller (behavior \"scopes\", named apart from this type for the same type-name-collision reason every other specialized leaf's own behavior is) and draw kind read domain/song/domain/arrangement directly (getTrackScopeData/getTrackMuteSolo/toggleTrackMute, specs 051/052) - no new domain work at all, the first specialized leaf needing none. Only v1's own \"tracks\" mode is ported - \"wave\"/\"spectrum\" are declared labels with no rendering path behind them in v1 itself (its own render() always calls the one render method the file defines, regardless of the cycled mode - confirmed by reading the whole file). A click toggles that track's own mute directly - no capabilities.js mapping, the same self-contained shape multitrackView's own control-strip clicks already have.",
         implemented: true,
         container: null,
-        styled: false,
+        styled: true,
         interactive: true,
         behavior: "scopes",
         ticks: true,
@@ -581,6 +591,39 @@ export const COMPONENT_TYPES = {
         draw: "pianoView",
         authoredIn: null,
         properties: {}
+    },
+
+    trackControl: {
+        description: "The classic grid's own per-track Solo/Mute/FX header (spec 074) - the port's eleventh specialized-component leaf, after patternGrid, fileBrowser, waveformView, loopCreatorView, nibblesGrid, multitrackView, volumeMeter, envelopeView, scopesView and pianoView. Its own controller (behavior \"trackControl\") and draw kind read domain/song/domain/arrangement directly (getTrackMuteSolo/toggleTrackMute/toggleTrackSolo, spec 051) - no new domain work, the same contract scopesView already has. Aligns with patternGrid's own column geometry (patternGridGeometry.js's trackSlotX/trackWidth) but does not track its live horizontal scroll - patternGrid's own startTrack is private controller state nothing else can read, and scopesView (the existing precedent for a sibling-above-the-grid widget) does not track it either; both assume startTrack 0 (see requirements.md). FX is drawn and hit-tested but dispatches nothing - no FX panel exists anywhere in v2 yet, the same situation multitrackView's own Record button is already in.",
+        implemented: true,
+        container: null,
+        styled: false,
+        interactive: true,
+        behavior: "trackControl",
+        selection: null,
+        direction: null,
+        cursor: "default",
+        draw: "trackControl",
+        authoredIn: null,
+        properties: {}
+    },
+
+    notificationLight: {
+        description: "A small label plus a square light that flashes briefly on a real event (spec 083) - the top menu bar's own \"Key\"/\"Midi\" indicators, the port's twelfth specialized-component leaf, after patternGrid, fileBrowser, waveformView, loopCreatorView, nibblesGrid, multitrackView, volumeMeter, envelopeView, scopesView, pianoView and trackControl. Ported from v1's own real script/src/ui/app/menu.js:81-95 (a Label plus a non-interactive Checkbox - the same checkbox_off/checkbox_on artwork this port's own `checkbox` type already uses - toggled true then back to false after 100ms by v1's own `flash()`). v2 has no timer-driven state here at all: `ticks: true` keeps the renderer's own clock alive while mounted (the same reason volumeMeter needs a controller for `ticks` to take effect even though it does almost nothing), and the draw kind polls `signal` (`node.signal`, read the same generic way envelopeView's own `envelopeType` is) against a small, real elapsed-time check in whichever domain module actually owns that event - edge-triggered, matching v1's own flash exactly, with no timeout to leak or cancel. \"keyPreview\" (domain/playback#wasNotePreviewedRecently) is real - it fires for both an on-screen piano click and, if this port ever gains one, a physical-keyboard note preview, the same as v1's own EVENT.pianoNoteOn does for both input paths today. \"midiIn\" is not: v2 has no Web MIDI integration at all (domain/playback/README.md's own recorded scope boundary, predating this spec) - the light is drawn, right-aligned and gated by the real \"show midi input\" setting exactly like v1, but never flashes, an honest limitation rather than a faked one.",
+        implemented: true,
+        container: null,
+        styled: true,
+        interactive: true,
+        behavior: "notificationLight",
+        selection: null,
+        direction: null,
+        cursor: "default",
+        draw: "notificationLight",
+        ticks: true,
+        authoredIn: null,
+        properties: {
+            signal: { kind: "text", description: "Which real domain event this light polls for (\"keyPreview\" is real; \"midiIn\" is drawn but never flashes - v2 has no MIDI input at all). Read generically by property name, the same way envelopeView's own envelopeType is." }
+        }
     },
 
     listbox: {
@@ -658,6 +701,21 @@ export const COMPONENT_TYPES = {
         isMenuFlyout: true,
         cursor: "default",
         draw: "submenu",
+        // v1's own real background, "button_light" (spec 083,
+        // script/src/ui/components/submenu.js:111-112) - hardcoded in the
+        // draw kind itself (drawn directly against the resolved asset, not
+        // through a skin style, since this type is unstyled), so nothing
+        // authored ever names it the way an image/icon node's own src does.
+        // `staticAssetOf(type)` is how convert.js's own asset-use walk
+        // still finds it, registry-driven rather than a type-name branch.
+        staticAsset: "button_light",
+        // v1's own real row geometry (script/src/ui/components/submenu.js:12,
+        // `_itemHeight = 26`) - rows packed edge-to-edge with no padding and
+        // no gap, not this codebase's usual generic column spacing (spec 083's
+        // own pixel-parity follow-up: the mismatch between this fixed value
+        // and the generic column's own padding/gap was the real cause of the
+        // hover highlight and divider lines not lining up).
+        packedRowHeight: 26,
         authoredIn: null,
         properties: {}
     },
@@ -685,10 +743,10 @@ export const COMPONENT_TYPES = {
     },
 
     tabPanel: {
-        description: "A row of tab buttons, each showing one child's own subtree; only the active one is laid out, drawn or hit-testable at all (spec 021). v1's version also hard-codes a footer strip and a tracker-specific layout constant, neither of which belongs in a generic catalogue type - both stay out of scope, an authored screen's concern rather than this type's.",
+        description: "A row of tab buttons, each showing one child's own subtree; only the active one is laid out, drawn or hit-testable. Authored offsets and tab widths allow legacy overlapping tabs without making the generic renderer aware of a screen or component id.",
         implemented: true,
         container: { childrenIn: "items" },
-        styled: false,
+        styled: true,
         interactive: true,
         behavior: "tabs",
         tabHeader: { height: 24 },
@@ -698,7 +756,14 @@ export const COMPONENT_TYPES = {
         draw: "tabPanel",
         authoredIn: null,
         properties: {
-            field: { kind: "reference", description: "The state field holding the active tab's index, 0-based into items. Falls back to a derived field, exactly as listbox's does, when not authored." }
+            field: { kind: "reference", description: "The state field holding the active tab's index, 0-based into items. Falls back to a derived field, exactly as listbox's does, when not authored." },
+            headerHeight: { kind: "number", description: "Instance-specific header hit area; defaults to the catalogue tabHeader height." },
+            contentOffsetX: { kind: "number", description: "Active content's authored horizontal inset." },
+            contentOffsetY: { kind: "number", description: "Active content's authored vertical offset." },
+            contentWidthOffset: { kind: "number", description: "Amount added to the active content width after its horizontal inset." },
+            contentHeightOffset: { kind: "number", description: "Amount added to the active content height independently of its y offset." },
+            tabWidths: { kind: "text", description: "Comma-separated tab widths; adjacent tabs overlap by tabOverlap pixels." },
+            tabOverlap: { kind: "number", description: "Overlap between consecutive authored tab widths." }
         }
     },
 
@@ -798,6 +863,24 @@ export function childSlot(type) {
 export function assetPropertyOf(type) {
     const entry = componentType(type);
     return entry && entry.assetProperty ? entry.assetProperty : null;
+}
+
+/** A fixed skin asset a type's own draw kind always uses, not named by any authored property - submenu's own background (spec 083). Null for every other type. */
+export function staticAssetOf(type) {
+    const entry = componentType(type);
+    return entry && entry.staticAsset ? entry.staticAsset : null;
+}
+
+/**
+ * A container whose direct children are packed edge-to-edge at one fixed row
+ * height, with no padding and no gap - submenu's own real layout
+ * (`script/src/ui/components/submenu.js`'s own `_itemHeight = 26`, rows
+ * stacked with zero margin, spec 083's own pixel-parity follow-up). `null`
+ * for every generically-padded column/row container.
+ */
+export function packedRowHeightOf(type) {
+    const entry = componentType(type);
+    return entry && entry.packedRowHeight ? entry.packedRowHeight : null;
 }
 
 /** Artwork is only resolved for a type that both declares it and can be drawn. */

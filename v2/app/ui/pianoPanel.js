@@ -3,12 +3,12 @@ import { component } from "../../runtime/components.js";
 import { pianoHeaderRow } from "./pianoHeaderRow.js";
 
 /**
- * pianoPanel — UI structure generated from components/pianoPanel.yaml:1. Referenced from app.yaml:182.
+ * pianoPanel — UI structure generated from components/pianoPanel.yaml:1. Referenced from app.yaml:292.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function pianoPanel() {
-    return component("panel", { id: "main.pianoPanel", name: "pianoPanel", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 200 }, direction: "column" }, visibleWhen: {"field":"piano.active","oneOf":["true"]} }, [
+    return component("panel", { id: "main.pianoPanel", name: "pianoPanel", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 200 }, direction: "column" }, breakpoints: [{"maxHeight":800,"layout":{"height":{"mode":"fixed","size":150}}},{"maxHeight":650,"layout":{"height":{"mode":"fixed","size":100}}}], visibleWhen: {"field":"piano.active","oneOf":["true"]} }, [
         pianoHeaderRow(),
         component("pianoView", { id: "main.pianoPanel.pianoKeys", name: "pianoKeys", layout: { width: { mode: "fill" }, height: { mode: "fill" } } })
     ]);

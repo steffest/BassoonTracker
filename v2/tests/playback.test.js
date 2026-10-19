@@ -344,6 +344,30 @@ test("loadModule retries a network-level fetch failure through the proxy, then l
     }
 });
 
+// --- spec 081: a relative url resolves against app.media, not the page's own location ---
+
+test("loadModule resolves a relative url (a curated playlist's own real shape, e.g. \"demomods/x.mod\") against app.media, not the page's own location", async () => {
+    reset();
+    const fixtureBytes = new Uint8Array(readFileSync(join(FIXTURES, "wizballalt.mod"))).buffer;
+    const originalFetch = globalThis.fetch;
+    const originalAudioContext = globalThis.AudioContext;
+    if (!globalThis.AudioContext) globalThis.AudioContext = class {};
+    const requested = [];
+    try {
+        globalThis.fetch = async url => { requested.push(url); return { ok: true, arrayBuffer: async () => fixtureBytes }; };
+        const { app } = fakeApp();
+        app.audioContext = context;
+        app.media = new URL("https://example.com/assets/");
+        await loadModule(app, "demomods/StardustMemories.mod");
+        assert.deepEqual(requested, ["https://example.com/assets/demomods/StardustMemories.mod"]);
+    } finally {
+        globalThis.fetch = originalFetch;
+        if (originalAudioContext === undefined) delete globalThis.AudioContext;
+        else globalThis.AudioContext = originalAudioContext;
+        reset();
+    }
+});
+
 // --- spec 050: ft-mode.active, the FT-only side panel's own disabledWhen --
 
 test("loadModule publishes ft-mode.active, correctly, for both a .mod and a .xm fixture", async () => {
@@ -412,8 +436,8 @@ test("loadModule also publishes song.bpm and domain/song's own display state (cu
         for (const field of ["current-pattern.value", "instrument-index.value", "song-length.value", "song-repeat.value", "pattern-length.value"]) {
             assert.ok(store.has(field), `${field} was published`);
         }
-        assert.ok(store.get("rows.main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList.list"));
-        assert.ok(store.get("rows.main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.instrumentGroup.instrumentList"));
+        assert.ok(store.get("rows.main.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList.list"));
+        assert.ok(store.get("rows.main.songProperties.songPropertiesDefault.songPropertiesLayout.instrumentGroup.instrumentList"));
     } finally {
         globalThis.fetch = originalFetch;
         if (originalAudioContext === undefined) delete globalThis.AudioContext;

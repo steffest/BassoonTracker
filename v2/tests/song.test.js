@@ -574,7 +574,7 @@ test("publishSongPatternRows: one row per song-position entry, '<step>:<pattern>
     song.patternTable[1] = 10;
     const { app, store } = fakeApp();
     SongDoc.publishSongPatternRows(app);
-    const rows = store.get("rows.main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList.list");
+    const rows = store.get("rows.main.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList.list");
     assert.deepEqual(rows, [{ title: "01:03" }, { title: "02:10" }]);
 });
 
@@ -583,7 +583,7 @@ test("publishInstrumentRows: one row per instrument slot, hex index plus name", 
     SongDoc.setCurrentInstrumentIndex(1);
     Tracker.getInstrument(1).name = "lead";
     SongDoc.publishInstrumentRows(app);
-    const rows = store.get("rows.main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.instrumentGroup.instrumentList");
+    const rows = store.get("rows.main.songProperties.songPropertiesDefault.songPropertiesLayout.instrumentGroup.instrumentList");
     assert.equal(rows.length, SongDoc.getMaxInstruments());
     // formatInstrumentIndex(1) is itself "1 " (space-padded to two
     // characters, matching every double-digit hex index's own width) -
@@ -608,7 +608,7 @@ test("setSongLength: growing calls addToPatternTable once, shrinking calls remov
     SongDoc.setSongLength(app, { value: before + 1 });
     assert.equal(song.length, before + 1);
     assert.equal(store.get("song-length.value"), before + 1);
-    assert.ok(store.get("rows.main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList.list"));
+    assert.ok(store.get("rows.main.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList.list"));
 
     SongDoc.setSongLength(app, { value: before });
     assert.equal(song.length, before);
@@ -679,6 +679,6 @@ test("publishSongProperties: republishes every song-properties field and both ro
     for (const field of ["current-pattern.value", "instrument-index.value", "song-length.value", "song-repeat.value", "pattern-length.value"]) {
         assert.ok(store.has(field), `${field} was published`);
     }
-    assert.ok(store.get("rows.main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList.list"));
-    assert.ok(store.get("rows.main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.instrumentGroup.instrumentList"));
+    assert.ok(store.get("rows.main.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup.songPatternList.list"));
+    assert.ok(store.get("rows.main.songProperties.songPropertiesDefault.songPropertiesLayout.instrumentGroup.instrumentList"));
 });

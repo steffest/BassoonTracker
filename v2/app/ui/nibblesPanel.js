@@ -4,12 +4,12 @@ import { nibblesGameView } from "./nibblesGameView.js";
 import { nibblesHighScoreView } from "./nibblesHighScoreView.js";
 
 /**
- * nibblesPanel — UI structure generated from components/nibblesPanel.yaml:1. Referenced from components/songProperties.yaml:166.
+ * nibblesPanel — UI structure generated from components/nibblesPanel.yaml:1. Referenced from components/songProperties.yaml:276.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function nibblesPanel() {
-    return component("panel", { id: "main.normalMainView.songProperties.nibblesPanel", name: "nibblesPanel", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" }, visibleWhen: {"field":"song-properties-view.value","oneOf":["Nibbles"]} }, [
+    return component("panel", { id: "main.songProperties.nibblesPanel", name: "nibblesPanel", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" }, visibleWhen: {"field":"song-properties-view.value","oneOf":["Nibbles"]} }, [
         nibblesGameView(),
         nibblesHighScoreView()
     ]);

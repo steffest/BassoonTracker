@@ -6,6 +6,8 @@
 // a documented generic size and says so in the warning.
 
 const RESIZABLE_VALUES = ["horizontal", "vertical"];
+export const EXTRA_LAYOUT_FIELDS = ["padding", "gap", "position", "left", "right", "top", "bottom", "offsetX", "offsetY", "widthOffset", "heightOffset", "horizontalFrame", "collapseEmpty", "distribute"];
+
 const DIRECTION_VALUES = ["row", "column"];
 
 // Last-resort defaults for a "fixed" dimension with no explicit number.
@@ -24,6 +26,10 @@ const FALLBACK_DEFAULT = { width: 100, height: 24 };
 function resolveDimension(type, dimension, rawValue, warnings, nodeLabel, defaults) {
     if (rawValue === undefined || rawValue === null) return { mode: "auto" };
     if (rawValue === "fill") return { mode: "fill" };
+    // v1's own real viewport-relative width (runtime/genericLayout.js's own
+    // col2Width() - ported from script/src/ui/app/layout.js's "5-column"
+    // system) - width only; a height authoring this is a mistake.
+    if (["col1", "col1Minus5", "col2", "col2Exact", "col5", "col1Third", "col2HalfThird", "controlViewButton", "modeDisplay"].includes(rawValue) && dimension === "width") return { mode: rawValue };
     const numeric = Number(rawValue);
     if (rawValue === "fixed" || Number.isFinite(numeric)) {
         if (Number.isFinite(numeric) && rawValue !== "fixed") {
@@ -69,6 +75,25 @@ export function resolveLayoutFields(type, raw, nodeLabel, defaults) {
         } else {
             warnings.push(`unsupported layout.resizable value "${raw.resizable}" on ${nodeLabel}`);
         }
+    }
+    for (const key of EXTRA_LAYOUT_FIELDS) {
+        const value = raw?.[key];
+        if (value === undefined || value === null) continue;
+        if (key === "position" && ["absolute", "viewport"].includes(value)) layout[key] = value;
+        // Spec 098: v1 sizes an evenly divided row with an integer division
+        // and simply leaves the remainder unused at the far end
+        // (`Math.floor((width - margin * (cols + 1)) / cols)`,
+        // script/src/ui/optionsPanel.js:276). The generic row divides the
+        // same space as an exact fraction, which puts every column after the
+        // first on a sub-pixel boundary. "floor" is that same integer
+        // division, authored rather than special-cased.
+        else if (key === "distribute" && value === "floor") layout[key] = value;
+        else if (key === "horizontalFrame" && value === "patternTracks") layout[key] = value;
+        else if (key === "collapseEmpty" && ["true", "false", true, false].includes(value)) layout[key] = String(value) === "true";
+        else if (["left", "right"].includes(key) && ["columnMargin", "col2Left", "col3Left", "col4Left", "controlButtonsLeft", "modeButtonsLeft", "modeAuxButtonsLeft"].includes(value)) layout[key] = value;
+        else if (key === "offsetX" && (value === "selfWidth" || /^\d+(?:\.\d+)?selfWidth$/.test(String(value)))) layout[key] = value;
+        else if (!["position", "horizontalFrame", "collapseEmpty", "distribute"].includes(key) && Number.isFinite(Number(value)) && (key !== "padding" || Number(value) >= 0)) layout[key] = Number(value);
+        else warnings.push(`unsupported layout.${key} value "${value}" on ${nodeLabel}`);
     }
     return { layout, warnings };
 }

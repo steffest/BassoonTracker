@@ -14,6 +14,18 @@ export const SKIN = {
     },
     "assets": [
         {
+            "name": "background",
+            "file": "src/background.png"
+        },
+        {
+            "name": "bar",
+            "file": "src/bar.png"
+        },
+        {
+            "name": "bar_hover",
+            "file": "src/bar_hover.png"
+        },
+        {
             "name": "button_hover_green",
             "file": "src/button_hover_green.png"
         },
@@ -54,6 +66,10 @@ export const SKIN = {
             "file": "src/button_inlay_red_hover.png"
         },
         {
+            "name": "button_light",
+            "file": "src/button_light.png"
+        },
+        {
             "name": "checkbox_off",
             "file": "src/checkbox_off.png"
         },
@@ -62,8 +78,52 @@ export const SKIN = {
             "file": "src/checkbox_on.png"
         },
         {
+            "name": "disk",
+            "file": "src/disk.png"
+        },
+        {
+            "name": "favbig",
+            "file": "src/favbig.png"
+        },
+        {
             "name": "font",
             "file": "src/font.png"
+        },
+        {
+            "name": "gold",
+            "file": "src/gold.png"
+        },
+        {
+            "name": "inext",
+            "file": "src/inext.png"
+        },
+        {
+            "name": "iplay",
+            "file": "src/iplay.png"
+        },
+        {
+            "name": "iprev",
+            "file": "src/iprev.png"
+        },
+        {
+            "name": "ishuffle",
+            "file": "src/ishuffle.png"
+        },
+        {
+            "name": "keybutton",
+            "file": "src/keybutton.png"
+        },
+        {
+            "name": "keybutton_highlight3",
+            "file": "src/keybutton_highlight3.png"
+        },
+        {
+            "name": "keybutton_hover",
+            "file": "src/keybutton_hover.png"
+        },
+        {
+            "name": "line_hor",
+            "file": "src/line_hor.png"
         },
         {
             "name": "logo_colour_70",
@@ -74,26 +134,146 @@ export const SKIN = {
             "file": "src/logo_grey_70.png"
         },
         {
+            "name": "menu",
+            "file": "src/menu.png"
+        },
+        {
+            "name": "modbig",
+            "file": "src/modbig.png"
+        },
+        {
+            "name": "oscilloscope",
+            "file": "src/oscilloscope.png"
+        },
+        {
             "name": "panel_dark",
             "file": "src/panel_dark.png"
+        },
+        {
+            "name": "panel_dark_greyish",
+            "file": "src/panel_dark_greyish.png"
+        },
+        {
+            "name": "panel_inset",
+            "file": "src/panel_inset.png"
         },
         {
             "name": "panel_inset_dark",
             "file": "src/panel_inset_dark.png"
         },
         {
+            "name": "panel_inset_dark_active",
+            "file": "src/panel_inset_dark_active.png"
+        },
+        {
+            "name": "panel_inset_dark_inactive",
+            "file": "src/panel_inset_dark_inactive.png"
+        },
+        {
+            "name": "play_active_red",
+            "file": "src/play_active_red.png"
+        },
+        {
+            "name": "play_green",
+            "file": "src/play_green.png"
+        },
+        {
+            "name": "play_green_hover",
+            "file": "src/play_green_hover.png"
+        },
+        {
+            "name": "radio_active",
+            "file": "src/radio_active.png"
+        },
+        {
+            "name": "radio_big_active",
+            "file": "src/radio_big_active.png"
+        },
+        {
+            "name": "radio_big_inactive",
+            "file": "src/radio_big_inactive.png"
+        },
+        {
+            "name": "radio_inactive",
+            "file": "src/radio_inactive.png"
+        },
+        {
+            "name": "record",
+            "file": "src/record.png"
+        },
+        {
+            "name": "record_active",
+            "file": "src/record_active.png"
+        },
+        {
+            "name": "record_hover",
+            "file": "src/record_hover.png"
+        },
+        {
+            "name": "tab",
+            "file": "src/tab.png"
+        },
+        {
+            "name": "tab_border",
+            "file": "src/tab_border.png"
+        },
+        {
+            "name": "tab_panel",
+            "file": "src/tab_panel.png"
+        },
+        {
+            "name": "tab_panel_bottom",
+            "file": "src/tab_panel_bottom.png"
+        },
+        {
+            "name": "tab_panel_corner",
+            "file": "src/tab_panel_corner.png"
+        },
+        {
             "name": "togglecorner",
             "file": "src/togglecorner.png"
         },
         {
+            "name": "toggleleft",
+            "file": "src/toggleleft.png"
+        },
+        {
             "name": "tracker",
             "file": "src/tracker.png"
+        },
+        {
+            "name": "vu_green",
+            "file": "src/vu_green.png"
+        },
+        {
+            "name": "vu_green_active",
+            "file": "src/vu_green_active.png"
+        },
+        {
+            "name": "vu_red",
+            "file": "src/vu_red.png"
+        },
+        {
+            "name": "vu_red_active",
+            "file": "src/vu_red_active.png"
+        },
+        {
+            "name": "vu_yellow",
+            "file": "src/vu_yellow.png"
+        },
+        {
+            "name": "vu_yellow_active",
+            "file": "src/vu_yellow_active.png"
+        },
+        {
+            "name": "xmbig",
+            "file": "src/xmbig.png"
         }
     ],
     "fonts": {
         "small": {
             "name": "small",
-            "description": "Compact uppercase 6 by 6 pixel font, the only font v2 draws with so far.",
+            "description": "Compact uppercase 6 by 6 pixel font.",
             "asset": "font",
             "offsetX": 1,
             "offsetY": 1,
@@ -105,11 +285,371 @@ export const SKIN = {
             "charsPerLine": 42,
             "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_#/&@$+^!",
             "onlyUpperCase": true
+        },
+        "smallDark": {
+            "name": "smallDark",
+            "description": "Same cells as small, one row further down the sheet (a darker-inked variant used on light backgrounds).",
+            "asset": "font",
+            "offsetX": 1,
+            "offsetY": 13,
+            "charWidth": 6,
+            "charHeight": 6,
+            "spaceWidth": 6,
+            "margin": 0,
+            "lineSpacing": 0,
+            "charsPerLine": 42,
+            "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_#/&@$+^!",
+            "onlyUpperCase": true
+        },
+        "med": {
+            "name": "med",
+            "description": "8 by 8 uppercase font used for section headers such as Track/Pattern.",
+            "asset": "font",
+            "offsetX": 1,
+            "offsetY": 110,
+            "charWidth": 8,
+            "charHeight": 8,
+            "spaceWidth": 8,
+            "margin": 1,
+            "lineSpacing": 1,
+            "charsPerLine": 26,
+            "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789↑↓-#:.!©_?;()=/+<>&[]{}\\*%$'\"`°,",
+            "onlyUpperCase": true
+        },
+        "big": {
+            "name": "big",
+            "description": "11 by 11 chunky uppercase font, the largest header font.",
+            "asset": "font",
+            "offsetX": 1,
+            "offsetY": 27,
+            "charWidth": 11,
+            "charHeight": 11,
+            "spaceWidth": 11,
+            "margin": 1,
+            "lineSpacing": 3,
+            "charsPerLine": 20,
+            "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,-_",
+            "onlyUpperCase": true
+        },
+        "ft": {
+            "name": "ft",
+            "description": "Proportional upper and lowercase font used for most buttons, dialogs and info text.",
+            "asset": "font",
+            "offsetX": 1,
+            "offsetY": 145,
+            "charWidth": "888888883888998888888899987777757735739777757578987777777777778868864553348767888435555",
+            "charHeight": 12,
+            "spaceWidth": 4,
+            "margin": 1,
+            "lineSpacing": 0,
+            "charsPerLine": [
+                26,
+                26,
+                40
+            ],
+            "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890#©_-&\"'()!.,?+=*$/\\;:[]{}",
+            "onlyUpperCase": false
+        },
+        "condensed": {
+            "name": "condensed",
+            "description": "Proportional condensed upper and lowercase font.",
+            "asset": "font",
+            "offsetX": 1,
+            "offsetY": 184,
+            "charWidth": "6666556625656666666666666655555455245365555454566555",
+            "charHeight": 10,
+            "spaceWidth": 5,
+            "margin": 0,
+            "lineSpacing": 0,
+            "charsPerLine": [
+                26,
+                26,
+                10
+            ],
+            "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+            "onlyUpperCase": false
+        },
+        "superCondensed": {
+            "name": "superCondensed",
+            "description": "Tiny 4 by 8 uppercase font used for the pattern grid's own note/hex text.",
+            "asset": "font",
+            "offsetX": 2,
+            "offsetY": 208,
+            "charWidth": 4,
+            "charHeight": 8,
+            "spaceWidth": 4,
+            "margin": 0,
+            "lineSpacing": 0,
+            "charsPerLine": [
+                45
+            ],
+            "chars": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_.-#+><↑↓",
+            "onlyUpperCase": true
+        },
+        "led": {
+            "name": "led",
+            "description": "LED-digit style font used for numeric displays such as BPM/speed.",
+            "asset": "font",
+            "offsetX": 107,
+            "offsetY": 68,
+            "charWidth": 8,
+            "charHeight": 13,
+            "spaceWidth": 8,
+            "margin": 0,
+            "lineSpacing": 0,
+            "charsPerLine": 20,
+            "chars": " 0123456789-",
+            "onlyUpperCase": false
+        },
+        "ledBig": {
+            "name": "ledBig",
+            "description": "Larger LED-digit style font.",
+            "asset": "font",
+            "offsetX": 9,
+            "offsetY": 82,
+            "charWidth": 14,
+            "charHeight": 22,
+            "spaceWidth": 8,
+            "margin": 0,
+            "lineSpacing": 0,
+            "charsPerLine": 11,
+            "chars": " 0123456789",
+            "onlyUpperCase": false
+        },
+        "dark": {
+            "name": "dark",
+            "description": "Dark-inked uppercase font used on light backgrounds.",
+            "asset": "font",
+            "offsetX": 1,
+            "offsetY": 216,
+            "charWidth": "7777667736768777877778887746666666664434",
+            "charHeight": 9,
+            "spaceWidth": 5,
+            "margin": 0,
+            "lineSpacing": 0,
+            "charsPerLine": [
+                40
+            ],
+            "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890():-",
+            "onlyUpperCase": true
         }
     },
     "styles": {
         "panel": {
+            "appRoot": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": "#071028",
+                "tint": null,
+                "type": "panel",
+                "variant": "appRoot",
+                "description": "V1 main canvas backing color beneath semi-transparent panel edges.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "transparent": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "transparent",
+                "description": "Structural grouping without background artwork.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "patternSidebar": {
+                "metrics": {
+                    "isolateComponentLayer": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "patternSidebar",
+                "description": "Transparent legacy PatternSidebar component canvas.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "patternSidebarTabContent": {
+                "metrics": {
+                    "isolateComponentLayer": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "patternSidebarTabContent",
+                "description": "Transparent legacy active-tab Panel component canvas.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "mainStrip": {
+                "metrics": {
+                    "isolateScale9Source": 1,
+                    "isolateScale9Layer": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "mainStrip",
+                "description": null,
+                "extends": null,
+                "insets": {
+                    "left": 2,
+                    "top": 2,
+                    "right": 3,
+                    "bottom": 3
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "background",
+                        "inherited": false
+                    }
+                }
+            },
+            "mainStripLayered": {
+                "metrics": {
+                    "isolateScale9Source": 1,
+                    "isolateScale9Layer": 1,
+                    "isolateComponentLayer": 1,
+                    "scale9LayerSmoothing": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "mainStripLayered",
+                "description": "The same band background, drawn into its own offscreen layer along with everything nested inside it, which is v1's own per-component canvas (script/src/ui/components/element.js composites a component into its *parent's* canvas, not into the root). Only needed where two semi-transparent copies of this artwork stack - the Options panel draws its own over the song-properties band's - because that is the only place the extra rounding step is visible. The stretched edges are smoothed because v1's own Scale9Panel canvas never turns image smoothing off (only the root canvas does, script/src/ui/ui.js:87), so its semi-transparent bottom/right edges bleed out of the corner for a few dozen pixels.",
+                "extends": "mainStrip",
+                "insets": {
+                    "left": 2,
+                    "top": 2,
+                    "right": 3,
+                    "bottom": 3
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "background",
+                        "inherited": true
+                    }
+                }
+            },
             "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "panel",
                 "variant": "default",
                 "description": "Dark inset panel used as the background of every container.",
@@ -130,6 +670,7 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 0,
+                    "activeOffsetY": 0,
                     "font": "small"
                 },
                 "states": {
@@ -138,13 +679,278 @@ export const SKIN = {
                         "inherited": false
                     }
                 }
+            },
+            "songPropertyInset": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "songPropertyInset",
+                "description": "The v1 inset backing panel behind one song-property spinbox column.",
+                "extends": null,
+                "insets": {
+                    "left": 2,
+                    "top": 2,
+                    "right": 2,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_inset",
+                        "inherited": false
+                    }
+                }
+            },
+            "songIndexFrame": {
+                "metrics": {
+                    "suppressEffects": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "songIndexFrame",
+                "description": "Exact v1 SongPatternList inset frame behind its list and four edit buttons.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "optionCaption": {
+                "metrics": {
+                    "isolateScale9Source": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "optionCaption",
+                "description": "Exact v1 caption box above one Options column - the Scale9Panel optionsPanel.js:176 puts behind each column's own caption text (Assets.panelDarkGreyScale9). Its insets are v1's own panelDarkGreyScale9 values, which are not symmetric.",
+                "extends": null,
+                "insets": {
+                    "left": 3,
+                    "top": 3,
+                    "right": 3,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": 20,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark_greyish",
+                        "inherited": false
+                    }
+                }
+            },
+            "diskSelector": {
+                "metrics": {
+                    "isolateComponentLayer": 1,
+                    "isolateScale9Source": 1,
+                    "isolateScale9Layer": 1,
+                    "scale9LayerSmoothing": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "diskSelector",
+                "description": "V1 File Operations Action/Type/From selector frame.",
+                "extends": null,
+                "insets": {
+                    "left": 2,
+                    "top": 2,
+                    "right": 2,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark",
+                        "inherited": false
+                    }
+                }
+            },
+            "diskSelectorCaption": {
+                "metrics": {
+                    "isolateScale9Source": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "diskSelectorCaption",
+                "description": "V1 selector caption strip used by Action and Type.",
+                "extends": null,
+                "insets": {
+                    "left": 3,
+                    "top": 3,
+                    "right": 3,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark_greyish",
+                        "inherited": false
+                    }
+                }
+            },
+            "diskSelectorCaptionTarget": {
+                "metrics": {
+                    "isolateScale9Source": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "diskSelectorCaptionTarget",
+                "description": "The same caption artwork at the target panel's one-pixel-different authored geometry.",
+                "extends": "diskSelectorCaption",
+                "insets": {
+                    "left": 3,
+                    "top": 3,
+                    "right": 3,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark_greyish",
+                        "inherited": true
+                    }
+                }
+            },
+            "menuBar": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "panel",
+                "variant": "menuBar",
+                "description": "The top menu bar's own real background (spec 083) - a separate panel behind the menu itself, not the menu's own style, matching v1's own real structure (a Scale9Panel sibling drawn before the Menu component, script/src/ui/app/menu.js:20-27). The wide right inset matches the artwork's own diagonal-cut right edge (script/src/ui/app/menu.js's own Scale9Panel config: left:4, top:0, right:40, bottom:0).",
+                "extends": null,
+                "insets": {
+                    "left": 4,
+                    "top": 0,
+                    "right": 40,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 26,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "menu",
+                        "inherited": false
+                    }
+                }
             }
         },
         "button": {
             "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "button",
                 "variant": "default",
-                "description": "Standard dark push button with a centered label. Hover, pressed and disabled have no artwork of their own, so the renderer tints this background instead.",
+                "description": "Standard dark push button with a centered label. Hover, pressed and disabled have no artwork of their own, so the renderer tints this background instead. Font \"ft\" matches v1's own real default button font (script/src/ui/components/checkboxbutton.js:14) - the single most common one across this application's own real buttons (File Operations/Options/Sample Edit, PREV/PLAY/NEXT/SHUFFLE, MOD/XM/PLAYLIST, Piano/Nibbles, and every other ordinary button that does not name a more specific variant below).",
                 "extends": null,
                 "insets": {
                     "left": 5,
@@ -162,7 +968,8 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 1,
-                    "font": "small"
+                    "activeOffsetY": 0,
+                    "font": "ft"
                 },
                 "states": {
                     "normal": {
@@ -179,14 +986,206 @@ export const SKIN = {
                     },
                     "active_hover": {
                         "asset": "button_inlay_green_active",
+                        "inherited": false
+                    }
+                }
+            },
+            "compact": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "button",
+                "variant": "compact",
+                "description": "v1's own real editPad buttons (Track/Pattern Clear/Copy/Paste) override the generic button font to \"small\" (script/src/ui/editPanel.js:19) - a real, deliberate per-context difference from the generic default above, not an oversight.",
+                "extends": "default",
+                "insets": {
+                    "left": 5,
+                    "top": 5,
+                    "right": 5,
+                    "bottom": 5
+                },
+                "width": 80,
+                "height": 24,
+                "focusColor": "#ffcc00",
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 1,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "button_inlay",
+                        "inherited": true
+                    },
+                    "pressed": {
+                        "asset": "button_inlay_active",
+                        "inherited": true
+                    },
+                    "active": {
+                        "asset": "button_inlay_green",
+                        "inherited": true
+                    },
+                    "active_hover": {
+                        "asset": "button_inlay_green_active",
+                        "inherited": true
+                    }
+                }
+            },
+            "editPad": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "isolateScale9Source": 1,
+                    "isolateScale9Layer": 1,
+                    "scale9LayerSmoothing": 1,
+                    "isolateControlLayer": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "button",
+                "variant": "editPad",
+                "description": "Exact v1 EditPanel button: dark 5px-inset scale-9 normally, blue active scale-9 while hovered or held, with a centered small-font label one pixel below the ordinary vertical center.",
+                "extends": "default",
+                "insets": {
+                    "left": 5,
+                    "top": 5,
+                    "right": 5,
+                    "bottom": 5
+                },
+                "width": 80,
+                "height": 24,
+                "focusColor": "#ffcc00",
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 1,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "button_inlay",
+                        "inherited": false
+                    },
+                    "pressed": {
+                        "asset": "button_inlay_blue_active",
+                        "inherited": false
+                    },
+                    "active": {
+                        "asset": "button_inlay_green",
+                        "inherited": true
+                    },
+                    "active_hover": {
+                        "asset": "button_inlay_green_active",
+                        "inherited": true
+                    },
+                    "hover": {
+                        "asset": "button_inlay_blue_active",
+                        "inherited": false
+                    }
+                }
+            },
+            "controlView": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "isolateScale9Source": 1,
+                    "isolateScale9Layer": 1,
+                    "scale9LayerSmoothing": 1,
+                    "isolateReadoutSource": 1,
+                    "isolateControlLayer": 1,
+                    "iconLeftInset": 8,
+                    "compactLabelBelowWidth": 820
+                },
+                "artwork": {
+                    "iconNormal": "radio_inactive",
+                    "iconHover": "radio_inactive",
+                    "iconPressed": "radio_inactive",
+                    "iconActive": "radio_active",
+                    "iconActiveHover": "radio_active",
+                    "iconActivePressed": "radio_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "button",
+                "variant": "controlView",
+                "description": "Exact v1 File, Options and Sample Edit Checkboxbutton treatment from the control bar.",
+                "extends": null,
+                "insets": {
+                    "left": 5,
+                    "top": 5,
+                    "right": 5,
+                    "bottom": 5
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 30,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "ft"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "button_inlay_blue",
+                        "inherited": false
+                    },
+                    "hover": {
+                        "asset": "button_inlay_blue_active",
+                        "inherited": false
+                    },
+                    "pressed": {
+                        "asset": "button_inlay_blue_active",
+                        "inherited": false
+                    },
+                    "active": {
+                        "asset": "button_inlay_blue_active",
+                        "inherited": false
+                    },
+                    "active_hover": {
+                        "asset": "button_inlay_blue_active",
+                        "inherited": false
+                    },
+                    "active_pressed": {
+                        "asset": "button_inlay_blue_active",
                         "inherited": false
                     }
                 }
             },
             "play": {
+                "metrics": {
+                    "iconOnly": 1
+                },
+                "artwork": {
+                    "iconNormal": "play_green",
+                    "iconHover": "play_green_hover",
+                    "iconActive": "play_active_red",
+                    "iconActiveHover": "play_active_red"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "button",
                 "variant": "play",
-                "description": "Transport play button. Grey while stopped, green while playing, with its own green hover artwork instead of a tint.",
+                "description": "Main transport Play button: captured v1 scale-9 backgrounds plus a natural-size, centered and clipped state icon.",
                 "extends": "default",
                 "insets": {
                     "left": 5,
@@ -204,39 +1203,49 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 1,
-                    "font": "small"
+                    "activeOffsetY": 0,
+                    "font": "ft"
                 },
                 "states": {
                     "normal": {
-                        "asset": "button_inlay",
-                        "inherited": true
+                        "asset": "button_inlay_green",
+                        "inherited": false
                     },
                     "pressed": {
                         "asset": "button_inlay_active",
                         "inherited": true
                     },
                     "active": {
-                        "asset": "button_inlay_green",
+                        "asset": "button_inlay_red_active",
                         "inherited": false
                     },
                     "active_hover": {
-                        "asset": "button_inlay_green_active",
+                        "asset": "button_inlay_red_active",
                         "inherited": false
                     },
                     "hover": {
                         "asset": "button_hover_green",
                         "inherited": false
-                    },
-                    "active_pressed": {
-                        "asset": "button_inlay_active",
-                        "inherited": false
                     }
                 }
             },
             "record": {
+                "metrics": {
+                    "iconOnly": 1,
+                    "isolateScale9Source": 1
+                },
+                "artwork": {
+                    "iconNormal": "record",
+                    "iconHover": "record_hover",
+                    "iconActive": "record_active",
+                    "iconActiveHover": "record_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "button",
                 "variant": "record",
-                "description": "Record arm button. Red hover artwork, and red while recording.",
+                "description": "Main transport Record button: captured v1 scale-9 backgrounds plus a natural-size, centered and clipped state icon.",
                 "extends": "default",
                 "insets": {
                     "left": 5,
@@ -254,47 +1263,208 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 1,
-                    "font": "small"
+                    "activeOffsetY": 0,
+                    "font": "ft"
                 },
                 "states": {
                     "normal": {
-                        "asset": "button_inlay",
-                        "inherited": true
+                        "asset": "button_inlay_red",
+                        "inherited": false
                     },
                     "pressed": {
                         "asset": "button_inlay_active",
                         "inherited": true
                     },
                     "active": {
-                        "asset": "button_inlay_red",
+                        "asset": "button_inlay_red_active",
                         "inherited": false
                     },
                     "active_hover": {
-                        "asset": "button_inlay_red_hover",
+                        "asset": "button_inlay_red_active",
                         "inherited": false
                     },
                     "hover": {
                         "asset": "button_inlay_red_hover",
                         "inherited": false
+                    }
+                }
+            },
+            "channelStepper": {
+                "metrics": {
+                    "isolateScale9Source": 1,
+                    "isolateScale9Layer": 1,
+                    "hideFocus": 1,
+                    "layerHoverOverNormal": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "button",
+                "variant": "channelStepper",
+                "description": "The main channel-count spinbox's stacked v1 arrow button.",
+                "extends": null,
+                "insets": {
+                    "left": 3,
+                    "top": 3,
+                    "right": 3,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "bar",
+                        "inherited": false
                     },
-                    "active_pressed": {
-                        "asset": "button_inlay_red_active",
+                    "hover": {
+                        "asset": "bar_hover",
+                        "inherited": false
+                    },
+                    "pressed": {
+                        "asset": "bar_hover",
+                        "inherited": false
+                    }
+                }
+            },
+            "songPropertyStepper": {
+                "metrics": {
+                    "isolateScale9Source": 1,
+                    "isolateScale9Layer": 1,
+                    "hideFocus": 1,
+                    "layerHoverOverNormal": 0
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "button",
+                "variant": "songPropertyStepper",
+                "description": "The v1 medium spinbox arrow button; hover replaces rather than accumulates over the normal frame.",
+                "extends": "channelStepper",
+                "insets": {
+                    "left": 3,
+                    "top": 3,
+                    "right": 3,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "bar",
+                        "inherited": true
+                    },
+                    "hover": {
+                        "asset": "bar_hover",
+                        "inherited": true
+                    },
+                    "pressed": {
+                        "asset": "bar_hover",
+                        "inherited": true
+                    }
+                }
+            },
+            "songIndexButton": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "skipDraw": 1,
+                    "isolateScale9Source": 1,
+                    "isolateScale9Layer": 1,
+                    "scale9LayerSmoothing": 1,
+                    "isolateControlLayer": 1,
+                    "fixedLabelCellWidth": 8
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "button",
+                "variant": "songIndexButton",
+                "description": "Exact v1 20px/40px SongPatternList buttons generated by Assets.button20_20.",
+                "extends": null,
+                "insets": {
+                    "left": 3,
+                    "top": 3,
+                    "right": 3,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 2,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "bar",
+                        "inherited": false
+                    },
+                    "hover": {
+                        "asset": "bar_hover",
+                        "inherited": false
+                    },
+                    "pressed": {
+                        "asset": "bar_hover",
                         "inherited": false
                     }
                 }
             },
             "logo": {
+                "metrics": {
+                    "iconOnly": 1,
+                    "suppressEffects": 1,
+                    "isolateScale9Source": 1,
+                    "isolateScale9Layer": 1
+                },
+                "artwork": {
+                    "iconNormal": "logo_grey_70",
+                    "iconActive": "logo_colour_70"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "button",
                 "variant": "logo",
                 "description": "The song-properties section's own BASSOON wordmark toggle (spec 071) - grey normally, colour while \"active\" (a purely cosmetic, permanently mocked local toggle - see that spec's requirements.md). No label; the artwork alone is the whole control.",
                 "extends": "default",
                 "insets": {
-                    "left": 5,
-                    "top": 5,
-                    "right": 5,
-                    "bottom": 5
+                    "left": 2,
+                    "top": 2,
+                    "right": 2,
+                    "bottom": 2
                 },
-                "width": 70,
+                "width": 80,
                 "height": 50,
                 "focusColor": "#ffcc00",
                 "itemStyle": null,
@@ -304,11 +1474,12 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 1,
-                    "font": "small"
+                    "activeOffsetY": 0,
+                    "font": "ft"
                 },
                 "states": {
                     "normal": {
-                        "asset": "logo_grey_70",
+                        "asset": "panel_inset",
                         "inherited": false
                     },
                     "pressed": {
@@ -316,7 +1487,7 @@ export const SKIN = {
                         "inherited": true
                     },
                     "active": {
-                        "asset": "logo_colour_70",
+                        "asset": "bar",
                         "inherited": false
                     },
                     "active_hover": {
@@ -324,10 +1495,401 @@ export const SKIN = {
                         "inherited": true
                     }
                 }
+            },
+            "panelClose": {
+                "metrics": {
+                    "isolateControlLayer": 1,
+                    "isolateScale9Source": 1,
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "fixedLabelCellWidth": 8,
+                    "stateOverNormal": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "button",
+                "variant": "panelClose",
+                "description": "Exact v1 20x20 panel close button - Assets.generate(\"button20_20\"), a Button whose background is the \"bar\" sprite and whose hover background is \"bar_hover\" (script/src/ui/assets.js:217-230), with a centered medium-font label and v1's own paddingTop of 2. Used by the Options panel's own close control.",
+                "extends": null,
+                "insets": {
+                    "left": 3,
+                    "top": 3,
+                    "right": 3,
+                    "bottom": 2
+                },
+                "width": 20,
+                "height": 20,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 2,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "bar",
+                        "inherited": false
+                    },
+                    "hover": {
+                        "asset": "bar_hover",
+                        "inherited": false
+                    },
+                    "pressed": {
+                        "asset": "bar_hover",
+                        "inherited": false
+                    }
+                }
+            },
+            "hitTarget": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "button",
+                "variant": "hitTarget",
+                "description": "Transparent interaction proxy used where a parent paints one indivisible legacy composite.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            }
+        },
+        "tabPanel": {
+            "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "tabPanel",
+                "variant": "default",
+                "description": "Generic procedural tab panel.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "patternSidebar": {
+                "metrics": {
+                    "legacyTabs": 1,
+                    "backgroundY": 30,
+                    "backgroundHeightOffset": -32,
+                    "tabY": 12,
+                    "tabHeight": 18,
+                    "tabOverlap": 12,
+                    "tab0Width": 70,
+                    "tab1Width": 80,
+                    "tab2Width": 90,
+                    "labelOffsetX": 10,
+                    "labelOffsetY": 1,
+                    "footerTopOffset": -70,
+                    "footerHeight": 68
+                },
+                "artwork": {
+                    "corner": "tab_panel_corner",
+                    "tab": "tab",
+                    "activeBorder": "tab_border",
+                    "footer": "tab_panel_bottom",
+                    "divider": "line_hor",
+                    "previous": "iprev",
+                    "play": "iplay",
+                    "next": "inext",
+                    "shuffle": "ishuffle",
+                    "shuffleState": "checkbox_off",
+                    "randomButton": "button_inlay_blue"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "tabPanel",
+                "variant": "patternSidebar",
+                "description": "Exact v1 overlapping Songs/Samples/Playlists tab frame and Songs-only footer.",
+                "extends": null,
+                "insets": {
+                    "left": 8,
+                    "top": 9,
+                    "right": 8,
+                    "bottom": 9
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "dark"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "tab_panel",
+                        "inherited": false
+                    }
+                }
+            }
+        },
+        "fileBrowser": {
+            "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "fileBrowser",
+                "variant": "default",
+                "description": "Generic runtime-data row list; its established procedural background and scrollbar remain unchanged.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {}
+            },
+            "songIndex": {
+                "metrics": {
+                    "compositeExtraWidth": 42,
+                    "textOffsetX": 10,
+                    "textOffsetY": 5,
+                    "selectedAlpha": 0.25,
+                    "hoverAlpha": 0.15,
+                    "scrollButtonSize": 16,
+                    "scrollRight": 2,
+                    "scrollTop": 2,
+                    "scrollBottom": 3,
+                    "scrollTrackTop": 18,
+                    "scrollTrackBottom": 18,
+                    "scrollThumbMin": 12
+                },
+                "artwork": {
+                    "outerFrame": "panel_inset",
+                    "divider": "line_hor",
+                    "scrollNormal": "bar",
+                    "scrollHover": "bar_hover"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "fileBrowser",
+                "variant": "songIndex",
+                "description": "V1 centered-selection song-index listbox, including its inset, dividers and internal scrollbar controls.",
+                "extends": null,
+                "insets": {
+                    "left": 3,
+                    "top": 3,
+                    "right": 2,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark",
+                        "inherited": false
+                    }
+                }
+            },
+            "patternSidebarSongs": {
+                "metrics": {
+                    "legacySidebarRows": 1,
+                    "richSidebarRows": 1,
+                    "defaultSelectedIndex": 0
+                },
+                "artwork": {
+                    "divider": "line_hor",
+                    "scrollNormal": "bar",
+                    "modIcon": "modbig",
+                    "xmIcon": "xmbig",
+                    "awardGold": "gold"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "fileBrowser",
+                "variant": "patternSidebarSongs",
+                "description": "V1 PatternSidebar 32px song rows with generated module icons and internal scrollbar.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {}
+            },
+            "patternSidebarSamples": {
+                "metrics": {
+                    "legacySidebarRows": 1,
+                    "sampleSidebarRows": 1,
+                    "defaultSelectedIndex": 0
+                },
+                "artwork": {
+                    "divider": "line_hor",
+                    "diskIcon": "disk"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "fileBrowser",
+                "variant": "patternSidebarSamples",
+                "description": "V1 PatternSidebar 20px grouped sample rows.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "ft"
+                },
+                "states": {}
+            },
+            "patternSidebarPlaylists": {
+                "metrics": {
+                    "legacySidebarRows": 1,
+                    "richSidebarRows": 1,
+                    "playlistSidebarRows": 1,
+                    "defaultSelectedIndex": 0
+                },
+                "artwork": {
+                    "divider": "line_hor",
+                    "modIcon": "modbig",
+                    "favoriteIcon": "favbig"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "fileBrowser",
+                "variant": "patternSidebarPlaylists",
+                "description": "V1 PatternSidebar 32px playlist rows with generated icons.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {}
             }
         },
         "viewport": {
             "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "viewport",
                 "variant": "default",
                 "description": "A box that clips and scrolls its content. Drawn as an inset panel, like the containers it sits inside.",
@@ -348,6 +1910,7 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 0,
+                    "activeOffsetY": 0,
                     "font": "small"
                 },
                 "states": {
@@ -358,6 +1921,11 @@ export const SKIN = {
                 }
             },
             "inset": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "viewport",
                 "variant": "inset",
                 "description": "A more recessed variant for a list or a grid sitting inside another panel.",
@@ -378,6 +1946,7 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 0,
+                    "activeOffsetY": 0,
                     "font": "small"
                 },
                 "states": {
@@ -386,10 +1955,122 @@ export const SKIN = {
                         "inherited": false
                     }
                 }
+            },
+            "transparent": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "viewport",
+                "variant": "transparent",
+                "description": "A clipping viewport with no background artwork.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            }
+        },
+        "inputbox": {
+            "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "inputbox",
+                "variant": "default",
+                "description": "One line of editable text with a caret and a selection (spec 015). Not previously declared here at all - every inputbox in this application fell back to runtime/skinModel.js's own built-in fallback style until this entry existed. Font \"med\" matches v1's own real inputbox (script/src/ui/components/inputbox.js:141-145).",
+                "extends": null,
+                "insets": {
+                    "left": 2,
+                    "top": 2,
+                    "right": 2,
+                    "bottom": 2
+                },
+                "width": 140,
+                "height": 24,
+                "focusColor": "#ffcc00",
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 4,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark",
+                        "inherited": false
+                    }
+                }
+            },
+            "patternSidebarSearch": {
+                "metrics": {
+                    "placeholderAlpha": 0.35
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "inputbox",
+                "variant": "patternSidebarSearch",
+                "description": "Exact v1 20px sample-search input.",
+                "extends": null,
+                "insets": {
+                    "left": 3,
+                    "top": 3,
+                    "right": 2,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 10,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark",
+                        "inherited": false
+                    }
+                }
             }
         },
         "checkbox": {
             "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "checkbox",
                 "variant": "default",
                 "description": "An on/off box with its label beside it. The artwork is drawn at its natural size, so the insets do not apply; hover has no artwork of its own and is tinted.",
@@ -410,6 +2091,7 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 0,
+                    "activeOffsetY": 0,
                     "font": "small"
                 },
                 "states": {
@@ -422,10 +2104,77 @@ export const SKIN = {
                         "inherited": false
                     }
                 }
+            },
+            "optionCheckbox": {
+                "metrics": {
+                    "iconLeftInset": 8,
+                    "iconOffsetY": 0,
+                    "isolateControlLayer": 1,
+                    "isolateScale9Source": 1,
+                    "suppressEffects": 1,
+                    "hideFocus": 1
+                },
+                "artwork": {
+                    "iconNormal": "checkbox_off",
+                    "iconActive": "checkbox_on"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "checkbox",
+                "variant": "optionCheckbox",
+                "description": "Exact v1 Options-panel checkbox - a CheckboxButton (script/src/ui/components/checkboxbutton.js) whose background is Assets.panelDarkInsetScale9, whose hover background is Assets.panelInsetScale9 and whose active background is the dark one again, with the checkbox glyph drawn at its natural size 8px from the left edge and the label at v1's own paddingLeft of 30 in the \"ft\" font. The glyph is an artwork layer rather than the state artwork, which is what tells the spriteLabel draw kind to compose a background behind it.",
+                "extends": null,
+                "insets": {
+                    "left": 2,
+                    "top": 2,
+                    "right": 2,
+                    "bottom": 2
+                },
+                "width": null,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 30,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "ft"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "panel_dark",
+                        "inherited": false
+                    },
+                    "hover": {
+                        "asset": "panel_inset",
+                        "inherited": false
+                    },
+                    "pressed": {
+                        "asset": "panel_inset",
+                        "inherited": false
+                    },
+                    "active": {
+                        "asset": "panel_dark",
+                        "inherited": false
+                    },
+                    "active_hover": {
+                        "asset": "panel_dark",
+                        "inherited": false
+                    }
+                }
             }
         },
         "radioGroup": {
             "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "radioGroup",
                 "variant": "default",
                 "description": "Container for mutually exclusive choices. It draws no artwork of its own; itemStyle says which radioItem style its choices are drawn with.",
@@ -446,11 +2195,17 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 0,
+                    "activeOffsetY": 0,
                     "font": "small"
                 },
                 "states": {}
             },
             "buttons": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "radioGroup",
                 "variant": "buttons",
                 "description": "The choices are drawn as a row of ordinary push buttons instead of the default blue-lit ones.",
@@ -471,6 +2226,195 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "diskSelector": {
+                "metrics": {
+                    "isolateComponentLayer": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioGroup",
+                "variant": "diskSelector",
+                "description": "V1 File Operations RadioGroup; its children author the native row treatment.",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": "diskSelector",
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "playSequence": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": "#223155",
+                "tint": null,
+                "type": "radioGroup",
+                "variant": "playSequence",
+                "description": "The compact two-row Song/Pattern selector from v1's control bar.",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": "playSequence",
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "modeButtons": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioGroup",
+                "variant": "modeButtons",
+                "description": "The exact overlapping 51px MOD/XM row from v1's control bar.",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": "modeButton",
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "displayButtons": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioGroup",
+                "variant": "displayButtons",
+                "description": "The exact overlapping 26px 4/8/12/16 row from v1's control bar.",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": "displayButton",
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "optionButtons": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioGroup",
+                "variant": "optionButtons",
+                "description": "One Options-panel column's own stack of v1 \"buttonKey\" choices.",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": "optionButton",
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "patternViewButtons": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioGroup",
+                "variant": "patternViewButtons",
+                "description": "The exact overlapping 32px Column/Row icon buttons from v1's control bar; each item authors its own procedural-glyph-derived artwork variant.",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": "patternViewButton",
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
                     "font": "small"
                 },
                 "states": {}
@@ -478,9 +2422,14 @@ export const SKIN = {
         },
         "radioItem": {
             "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "radioItem",
                 "variant": "default",
-                "description": "One choice in a radio group, drawn as a button that stays lit blue while selected.",
+                "description": "One choice in a radio group, drawn as a button that stays lit blue while selected. Font \"small\" matches v1's own real plain RadioGroup default (script/src/ui/components/radiogroup.js:81).",
                 "extends": null,
                 "insets": {
                     "left": 5,
@@ -498,6 +2447,7 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 1,
+                    "activeOffsetY": 0,
                     "font": "small"
                 },
                 "states": {
@@ -520,9 +2470,14 @@ export const SKIN = {
                 }
             },
             "button": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "radioItem",
                 "variant": "button",
-                "description": "A choice drawn exactly like a push button, lit green while selected. Used by the radioGroup \"buttons\" variant.",
+                "description": "A choice drawn exactly like a push button, lit green while selected. Used by the radioGroup \"buttons\" variant. Font \"dark\" matches v1's own real \"buttonKey\"-styled toggle groups (Mode/Display/Column-Row/Vertical-Horizontal - script/src/ui/app/controlPanel.js:75).",
                 "extends": "default",
                 "insets": {
                     "left": 5,
@@ -540,7 +2495,8 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 1,
-                    "font": "small"
+                    "activeOffsetY": 0,
+                    "font": "dark"
                 },
                 "states": {
                     "normal": {
@@ -560,10 +2516,574 @@ export const SKIN = {
                         "inherited": false
                     }
                 }
+            },
+            "modeButton": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "disabledOverlayR": 34,
+                    "disabledOverlayG": 49,
+                    "disabledOverlayB": 85,
+                    "disabledOverlayAlpha": 0.6
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioItem",
+                "variant": "modeButton",
+                "description": "Captured v1 key-button artwork and label metrics for the 51x16 mode choices.",
+                "extends": "default",
+                "insets": {
+                    "left": 5,
+                    "top": 5,
+                    "right": 5,
+                    "bottom": 5
+                },
+                "width": 60,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 1,
+                    "activeOffsetY": 1,
+                    "font": "dark"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "keybutton",
+                        "inherited": false
+                    },
+                    "pressed": {
+                        "asset": "keybutton_hover",
+                        "inherited": false
+                    },
+                    "active": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": false
+                    },
+                    "active_hover": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": false
+                    },
+                    "hover": {
+                        "asset": "keybutton_hover",
+                        "inherited": false
+                    },
+                    "disabled": {
+                        "asset": "keybutton",
+                        "inherited": false
+                    },
+                    "active_pressed": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": false
+                    }
+                }
+            },
+            "displayButton": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "disabledOverlayR": 34,
+                    "disabledOverlayG": 49,
+                    "disabledOverlayB": 85,
+                    "disabledOverlayAlpha": 0.6
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioItem",
+                "variant": "displayButton",
+                "description": "The same captured v1 key-button pixels at the narrower Display-choice geometry.",
+                "extends": "modeButton",
+                "insets": {
+                    "left": 5,
+                    "top": 5,
+                    "right": 5,
+                    "bottom": 5
+                },
+                "width": 60,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 1,
+                    "activeOffsetY": 1,
+                    "font": "dark"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "keybutton",
+                        "inherited": true
+                    },
+                    "pressed": {
+                        "asset": "keybutton_hover",
+                        "inherited": true
+                    },
+                    "active": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    },
+                    "active_hover": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    },
+                    "hover": {
+                        "asset": "keybutton_hover",
+                        "inherited": true
+                    },
+                    "disabled": {
+                        "asset": "keybutton",
+                        "inherited": true
+                    },
+                    "active_pressed": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    }
+                }
+            },
+            "patternViewButton": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "disabledOverlayR": 34,
+                    "disabledOverlayG": 49,
+                    "disabledOverlayB": 85,
+                    "disabledOverlayAlpha": 0.6,
+                    "iconOnly": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioItem",
+                "variant": "patternViewButton",
+                "description": "Captured v1 key-button states for the 32px pattern-view choices, with text suppressed in favor of an authored procedural bar glyph.",
+                "extends": "modeButton",
+                "insets": {
+                    "left": 5,
+                    "top": 5,
+                    "right": 5,
+                    "bottom": 5
+                },
+                "width": 60,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 1,
+                    "activeOffsetY": 1,
+                    "font": "dark"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "keybutton",
+                        "inherited": true
+                    },
+                    "pressed": {
+                        "asset": "keybutton_hover",
+                        "inherited": true
+                    },
+                    "active": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    },
+                    "active_hover": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    },
+                    "hover": {
+                        "asset": "keybutton_hover",
+                        "inherited": true
+                    },
+                    "disabled": {
+                        "asset": "keybutton",
+                        "inherited": true
+                    },
+                    "active_pressed": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    }
+                }
+            },
+            "patternViewColumns": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "disabledOverlayR": 34,
+                    "disabledOverlayG": 49,
+                    "disabledOverlayB": 85,
+                    "disabledOverlayAlpha": 0.6,
+                    "iconOnly": 1
+                },
+                "artwork": {},
+                "barGlyph": {
+                    "orientation": "vertical",
+                    "color": "rgba(60,40,20,0.85)",
+                    "count": 4,
+                    "thickness": 2,
+                    "gap": 4,
+                    "startRatio": 0.2,
+                    "extentRatio": 0.6
+                },
+                "fill": null,
+                "tint": null,
+                "type": "radioItem",
+                "variant": "patternViewColumns",
+                "description": "Four vertical bars using controlPanel.js's exact renderInternal geometry and RGBA fill.",
+                "extends": "patternViewButton",
+                "insets": {
+                    "left": 5,
+                    "top": 5,
+                    "right": 5,
+                    "bottom": 5
+                },
+                "width": 60,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 1,
+                    "activeOffsetY": 1,
+                    "font": "dark"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "keybutton",
+                        "inherited": true
+                    },
+                    "pressed": {
+                        "asset": "keybutton_hover",
+                        "inherited": true
+                    },
+                    "active": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    },
+                    "active_hover": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    },
+                    "hover": {
+                        "asset": "keybutton_hover",
+                        "inherited": true
+                    },
+                    "disabled": {
+                        "asset": "keybutton",
+                        "inherited": true
+                    },
+                    "active_pressed": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    }
+                }
+            },
+            "patternViewRows": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "disabledOverlayR": 34,
+                    "disabledOverlayG": 49,
+                    "disabledOverlayB": 85,
+                    "disabledOverlayAlpha": 0.6,
+                    "iconOnly": 1
+                },
+                "artwork": {},
+                "barGlyph": {
+                    "orientation": "horizontal",
+                    "color": "rgba(60,40,20,0.85)",
+                    "count": 4,
+                    "thickness": 2,
+                    "gap": 4,
+                    "startRatio": 0.2,
+                    "extentRatio": 0.6
+                },
+                "fill": null,
+                "tint": null,
+                "type": "radioItem",
+                "variant": "patternViewRows",
+                "description": "Four horizontal bars using controlPanel.js's exact renderInternal geometry and RGBA fill.",
+                "extends": "patternViewButton",
+                "insets": {
+                    "left": 5,
+                    "top": 5,
+                    "right": 5,
+                    "bottom": 5
+                },
+                "width": 60,
+                "height": 24,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 1,
+                    "activeOffsetY": 1,
+                    "font": "dark"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "keybutton",
+                        "inherited": true
+                    },
+                    "pressed": {
+                        "asset": "keybutton_hover",
+                        "inherited": true
+                    },
+                    "active": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    },
+                    "active_hover": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    },
+                    "hover": {
+                        "asset": "keybutton_hover",
+                        "inherited": true
+                    },
+                    "disabled": {
+                        "asset": "keybutton",
+                        "inherited": true
+                    },
+                    "active_pressed": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    }
+                }
+            },
+            "optionButton": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "disabledOverlayR": 34,
+                    "disabledOverlayG": 49,
+                    "disabledOverlayB": 85,
+                    "disabledOverlayAlpha": 0.6,
+                    "isolateControlLayer": 1,
+                    "isolateScale9Source": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioItem",
+                "variant": "optionButton",
+                "description": "One Options-panel choice. Identical captured v1 \"buttonKey\" artwork and state precedence to the Mode/Display choices, at this panel's own 20px row height, and without their own one-pixel active label offset - Assets.generate(\"buttonKey\") leaves paddingTopActive at zero, and only controlPanel.js sets it.",
+                "extends": "modeButton",
+                "insets": {
+                    "left": 5,
+                    "top": 5,
+                    "right": 5,
+                    "bottom": 5
+                },
+                "width": 60,
+                "height": 20,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "dark"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "keybutton",
+                        "inherited": true
+                    },
+                    "pressed": {
+                        "asset": "keybutton_hover",
+                        "inherited": true
+                    },
+                    "active": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    },
+                    "active_hover": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    },
+                    "hover": {
+                        "asset": "keybutton_hover",
+                        "inherited": true
+                    },
+                    "disabled": {
+                        "asset": "keybutton",
+                        "inherited": true
+                    },
+                    "active_pressed": {
+                        "asset": "keybutton_highlight3",
+                        "inherited": true
+                    }
+                }
+            },
+            "playSequence": {
+                "metrics": {
+                    "intrinsicHeight": 16,
+                    "fitLabelRightInset": 19,
+                    "iconRightInset": 5,
+                    "iconOffsetY": -1,
+                    "suppressEffects": 1,
+                    "hideFocus": 1
+                },
+                "artwork": {
+                    "iconNormal": "radio_inactive",
+                    "iconActive": "radio_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioItem",
+                "variant": "playSequence",
+                "description": "A v1 radio choice with a right-aligned native 10x10 state glyph and bitmap-font label.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": 60,
+                "height": 16,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "right",
+                    "offsetX": 19,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "diskSelector": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "iconRightInset": 9,
+                    "iconReferenceHeight": 8,
+                    "iconOffsetY": -2,
+                    "iconAfterLabel": 1,
+                    "activeOverlayR": 100,
+                    "activeOverlayG": 100,
+                    "activeOverlayB": 255,
+                    "activeOverlayAlpha": 0.1,
+                    "activeOverlayRightInset": 2
+                },
+                "artwork": {
+                    "iconNormal": "radio_big_inactive",
+                    "iconActive": "radio_big_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioItem",
+                "variant": "diskSelector",
+                "description": "V1 medium right-aligned selector row with its selected wash and 11px radio glyph.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "right",
+                    "offsetX": 24,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {}
+            },
+            "diskSelectorDivider": {
+                "metrics": {
+                    "suppressEffects": 1,
+                    "hideFocus": 1,
+                    "iconRightInset": 9,
+                    "iconReferenceHeight": 8,
+                    "iconOffsetY": -2,
+                    "iconAfterLabel": 1,
+                    "activeOverlayR": 100,
+                    "activeOverlayG": 100,
+                    "activeOverlayB": 255,
+                    "activeOverlayAlpha": 0.1,
+                    "activeOverlayRightInset": 2,
+                    "dividerHeight": 2,
+                    "isolateDividerSource": 1
+                },
+                "artwork": {
+                    "iconNormal": "radio_big_inactive",
+                    "iconActive": "radio_big_active",
+                    "divider": "line_hor"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "radioItem",
+                "variant": "diskSelectorDivider",
+                "description": "A selector row after the first, with v1's stretched 2px top divider.",
+                "extends": "diskSelector",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "right",
+                    "offsetX": 24,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {}
             }
         },
         "slider": {
             "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "slider",
                 "variant": "default",
                 "description": "A horizontal track with a draggable thumb. The track is a recessed panel; thumbStyle names the button style the thumb itself is drawn with.",
@@ -584,6 +3104,7 @@ export const SKIN = {
                     "offsetX": 0,
                     "offsetY": 0,
                     "pressedOffset": 0,
+                    "activeOffsetY": 0,
                     "font": "small"
                 },
                 "states": {
@@ -596,9 +3117,14 @@ export const SKIN = {
         },
         "spinBox": {
             "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "spinBox",
                 "variant": "default",
-                "description": "A numeric readout with a stepper column on its right. The readout is a recessed panel; thumbStyle names the button style the two stepper halves are drawn with.",
+                "description": "A numeric readout with a stepper column on its right. The readout is a recessed panel; thumbStyle names the button style the two stepper halves are drawn with. Font \"led\" matches v1's own real NumberDisplay default (script/src/ui/components/numberdisplay.js:37) - SpinBox extends it, so the readout itself is drawn in the same LED-digit style, not the small caption font v1 also overlays on the same control (spec 077's own preceding label already carries that font instead - see label/caption below).",
                 "extends": null,
                 "insets": {
                     "left": 2,
@@ -616,7 +3142,8 @@ export const SKIN = {
                     "offsetX": 4,
                     "offsetY": 0,
                     "pressedOffset": 0,
-                    "font": "small"
+                    "activeOffsetY": 0,
+                    "font": "led"
                 },
                 "states": {
                     "normal": {
@@ -626,6 +3153,11 @@ export const SKIN = {
                 }
             },
             "big": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "spinBox",
                 "variant": "big",
                 "description": "A wider readout for a value that needs the room, such as the number of tracks.",
@@ -646,7 +3178,8 @@ export const SKIN = {
                     "offsetX": 4,
                     "offsetY": 0,
                     "pressedOffset": 0,
-                    "font": "small"
+                    "activeOffsetY": 0,
+                    "font": "led"
                 },
                 "states": {
                     "normal": {
@@ -654,10 +3187,459 @@ export const SKIN = {
                         "inherited": true
                     }
                 }
+            },
+            "channelCount": {
+                "metrics": {
+                    "readoutX": 2,
+                    "readoutY": -1,
+                    "readoutWidth": 38,
+                    "readoutHeightOffset": 2,
+                    "stepperWidth": 20,
+                    "stepperGlyphOffsetX": 1,
+                    "stepperGlyphOffsetY": 2,
+                    "cursorOffsetX": -2,
+                    "cursorWidth": 2,
+                    "cursorHeight": 22,
+                    "cursorColorR": 255,
+                    "cursorColorG": 201,
+                    "cursorColorB": 65,
+                    "cursorAlpha": 0.7
+                },
+                "artwork": {
+                    "readoutNormal": "panel_inset_dark_inactive",
+                    "readoutFocused": "panel_inset_dark_active"
+                },
+                "barGlyph": null,
+                "fill": "#223155",
+                "tint": null,
+                "type": "spinBox",
+                "variant": "channelCount",
+                "description": "Exact v1 main control-bar channel-count readout and stacked stepper.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": 60,
+                "height": 32,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": "channelStepper",
+                "label": {
+                    "align": "left",
+                    "offsetX": 7,
+                    "offsetY": 5,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "ledBig"
+                },
+                "states": {}
+            },
+            "songProperty": {
+                "metrics": {
+                    "readoutRightInset": 86,
+                    "readoutY": 0,
+                    "readoutWidth": 45,
+                    "readoutHeightOffset": 0,
+                    "stepperWidth": 20,
+                    "stepperOffsetY": 3,
+                    "stepperHeight": 20,
+                    "stepperGlyphOffsetX": 1,
+                    "stepperGlyphOffsetY": 2,
+                    "captionOffsetX": 6,
+                    "captionOffsetY": 11,
+                    "isolateControlLayer": 1,
+                    "cursorOffsetX": 0,
+                    "cursorWidth": 2,
+                    "cursorHeight": 13,
+                    "cursorColorR": 255,
+                    "cursorColorG": 201,
+                    "cursorColorB": 65,
+                    "cursorAlpha": 0.7
+                },
+                "artwork": {
+                    "readoutNormal": "panel_inset_dark_inactive",
+                    "readoutFocused": "panel_inset_dark_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "spinBox",
+                "variant": "songProperty",
+                "description": "Exact v1 medium song-property spinbox with an integrated FT caption, four-digit LED readout and horizontal arrow buttons.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": 116,
+                "height": 28,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": "songPropertyStepper",
+                "label": {
+                    "align": "left",
+                    "offsetX": 6,
+                    "offsetY": 7,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "led"
+                },
+                "states": {}
+            },
+            "songPropertyBpm": {
+                "metrics": {
+                    "readoutRightInset": 86,
+                    "readoutY": 0,
+                    "readoutWidth": 45,
+                    "readoutHeightOffset": 0,
+                    "stepperWidth": 20,
+                    "stepperOffsetY": 3,
+                    "stepperHeight": 20,
+                    "stepperGlyphOffsetX": 1,
+                    "stepperGlyphOffsetY": 2,
+                    "captionOffsetX": 6,
+                    "captionOffsetY": 11,
+                    "isolateControlLayer": 1,
+                    "cursorOffsetX": 0,
+                    "cursorWidth": 2,
+                    "cursorHeight": 13,
+                    "cursorColorR": 255,
+                    "cursorColorG": 201,
+                    "cursorColorB": 65,
+                    "cursorAlpha": 0.7
+                },
+                "artwork": {
+                    "readoutNormal": "panel_inset_dark_inactive",
+                    "readoutFocused": "panel_inset_dark_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "spinBox",
+                "variant": "songPropertyBpm",
+                "description": "Exact v1 medium song-property spinbox with an integrated FT caption, four-digit LED readout and horizontal arrow buttons.",
+                "extends": "songProperty",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": 116,
+                "height": 28,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": "songPropertyStepper",
+                "label": {
+                    "align": "left",
+                    "offsetX": 6,
+                    "offsetY": 7,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "led"
+                },
+                "states": {}
+            },
+            "songPropertySongLength": {
+                "metrics": {
+                    "readoutRightInset": 86,
+                    "readoutY": 0,
+                    "readoutWidth": 45,
+                    "readoutHeightOffset": 0,
+                    "stepperWidth": 20,
+                    "stepperOffsetY": 3,
+                    "stepperHeight": 20,
+                    "stepperGlyphOffsetX": 1,
+                    "stepperGlyphOffsetY": 2,
+                    "captionOffsetX": 6,
+                    "captionOffsetY": 11,
+                    "isolateControlLayer": 1,
+                    "cursorOffsetX": 0,
+                    "cursorWidth": 2,
+                    "cursorHeight": 13,
+                    "cursorColorR": 255,
+                    "cursorColorG": 201,
+                    "cursorColorB": 65,
+                    "cursorAlpha": 0.7,
+                    "captionVariant0MinWidth": 178,
+                    "captionVariant1MinWidth": 156,
+                    "captionVariant2MinWidth": 138,
+                    "captionVariant3MinWidth": 10
+                },
+                "artwork": {
+                    "readoutNormal": "panel_inset_dark_inactive",
+                    "readoutFocused": "panel_inset_dark_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "spinBox",
+                "variant": "songPropertySongLength",
+                "description": "Exact v1 medium song-property spinbox with an integrated FT caption, four-digit LED readout and horizontal arrow buttons.",
+                "extends": "songProperty",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": 116,
+                "height": 28,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": "songPropertyStepper",
+                "label": {
+                    "align": "left",
+                    "offsetX": 6,
+                    "offsetY": 7,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "led"
+                },
+                "states": {}
+            },
+            "songPropertySongRepeat": {
+                "metrics": {
+                    "readoutRightInset": 86,
+                    "readoutY": 0,
+                    "readoutWidth": 45,
+                    "readoutHeightOffset": 0,
+                    "stepperWidth": 20,
+                    "stepperOffsetY": 3,
+                    "stepperHeight": 20,
+                    "stepperGlyphOffsetX": 1,
+                    "stepperGlyphOffsetY": 2,
+                    "captionOffsetX": 6,
+                    "captionOffsetY": 11,
+                    "isolateControlLayer": 1,
+                    "cursorOffsetX": 0,
+                    "cursorWidth": 2,
+                    "cursorHeight": 13,
+                    "cursorColorR": 255,
+                    "cursorColorG": 201,
+                    "cursorColorB": 65,
+                    "cursorAlpha": 0.7,
+                    "captionVariant0MinWidth": 178,
+                    "captionVariant1MinWidth": 156,
+                    "captionVariant2MinWidth": 138,
+                    "captionVariant3MinWidth": 10
+                },
+                "artwork": {
+                    "readoutNormal": "panel_inset_dark_inactive",
+                    "readoutFocused": "panel_inset_dark_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "spinBox",
+                "variant": "songPropertySongRepeat",
+                "description": "Exact v1 medium song-property spinbox with an integrated FT caption, four-digit LED readout and horizontal arrow buttons.",
+                "extends": "songProperty",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": 116,
+                "height": 28,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": "songPropertyStepper",
+                "label": {
+                    "align": "left",
+                    "offsetX": 6,
+                    "offsetY": 7,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "led"
+                },
+                "states": {}
+            },
+            "songPropertyPattern": {
+                "metrics": {
+                    "readoutRightInset": 86,
+                    "readoutY": 0,
+                    "readoutWidth": 45,
+                    "readoutHeightOffset": 0,
+                    "stepperWidth": 20,
+                    "stepperOffsetY": 3,
+                    "stepperHeight": 20,
+                    "stepperGlyphOffsetX": 1,
+                    "stepperGlyphOffsetY": 2,
+                    "captionOffsetX": 6,
+                    "captionOffsetY": 11,
+                    "isolateControlLayer": 1,
+                    "cursorOffsetX": 0,
+                    "cursorWidth": 2,
+                    "cursorHeight": 13,
+                    "cursorColorR": 255,
+                    "cursorColorG": 201,
+                    "cursorColorB": 65,
+                    "cursorAlpha": 0.7,
+                    "captionVariant0MinWidth": 140,
+                    "captionVariant1MinWidth": 10
+                },
+                "artwork": {
+                    "readoutNormal": "panel_inset_dark_inactive",
+                    "readoutFocused": "panel_inset_dark_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "spinBox",
+                "variant": "songPropertyPattern",
+                "description": "Exact v1 medium song-property spinbox with an integrated FT caption, four-digit LED readout and horizontal arrow buttons.",
+                "extends": "songProperty",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": 116,
+                "height": 28,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": "songPropertyStepper",
+                "label": {
+                    "align": "left",
+                    "offsetX": 6,
+                    "offsetY": 7,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "led"
+                },
+                "states": {}
+            },
+            "songPropertyPatternLength": {
+                "metrics": {
+                    "readoutRightInset": 86,
+                    "readoutY": 0,
+                    "readoutWidth": 45,
+                    "readoutHeightOffset": 0,
+                    "stepperWidth": 20,
+                    "stepperOffsetY": 3,
+                    "stepperHeight": 20,
+                    "stepperGlyphOffsetX": 1,
+                    "stepperGlyphOffsetY": 2,
+                    "captionOffsetX": 6,
+                    "captionOffsetY": 11,
+                    "isolateControlLayer": 1,
+                    "cursorOffsetX": 0,
+                    "cursorWidth": 2,
+                    "cursorHeight": 13,
+                    "cursorColorR": 255,
+                    "cursorColorG": 201,
+                    "cursorColorB": 65,
+                    "cursorAlpha": 0.7,
+                    "captionVariant0MinWidth": 188,
+                    "captionVariant1MinWidth": 166,
+                    "captionVariant2MinWidth": 138,
+                    "captionVariant3MinWidth": 10
+                },
+                "artwork": {
+                    "readoutNormal": "panel_inset_dark_inactive",
+                    "readoutFocused": "panel_inset_dark_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "spinBox",
+                "variant": "songPropertyPatternLength",
+                "description": "Exact v1 medium song-property spinbox with an integrated FT caption, four-digit LED readout and horizontal arrow buttons.",
+                "extends": "songProperty",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": 116,
+                "height": 28,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": "songPropertyStepper",
+                "label": {
+                    "align": "left",
+                    "offsetX": 6,
+                    "offsetY": 7,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "led"
+                },
+                "states": {}
+            },
+            "songPropertyInstrument": {
+                "metrics": {
+                    "readoutRightInset": 86,
+                    "readoutY": 0,
+                    "readoutWidth": 45,
+                    "readoutHeightOffset": 0,
+                    "stepperWidth": 20,
+                    "stepperOffsetY": 3,
+                    "stepperHeight": 20,
+                    "stepperGlyphOffsetX": 1,
+                    "stepperGlyphOffsetY": 2,
+                    "captionOffsetX": 6,
+                    "captionOffsetY": 11,
+                    "isolateControlLayer": 1,
+                    "cursorOffsetX": 0,
+                    "cursorWidth": 2,
+                    "cursorHeight": 13,
+                    "cursorColorR": 255,
+                    "cursorColorG": 201,
+                    "cursorColorB": 65,
+                    "cursorAlpha": 0.7,
+                    "captionVariant0MinWidth": 160,
+                    "captionVariant1MinWidth": 123,
+                    "captionVariant2MinWidth": 10
+                },
+                "artwork": {
+                    "readoutNormal": "panel_inset_dark_inactive",
+                    "readoutFocused": "panel_inset_dark_active"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "spinBox",
+                "variant": "songPropertyInstrument",
+                "description": "Exact v1 medium song-property spinbox with an integrated FT caption, four-digit LED readout and horizontal arrow buttons.",
+                "extends": "songProperty",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": 116,
+                "height": 28,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": "songPropertyStepper",
+                "label": {
+                    "align": "left",
+                    "offsetX": 6,
+                    "offsetY": 7,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "led"
+                },
+                "states": {}
             }
         },
         "label": {
             "default": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
                 "type": "label",
                 "variant": "default",
                 "description": "Plain text, no background artwork.",
@@ -678,6 +3660,496 @@ export const SKIN = {
                     "offsetX": 2,
                     "offsetY": 0,
                     "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "sectionHeader": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "label",
+                "variant": "sectionHeader",
+                "description": "A small section caption above a group of controls (e.g. editPad's own \"Track\"/\"Pattern\" headers). Font \"med\" matches v1's own real equivalent (script/src/ui/editPanel.js:73-74).",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 20,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 2,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {}
+            },
+            "editPadHeader": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "label",
+                "variant": "editPadHeader",
+                "description": "Exact v1 EditPanel heading: medium bitmap font at an explicitly authored top-left coordinate, with no generic two-pixel label inset.",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 8,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {}
+            },
+            "caption": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "label",
+                "variant": "caption",
+                "description": "A spinbox's own preceding caption label (spec 077 - a real, deliberate simplification of v1's own in-control caption). Font \"ft\" matches v1's own real spinbBoxFont (script/src/ui/app/appMainPanel.js:54).",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 20,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 2,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "ft"
+                },
+                "states": {}
+            },
+            "optionCaption": {
+                "metrics": {
+                    "verticalAlignHeight": 10
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "label",
+                "variant": "optionCaption",
+                "description": "One Options column's own caption text. v1 draws it with a Label, which centres the \"small\" font horizontally and places it vertically against a hard-coded 10-pixel line height rather than the font's own 6 (script/src/ui/components/label.js#render).",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 20,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "center",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "diskSelectorCaption": {
+                "metrics": {
+                    "verticalAlignHeight": 10
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "label",
+                "variant": "diskSelectorCaption",
+                "description": "V1 small left-aligned Action/Type/From/To caption label.",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 20,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 10,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "optionsHeader": {
+                "metrics": {
+                    "verticalAlignHeight": 10
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "label",
+                "variant": "optionsHeader",
+                "description": "The Options panel's own \"Options:\" heading. Same v1 Label, left-aligned, whose left-aligned branch uses a hard-coded textX of 10 and the same 10-pixel line height.",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 20,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 10,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {}
+            },
+            "menuItem": {
+                "metrics": {},
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "label",
+                "variant": "menuItem",
+                "description": "A leaf menu/submenu item (a plain command, not itself a nested submenu - those become menuTrigger instead). Font \"ft\" matches v1's own real submenu item label (script/src/ui/components/submenu.js:184-185); offsetX 9 matches its own real left text inset (submenu.js's own _paddingLeft).",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 20,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 9,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "ft"
+                },
+                "states": {}
+            },
+            "modeDisplayCaption": {
+                "metrics": {
+                    "fitLabelRightInset": 76,
+                    "hideLabelWhenNoFit": 1,
+                    "verticalAlignHeight": 10
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "label",
+                "variant": "modeDisplayCaption",
+                "description": "V1's right-aligned responsive MODE/DISPLAY captions.",
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": 20,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "right",
+                    "offsetX": 10,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            }
+        },
+        "menuTrigger": {
+            "default": {
+                "metrics": {
+                    "widthPadding": 24,
+                    "height": 26
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "menuTrigger",
+                "variant": "default",
+                "description": null,
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 10,
+                    "offsetY": 1,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "med"
+                },
+                "states": {}
+            },
+            "nested": {
+                "metrics": {
+                    "widthPadding": 20,
+                    "height": 26
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "menuTrigger",
+                "variant": "nested",
+                "description": null,
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 9,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "ft"
+                },
+                "states": {}
+            }
+        },
+        "volumeMeter": {
+            "default": {
+                "metrics": {
+                    "dotWidth": 10,
+                    "dotGap": 2,
+                    "rowHeight": 6,
+                    "rowGap": 4
+                },
+                "artwork": {
+                    "green": "vu_green",
+                    "yellow": "vu_yellow",
+                    "red": "vu_red",
+                    "greenActive": "vu_green_active",
+                    "yellowActive": "vu_yellow_active",
+                    "redActive": "vu_red_active"
+                },
+                "barGlyph": null,
+                "fill": "#253352",
+                "tint": null,
+                "type": "volumeMeter",
+                "variant": "default",
+                "description": null,
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            }
+        },
+        "scopesView": {
+            "default": {
+                "metrics": {
+                    "isolateSource": 1
+                },
+                "artwork": {},
+                "barGlyph": null,
+                "fill": "#223155",
+                "tint": null,
+                "type": "scopesView",
+                "variant": "default",
+                "description": "Native v1 oscilloscope grid, stretched independently into every track cell before the live trace is drawn.",
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {
+                    "normal": {
+                        "asset": "oscilloscope",
+                        "inherited": false
+                    }
+                }
+            }
+        },
+        "notificationLight": {
+            "default": {
+                "metrics": {
+                    "boxSize": 13,
+                    "tintWidth": 50
+                },
+                "artwork": {
+                    "off": "checkbox_off",
+                    "on": "checkbox_on"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": null,
+                "type": "notificationLight",
+                "variant": "default",
+                "description": null,
+                "extends": null,
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 10,
+                    "offsetY": 5,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
+                    "font": "small"
+                },
+                "states": {}
+            },
+            "midi": {
+                "metrics": {
+                    "boxSize": 13,
+                    "tintWidth": 50
+                },
+                "artwork": {
+                    "off": "checkbox_off",
+                    "on": "checkbox_on"
+                },
+                "barGlyph": null,
+                "fill": null,
+                "tint": "rgba(34,49,85,0.5)",
+                "type": "notificationLight",
+                "variant": "midi",
+                "description": null,
+                "extends": "default",
+                "insets": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0
+                },
+                "width": null,
+                "height": null,
+                "focusColor": null,
+                "itemStyle": null,
+                "thumbStyle": null,
+                "label": {
+                    "align": "left",
+                    "offsetX": 10,
+                    "offsetY": 3,
+                    "pressedOffset": 0,
+                    "activeOffsetY": 0,
                     "font": "small"
                 },
                 "states": {}
@@ -700,42 +4172,10 @@ export const SKIN = {
                 "focusColor": null,
                 "itemStyle": null,
                 "thumbStyle": "default",
+                "barGlyph": null,
                 "label": {
                     "align": "left",
                     "offsetX": 0,
-                    "offsetY": 0,
-                    "pressedOffset": 0,
-                    "font": "small"
-                },
-                "states": {
-                    "normal": {
-                        "asset": "panel_dark",
-                        "inherited": false
-                    }
-                },
-                "builtin": true
-            }
-        },
-        "inputbox": {
-            "default": {
-                "type": "inputbox",
-                "variant": "default",
-                "description": "One line of editable text with a caret and a selection (spec 015).",
-                "extends": null,
-                "insets": {
-                    "left": 2,
-                    "top": 2,
-                    "right": 2,
-                    "bottom": 2
-                },
-                "width": 140,
-                "height": 24,
-                "focusColor": "#ffcc00",
-                "itemStyle": null,
-                "thumbStyle": null,
-                "label": {
-                    "align": "left",
-                    "offsetX": 4,
                     "offsetY": 0,
                     "pressedOffset": 0,
                     "font": "small"
@@ -766,6 +4206,7 @@ export const SKIN = {
                 "focusColor": null,
                 "itemStyle": null,
                 "thumbStyle": null,
+                "barGlyph": null,
                 "label": {
                     "align": "left",
                     "offsetX": 4,

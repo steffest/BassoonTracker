@@ -3,12 +3,12 @@ import { component } from "../../runtime/components.js";
 import { songPatternList } from "./songPatternList.js";
 
 /**
- * songPatternGroup — UI structure generated from components/songProperties.yaml:49.
+ * songPatternGroup — UI structure generated from components/songProperties.yaml:52.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function songPatternGroup() {
-    return component("panel", { id: "main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup", name: "songPatternGroup", layout: { width: { mode: "fill" } } }, [
+    return component("panel", { id: "main.songProperties.songPropertiesDefault.songPropertiesLayout.songPatternGroup", name: "songPatternGroup", layout: { width: { mode: "col1Minus5" } } }, [
         songPatternList()
     ]);
 }

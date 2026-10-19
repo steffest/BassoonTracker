@@ -4,6 +4,7 @@ import Note from "../models/note.js";
 import Instrument from "../models/instrument.js";
 import Sample from "../models/sample.js";
 import EventBus from "../eventBus.js";
+import {formatInstrumentIndex} from "../lib/util.js";
 
 var ScreamTracker = function(){
 	var me = {};
@@ -110,7 +111,7 @@ var ScreamTracker = function(){
 		for (i = 1; i<=mod.numberOfInstruments; i++){
 			var instrument = readInstrument(file,instrumentPointers[i-1],mod.sampleFormat,sampleLengthModes[i-1]);
 			Tracker.setInstrument(i,instrument);
-			instrumentContainer.push({label: i + " " + instrument.name, data: i});
+			instrumentContainer.push({label: formatInstrumentIndex(i) + " " + instrument.name, data: i, name: instrument.name});
 		}
 
 		EventBus.trigger(EVENT.instrumentListChange,instrumentContainer);

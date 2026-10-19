@@ -2,7 +2,7 @@
 import { openRandomSong as implementation } from "../../domain/randomSong/index.js";
 
 /**
- * song.random — generated from app.yaml:34: "verb-action".
+ * song.random — generated from app.yaml:81: "verb-action".
  * Implemented by ./domain/randomSong/index.js#openRandomSong (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

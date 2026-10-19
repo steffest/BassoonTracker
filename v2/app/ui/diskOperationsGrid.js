@@ -3,15 +3,17 @@ import { component } from "../../runtime/components.js";
 import { actionColumn } from "./actionColumn.js";
 import { contentColumn } from "./contentColumn.js";
 import { targetColumn } from "./targetColumn.js";
+import { typeColumn } from "./typeColumn.js";
 
 /**
- * diskOperationsGrid — UI structure generated from components/fileOperationsPanel.yaml:12.
+ * diskOperationsGrid — UI structure generated from components/fileOperationsPanel.yaml:15.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function diskOperationsGrid() {
-    return component("panel", { id: "main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid", name: "diskOperationsGrid", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "row" } }, [
+    return component("panel", { id: "main.songProperties.fileOperationsPanel.diskOperationsGrid", name: "diskOperationsGrid", layout: { width: { mode: "fill" }, height: { mode: "fill" }, position: "absolute", left: 0, top: 0 }, style: "transparent" }, [
         actionColumn(),
+        typeColumn(),
         targetColumn(),
         contentColumn()
     ]);

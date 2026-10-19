@@ -14,6 +14,7 @@ export default class BitmapFont {
     charWidth;
     charHeight;
     fontArray;
+    colors = {};
 
     _getCharWidth(index) {
         if (this.fixedWidth) return this._charWidth;
@@ -34,6 +35,7 @@ export default class BitmapFont {
         this._onlyUpperCase = !!config.onlyUpperCase;
 
         this.fontArray = [];
+        this.colors = {};
         this._charSpacing = margin;
         this._charHeight = h;
         this.charHeight = h;
@@ -81,6 +83,31 @@ export default class BitmapFont {
         }
     }
 
+    // V1's bitmap fonts tint each already-extracted glyph through a
+    // destination-atop fill followed by a darken pass of the original.
+    // Keeping that exact operation here avoids approximating its named
+    // blue/green/orange variants with canvas text or a global tint.
+    generateColor(name, color) {
+        const tinted = [];
+        this.fontArray.forEach((glyph, index) => {
+            const colored = document.createElement("canvas");
+            const result = document.createElement("canvas");
+            colored.width = result.width = glyph.width;
+            colored.height = result.height = glyph.height;
+            const colorCtx = colored.getContext("2d");
+            colorCtx.fillStyle = color;
+            colorCtx.fillRect(0, 0, 16, 16);
+            colorCtx.globalCompositeOperation = "destination-atop";
+            colorCtx.drawImage(glyph, 0, 0);
+            const resultCtx = result.getContext("2d");
+            resultCtx.drawImage(colored, 0, 0);
+            resultCtx.globalCompositeOperation = "darken";
+            resultCtx.drawImage(glyph, 0, 0);
+            tinted[index] = result;
+        });
+        this.colors[name] = tinted;
+    }
+
     getTextWidth(text, spacing) {
         if (!text) return 0;
         if (this._onlyUpperCase) text = text.toUpperCase();
@@ -93,17 +120,18 @@ export default class BitmapFont {
         return w;
     }
 
-    write(canvasCtx, text, x, y, spacing) {
+    write(canvasCtx, text, x, y, spacing, color) {
         if (!text) return;
         if (this._onlyUpperCase) text = text.toUpperCase();
         spacing = spacing ?? this._charSpacing;
         x = x || 0;
         y = y || 0;
         let _x = x;
+        const glyphs = this.colors[color] || this.fontArray;
 
         for (let i = 0, len = text.length; i < len; i++) {
             const code = text.charCodeAt(i);
-            const c = this.fontArray[code];
+            const c = glyphs[code];
             const w = this._widthArray[code];
 
             if (!w) {

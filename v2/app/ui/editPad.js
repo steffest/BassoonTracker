@@ -4,13 +4,19 @@ import { patternColumn } from "./patternColumn.js";
 import { trackColumn } from "./trackColumn.js";
 
 /**
- * editPad — UI structure generated from components/editPad.yaml:1. Referenced from app.yaml:177.
+ * editPad — UI structure generated from components/editPad.yaml:1. Referenced from app.yaml:276.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function editPad() {
-    return component("panel", { id: "main.normalMainView.patternSection.patternSectionDefault.editPad", name: "editPad", layout: { width: { mode: "fill" }, direction: "row" } }, [
+    return component("panel", { id: "main.normalMainView.patternSection.patternLeftColumn.editPad", name: "editPad", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 90 }, direction: "row", padding: 2, gap: 0, offsetY: 4 }, style: "transparent" }, [
         trackColumn(),
-        patternColumn()
+        patternColumn(),
+        component("image", {
+            id: "main.normalMainView.patternSection.patternLeftColumn.editPad.sidebarToggleDeco",
+            name: "sidebarToggleDeco",
+            layout: { width: { mode: "fixed", size: 19 }, height: { mode: "fixed", size: 24 }, position: "absolute", right: -4, top: -3 },
+            src: "toggleleft"
+        })
     ]);
 }

@@ -2,7 +2,7 @@
 import { decrementSelectedPatternRow as implementation } from "../../domain/song/index.js";
 
 /**
- * pattern.decrement — generated from components/songPatternList.yaml:34: "verb-action".
+ * pattern.decrement — generated from components/songPatternList.yaml:67: "verb-action".
  * Implemented by ./domain/song/index.js#decrementSelectedPatternRow (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

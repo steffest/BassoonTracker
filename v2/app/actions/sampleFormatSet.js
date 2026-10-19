@@ -2,7 +2,7 @@
 import { setSampleExportFormat as implementation } from "../../domain/moduleExport/index.js";
 
 /**
- * sample-format.set — generated from components/fileOperationsPanel.yaml:156: "set-value".
+ * sample-format.set — generated from components/fileOperationsPanel.yaml:445: "set-value".
  * Implemented by ./domain/moduleExport/index.js#setSampleExportFormat (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

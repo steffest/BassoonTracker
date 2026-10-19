@@ -2,7 +2,7 @@
 import { setBPM as implementation } from "../../domain/playback/index.js";
 
 /**
- * bpm.set — generated from components/songProperties.yaml:68: "set-value".
+ * bpm.set — generated from components/songProperties.yaml:95: "set-value".
  * Implemented by ./domain/playback/index.js#setBPM (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

@@ -4,13 +4,29 @@ import { optionsCheckboxRow } from "./optionsCheckboxRow.js";
 import { optionsGrid } from "./optionsGrid.js";
 
 /**
- * optionsPanel — UI structure generated from components/optionsPanel.yaml:1. Referenced from components/songProperties.yaml:165.
+ * optionsPanel — UI structure generated from components/optionsPanel.yaml:1. Referenced from components/songProperties.yaml:275.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function optionsPanel() {
-    return component("panel", { id: "main.normalMainView.songProperties.optionsPanel", name: "optionsPanel", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" }, visibleWhen: {"field":"song-properties-view.value","oneOf":["Options"]} }, [
-        component("label", { id: "main.normalMainView.songProperties.optionsPanel.label.Options:", label: "Options:" }),
+    return component("panel", { id: "main.songProperties.optionsPanel", name: "optionsPanel", layout: { width: { mode: "fill" }, height: { mode: "fill" }, position: "absolute", left: 0, top: 0 }, style: "mainStripLayered", visibleWhen: {"field":"song-properties-view.value","oneOf":["Options"]} }, [
+        // style -> label/optionsHeader (skin/default.yaml:1054)
+        component("label", {
+            id: "main.songProperties.optionsPanel.label.Options:",
+            label: "Options:",
+            layout: { width: { mode: "fixed", size: 200 }, height: { mode: "fixed", size: 18 }, position: "absolute", left: 5, top: 9 },
+            style: "optionsHeader"
+        }),
+        // style -> button/panelClose (skin/default.yaml:431)
+        // action (components/optionsPanel.yaml:54) on click -> main.show, lazy feature actions/mainShow.js
+        component("button", {
+            id: "main.songProperties.optionsPanel.closeButton",
+            name: "closeButton",
+            label: "x",
+            layout: { width: { mode: "fixed", size: 20 }, height: { mode: "fixed", size: 20 }, position: "absolute", right: 10, top: 5 },
+            style: "panelClose",
+            on: { "click": (app, detail) => app.feature(() => import("../actions/mainShow.js"), m => m.mainShow(app, detail)) }
+        }),
         optionsGrid(),
         optionsCheckboxRow()
     ]);

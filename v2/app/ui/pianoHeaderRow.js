@@ -2,13 +2,13 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * pianoHeaderRow — UI structure generated from components/pianoPanel.yaml:12.
+ * pianoHeaderRow — UI structure generated from components/pianoPanel.yaml:23.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function pianoHeaderRow() {
     return component("panel", { id: "main.pianoPanel.pianoHeaderRow", name: "pianoHeaderRow", layout: { width: { mode: "fill" }, direction: "row" } }, [
-        // action (components/pianoPanel.yaml:25) on change -> current-octave.set, lazy feature actions/currentOctaveSet.js
+        // action (components/pianoPanel.yaml:36) on change -> current-octave.set, lazy feature actions/currentOctaveSet.js
         component("spinBox", {
             id: "main.pianoPanel.pianoHeaderRow.pianoOctaveSpinBox",
             name: "pianoOctaveSpinBox",
@@ -18,7 +18,7 @@ export function pianoHeaderRow() {
             step: 1,
             on: { "change": (app, detail) => app.feature(() => import("../actions/currentOctaveSet.js"), m => m.currentOctaveSet(app, detail)) }
         }),
-        // action (components/pianoPanel.yaml:30) on click -> piano.toggle, lazy feature actions/pianoToggle.js
+        // action (components/pianoPanel.yaml:41) on click -> piano.toggle, lazy feature actions/pianoToggle.js
         component("button", {
             id: "main.pianoPanel.pianoHeaderRow.pianoCloseButton",
             name: "pianoCloseButton",

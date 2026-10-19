@@ -5,40 +5,60 @@ import { frequencyTableCheckboxSpacer } from "./frequencyTableCheckboxSpacer.js"
 import { playFromCheckboxSpacer } from "./playFromCheckboxSpacer.js";
 
 /**
- * optionsCheckboxRow — UI structure generated from components/optionsPanel.yaml:157.
+ * optionsCheckboxRow — UI structure generated from components/optionsPanel.yaml:447.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function optionsCheckboxRow() {
-    return component("panel", { id: "main.normalMainView.songProperties.optionsPanel.optionsCheckboxRow", name: "optionsCheckboxRow", layout: { width: { mode: "fill" }, direction: "row" } }, [
-        // action (components/optionsPanel.yaml:168) on click -> help-bubbles.toggle, lazy feature actions/helpBubblesToggle.js
+    return component("panel", { id: "main.songProperties.optionsPanel.optionsCheckboxRow", name: "optionsCheckboxRow", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 32 }, direction: "row", padding: 4, gap: 4, position: "absolute", left: 0, top: 129, distribute: "floor" }, style: "transparent" }, [
+        // style -> checkbox/optionCheckbox (skin/default.yaml:644)
+        // rule (components/optionsPanel.yaml:465) "highlighted when help-bubbles.active is "true" is active" -> highlighted while help-bubbles.active === true
+        // action (components/optionsPanel.yaml:470) on click -> help-bubbles.toggle, lazy feature actions/helpBubblesToggle.js
         component("checkbox", {
-            id: "main.normalMainView.songProperties.optionsPanel.optionsCheckboxRow.checkbox.Show Help Bubbles",
-            label: "Show Help Bubbles",
-            layout: { width: { mode: "fill" } },
+            id: "main.songProperties.optionsPanel.optionsCheckboxRow.checkbox.Show Help Bubbles",
+            label: "Show Help Bubbles, Show Help, Help",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 24 } },
+            style: "optionCheckbox",
+            labelMinWidths: "150,100,60",
+            highlightedWhen: state => state.get("help-bubbles.active") === true,
             on: { "click": (app, detail) => app.feature(() => import("../actions/helpBubblesToggle.js"), m => m.helpBubblesToggle(app, detail)) }
         }),
-        // action (components/optionsPanel.yaml:174) on click -> show-key-input.toggle, lazy feature actions/showKeyInputToggle.js
+        // style -> checkbox/optionCheckbox (skin/default.yaml:644)
+        // rule (components/optionsPanel.yaml:475) "highlighted when show-key-input.active is "true" is active" -> highlighted while show-key-input.active === true
+        // action (components/optionsPanel.yaml:480) on click -> show-key-input.toggle, lazy feature actions/showKeyInputToggle.js
         component("checkbox", {
-            id: "main.normalMainView.songProperties.optionsPanel.optionsCheckboxRow.checkbox.Show Key Input",
-            label: "Show Key Input",
-            layout: { width: { mode: "fill" } },
+            id: "main.songProperties.optionsPanel.optionsCheckboxRow.checkbox.Show Key Input",
+            label: "Show Key Input, Show Key, Show",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 24 } },
+            style: "optionCheckbox",
+            labelMinWidths: "150,100,60",
+            highlightedWhen: state => state.get("show-key-input.active") === true,
             on: { "click": (app, detail) => app.feature(() => import("../actions/showKeyInputToggle.js"), m => m.showKeyInputToggle(app, detail)) }
         }),
-        // action (components/optionsPanel.yaml:180) on click -> high-dpi.toggle, lazy feature actions/highDpiToggle.js
+        // style -> checkbox/optionCheckbox (skin/default.yaml:644)
+        // rule (components/optionsPanel.yaml:485) "highlighted when high-dpi.active is "true" is active" -> highlighted while high-dpi.active === true
+        // action (components/optionsPanel.yaml:490) on click -> high-dpi.toggle, lazy feature actions/highDpiToggle.js
         component("checkbox", {
-            id: "main.normalMainView.songProperties.optionsPanel.optionsCheckboxRow.checkbox.Optimize High DPI",
-            label: "Optimize High DPI",
-            layout: { width: { mode: "fill" } },
+            id: "main.songProperties.optionsPanel.optionsCheckboxRow.checkbox.Optimize High DPI",
+            label: "Optimize High DPI, High DPI, H-DPI",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 24 } },
+            style: "optionCheckbox",
+            labelMinWidths: "155,100,60",
+            highlightedWhen: state => state.get("high-dpi.active") === true,
             on: { "click": (app, detail) => app.feature(() => import("../actions/highDpiToggle.js"), m => m.highDpiToggle(app, detail)) }
         }),
         frequencyTableCheckboxSpacer(),
         dropboxCheckboxSpacer(),
-        // action (components/optionsPanel.yaml:194) on click -> show-midi-input.toggle, lazy feature actions/showMidiInputToggle.js
+        // style -> checkbox/optionCheckbox (skin/default.yaml:644)
+        // rule (components/optionsPanel.yaml:505) "highlighted when show-midi-input.active is "true" is active" -> highlighted while show-midi-input.active === true
+        // action (components/optionsPanel.yaml:510) on click -> show-midi-input.toggle, lazy feature actions/showMidiInputToggle.js
         component("checkbox", {
-            id: "main.normalMainView.songProperties.optionsPanel.optionsCheckboxRow.checkbox.Show Midi Input",
-            label: "Show Midi Input",
-            layout: { width: { mode: "fill" } },
+            id: "main.songProperties.optionsPanel.optionsCheckboxRow.checkbox.Show Midi Input",
+            label: "Show Midi Input, Show Midi, Show",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 24 } },
+            style: "optionCheckbox",
+            labelMinWidths: "150,100,60",
+            highlightedWhen: state => state.get("show-midi-input.active") === true,
             on: { "click": (app, detail) => app.feature(() => import("../actions/showMidiInputToggle.js"), m => m.showMidiInputToggle(app, detail)) }
         }),
         playFromCheckboxSpacer()

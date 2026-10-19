@@ -9,12 +9,12 @@ import { stereoColumn } from "./stereoColumn.js";
 import { vuBarsColumn } from "./vuBarsColumn.js";
 
 /**
- * optionsGrid — UI structure generated from components/optionsPanel.yaml:13.
+ * optionsGrid — UI structure generated from components/optionsPanel.yaml:63.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function optionsGrid() {
-    return component("panel", { id: "main.normalMainView.songProperties.optionsPanel.optionsGrid", name: "optionsGrid", layout: { width: { mode: "fill" }, direction: "row" } }, [
+    return component("panel", { id: "main.songProperties.optionsPanel.optionsGrid", name: "optionsGrid", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 114 }, direction: "row", padding: 4, gap: 4, position: "absolute", left: 0, top: 23, distribute: "floor" }, style: "transparent" }, [
         vuBarsColumn(),
         stereoColumn(),
         screenRefreshColumn(),

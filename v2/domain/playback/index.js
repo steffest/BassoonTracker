@@ -89,6 +89,7 @@ let lastThrottleEscalation = 0;
 let trackAnalysers = []; // spec 052: one per track, lazily created/connected - see getTrackScopeData
 let masterScopeAnalysers = null; // spec 054: {left, right}, lazily created/connected - see getMasterScopeData
 let activeKeys = new Map(); // spec 060: piano key index -> played note handle, mirrors input.js's own keyDown[]
+let lastPreviewAt = -Infinity; // spec 083: when previewNoteOn last fired - see wasNotePreviewedRecently
 
 /**
  * Ported from ui.js:607-618 (`EVENT.clockEventExpired`): escalates the
@@ -206,7 +207,21 @@ function startObserving(app) {
  */
 export async function loadModule(app, url) {
     ensureEngine(app);
-    const target = url ? new URL(url, globalThis.location ? globalThis.location.href : undefined).href : mediaUrl(app, DEMO_MODULE);
+    // Spec 081: resolving a *given* url against the page's own location
+    // (rather than mediaUrl's own asset base, app.media) was a real,
+    // previously-latent bug - it happened to work for every caller so far
+    // only because every one of them passed either no url (the bundled demo,
+    // below) or a full absolute https:// URL (an external host, whose own
+    // scheme makes any base irrelevant per the URL spec) - never a bare
+    // asset-relative path like a curated playlist's own "demomods/x.mod".
+    // Surfaced live by spec 081's own default-populated Songs tab, whose
+    // real curated data uses exactly that relative shape (v1's own real
+    // playlists/demosongs.json, ported as-is) - clicking a row 404'd at
+    // ".../app/demomods/..." instead of ".../assets/demomods/...".
+    // mediaUrl is correct for both shapes: an absolute url passed as new
+    // URL's own first argument ignores the base entirely, so nothing that
+    // worked before regresses.
+    const target = url ? mediaUrl(app, url) : mediaUrl(app, DEMO_MODULE);
     if (loadedUrl === target) return playbackState();
     if (loading) await loading.catch(() => {});
     loading = (async () => {
@@ -407,6 +422,14 @@ export function getTrackScopeData(track, target) {
     ensureTrackAnalysers();
     const analyser = trackAnalysers[track];
     if (!analyser) return null;
+    // v1's Visualiser sets its analyser FFT size to the requested scope
+    // sample count on every draw. The dedicated scopes strip uses 512
+    // samples while multitrack thumbnails use 256, so the shared analyser
+    // follows the caller's target rather than forcing both surfaces to one
+    // density.
+    if (target?.length >= 32 && target.length <= 32768 && (target.length & (target.length - 1)) === 0 && analyser.fftSize !== target.length) {
+        analyser.fftSize = target.length;
+    }
     analyser.getByteTimeDomainData(target);
     return target;
 }
@@ -476,12 +499,28 @@ export function previewNoteOn(index, app) {
             if (ftNote) note.period = ftNote.period;
         }
     }
+    lastPreviewAt = typeof performance !== "undefined" ? performance.now() : Date.now();
     Audio.checkState();
     const played = instrument.play(note.index, note.period, undefined, undefined, undefined);
     played.instrument = instrument;
     played.isKey = true; // instrument.noteOff's own non-FT branch silently no-ops without this - instrument.js:123
     activeKeys.set(index, played);
     return true;
+}
+
+/**
+ * The top menu bar's own "Key" notification light (spec 083) polls this
+ * instead of v1's own real `flash()` (script/src/ui/app/menu.js:168-174,
+ * a setTimeout that flips a boolean back off after 100ms) - an edge-
+ * triggered "was a note previewed within the last `windowMs`" check needs
+ * no timer of its own to leak or cancel, and holding a note (or a fast
+ * chord) keeps the light lit continuously the same way v1's own
+ * `clearTimeout`-and-reschedule does, for the same reason: each new
+ * `previewNoteOn` call simply moves `lastPreviewAt` forward again.
+ */
+export function wasNotePreviewedRecently(windowMs = 100) {
+    const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+    return now - lastPreviewAt < windowMs;
 }
 
 /**
@@ -547,4 +586,5 @@ export function reset() {
     lastThrottleEscalation = 0;
     trackAnalysers = [];
     masterScopeAnalysers = null;
+    lastPreviewAt = -Infinity;
 }

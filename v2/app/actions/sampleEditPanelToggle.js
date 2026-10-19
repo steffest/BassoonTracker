@@ -2,7 +2,7 @@
 import { toggleSampleEditPanel as implementation } from "../../domain/appView/index.js";
 
 /**
- * sample-edit-panel.toggle — generated from components/controlBar.yaml:34: "toggle-generic".
+ * sample-edit-panel.toggle — generated from components/controlBar.yaml:60: "toggle-generic".
  * Implemented by ./domain/appView/index.js#toggleSampleEditPanel (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

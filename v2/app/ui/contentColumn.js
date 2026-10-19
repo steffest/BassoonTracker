@@ -4,12 +4,12 @@ import { loadContent } from "./loadContent.js";
 import { saveContent } from "./saveContent.js";
 
 /**
- * contentColumn — UI structure generated from components/fileOperationsPanel.yaml:88.
+ * contentColumn — UI structure generated from components/fileOperationsPanel.yaml:371.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function contentColumn() {
-    return component("panel", { id: "main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn", name: "contentColumn", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" } }, [
+    return component("panel", { id: "main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn", name: "contentColumn", layout: { width: { mode: "col2Exact" }, height: { mode: "fixed", size: 150 }, direction: "column", padding: 0, gap: 0, position: "absolute", left: "col4Left", top: 5 }, style: "transparent" }, [
         loadContent(),
         saveContent()
     ]);

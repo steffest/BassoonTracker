@@ -2,7 +2,7 @@
 import { applyOctaveChange as implementation } from "../../domain/song/index.js";
 
 /**
- * current-octave.set — generated from components/pianoPanel.yaml:25: "set-value".
+ * current-octave.set — generated from components/pianoPanel.yaml:36: "set-value".
  * Implemented by ./domain/song/index.js#applyOctaveChange (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

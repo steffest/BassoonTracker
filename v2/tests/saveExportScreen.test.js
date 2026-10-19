@@ -37,7 +37,7 @@ function measure() {
 // supply it explicitly here rather than leaving it "undefined" (a string
 // oneOf never matches).
 function layoutWith(fields) {
-    const withDefaults = { "disk-action.value": "", "save-type.value": "", ...fields };
+    const withDefaults = { "disk-action.value": "", "disk-type.value": "", "save-type.value": "", ...fields };
     return computeGenericLayout(compiled.root, { width: 1200, height: 800 }, measure, {
         stateValueOf: field => (field in withDefaults ? withDefaults[field] : undefined)
     });
@@ -51,14 +51,14 @@ function layoutWith(fields) {
 // one column slot (targetColumn), mutually exclusive on disk-action.value,
 // matching how v1's own "From"/"To" label swaps in the identical column
 // (diskOp_Targets.js) rather than being two unrelated regions.
-const PANEL = "main.normalMainView.songProperties.fileOperationsPanel";
+const PANEL = "main.songProperties.fileOperationsPanel";
 const GRID = `${PANEL}.diskOperationsGrid`;
 const LOAD_CONTENT = `${GRID}.contentColumn.loadContent`;
 const LOAD_LABEL = `${LOAD_CONTENT}.label.Load module:`;
-const TARGET_GROUP = `${GRID}.targetColumn.targetGroup`;
+const TARGET_GROUP = `${GRID}.targetColumn.loadTargets.moduleTargets`;
 const BROWSER = `${LOAD_CONTENT}.browser`;
 const SAVE_VIEW = `${GRID}.contentColumn.saveContent`;
-const SAVE_TYPE_GROUP = `${GRID}.targetColumn.saveTypeGroup`;
+const SAVE_TARGET_GROUP = `${GRID}.targetColumn.saveTargets`;
 const SAVE_MODULE_PANEL = `${SAVE_VIEW}.saveModulePanel`;
 const SAVE_SAMPLE_PANEL = `${SAVE_VIEW}.saveSamplePanel`;
 const SAVE_PLAYLIST_PANEL = `${SAVE_VIEW}.savePlaylistPanel`;
@@ -80,12 +80,12 @@ test("File Operations, disk-action unset (the real app's own seeded default): th
         assert.ok(rects.get(id), `${id} present`);
     }
     assert.equal(rects.get(SAVE_VIEW), undefined);
-    assert.equal(rects.get(SAVE_TYPE_GROUP), undefined, "the save-side type column is not shown while loading");
+    assert.equal(rects.get(SAVE_TARGET_GROUP), undefined, "the save-side target choices are not shown while loading");
 });
 
 test("disk-action.value Save: the save view shows (default save-type: Module), the load view does not", () => {
     const { rects } = layoutWith({ "song-properties-view.value": "File Operations", "disk-action.value": "Save" });
-    for (const id of [SAVE_VIEW, SAVE_TYPE_GROUP, SAVE_MODULE_PANEL]) {
+    for (const id of [SAVE_VIEW, SAVE_TARGET_GROUP, SAVE_MODULE_PANEL]) {
         assert.ok(rects.get(id), `${id} present`);
     }
     assert.equal(rects.get(SAVE_SAMPLE_PANEL), undefined);

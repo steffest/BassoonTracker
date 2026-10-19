@@ -61,6 +61,7 @@ function builtinStyle(type, style) {
         focusColor: style.focusColor ?? null,
         itemStyle: style.itemStyle ?? null,
         thumbStyle: style.thumbStyle ?? null,
+        barGlyph: style.barGlyph ?? null,
         label: { align: "left", offsetX: 0, offsetY: 0, pressedOffset: 0, font: "small", ...(style.label || {}) },
         states: Object.fromEntries(Object.entries(style.states || {}).map(([state, asset]) => [state, { asset, source: null, inherited: false }])),
         statesSource: null,

@@ -7,34 +7,34 @@ import { component } from "../../runtime/components.js";
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function nibblesScoreboard() {
-    return component("panel", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard", name: "nibblesScoreboard", layout: { width: { mode: "fixed", size: 160 }, direction: "column" } }, [
-        component("label", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.label.Score", label: "Score" }),
-        component("label", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesScoreValue", name: "nibblesScoreValue", field: "nibbles-score.value" }),
-        component("label", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.label.Lives", label: "Lives" }),
-        component("label", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesLivesValue", name: "nibblesLivesValue", field: "nibbles-lives.value" }),
-        component("label", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.label.Level", label: "Level" }),
-        component("label", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesLevelValue", name: "nibblesLevelValue", field: "nibbles-level.value" }),
-        component("label", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.label.Difficulty", label: "Difficulty" }),
-        // style -> radioGroup/buttons (skin/default.yaml:100)
+    return component("panel", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard", name: "nibblesScoreboard", layout: { width: { mode: "fixed", size: 160 }, direction: "column" } }, [
+        component("label", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.label.Score", label: "Score" }),
+        component("label", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesScoreValue", name: "nibblesScoreValue", field: "nibbles-score.value" }),
+        component("label", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.label.Lives", label: "Lives" }),
+        component("label", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesLivesValue", name: "nibblesLivesValue", field: "nibbles-lives.value" }),
+        component("label", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.label.Level", label: "Level" }),
+        component("label", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesLevelValue", name: "nibblesLevelValue", field: "nibbles-level.value" }),
+        component("label", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.label.Difficulty", label: "Difficulty" }),
+        // style -> radioGroup/buttons (skin/default.yaml:677)
         // action (components/nibblesPanel.yaml:69) on change -> difficulty.set, lazy feature actions/difficultySet.js
-        component("radioGroup", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesDifficulty", name: "nibblesDifficulty", layout: { direction: "column" }, style: "buttons", on: { "change": (app, detail) => app.feature(() => import("../actions/difficultySet.js"), m => m.difficultySet(app, detail)) } }, [
-            // style -> radioItem/button (skin/default.yaml:120)
+        component("radioGroup", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesDifficulty", name: "nibblesDifficulty", layout: { direction: "column" }, style: "buttons", on: { "change": (app, detail) => app.feature(() => import("../actions/difficultySet.js"), m => m.difficultySet(app, detail)) } }, [
+            // style -> radioItem/button (skin/default.yaml:731)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
-            component("radioItem", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesDifficulty.radioItem.Novice", label: "Novice", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:120)
+            component("radioItem", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesDifficulty.radioItem.Novice", label: "Novice", style: "button" }),
+            // style -> radioItem/button (skin/default.yaml:731)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
-            component("radioItem", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesDifficulty.radioItem.Average", label: "Average", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:120)
+            component("radioItem", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesDifficulty.radioItem.Average", label: "Average", style: "button" }),
+            // style -> radioItem/button (skin/default.yaml:731)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
-            component("radioItem", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesDifficulty.radioItem.Pro", label: "Pro", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:120)
+            component("radioItem", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesDifficulty.radioItem.Pro", label: "Pro", style: "button" }),
+            // style -> radioItem/button (skin/default.yaml:731)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
-            component("radioItem", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesDifficulty.radioItem.Triton", label: "Triton", style: "button" })
+            component("radioItem", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.nibblesDifficulty.radioItem.Triton", label: "Triton", style: "button" })
         ]),
         // rule (components/nibblesPanel.yaml:72) "highlighted when wrap is active" -> highlighted while wrap.active === true
         // action (components/nibblesPanel.yaml:74) on click -> wrap.toggle, lazy feature actions/wrapToggle.js
         component("checkbox", {
-            id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.checkbox.Wrap",
+            id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.checkbox.Wrap",
             label: "Wrap",
             highlightedWhen: state => state.get("wrap.active") === true,
             on: { "click": (app, detail) => app.feature(() => import("../actions/wrapToggle.js"), m => m.wrapToggle(app, detail)) }
@@ -42,14 +42,14 @@ export function nibblesScoreboard() {
         // rule (components/nibblesPanel.yaml:77) "highlighted when grid is active" -> highlighted while grid.active === true
         // action (components/nibblesPanel.yaml:79) on click -> grid.toggle, lazy feature actions/gridToggle.js
         component("checkbox", {
-            id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.checkbox.Grid",
+            id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.checkbox.Grid",
             label: "Grid",
             highlightedWhen: state => state.get("grid.active") === true,
             on: { "click": (app, detail) => app.feature(() => import("../actions/gridToggle.js"), m => m.gridToggle(app, detail)) }
         }),
         // action (components/nibblesPanel.yaml:83) on click -> high-score-view.toggle, lazy feature actions/highScoreViewToggle.js
-        component("button", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.button.HighScore", label: "HighScore", on: { "click": (app, detail) => app.feature(() => import("../actions/highScoreViewToggle.js"), m => m.highScoreViewToggle(app, detail)) } }),
+        component("button", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.button.HighScore", label: "HighScore", on: { "click": (app, detail) => app.feature(() => import("../actions/highScoreViewToggle.js"), m => m.highScoreViewToggle(app, detail)) } }),
         // action (components/nibblesPanel.yaml:87) on click -> main.show, lazy feature actions/mainShow.js
-        component("button", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.button.Exit", label: "Exit", on: { "click": (app, detail) => app.feature(() => import("../actions/mainShow.js"), m => m.mainShow(app, detail)) } })
+        component("button", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesScoreboard.button.Exit", label: "Exit", on: { "click": (app, detail) => app.feature(() => import("../actions/mainShow.js"), m => m.mainShow(app, detail)) } })
     ]);
 }

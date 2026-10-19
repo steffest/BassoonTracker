@@ -2,7 +2,7 @@
 import { toggleFileOperationsView as implementation } from "../../domain/appView/index.js";
 
 /**
- * file-operations-view.toggle — generated from components/controlBar.yaml:22: "toggle-generic".
+ * file-operations-view.toggle — generated from components/controlBar.yaml:42: "toggle-generic".
  * Implemented by ./domain/appView/index.js#toggleFileOperationsView (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

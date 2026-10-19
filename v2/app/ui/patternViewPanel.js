@@ -4,13 +4,13 @@ import { multitrackViewPanel } from "./multitrackViewPanel.js";
 import { patternGridPanel } from "./patternGridPanel.js";
 
 /**
- * patternViewPanel — UI structure generated from components/patternViewPanel.yaml:1. Referenced from app.yaml:179.
+ * patternViewPanel — UI structure generated from components/patternViewPanel.yaml:1. Referenced from app.yaml:290.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function patternViewPanel() {
     return component("panel", { id: "main.normalMainView.patternSection.patternSectionDefault.patternViewPanel", name: "patternViewPanel", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" } }, [
-        component("scopesView", { id: "main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.scopes", name: "scopes", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 80 } } }),
+        component("scopesView", { id: "main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.scopes", name: "scopes", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 66 }, offsetY: -21, horizontalFrame: "patternTracks" } }),
         patternGridPanel(),
         multitrackViewPanel()
     ]);

@@ -14,7 +14,7 @@
 
 import { thumbMetrics, isOnScrollbar, WHEEL_STEP } from "./scrollbar.js";
 
-export const LIST_STATE_FIELDS = ["hover", "pressed", "focused", "disabled", "dragging"];
+export const LIST_STATE_FIELDS = ["hover", "pressed", "focused", "disabled", "dragging", "hoverIndex"];
 
 /** Where a listbox's scroll offset lives - see the module comment for why this is not `field`. */
 export function scrollFieldOf(node) {
@@ -26,7 +26,7 @@ export function scrollFieldOf(node) {
  */
 export function createListController(options = {}) {
     const wheelStep = options.wheelStep || WHEEL_STEP;
-    const state = { hover: false, pressed: false, focused: false, disabled: Boolean(options.disabled), dragging: false };
+    const state = { hover: false, pressed: false, focused: false, disabled: Boolean(options.disabled), dragging: false, hoverIndex: null };
     // Captured at pointerdown: the offset/thumb geometry a drag started from,
     // and which item (if any) the press landed on, for a plain click's
     // eventual pointerup to select without needing the geometry again.
@@ -60,9 +60,14 @@ export function createListController(options = {}) {
         switch (input.type) {
             case "pointerenter":
                 set("hover", true, transitions);
+                set("hoverIndex", input.itemIndex ?? null, transitions);
+                break;
+            case "pointermove":
+                set("hoverIndex", input.itemIndex ?? null, transitions);
                 break;
             case "pointerleave":
                 set("hover", false, transitions);
+                set("hoverIndex", null, transitions);
                 set("pressed", false, transitions);
                 break;
             case "focus":

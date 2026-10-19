@@ -2,7 +2,7 @@
 import { setStereoSeparation as implementation } from "../../domain/settings/index.js";
 
 /**
- * stereo-separation.set — generated from components/optionsPanel.yaml:54: "set-value".
+ * stereo-separation.set — generated from components/optionsPanel.yaml:177: "set-value".
  * Implemented by ./domain/settings/index.js#setStereoSeparation (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

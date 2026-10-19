@@ -2,7 +2,7 @@
 import { setInstrumentRow as implementation } from "../../domain/song/index.js";
 
 /**
- * instrument-row.set — generated from components/instrumentList.yaml:14: "set-value".
+ * instrument-row.set — generated from components/songProperties.yaml:225: "set-value".
  * Implemented by ./domain/song/index.js#setInstrumentRow (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

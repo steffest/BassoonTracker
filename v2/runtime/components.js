@@ -35,7 +35,7 @@ function labelVariants(label, fallback) {
  * here; the named helpers below stay as conveniences for hand-written trees.
  *
  * @param {string} type a type from runtime/componentTypes.js
- * @param {object} [props] `label`, `name`, `layout`, `style`, `shortKey`, `color`,
+ * @param {object} [props] `label`, `name`, `layout`, `style`, `shortKey`, `color`, `labelMinWidths`,
  *   `id`, every other property the type declares (a slider's `min`/`max`/`step`),
  *   plus the `highlightedWhen`/`onActivate`/`on` hooks
  * @param {object[]} [children]
@@ -46,9 +46,12 @@ export function component(type, props = {}, children = []) {
         type,
         definitionName: props.name ?? null,
         labelVariants: labelVariants(props.label, props.name),
-        layout: props.layout ? { width: props.layout.width || AUTO, height: props.layout.height || AUTO, ...(props.layout.direction ? { direction: props.layout.direction } : {}), ...(props.layout.resizable ? { resizable: props.layout.resizable } : {}) } : { width: AUTO, height: AUTO },
+        layout: props.layout ? { ...props.layout, width: props.layout.width || AUTO, height: props.layout.height || AUTO, ...(props.layout.direction ? { direction: props.layout.direction } : {}), ...(props.layout.resizable ? { resizable: props.layout.resizable } : {}) } : { width: AUTO, height: AUTO },
         shortKey: props.shortKey ?? null,
         tooltip: props.tooltip ?? null,
+        // Spec 098: per-instance label-alternative thresholds, the same
+        // universal property the compiler carries (v1's own setLabels).
+        labelMinWidths: props.labelMinWidths ?? null,
         field: props.field ?? null,
         color: props.color ?? null,
         children,

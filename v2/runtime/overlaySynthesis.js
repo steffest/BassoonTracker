@@ -108,6 +108,7 @@ function synthesizeMenuTriggers(node) {
             labelVariants: child.labelVariants,
             tooltip: child.tooltip,
             source: child.source,
+            style: { type: "menuTrigger", variant: edge === "right" ? "nested" : "default" },
             popupEdge: edge,
             children: [child]
         });

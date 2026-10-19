@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { createSilentContext } from "../domain/playback/silentContext.js";
 import { createEngine, reset as resetPlayback } from "../domain/playback/index.js";
-import { setDiskTarget, setBrowserRow, reset as resetDiskOperations } from "../domain/diskOperations/index.js";
+import { setDiskAction, setDiskType, setDiskTarget, setBrowserRow, reset as resetDiskOperations } from "../domain/diskOperations/index.js";
 import { getPlaylist, setPlaylist } from "../domain/playlist/index.js";
 import { reset as resetHippo } from "../domain/providers/hippo.js";
 
@@ -71,7 +71,7 @@ test("setDiskTarget(Bassoon) fetches the local snapshot and publishes it as flat
     }));
     const { app, store } = fakeApp();
     await setDiskTarget(app, { value: "Bassoon" });
-    assert.deepEqual(store.get("rows.main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), [
+    assert.deepEqual(store.get("rows.main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), [
         { title: "Wizball", icon: "mod", info: "x", level: 0, hasChildren: false }
     ]);
     assert.equal(store.get("disk-target.value"), "Bassoon");
@@ -81,22 +81,39 @@ test("setDiskTarget(Bassoon) tolerates a failed fetch by publishing an empty lis
     responses.set("http://fake.test/assets/data/modules.json", () => jsonResponse(undefined, false));
     const { app, store } = fakeApp();
     await setDiskTarget(app, { value: "Bassoon" });
-    assert.deepEqual(store.get("rows.main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), []);
+    assert.deepEqual(store.get("rows.main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), []);
 });
 
 test("setDiskTarget(ModArchive) publishes the four fixed root items as unloaded branches", async () => {
     const { app, store } = fakeApp();
     await setDiskTarget(app, { value: "ModArchive" });
-    const rows = store.get("rows.main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser");
+    const rows = store.get("rows.main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser");
     assert.equal(rows.length, 4);
     assert.ok(rows.every(r => r.hasChildren === true && r.level === 0));
     assert.deepEqual(rows.map(r => r.title), ["Browse by artist", "Browse by genre", "Top rated in comments", "Top rated in reviews"]);
 });
 
-test("an unrecognized target is ignored", async () => {
+test("an unavailable external target publishes an empty browser while retaining the authored choice", async () => {
     const { app, store } = fakeApp();
     await setDiskTarget(app, { value: "Dropbox" });
-    assert.equal(store.get("rows.main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), undefined, "nothing published for a target this spec does not support");
+    assert.deepEqual(store.get("rows.main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), []);
+    assert.equal(store.get("disk-target.value"), "Dropbox");
+});
+
+test("action and type selections publish the exact selector state and reset their reachable target", async () => {
+    responses.set("http://fake.test/assets/data/modules.json", () => jsonResponse({ modules: [] }));
+    responses.set("http://fake.test/assets/data/playlists.json", () => jsonResponse({ modules: [] }));
+    const { app, store } = fakeApp();
+    store.set("disk-type.value", "Module");
+
+    await setDiskAction(app, { value: "Save" });
+    assert.equal(store.get("disk-action.value"), "Save");
+    assert.equal(store.get("disk-target.value"), "local");
+
+    await setDiskAction(app, { value: "Load" });
+    await setDiskType(app, { value: "Playlist" });
+    assert.equal(store.get("disk-type.value"), "Playlist");
+    assert.equal(store.get("disk-target.value"), "Bassoon");
 });
 
 test("clicking a branch row expands it, lazily fetching its children exactly once", async () => {
@@ -109,14 +126,14 @@ test("clicking a branch row expands it, lazily fetching its children exactly onc
     await setDiskTarget(app, { value: "ModArchive" });
 
     await setBrowserRow(app, { value: 0 }); // "Browse by artist"
-    let rows = store.get("rows.main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser");
+    let rows = store.get("rows.main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser");
     assert.equal(rows.length, 5, "the branch plus its one child are now both shown");
     assert.deepEqual(rows[1], { title: "4mat", icon: undefined, info: "3 >", level: 1, hasChildren: true });
     assert.equal(calls, 1);
 
     // collapsing and re-expanding does not fetch again
     await setBrowserRow(app, { value: 0 });
-    rows = store.get("rows.main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser");
+    rows = store.get("rows.main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser");
     assert.equal(rows.length, 4, "collapsed back to just the four roots");
     await setBrowserRow(app, { value: 0 });
     assert.equal(calls, 1, "the child list is cached on the tree node, not re-fetched");
@@ -127,7 +144,7 @@ test("a branch that resolves to no results still shows a placeholder row rather 
     const { app, store } = fakeApp();
     await setDiskTarget(app, { value: "Modules.pl" });
     await setBrowserRow(app, { value: 1 }); // "Browse by genre"
-    const rows = store.get("rows.main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser");
+    const rows = store.get("rows.main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser");
     assert.equal(rows[2].title, "(no results)");
 });
 
@@ -159,7 +176,7 @@ test("setDiskTarget(Playlists) fetches the local curated snapshot and publishes 
     }));
     const { app, store } = fakeApp();
     await setDiskTarget(app, { value: "Playlists" });
-    assert.deepEqual(store.get("rows.main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), [
+    assert.deepEqual(store.get("rows.main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), [
         { title: "DemoScene 2026", icon: undefined, info: "77 tracks", level: 0, hasChildren: false }
     ]);
     assert.equal(store.get("disk-target.value"), "Playlists");
@@ -169,7 +186,7 @@ test("setDiskTarget(Playlists) tolerates a failed fetch by publishing an empty l
     responses.set("http://fake.test/assets/data/playlists.json", () => jsonResponse(undefined, false));
     const { app, store } = fakeApp();
     await setDiskTarget(app, { value: "Playlists" });
-    assert.deepEqual(store.get("rows.main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), []);
+    assert.deepEqual(store.get("rows.main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), []);
 });
 
 test("clicking a Playlists leaf row fetches and sets it as the current playlist", async () => {
@@ -189,7 +206,7 @@ test("setDiskTarget(Hippo) fetches the API's own playlist listing and publishes 
     responses.set("https://www.stef.be/bassoontracker/api/hippo/", () => jsonResponse(["demoscene_2026.prg", "chippies.prg"]));
     const { app, store } = fakeApp();
     await setDiskTarget(app, { value: "Hippo" });
-    assert.deepEqual(store.get("rows.main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), [
+    assert.deepEqual(store.get("rows.main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.loadContent.browser"), [
         { title: "demoscene 2026", icon: "playlist", info: undefined, level: 0, hasChildren: false },
         { title: "chippies", icon: "playlist", info: undefined, level: 0, hasChildren: false }
     ]);

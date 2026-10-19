@@ -13,6 +13,14 @@ export function getUrlParameter(param){
     }
 }
 
+export function formatInstrumentIndex(index){
+    // hex digits 1-F are a single character while 10+ take two, so pad the
+    // single-character ones with a trailing space to keep names aligned
+    let hex = index.toString(16).toUpperCase();
+    if (hex.length === 1) hex += " ";
+    return hex;
+}
+
 export function formatFileSize(size){
     var unit = "k";
     if (isNaN(size)) size=0;

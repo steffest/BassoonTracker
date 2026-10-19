@@ -1,3 +1,4 @@
+import { EXTRA_LAYOUT_FIELDS } from "./layoutFields.js";
 // Emits the compiled application as readable JavaScript modules (spec 007,
 // "release build"). Input: the tree + diagnostics compileApplication()
 // returns. Output: a map of relative file paths to file contents for the
@@ -70,6 +71,7 @@ function layoutLiteral(layout) {
     if (layout.height && layout.height.mode !== "auto") parts.push(`height: ${obj(layout.height)}`);
     if (layout.direction) parts.push(`direction: ${js(layout.direction)}`);
     if (layout.resizable) parts.push(`resizable: ${js(layout.resizable)}`);
+    for (const key of EXTRA_LAYOUT_FIELDS) if (layout[key] !== undefined) parts.push(`${key}: ${js(layout[key])}`);
     return parts.length ? `layout: { ${parts.join(", ")} }` : null;
 }
 
@@ -234,8 +236,24 @@ export function emitApplication(compiled, options = {}) {
                         // A command whose value comes from the gesture has no
                         // values to cycle, but it still needs its field to
                         // exist before the first write (spec 014).
+                        //
+                        // Spec 098: when the gesture that writes it is an
+                        // exclusive choice (a radio group's own items - read
+                        // from the child type's declared `selection`, never
+                        // from a type name), the field starts on the first
+                        // choice rather than on "", which matches no choice
+                        // at all and leaves the group drawn with nothing lit.
+                        // v1 has no such state: every option group resolves
+                        // an index through its own getValue() on first
+                        // layout. A persisted setting (domain/settings#
+                        // applyPersistedSettings) still overrides this at
+                        // store construction, so it only decides what a field
+                        // with no stored value shows.
                         const values = Array.isArray(binding.mockValues) ? binding.mockValues : [];
-                        stateFields.set(binding.mockField, values.length ? values[0] : "");
+                        const firstChild = (node.children || [])[0];
+                        const exclusive = firstChild && componentType(firstChild.type)?.selection === "exclusiveWithinParent";
+                        const firstChoice = exclusive ? (firstChild.definitionName || (firstChild.labelVariants || [])[0] || "") : "";
+                        stateFields.set(binding.mockField, values.length ? values[0] : firstChoice);
                     }
                     if (!capability) {
                         looseEnds.push({
@@ -328,7 +346,7 @@ export function emitApplication(compiled, options = {}) {
         }
         if (node.field) {
             props.push(`field: ${js(node.field)}`);
-        } else if (behaviorOf(node.type) === "rowList") {
+        } else if (["rowList", "tabs", "text"].includes(behaviorOf(node.type))) {
             // Spec 071: valueFieldOf(node) (runtime/valueController.js) is
             // supposed to be one function both compile time and runtime
             // agree on, but its second resolution step - a `change` action's
@@ -353,11 +371,37 @@ export function emitApplication(compiled, options = {}) {
             // has *any* explicit `field:` of its own; a fileBrowser relying
             // solely on its `change` action's derived name was the one
             // case that never got one.
+            //
+            // Spec 072 found the identical gap a second time, for "tabs"
+            // (patternSidebar.yaml's own tabPanel, authored with a `change`
+            // action and no explicit `field:` either) - confirmed by reading
+            // the compiled node directly (bindings resolve "sidebar-tab.value",
+            // the runtime fallback would have been "value.<id>") before
+            // fixing, not assumed from the rowList case alone.
+            //
+            // Spec 073 found it a third time, for "text" (patternSidebar.yaml's
+            // own sample-search inputbox, authored with a `change` action and
+            // no explicit `field:` - every other authored inputbox in this app
+            // reuses an existing domain field, e.g. modNameInput's own
+            // `field: song.title`, which is why none of them hit this before).
+            // Without a runtime `node.field`, mountGeneric.js's own textOf()
+            // falls back to labelText(node) - the node's own bare name,
+            // "sampleSearchBox" - instead of ever reading the (empty) bound
+            // field, so the draw kind's own `if (label) ... else if
+            // (node.placeholder)` branch never reached the placeholder at
+            // all; found live (the search box showed "SAMPLESEARCHBOX"
+            // instead of "Search"). "disclose"/"collapsible"/"digitEntry"/
+            // "list" share the same theoretical gap in principle (all
+            // read/write through valueFieldOf too), but every existing
+            // author of those happens to give an explicit `field:` already,
+            // so there is no fourth *confirmed* case to fix yet - recorded
+            // here rather than generalized on a guess.
             const derivedField = valueFieldOf(node);
             if (derivedField) props.push(`field: ${js(derivedField)}`);
         }
         if (node.shortKey) props.push(`shortKey: ${js(node.shortKey)}`);
         if (node.tooltip) props.push(`tooltip: ${js(node.tooltip)}`);
+        if (node.labelMinWidths) props.push(`labelMinWidths: ${js(node.labelMinWidths)}`);
         if (node.color) props.push(`color: ${js(node.color)}`);
         // Spec 025: both are plain data, so the same JSON literal the compiler
         // itself built for `runtime/genericLayout.js` reaches the generated
@@ -441,8 +485,41 @@ export function emitApplication(compiled, options = {}) {
         // module are referenced by their factory
         const props = [`id: ${js(node.id)}`];
         if (node.definitionName) props.push(`name: ${js(node.definitionName)}`);
+        // Spec 073: the identical gap spec 025 (breakpoints/visibleWhen) and
+        // spec 050 (highlightedWhen/disabledWhen) each already found and
+        // fixed once, recurring for label/labelVariants - a module-owning
+        // node's own authored `label:` (e.g. a tabPanel item, which always
+        // owns its own module since it is itself a panel) was silently
+        // dropped by this path, invisible until this spec put one on a
+        // module-owning container for the first time (found live: every
+        // tab header rendered its own raw node name - "SONGSTAB" - instead
+        // of its authored label, "Songs"). Fixed the same way both prior
+        // specs did: duplicated here rather than unifying the two
+        // node-construction paths, matching nodeExpression()'s own logic
+        // exactly (including spec 071's own `label: []` case).
+        if (node.labelVariants.length && !(node.definitionName && node.labelVariants.length === 1 && node.labelVariants[0] === node.definitionName)) {
+            props.push(`label: ${labelLiteral(node)}`);
+        } else if (!node.labelVariants.length && node.definitionName) {
+            props.push("label: []");
+        }
         const layout = layoutLiteral(node.layout || {});
         if (layout) props.push(layout);
+        // Spec 083's own pixel-parity follow-up: the identical gap spec 025
+        // (breakpoints/visibleWhen), spec 050 (highlightedWhen/disabledWhen)
+        // and spec 073 (label/labelVariants) each already found and fixed
+        // once, recurring for a fourth property - a module-owning node's own
+        // authored `variant:`/`style:` (menu bar, the first module-owning
+        // panel to ever author a non-default one) was silently dropped by
+        // this path too, invisible until this spec put one there for the
+        // first time (found live: the menu bar's own background rendered
+        // with the generic default panel style/asset instead of its real
+        // one, with no diagonal-cut artwork at all). Fixed the same way the
+        // prior three were: duplicated here rather than unifying the two
+        // node-construction paths, matching nodeExpression()'s own logic
+        // exactly.
+        if (node.style && node.style.variant && node.style.variant !== "default") {
+            props.push(`style: ${js(node.style.variant)}`);
+        }
         // Spec 025: a module's own root is a node like any other - it can
         // author breakpoints or visibleWhen exactly as controlBar.yaml's own
         // top-level panel now does, so both reach the generated application
@@ -618,12 +695,25 @@ ${hostHooks.map(hook => `        // Host hook "${hook.command}" -> ${hook.capabi
         // Imported on first use, so nothing it pulls in is in the entry chunk.
         ${hook.name}: (...args) => import("${upDirs(0, libraryBase)}${hook.capability.module.replace(/^\.\//, "")}").then(m => m.${hook.capability.export}(app, ...args))`).join(",\n")}
     };
-    return mountGenericRenderer(container, { root: main(), diagnostics: [], skin: SKIN }, {
+    const result = await mountGenericRenderer(container, { root: main(), diagnostics: [], skin: SKIN }, {
         tools: false,
         state,
         appContext: app,
         assetBase: ASSET_BASE
     });
+    // Boot-time default content (spec 081, deep-parity-audit item 8): matches
+    // v1's own real \`script/src/editor.js#loadInitialFile\`, which populates
+    // the sidebar's Songs tab with a curated demo list immediately on load.
+    // Lazy-imported the same way every host hook above is, so nothing it
+    // pulls in enters the entry chunk; fire-and-forget after mounting, not
+    // awaited, so a slow/failed fetch never delays the app's own first paint.
+    import("${upDirs(0, libraryBase)}domain/playlist/index.js").then(m => m.loadDefaultSongs(app)).catch(error => console.error("[app] failed to load default songs", error));
+    // Boot-time default module: loads (but does not play) the same curated
+    // demo tune v1 loads on startup (script/src/editor.js#loadInitialFile's
+    // real default, "demomods/Tinytune.mod"), so the tracker isn't empty on
+    // first paint. Fire-and-forget, same pattern as loadDefaultSongs above.
+    import("${upDirs(0, libraryBase)}domain/playback/index.js").then(m => m.loadModule(app, "demomods/Tinytune.mod")).catch(error => console.error("[app] failed to load default module", error));
+    return result;
 }
 `);
 

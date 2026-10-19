@@ -6,11 +6,11 @@
 
 import { parseYamlDocument, mapGet, scalarValue } from "./yaml.js";
 import { splitLabel } from "./labels.js";
-import { resolveLayoutFields } from "./layoutFields.js";
+import { resolveLayoutFields, EXTRA_LAYOUT_FIELDS } from "./layoutFields.js";
 import { interpretRule, interpretAction, actionNameAsProse } from "./recipes.js";
 import { assignInstanceIds } from "./identity.js";
 import { compileSkin, registerAssetUse, lookupStyle, styleLayoutDefaults, BUILTIN_SKIN } from "./skin.js";
-import { componentType, isImplemented, isStyledType, childSlot, knownProperty, acceptedKeys, isAnyKnownKey, assetPropertyOf } from "../runtime/componentTypes.js";
+import { componentType, isImplemented, isStyledType, childSlot, knownProperty, acceptedKeys, isAnyKnownKey, assetPropertyOf, staticAssetOf } from "../runtime/componentTypes.js";
 
 // 0.2.0 (spec 008): the outline gained the compiled `skin` and a `style` on
 // every styled node, and source offsets now include each line's indentation
@@ -199,11 +199,22 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
     function convertItems(itemsNode, file, childType, itemVariant) {
         return itemsNode.items.map(item => {
             const itemName = scalarValue(mapGet(item, "name"));
+            const layoutNode = mapGet(item, "layout");
+            const rawLayout = layoutNode ? {
+                width: scalarValue(mapGet(layoutNode, "width")),
+                height: scalarValue(mapGet(layoutNode, "height")),
+                direction: scalarValue(mapGet(layoutNode, "direction")),
+                resizable: scalarValue(mapGet(layoutNode, "resizable")),
+                ...Object.fromEntries(EXTRA_LAYOUT_FIELDS.map(key => [key, scalarValue(mapGet(layoutNode, key))]))
+            } : {};
+            const { layout, warnings } = resolveLayoutFields(childType, rawLayout, itemName || childType, layoutDefaults);
+            warnings.forEach(w => addDiagnostic("warning", "layout-default-fallback", w, file, (layoutNode || item).range, null));
             const child = {
                 type: childType,
                 definitionName: itemName,
                 labelVariants: applyLabel(item, "label", file, itemName),
-                layout: AUTO_LAYOUT,
+                labelMinWidths: scalarValue(mapGet(item, "labelMinWidths")),
+                layout,
                 children: [],
                 bindings: [],
                 source: { file, range: item.range },
@@ -211,6 +222,17 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
                 supported: true
             };
             attachStyle(child, childType, variantNode(item), file, itemVariant);
+            const typeEntry = componentType(childType);
+            for (const property of Object.keys(typeEntry ? typeEntry.properties : {})) {
+                const valueNode = mapGet(item, property);
+                const value = scalarValue(valueNode);
+                if (value === null) continue;
+                if (typeEntry.properties[property].kind === "number") {
+                    const numeric = Number(value);
+                    if (Number.isFinite(numeric)) child[property] = numeric;
+                    else addDiagnostic("warning", "non-numeric-property", `${childType}.${property} expects a number; "${value}" is not one, so it is ignored`, file, valueNode.range, child);
+                } else child[property] = value;
+            }
             const ruleNode = mapGet(item, "rule");
             if (ruleNode) resolveRuleText(file, ruleNode, child);
             return child;
@@ -229,7 +251,8 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
                 width: scalarValue(mapGet(layoutNode, "width")),
                 height: scalarValue(mapGet(layoutNode, "height")),
                 direction: scalarValue(mapGet(layoutNode, "direction")),
-                resizable: scalarValue(mapGet(layoutNode, "resizable"))
+                resizable: scalarValue(mapGet(layoutNode, "resizable")),
+                ...Object.fromEntries(EXTRA_LAYOUT_FIELDS.map(key => [key, scalarValue(mapGet(layoutNode, key))]))
             }
             : {};
         const { layout, warnings: layoutWarnings } = resolveLayoutFields(explicitType || mappingKey || "node", rawLayout, definitionName || mappingKey || "node", layoutDefaults);
@@ -246,10 +269,19 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
         let breakpoints;
         if (breakpointsNode && breakpointsNode.kind === "seq") {
             breakpoints = breakpointsNode.items.map(item => {
+                // Spec 075: `maxHeight` alongside `maxWidth` - a threshold on
+                // the viewport's own height instead of its width (v1's own
+                // hand-written cascade mixes both freely, e.g. the piano
+                // section's own `me.height<800`/`me.height<650`). At least
+                // one of the two is required; either alone is enough.
                 const maxWidthNode = mapGet(item, "maxWidth");
-                const maxWidth = Number(scalarValue(maxWidthNode));
-                if (!maxWidthNode || !Number.isFinite(maxWidth)) {
-                    addDiagnostic("warning", "invalid-breakpoint", `a breakpoint on ${nodeLabel} needs a numeric maxWidth`, file, item.range, null);
+                const maxHeightNode = mapGet(item, "maxHeight");
+                const maxWidth = maxWidthNode !== null ? Number(scalarValue(maxWidthNode)) : undefined;
+                const maxHeight = maxHeightNode !== null ? Number(scalarValue(maxHeightNode)) : undefined;
+                const widthGiven = maxWidthNode && Number.isFinite(maxWidth);
+                const heightGiven = maxHeightNode && Number.isFinite(maxHeight);
+                if (!widthGiven && !heightGiven) {
+                    addDiagnostic("warning", "invalid-breakpoint", `a breakpoint on ${nodeLabel} needs a numeric maxWidth and/or maxHeight`, file, item.range, null);
                     return null;
                 }
                 const bpLayoutNode = mapGet(item, "layout");
@@ -258,11 +290,12 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
                         width: scalarValue(mapGet(bpLayoutNode, "width")),
                         height: scalarValue(mapGet(bpLayoutNode, "height")),
                         direction: scalarValue(mapGet(bpLayoutNode, "direction")),
-                        resizable: scalarValue(mapGet(bpLayoutNode, "resizable"))
+                        resizable: scalarValue(mapGet(bpLayoutNode, "resizable")),
+                        ...Object.fromEntries(EXTRA_LAYOUT_FIELDS.map(key => [key, scalarValue(mapGet(bpLayoutNode, key))]))
                     }
                     : {};
                 const { layout: resolvedBpLayout, warnings: bpWarnings } = resolveLayoutFields(
-                    explicitType || mappingKey || "node", rawBpLayout, `${nodeLabel} breakpoint ${maxWidth}`, layoutDefaults
+                    explicitType || mappingKey || "node", rawBpLayout, `${nodeLabel} breakpoint ${widthGiven ? maxWidth : maxHeight}`, layoutDefaults
                 );
                 bpWarnings.forEach(w => addDiagnostic("warning", "layout-default-fallback", w, file, (bpLayoutNode || item).range, null));
                 const partial = {};
@@ -270,7 +303,14 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
                 if (rawBpLayout.height !== undefined && rawBpLayout.height !== null) partial.height = resolvedBpLayout.height;
                 if (resolvedBpLayout.direction !== undefined) partial.direction = resolvedBpLayout.direction;
                 if (resolvedBpLayout.resizable !== undefined) partial.resizable = resolvedBpLayout.resizable;
-                return { maxWidth, layout: partial };
+                for (const key of EXTRA_LAYOUT_FIELDS) {
+                    if (rawBpLayout[key] !== undefined && rawBpLayout[key] !== null) partial[key] = resolvedBpLayout[key];
+                }
+                const compiled = {};
+                if (widthGiven) compiled.maxWidth = maxWidth;
+                if (heightGiven) compiled.maxHeight = maxHeight;
+                compiled.layout = partial;
+                return compiled;
             }).filter(Boolean);
         }
 
@@ -296,6 +336,7 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
             layout,
             shortKey: scalarValue(mapGet(mapNode, "shortKey")),
             tooltip: scalarValue(mapGet(mapNode, "tooltip")),
+            labelMinWidths: scalarValue(mapGet(mapNode, "labelMinWidths")),
             color: scalarValue(mapGet(mapNode, "color")),
             children: [],
             bindings: [],
@@ -523,6 +564,16 @@ export function compileApplication(appYamlPath, readFile, dependencies = {}) {
             const assetName = assetProperty ? node[assetProperty] : null;
             if (assetName) {
                 registerAssetUse(skin, assetName, node.source?.file, node.source?.range, `${node.type} "${node.definitionName || "?"}"`, (severity, code, message, file, range) => addDiagnostic(severity, code, message, file, range, node), dependencies.listAssets);
+            }
+            // Spec 083: a type's own fixed, non-authored background asset
+            // (submenu's own "button_light" - see staticAssetOf's own doc
+            // comment) still has to tell the asset packer it is in use, the
+            // same reason image/icon nodes needed this exact walk in the
+            // first place (see this function's own name) - registry-driven,
+            // not a type-name branch.
+            const staticAsset = staticAssetOf(node.type);
+            if (staticAsset) {
+                registerAssetUse(skin, staticAsset, node.source?.file, node.source?.range, `${node.type} "${node.definitionName || "?"}"`, (severity, code, message, file, range) => addDiagnostic(severity, code, message, file, range, node), dependencies.listAssets);
             }
             (node.children || []).forEach(registerImageAssetUses);
         })(root);

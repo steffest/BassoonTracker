@@ -61,15 +61,15 @@ function endColumn(line) {
     return line.indent + line.content.length;
 }
 
+function isQuotedText(text) {
+    if (text.length < 2) return false;
+    const first = text[0];
+    const last = text[text.length - 1];
+    return (first === '"' && last === '"') || (first === "'" && last === "'");
+}
+
 function unquote(text) {
-    if (text.length >= 2) {
-        const first = text[0];
-        const last = text[text.length - 1];
-        if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
-            return text.slice(1, -1);
-        }
-    }
-    return text;
+    return isQuotedText(text) ? text.slice(1, -1) : text;
 }
 
 // Splits "key: rest" / "key:" on the first colon that acts as a mapping
@@ -107,6 +107,7 @@ export function parseYamlDocument(text, filePath) {
 
     // Reads a plain scalar that may fold across following, more-indented lines.
     function readFoldedScalar(keyIndent, firstLine, firstRestText, restStartColumn) {
+        const quoted = isQuotedText(firstRestText);
         let value = unquote(firstRestText);
         const startPos = pos(firstLine, restStartColumn);
         let endLine = firstLine;
@@ -119,7 +120,7 @@ export function parseYamlDocument(text, filePath) {
             end = endColumn(line);
             state.i++;
         }
-        return { kind: "scalar", value, range: { start: startPos, end: pos(endLine, end) } };
+        return { kind: "scalar", value, quoted, range: { start: startPos, end: pos(endLine, end) } };
     }
 
     // Parses the value belonging to a key whose own line had nothing after
@@ -191,7 +192,7 @@ export function parseYamlDocument(text, filePath) {
         if (!split) {
             const scalarRange = { start: pos(line, dashContentColumn), end: pos(line, endColumn(line)) };
             state.i++;
-            return { kind: "scalar", value: unquote(afterDash), range: scalarRange };
+            return { kind: "scalar", value: unquote(afterDash), quoted: isQuotedText(afterDash), range: scalarRange };
         }
 
         const keyRange = { start: pos(line, dashContentColumn), end: pos(line, dashContentColumn + split.key.length) };
@@ -261,12 +262,15 @@ export function parseYamlDocument(text, filePath) {
 // left unchecked, `key: [oops` would just be accepted as the plain scalar
 // text "[oops" (see the module header). Rather than silently misreading
 // content that used a construct this subset doesn't support (including
-// simply-unterminated flow syntax), treat any scalar containing a flow
-// indicator character as a parse error, so an unsupported/malformed value
-// is rejected instead of saved.
+// simply-unterminated flow syntax), treat any *unquoted* scalar containing a
+// flow indicator character as a parse error, so an unsupported/malformed
+// value is rejected instead of saved. A quoted scalar (spec 076: a bitmap
+// font's own `chars` glyph set can genuinely need a literal "[", "]", "{" or
+// "}" character) can't be mistaken for flow syntax - real flow collections
+// never start with a quote mark - so it's exempt.
 function rejectUnsupportedSyntax(node, errors, filePath) {
     if (node.kind === "scalar") {
-        if (typeof node.value === "string" && /[[\]{}]/.test(node.value)) {
+        if (!node.quoted && typeof node.value === "string" && /[[\]{}]/.test(node.value)) {
             errors.push({
                 file: filePath,
                 message: `flow collection syntax ("[", "]", "{", "}") is not supported: "${node.value}"`,

@@ -20,7 +20,7 @@ test("scopesView is declared as a specialized leaf with its own behavior, draw k
     const entry = componentType("scopesView");
     assert.equal(entry.implemented, true);
     assert.equal(entry.container, null, "a leaf: no children slot at all");
-    assert.equal(entry.styled, false);
+    assert.equal(entry.styled, true);
     assert.equal(behaviorOf("scopesView"), "scopes");
     assert.equal(drawKindOf("scopesView"), "scopesView");
     assert.equal(cursorOf("scopesView"), "default");
@@ -33,6 +33,8 @@ function fakeCtx() {
     return {
         calls,
         save: () => calls.push(["save"]), restore: () => calls.push(["restore"]),
+        translate: (...a) => calls.push(["translate", ...a]),
+        drawImage: (...a) => calls.push(["drawImage", ...a]),
         beginPath: () => calls.push(["beginPath"]),
         moveTo: (...a) => calls.push(["moveTo", ...a]), lineTo: (...a) => calls.push(["lineTo", ...a]),
         stroke: () => calls.push(["stroke"]),
@@ -49,13 +51,12 @@ function fakeAssets() {
 const RECT = { x: 0, y: 0, width: 400, height: 80 };
 
 test("measure() floors to a fixed size", () => {
-    assert.deepEqual(drawKind("scopesView").measure(), { width: 320, height: 80 });
+    assert.deepEqual(drawKind("scopesView").measure(), { width: 320, height: 66 });
 });
 
 test("draw() never throws with zero tracks (no engine loaded at all in this file yet)", () => {
     const ctx = fakeCtx();
     assert.doesNotThrow(() => drawKind("scopesView").draw(ctx, fakeAssets(), null, RECT));
-    assert.ok(ctx.calls.some(c => c[0] === "fillRect"), "the background was still drawn");
 });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -89,7 +90,19 @@ test("draw() draws a flat, dimmed line for a muted track, and a live trace for t
     const ctx = fakeCtx();
     drawKind("scopesView").draw(ctx, fakeAssets(), null, RECT);
     assert.ok(ctx.calls.some(c => c[0] === "fillStyle" && c[1] === "rgba(34,49,85,0.5)"), "the muted-track dim overlay appears");
-    // exactly one dim overlay fillRect beyond the initial background fill
+    // One fallback background per track plus the muted track's wash.
     const dimFills = ctx.calls.filter(c => c[0] === "fillRect");
-    assert.equal(dimFills.length, 2, "one background fill + one muted-track overlay");
+    assert.equal(dimFills.length, song.getTrackCount() + 1);
+});
+
+test("draw() stretches the authored oscilloscope artwork into every track cell", () => {
+    const ctx = fakeCtx();
+    const image = {};
+    const assets = fakeAssets();
+    assets.skin.getAsset = name => name === "oscilloscope" ? { image, x: 0, y: 0, width: 236, height: 107 } : null;
+    const style = { states: { normal: { asset: "oscilloscope" } } };
+    drawKind("scopesView").draw(ctx, assets, style, RECT);
+    const draws = ctx.calls.filter(c => c[0] === "drawImage");
+    assert.equal(draws.length, song.getTrackCount());
+    assert.ok(draws.every(c => c[1] === image && c[4] === 236 && c[5] === 107));
 });

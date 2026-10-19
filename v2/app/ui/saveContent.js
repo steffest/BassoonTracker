@@ -5,12 +5,12 @@ import { savePlaylistPanel } from "./savePlaylistPanel.js";
 import { saveSamplePanel } from "./saveSamplePanel.js";
 
 /**
- * saveContent — UI structure generated from components/fileOperationsPanel.yaml:116.
+ * saveContent — UI structure generated from components/fileOperationsPanel.yaml:405.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function saveContent() {
-    return component("panel", { id: "main.normalMainView.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.saveContent", name: "saveContent", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" }, visibleWhen: {"field":"disk-action.value","oneOf":["Save"]} }, [
+    return component("panel", { id: "main.songProperties.fileOperationsPanel.diskOperationsGrid.contentColumn.saveContent", name: "saveContent", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "column" }, visibleWhen: {"field":"disk-action.value","oneOf":["Save"]} }, [
         saveModulePanel(),
         saveSamplePanel(),
         savePlaylistPanel()

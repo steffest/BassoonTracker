@@ -2,7 +2,7 @@
 import { exportModule as implementation } from "../../domain/moduleExport/index.js";
 
 /**
- * file.save — generated from app.yaml:30: "verb-action".
+ * file.save — generated from app.yaml:76: "verb-action".
  * Implemented by ./domain/moduleExport/index.js#exportModule (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

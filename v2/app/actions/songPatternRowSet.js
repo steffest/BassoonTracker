@@ -2,7 +2,7 @@
 import { setSongPatternRow as implementation } from "../../domain/song/index.js";
 
 /**
- * song-pattern-row.set — generated from components/songPatternList.yaml:20: "set-value".
+ * song-pattern-row.set — generated from components/songPatternList.yaml:32: "set-value".
  * Implemented by ./domain/song/index.js#setSongPatternRow (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

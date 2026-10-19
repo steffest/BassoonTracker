@@ -2,7 +2,7 @@
 import { openGeneratedPlaylist as implementation } from "../../domain/playlist/index.js";
 
 /**
- * play-list.random — generated from app.yaml:42: "verb-action".
+ * play-list.random — generated from app.yaml:91: "verb-action".
  * Implemented by ./domain/playlist/index.js#openGeneratedPlaylist (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

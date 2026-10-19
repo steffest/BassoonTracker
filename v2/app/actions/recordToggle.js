@@ -2,7 +2,7 @@
 import { recordToggle as implementation } from "../../domain/song/index.js";
 
 /**
- * record.toggle — generated from components/controlBar.yaml:55: "toggle-recording".
+ * record.toggle — generated from components/controlBar.yaml:116: "toggle-recording".
  * Implemented by ./domain/song/index.js#recordToggle (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

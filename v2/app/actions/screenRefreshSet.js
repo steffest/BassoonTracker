@@ -2,7 +2,7 @@
 import { setScreenRefresh as implementation } from "../../domain/playback/index.js";
 
 /**
- * screen-refresh.set — generated from components/optionsPanel.yaml:73: "set-value".
+ * screen-refresh.set — generated from components/optionsPanel.yaml:231: "set-value".
  * Implemented by ./domain/playback/index.js#setScreenRefresh (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

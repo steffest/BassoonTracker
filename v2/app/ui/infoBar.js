@@ -2,7 +2,7 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * infoBar — UI structure generated from components/infoBar.yaml:1. Referenced from app.yaml:178.
+ * infoBar — UI structure generated from components/infoBar.yaml:1. Referenced from app.yaml:289.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */

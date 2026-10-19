@@ -56,12 +56,12 @@ test("parses controlBar: sequence items as scalar, multi-key mapping and nested 
     const buttonGroups = byType("buttonGroup");
     const topViewButtons = buttonGroups.find(group => {
         const groupItems = mapGet(group, "items");
-        return groupItems && groupItems.items.some(item => scalarValue(mapGet(item, "label")) === "Sample Edit");
+        return groupItems && groupItems.items.some(item => (scalarValue(mapGet(item, "label")) || "").startsWith("Sample Edit"));
     });
     assert.ok(topViewButtons, "the File Operations/Options/Sample Edit buttonGroup is found by its own content");
     const topViewItems = mapGet(topViewButtons, "items");
-    assert.deepEqual(topViewItems.items.map(item => scalarValue(mapGet(item, "label"))), ["File Operations", "Options", "Sample Edit"]);
-    const sampleEditItem = topViewItems.items.find(item => scalarValue(mapGet(item, "label")) === "Sample Edit");
+    assert.deepEqual(topViewItems.items.map(item => scalarValue(mapGet(item, "label"))), ["File", "Options", "Sample Edit, Sample"]);
+    const sampleEditItem = topViewItems.items.find(item => (scalarValue(mapGet(item, "label")) || "").startsWith("Sample Edit"));
     const sampleEditActions = mapGet(sampleEditItem, "actions");
     assert.equal(scalarValue(mapGet(sampleEditActions.items[0], "click")), "toggleSampleEditPanel");
 
@@ -106,28 +106,43 @@ test("parses app.yaml: bare scalar references and nested named panel items", () 
     // content (components/nibblesPanel.yaml, referenced by name), confirmed
     // against v1's own real source to belong to the song-properties
     // section's own bounded strip, not a full top-level sibling of
-    // normalMainView - so main.content now has two fewer items than
-    // originally.
-    assert.equal(content.items.length, 4);
+    // normalMainView - so main.content had two fewer items than originally.
+    // Spec 076's own deep-parity-audit item 1 then moved "songProperties"
+    // back out to main.content directly, promoted above controlBar - v1's
+    // own real `mainPanel.js` stacks menu -> appPanel (song-properties) ->
+    // controlPanel -> patternPanel, not song-properties at the bottom.
+    assert.equal(content.items.length, 5);
 
     const topItem = content.items[0];
     assert.equal(topItem.kind, "map");
     const top = mapGet(topItem, "top");
     assert.equal(scalarValue(mapGet(top, "type")), "panel");
-    const menu = mapGet(top, "menu");
+    // Spec 083: the menu now sits inside its own real background panel
+    // ("menu bar"), a separate element behind it - v1's own real structure
+    // (script/src/ui/app/menu.js:20-27), not the menu's own style.
+    const menuBar = mapGet(top, "menu bar");
+    assert.equal(scalarValue(mapGet(menuBar, "variant")), "menuBar");
+    const menu = mapGet(menuBar, "menu");
     assert.equal(scalarValue(mapGet(menu, "type")), "menu");
     assert.equal(scalarValue(mapGet(top, "volume meter")), "volumemeter");
 
+    // Spec 083: the notification lights are now a real, implemented type
+    // (notificationLight) with an explicit visibleWhen, not a type-less
+    // placeholder with a freeform prose rule.
     const notifications = mapGet(top, "notifications");
     const notificationContent = mapGet(notifications, "content");
     assert.equal(notificationContent.items.length, 2);
-    const keyLight = mapGet(notificationContent.items[0], "notification light");
+    const keyLight = notificationContent.items[0];
+    assert.equal(scalarValue(mapGet(keyLight, "type")), "notificationLight");
     assert.equal(scalarValue(mapGet(keyLight, "label")), "Key, K");
-    const rules = mapGet(keyLight, "rules");
-    assert.equal(rules.items.length, 2);
-    assert.equal(scalarValue(rules.items[0]), "horizontalResize");
+    assert.equal(scalarValue(mapGet(keyLight, "signal")), "keyPreview");
+    const visibleWhen = mapGet(keyLight, "visibleWhen");
+    assert.equal(scalarValue(mapGet(visibleWhen, "field")), "show-key-input.active");
 
-    assert.equal(scalarValue(content.items[1]), "controlBar");
+    // Spec 076 promoted "songProperties" to main.content directly, above
+    // controlBar (see above).
+    assert.equal(scalarValue(content.items[1]), "songProperties");
+    assert.equal(scalarValue(content.items[2]), "controlBar");
 
     // Spec 048: the six regions main-view.value swaps away for Nibbles are
     // wrapped in a new named panel, "normalMainView" - still bare scalar
@@ -146,30 +161,41 @@ test("parses app.yaml: bare scalar references and nested named panel items", () 
     // content too - confirmed against v1's own real source that they (and
     // Nibbles) all share one slot, appMainPanel.js's own bounded strip, so
     // all three now live inside songProperties.yaml's own content instead
-    // (see that file directly) - normalMainView's own content is just
-    // patternSection and the bare "songProperties" reference now, and
-    // normalMainView itself no longer carries a visibleWhen at all (main-view.value
-    // is retired - Nibbles no longer replaces the whole main content area).
-    const normalMainViewItem = content.items[2];
+    // (see that file directly). Spec 076 then moved "songProperties" itself
+    // back out of normalMainView entirely (see above) - normalMainView's own
+    // content is just patternSection now, and normalMainView itself no
+    // longer carries a visibleWhen at all (main-view.value is retired -
+    // Nibbles no longer replaces the whole main content area).
+    const normalMainViewItem = content.items[3];
     assert.equal(normalMainViewItem.kind, "map");
     assert.equal(mapGet(normalMainViewItem, "visibleWhen"), null, "no longer gated - always present");
     const normalMainViewContent = mapGet(normalMainViewItem, "content");
-    assert.equal(normalMainViewContent.items.length, 2);
+    assert.equal(normalMainViewContent.items.length, 1);
     const patternSectionItem = normalMainViewContent.items[0];
     assert.equal(patternSectionItem.kind, "map");
     assert.equal(scalarValue(mapGet(patternSectionItem, "name")), "patternSection");
     const patternSectionContent = mapGet(patternSectionItem, "content");
-    const patternSectionDefaultItem = patternSectionContent.items[0];
+    // Spec 076's own deep-parity-audit item 2: editPad now nests directly
+    // above patternSidebar in one shared, fixed-width left column
+    // ("patternLeftColumn"), matching v1's own real `patternPanel.js`
+    // (editPanel positioned at the identical col1X/col1W patternSidebar
+    // occupies just below it), rather than spanning the full row above the
+    // grid as a sibling of the sidebar.
+    const patternLeftColumnItem = patternSectionContent.items[0];
+    assert.equal(patternLeftColumnItem.kind, "map");
+    assert.equal(scalarValue(mapGet(patternLeftColumnItem, "name")), "patternLeftColumn");
+    const patternLeftColumnContent = mapGet(patternLeftColumnItem, "content");
+    assert.equal(scalarValue(patternLeftColumnContent.items[0]), "editPad");
+    assert.equal(scalarValue(patternLeftColumnContent.items[1]), "patternSidebar");
+    const patternSectionDefaultItem = patternSectionContent.items[1];
     assert.equal(patternSectionDefaultItem.kind, "map");
     assert.equal(scalarValue(mapGet(patternSectionDefaultItem, "name")), "patternSectionDefault");
     const patternSectionDefaultContent = mapGet(patternSectionDefaultItem, "content");
-    assert.equal(scalarValue(patternSectionDefaultContent.items[0]), "editPad");
-    assert.equal(scalarValue(patternSectionDefaultContent.items[1]), "infoBar");
-    assert.equal(scalarValue(patternSectionDefaultContent.items[2]), "patternViewPanel");
-    assert.equal(scalarValue(patternSectionContent.items[1]), "sampleEditPanel");
-    assert.equal(scalarValue(normalMainViewContent.items[1]), "songProperties");
+    assert.equal(scalarValue(patternSectionDefaultContent.items[0]), "infoBar");
+    assert.equal(scalarValue(patternSectionDefaultContent.items[1]), "patternViewPanel");
+    assert.equal(scalarValue(patternSectionContent.items[2]), "sampleEditPanel");
 
-    assert.equal(scalarValue(content.items[3]), "pianoPanel");
+    assert.equal(scalarValue(content.items[4]), "pianoPanel");
 });
 
 test("reports a range-qualified error for malformed indentation", () => {
@@ -185,6 +211,12 @@ test("rejects unterminated/unsupported flow syntax instead of silently misreadin
     const { errors } = parseYamlDocument("name: songProperties\nbad: [unterminated\n", "broken.yaml");
     assert.ok(errors.length > 0);
     assert.match(errors[0].message, /flow collection/);
+});
+
+test("accepts a quoted scalar containing flow-indicator characters (spec 076: a bitmap font's own chars glyph set can genuinely need a literal [, ], { or })", () => {
+    const { root, errors } = parseYamlDocument('name: default\nchars: "AB[]{}"\n', "font.yaml");
+    assert.deepEqual(errors, []);
+    assert.equal(root.entries[1].valueNode.value, "AB[]{}");
 });
 
 test("preserves source ranges for keys and scalars", () => {

@@ -6,15 +6,43 @@ import { optionsPanel } from "./optionsPanel.js";
 import { songPropertiesLayout } from "./songPropertiesLayout.js";
 
 /**
- * songProperties — UI structure generated from components/songProperties.yaml:1. Referenced from app.yaml:181.
+ * songProperties — UI structure generated from components/songProperties.yaml:1. Referenced from app.yaml:241.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function songProperties() {
-    return component("panel", { id: "main.normalMainView.songProperties", name: "songProperties", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 220 }, direction: "column", resizable: "horizontal" } }, [
-        component("viewport", { id: "main.normalMainView.songProperties.songPropertiesDefault", name: "songPropertiesDefault", layout: { width: { mode: "fill" }, height: { mode: "fill" } }, field: "scroll.main.normalMainView.songProperties.songPropertiesDefault", visibleWhen: {"field":"song-properties-view.value","oneOf":[""]} }, [
+    return component("panel", { id: "main.songProperties", name: "songProperties", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 160 }, direction: "column", resizable: "horizontal" }, style: "mainStripLayered" }, [
+        // style -> viewport/transparent (skin/default.yaml:602)
+        component("viewport", { id: "main.songProperties.songPropertiesDefault", name: "songPropertiesDefault", layout: { width: { mode: "fill" }, height: { mode: "fill" } }, style: "transparent", field: "scroll.main.normalMainView.songProperties.songPropertiesDefault", visibleWhen: {"field":"song-properties-view.value","oneOf":[""]} }, [
             songPropertiesLayout()
         ]),
+        // style -> button/logo (skin/default.yaml:414)
+        // rule (components/songProperties.yaml:245) "highlighted when logo is active" -> highlighted while logo === true
+        // action (components/songProperties.yaml:247) on click -> logo.toggle, lazy feature actions/logoToggle.js (generated mock)
+        component("button", {
+            id: "main.songProperties.logoBanner",
+            name: "logoBanner",
+            label: [],
+            layout: { width: { mode: "col2Exact" }, height: { mode: "fixed", size: 50 }, position: "absolute", left: "columnMargin", top: 4 },
+            style: "logo",
+            visibleWhen: {"field":"song-properties-view.value","oneOf":[""]},
+            highlightedWhen: state => state.get("logo") === true,
+            on: { "click": (app, detail) => app.feature(() => import("../actions/logoToggle.js"), m => m.logoToggle(app, detail)) }
+        }),
+        component("image", {
+            id: "main.songProperties.cornerDeco",
+            name: "cornerDeco",
+            layout: { width: { mode: "fixed", size: 22 }, height: { mode: "fixed", size: 19 }, position: "absolute", left: 1, top: 1 },
+            visibleWhen: {"field":"song-properties-view.value","oneOf":[""]},
+            src: "togglecorner"
+        }),
+        component("image", {
+            id: "main.songProperties.trackerBanner",
+            name: "trackerBanner",
+            layout: { width: { mode: "col1" }, height: { mode: "fixed", size: 50 }, position: "absolute", left: "col3Left", top: 4 },
+            visibleWhen: {"field":"song-properties-view.value","oneOf":[""]},
+            src: "tracker"
+        }),
         fileOperationsPanel(),
         optionsPanel(),
         nibblesPanel()

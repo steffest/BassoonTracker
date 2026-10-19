@@ -2,3 +2,5 @@
 node_modules/
 # release bundle; rebuild with `node v2/build.mjs dist`. app/ (the readable generated app) is committed on purpose.
 dist/
+# Local visual references and per-iteration reports (explicitly archive evidence when needed).
+artifacts/parity/

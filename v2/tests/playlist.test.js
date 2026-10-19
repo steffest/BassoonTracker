@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import { createSilentContext } from "../domain/playback/silentContext.js";
 import { createEngine, reset as resetPlayback } from "../domain/playback/index.js";
 import * as playlist from "../domain/playlist/index.js";
+import { reset as resetSampleCatalog } from "../domain/sampleCatalog/index.js";
 
 // Spec 065: the Playlist domain model, continuing package P9. Ported from
 // script/src/models/playlist.js (read in full) and the play-list.random
@@ -25,7 +26,15 @@ function jsonResponse(data, ok = true) {
 }
 
 function fakeApp() {
-    return { audioContext: createSilentContext({ recordAutomation: true }) };
+    const stateStore = new Map();
+    return {
+        audioContext: createSilentContext({ recordAutomation: true }),
+        // Spec 072: a minimal state store so the pattern sidebar's own
+        // rows-publishing functions (publishSidebarSongs/activateSidebarTab)
+        // have somewhere real to write to and this file can assert on it.
+        state: { set: (field, value) => stateStore.set(field, value), get: field => stateStore.get(field) },
+        stateStore
+    };
 }
 
 function wizballFixtureBytes() {
@@ -46,6 +55,8 @@ before(() => {
 
 beforeEach(() => {
     resetPlayback();
+    playlist.resetSidebarPlaylistsCache();
+    resetSampleCatalog();
     originalFetch = globalThis.fetch;
     responses = new Map();
     globalThis.fetch = async url => {
@@ -445,5 +456,81 @@ test("openPlaylistUrl on well-formed JSON with no modules array resolves to fals
 
     const result = await playlist.openPlaylistUrl(fakeApp(), "https://example.com/notaplaylist.json");
     assert.equal(result, false);
+    assert.equal(playlist.getPlaylist().title, "Before");
+});
+
+// Spec 072: the pattern sidebar's own Songs/Playlists tabs.
+const SIDEBAR_SONGS_ROWS_FIELD = "rows.main.normalMainView.patternSection.patternLeftColumn.patternSidebar.tabPanel.songsTab.songsList";
+const SIDEBAR_PLAYLISTS_ROWS_FIELD = "rows.main.normalMainView.patternSection.patternLeftColumn.patternSidebar.tabPanel.playlistsTab.playlistsList";
+
+test("setPlaylist publishes the sidebar's own Songs tab rows when given an app", () => {
+    const app = fakeApp();
+    playlist.setPlaylist({ title: "Mine", modules: [{ title: "A", url: "a.mod" }, { title: "B", url: "b.mod" }] }, app);
+    // Spec 080: a row's own format ("mod"/"xm") is derived from its real
+    // file extension; no author/info here, so no subtitle.
+    assert.deepEqual(app.stateStore.get(SIDEBAR_SONGS_ROWS_FIELD), [{ title: "A", format: "mod" }, { title: "B", format: "mod" }]);
+});
+
+test("setPlaylist's own sidebar rows carry a subtitle (author/info joined) when the source data has one, and no format for a non-mod/xm extension", () => {
+    const app = fakeApp();
+    playlist.setPlaylist({ title: "Mine", modules: [
+        { title: "Stardust Memories", author: "Jester", info: "1992", url: "demomods/StardustMemories.mod" },
+        { title: "Ambrozia", author: "Jogeir Liljedahl", url: "demomods/Ambrozia.xm" },
+        { title: "Curated", info: "92 tracks", url: "data/playlists/demoscene2023.json" }
+    ] }, app);
+    assert.deepEqual(app.stateStore.get(SIDEBAR_SONGS_ROWS_FIELD), [
+        { title: "Stardust Memories", subtitle: "Jester · 1992", format: "mod" },
+        { title: "Ambrozia", subtitle: "Jogeir Liljedahl", format: "xm" },
+        { title: "Curated", subtitle: "92 tracks" }
+    ]);
+});
+
+test("setPlaylist with no app does not throw and does not publish anything", () => {
+    assert.doesNotThrow(() => playlist.setPlaylist({ title: "Mine", modules: [{ title: "A", url: "a.mod" }] }));
+});
+
+test("setSidebarSongRow plays the selected row", async () => {
+    playlist.setPlaylist({ title: "Mine", modules: [{ title: "A", url: "https://example.com/a.mod" }, { title: "B", url: "https://example.com/b.mod" }] });
+    responses.set("https://example.com/b.mod", () => ({ ok: true, arrayBuffer: async () => wizballFixtureBytes() }));
+
+    const app = fakeApp();
+    await playlist.setSidebarSongRow(app, { value: 1 });
+    assert.equal(playlist.getCurrentIndex(), 1);
+});
+
+test("setSidebarSongRow ignores a non-numeric detail value", async () => {
+    playlist.setPlaylist({ title: "Mine", modules: [{ title: "A", url: "https://example.com/a.mod" }] });
+    const before = playlist.getCurrentIndex();
+    await playlist.setSidebarSongRow(fakeApp(), {});
+    assert.equal(playlist.getCurrentIndex(), before);
+});
+
+test("activateSidebarTab only fetches/publishes when the Playlists tab (index 2, after spec 073 inserted Samples at index 1) becomes active", async () => {
+    responses.set("https://example.com/assets/data/playlists.json", () => ({ ok: true, json: async () => ({ modules: [{ title: "Chippies", url: "playlists/chippies.json" }] }) }));
+    const app = { ...fakeApp(), media: new URL("https://example.com/assets/") };
+
+    await playlist.activateSidebarTab(app, { value: 0 });
+    assert.equal(app.stateStore.get(SIDEBAR_PLAYLISTS_ROWS_FIELD), undefined, "the Songs tab (index 0) does not touch the Playlists rows field");
+
+    await playlist.activateSidebarTab(app, { value: 2 });
+    assert.deepEqual(app.stateStore.get(SIDEBAR_PLAYLISTS_ROWS_FIELD), [{ title: "Chippies" }]);
+});
+
+test("setSidebarPlaylistRow loads the selected playlist by index, resolved against the app's own asset base", async () => {
+    responses.set("https://example.com/assets/data/playlists.json", () => ({ ok: true, json: async () => ({ modules: [{ title: "Chippies", url: "playlists/chippies.json" }] }) }));
+    responses.set("https://example.com/assets/playlists/chippies.json", () => ({ ok: true, text: async () => JSON.stringify({ title: "Chippies", modules: [{ title: "X", url: "https://example.com/x.mod" }] }) }));
+    const app = { ...fakeApp(), media: new URL("https://example.com/assets/") };
+
+    await playlist.activateSidebarTab(app, { value: 2 }); // populates the cached root the row-click reads from
+    await playlist.setSidebarPlaylistRow(app, { value: 0 });
+    assert.equal(playlist.getPlaylist().title, "Chippies");
+});
+
+test("setSidebarPlaylistRow on an out-of-range index does nothing", async () => {
+    responses.set("https://example.com/assets/data/playlists.json", () => ({ ok: true, json: async () => ({ modules: [{ title: "Chippies", url: "playlists/chippies.json" }] }) }));
+    const app = { ...fakeApp(), media: new URL("https://example.com/assets/") };
+    playlist.setPlaylist({ title: "Before", modules: [] });
+
+    await playlist.setSidebarPlaylistRow(app, { value: 99 });
     assert.equal(playlist.getPlaylist().title, "Before");
 });

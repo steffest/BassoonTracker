@@ -2,7 +2,7 @@
 import { toggleShowKeyInput as implementation } from "../../domain/settings/index.js";
 
 /**
- * show-key-input.toggle — generated from components/optionsPanel.yaml:174: "toggle-generic".
+ * show-key-input.toggle — generated from components/optionsPanel.yaml:480: "toggle-generic".
  * Implemented by ./domain/settings/index.js#toggleShowKeyInput (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

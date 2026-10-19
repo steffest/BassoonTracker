@@ -5,7 +5,20 @@ import { createPointerRouter } from "../../runtime/pointerRouter.js";
 import { boundsOf, valueFieldOf, quantize } from "../../runtime/valueController.js";
 import { scrollFieldOf } from "../../runtime/listController.js";
 import { rowsFieldOf } from "../../runtime/fileBrowserController.js";
-import { clampOffset as clampRowOffset } from "./fileBrowserGeometry.js";
+import { clampOffset as clampRowOffset, ROW_HEIGHT, RICH_ROW_HEIGHT } from "./fileBrowserGeometry.js";
+
+/** A richRows fileBrowser (spec 080) draws taller, two-line rows - hit-testing/scrolling must agree. */
+function rowHeightOf(node) {
+    return Number(node.rowHeight) || (node.richRows ? RICH_ROW_HEIGHT : ROW_HEIGHT);
+}
+
+function rowOffsetOf(node, rect, rows, selectedIndex, requested = 0) {
+    const rowHeight = rowHeightOf(node);
+    if (node.centerSelection && Number.isFinite(selectedIndex)) {
+        return selectedIndex * rowHeight - Math.ceil((Math.max(rect?.height || 0, rowHeight) - rowHeight) / 2);
+    }
+    return clampRowOffset(Number(requested) || 0, rows.length, rect ? rect.height : 0, rowHeight);
+}
 import { paddedValue, clampOnly as clampNumberDisplay } from "../../runtime/numberDisplayController.js";
 import { thumbMetrics } from "../../runtime/scrollbar.js";
 import { buildShortcutTable, matchShortcutTable } from "../../runtime/shortcuts.js";
@@ -21,6 +34,11 @@ import { drawKindOf, behaviorOf, behaviorOptionsOf, cursorOf, selectionModeOf, c
 // its text appears. v1 shows one instantly; this is a deliberate choice, not
 // a divergence discovered mid-port, since v1 has no delay logic to point at.
 const TOOLTIP_DELAY_MS = 500;
+// A nested submenu's own popup overlaps its parent submenu by this much
+// (v1's own real script/src/ui/components/submenu.js:118, spec 083's own
+// pixel-parity follow-up) rather than opening flush against its trigger's
+// edge - see genericLayout.js's own anchoredRect() for why.
+const NESTED_SUBMENU_OVERLAP = 20;
 
 // Renders the generic tree produced by compiler/convert.js. Unlike mount.js
 // (the fixed transport/instrument-list template from spec 003), this
@@ -177,6 +195,10 @@ export async function mountGenericRenderer(container, outline, options = {}) {
         // addresses - the same "read generically, by property name" shape
         // `vertical` already has above.
         if (node.envelopeType) options.envelopeType = node.envelopeType;
+        // A node's own `signal` (spec 083: notificationLight) picks which
+        // real domain event it polls for - the same "read generically, by
+        // property name" shape `envelopeType`/`vertical` already have above.
+        if (node.signal) options.signal = node.signal;
         const controller = behavior ? createBehaviorController(behavior, options) : null;
         if (!controller) continue;
         controllers.set(node.id, controller);
@@ -305,7 +327,11 @@ export async function mountGenericRenderer(container, outline, options = {}) {
     canvas.style.height = "100%";
     canvas.style.outline = "none";
     canvas.tabIndex = 0;
-    const ctx = canvas.getContext("2d");
+    // `let`, not `const`: performDraw() swaps this for an offscreen layer
+    // while it paints a subtree whose own style asks for one (spec 098's
+    // `isolateComponentLayer`), and always puts the real one back before it
+    // returns. Nothing outside that function ever sees a layer context.
+    let ctx = canvas.getContext("2d");
     canvasHolder.appendChild(canvas);
 
     const diagnosticsPanel = document.createElement("div");
@@ -526,6 +552,10 @@ export async function mountGenericRenderer(container, outline, options = {}) {
             const value = clampNumberDisplay(Number(mockState.get(valueFieldOf(node))), boundsOf(node));
             return paddedValue(value, node.padLength || 4);
         }
+        if (behaviorNames.get(node.id) === "value") {
+            const value = mockState.get(valueFieldOf(node));
+            return value === undefined || value === null ? "" : String(value);
+        }
         if (!node.field) return labelText(node);
         const value = mockState.get(node.field);
         return value === undefined || value === null ? "" : String(value);
@@ -552,7 +582,7 @@ export async function mountGenericRenderer(container, outline, options = {}) {
     function visualStateOf(node) {
         const controller = controllers.get(node.id);
         const state = controller ? controller.state : {};
-        const extra = {};
+        const extra = { viewportWidth: canvas.clientWidth };
         const behavior = behaviorNames.get(node.id);
         if (behavior === "value") {
             extra.value = numericValueOf(node);
@@ -576,6 +606,12 @@ export async function mountGenericRenderer(container, outline, options = {}) {
             const hoverChild = Number.isFinite(hoverIndex) ? children[hoverIndex] : null;
             extra.hoverItemRect = hoverChild ? layoutResult.rects.get(hoverChild.id) || null : null;
             extra.itemDisabled = children.map(child => typeof child.disabledWhen === "function" ? Boolean(child.disabledWhen(mockState)) : false);
+            // The divider line/disabled-fill between rows has to use these
+            // exact same rects too (spec 083's own pixel-parity follow-up) -
+            // a second, independent row-height assumption in the draw kind
+            // itself is exactly what made the hover highlight and the
+            // divider lines drift apart before.
+            extra.itemRects = children.map(child => layoutResult.rects.get(child.id) || null);
         } else if (behavior === "rowList") {
             // fileBrowser (spec 035): rows and scroll offset both come from
             // mockState, not layoutResult - there are no children to derive
@@ -584,12 +620,13 @@ export async function mountGenericRenderer(container, outline, options = {}) {
             const rows = mockState.get(rowsFieldOf(node)) || [];
             extra.rows = rows;
             const rect = rectOf(node.id);
-            extra.offset = clampRowOffset(Number(mockState.get(scrollFieldOf(node))) || 0, rows.length, rect ? rect.height : 0);
             const selected = Number(mockState.get(valueFieldOf(node)));
             extra.selectedIndex = Number.isFinite(selected) ? selected : -1;
+            extra.offset = rowOffsetOf(node, rect, rows, extra.selectedIndex, mockState.get(scrollFieldOf(node)));
         } else if (behavior === "tabs") {
             const index = Number(mockState.get(valueFieldOf(node)));
             extra.activeIndex = Number.isFinite(index) ? index : 0;
+            extra.hoverIndex = controller.state.hoverIndex;
         } else if (behavior === "collapsible") {
             extra.collapsed = Boolean(mockState.get(valueFieldOf(node)));
         } else if (!behavior && node.field) {
@@ -618,11 +655,44 @@ export async function mountGenericRenderer(container, outline, options = {}) {
         ctx.fillRect(0, 0, viewport.width, viewport.height);
 
         const overlayIds = new Set(layoutResult.overlays);
+        // Spec 098: v1 gives every component its own canvas and composites it
+        // into its parent's canvas, not into the root (script/src/ui/
+        // components/element.js: `this.parentCtx = parentElement.ctx`). That
+        // is invisible wherever the pixels are opaque, and exactly one unit
+        // of rounding wherever two semi-transparent layers of the same
+        // artwork stack - which is what the Options panel does, drawing its
+        // own copy of the band background over the band's. A style that
+        // authors `isolateComponentLayer` gets that same intermediate
+        // canvas: its whole subtree paints into one offscreen layer, which
+        // is then composited into whatever it was nested in. Layers nest.
+        const layers = [];
+        const inSubtree = (id, rootId) => id === rootId || id.startsWith(rootId + ".");
+        function closeLayer() {
+            const layer = layers.pop();
+            ctx = layer.parentCtx;
+            ctx.drawImage(layer.canvas, layer.rect.x, layer.rect.y, layer.rect.width, layer.rect.height);
+        }
+        function openLayer(node, rect) {
+            const transform = ctx.getTransform();
+            const scaleX = transform.a || 1, scaleY = transform.d || 1;
+            const layerCanvas = canvas.ownerDocument.createElement("canvas");
+            layerCanvas.width = Math.max(1, Math.round(rect.width * scaleX));
+            layerCanvas.height = Math.max(1, Math.round(rect.height * scaleY));
+            const layerCtx = layerCanvas.getContext("2d");
+            layerCtx.setTransform(scaleX, 0, 0, scaleY, -rect.x * scaleX, -rect.y * scaleY);
+            layerCtx.imageSmoothingEnabled = ctx.imageSmoothingEnabled;
+            layers.push({ rootId: node.id, canvas: layerCanvas, rect, parentCtx: ctx });
+            ctx = layerCtx;
+        }
         for (const node of allNodes) {
             if (overlayIds.has(node.id)) continue;
+            while (layers.length && !inSubtree(node.id, layers[layers.length - 1].rootId)) closeLayer();
             const rect = layoutResult.rects.get(node.id);
-            if (rect) drawNode(node, rect);
+            if (!rect) continue;
+            if (styleOf(node)?.metrics?.isolateComponentLayer) openLayer(node, rect);
+            drawNode(node, rect);
         }
+        while (layers.length) closeLayer();
         // Overlays paint after the tree, in declared order, and are followed
         // by their own children so a dialog's contents land on top of it.
         for (const id of layoutResult.overlays) {
@@ -781,10 +851,10 @@ export async function mountGenericRenderer(container, outline, options = {}) {
     // opens a submenu, the same way - there is no authored vocabulary for it
     // (design.md "what this deliberately does not do").
 
-    function openOverlay(id, { anchorTo, edge } = {}) {
+    function openOverlay(id, { anchorTo, edge, overlap } = {}) {
         const node = nodeById.get(id);
         if (!node || !overlayOpenState.has(id)) return;
-        if (anchorTo) node.anchor = { targetId: anchorTo, edge: edge || "below" };
+        if (anchorTo) node.anchor = { targetId: anchorTo, edge: edge || "below", overlap: overlap || 0 };
         if (overlayOpenState.get(id)) return;
         overlayOpenState.set(id, true);
         trace("overlay", { instance: id, open: true });
@@ -973,9 +1043,19 @@ export async function mountGenericRenderer(container, outline, options = {}) {
         const items = node.children || [];
         if (!rect || !point || items.length === 0) return null;
         const entry = componentType(node.type);
-        const height = (entry && entry.tabHeader && entry.tabHeader.height) || 0;
+        const height = Number(node.headerHeight) || (entry && entry.tabHeader && entry.tabHeader.height) || 0;
         if (point.y < rect.y || point.y > rect.y + height) return null;
         if (point.x < rect.x || point.x > rect.x + rect.width) return null;
+        const widths = String(node.tabWidths || "").split(",").map(Number).filter(Number.isFinite);
+        if (widths.length === items.length) {
+            const overlap = Number(node.tabOverlap) || 0;
+            let x = rect.x;
+            const ranges = widths.map(width => { const range = { x, width }; x += width - overlap; return range; });
+            for (let i = ranges.length - 1; i >= 0; i--) {
+                if (point.x >= ranges[i].x && point.x <= ranges[i].x + ranges[i].width) return i;
+            }
+            return null;
+        }
         const index = Math.floor((point.x - rect.x) / (rect.width / items.length));
         return Math.min(Math.max(index, 0), items.length - 1);
     }
@@ -1017,6 +1097,8 @@ export async function mountGenericRenderer(container, outline, options = {}) {
         if (behavior === "value") {
             extra.bounds = boundsOf(node);
             extra.value = numericValueOf(node);
+            extra.stepperWidth = node.stepperWidth;
+            extra.stepperDirection = node.stepperDirection;
         } else if (behavior === "scroll") {
             const scroll = scrollInfoOf(node);
             if (scroll) Object.assign(extra, scroll);
@@ -1056,7 +1138,10 @@ export async function mountGenericRenderer(container, outline, options = {}) {
             // fileBrowserGeometry.js) - there is no per-child rect to test
             // against and no layout-derived extent to reuse (design.md).
             extra.rows = mockState.get(rowsFieldOf(node)) || [];
-            extra.offset = Number(mockState.get(scrollFieldOf(node))) || 0;
+            const selected = Number(mockState.get(valueFieldOf(node)));
+            extra.offset = rowOffsetOf(node, extra.rect, extra.rows, Number.isFinite(selected) ? selected : -1, mockState.get(scrollFieldOf(node)));
+            extra.rowHeight = rowHeightOf(node);
+            extra.centerSelection = Boolean(node.centerSelection);
         } else if (behavior === "waveform") {
             // waveformView (spec 041): like "grid", no mockState read at all
             // - the controller reads/writes domain/song and
@@ -1162,6 +1247,44 @@ export async function mountGenericRenderer(container, outline, options = {}) {
         if (!options.quietIfIgnored || result.handled || result.transitions.length || result.blocked) traceInput(id, input);
         result.transitions.forEach(t => trace("state", { instance: id, field: t.field, from: t.from, to: t.to }));
         if (result.blocked) trace("activation", { instance: id, result: `blocked-${result.blocked}`, detail: result.blocked === "disabled" ? "control is disabled; no command" : "control is not focused" });
+        // Spec 083/084: v1's own real menu switches which submenu is open by
+        // hovering a different item, no click needed - two different real
+        // mechanisms, matching v1's own two real ones exactly:
+        //  - a menu's own top-level items (components/menu.js's own onHover
+        //    -> activateSubmenu) only switch once some sibling is *already*
+        //    open (v1's own `_activeIndex >= 0` guard) - hovering the menu
+        //    bar with nothing open yet still requires a click.
+        //  - a submenu's own nested item (components/submenu.js's own
+        //    onHover -> setSelectedIndex -> activateSubmenu) opens on the
+        //    very first hover, unconditionally, and closes again on
+        //    pointerleave (submenu.js:74's own `this._activeSubmenu.subMenu.
+        //    hide()`) - no prior click, no sibling-already-open gate. A
+        //    menuTrigger's own `popupEdge` ("right" for a nested trigger,
+        //    "below" for a menu's own top-level one - componentTypes.js's
+        //    own menuTrigger doc) is what tells these two cases apart.
+        if (behaviorNames.get(id) === "disclose") {
+            const parentId = parentOf(root, id);
+            const parentNode = parentId ? nodeById.get(parentId) : null;
+            const exclusive = parentNode && componentType(parentNode.type).exclusiveOverlayChildren;
+            const ownPopup = exclusive ? (node.children || [])[0] : null;
+            const nested = node.popupEdge === "right";
+            if (input.type === "pointerenter" && exclusive && ownPopup) {
+                const siblings = (parentNode.children || []).filter(sibling => sibling.id !== id);
+                const openSibling = siblings.find(sibling => {
+                    const popup = (sibling.children || [])[0];
+                    return popup && overlayOpenState.get(popup.id);
+                });
+                if ((nested || openSibling) && !overlayOpenState.get(ownPopup.id)) {
+                    siblings.forEach(sibling => {
+                        const popup = (sibling.children || [])[0];
+                        if (popup) closeOverlay(popup.id);
+                    });
+                    openOverlay(ownPopup.id, { anchorTo: id, edge: node.popupEdge || "below", overlap: nested ? NESTED_SUBMENU_OVERLAP : 0 });
+                }
+            } else if (input.type === "pointerleave" && nested && ownPopup) {
+                closeOverlay(ownPopup.id);
+            }
+        }
         // A slider's value is a number and an inputbox's is a string; both are
         // "the field this control owns changed", written the same way (spec 015).
         if (result.changed && (typeof result.value === "number" || typeof result.value === "string")) applyValue(node, result.value);
@@ -1197,7 +1320,7 @@ export async function mountGenericRenderer(container, outline, options = {}) {
                             if (siblingPopup) closeOverlay(siblingPopup.id);
                         }
                     }
-                    toggleOverlay(popup.id, { anchorTo: id, edge: node.popupEdge || "below" });
+                    toggleOverlay(popup.id, { anchorTo: id, edge: node.popupEdge || "below", overlap: node.popupEdge === "right" ? NESTED_SUBMENU_OVERLAP : 0 });
                 }
             } else if (behaviorNames.get(id) === "collapsible") {
                 // A collapsePanel's own click toggles its bound field (spec
@@ -1304,11 +1427,13 @@ export async function mountGenericRenderer(container, outline, options = {}) {
      */
     function syncDisabled() {
         for (const node of allNodes) {
-            if (typeof node.disabledWhen !== "function") continue;
+            const hasRule = typeof node.disabledWhen === "function";
+            const hasWidthRule = Number.isFinite(node.disabledBelowWidth);
+            if (!hasRule && !hasWidthRule) continue;
             const controller = controllers.get(node.id);
             if (!controller) continue;
-            let value = false;
-            try { value = Boolean(node.disabledWhen(mockState)); }
+            let value = hasWidthRule && canvas.clientWidth < node.disabledBelowWidth;
+            try { if (hasRule) value ||= Boolean(node.disabledWhen(mockState)); }
             catch (error) { console.error(`[v2] disabledWhen failed for ${node.id}`, error); }
             if (controller.state.disabled !== value) setDisabled(node.id, value);
         }
@@ -1347,7 +1472,24 @@ export async function mountGenericRenderer(container, outline, options = {}) {
         if (!modal) return hitId;
         if (!hitId) return null;
         const chain = ancestryChain(modal, hitId);
-        return chain ? hitId : null;
+        if (chain) return hitId;
+        // Spec 083: a hit on a sibling trigger within the same
+        // exclusiveOverlayChildren menu the open modal's own trigger
+        // belongs to is also allowed, not just the modal's own subtree -
+        // v1's own real menu lets hovering or clicking a different
+        // top-level (or nested) item switch which submenu is open without
+        // closing the menu first (script/src/ui/components/menu.js's own
+        // onHover -> activateSubmenu). Without this, hitTest's own modal
+        // gate (spec 013 LAY-005) would make every sibling trigger
+        // untouchable while any one submenu is open - correct for an
+        // ordinary modal dialog, wrong for a menu bar.
+        const anchorId = modal.anchor && modal.anchor.targetId;
+        const anchorParentId = anchorId ? parentOf(root, anchorId) : null;
+        const anchorParent = anchorParentId ? nodeById.get(anchorParentId) : null;
+        if (anchorParent && componentType(anchorParent.type).exclusiveOverlayChildren && parentOf(root, hitId) === anchorParentId) {
+            return hitId;
+        }
+        return null;
     }
 
     // --- hover-delay tooltips (spec 015 INT-017) -------------------------
@@ -1462,7 +1604,7 @@ export async function mountGenericRenderer(container, outline, options = {}) {
         // the pointer, continuously, not just on entering/leaving the whole
         // node) - widened rather than given a second, parallel mechanism.
         const routedBehavior = behaviorNames.get(routedId);
-        if (routedBehavior === "flyout" || routedBehavior === "envelope") {
+        if (routedBehavior === "flyout" || routedBehavior === "envelope" || routedBehavior === "rowList" || routedBehavior === "tabs") {
             feed(routedId, { type: "pointermove", point }, { quietIfIgnored: true });
         }
         applyCursor(routedId);
@@ -1777,6 +1919,19 @@ export async function mountGenericRenderer(container, outline, options = {}) {
         setMode,
         selectNode,
         setDisabled,
+        /** Deterministic state setup for parity tooling; uses the same host store as actions. */
+        setState(field, value) {
+            const changed = setField(field, value);
+            if (changed) markNeedsRelayout();
+            return changed;
+        },
+        /** Sends a semantic input through the real controller for parity tooling. */
+        sendInput(id, input) { return feed(id, input); },
+        /** Read-only resolved state used by screenshot tooling. */
+        nodeSnapshot(id) {
+            const node = nodeById.get(id);
+            return node ? { text: textOf(node), state: visualStateOf(node) } : null;
+        },
         /** Shows an overlay (a modalDialog, or a hand-built tree's own flyout); spec 020. */
         openOverlay,
         closeOverlay,

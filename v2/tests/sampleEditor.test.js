@@ -239,7 +239,7 @@ test("setInstrumentName writes the current instrument's own name", () => {
 test("setInstrumentName also republishes the song-properties section's own instrument row list (spec 071)", () => {
     const { app, store } = fakeApp();
     SampleEditor.setInstrumentName(app, { value: "snare" });
-    const rows = store.get("rows.main.normalMainView.songProperties.songPropertiesDefault.songPropertiesLayout.instrumentGroup.instrumentList");
+    const rows = store.get("rows.main.songProperties.songPropertiesDefault.songPropertiesLayout.instrumentGroup.instrumentList");
     assert.ok(Array.isArray(rows));
     assert.ok(rows[instrumentIndex - 1].title.includes("snare"));
 });

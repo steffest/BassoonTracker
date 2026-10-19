@@ -33,6 +33,8 @@ import { createVuMeterController } from "./vuMeterController.js";
 import { createEnvelopeController } from "./envelopeController.js";
 import { createScopesController } from "./scopesController.js";
 import { createPianoController } from "./pianoController.js";
+import { createTrackControlController } from "./trackControlController.js";
+import { createNotificationLightController } from "./notificationLightController.js";
 
 export const BEHAVIORS = {
     /** Press, release, Enter and Space activate a command. */
@@ -196,7 +198,23 @@ export const BEHAVIORS = {
      * "pianoView", for the same type-name-collision reason every other
      * specialized leaf's own behavior is named apart from its type.
      */
-    piano: createPianoController
+    piano: createPianoController,
+    /**
+     * trackControl's own controller (spec 074): the specialized-component
+     * contract's eleventh leaf - reads domain/song#getTrackCount/inFTMode
+     * and calls domain/arrangement#toggleTrackMute/toggleTrackSolo (spec
+     * 051) directly, the same contract "scopes" already has. Named
+     * "trackControl" - it has no "...View"-suffixed type name to collide
+     * with, unlike its specialized-leaf siblings.
+     */
+    trackControl: createTrackControlController,
+    /**
+     * notificationLight's own controller (spec 083): the specialized-component
+     * contract's twelfth leaf - no gesture vocabulary at all (v1's own real
+     * light is `ignoreEvents = true`), a controller exists purely so
+     * `ticks: true` takes effect, the same reason vuMeter needs one.
+     */
+    notificationLight: createNotificationLightController
 };
 
 export const BEHAVIOR_NAMES = Object.keys(BEHAVIORS);

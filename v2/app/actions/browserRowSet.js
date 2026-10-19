@@ -2,7 +2,7 @@
 import { setBrowserRow as implementation } from "../../domain/diskOperations/index.js";
 
 /**
- * browser-row.set — generated from components/fileOperationsPanel.yaml:115: "set-value".
+ * browser-row.set — generated from components/fileOperationsPanel.yaml:404: "set-value".
  * Implemented by ./domain/diskOperations/index.js#setBrowserRow (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

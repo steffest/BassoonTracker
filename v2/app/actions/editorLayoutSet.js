@@ -2,7 +2,7 @@
 import { setEditorLayout as implementation } from "../../domain/settings/index.js";
 
 /**
- * editor-layout.set — generated from components/controlBar.yaml:88: "set-value".
+ * editor-layout.set — generated from components/controlBar.yaml:255: "set-value".
  * Implemented by ./domain/settings/index.js#setEditorLayout (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

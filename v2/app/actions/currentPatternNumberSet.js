@@ -2,7 +2,7 @@
 import { setCurrentPatternNumber as implementation } from "../../domain/song/index.js";
 
 /**
- * current-pattern-number.set — generated from components/songProperties.yaml:98: "set-value".
+ * current-pattern-number.set — generated from components/songProperties.yaml:165: "set-value".
  * Implemented by ./domain/song/index.js#setCurrentPatternNumber (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

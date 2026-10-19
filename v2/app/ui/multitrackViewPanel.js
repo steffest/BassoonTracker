@@ -2,7 +2,7 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * multitrackViewPanel — UI structure generated from components/patternViewPanel.yaml:29.
+ * multitrackViewPanel — UI structure generated from components/patternViewPanel.yaml:37.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */

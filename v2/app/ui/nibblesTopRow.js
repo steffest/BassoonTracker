@@ -8,8 +8,8 @@ import { nibblesScoreboard } from "./nibblesScoreboard.js";
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function nibblesTopRow() {
-    return component("panel", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow", name: "nibblesTopRow", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "row" } }, [
-        component("nibblesGrid", { id: "main.normalMainView.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesGrid", name: "nibblesGrid", layout: { width: { mode: "fill" }, height: { mode: "fill" } } }),
+    return component("panel", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow", name: "nibblesTopRow", layout: { width: { mode: "fill" }, height: { mode: "fill" }, direction: "row" } }, [
+        component("nibblesGrid", { id: "main.songProperties.nibblesPanel.nibblesGameView.nibblesTopRow.nibblesGrid", name: "nibblesGrid", layout: { width: { mode: "fill" }, height: { mode: "fill" } } }),
         nibblesScoreboard()
     ]);
 }

@@ -2,7 +2,7 @@
 import { setSongRepeat as implementation } from "../../domain/song/index.js";
 
 /**
- * song-repeat.set — generated from components/songProperties.yaml:84: "set-value".
+ * song-repeat.set — generated from components/songProperties.yaml:127: "set-value".
  * Implemented by ./domain/song/index.js#setSongRepeat (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

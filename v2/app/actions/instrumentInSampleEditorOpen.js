@@ -2,7 +2,7 @@
 import { openInstrumentInSampleEditor as implementation } from "../../domain/song/index.js";
 
 /**
- * instrument-in-sample-editor.open — generated from components/instrumentList.yaml:15: "verb-action".
+ * instrument-in-sample-editor.open — generated from components/songProperties.yaml:226: "verb-action".
  * Implemented by ./domain/song/index.js#openInstrumentInSampleEditor (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

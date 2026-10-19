@@ -2,12 +2,12 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * frequencyTableCheckboxSpacer — UI structure generated from components/optionsPanel.yaml:181.
+ * frequencyTableCheckboxSpacer — UI structure generated from components/optionsPanel.yaml:491.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function frequencyTableCheckboxSpacer() {
-    return component("panel", { id: "main.normalMainView.songProperties.optionsPanel.optionsCheckboxRow.frequencyTableCheckboxSpacer", name: "frequencyTableCheckboxSpacer", layout: { width: { mode: "fill" } } }, [
+    return component("panel", { id: "main.songProperties.optionsPanel.optionsCheckboxRow.frequencyTableCheckboxSpacer", name: "frequencyTableCheckboxSpacer", layout: { width: { mode: "fill" } }, style: "transparent" }, [
 
     ]);
 }

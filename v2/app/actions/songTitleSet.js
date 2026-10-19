@@ -2,7 +2,7 @@
 import { setSongTitle as implementation } from "../../domain/playback/index.js";
 
 /**
- * song-title.set — generated from components/songProperties.yaml:162: "set-value".
+ * song-title.set — generated from components/songProperties.yaml:218: "set-value".
  * Implemented by ./domain/playback/index.js#setSongTitle (mapped in capabilities.js).
  * @param {import("../main.js").AppContext} app
  * @param {object} [detail] what the gesture carried, e.g. { value } for a change

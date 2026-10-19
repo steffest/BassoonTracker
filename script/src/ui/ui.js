@@ -350,7 +350,11 @@ var UI = (function(){
 	}
 
 	me.setCursor = function(cursor){
-		if (canvas && canvas.style.cursor !== cursor) canvas.style.cursor = cursor;
+		if (!canvas) return;
+		// "default" clears the inline override so the skin's CSS cursor (e.g. the
+		// custom Amiga pointer) shows through, instead of forcing the browser arrow
+		var value = cursor === "default" ? "" : cursor;
+		if (canvas.style.cursor !== value) canvas.style.cursor = value;
 	};
 
 	me.getContext = function(){

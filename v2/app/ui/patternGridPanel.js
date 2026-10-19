@@ -2,12 +2,13 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * patternGridPanel — UI structure generated from components/patternViewPanel.yaml:13.
+ * patternGridPanel — UI structure generated from components/patternViewPanel.yaml:16.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function patternGridPanel() {
     return component("panel", { id: "main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.patternGridPanel", name: "patternGridPanel", layout: { width: { mode: "fill" }, height: { mode: "fill" } }, visibleWhen: {"field":"pattern-view.value","oneOf":["","Column view"]} }, [
+        component("trackControl", { id: "main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.patternGridPanel.trackControl", name: "trackControl", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 32 } } }),
         component("patternGrid", { id: "main.normalMainView.patternSection.patternSectionDefault.patternViewPanel.patternGridPanel.patternGrid", name: "patternGrid", layout: { width: { mode: "fill" }, height: { mode: "fill" } } })
     ]);
 }

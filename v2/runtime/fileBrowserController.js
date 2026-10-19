@@ -8,10 +8,10 @@
 // renderers/canvas/fileBrowserGeometry.js, since there are no child nodes
 // for a rect-based hit test the way listbox's items are.
 
-import { rowIndexAt, clampOffset, contentHeight } from "../renderers/canvas/fileBrowserGeometry.js";
+import { rowIndexAt, clampOffset, contentHeight, ROW_HEIGHT } from "../renderers/canvas/fileBrowserGeometry.js";
 import { WHEEL_STEP } from "./scrollbar.js";
 
-export const FILE_BROWSER_STATE_FIELDS = ["hover", "pressed", "focused", "disabled", "dragging"];
+export const FILE_BROWSER_STATE_FIELDS = ["hover", "pressed", "focused", "disabled", "dragging", "hoverIndex", "hoverPart"];
 
 /** Where a fileBrowser's own row array lives - this type's equivalent of listController.js's scrollFieldOf, which it reuses unchanged for the scroll offset itself. */
 export function rowsFieldOf(node) {
@@ -22,7 +22,7 @@ export function rowsFieldOf(node) {
  * @param {{ disabled?: boolean }} [options]
  */
 export function createFileBrowserController(options = {}) {
-    const state = { hover: false, pressed: false, focused: false, disabled: Boolean(options.disabled), dragging: false };
+    const state = { hover: false, pressed: false, focused: false, disabled: Boolean(options.disabled), dragging: false, hoverIndex: null, hoverPart: null };
     // Captured at pointerdown: the offset a drag started from, and which row
     // (if any) the press landed on, for a plain click's eventual pointerup to
     // select without needing the geometry again.
@@ -36,7 +36,10 @@ export function createFileBrowserController(options = {}) {
 
     /**
      * @param {{ type: string, rect?: object|null, point?: object|null, offset?: number,
-     *   rows?: Array, delta?: {x:number,y:number}, deltaY?: number, dragged?: boolean }} input
+     *   rows?: Array, delta?: {x:number,y:number}, deltaY?: number, dragged?: boolean,
+     *   rowHeight?: number }} input rowHeight (spec 080) defaults to the plain-row
+     *   constant - a richRows fileBrowser's own mountGeneric.js context passes its
+     *   own taller value so hit-testing/scrolling can never disagree with drawing.
      * @returns {{ transitions: Array, activated: boolean, blocked: null|string,
      *   handled: boolean, changed: boolean, value: number|null, scrollTo: number|null }}
      */
@@ -44,7 +47,8 @@ export function createFileBrowserController(options = {}) {
         const transitions = [];
         const rows = input.rows || [];
         const rectHeight = input.rect ? input.rect.height : 0;
-        const offset = clampOffset(input.offset || 0, rows.length, rectHeight);
+        const rowHeight = input.rowHeight || ROW_HEIGHT;
+        const offset = clampOffset(input.offset || 0, rows.length, rectHeight, rowHeight);
         let scrollTo = null;
         let value = null;
         let handled = false;
@@ -57,7 +61,22 @@ export function createFileBrowserController(options = {}) {
             case "pointerleave":
                 set("hover", false, transitions);
                 set("pressed", false, transitions);
+                set("hoverIndex", null, transitions);
+                set("hoverPart", null, transitions);
                 break;
+            case "pointermove": {
+                if (!input.rect || !input.point) break;
+                const localX = input.point.x - input.rect.x;
+                const localY = input.point.y - input.rect.y;
+                const buttonSize = 16;
+                const buttonX = input.rect.width - 18;
+                const part = localX >= buttonX && localX < buttonX + buttonSize
+                    ? (localY >= 2 && localY < 2 + buttonSize ? "up" : localY >= input.rect.height - 19 && localY < input.rect.height - 3 ? "down" : null)
+                    : null;
+                set("hoverPart", part, transitions);
+                set("hoverIndex", part ? null : rowIndexAt(input.rect, input.point, offset, rows.length, rowHeight), transitions);
+                break;
+            }
             case "focus":
                 set("focused", true, transitions);
                 break;
@@ -72,7 +91,7 @@ export function createFileBrowserController(options = {}) {
                 if (state.disabled) { blocked = "disabled"; break; }
                 set("pressed", true, transitions);
                 handled = true;
-                anchor = { offset, rowIndex: rowIndexAt(input.rect, input.point, offset, rows.length) };
+                anchor = { offset, rowIndex: rowIndexAt(input.rect, input.point, offset, rows.length, rowHeight) };
                 break;
             case "dragstart":
                 if (state.disabled) { blocked = "disabled"; break; }
@@ -104,7 +123,7 @@ export function createFileBrowserController(options = {}) {
                 if (state.disabled) { blocked = "disabled"; break; }
                 if (rows.length === 0) break;
                 const direction = Math.sign(input.deltaY || 0);
-                const atEnd = (direction < 0 && offset <= 0) || (direction > 0 && offset >= contentHeight(rows.length) - rectHeight);
+                const atEnd = (direction < 0 && offset <= 0) || (direction > 0 && offset >= contentHeight(rows.length, rowHeight) - rectHeight);
                 if (direction === 0 || atEnd) break;
                 handled = true;
                 scrollTo = offset + direction * WHEEL_STEP;
@@ -114,7 +133,7 @@ export function createFileBrowserController(options = {}) {
                 break;
         }
 
-        if (scrollTo !== null) scrollTo = clampOffset(scrollTo, rows.length, rectHeight);
+        if (scrollTo !== null) scrollTo = clampOffset(scrollTo, rows.length, rectHeight, rowHeight);
 
         return {
             transitions,

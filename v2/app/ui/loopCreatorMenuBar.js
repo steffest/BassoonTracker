@@ -21,19 +21,19 @@ export function loopCreatorMenuBar() {
             highlightedWhen: state => state.get("snap-to-zero.active") === true,
             on: { "click": (app, detail) => app.feature(() => import("../actions/snapToZeroToggle.js"), m => m.snapToZeroToggle(app, detail)) }
         }),
-        // style -> radioGroup/buttons (skin/default.yaml:100)
+        // style -> radioGroup/buttons (skin/default.yaml:677)
         // action (components/sampleEditPanel.yaml:444) on change -> loop-preset.set, lazy feature actions/loopPresetSet.js
         component("radioGroup", { id: "main.normalMainView.patternSection.sampleEditPanel.loopCreatorPanel.loopCreatorMenuBar.loopPresets", name: "loopPresets", style: "buttons", on: { "change": (app, detail) => app.feature(() => import("../actions/loopPresetSet.js"), m => m.loopPresetSet(app, detail)) } }, [
-            // style -> radioItem/button (skin/default.yaml:120)
+            // style -> radioItem/button (skin/default.yaml:731)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.normalMainView.patternSection.sampleEditPanel.loopCreatorPanel.loopCreatorMenuBar.loopPresets.radioItem.Select", label: "Select", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:120)
+            // style -> radioItem/button (skin/default.yaml:731)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.normalMainView.patternSection.sampleEditPanel.loopCreatorPanel.loopCreatorMenuBar.loopPresets.radioItem.Fade in Head", label: "Fade in Head", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:120)
+            // style -> radioItem/button (skin/default.yaml:731)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.normalMainView.patternSection.sampleEditPanel.loopCreatorPanel.loopCreatorMenuBar.loopPresets.radioItem.Fade out Tail", label: "Fade out Tail", style: "button" }),
-            // style -> radioItem/button (skin/default.yaml:120)
+            // style -> radioItem/button (skin/default.yaml:731)
             // no action bound: selecting this item is UI state only (see LOOSE-ENDS.md)
             component("radioItem", { id: "main.normalMainView.patternSection.sampleEditPanel.loopCreatorPanel.loopCreatorMenuBar.loopPresets.radioItem.Cross Fade", label: "Cross Fade", style: "button" })
         ])

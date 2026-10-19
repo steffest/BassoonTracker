@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ROW_HEIGHT, contentHeight, clampOffset, rowIndexAt, visibleRowRange } from "../renderers/canvas/fileBrowserGeometry.js";
+import { ROW_HEIGHT, RICH_ROW_HEIGHT, contentHeight, clampOffset, rowIndexAt, visibleRowRange } from "../renderers/canvas/fileBrowserGeometry.js";
 
 const rect = { x: 10, y: 20, width: 100, height: 64 }; // 4 rows visible at ROW_HEIGHT=16
 
@@ -53,4 +53,22 @@ test("visibleRowRange covers exactly the rows a rect can show at a given offset"
 test("visibleRowRange is empty for zero rows or no rect", () => {
     assert.deepEqual(visibleRowRange(rect, 0, 0), { first: 0, last: 0 });
     assert.deepEqual(visibleRowRange(null, 0, 10), { first: 0, last: 0 });
+});
+
+// Spec 080 (deep-parity-audit item 7): a richRows fileBrowser passes its own
+// taller row height through every one of these functions - hit-testing and
+// scrolling must never disagree with the taller rows the draw kind actually
+// paints.
+test("every geometry function accepts an explicit rowHeight, defaulting to ROW_HEIGHT", () => {
+    assert.equal(contentHeight(10, RICH_ROW_HEIGHT), 10 * RICH_ROW_HEIGHT);
+    assert.notEqual(RICH_ROW_HEIGHT, ROW_HEIGHT, "the two constants must actually differ for this test to mean anything");
+
+    const richMax = contentHeight(20, RICH_ROW_HEIGHT) - 64;
+    assert.equal(clampOffset(10_000, 20, 64, RICH_ROW_HEIGHT), richMax);
+    assert.notEqual(richMax, contentHeight(20) - 64, "a richRows clamp must differ from the plain-row clamp");
+
+    assert.equal(rowIndexAt(rect, { x: 15, y: 20 + RICH_ROW_HEIGHT }, 0, 10, RICH_ROW_HEIGHT), 1);
+    assert.equal(rowIndexAt(rect, { x: 15, y: 20 + RICH_ROW_HEIGHT - 1 }, 0, 10, RICH_ROW_HEIGHT), 0);
+
+    assert.deepEqual(visibleRowRange(rect, 0, 10, RICH_ROW_HEIGHT), { first: 0, last: Math.ceil(64 / RICH_ROW_HEIGHT) });
 });

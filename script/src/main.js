@@ -7,6 +7,17 @@ import App from "./app.js";
 import Editor from "./editor.js";
 import ModalDialog from "./ui/components/modalDialog.js";
 
+// Console helper: await window.exportSamples()
+window.exportSamples = async function(){
+    const {exportSamples} = await import("./audio/exportSamples.js");
+    return exportSamples(Tracker);
+};
+
+// Console helper: clear this one-based track in every pattern.
+window.clearTrack = function(n, notesOnly){
+    return Editor.clearTrackInSong(n, notesOnly);
+};
+
 var Main = function(){
     var me = {};
 

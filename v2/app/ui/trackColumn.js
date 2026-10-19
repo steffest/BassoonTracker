@@ -2,34 +2,49 @@
 import { component } from "../../runtime/components.js";
 
 /**
- * trackColumn — UI structure generated from components/editPad.yaml:7.
+ * trackColumn — UI structure generated from components/editPad.yaml:12.
  * Behavior lives in ../actions/ (one lazy-loaded module per command); state fields in ../state.js.
  * @returns {object} a component tree for renderers/canvas/mountGeneric.js
  */
 export function trackColumn() {
-    return component("panel", { id: "main.normalMainView.patternSection.patternSectionDefault.editPad.trackColumn", name: "trackColumn", layout: { direction: "column" } }, [
-        component("label", { id: "main.normalMainView.patternSection.patternSectionDefault.editPad.trackColumn.label.Track", label: "Track" }),
-        // action (components/editPad.yaml:18) on click -> track.clear, lazy feature actions/trackClear.js (generated mock)
+    return component("panel", { id: "main.normalMainView.patternSection.patternLeftColumn.editPad.trackColumn", name: "trackColumn", layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 63 }, direction: "column", padding: 0, gap: 0, offsetY: 23 }, style: "transparent" }, [
+        // style -> label/editPadHeader (skin/default.yaml:1016)
+        component("label", {
+            id: "main.normalMainView.patternSection.patternLeftColumn.editPad.trackColumn.label.↓Track",
+            label: "↓Track",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 8 }, position: "absolute", left: 4, top: -14 },
+            style: "editPadHeader"
+        }),
+        // style -> button/editPad (skin/default.yaml:272)
+        // action (components/editPad.yaml:41) on click -> track.clear, lazy feature actions/trackClear.js (generated mock)
         component("button", {
-            id: "main.normalMainView.patternSection.patternSectionDefault.editPad.trackColumn.trackClear",
+            id: "main.normalMainView.patternSection.patternLeftColumn.editPad.trackColumn.trackClear",
             name: "trackClear",
             label: "Clear",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 21 } },
+            style: "editPad",
             tooltip: "Clear the current track",
             on: { "click": (app, detail) => app.feature(() => import("../actions/trackClear.js"), m => m.trackClear(app, detail)) }
         }),
-        // action (components/editPad.yaml:24) on click -> track.copy, lazy feature actions/trackCopy.js (generated mock)
+        // style -> button/editPad (skin/default.yaml:272)
+        // action (components/editPad.yaml:51) on click -> track.copy, lazy feature actions/trackCopy.js (generated mock)
         component("button", {
-            id: "main.normalMainView.patternSection.patternSectionDefault.editPad.trackColumn.trackCopy",
+            id: "main.normalMainView.patternSection.patternLeftColumn.editPad.trackColumn.trackCopy",
             name: "trackCopy",
             label: "Copy",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 21 } },
+            style: "editPad",
             tooltip: "Copy the current track",
             on: { "click": (app, detail) => app.feature(() => import("../actions/trackCopy.js"), m => m.trackCopy(app, detail)) }
         }),
-        // action (components/editPad.yaml:30) on click -> track.paste, lazy feature actions/trackPaste.js (generated mock)
+        // style -> button/editPad (skin/default.yaml:272)
+        // action (components/editPad.yaml:61) on click -> track.paste, lazy feature actions/trackPaste.js (generated mock)
         component("button", {
-            id: "main.normalMainView.patternSection.patternSectionDefault.editPad.trackColumn.trackPaste",
+            id: "main.normalMainView.patternSection.patternLeftColumn.editPad.trackColumn.trackPaste",
             name: "trackPaste",
             label: "Paste",
+            layout: { width: { mode: "fill" }, height: { mode: "fixed", size: 21 } },
+            style: "editPad",
             tooltip: "Paste the current track",
             on: { "click": (app, detail) => app.feature(() => import("../actions/trackPaste.js"), m => m.trackPaste(app, detail)) }
         })

@@ -6,7 +6,7 @@ import FileDetector from "./fileformats/detect.js";
 import EventBus from "./eventBus.js";
 import Audio from "./audio.js";
 import Playlist from "./models/playlist.js";
-import {getUrlParameter} from "./lib/util.js";
+import {getUrlParameter, formatInstrumentIndex} from "./lib/util.js";
 import Input from "./ui/input.js";
 import WAAClock from "./lib/waaclock.js";
 import Instrument from "./models/instrument.js";
@@ -168,7 +168,7 @@ var Tracker = (function(){
 				var instrumentContainer = [];
 				for (i = 1;i<=max;i++){
 					var instrument = song.instruments[i] || {name:""};
-					instrumentContainer.push({label: i + " " + instrument.name, data: i});
+					instrumentContainer.push({label: formatInstrumentIndex(i) + " " + instrument.name, data: i, name: instrument.name});
 					EventBus.trigger(EVENT.instrumentListChange,instrumentContainer);
 				}
 
@@ -2341,12 +2341,62 @@ var Tracker = (function(){
         instruments = [];
 		for (let i = 1; i <= max; i++) {
             me.setInstrument(i,Instrument());
-			instrumentContainer.push({label: i + " ", data: i});
+			instrumentContainer.push({label: formatInstrumentIndex(i) + " ", data: i, name: ""});
 		}
 		song.instruments = instruments;
 
 		EventBus.trigger(EVENT.instrumentListChange,instrumentContainer);
 		EventBus.trigger(EVENT.instrumentChange,currentInstrumentIndex);
+	};
+
+	me.moveInstrument = function(fromIndex, toIndex){
+		if (!song || !song.instruments || fromIndex === toIndex) return;
+		if (!song.instruments[fromIndex]) return;
+		var max = song.instruments.length - 1;
+		if (toIndex < 1 || toIndex > max) return;
+
+		var moved = song.instruments.splice(fromIndex, 1)[0];
+		song.instruments.splice(toIndex, 0, moved);
+
+		var lo = Math.min(fromIndex, toIndex);
+		var hi = Math.max(fromIndex, toIndex);
+		var i;
+		for (i = lo; i <= hi; i++) {
+			if (song.instruments[i]) song.instruments[i].instrumentIndex = i;
+		}
+
+		var remap = {};
+		if (toIndex > fromIndex) {
+			for (i = fromIndex; i < toIndex; i++) remap[i + 1] = i;
+		} else {
+			for (i = toIndex; i < fromIndex; i++) remap[i] = i + 1;
+		}
+		remap[fromIndex] = toIndex;
+
+		song.patterns.forEach(function(pattern){
+			pattern.forEach(function(row){
+				row.forEach(function(note){
+					if (note && note.instrument && remap[note.instrument] !== undefined) {
+						note.instrument = remap[note.instrument];
+					}
+				});
+			});
+		});
+
+		if (remap[currentInstrumentIndex] !== undefined) {
+			currentInstrumentIndex = remap[currentInstrumentIndex];
+			prevInstrumentIndex = currentInstrumentIndex;
+		}
+
+		var instrumentContainer = [];
+		for (i = 1; i <= max; i++) {
+			var instrument = song.instruments[i] || {name: ""};
+			instrumentContainer.push({label: formatInstrumentIndex(i) + " " + instrument.name, data: i, name: instrument.name});
+		}
+
+		EventBus.trigger(EVENT.instrumentListChange, instrumentContainer);
+		EventBus.trigger(EVENT.instrumentChange, currentInstrumentIndex);
+		EventBus.trigger(EVENT.patternChange, currentPattern);
 	};
 
 	me.setTrackerMode = function(mode,force){
