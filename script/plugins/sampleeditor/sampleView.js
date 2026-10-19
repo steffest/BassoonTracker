@@ -119,9 +119,9 @@ let SampleView = function(){
 	var loopCreator = LoopCreator();
 	waveForm.addLoopCreator(loopCreator);
 
-	var hissReductionPanel = HissReductionPanel();
-	var resamplePanel = new ResamplePanel();
-	waveForm.addHissReductionPanel(hissReductionPanel);
+	var hissReductionPanel = SETTINGS.enableAdvancedSampleEditor ? HissReductionPanel() : null;
+	var resamplePanel = SETTINGS.enableAdvancedSampleEditor ? new ResamplePanel() : null;
+	if (hissReductionPanel) waveForm.addHissReductionPanel(hissReductionPanel);
 
 	waveForm.onMouseWheel = function(touchData){
 		if (touchData.mouseWheels[0] > 0){
@@ -141,7 +141,7 @@ let SampleView = function(){
 		waveForm.invalidateWave();
 	};
 
-	hissReductionPanel.onPreviewUpdate = function() {
+	if (hissReductionPanel) hissReductionPanel.onPreviewUpdate = function() {
 		waveForm.invalidateWave();
 	};
 
@@ -153,11 +153,13 @@ let SampleView = function(){
 	}
 
 	function openHissReductionPanel() {
+		if (!SETTINGS.enableAdvancedSampleEditor) return;
 		hissReductionPanel.open(Tracker.getCurrentInstrument());
 		sampleEditorMenu.hide();
 		me.onResize();
 	}
 	function openResamplePanel() {
+		if (!SETTINGS.enableAdvancedSampleEditor) return;
 		sampleEditorMenu.hide();
 		resamplePanel.onClose = () => sampleEditorMenu.show(true, true);
 		var sample = Tracker.getCurrentInstrument() && Tracker.getCurrentInstrument().sample;
@@ -170,7 +172,7 @@ let SampleView = function(){
 		me.onResize();
 	};
 
-	hissReductionPanel.onClose = function() {
+	if (hissReductionPanel) hissReductionPanel.onClose = function() {
 		sampleEditorMenu.show(true, true);
 		me.onResize();
 	};
@@ -186,6 +188,7 @@ let SampleView = function(){
 	});
 	drawModeButton.tooltip = "Toggle Draw Mode";
 	drawModeButton.onDown = function(){
+		if (!SETTINGS.enableAdvancedSampleEditor) return;
 		var active = !drawModeButton.isActive;
 		drawModeButton.setActive(active);
 		waveForm.setDrawMode(active);
@@ -206,21 +209,21 @@ let SampleView = function(){
 			}}
 		]},
 		{label: "View", subItems: [
-			{label: "Maximize", onClick: function(){
+			...(SETTINGS.enableAdvancedSampleEditor ? [{label: "Maximize", onClick: function(){
 				toggleMaximize();
-			}},
+			}}] : []),
 			{label: "Slices", onClick: function(){
 				waveForm.toggleSlices();
 			}}
 		]},
 		{label: "Edit", subItems: [
-			{label: "Resample", onClick: openResamplePanel},
-			{label: "Normalize", onClick: function(){
+			...(SETTINGS.enableAdvancedSampleEditor ? [{label: "Resample", onClick: openResamplePanel}] : []),
+			{label: SETTINGS.enableAdvancedSampleEditor ? "Normalize" : "Maximize", onClick: function(){
 				waveForm.adjustVolume("max");
 			}},
-			{label: "Trim", onClick: function(){
+			...(SETTINGS.enableAdvancedSampleEditor ? [{label: "Trim", onClick: function(){
 				waveForm.trim();
-			}},
+			}}] : []),
 
 			{label: "Upsample", onClick: function(){
 				waveForm.resample("up");
@@ -228,15 +231,15 @@ let SampleView = function(){
 			{label: "DownSample", onClick: function(){
 				waveForm.resample("down");
 			}},
-			{label: "Make 8-bit", onClick: function(){
+			...(SETTINGS.enableAdvancedSampleEditor ? [{label: "Make 8-bit", onClick: function(){
 				changeSampleBit(8);
 			}},
 			{label: "Filter", subItems: [
 				{label: "Hiss reduction", onClick: function(){
 					openHissReductionPanel();
 				}}
-			]},
-			{label: "Create Loop", onClick: function(){ openLoopCreator(); }}
+			]}] : []),
+			{label: "Create Loop", onClick: openLoopCreator}
 		]}
 	]);
 	me.addChild(sampleEditorMenu);
@@ -572,7 +575,7 @@ let SampleView = function(){
 		if (!me.visible) return;
 		switch (keyCode){
 		case 32: // space
-				if (isMaximized || Layout.sampleViewVisible){
+				if (SETTINGS.enableAdvancedSampleEditor && (isMaximized || Layout.sampleViewVisible)){
 					waveForm.toggleSelectionPlayback();
 					return true;
 				}
@@ -634,13 +637,13 @@ let SampleView = function(){
 		var menuH   = 26;
 		var menuTop = inputboxHeight + Layout.defaultMargin + 8;
 
-		var menuPanelActive = !loopCreator.isVisible() && !hissReductionPanel.isVisible();
-		var drawBtnW = 22;
+		var menuPanelActive = !(loopCreator.isVisible()) && !(hissReductionPanel && hissReductionPanel.isVisible());
+		var drawBtnW = SETTINGS.enableAdvancedSampleEditor ? 22 : 0;
 
 		sampleEditorMenu.setPosition(waveLeft, menuTop);
 		sampleEditorMenu.setSize(menuPanelActive ? waveWidth - drawBtnW : waveWidth, menuH);
 
-		if (menuPanelActive){
+		if (menuPanelActive && SETTINGS.enableAdvancedSampleEditor){
 			setProps(drawModeButton, {
 				left: waveLeft + waveWidth - drawBtnW + 1,
 				top: menuTop + 3,
@@ -856,11 +859,12 @@ let SampleView = function(){
 	};
 
 	EventBus.on(EVENT.sampleEditorTogglePlayback, function(){
-		if (me.visible) waveForm.toggleSelectionPlayback();
+		if (SETTINGS.enableAdvancedSampleEditor && me.visible) waveForm.toggleSelectionPlayback();
 	});
 
 
 	function toggleMaximize() {
+		if (!SETTINGS.enableAdvancedSampleEditor) return;
 		isMaximized = !isMaximized;
 		Layout.sampleViewMaximized = isMaximized;
 		EventBus.trigger(EVENT.showView, "sample");

@@ -8,5 +8,5 @@
  - support for .xi instruments
  - ui updates (zoom sample by resizing scrollbar)
  - sample browser
-
-
+0.5.0.8
+- bugfixes in >4track mod export

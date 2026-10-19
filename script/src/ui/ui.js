@@ -90,6 +90,7 @@ var UI = (function(){
 		var w = window.innerWidth;
 		var h = window.innerHeight;
 
+		if (w>Layout.maxWidth) w=Layout.maxWidth;
 		if (h>maxHeight) h=maxHeight;
 
 		screenWidth = w;
@@ -155,6 +156,7 @@ var UI = (function(){
 			canvas = document.getElementById("canvas");
 			var w = window.innerWidth;
 
+			if (w>Layout.maxWidth) w=Layout.maxWidth;
 			if (w>maxHeight) w=maxHeight;
 			canvas.width = w;
 			//canvas.height = window.innerHeight;
@@ -184,6 +186,7 @@ var UI = (function(){
 
 
 	me.setSize = function(newWidth,newHeight){
+		if (newWidth>Layout.maxWidth) newWidth = Layout.maxWidth;
 		if (newWidth>window.innerWidth) newWidth = window.innerWidth;
 		if (newHeight>Layout.maxHeight) newHeight = Layout.maxHeight;
 		if (newHeight>window.innerHeight) newHeight = window.innerHeight;

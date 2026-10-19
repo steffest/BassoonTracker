@@ -1890,6 +1890,19 @@ var Tracker = (function(){
 	me.setTrackCount = function(count){
 		trackCount = count;
 
+		if (song){
+			song.channels = trackCount;
+			song.patterns.forEach(function(pattern){
+				if (!pattern) return;
+				pattern.forEach(function(row){
+					if (!row) return;
+					for (var channel = 0; channel < trackCount; channel++){
+						if (!row[channel]) row[channel] = Note();
+					}
+				});
+			});
+		}
+
 		for (var i=trackNotes.length;i<trackCount;i++) trackNotes.push({});
 		for (i=trackEffectCache.length;i<trackCount;i++) trackEffectCache.push({});
 

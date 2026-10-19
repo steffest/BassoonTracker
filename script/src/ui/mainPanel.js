@@ -79,6 +79,7 @@ export default class MainPanel extends Panel {
                 }
             });
         this.on(EVENT.showView, view => {
+                if (view === "multitrack" && !SETTINGS.enableHorizontalView) return;
                 if (view === "diskop_load" || view === "options") {
                     if (!this._appPanel.isVisible()) {
                         this._appPanel.show();

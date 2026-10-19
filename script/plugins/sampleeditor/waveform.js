@@ -2,7 +2,7 @@ import UIElement from "../../src/ui/components/element.js";
 import Scale9Panel from "../../src/ui/components/scale9.js";
 import Scrollbar from "../../src/ui/components/scrollbar.js";
 import EventBus from "../../src/eventBus.js";
-import {EVENT, SELECTION} from "../../src/enum.js";
+import {EVENT, SELECTION, SETTINGS} from "../../src/enum.js";
 import Audio from "../../src/audio.js";
 import UI from "../../src/ui/ui.js";
 import StateManager from "../../src/ui/stateManager.js";
@@ -64,7 +64,7 @@ let WaveForm = function(){
 	}
 
 	me.setDrawMode = function(enabled){
-		drawMode = enabled;
+		drawMode = SETTINGS.enableAdvancedSampleEditor && enabled;
 	};
 
 	me.isDrawMode = function(){
@@ -170,7 +170,7 @@ let WaveForm = function(){
 		var x = touchData.startX;
 		var y = touchData.startY;
 
-		if (rangeLength > 0) {
+		if (SETTINGS.enableAdvancedSampleEditor && rangeLength > 0) {
 			var hitType = null;
 			if (isNearRangeHandle(x, y, MARKERTYPE.rangeVolumeLeft))   hitType = MARKERTYPE.rangeVolumeLeft;
 			else if (isNearRangeHandle(x, y, MARKERTYPE.rangeVolumeRight))  hitType = MARKERTYPE.rangeVolumeRight;
@@ -506,7 +506,7 @@ let WaveForm = function(){
 			var x = me.eventX;
 			var y = me.eventY;
 
-			if (rangeLength > 0) {
+			if (SETTINGS.enableAdvancedSampleEditor && rangeLength > 0) {
 				var hType = null;
 				if (isNearRangeHandle(x, y, MARKERTYPE.rangeVolumeLeft))        hType = MARKERTYPE.rangeVolumeLeft;
 				else if (isNearRangeHandle(x, y, MARKERTYPE.rangeVolumeRight))  hType = MARKERTYPE.rangeVolumeRight;
@@ -649,6 +649,7 @@ let WaveForm = function(){
 	};
 
 	me.toggleSelectionPlayback = function(){
+		if (!SETTINGS.enableAdvancedSampleEditor) return;
 		if (isPlaying){
 			Input.clearInputNotes();
 			Input.handleNoteOff(Input.getPrevIndex());
@@ -1047,7 +1048,7 @@ let WaveForm = function(){
 				me.ctx.fillRect(rangeLineX1, waveTop, rangeLineX2-rangeLineX1, waveH);
 			}
 
-			if (rangeLength > 0 && (rangeLineX1 >= 0 || rawRangeLineX2 >= 0)) {
+			if (SETTINGS.enableAdvancedSampleEditor && rangeLength > 0 && (rangeLineX1 >= 0 || rawRangeLineX2 >= 0)) {
 				var hx1 = rangeLineX1 >= 0 ? rangeLineX1 : 0;
 				var hx2 = rawRangeLineX2 >= 0 ? rawRangeLineX2 : me.width;
 				var hxC = Math.round((hx1 + hx2) / 2);
@@ -1156,7 +1157,7 @@ let WaveForm = function(){
 	}
 
 	function isNearRangeHandle(x, y, type) {
-		if (!rangeLength) return false;
+		if (!SETTINGS.enableAdvancedSampleEditor || !rangeLength) return false;
 		var hx = getRangeHandleX(type);
 		if (hx < 0) return false;
 		var hy = getRangeHandleY();
@@ -1168,7 +1169,7 @@ let WaveForm = function(){
 	}
 
 	function getPixelsPerSample(){
-		return zoomLength > 0 ? me.width / zoomLength : 0;
+		return SETTINGS.enableAdvancedSampleEditor && zoomLength > 0 ? me.width / zoomLength : 0;
 	}
 
 	function getSampleMarkerCoords(sampleIndex){
@@ -1292,7 +1293,9 @@ let WaveForm = function(){
 	}
 
 	me.adjustVolume = sampleProcessing.adjustVolume;
-	me.trim = sampleProcessing.trim;
+	me.trim = function(){
+		if (SETTINGS.enableAdvancedSampleEditor) sampleProcessing.trim();
+	};
 	me.reverse = sampleProcessing.reverse;
 	me.invert = sampleProcessing.invert;
 
@@ -1342,6 +1345,7 @@ let WaveForm = function(){
 	};
 
 	me.resampleToRate = function(sourceRate, targetRate, interpolate){
+		if (!SETTINGS.enableAdvancedSampleEditor) return;
 		if (!currentInstrument || !currentSampleData || !sourceRate || !targetRate) return false;
 		var oldData = currentSampleData.slice();
 		var newLength = Math.max(1, Math.round(oldData.length * targetRate / sourceRate));

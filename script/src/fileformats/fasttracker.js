@@ -1,6 +1,6 @@
 import Tracker from "../tracker.js";
 import EventBus from "../eventBus.js";
-import {EVENT, LOOPTYPE, TRACKERMODE} from "../enum.js";
+import {EVENT, LOOPTYPE, TRACKERMODE, SETTINGS} from "../enum.js";
 import {BinaryStream} from "../filesystem.js"
 import Note from "../models/note.js";
 import Instrument from "../models/instrument.js";
@@ -554,6 +554,7 @@ var FastTracker = function(){
 
     // see https://github.com/milkytracker/MilkyTracker/blob/master/resources/reference/xm-form.txt
     me.loadXI = function(file){
+        if (!SETTINGS.enableXIInstruments) return;
         file.litteEndian = true;
         file.goto(0);
 
@@ -677,6 +678,7 @@ var FastTracker = function(){
     };
 
     me.writeXI = function(instrumentIndex, next){
+        if (!SETTINGS.enableXIInstruments) return;
         var instrument = Tracker.getInstrument(instrumentIndex);
         if (!instrument){
             if (next) next(null);

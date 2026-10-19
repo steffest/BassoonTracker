@@ -7,7 +7,7 @@ import TrackControl from "./components/trackControl.js";
 import Visualiser from "./components/visualiser.js";
 import Multitrack from "./components/multitrack.js";
 import Layout from "../app/layout.js";
-import {COMMAND, EVENT} from "../../enum.js";
+import {COMMAND, EVENT, SETTINGS} from "../../enum.js";
 import App_patternView from "../app/components/patternView.js";
 import UI from "../ui.js";
 import App from "../../app.js";
@@ -59,8 +59,8 @@ let app_patternPanel = function(){
     patternView.name = "patternViewPanel";
     me.addChild(patternView);
 
-    var multitrackView = new Multitrack();
-    multitrackView.hide();
+    var multitrackView = SETTINGS.enableHorizontalView ? new Multitrack() : null;
+    if (multitrackView) multitrackView.hide();
     // Added to mainPanel directly (like visualiser) for direct-to-canvas rendering
     UI.multitrack = multitrackView;
 
@@ -153,11 +153,13 @@ let app_patternPanel = function(){
         }
 
         // Multitrack view: covers the area below the info panel (replaces visualiser + trackControls + patternView)
-        var multitrackTop = Layout.infoPanelHeight + Layout.defaultMargin;
-        multitrackView.left = patternLeft;
-        multitrackView.top = me.top + multitrackTop;
-        multitrackView.width = patternWidth;
-        multitrackView.height = me.height - multitrackTop - Layout.defaultMargin;
+        if (multitrackView) {
+            var multitrackTop = Layout.infoPanelHeight + Layout.defaultMargin;
+            multitrackView.left = patternLeft;
+            multitrackView.top = me.top + multitrackTop;
+            multitrackView.width = patternWidth;
+            multitrackView.height = me.height - multitrackTop - Layout.defaultMargin;
+        }
 
         setTrackControlsLayout();
         me.refresh(true);
@@ -273,11 +275,12 @@ let app_patternPanel = function(){
 	});
 
     me.on(EVENT.showView,function(view){
+        if (view === "multitrack" && !SETTINGS.enableHorizontalView) return;
         switch (view){
             case "sample":
 				if (customPanel) customPanel.show();
                 patternView.hide();
-                multitrackView.hide();
+                if (multitrackView) multitrackView.hide();
 
                 if (Layout.expandSampleViewHeight || Layout.sampleViewMaximized){
                     visualiser.hide();
@@ -302,7 +305,7 @@ let app_patternPanel = function(){
             case "main":
 				if (customPanel) customPanel.hide();
                 patternView.show();
-                multitrackView.hide();
+                if (multitrackView) multitrackView.hide();
 				visualiser.show();
                 if (Layout.showSideBar){
 					editPanel.show();

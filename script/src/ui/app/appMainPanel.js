@@ -12,7 +12,7 @@ import DiskOperations from "../diskOperations.js";
 import OptionsPanel from "../optionsPanel.js";
 import Layout from "./layout.js";
 import EventBus from "../../eventBus.js";
-import {COMMAND, EVENT, TRACKERMODE} from "../../enum.js";
+import {COMMAND, EVENT, TRACKERMODE, SETTINGS} from "../../enum.js";
 import Tracker from "../../tracker.js";
 import Input from "../input.js";
 import Editor from "../../editor.js";
@@ -87,7 +87,7 @@ export default class AppMainPanel extends PanelContainer {
             if (item) {
                 Tracker.setCurrentInstrumentIndex(item.data);
                 const now = Date.now();
-                if ((item.data === lastInstrumentClickData) && ((now - lastInstrumentClickTime) < 400)) {
+                if (SETTINGS.enableAdvancedSampleEditor && (item.data === lastInstrumentClickData) && ((now - lastInstrumentClickTime) < 400)) {
                     EventBus.trigger(EVENT.command, COMMAND.showSampleEditor);
                     lastInstrumentClickData = null;
                 } else {

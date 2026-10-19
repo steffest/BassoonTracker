@@ -510,6 +510,14 @@ export var TRACKERMODE = {
 };
 
 export var SETTINGS = {
+	// Features added since the compiled live/ snapshot. Reload after changing.
+	enableHorizontalView: false,
+	enableWideLayout: false,
+	enableAdvancedSampleEditor: false,
+	enableXIInstruments: false,
+	enableAIFFImport: false,
+	enableRememberLayout: false,
+
 	unrollLoops: false,
 	unrollShortLoops: false, // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
 	sustainKeyboardNotes: false,

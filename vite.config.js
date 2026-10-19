@@ -2,7 +2,7 @@ import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import fs from 'fs';
 
-let version = "0.5.0.7";
+let version = "0.5.0.8";
 
 const outDir = process.env.VITE_OUTDIR || 'build';
 

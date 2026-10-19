@@ -1,12 +1,13 @@
 import Tracker from "../../tracker.js";
 import UI from "../ui.js";
 import EventBus from "../../eventBus.js";
-import {EVENT} from "../../enum.js";
+import {EVENT, SETTINGS} from "../../enum.js";
 import Font from "../font.js";
 
 let Layout = function(){
   var me = {};
 
+  me.maxWidth = SETTINGS.enableWideLayout ? Infinity : 1200;
   me.maxHeight = 2000;
   me.minheight = 200;
   me.defaultMargin =  4;
@@ -67,6 +68,14 @@ let Layout = function(){
       me.trackWidth = me.col1W;
       me.trackMargin = me.defaultMargin;
       me.visibleTracks = me.visibleTracks || 4;
+      if (!SETTINGS.enableWideLayout) {
+          const previousMaxWidth = me.maxWidth;
+          me.maxWidth = me.visibleTracks > 8 ? 1600 : (me.visibleTracks > 4 ? 1400 : 1200);
+          if (previousMaxWidth !== me.maxWidth || mainWidth > me.maxWidth) {
+              UI.setSize(me.maxWidth, me.height);
+              return;
+          }
+      }
       me.infoPanelHeight = 24;
       me.trackControlHeight = 32;
       me.analyserHeight = 66;

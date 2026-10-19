@@ -1,4 +1,4 @@
-import {SAMPLETYPE} from "../enum.js";
+import {SAMPLETYPE, SETTINGS} from "../enum.js";
 import {readRAWsample} from "./raw.js";
 import {getSamplerate} from "./getSamplerate.js";
 import {read8SVXsample} from "./8svx.js";
@@ -32,6 +32,7 @@ export function detectSampleType(file,sample,next){
 			decoder = decodeFileWithAudioContext; //readRIFFsample;
 			break;
 		case "AIFF":
+			if (!SETTINGS.enableAIFFImport) return;
 			sampleType = SAMPLETYPE.WAVE_PCM;
 			decoder = readAIFFsample;
 			break;

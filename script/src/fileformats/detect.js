@@ -1,4 +1,4 @@
-import {FILETYPE} from "../enum.js";
+import {FILETYPE, SETTINGS} from "../enum.js";
 import ProTracker from "./protracker.js";
 import SoundTracker from "./soundtracker.js";
 import FastTracker from "./fasttracker.js";
@@ -42,7 +42,11 @@ let FileDetector = function(){
 
 		id = file.readString(21,0);
 		if (id === "Extended Instrument: "){
-			return fileType.xi_FastTracker;
+			return SETTINGS.enableXIInstruments ? fileType.xi_FastTracker : fileType.unsupported;
+		}
+		if (!SETTINGS.enableAIFFImport && id.startsWith("FORM")) {
+			const subtype = file.readString(4, 8);
+			if (subtype === "AIFF" || subtype === "AIFC") return fileType.unsupported;
 		}
 		if (id.startsWith("Extended Module: ")){
 			return fileType.mod_FastTracker;
@@ -63,28 +67,7 @@ let FileDetector = function(){
 		if (id === "M!K!") return fileType.mod_ProTracker; // more than 64 patterns
 		if (id === "M&K!") return fileType.mod_ProTracker; // what's different? example https://modarchive.org/index.php?request=view_by_moduleid&query=76607
 		if (id === "FLT4") return fileType.mod_ProTracker;
-		if (id === "2CHN") return fileType.mod_ProTracker;
-		if (id === "3CHN") return fileType.mod_ProTracker;
-		if (id === "5CHN") return fileType.mod_ProTracker;
-		if (id === "6CHN") return fileType.mod_ProTracker;
-		if (id === "7CHN") return fileType.mod_ProTracker;
-		if (id ==="8CHN") return fileType.mod_ProTracker;
-		if (id === "9CHN") return fileType.mod_ProTracker;
-		if (id === "10CH") return fileType.mod_ProTracker;
-		if (id === "11CH") return fileType.mod_ProTracker;
-		if (id === "12CH") return fileType.mod_ProTracker;
-		if (id === "13CH") return fileType.mod_ProTracker;
-		if (id === "14CH") return fileType.mod_ProTracker;
-		if (id === "15CH") return fileType.mod_ProTracker;
-		if (id === "16CH") return fileType.mod_ProTracker;
-		if (id === "18CH") return fileType.mod_ProTracker;
-		if (id === "20CH") return fileType.mod_ProTracker;
-		if (id === "22CH") return fileType.mod_ProTracker;
-		if (id === "24CH") return fileType.mod_ProTracker;
-		if (id === "26CH") return fileType.mod_ProTracker;
-		if (id === "28CH") return fileType.mod_ProTracker;
-		if (id === "30CH") return fileType.mod_ProTracker;
-		if (id === "32CH") return fileType.mod_ProTracker;
+		if (/^(?:[2-9]CHN|[12][0-9]CH|3[0-2]CH)$/.test(id)) return fileType.mod_ProTracker;
 
 		let ext = "";
 		if (name && name.indexOf(".")>0) ext = name.split(".").pop();
@@ -93,8 +76,8 @@ let FileDetector = function(){
 		if (ext === "wav") return fileType.sample;
 		if (ext === "mp3") return fileType.sample;
 		if (ext === "iff") return fileType.sample;
-		if (ext === "aif") return fileType.sample;
-		if (ext === "aiff") return fileType.sample;
+		if (ext === "aif") return SETTINGS.enableAIFFImport ? fileType.sample : fileType.unsupported;
+		if (ext === "aiff") return SETTINGS.enableAIFFImport ? fileType.sample : fileType.unsupported;
 		if (ext === "flac") return fileType.sample;
 		if (ext === "ogg") return fileType.sample;
 		if (ext === "opus") return fileType.sample;

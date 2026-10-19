@@ -7,6 +7,9 @@ import EventBus from "./eventBus.js";
 var Settings = (function(){
 	var me = {};
 	var isApplyingUI = false;
+	const layoutKeys = ["showSideBar", "showAppPanel", "showPiano", "patternViewMode"];
+	// Source configuration flags must not be overridden by saved user preferences.
+	const featureKeys = ["enableHorizontalView", "enableWideLayout", "enableAdvancedSampleEditor", "enableXIInstruments", "enableAIFFImport", "enableRememberLayout"];
 
 	me.readSettings = function(){
 		var settings = Storage.get("bassoonTrackerSettings");
@@ -40,6 +43,9 @@ var Settings = (function(){
 			showPiano: SETTINGS.showPiano,
 			patternViewMode: SETTINGS.patternViewMode
 		};
+		if (!SETTINGS.enableRememberLayout) {
+			layoutKeys.forEach(key => delete settings[key]);
+		}
 		Storage.set("bassoonTrackerSettings",JSON.stringify(settings));
 	};
 
@@ -54,6 +60,8 @@ var Settings = (function(){
 		
 		if (!settings) return;
 		for (var key in settings){
+			if (featureKeys.includes(key)) continue;
+			if (!SETTINGS.enableRememberLayout && layoutKeys.includes(key)) continue;
 			if (SETTINGS.hasOwnProperty(key) && settings.hasOwnProperty(key)){
 				SETTINGS[key] = settings[key];
 				if (key === "skipFrame"){
@@ -62,6 +70,8 @@ var Settings = (function(){
 				}
 			}
 		}
+
+		if (!SETTINGS.enableHorizontalView) SETTINGS.patternViewMode = "vertical";
 
 		if (typeof SETTINGS.showSideBar !== "undefined") {
 			Layout.hasSideBar = !!SETTINGS.showSideBar;
@@ -76,7 +86,10 @@ var Settings = (function(){
 	};
 
 	me.applyUIState = function(){
+		if (!SETTINGS.enableRememberLayout) return;
 		isApplyingUI = true;
+
+		if (!SETTINGS.enableHorizontalView) SETTINGS.patternViewMode = "vertical";
 
 		if (typeof SETTINGS.showSideBar !== "undefined") {
 			Layout.hasSideBar = !!SETTINGS.showSideBar;
@@ -105,7 +118,7 @@ var Settings = (function(){
 			}
 		}
 
-		if (SETTINGS.patternViewMode === "horizontal") {
+		if (SETTINGS.enableHorizontalView && SETTINGS.patternViewMode === "horizontal") {
 			EventBus.trigger(EVENT.showView, "multitrack");
 		} else if (SETTINGS.patternViewMode === "vertical") {
 			EventBus.trigger(EVENT.showView, "main");
@@ -133,7 +146,7 @@ var Settings = (function(){
 	}
 
 	EventBus.on(EVENT.appLayoutChanged, () => {
-		if (isApplyingUI) return;
+		if (isApplyingUI || !SETTINGS.enableRememberLayout) return;
 		if (typeof Layout.hasSideBar !== "undefined") {
 			SETTINGS.showSideBar = Layout.hasSideBar;
 			me.saveSettings();
@@ -141,7 +154,7 @@ var Settings = (function(){
 	});
 
 	EventBus.on(COMMAND.toggleAppPanel, () => {
-		if (isApplyingUI) return;
+		if (isApplyingUI || !SETTINGS.enableRememberLayout) return;
 		setTimeout(() => {
 			const UI = window.UI;
 			if (UI && UI.mainPanel && UI.mainPanel._appPanel) {
@@ -152,7 +165,7 @@ var Settings = (function(){
 	});
 
 	EventBus.on(EVENT.toggleView, view => {
-		if (isApplyingUI) return;
+		if (isApplyingUI || !SETTINGS.enableRememberLayout) return;
 		const UI = window.UI;
 		if (view === "piano" && UI && UI.mainPanel && UI.mainPanel._pianoPanel) {
 			SETTINGS.showPiano = UI.mainPanel._pianoPanel.isVisible();
@@ -161,7 +174,8 @@ var Settings = (function(){
 	});
 
 	EventBus.on(EVENT.showView, view => {
-		if (isApplyingUI) return;
+		if (isApplyingUI || !SETTINGS.enableRememberLayout) return;
+		if (view === "multitrack" && !SETTINGS.enableHorizontalView) return;
 		if (view === "multitrack") {
 			SETTINGS.patternViewMode = "horizontal";
 			me.saveSettings();

@@ -7,7 +7,7 @@ import Label from "../components/label.js";
 import SpinBox from "../spinBox.js";
 import Layout from "./layout.js";
 import EventBus from "../../eventBus.js";
-import {COMMAND, EVENT, TRACKERMODE} from "../../enum.js";
+import {COMMAND, EVENT, TRACKERMODE, SETTINGS} from "../../enum.js";
 import Tracker from "../../tracker.js";
 import Y from "../yascal/yascal.js";
 import Font from "../font.js";
@@ -159,6 +159,7 @@ export default class ControlPanel extends PanelContainer {
         this._viewRowsButton.paddingTopActive = buttonProperties.paddingTopActive;
         this._viewRowsButton.tooltip          = "Row view";
         this._viewRowsButton.onDown = () => {
+            if (!SETTINGS.enableHorizontalView) return;
             this._viewRowsButton.isActive    = true;
             this._viewColumnsButton.isActive = false;
             EventBus.trigger(EVENT.showView, "multitrack");
@@ -175,6 +176,10 @@ export default class ControlPanel extends PanelContainer {
             for (let i = 0; i < 4; i++) ctx.fillRect(startX, startY + i * (lineH + gap), lineW, lineH);
         };
         this.addChild(this._viewRowsButton);
+        if (!SETTINGS.enableHorizontalView) {
+            this._viewColumnsButton.hide();
+            this._viewRowsButton.hide();
+        }
 
         this._labelTrackerMode = new Label(0, 0, 100, 20);
         this._labelTrackerMode.label     = "Mode";
@@ -216,6 +221,7 @@ export default class ControlPanel extends PanelContainer {
         this.addChild(this._trackCountSpinbox);
 
         this.on(EVENT.showView, view => {
+                if (view === "multitrack" && !SETTINGS.enableHorizontalView) return;
                 switch (view) {
                     case "diskop_load": case "diskop_save":
                     case "diskop_samples_load": case "diskop_modules_load":
@@ -319,7 +325,8 @@ export default class ControlPanel extends PanelContainer {
         });
         this._buttonSampleEdit.label = buttonSampleLabel;
 
-        const marginLeft = Math.max(0, Layout.modeButtonsWidth - 167);
+        const viewButtonsWidth = SETTINGS.enableHorizontalView ? 66 : 0;
+        const marginLeft = Math.max(0, Layout.modeButtonsWidth - 101 - viewButtonsWidth);
         this._modButton.setDimensions({
             left:   Layout.modeButtonsLeft + marginLeft,
             top:    row1Top,
@@ -365,7 +372,7 @@ export default class ControlPanel extends PanelContainer {
         this._labelTrackerMode.setDimensions({
             left:   Layout.modeButtonsLeft  + Layout.TrackCountSpinboxWidth,
             top:    row1Top + 1,
-            width:  Math.max(0, Layout.modeButtonsWidth - 160 - Layout.TrackCountSpinboxWidth),
+            width:  Math.max(0, Layout.modeButtonsWidth - 94 - viewButtonsWidth - Layout.TrackCountSpinboxWidth),
             height: 20
         });
         this._labelTrackView.setDimensions({

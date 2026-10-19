@@ -377,7 +377,7 @@ let Input = (function(){
 					UI.clearSelection();
 					break;
 				case "Space":
-					if (Layout.sampleViewVisible){
+					if (SETTINGS.enableAdvancedSampleEditor && Layout.sampleViewVisible){
 						EventBus.trigger(EVENT.sampleEditorTogglePlayback);
 						return;
 					}

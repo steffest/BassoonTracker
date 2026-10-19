@@ -4,7 +4,7 @@ import Button from "../ui/components/button.js";
 import Inputbox from "../ui/components/inputbox.js";
 import RadioGroup from "../ui/components/radiogroup.js";
 import Assets from "../ui/assets.js";
-import {EVENT, FILETYPE, MODULETYPE, SAMPLETYPE, PLAYLISTTYPE} from "../enum.js";
+import {EVENT, FILETYPE, MODULETYPE, SAMPLETYPE, PLAYLISTTYPE, SETTINGS} from "../enum.js";
 import EventBus from "../eventBus.js";
 import Tracker from "../tracker.js";
 import Editor from "../editor.js";
@@ -42,7 +42,7 @@ let DiskOperationSave = function(){
 		{label:"wav 16 bit",active:false, extention:".wav", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RIFF_16BIT},
 		{label:"wav 8 bit",active:true, extention:".wav", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RIFF_8BIT},
 		{label:"RAW 8 bit",active:false, extention:".sample", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.RAW_8BIT},
-		{label:"xi",active:false, extention:".xi", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.XI}
+		...(SETTINGS.enableXIInstruments ? [{label:"xi",active:false, extention:".xi", fileType: FILETYPE.sample, fileFormat: SAMPLETYPE.XI}] : [])
 	];
 	selectTypes[FILETYPE.playlist] = [
 		{label:"PLS",active:true, extention:".pls", fileType: FILETYPE.playlist, fileFormat: PLAYLISTTYPE.PLS},
@@ -82,6 +82,7 @@ let DiskOperationSave = function(){
 		if (mainFileType === FILETYPE.sample){
 
 			if (saveAsFileFormat === SAMPLETYPE.XI){
+				if (!SETTINGS.enableXIInstruments) return;
 				FastTracker().writeXI(Tracker.getCurrentInstrumentIndex(), function(file){
 					if (!file) return;
 					var b = new Blob([file.buffer], {type: "application/octet-stream"});

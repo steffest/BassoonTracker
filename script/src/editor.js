@@ -516,6 +516,7 @@ var Editor = (function(){
     };
 
     me.importInstrument = function(file, name, loaderFactory){
+        if (!SETTINGS.enableXIInstruments) return;
         console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + Tracker.getCurrentInstrumentIndex());
 
         var loader = loaderFactory ? loaderFactory() : FastTracker();
@@ -540,6 +541,10 @@ var Editor = (function(){
     };
 
     me.importSample = function(file,name){
+        if (!SETTINGS.enableAIFFImport && file.readString(4, 0) === "FORM") {
+            const subtype = file.readString(4, 8);
+            if (subtype === "AIFF" || subtype === "AIFC") return;
+        }
         console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + Tracker.getCurrentInstrumentIndex());
 
         var instrument = Tracker.getCurrentInstrument() || Instrument();

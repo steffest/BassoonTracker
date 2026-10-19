@@ -30,28 +30,9 @@ var ProTracker = function(){
 		song.typeId = file.readString(4,1080);
 		song.title = file.readString(20,0);
 
-		if (song.typeId === "2CHN") channelCount = 2;
-		if (song.typeId === "3CHN") channelCount = 3;
-		if (song.typeId === "5CHN") channelCount = 5;
-		if (song.typeId === "6CHN") channelCount = 6;
-		if (song.typeId === "7CHN") channelCount = 7;
-		if (song.typeId === "8CHN") channelCount = 8;
-		if (song.typeId === "9CHN") channelCount = 9;
-		if (song.typeId === "10CH") channelCount = 10;
-		if (song.typeId === "11CH") channelCount = 11;
-		if (song.typeId === "12CH") channelCount = 12;
-		if (song.typeId === "13CH") channelCount = 13;
-		if (song.typeId === "14CH") channelCount = 14;
-		if (song.typeId === "15CH") channelCount = 15;
-		if (song.typeId === "16CH") channelCount = 16;
-		if (song.typeId === "18CH") channelCount = 18;
-		if (song.typeId === "20CH") channelCount = 20;
-		if (song.typeId === "22CH") channelCount = 22;
-		if (song.typeId === "24CH") channelCount = 24;
-		if (song.typeId === "26CH") channelCount = 26;
-		if (song.typeId === "28CH") channelCount = 28;
-		if (song.typeId === "30CH") channelCount = 30;
-		if (song.typeId === "32CH") channelCount = 32;
+		if (/^(?:[2-9]CHN|[12][0-9]CH|3[0-2]CH)$/.test(song.typeId)){
+			channelCount = parseInt(song.typeId, 10);
+		}
 
 		song.channels = channelCount;
 
@@ -272,7 +253,7 @@ var ProTracker = function(){
 			file.writeUByte(p);
 		}
 
-		file.writeString( trackCount == 8 ? "8CHN" : "M.K.");
+		file.writeString(trackCount === 4 ? "M.K." : trackCount < 10 ? trackCount + "CHN" : trackCount + "CH");
 
 		// pattern Data
 
@@ -282,10 +263,10 @@ var ProTracker = function(){
 
 			// TODO - should be patternLength of pattern;
 			for (var step = 0; step<patternLength; step++){
-				var row = patternData[step];
+				var row = patternData && patternData[step];
 				for (var channel = 0; channel < trackCount; channel++){
-					if (row){
-						var trackStep = row[channel];
+					var trackStep = row && row[channel];
+					if (trackStep){
 						var uIndex = 0;
 						var lIndex = trackStep.instrument;
 
