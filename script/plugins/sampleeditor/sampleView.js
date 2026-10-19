@@ -1,3 +1,4 @@
+import {markSampleDataChanged} from "../../src/audio/sampleBuffer.js";
 import Panel from "../../src/ui/components/panel.js";
 import Assets from "../../src/ui/assets.js";
 import Y from "../../src/ui/yascal/yascal.js";
@@ -883,6 +884,7 @@ let SampleView = function(){
 				for (var i = 0; i < len; i++) {
 					data[i] = Math.round(data[i] * 127) / 127;
 				}
+				markSampleDataChanged(instrument.sample);
 				instrument.sample.bits = 8;
 				bit8Button.setActive(true);
 				bit16Button.setActive(false);

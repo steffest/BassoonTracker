@@ -1,3 +1,4 @@
+import {SETTINGS} from "./enum.js";
 import UI from "./ui/ui.js"
 import FetchService from "./fetchService.js";
 import {createSlug} from "./lib/util.js";
@@ -7,7 +8,9 @@ var Logger = function(){
 
     var baseUrl = "https://www.stef.be/bassoontracker/api/log/";
 
-    me.info = function(message){log("info",message)};
+    me.info = function(message){
+        if (!SETTINGS.gateDebugLogging) log("info",message);
+    };
     me.warn = function(message){
         console.warn(message);
         log("warn",message)

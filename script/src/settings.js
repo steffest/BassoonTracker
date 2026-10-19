@@ -9,7 +9,7 @@ var Settings = (function(){
 	var isApplyingUI = false;
 	const layoutKeys = ["showSideBar", "showAppPanel", "showPiano", "patternViewMode"];
 	// Source configuration flags must not be overridden by saved user preferences.
-	const featureKeys = ["enableHorizontalView", "enableWideLayout", "enableAdvancedSampleEditor", "enableXIInstruments", "enableAIFFImport", "enableRememberLayout"];
+	const featureKeys = ["enableHorizontalView", "enableWideLayout", "enableAdvancedSampleEditor", "enableXIInstruments", "enableAIFFImport", "enableRememberLayout", "enableMinMaxScopes", "gateDebugLogging"];
 
 	me.readSettings = function(){
 		var settings = Storage.get("bassoonTrackerSettings");

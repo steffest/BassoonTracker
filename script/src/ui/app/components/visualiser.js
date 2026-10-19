@@ -1,7 +1,7 @@
 import Panel from "../../components/panel.js";
 import Y from "../../yascal/yascal.js";
 import EventBus from "../../../eventBus.js";
-import {EVENT} from "../../../enum.js";
+import {EVENT, SETTINGS} from "../../../enum.js";
 import Audio from "../../../audio.js";
 import Tracker from "../../../tracker.js";
 import UI from "../../ui.js";
@@ -17,6 +17,7 @@ export default class Visualiser extends Panel {
     _analyserPos = [];
     _analyserSize = 512;
     _analyserAmp  = 1.5;
+    _scopeData = null;
 
     constructor() {
         super(0, 0, 20, 20);
@@ -80,7 +81,7 @@ export default class Visualiser extends Panel {
         this._modeIndex++;
         if (this._modeIndex >= this._modes.length) this._modeIndex = 0;
         this._mode = this._modes[this._modeIndex];
-        console.log("setting visualiser to mode " + this._mode);
+        if (!SETTINGS.gateDebugLogging) console.log("setting visualiser to mode " + this._mode);
     }
 
     render() {
@@ -122,7 +123,11 @@ export default class Visualiser extends Panel {
 
         const hasVolume   = !Audio.cutOff;
         const bufferLength = this._analyserSize;
-        const dataArray   = new Uint8Array(bufferLength);
+        if (!this._scopeData || this._scopeData.length !== bufferLength) {
+            this._scopeData = new Uint8Array(bufferLength);
+        }
+        // Each analyser is read and drawn synchronously, so all tracks share one buffer.
+        const dataArray = this._scopeData;
 
         for (let trackIndex = 0; trackIndex < Tracker.getTrackCount(); trackIndex++) {
             const track  = this._trackAnalyser[trackIndex];
@@ -140,19 +145,23 @@ export default class Visualiser extends Panel {
                 if (hasVolume && !isMute) {
                     track.fftSize = this._analyserSize;
                     track.getByteTimeDomainData(dataArray);
-                    const sliceWidth = ww / bufferLength;
 
-                    for (let i = 0; i < bufferLength; i++) {
-                        const v      = dataArray[i] / 128.0;
-                        let offsetY  = 0;
-                        let vScaled  = v;
-                        if (this._analyserAmp > 1) {
-                            vScaled  = v * this._analyserAmp;
-                            offsetY  = pos.height / 2 - pos.height / 2 * this._analyserAmp;
+                    if (SETTINGS.enableMinMaxScopes && bufferLength > ww * 2) {
+                        this._drawMinMaxScope(dataArray, pos);
+                    } else {
+                        const sliceWidth = ww / bufferLength;
+                        for (let i = 0; i < bufferLength; i++) {
+                            const v      = dataArray[i] / 128.0;
+                            let offsetY  = 0;
+                            let vScaled  = v;
+                            if (this._analyserAmp > 1) {
+                                vScaled  = v * this._analyserAmp;
+                                offsetY  = pos.height / 2 - pos.height / 2 * this._analyserAmp;
+                            }
+                            wy = vScaled * pos.height / 2 + pos.top + offsetY;
+                            if (i === 0) this.ctx.moveTo(wx, wy); else this.ctx.lineTo(wx, wy);
+                            wx += sliceWidth;
                         }
-                        wy = vScaled * pos.height / 2 + pos.top + offsetY;
-                        if (i === 0) this.ctx.moveTo(wx, wy); else this.ctx.lineTo(wx, wy);
-                        wx += sliceWidth;
                     }
                 } else {
                     wy = pos.height / 2 + pos.top;
@@ -173,6 +182,41 @@ export default class Visualiser extends Panel {
             this.parent.refresh();
         } else {
             UI.getContext().drawImage(this.canvas, this.left, this.top);
+        }
+    }
+
+    _drawMinMaxScope(data, pos) {
+        const step = pos.lineWidth / data.length;
+        const amp = this._analyserAmp > 1 ? this._analyserAmp : 1;
+        const offsetY = pos.height / 2 - pos.height / 2 * amp;
+        this.ctx.moveTo(pos.lineLeft, (data[0] / 128 * amp) * pos.height / 2 + pos.top + offsetY);
+        let lastIndex = 0;
+        let i = 0;
+        while (i < data.length) {
+            const column = Math.floor(pos.lineLeft + i * step);
+            let minIndex = i, maxIndex = i;
+            do {
+                if (data[i] < data[minIndex]) minIndex = i;
+                if (data[i] > data[maxIndex]) maxIndex = i;
+                i++;
+            } while (i < data.length && Math.floor(pos.lineLeft + i * step) === column);
+
+            // Keep both extrema in sample order so the trace never doubles back.
+            const first = Math.min(minIndex, maxIndex);
+            const second = Math.max(minIndex, maxIndex);
+            for (let point = 0; point < 2; point++) {
+                const index = point === 0 ? first : second;
+                if (index <= lastIndex) continue;
+                const y = (data[index] / 128 * amp) * pos.height / 2 + pos.top + offsetY;
+                this.ctx.lineTo(pos.lineLeft + index * step, y);
+                lastIndex = index;
+            }
+        }
+        // The final sample need not be an extremum, particularly on flat signals.
+        const end = data.length - 1;
+        if (lastIndex !== end) {
+            const y = (data[end] / 128 * amp) * pos.height / 2 + pos.top + offsetY;
+            this.ctx.lineTo(pos.lineLeft + end * step, y);
         }
     }
 

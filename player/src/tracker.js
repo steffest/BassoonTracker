@@ -359,7 +359,7 @@ var Tracker = (function(){
 							if (me.autoPlay && stepResult.positionBreak){
 								if (nextPosition<playSongPosition){
 									// check if we are not in an endless playing loop when autoplay is enabled
-									console.log("Backwards Position Jump in autoPlay, checking for endless loop");
+									if (!SETTINGS.gateDebugLogging) console.log("Backwards Position Jump in autoPlay, checking for endless loop");
 
 									// TODO: it would be better to scan if the patterns after the pattern break are used in the songlist.
 									// quite a few files have unused patterns at the end.
@@ -524,7 +524,7 @@ var Tracker = (function(){
 
 			if (SETTINGS.emulateProtracker1OffsetBug && instrumentIndex && trackEffectCache[track].offset){
 				if (trackEffectCache[track].offset.instrument === instrumentIndex){
-					console.log("applying instrument offset cache to instrument " + instrumentIndex);
+					if (!SETTINGS.gateDebugLogging) console.log("applying instrument offset cache to instrument " + instrumentIndex);
 					trackEffects.offset = trackEffectCache[track].offset;
 				}
 			}
@@ -552,7 +552,7 @@ var Tracker = (function(){
 		if (SETTINGS.useSampleSwapping && instrument && !notePeriod){
 			if (!me.inFTMode()){
 				// TODO: how does swapping in FT works exactly?
-				console.warn("sample swap");
+				if (!SETTINGS.gateDebugLogging) console.warn("sample swap");
 				let current = trackNotes[track];
 				if (current){
 
@@ -615,7 +615,7 @@ var Tracker = (function(){
 				if (offInstrument){
 					volume = offInstrument.noteOff(time,trackNotes[track]);
 				}else{
-					console.log("no instrument on track " + track);
+					if (!SETTINGS.gateDebugLogging) console.log("no instrument on track " + track);
 					volume = 0;
 				}
 				defaultVolume = volume;
@@ -1214,12 +1214,12 @@ var Tracker = (function(){
 								result.targetSongPosition = songPos.position; // keep on same position
 								result.targetPatternPosition = patternLoopStart[track] || 0; // should we default to 0 if no start was set or just ignore?
 
-								console.log("looping to " + result.targetPatternPosition + " for "  + patternLoopCount[track] + "/" + subValue);
+								if (!SETTINGS.gateDebugLogging) console.log("looping to " + result.targetPatternPosition + " for "  + patternLoopCount[track] + "/" + subValue);
 							}else{
 								patternLoopCount[track] = 0;
 							}
 						}else{
-							console.log("setting loop start to " + songPos.step + " on track " + track);
+							if (!SETTINGS.gateDebugLogging) console.log("setting loop start to " + songPos.step + " on track " + track);
 							patternLoopStart[track] = songPos.step;
 						}
 						break;
@@ -1374,7 +1374,7 @@ var Tracker = (function(){
 								defaultVolume = volume;
 							}
 						}else{
-							console.log("no instrument on track " + track);
+							if (!SETTINGS.gateDebugLogging) console.log("no instrument on track " + track);
 							defaultVolume = 0;
 						}
 					}
@@ -1738,7 +1738,7 @@ var Tracker = (function(){
 	me.setBPM = function(newBPM,sender){
 		var fromMaster = (sender && sender.isMaster);
 		if (me.isMaster || fromMaster){
-			console.log("set BPM: " + bpm + " to " + newBPM);
+			if (!SETTINGS.gateDebugLogging) console.log("set BPM: " + bpm + " to " + newBPM);
 			if (clock) clock.timeStretch(Audio.context.currentTime, [mainTimer], bpm / newBPM);
 			if (!fromMaster) EventBus.trigger(EVENT.songBPMChangeIgnored,bpm);
 			bpm = newBPM;

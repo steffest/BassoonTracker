@@ -1,5 +1,5 @@
 import EventBus from "../eventBus.js";
-import {EDITACTION, EVENT} from "../enum.js";
+import {EDITACTION, EVENT, SETTINGS} from "../enum.js";
 import Tracker from "../tracker.js";
 import Note from "../models/note.js";
 import UI from "./ui.js";
@@ -25,9 +25,9 @@ var StateManager = function(){
 					if (lastAction && lastAction.type === action.type && lastAction.id===action.id){
 						doRegister = false;
 						lastAction.to = action.to;
-						console.log("Ignoring sequential Undo, to: " + action.to);
+						if (!SETTINGS.gateDebugLogging) console.log("Ignoring sequential Undo, to: " + action.to);
 					}else{
-						console.log("Add Value Undo");
+						if (!SETTINGS.gateDebugLogging) console.log("Add Value Undo");
 					}
 					break;
 			}

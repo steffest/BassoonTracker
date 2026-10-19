@@ -1,5 +1,5 @@
 import EventBus from "../eventBus.js";
-import {COMMAND, EVENT, PLAYLISTTYPE} from "../enum.js";
+import {COMMAND, EVENT, PLAYLISTTYPE, SETTINGS} from "../enum.js";
 import Tracker from "../tracker.js";
 import {saveFile} from "../filesystem.js";
 import Dropbox from "../provider/dropbox.js";
@@ -94,7 +94,7 @@ var Playlist = function(){
                     var url;
                     var title;
                     if (line.startsWith("File")){
-                        console.log(line);
+                        if (!SETTINGS.gateDebugLogging) console.log(line);
                         let i = line.indexOf("=");
                         url = line.substring(i+1).trim();
                         var index = line.substring(4).split("=")[0].trim();

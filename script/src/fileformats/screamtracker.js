@@ -1,5 +1,5 @@
 import Tracker from "../tracker.js";
-import {EVENT, LOOPTYPE, TRACKERMODE} from "../enum.js";
+import {EVENT, LOOPTYPE, TRACKERMODE, SETTINGS} from "../enum.js";
 import Note from "../models/note.js";
 import Instrument from "../models/instrument.js";
 import Sample from "../models/sample.js";
@@ -10,7 +10,7 @@ var ScreamTracker = function(){
 
 	me.load = function(file,name){
 
-		console.log("loading ScreamTracker");
+		if (!SETTINGS.gateDebugLogging) console.log("loading ScreamTracker");
 		Tracker.setTrackerMode(TRACKERMODE.FASTTRACKER,true);
 		Tracker.useLinearFrequency = false;
 		Tracker.clearInstruments(1);

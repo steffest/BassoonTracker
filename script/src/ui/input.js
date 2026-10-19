@@ -319,7 +319,7 @@ let Input = (function(){
 			};
 			isMetaKeyDown = (meta.command || meta.control || meta.alt || meta.shift);
 
-			console.log(key);
+			if (!SETTINGS.gateDebugLogging) console.log(key);
 			if (focusElement && focusElement.onKeyDown){
 				var handled = focusElement.onKeyDown(keyCode,event);
 				if (handled) return;
@@ -627,16 +627,16 @@ let Input = (function(){
 		}
 
 		function handleCut(e) {
-			console.error("cut");
+			if (!SETTINGS.gateDebugLogging) console.error("cut");
 			UI.cutSelection(true);
 		}
 		function handleUndo(e) {
-			console.error("undo");
+			if (!SETTINGS.gateDebugLogging) console.error("undo");
 		}
 
 
 		function handleDelete(e) {
-			console.error("delete");
+			if (!SETTINGS.gateDebugLogging) console.error("delete");
 		}
 
 		function isMetaKeyCode(keyCode){
@@ -663,7 +663,7 @@ let Input = (function(){
 		if (focusElement){
 			var fName = focusElement.name || focusElement.type;
 			if (fName === name){
-				console.log(name + " already has focus");
+				if (!SETTINGS.gateDebugLogging) console.log(name + " already has focus");
 				return;
 			}else{
 				if (focusElement.deActivate) focusElement.deActivate()
@@ -671,7 +671,7 @@ let Input = (function(){
 		}
 		focusElement = element;
 		if (name){
-			console.log("setting focus to " + name);
+			if (!SETTINGS.gateDebugLogging) console.log("setting focus to " + name);
 		}else{
 			console.warn("Warning: setting focus to an unnamed element can cause unexpected results")
 		}
@@ -681,7 +681,7 @@ let Input = (function(){
 		if (element){
 			if (!element.name) console.warn("Please specify a name for the target object when removing focus");
 			var name = element.name || element.type;
-			if (name) console.log("removing focus from " + name);
+			if (name) { if (!SETTINGS.gateDebugLogging) console.log("removing focus from " + name); }
 			if (element.deActivate) element.deActivate();
 			if (focusElement && focusElement.name === element.name){
 				focusElement = undefined;
@@ -776,8 +776,8 @@ let Input = (function(){
 
         if (Tracker.isRecording()){
             if (Editor.getCurrentTrackPosition() > 0){
-				console.error(key);
-				console.error(keyChar);
+				if (!SETTINGS.gateDebugLogging) console.error(key);
+				if (!SETTINGS.gateDebugLogging) console.error(keyChar);
                 // cursorPosition is not on note
                 doPlay = false;
                 var re = /[0-9A-Fa-f]/g;

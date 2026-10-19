@@ -15,7 +15,7 @@ var Midi = function(){
 			// TODO: does a browser that supports requestMIDIAccess also always support promises?
 			navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
 			function onMIDISuccess(midiAccess) {
-				console.log("Midi enabled");
+				if (!SETTINGS.gateDebugLogging) console.log("Midi enabled");
 				enabled = true;
 				var inputs = midiAccess.inputs;
 				var outputs = midiAccess.outputs;
@@ -34,7 +34,7 @@ var Midi = function(){
 				
 			}
 			function onMIDIFailure() {
-				console.log('Could not access your MIDI devices.');
+				if (!SETTINGS.gateDebugLogging) console.log('Could not access your MIDI devices.');
 			}
 		} else {
 			console.warn("Midi not supported");
@@ -87,7 +87,7 @@ var Midi = function(){
 				}
 				break;
 			case 176:
-				console.log("Midi: set effect",data[1],data[2]);
+				if (!SETTINGS.gateDebugLogging) console.log("Midi: set effect",data[1],data[2]);
 				break;
 			case 192:
 				// select voice
@@ -95,7 +95,7 @@ var Midi = function(){
 				Tracker.setCurrentInstrumentIndex(index+1);
 				break;
 			case 224:
-				console.log("Modulator",data[1],data[2]);
+				if (!SETTINGS.gateDebugLogging) console.log("Modulator",data[1],data[2]);
 				break;
 			default:
 				//console.log("Midi In:",data);
@@ -105,7 +105,7 @@ var Midi = function(){
 	}
 	
 	function noteOn(note,value){
-		console.log("note on",note,value);
+		if (!SETTINGS.gateDebugLogging) console.log("note on",note,value);
 		
 		// middle C is 60 - in Bassoon this is 13
 		var key = note - 47; 
@@ -118,7 +118,7 @@ var Midi = function(){
 	}
 
 	function noteOff(note,value){
-		console.log("note off",note,value);
+		if (!SETTINGS.gateDebugLogging) console.log("note off",note,value);
 
 		var key = note - 47;
 		var octave = Input.getCurrentOctave();

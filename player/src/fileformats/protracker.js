@@ -137,7 +137,7 @@ var ProTracker = function(){
 		for(i=1; i <= instrumentCount; i++) {
 			instrument = Tracker.getInstrument(i);
 			if (instrument){
-				console.log(
+				if (!SETTINGS.gateDebugLogging) console.log(
 					"Reading sample from 0x" + file.index + " with length of " + instrument.sample.length + " bytes and repeat length of " + instrument.sample.loop.length);
 
 

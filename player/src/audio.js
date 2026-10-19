@@ -133,7 +133,7 @@ var Audio = (function(){
             scheduledNotes[index] = [];
         });
 
-        if (totalNotes) console.log(totalNotes + " cleared");
+        if (totalNotes) { if (!SETTINGS.gateDebugLogging) console.log(totalNotes + " cleared"); }
     };
 
     me.checkState = function(){

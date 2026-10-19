@@ -1,3 +1,4 @@
+import {SETTINGS} from "./enum.js";
 import Tracker from "./tracker.js";
 import Audio from "./audio.js";
 import UI from "./ui/ui.js"
@@ -11,7 +12,7 @@ var Main = function(){
     var me = {};
 
     me.init = function(){
-        console.log("initialising");
+        if (!SETTINGS.gateDebugLogging) console.log("initialising");
         Host.init();
         Tracker.init();
         Audio.init();

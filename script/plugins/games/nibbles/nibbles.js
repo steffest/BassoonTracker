@@ -1,3 +1,4 @@
+import {SETTINGS} from "../../../src/enum.js";
 var Nibbles = function(){
 	var me = {
 		name: "nibbles"
@@ -118,7 +119,7 @@ var Nibbles = function(){
 		}
 
 		game.start = function(){
-			console.log("start game");
+			if (!SETTINGS.gateDebugLogging) console.log("start game");
 			game.hideInfo();
 			direction = DIRECTION.LEFT;
 			nextDirection = undefined;
@@ -1207,7 +1208,7 @@ var Nibbles = function(){
 	}
 	
 	me.init = function(mapping){
-		console.log("Init Nibbles");
+		if (!SETTINGS.gateDebugLogging) console.log("Init Nibbles");
 		host = mapping.UI || mapping;
 		host.UI = host.UI || host;
 		host.Input.setFocusElement(me);
@@ -1271,7 +1272,7 @@ var Nibbles = function(){
 		host.EventBus.trigger(host.EVENT.pluginRenderHook,{
 			target: "main",
 			setRenderTarget:function(element){
-				console.log("Set Nibbles render target to ",element);
+				if (!SETTINGS.gateDebugLogging) console.log("Set Nibbles render target to ",element);
 				
 				renderTarget = element;
 				gameControls.attach(game);
@@ -1284,7 +1285,7 @@ var Nibbles = function(){
 				}
 
 				renderTarget.onHide = function(){
-					console.log("Removing Nibbles");
+					if (!SETTINGS.gateDebugLogging) console.log("Removing Nibbles");
 					// destroy the instance and hooks on the renderTarget
 					if (registeredRenderEvent) host.EventBus.off(host.EVENT.screenRender,registeredRenderEvent);
 					registeredRenderEvent = null;

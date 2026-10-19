@@ -62,20 +62,20 @@ var UI = function(){
 
 		var plugin = PluginLoader.get(name);
 		if (plugin.loaded){
-			console.log("OK");
+			if (globalThis.BassoonTrackerSettings?.gateDebugLogging === false) console.log("OK");
 			show();
 		}else{
 			console.error("plugin not ready");
 			plugin.onLoad = function(){
 				container.addChild(plugin);
-				console.log("plugin added");
+				if (globalThis.BassoonTrackerSettings?.gateDebugLogging === false) console.log("plugin added");
 				if (plugin.init) plugin.init();
 				show();
 			}
 		}
 
 		function show(){
-			console.log("show");
+			if (globalThis.BassoonTrackerSettings?.gateDebugLogging === false) console.log("show");
 			plugin.show(true);
 		}
 	};
@@ -97,7 +97,7 @@ var UI = function(){
 				ctx.fillStyle = "black";
 				ctx.fillRect(0,0,canvas.width,canvas.height);
 
-				console.log("render");
+				if (globalThis.BassoonTrackerSettings?.gateDebugLogging === false) console.log("render");
 
 				children.forEach(function(element){
 					element.render();

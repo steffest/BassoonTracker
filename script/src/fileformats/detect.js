@@ -61,7 +61,7 @@ let FileDetector = function(){
 		if (length>1100){
 			id = file.readString(4,1080); // M.K.
 		}
-		console.log("Format ID: " + id);
+		if (!SETTINGS.gateDebugLogging) console.log("Format ID: " + id);
 
 		if (id === "M.K.") return fileType.mod_ProTracker;
 		if (id === "M!K!") return fileType.mod_ProTracker; // more than 64 patterns
@@ -104,11 +104,11 @@ let FileDetector = function(){
 			}
 
 			function isST(){
-				console.log("Checking for old 15 instrument soundtracker format");
+				if (!SETTINGS.gateDebugLogging) console.log("Checking for old 15 instrument soundtracker format");
 				file.goto(0);
 				for (let i = 0; i<20;i++) if (!isAscii(file.readByte())) return false;
 
-				console.log("First 20 chars are ascii, checking Samples");
+				if (!SETTINGS.gateDebugLogging) console.log("First 20 chars are ascii, checking Samples");
 
 				// check samples
 				let totalSampleLength = 0;

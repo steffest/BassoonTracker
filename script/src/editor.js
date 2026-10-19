@@ -447,7 +447,7 @@ var Editor = (function(){
 		Audio.startRendering(length);
 
 		while (patternStep<maxPosition){
-			console.log("rendering step " + patternStep);
+			if (!SETTINGS.gateDebugLogging) console.log("rendering step " + patternStep);
 			var patternIndex = song.patternTable[patternStep];
 			var currentPatternData = song.patterns[patternIndex];
 			thisPatternLength = currentPatternData.length;
@@ -499,7 +499,7 @@ var Editor = (function(){
 			}
 
             if (target === "dropbox"){
-                Logger.info("save to dropbox " + fileName);
+                if (!SETTINGS.gateDebugLogging) Logger.info("save to dropbox " + fileName);
                 Dropbox.putFile("/" + fileName,b,function(success){
                     if (success){
                         UI.setStatus("");
@@ -508,7 +508,7 @@ var Editor = (function(){
                     }
                 });
             }else{
-                Logger.info("save " + fileName);
+                if (!SETTINGS.gateDebugLogging) Logger.info("save " + fileName);
                 saveFile(b,fileName);
                 UI.setStatus("");
             }
@@ -517,7 +517,7 @@ var Editor = (function(){
 
     me.importInstrument = function(file, name, loaderFactory){
         if (!SETTINGS.enableXIInstruments) return;
-        console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + Tracker.getCurrentInstrumentIndex());
+        if (!SETTINGS.gateDebugLogging) console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + Tracker.getCurrentInstrumentIndex());
 
         var loader = loaderFactory ? loaderFactory() : FastTracker();
         var instrument = loader.loadXI(file);
@@ -545,7 +545,7 @@ var Editor = (function(){
             const subtype = file.readString(4, 8);
             if (subtype === "AIFF" || subtype === "AIFC") return;
         }
-        console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + Tracker.getCurrentInstrumentIndex());
+        if (!SETTINGS.gateDebugLogging) console.log("Reading instrument " + name + " with length of " + file.length + " bytes to index " + Tracker.getCurrentInstrumentIndex());
 
         var instrument = Tracker.getCurrentInstrument() || Instrument();
         var baseName = name.replace(/\.[^.]+$/, "");
@@ -688,7 +688,7 @@ var Editor = (function(){
 	}
 
 	function unpackUrl(url){
-		console.log("unpacking url " + url);
+		if (!SETTINGS.gateDebugLogging) console.log("unpacking url " + url);
 		var id;
 		if (typeof url === "string") {
 			if (url.indexOf("ma-") === 0) {
@@ -707,7 +707,7 @@ var Editor = (function(){
 	}
 
 	function packUrl(url){
-		console.log("packing url " + url);
+		if (!SETTINGS.gateDebugLogging) console.log("packing url " + url);
 		if (typeof url === "string"){
 			if (url.indexOf("api.modarchive.org")>=0){
 				var moduleid = url.match(/moduleid=([0-9]+)/);
@@ -791,7 +791,7 @@ var Editor = (function(){
 					});
 				});
 			});
-			console.log(useCount);
+			if (!SETTINGS.gateDebugLogging) console.log(useCount);
 		}
 
 		editor.halfStepUp = index=>{
@@ -823,7 +823,7 @@ var Editor = (function(){
 				})
 			});
 			EventBus.trigger(EVENT.patternChange,currentPattern);
-			console.error(periodNoteTable);
+			if (!SETTINGS.gateDebugLogging) console.error(periodNoteTable);
 		}
 
 
@@ -865,7 +865,7 @@ var Editor = (function(){
 
 
 		let song = Tracker.getSong();
-		console.log(song);
+		if (!SETTINGS.gateDebugLogging) console.log(song);
 
 		let output = [];
 		let beats = [];
@@ -874,7 +874,7 @@ var Editor = (function(){
 
 		for (let i = 0; i<song.length; i++){
 			let pattern = song.patterns[song.patternTable[i]];
-			console.error(pattern);
+			if (!SETTINGS.gateDebugLogging) console.error(pattern);
 
 			pattern.forEach((step,stepIndex)=>{
 				let note = step[0];
@@ -966,7 +966,7 @@ var Editor = (function(){
 		if (Tracker.isPlaying()) Tracker.stop();
 
 		if (typeof lamejs === 'undefined') {
-			console.log("Loading lamejs MP3 encoder...");
+			if (!SETTINGS.gateDebugLogging) console.log("Loading lamejs MP3 encoder...");
 			await new Promise(function(resolve, reject) {
 				var script = document.createElement('script');
 				script.src = 'https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js';
@@ -988,7 +988,7 @@ var Editor = (function(){
 		}
 		totalLength += 0.5;
 
-		console.log('[renderToMp3] Scheduling ' + song.length + ' patterns (~' + totalLength.toFixed(1) + 's) at ' + bitrate + 'kbps...');
+		if (!SETTINGS.gateDebugLogging) console.log('[renderToMp3] Scheduling ' + song.length + ' patterns (~' + totalLength.toFixed(1) + 's) at ' + bitrate + 'kbps...');
 		var t0 = performance.now();
 
 		var time = 0.1;
@@ -1001,16 +1001,16 @@ var Editor = (function(){
 				time += ticksPerStep * tickTime;
 			}
 		}
-		console.log('[renderToMp3] Scheduling done (' + ((performance.now() - t0) / 1000).toFixed(2) + 's). Waiting for offline render...');
+		if (!SETTINGS.gateDebugLogging) console.log('[renderToMp3] Scheduling done (' + ((performance.now() - t0) / 1000).toFixed(2) + 's). Waiting for offline render...');
 
 		var heartbeat = setInterval(function() {
-			console.log('[renderToMp3] Still rendering... (' + ((performance.now() - t0) / 1000).toFixed(0) + 's elapsed)');
+			if (!SETTINGS.gateDebugLogging) console.log('[renderToMp3] Still rendering... (' + ((performance.now() - t0) / 1000).toFixed(0) + 's elapsed)');
 		}, 5000);
 
 		return new Promise(function(resolve, reject) {
 			Audio.stopRendering(function(renderedBuffer) {
 				try {
-					console.log('[renderToMp3] Offline render done (' + ((performance.now() - t0) / 1000).toFixed(2) + 's). Encoding MP3...');
+					if (!SETTINGS.gateDebugLogging) console.log('[renderToMp3] Offline render done (' + ((performance.now() - t0) / 1000).toFixed(2) + 's). Encoding MP3...');
 
 					var sampleRate = renderedBuffer.sampleRate;
 					var left = renderedBuffer.getChannelData(0);
@@ -1034,7 +1034,7 @@ var Editor = (function(){
 						}
 						var blockIndex = i / blockSize;
 						if (blockIndex % logEvery === 0) {
-							console.log('[renderToMp3] Encoding ' + Math.round(blockIndex / totalBlocks * 100) + '%...');
+							if (!SETTINGS.gateDebugLogging) console.log('[renderToMp3] Encoding ' + Math.round(blockIndex / totalBlocks * 100) + '%...');
 						}
 						var encoded = mp3encoder.encodeBuffer(
 							leftBlock.subarray(0, len),
@@ -1049,7 +1049,7 @@ var Editor = (function(){
 					var blob = new Blob(mp3Chunks, {type: 'audio/mpeg'});
 					var name = fileName || (song.title.replace(/ /g, '-').replace(/\W/g, '') || 'render') + '.mp3';
 					saveFile(blob, name);
-					console.log('[renderToMp3] Done in ' + ((performance.now() - t0) / 1000).toFixed(2) + 's — ' + name + ' (' + (blob.size / 1024).toFixed(1) + ' KB)');
+					if (!SETTINGS.gateDebugLogging) console.log('[renderToMp3] Done in ' + ((performance.now() - t0) / 1000).toFixed(2) + 's — ' + name + ' (' + (blob.size / 1024).toFixed(1) + ' KB)');
 					resolve(blob);
 				} catch(e) {
 					reject(e);

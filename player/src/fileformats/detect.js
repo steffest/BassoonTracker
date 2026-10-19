@@ -1,4 +1,4 @@
-import {FILETYPE} from "../enum.js";
+import {FILETYPE, SETTINGS} from "../enum.js";
 import ProTracker from "./protracker.js";
 import SoundTracker from "./soundtracker.js";
 import FastTracker from "./fasttracker.js";
@@ -51,7 +51,7 @@ let FileDetector = function(){
 		if (length>1100){
 			id = file.readString(4,1080); // M.K.
 		}
-		console.log("Format ID: " + id);
+		if (!SETTINGS.gateDebugLogging) console.log("Format ID: " + id);
 
 		let chn = "CHN";
 		let ch = "CH";
@@ -100,11 +100,11 @@ let FileDetector = function(){
 			}
 
 			function isST(){
-				console.log("Checking for old 15 instrument soundtracker format");
+				if (!SETTINGS.gateDebugLogging) console.log("Checking for old 15 instrument soundtracker format");
 				file.goto(0);
 				for (let i = 0; i<20;i++) if (!isAscii(file.readByte())) return false;
 
-				console.log("First 20 chars are ascii, checking Samples");
+				if (!SETTINGS.gateDebugLogging) console.log("First 20 chars are ascii, checking Samples");
 
 				// check samples
 				let totalSampleLength = 0;

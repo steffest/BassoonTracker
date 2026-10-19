@@ -126,7 +126,7 @@ let DiskOperationSave = function(){
 					saveFile(b,fileName);
 				}
 
-                console.log("write sample with " + sample.length + " length");
+                if (!SETTINGS.gateDebugLogging) console.log("write sample with " + sample.length + " length");
 
 			}
 		}

@@ -68,12 +68,12 @@ var Dropbox = function(){
         dropboxService.clearAccessToken();
         dropboxService.authenticate({client_id: 'ukk9z4f0nd1xa13',redirect_uri : authRedirect} , {
             onComplete:function(a){
-                console.log("ok!");
-                console.log(a);
+                if (!SETTINGS.gateDebugLogging) console.log("ok!");
+                if (!SETTINGS.gateDebugLogging) console.log(a);
             },
             onError:function(a){
                 console.error("not OK!");
-                console.log(a);
+                if (!SETTINGS.gateDebugLogging) console.log(a);
             }
         });
     };
@@ -104,9 +104,9 @@ var Dropbox = function(){
 
     me.getFile = function(file,next){
         dropboxService('files/download', {path: file.url}, function(result,a,b){
-            console.log(result);
-            console.log(a); // content
-            console.log(b);
+            if (!SETTINGS.gateDebugLogging) console.log(result);
+            if (!SETTINGS.gateDebugLogging) console.log(a); // content
+            if (!SETTINGS.gateDebugLogging) console.log(b);
             next(a);
         });
     };
@@ -124,9 +124,9 @@ var Dropbox = function(){
         UI.setStatus("Uploading to Dropbox...",true);
         dropboxService('files/upload', options, content,{
             onComplete : function(result,a,b){
-                console.log(result);
-                console.log(a);
-                console.log(b);
+                if (!SETTINGS.gateDebugLogging) console.log(result);
+                if (!SETTINGS.gateDebugLogging) console.log(a);
+                if (!SETTINGS.gateDebugLogging) console.log(b);
                 UI.setStatus("Done uploading to Dropbox");
                 if (next) next(result);
             },

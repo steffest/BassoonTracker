@@ -1,5 +1,5 @@
 import Tracker from "../tracker.js";
-import {EVENT, LOOPTYPE, TRACKERMODE} from "../enum.js";
+import {EVENT, LOOPTYPE, TRACKERMODE, SETTINGS} from "../enum.js";
 import Instrument from "../models/instrument.js";
 import EventBus from "../eventBus.js";
 
@@ -110,7 +110,7 @@ var SoundTracker = function(){
 		for(i=1; i <= instrumentCount; i++) {
 			instrument = Tracker.getInstrument(i);
 			if (instrument){
-				console.log("Reading sample from 0x" + file.index + " with length of " + instrument.sample.length + " bytes and repeat length of " + instrument.sample.loop.length);
+				if (!SETTINGS.gateDebugLogging) console.log("Reading sample from 0x" + file.index + " with length of " + instrument.sample.length + " bytes and repeat length of " + instrument.sample.loop.length);
 
 				var sampleEnd = instrument.sample.length;
 

@@ -1,3 +1,4 @@
+import {SETTINGS} from "../../enum.js";
 import UIElement from "./element.js";
 import Scale9Panel from "./scale9.js";
 import Y from "../yascal/yascal.js";
@@ -62,7 +63,7 @@ export default class TabPanel extends UIElement {
         internal = !!internal;
         if (!this.isVisible()) return;
         if (this.needsRendering) {
-            console.error("Rendering tab panel");
+            if (!SETTINGS.gateDebugLogging) console.error("Rendering tab panel");
             this.clearCanvas();
             const back = this._background.render(true);
             const y    = Layout.trackControlHeight - 2;

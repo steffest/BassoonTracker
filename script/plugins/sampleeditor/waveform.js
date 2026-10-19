@@ -1,3 +1,4 @@
+import {markSampleDataChanged} from "../../src/audio/sampleBuffer.js";
 import UIElement from "../../src/ui/components/element.js";
 import Scale9Panel from "../../src/ui/components/scale9.js";
 import Scrollbar from "../../src/ui/components/scrollbar.js";
@@ -240,6 +241,7 @@ let WaveForm = function(){
 			prevDrawY = y;
 			currentSampleData[si] = val;
 			currentInstrument.sample.data = currentSampleData;
+			markSampleDataChanged(currentInstrument.sample);
 			waveformDisplay.needsRendering = true;
 			me.refresh();
 			return;
@@ -297,6 +299,7 @@ let WaveForm = function(){
 			prevDrawX = cx;
 			prevDrawY = cy;
 			currentInstrument.sample.data = currentSampleData;
+			markSampleDataChanged(currentInstrument.sample);
 			waveformDisplay.needsRendering = true;
 			me.refresh();
 			return;
@@ -309,6 +312,7 @@ let WaveForm = function(){
 			var newValue = Math.min(1, Math.max(-1, dragSampleStartValue - (touchData.deltaY / maxHeight)));
 			currentSampleData[dragSampleIndex] = newValue;
 			currentInstrument.sample.data = currentSampleData;
+			markSampleDataChanged(currentInstrument.sample);
 			sampleEditDirty = true;
 			waveformDisplay.needsRendering = true;
 			me.refresh();
@@ -340,6 +344,7 @@ let WaveForm = function(){
 			}
 
 			currentInstrument.sample.data = currentSampleData;
+			markSampleDataChanged(currentInstrument.sample);
 			rangeHandleDirty = true;
 			waveformDisplay.needsRendering = true;
 			me.refresh();
@@ -1223,6 +1228,7 @@ let WaveForm = function(){
 	function joinRange(parts){
 		currentSampleData = parts.head.concat(parts.range).concat(parts.tail);
 		currentInstrument.sample.data = currentSampleData;
+		markSampleDataChanged(currentInstrument.sample);
 		currentInstrument.sample.length = currentSampleData.length;
 		ignoreInstrumentChange = true;
 		EventBus.trigger(EVENT.instrumentChange,Tracker.getCurrentInstrumentIndex());
@@ -1364,6 +1370,7 @@ let WaveForm = function(){
 		StateManager.registerEdit(action);
 		currentSampleData = newData;
 		currentInstrument.sample.data = newData;
+		markSampleDataChanged(currentInstrument.sample);
 		currentInstrument.sample.length = newData.length;
 		currentInstrument.sample.loop.start = Math.round(currentInstrument.sample.loop.start * targetRate / sourceRate);
 		currentInstrument.sample.loop.length = Math.round(currentInstrument.sample.loop.length * targetRate / sourceRate);

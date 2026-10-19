@@ -1,6 +1,6 @@
 import Editor from "../editor.js";
 import Tracker from "../tracker.js";
-import {MODULETYPE} from "../enum.js";
+import {MODULETYPE, SETTINGS} from "../enum.js";
 import Logger from "../log.js";
 import UI from "../ui/ui.js";
 import FetchService from "../fetchService.js";
@@ -35,7 +35,7 @@ var BassoonProvider = function(){
 		var url =  baseUrl + "storage/render/" + (Tracker.inFTMode() ? "xm" : "mod");
 		var fileName = fileName || Tracker.getFileName();
 		UI.setStatus("saving file ...",true);
-		Logger.info("Rendering " + fileName);
+		if (!SETTINGS.gateDebugLogging) Logger.info("Rendering " + fileName);
 		Editor.buildBinary(Tracker.inFTMode() ? MODULETYPE.xm : MODULETYPE.mod,function(file){
 
 			//var b = new Blob([file.buffer], {type: "application/octet-stream"});
@@ -47,7 +47,7 @@ var BassoonProvider = function(){
 					processing = false;
 				}else{
 					var tempFile = result;
-					console.log(tempFile + ": converting file ...");
+					if (!SETTINGS.gateDebugLogging) console.log(tempFile + ": converting file ...");
 					UI.setStatus("rendering file ...",true);
 					url =  baseUrl + "storage/convert/" + tempFile;
 					FetchService.sendBinary(url,file.buffer,function(result){
@@ -58,7 +58,7 @@ var BassoonProvider = function(){
 						}else{
 							tempFile = result;
 							if (toMp3){
-								console.log(tempFile + ": converting to mp3");
+								if (!SETTINGS.gateDebugLogging) console.log(tempFile + ": converting to mp3");
 								UI.setStatus("Converting file to mp3...",true);
 								url =  baseUrl + "storage/wavtomp3/" + tempFile;
 								FetchService.sendBinary(url,file.buffer,function(result){
@@ -96,7 +96,7 @@ var BassoonProvider = function(){
 			if (p>=0) hasExtention = filename.substr(p+1).toLowerCase() === extention.toLowerCase();
 			if (!hasExtention) filename += "." + extention;
 		}
-        console.log("Downloading " + url + " as " + filename);
+        if (!SETTINGS.gateDebugLogging) console.log("Downloading " + url + " as " + filename);
 		UI.setStatus("Downloading ...");
 		processing = false;
 		setTimeout(function(){

@@ -2,6 +2,7 @@ var Sample = function(){
 	var me = {};
 
 	me.data = [];
+	me.dataRevision = 0;
 	me.length = 0;
 	me.name = "";
 	me.bits = 8;

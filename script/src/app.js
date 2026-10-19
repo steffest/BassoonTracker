@@ -94,7 +94,7 @@ var App = (function(){
                     EventBus.trigger(EVENT.toggleView,"piano");
                     break;
                 case COMMAND.toggleSideBar:
-                    console.log("toggle sidebar");
+                    if (!SETTINGS.gateDebugLogging) console.log("toggle sidebar");
                     Layout.hasSideBar = !Layout.hasSideBar;
                     SETTINGS.showSideBar = Layout.hasSideBar;
                     EventBus.trigger(EVENT.appLayoutChanged);

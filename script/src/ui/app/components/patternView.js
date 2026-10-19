@@ -26,6 +26,13 @@ export default class PatternView extends Panel {
     _noteCache = {};
     _noteParamCache = {};
     _lineNumberCache = {};
+    _rowCache = new Map();
+    _rowCachePattern;
+    _rowCacheLayout;
+    _rowCacheFont;
+    _rowCacheMode;
+    _maxCachedRows = 1;
+    _vuRefreshTimer = null;
 
     _range = {};
     _rangeNormalized = {};
@@ -112,7 +119,11 @@ export default class PatternView extends Panel {
                 this.onResize();
                 this.refresh();
             });
-        this.on(EVENT.songLoaded, () => { this.setHorizontalScroll(0); });
+        this.on(EVENT.songLoaded, () => {
+                this._rowCache.clear();
+                this._rowCachePattern = null;
+                this.setHorizontalScroll(0);
+            });
         this.on(EVENT.visibleTracksCountChange, () => {
                 this._startTrack = 0;
                 this.onResize();
@@ -161,6 +172,8 @@ export default class PatternView extends Panel {
     }
 
     onResize() {
+        this._rowCache.clear();
+        this._rowCacheLayout = null;
         this._trackLeft   = Layout.firstTrackOffsetLeft;
         this._margin      = Layout.trackMargin;
         this._visibleTracks = Layout.visibleTracks;
@@ -269,6 +282,14 @@ export default class PatternView extends Panel {
             const pattern = song.patterns[index];
 
             if (pattern) {
+                const trackTextPositions = [];
+                for (let j = 0; j < this._visibleTracks; j++) {
+                    trackTextPositions[j] = lineNumbersToTheLeft
+                        ? this._trackLeft + j * (Layout.trackWidth + this._margin) + ((Layout.trackWidth - textWidth) >> 1)
+                        : this._trackLeft + initialTrackTextOffset + j * Layout.trackWidth;
+                }
+                this._prepareRowCache(pattern, trackTextPositions, isTrackVisible, patternNumberLeft);
+
                 this.ctx.fillStyle = Tracker.isRecording() ? "#A50B0F" : "#202E58";
                 this.ctx.fillRect(0, this._centerLineTop, this.width, centerLineHeight);
 
@@ -313,6 +334,17 @@ export default class PatternView extends Panel {
                             isCenter = false;
                         }
 
+                        const rowHasSelection = this._hasRange && i >= this._rangeNormalized.start[0] && i <= this._rangeNormalized.end[0];
+                        // Cache a central window if a very tall/wide view exceeds the pixel budget.
+                        // Cycling more rows than fit through an LRU would otherwise miss every frame.
+                        const cacheStart = patternPos - Math.floor(this._maxCachedRows / 2);
+                        const rowFitsCache = i >= cacheStart && i < cacheStart + this._maxCachedRows;
+                        // Keep the original draw order for highlights, selection and VU overlays.
+                        if (!isCenter && !rowHasSelection && rowFitsCache) {
+                            this._renderCachedRow(i, step, drawY, trackTextPositions, isTrackVisible, patternNumberLeft);
+                            continue;
+                        }
+
                         this._renderLineNumber(i, patternNumberLeft, drawY);
                         if (isCenter) {
                             this._renderLineNumber(i, patternNumberLeft, drawY);
@@ -323,13 +355,7 @@ export default class PatternView extends Panel {
                             const trackIndex = j + this._startTrack;
                             if (isTrackVisible[trackIndex] && trackIndex < Tracker.getTrackCount()) {
                                 const note = step[trackIndex] || Note();
-                                let x;
-                                if (lineNumbersToTheLeft) {
-                                    const trackX = this._trackLeft + j * (Layout.trackWidth + this._margin);
-                                    x = trackX + ((Layout.trackWidth - textWidth) >> 1);
-                                } else {
-                                    x = this._trackLeft + initialTrackTextOffset + (j * Layout.trackWidth);
-                                }
+                                const x = trackTextPositions[j];
 
                                 if (this._hasRange && i >= this._rangeNormalized.start[0] && i <= this._rangeNormalized.end[0] && trackIndex >= this._rangeNormalized.start[1] && trackIndex <= this._rangeNormalized.end[1]) {
                                     this._range.top  = Math.min(this._range.top, drawY - 2);
@@ -349,10 +375,13 @@ export default class PatternView extends Panel {
                             }
                         }
 
-                        if (this._hasVU) {
-                            setTimeout(() => { this.refresh(); }, 20);
-                        }
                     }
+                }
+                if (this._hasVU && this._vuRefreshTimer === null) {
+                    this._vuRefreshTimer = setTimeout(() => {
+                        this._vuRefreshTimer = null;
+                        if (this.isVisible()) this.refresh();
+                    }, 20);
                 }
             }
 
@@ -568,7 +597,57 @@ export default class PatternView extends Panel {
     }
 
 
-    _renderNote(note, x, y) {
+    _prepareRowCache(pattern, trackTextPositions, isTrackVisible, patternNumberLeft) {
+        if (this._rowCacheFont !== this._font || this._rowCacheMode !== this._displayVolume) {
+            this._rowCache.clear();
+        }
+        const visibility = trackTextPositions.map((x, j) => isTrackVisible[this._startTrack + j] ? 1 : 0);
+        const layout = [this.canvas.width, this._lineHeight, this._startTrack, this._visibleTracks,
+            Tracker.getTrackCount(), patternNumberLeft, this._font.charWidth, this._font.charHeight,
+            trackTextPositions.join(","), visibility.join(",")].join("|");
+        if (this._rowCachePattern !== pattern || this._rowCacheLayout !== layout) this._rowCache.clear();
+        this._rowCachePattern = pattern;
+        this._rowCacheLayout = layout;
+        this._rowCacheFont = this._font;
+        this._rowCacheMode = this._displayVolume;
+        // At most two viewports of rows, with a 4 MiB budget for their pixel data.
+        this._maxCachedRows = Math.max(1, Math.min(this._visibleLines * 2,
+            Math.floor(4 * 1024 * 1024 / (this.canvas.width * this._lineHeight * 4))));
+    }
+
+    _renderCachedRow(row, step, y, trackTextPositions, isTrackVisible, patternNumberLeft) {
+        let key = "";
+        for (let j = 0; j < this._visibleTracks; j++) {
+            const track = this._startTrack + j;
+            if (!isTrackVisible[track] || track >= Tracker.getTrackCount()) continue;
+            const note = step[track];
+            key += note ? "|" + [note.period, note.index, note.instrument, note.volumeEffect, note.effect, note.param].join(",") : "|-";
+        }
+        let cached = this._rowCache.get(row);
+        if (!cached || cached.key !== key) {
+            const canvas = cached ? cached.canvas : document.createElement("canvas");
+            canvas.width = this.canvas.width;
+            canvas.height = this._lineHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.imageSmoothingEnabled = false;
+            this._renderLineNumber(row, patternNumberLeft, 0, ctx);
+            for (let j = 0; j < this._visibleTracks; j++) {
+                const track = this._startTrack + j;
+                if (!isTrackVisible[track] || track >= Tracker.getTrackCount()) continue;
+                const note = step[track] || Note();
+                this._renderNote(note, trackTextPositions[j], 0, ctx);
+                this._renderNoteParam(note, trackTextPositions[j], 0, ctx);
+            }
+            cached = {canvas, key};
+        }
+        // Refresh insertion order so eviction follows the scrolling viewport.
+        this._rowCache.delete(row);
+        this._rowCache.set(row, cached);
+        while (this._rowCache.size > this._maxCachedRows) this._rowCache.delete(this._rowCache.keys().next().value);
+        this.ctx.drawImage(cached.canvas, 0, y);
+    }
+
+    _renderNote(note, x, y, ctx = this.ctx) {
         let id;
         if (Tracker.inFTMode()) {
             id = "i" + note.index + "." + this._font.charWidth;
@@ -606,10 +685,10 @@ export default class PatternView extends Panel {
             this._noteCache[id] = canvas;
         }
 
-        this.ctx.drawImage(this._noteCache[id], x, y);
+        ctx.drawImage(this._noteCache[id], x, y);
     }
 
-    _renderNoteParam(note, x, y) {
+    _renderNoteParam(note, x, y, ctx = this.ctx) {
         x += (this._font.charWidth * 3) + 4;
         const id = "n" + note.instrument + "." + (this._displayVolume ? note.volumeEffect : "") + "." + note.effect + "." + note.param + "." + this._font.charWidth;
 
@@ -650,7 +729,7 @@ export default class PatternView extends Panel {
             this._noteParamCache[id] = canvas;
         }
 
-        this.ctx.drawImage(this._noteParamCache[id], x, y);
+        ctx.drawImage(this._noteParamCache[id], x, y);
     }
 
     _renderVU(note, x, y, track, index) {
@@ -684,7 +763,7 @@ export default class PatternView extends Panel {
         }
     }
 
-    _renderLineNumber(nr, x, y) {
+    _renderLineNumber(nr, x, y, ctx = this.ctx) {
         const ti = (nr < 10 ? "0" : "") + nr;
         const id = ti + "." + this._font.charWidth;
 
@@ -697,7 +776,7 @@ export default class PatternView extends Panel {
             this._lineNumberCache[id] = canvas;
         }
 
-        this.ctx.drawImage(this._lineNumberCache[id], x, y);
+        ctx.drawImage(this._lineNumberCache[id], x, y);
     }
 
     _drawText(t, x, y, color) {

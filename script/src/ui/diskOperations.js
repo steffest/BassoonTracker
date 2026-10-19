@@ -10,7 +10,7 @@ import Button from "./components/button.js";
 import Label from "./components/label.js";
 import Y from "./yascal/yascal.js";
 import EventBus from "../eventBus.js";
-import {COMMAND, EVENT, FILETYPE} from "../enum.js";
+import {COMMAND, EVENT, FILETYPE, SETTINGS} from "../enum.js";
 import Tracker from "../tracker.js";
 import UI from "./ui.js";
 import FetchService from "../fetchService.js";
@@ -521,7 +521,7 @@ let DiskOperations = function(){
 								populate(data,0);
 							});
 						}else{
-							console.log("Dropbox not connected");
+							if (!SETTINGS.gateDebugLogging) console.log("Dropbox not connected");
 							Dropbox.showConnectDialog();
 						}
 					});
@@ -611,7 +611,7 @@ let DiskOperations = function(){
 					var item = listbox.getItemAtPosition(listbox.eventX,listbox.eventY);
 					listbox.setSelectedIndex(index);
 					Hippo.get("playlist/" + item.data.url,function(data){
-						console.log(data);
+						if (!SETTINGS.gateDebugLogging) console.log(data);
 						Playlist.set(data);
 						App.doCommand(COMMAND.showTopMain);
 					});
@@ -688,7 +688,7 @@ let DiskOperations = function(){
 			if (item.children.length){
 				me.refreshList();
 			}else{
-				console.log("load children from " + item.url);
+				if (!SETTINGS.gateDebugLogging) console.log("load children from " + item.url);
 				item.children = [{title: "loading ..."}];
 
 				me.refreshList();
@@ -722,7 +722,7 @@ let DiskOperations = function(){
         }
         if (typeof target === "undefined") target = targetPanel.getTarget();
 
-        console.log(target);
+        if (!SETTINGS.gateDebugLogging) console.log(target);
 
     	if (action === "save"){
             currentAction = "save";

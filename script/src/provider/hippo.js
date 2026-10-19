@@ -1,4 +1,5 @@
 
+import {SETTINGS} from "../enum.js";
 import FetchService from "../fetchService.js";
 
 var Hippo = function(){
@@ -48,7 +49,7 @@ var Hippo = function(){
 
 
     function loadFromApi(url,next){
-        console.log("load from api " + apiUrl + url);
+        if (!SETTINGS.gateDebugLogging) console.log("load from api " + apiUrl + url);
         FetchService.json(apiUrl + url,function(data){
             next(data);
         })

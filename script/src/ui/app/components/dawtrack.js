@@ -1,7 +1,7 @@
 import Audio from "../../../audio.js";
 import Tracker from "../../../tracker.js";
 import EventBus from "../../../eventBus.js";
-import {EVENT} from "../../../enum.js";
+import {EVENT, SETTINGS} from "../../../enum.js";
 import Y from "../../yascal/yascal.js";
 import Panel from "../../components/panel.js";
 import Button from "../../components/button.js";
@@ -95,7 +95,7 @@ function getWaveformCanvas(instrumentIdx, height, colorIndex) {
 }
 
 function createTrackControls(getHandlers, trackIdx) {
-    console.error("Creating controls for track", trackIdx);
+    if (!SETTINGS.gateDebugLogging) console.error("Creating controls for track", trackIdx);
     var panel = new Panel(0, 0, CTRL_WIDTH, 1);
     var controlImg = Y.getImage("dawcontrols");
     var layoutTrackHeight = -1;

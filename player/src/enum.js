@@ -324,6 +324,10 @@ export var TRACKERMODE = {
 };
 
 export var SETTINGS = {
+	gateDebugLogging: true, // Suppress runtime debug output; false restores it.
 	stereoSeparation: STEREOSEPARATION.BALANCED,
 	emulateProtracker1OffsetBug: true
 };
+
+// Share the same live setting with classic plugin and host scripts.
+if (typeof window !== "undefined" && !window.BassoonTrackerSettings) window.BassoonTrackerSettings = SETTINGS;

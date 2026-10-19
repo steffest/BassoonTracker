@@ -1,3 +1,4 @@
+import {SETTINGS} from "../enum.js";
 import FetchService from "../fetchService.js";
 import {formatFileSize} from "../lib/util.js";
 
@@ -57,7 +58,7 @@ var ModulesPl = function(){
 			loadFromApi("artists",function(result){
 				if (result){
 					result.forEach(function(artist){
-						console.log(artist);
+						if (!SETTINGS.gateDebugLogging) console.log(artist);
 						var item = {title: artist.handle, info:  artist.count + " >", url : "artist/" + artist.id ,children : []};
 						artists.push(item);
 					});
@@ -95,7 +96,7 @@ var ModulesPl = function(){
 	}
 
 	function loadFromApi(url,next){
-		console.log("load from api " + apiUrl + url);
+		if (!SETTINGS.gateDebugLogging) console.log("load from api " + apiUrl + url);
 		FetchService.json(apiUrl + url,function(data){
 			next(data);
 		})

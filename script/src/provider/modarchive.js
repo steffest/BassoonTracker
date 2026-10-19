@@ -1,3 +1,4 @@
+import {SETTINGS} from "../enum.js";
 import FetchService from "../fetchService.js";
 import {formatFileSize} from "../lib/util.js";
 
@@ -61,7 +62,7 @@ var ModArchive = function(){
 				if (result){
 					var children = {};
                     result.forEach(function(genre){
-                        console.log(genre);
+                        if (!SETTINGS.gateDebugLogging) console.log(genre);
                         if (genre.parent){
                             var item = {title: genre.name, count: genre.count, info: genre.count + " >", children : [],url: "genre/" + genre.id};
                         	if (!children[genre.parent])children[genre.parent]=[];
@@ -105,14 +106,14 @@ var ModArchive = function(){
     }
 
 	function loadFromApi(url,next){
-        console.log("load from api " + apiUrl + url);
+        if (!SETTINGS.gateDebugLogging) console.log("load from api " + apiUrl + url);
         FetchService.json(apiUrl + url,function(data){
             next(data);
         })
     }
 
     function loadFromApiV1(url,next){
-        console.log("load from api " + apiUrl + url);
+        if (!SETTINGS.gateDebugLogging) console.log("load from api " + apiUrl + url);
         FetchService.json(apiUrlV1 + url,function(data){
             if (data && data.modarchive) data = data.modarchive;
             next(data);

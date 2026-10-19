@@ -45,7 +45,7 @@ export function detectSampleType(file,sample,next){
 			}
 			break;
 		default:
-			console.log('Unknown sample format, expect RAW_8BIT:', sample.info)
+			if (!SETTINGS.gateDebugLogging) console.log('Unknown sample format, expect RAW_8BIT:', sample.info)
 			break;
 	}
 
@@ -65,7 +65,7 @@ export function decodeFileWithAudioContext(file,sample,next){
 	// need to use original samplerate, not the one defined in users OS/Browser
 	Audio.converter = new AudioContext( {sampleRate: sample.info.sampleRate} );
 	if (Audio.converter.sampleRate !== sample.info.sampleRate) {
-		console.log('Could not initiate desired sampleRate of '+ sample.info.sampleRate +' instead got '+ Audio.converter.sampleRate);
+		if (!SETTINGS.gateDebugLogging) console.log('Could not initiate desired sampleRate of '+ sample.info.sampleRate +' instead got '+ Audio.converter.sampleRate);
 	}
 	Audio.converter.decodeAudioData(
 			file.buffer,

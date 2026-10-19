@@ -510,6 +510,7 @@ export var TRACKERMODE = {
 };
 
 export var SETTINGS = {
+	gateDebugLogging: true, // Suppress runtime debug output; false restores it.
 	// Features added since the compiled live/ snapshot. Reload after changing.
 	enableHorizontalView: false,
 	enableWideLayout: false,
@@ -517,6 +518,7 @@ export var SETTINGS = {
 	enableXIInstruments: false,
 	enableAIFFImport: false,
 	enableRememberLayout: false,
+	enableMinMaxScopes: true, // Approximate dense scope traces using per-column extrema.
 
 	unrollLoops: false,
 	unrollShortLoops: false, // Note: the conversion between byte_length loops (amiga) and time-based loops (Web Audio) is not 100% accurate for very short loops
@@ -535,3 +537,6 @@ export var SETTINGS = {
 	showPiano: false,
 	patternViewMode: "vertical",
 };
+
+// Share the same live setting with classic plugin and host scripts.
+if (typeof window !== "undefined") window.BassoonTrackerSettings = SETTINGS;

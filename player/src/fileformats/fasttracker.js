@@ -1,6 +1,6 @@
 import Tracker from "../tracker.js";
 import EventBus from "../eventBus.js";
-import {EVENT, LOOPTYPE, TRACKERMODE} from "../enum.js";
+import {EVENT, LOOPTYPE, TRACKERMODE, SETTINGS} from "../enum.js";
 import Note from "../models/note.js";
 import Instrument from "../models/instrument.js";
 import Sample from "../models/sample.js";
@@ -11,7 +11,7 @@ var FastTracker = function(){
     // see ftp://ftp.modland.com/pub/documents/format_documentation/FastTracker%202%20v2.04%20(.xm).html
     me.load = function(file){
 
-        console.log("loading FastTracker");
+        if (!SETTINGS.gateDebugLogging) console.log("loading FastTracker");
         Tracker.setTrackerMode(TRACKERMODE.FASTTRACKER,true);
 		Tracker.clearInstruments(1);
 
@@ -46,7 +46,7 @@ var FastTracker = function(){
         mod.defaultTempo = file.readWord();
         mod.defaultBPM = file.readWord();
 
-        console.log("File was made in " + mod.trackerName + " version " + mod.trackerVersion);
+        if (!SETTINGS.gateDebugLogging) console.log("File was made in " + mod.trackerName + " version " + mod.trackerVersion);
 
 
         var patternTable = [];
@@ -244,7 +244,7 @@ var FastTracker = function(){
                     sample.loop.enabled = !!sample.loop.type;
 
                     // sample data
-                    console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + (sample.bits === 16 ? " words" : " bytes") +  " and repeat length of " + sample.loop.length);
+                    if (!SETTINGS.gateDebugLogging) console.log("Reading sample from 0x" + file.index + " with length of " + sample.length + (sample.bits === 16 ? " words" : " bytes") +  " and repeat length of " + sample.loop.length);
                     var sampleEnd = sample.length;
 
 

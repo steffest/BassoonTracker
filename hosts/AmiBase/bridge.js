@@ -1,6 +1,6 @@
 import Tracker from "../../script/src/tracker.js";
 import Host from "../../script/src/host.js";
-import {COMMAND} from "../../script/src/enum.js";
+import {COMMAND, SETTINGS} from "../../script/src/enum.js";
 import App from "../../script/src/app.js";
 
 var HostBridge = function(){
@@ -15,11 +15,11 @@ var HostBridge = function(){
     me.init = function(){
 
         AmiBase.init(function(success) {
-            console.log("Amibased: " + success);
+            if (!SETTINGS.gateDebugLogging) console.log("Amibased: " + success);
 
             if (success){
                 AmiBase.setMessageHandler(function(message){
-                    console.error(message);
+                    if (!SETTINGS.gateDebugLogging) console.error(message);
                     var command = message.message;
                     if (!command) return;
                     if (command.indexOf("bsn_")>=0) command=command.replace("bsn_","");
@@ -31,7 +31,7 @@ var HostBridge = function(){
                             AmiBase.requestFile(true).then(data=>{
                                 var buffer = data.data;
                                 var fileName = data.filename || "file";
-                                console.log("opening file",data);
+                                if (!SETTINGS.gateDebugLogging) console.log("opening file",data);
                                 Tracker.processFile(buffer,fileName,function(isMod){
                                     if (UI) UI.setStatus("Ready");
                                 });
@@ -44,7 +44,7 @@ var HostBridge = function(){
                                 // we already have the binary data
                                 var buffer = message.data.data;
                                 var fileName = message.data.filename || "file";
-                                console.log("opening file",fileName);
+                                if (!SETTINGS.gateDebugLogging) console.log("opening file",fileName);
                                 Tracker.processFile(buffer,fileName,function(isMod){
                                     if (UI) UI.setStatus("Ready");
                                 });

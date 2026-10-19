@@ -1,3 +1,4 @@
+import {SETTINGS} from "../enum.js";
 import Host from "../host.js";
 import FetchService from "../fetchService.js";
 import App from "../app.js"
@@ -393,7 +394,7 @@ let Assets = (function(){
 		me.buttonDaw.img = Y.getImage("dawbutton");
 		me.buttonDawActive.img = Y.getImage("dawbutton_active");
 
-		console.log("Assets init done");
+		if (!SETTINGS.gateDebugLogging) console.log("Assets init done");
 
 	};
 
@@ -406,7 +407,7 @@ let Assets = (function(){
 			var asset = assetsInfo[name];
 			if (asset){
 				if (asset.isLoading){
-					console.log("Asset " + name + " is not ready yet, still loading");
+					if (!SETTINGS.gateDebugLogging) console.log("Asset " + name + " is not ready yet, still loading");
 					return undefined;
 				}else{
 					asset.isLoading = true;

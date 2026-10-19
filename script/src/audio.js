@@ -1,3 +1,4 @@
+import {getSampleBuffer} from "./audio/sampleBuffer.js";
 import {
     AMIGA_PALFREQUENCY_HALF,
     EVENT,
@@ -220,7 +221,7 @@ var Audio = (function(){
 			scheduledNotes[index] = [];
         });
 
-        if (totalNotes) console.log(totalNotes + " cleared");
+        if (totalNotes) { if (!SETTINGS.gateDebugLogging) console.log(totalNotes + " cleared"); }
     };
 
     me.checkState = function(){
@@ -298,17 +299,12 @@ var Audio = (function(){
                     offset = effects.offset.value/audioContext.sampleRate; // in seconds
                 }
                 // note - on safari you can't set a different samplerate?
-                sampleBuffer = audioContext.createBuffer(1, sampleLength,audioContext.sampleRate);
                 initialPlaybackRate = sampleRate / audioContext.sampleRate;
             }else {
                 // empty samples are often used to cut of the previous instrument
-                sampleBuffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
                 offset = 0;
             }
-            var buffering = sampleBuffer.getChannelData(0);
-            for(i=0; i < sampleLength; i++) {
-                buffering[i] = instrument.sample.data[i];
-            }
+            sampleBuffer = getSampleBuffer(audioContext, instrument.sample);
 
 			prevSampleRate = sampleRate;
             var source = audioContext.createBufferSource();
@@ -538,7 +534,7 @@ var Audio = (function(){
     me.startRendering = function(length){
         isRendering = true;
 
-        console.log("startRendering " + length);
+        if (!SETTINGS.gateDebugLogging) console.log("startRendering " + length);
         offlineContext = new OfflineAudioContext(2,44100*length,44100);
         onlineContext = context;
         me.context = offlineContext;
@@ -564,10 +560,10 @@ var Audio = (function(){
         isRendering = false;
 
         offlineContext.startRendering().then(function(renderedBuffer) {
-            console.log('Rendering completed successfully');
+            if (!SETTINGS.gateDebugLogging) console.log('Rendering completed successfully');
             if (next) next(renderedBuffer);
         }).catch(function(err) {
-            console.log('Rendering failed: ' + err);
+            console.error('Rendering failed: ' + err);
             // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
         });
 

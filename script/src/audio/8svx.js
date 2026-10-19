@@ -1,7 +1,8 @@
+import {SETTINGS} from "../enum.js";
 export function read8SVXsample(file,sample){
 	// format description on http://wiki.amigaos.net/wiki/8SVX_IFF_8-Bit_Sampled_Voice
 
-	console.log("reading 8SVX sample");
+	if (!SETTINGS.gateDebugLogging) console.log("reading 8SVX sample");
 
 	var oneShotHiSamples = 0;
 	var repeatHiSamples = 0;

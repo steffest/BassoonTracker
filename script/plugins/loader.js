@@ -1,3 +1,4 @@
+import {SETTINGS} from "../src/enum.js";
 import Y from "../src/ui/yascal/yascal.js";
 import sprite from "../src/ui/yascal/sprite.js";
 import Host from "../src/host.js";
@@ -8,7 +9,7 @@ var Plugin = function(){
 	var plugins = {};
 
 	me.register = function(plugin){
-		console.log("register",plugin);
+		if (!SETTINGS.gateDebugLogging) console.log("register",plugin);
 		plugins[plugin.name] = plugin;
 	};
 
@@ -22,7 +23,7 @@ var Plugin = function(){
 
 		var loadedPlugin = plugins[manifest.name];
 		if (loadedPlugin && loadedPlugin.loaded){
-			console.log("Plugin already loaded");
+			if (!SETTINGS.gateDebugLogging) console.log("Plugin already loaded");
 			if (next) next(loadedPlugin.module,loadedPlugin);
 			return Promise.resolve(loadedPlugin.module);
 		}
@@ -41,7 +42,7 @@ var Plugin = function(){
 		};
 		plugins[manifest.name] = loadedPlugin;
 
-		console.log("loading Plugin " + manifest.name);
+		if (!SETTINGS.gateDebugLogging) console.log("loading Plugin " + manifest.name);
 		loadedPlugin.loading = Promise.all([
 			loadAssets(manifest),
 			loadModule(manifest)
@@ -50,7 +51,7 @@ var Plugin = function(){
 			loadedPlugin.module = module.default || module;
 			loadedPlugin.loaded = true;
 			loadedPlugin.loading = null;
-			console.log("loaded",loadedPlugin);
+			if (!SETTINGS.gateDebugLogging) console.log("loaded",loadedPlugin);
 			if (loadedPlugin.onLoad) loadedPlugin.onLoad(loadedPlugin.module,loadedPlugin);
 			if (next) next(loadedPlugin.module,loadedPlugin);
 			return loadedPlugin.module;

@@ -1,5 +1,5 @@
 import Audio from "../audio.js";
-import {cachedAssets, PRELOADTYPE} from "../enum.js";
+import {cachedAssets, PRELOADTYPE, SETTINGS} from "../enum.js";
 import PreLoader from "../preloader.js";
 
 let FilterChain = (function(filters) {
@@ -318,7 +318,7 @@ let FilterChain = (function(filters) {
     me.compressionValue = function(value) {
     // compressor.threshold.setValueAtTime(50 * (1-value/100)-50, context.currentTime );
     compressor.ratio.setValueAtTime(4 * value/100+1, context.currentTime);
-    console.log(value, compressor.threshold, compressor.ratio, compressor.attack, compressor.release)
+    if (!SETTINGS.gateDebugLogging) console.log(value, compressor.threshold, compressor.ratio, compressor.attack, compressor.release)
     };
 
     me.reverbValue = function(value) {

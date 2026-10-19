@@ -109,7 +109,7 @@ var UI = (function(){
 
 		Assets.preLoad(function(){
 			//if (debug) UI.measure("UI sprites");
-			console.log("UI assets loaded");
+			if (!SETTINGS.gateDebugLogging) console.log("UI assets loaded");
 			initAssets();
 			Input.init();
 
@@ -149,7 +149,7 @@ var UI = (function(){
 	};
 
 	me.initPlugin = function(config){
-		console.log("init plugin");
+		if (!SETTINGS.gateDebugLogging) console.log("init plugin");
 		if (config.canvas){
 			canvas = config.canvas;
 		}else{
@@ -171,7 +171,7 @@ var UI = (function(){
 		window.buildNumber = Math.random();
 		Assets.preLoad(function(){
 
-			console.log("UI assets loaded");
+			if (!SETTINGS.gateDebugLogging) console.log("UI assets loaded");
 			initAssets();
 			render();
 
@@ -326,7 +326,7 @@ var UI = (function(){
                 if (fpsList.length>20) fpsList.shift();
                 
                 if (!fpsCalculated && fpsList.length>5){
-					Logger.info("init " + Math.round(endMeasure));
+					if (!SETTINGS.gateDebugLogging) Logger.info("init " + Math.round(endMeasure));
 					fpsCalculated = true;
 				}
                 
@@ -572,7 +572,7 @@ var UI = (function(){
 		if (Audio.context){
 			var time = (Audio.context.currentTime - currentMeasure) * 1000;
 			currentMeasure = Audio.context.currentTime;
-			console.warn(message + ": " + time);
+			if (!SETTINGS.gateDebugLogging) console.warn(message + ": " + time);
 		}
 	}
 	me.endMeasure = function(){
@@ -594,7 +594,7 @@ var UI = (function(){
 	};
 
 	me.skipFrame = function(value){
-		console.log("Setting SkipFrame to " + value);
+		if (!SETTINGS.gateDebugLogging) console.log("Setting SkipFrame to " + value);
 		skipRenderSteps = value;
 		SETTINGS.skipFrame = value;
 		EventBus.trigger(EVENT.skipFrameChanged,skipRenderSteps);
