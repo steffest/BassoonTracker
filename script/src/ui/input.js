@@ -381,11 +381,7 @@ let Input = (function(){
 						EventBus.trigger(EVENT.sampleEditorTogglePlayback);
 						return;
 					}
-					if (isMetaKeyDown){
-						Tracker.toggleRecord();
-					}else{
-						Tracker.togglePlay();
-					}
+					Tracker.toggleRecord();
                     return;
                 case "PageUp":
                     var step = Math.floor(Tracker.getPatternLength()/4);
