@@ -1,6 +1,6 @@
 import Tracker from "../tracker.js";
 import EventBus from "../eventBus.js";
-import {EVENT, LOOPTYPE, TRACKERMODE, SETTINGS} from "../enum.js";
+import {EVENT, LOOPTYPE, TRACKERMODE, SETTINGS, NOTEOFF} from "../enum.js";
 import {BinaryStream} from "../filesystem.js"
 import Note from "../models/note.js";
 import Instrument from "../models/instrument.js";
@@ -400,7 +400,8 @@ var FastTracker = function(){
                     var row = thisPattern[step];
                     for (var channel=0; channel<trackCount;channel++){
                         var note = row[channel] || {};
-                        file.writeUByte(note.index || 0);
+                        // XM uses 97 for key-off; the internal NOTEOFF value is a packing flag on disk.
+                        file.writeUByte(note.index === NOTEOFF ? 97 : (note.index || 0));
                         file.writeUByte(note.instrument || 0);
                         file.writeUByte(note.volumeEffect || 0);
                         file.writeUByte(note.effect || 0);
